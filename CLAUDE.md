@@ -106,3 +106,13 @@ Load only when a phase instructs it or you explicitly need it.
 | `references/progress-tracking.md` | Formatting or compacting PROGRESS.md |
 
 All reference files are in `.claude/references/`.
+
+---
+
+## NotebookLM
+
+**Notebook:** factor-io-web Docs
+**ID:** `c03ca4e9-c81e-498f-aa56-38675b140280`
+**URL:** https://notebooklm.google.com/notebook/c03ca4e9-c81e-498f-aa56-38675b140280
+
+Sources: none yet — upload `docs/reference/` files as project stack is defined.

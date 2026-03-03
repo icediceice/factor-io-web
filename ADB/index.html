@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blink Setup</title>
+  <style>
+    :root {
+      --bg:        #0F0F12;
+      --surface:   #16161A;
+      --surface2:  #1C1C22;
+      --surface3:  #222228;
+      --amber:     #D4A853;
+      --amber-dim: rgba(212, 168, 83, 0.1);
+      --amber-border: rgba(212, 168, 83, 0.22);
+      --sage:      #6EE7A0;
+      --sage-dim:  rgba(110, 231, 160, 0.08);
+      --sage-border: rgba(110, 231, 160, 0.25);
+      --error:     #F87171;
+      --error-dim: rgba(248, 113, 113, 0.08);
+      --warn:      #FB923C;
+      --warn-dim:  rgba(251, 146, 60, 0.08);
+      --text:      #E4E4E8;
+      --secondary: #9494A0;
+      --border:    #2A2A32;
+      --radius:    12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Card shell ──────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 548px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* ── Card header — logo + progress ──────────────────────── */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      background: #1A1A2E;
+      border-radius: 7px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .logo-wordmark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-name {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .logo-divider {
+      width: 1px;
+      height: 10px;
+      background: var(--border);
+    }
+
+    .logo-context {
+      font-size: 0.8125rem;
+      color: var(--secondary);
+    }
+
+    /* ── Step progress dots ──────────────────────────────────── */
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0;
+      position: relative;
+      min-width: 88px;
+    }
+
+    /* Connecting line behind dots */
+    .step-indicator::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      top: 50%;
+      height: 1px;
+      background: var(--border);
+      transform: translateY(-50%);
+    }
+
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+
+    .step-dot.active {
+      background: var(--amber);
+      border-color: var(--amber);
+      transform: scale(1.25);
+    }
+
+    .step-dot.done {
+      background: var(--sage);
+      border-color: var(--sage);
+    }
+
+    /* ── Card body ───────────────────────────────────────────── */
+    .card-body {
+      padding: 28px;
+    }
+
+    /* ── Screen visibility ───────────────────────────────────── */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* ── Screen heading ──────────────────────────────────────── */
+    h2 {
+      font-size: 1.1875rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 0.9375rem;
+      color: var(--secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    p:last-of-type { margin-bottom: 0; }
+
+    p strong { color: var(--text); font-weight: 600; }
+
+    /* ── Ordered list ────────────────────────────────────────── */
+    ol {
+      padding-left: 20px;
+      color: var(--secondary);
+      font-size: 0.9375rem;
+      line-height: 1;
+    }
+
+    ol li {
+      line-height: 1.6;
+      padding: 4px 0;
+    }
+
+    ol li strong { color: var(--text); font-weight: 600; }
+
+    /* ── Inline code ─────────────────────────────────────────── */
+    code {
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.8125rem;
+      background: var(--surface2);
+      color: var(--amber);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* ── Status messages ─────────────────────────────────────── */
+    .status {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 2px solid transparent;
+      margin-top: 12px;
+    }
+
+    .status.info    { background: var(--surface2);   color: var(--secondary); border-left-color: var(--border);       }
+    .status.success { background: var(--sage-dim);   color: var(--sage);      border-left-color: var(--sage-border);  }
+    .status.error   { background: var(--error-dim);  color: var(--error);     border-left-color: var(--error);        }
+    .status.warn    { background: var(--amber-dim);  color: var(--amber);     border-left-color: var(--amber-border); }
+
+    /* ── Compat error — full-card ────────────────────────────── */
+    .compat-error {
+      display: none;
+      background: var(--error-dim);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-left: 2px solid var(--error);
+      color: var(--error);
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    .compat-error strong { color: var(--text); }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+      margin-top: 12px;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    .btn:hover:not(:disabled) { opacity: 0.85; }
+    .btn:disabled { opacity: 0.35; cursor: default; }
+
+    .btn-primary {
+      background: var(--amber);
+      color: #0F0F12;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--secondary);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--surface2);
+      opacity: 1;
+    }
+
+    .btn-success {
+      background: var(--sage-dim);
+      border: 1px solid var(--sage-border);
+      color: var(--sage);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: rgba(110, 231, 160, 0.14);
+      opacity: 1;
+    }
+
+    /* ── Consent blocks ──────────────────────────────────────── */
+    .consent-block {
+      background: var(--surface2);
+      border-left: 2px solid var(--border);
+      border-radius: 0 10px 10px 0;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    .consent-block h3 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .consent-block p {
+      margin-bottom: 12px;
+    }
+
+    .consent-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .consent-actions .btn {
+      margin-top: 0;
+      flex: 1;
+    }
+
+    /* ── Tags ────────────────────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    .tag-free { background: var(--amber-dim); color: var(--amber); }
+    .tag-skip { background: var(--surface);   color: var(--secondary); border: 1px solid var(--border); }
+    .tag-done { background: var(--sage-dim);  color: var(--sage); }
+    .tag-dep  { background: var(--warn-dim);  color: var(--warn); }
+
+    /* ── Manual fallback section ─────────────────────────────── */
+    .manual-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .manual-section h2 { margin-bottom: 8px; }
+
+    .manual-cmds-block {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.8125rem;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+
+    /* ── Connect log ─────────────────────────────────────────── */
+    .connect-log {
+      display: none;
+      margin-top: 8px;
+      background: var(--surface2);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.75rem;
+      color: var(--secondary);
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    /* ── Spacer after paragraphs when followed by list ────────── */
+    p + ol { margin-top: 4px; }
+
+    /* ── Mobile ──────────────────────────────────────────────── */
+    @media (max-width: 560px) {
+      body { padding: 16px; align-items: flex-start; padding-top: 32px; }
+      .card-header { padding: 14px 20px; }
+      .card-body   { padding: 20px; }
+      .logo-context { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- ── Card header: logo + step progress ──────────────────── -->
+  <div class="card-header">
+    <div class="logo-area">
+      <div class="logo-mark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="28" height="28">
+          <defs>
+            <radialGradient id="iris" cx="54" cy="60" r="12" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#C4B5FD"/>
+              <stop offset="100%" stop-color="#4C1D95"/>
+            </radialGradient>
+          </defs>
+          <path fill="#EEF0FF" d="M20,54 Q37,40 54,39 Q71,40 88,54 Q71,68 54,69 Q37,68 20,54 Z"/>
+          <path fill="url(#iris)" d="M42,60 A12,12 0,1,0 66,60 A12,12 0,1,0 42,60 Z"/>
+          <circle fill="#08081A" cx="54" cy="60" r="5.5"/>
+          <circle fill="rgba(255,255,255,0.44)" cx="60" cy="56.5" r="2.5"/>
+          <path fill="#1A1A2E" d="M20,54 Q37,40 54,39 Q71,40 88,54 Q71,57 54,58 Q37,57 20,54 Z"/>
+          <path fill="none" stroke="#0D0D38" stroke-width="1.8" d="M20,54 Q37,57 54,58 Q71,57 88,54"/>
+        </svg>
+      </div>
+      <div class="logo-wordmark">
+        <span class="logo-name">Blink</span>
+        <div class="logo-divider"></div>
+        <span class="logo-context">Setup</span>
+      </div>
+    </div>
+    <div class="step-indicator" id="step-dots" style="display:none">
+      <div class="step-dot" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div>
+    </div>
+  </div>
+
+  <!-- ── Card body ──────────────────────────────────────────── -->
+  <div class="card-body">
+
+    <!-- WebUSB compat error -->
+    <div id="compat-error" class="compat-error">
+      WebUSB is not supported in this browser. Open this page in
+      <strong>Chrome</strong> or <strong>Edge</strong> on a desktop computer.
+    </div>
+
+    <!-- ── Screen 0: Welcome ────────────────────────────────── -->
+    <div class="step active" id="screen-welcome">
+      <h2>Welcome</h2>
+      <p>
+        This guided setup unlocks optional Blink features that require a
+        one-time connection from your computer. All steps are optional — skip
+        anything you don't need.
+      </p>
+      <p><strong>What you'll set up:</strong></p>
+      <ol>
+        <li>Banking Mode &amp; Auto-Recovery — keeps screen protection alive</li>
+        <li>Screen Protection Service — auto-intercept when protected apps open</li>
+        <li>Banking Mode — auto-pause accessibility for banking apps</li>
+      </ol>
+      <p style="margin-top:16px"><strong>Requirements:</strong> Chrome or Edge on desktop, USB cable, phone unlocked.</p>
+      <button class="btn btn-primary" id="btn-to-usb">Get Started</button>
+    </div>
+
+    <!-- ── Screen 1: USB Debugging ──────────────────────────── -->
+    <div class="step" id="screen-usb">
+      <h2>Enable USB Debugging</h2>
+      <p>Enable USB Debugging on your Android phone so your computer can communicate with it.</p>
+      <ol>
+        <li>Open <strong>Settings → About phone</strong></li>
+        <li>Tap <strong>Software information</strong> (Samsung) or similar</li>
+        <li>Tap <strong>Build number</strong> 7 times to unlock Developer Options</li>
+        <li>Go back to <strong>Settings → Developer options</strong></li>
+        <li>Enable <strong>USB debugging</strong></li>
+        <li>Connect your phone with a USB cable</li>
+        <li>In the notification bar tap the USB connection and select <strong>File Transfer (MTP)</strong></li>
+        <li>On your phone tap <strong>Allow</strong> on the USB debugging prompt</li>
+      </ol>
+      <div class="status warn" style="margin-top:16px">
+        <strong>Using Android Studio or ADB on this computer?</strong> Stop the ADB server first,
+        otherwise it blocks WebUSB.<br>Open a terminal and run: <code>adb kill-server</code>
+      </div>
+      <button class="btn btn-primary" id="btn-to-connect">USB Debugging is On — Connect</button>
+      <button class="btn btn-outline" id="btn-back-to-welcome">← Back</button>
+    </div>
+
+    <!-- ── Screen 2: Connect ────────────────────────────────── -->
+    <div class="step" id="screen-connect">
+      <h2>Connect Your Phone</h2>
+      <p>Click Connect and select your phone from the browser's USB device picker.</p>
+      <div id="connect-status" class="status info">Waiting for connection…</div>
+      <div id="connect-log" class="connect-log"></div>
+      <button class="btn btn-primary" id="btn-connect">Connect via USB</button>
+      <button class="btn btn-primary" id="btn-retry" style="display:none">Retry Connection</button>
+      <button class="btn btn-outline" id="btn-back-to-usb">← Back</button>
+
+      <div id="manual-fallback" class="manual-section" style="display:none">
+        <h2>Or: Run Commands Manually</h2>
+        <p>If WebUSB isn't working, paste these commands into a terminal with ADB on your PC.</p>
+        <div class="status warn" style="margin-top:12px; margin-bottom:0">
+          <strong>Still not connecting?</strong> Unplug and replug the USB cable, then click
+          <strong>Retry Connection</strong>. The phone's ADB interface sometimes needs a reset
+          after the server is stopped.
+        </div>
+        <div class="manual-cmds-block" id="manual-cmds">adb shell pm grant com.blink.app android.permission.WRITE_SECURE_SETTINGS
+
+adb shell settings put secure enabled_accessibility_services \
+  com.blink.app/com.blink.intercept.BlinkAccessibilityService</div>
+        <button class="btn btn-outline" id="btn-copy-cmds" style="margin-top:0">Copy Commands</button>
+        <button class="btn btn-success" id="btn-manual-done" style="margin-top:8px">I ran the commands — Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── Screen 3: Permissions ────────────────────────────── -->
+    <div class="step" id="screen-consent">
+      <h2>Grant Permissions</h2>
+      <p>Each step is optional. Grant what you need, skip the rest.</p>
+
+      <!-- Step 1 -->
+      <div class="consent-block" id="block-notif">
+        <h3>
+          Banking Mode &amp; Auto-Recovery
+          <span class="tag tag-free">Free</span>
+        </h3>
+        <p>
+          Grants Blink the ability to manage Android's accessibility service list. Required
+          for two features: Banking Mode (auto-pauses the screen protection service while
+          banking apps are open) and A11y self-heal (silently re-enables screen protection
+          if an OEM or system update revokes it).
+        </p>
+        <div id="notif-status"></div>
+        <div class="consent-actions" id="notif-actions">
+          <button class="btn btn-primary" id="btn-grant-notif">Grant</button>
+          <button class="btn btn-outline"  id="btn-skip-notif">Skip</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="consent-block" id="block-a11y">
+        <h3>
+          Screen Protection Service
+          <span class="tag tag-free">Free</span>
+        </h3>
+        <p>
+          Instantly detects when protected apps are opened and covers them before content
+          is visible. Uses Android's Accessibility Service.
+        </p>
+        <div id="a11y-status"></div>
+        <div class="consent-actions" id="a11y-actions">
+          <button class="btn btn-primary" id="btn-grant-a11y">Grant</button>
+          <button class="btn btn-outline"  id="btn-skip-a11y">Skip</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="consent-block" id="block-banking">
+        <h3>
+          Banking Mode
+          <span class="tag tag-free">Free</span>
+          <span class="tag tag-dep" id="banking-dep-tag" style="display:none">Requires Step 1</span>
+        </h3>
+        <p>
+          Automatically pauses accessibility services when you open banking apps so they
+          work without interruption. Services are restored when you close the app.
+        </p>
+        <div id="banking-status"></div>
+        <div class="consent-actions" id="banking-actions">
+          <button class="btn btn-primary" id="btn-grant-banking" disabled>Enable in App</button>
+          <button class="btn btn-outline"  id="btn-skip-banking">Skip</button>
+        </div>
+      </div>
+
+      <button class="btn btn-success" id="btn-to-done">Finish Setup →</button>
+    </div>
+
+    <!-- ── Screen 4: Done ────────────────────────────────────── -->
+    <div class="step" id="screen-done">
+      <h2>Setup Complete</h2>
+      <p>Your granted permissions are now active. A few final steps:</p>
+      <ol>
+        <li>Disconnect the USB cable</li>
+        <li>In Developer Options, disable USB Debugging (recommended for security)</li>
+        <li>Open Blink and verify each feature works as expected</li>
+        <li id="banking-tip" style="display:none">
+          For Banking Mode: go to Protected Apps in Blink and tap the bank icon next to
+          each banking app you want protected
+        </li>
+      </ol>
+      <div class="status success" id="done-summary" style="margin-top:16px">
+        Setup complete.
+      </div>
+    </div>
+
+  </div><!-- /.card-body -->
+</div><!-- /.card -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let adb = null;
+let step1Done = false;
+let step2Done = false;
+let step3Done = false;
+const granted = [];
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function showScreen(id, dotIndex) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  updateDots(dotIndex);
+}
+
+function updateDots(active) {
+  for (let i = 0; i < 5; i++) {
+    const dot = document.getElementById('dot-' + i);
+    if (!dot) continue;
+    dot.className = 'step-dot' + (i < active ? ' done' : i === active ? ' active' : '');
+  }
+}
+
+// ── Compatibility check ───────────────────────────────────────────────────────
+if (!navigator.usb) {
+  document.getElementById('compat-error').style.display = 'block';
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-dots').style.display = 'none';
+} else {
+  document.getElementById('step-dots').style.display = 'flex';
+  updateDots(0);
+}
+
+document.getElementById('btn-to-usb').onclick = () => showScreen('usb', 1);
+document.getElementById('btn-back-to-welcome').onclick = () => showScreen('welcome', 0);
+document.getElementById('btn-to-connect').onclick = () => showScreen('connect', 2);
+document.getElementById('btn-back-to-usb').onclick = () => showScreen('usb', 1);
+
+document.getElementById('btn-copy-cmds').onclick = () => {
+  const cmds = `adb shell pm grant com.blink.app android.permission.WRITE_SECURE_SETTINGS\nadb shell settings put secure enabled_accessibility_services com.blink.app/com.blink.intercept.BlinkAccessibilityService`;
+  navigator.clipboard.writeText(cmds).then(() => {
+    const btn = document.getElementById('btn-copy-cmds');
+    btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.textContent = 'Copy Commands'; }, 2000);
+  });
+};
+
+document.getElementById('btn-manual-done').onclick = () => {
+  granted.push('Banking Mode &amp; Auto-Recovery (manual)', 'Screen Protection Service (manual)');
+  showScreen('done', 4);
+};
+
+// ── Connect — onclick always registered; module sets _connectDevice when ready ──
+let _connectDevice = null; // set by module script on successful load
+
+async function doConnect() {
+  const statusEl = document.getElementById('connect-status');
+  const retryBtn = document.getElementById('btn-retry');
+  document.getElementById('manual-fallback').style.display = 'none';
+  retryBtn.style.display = 'none';
+  statusEl.className = 'status info';
+
+  if (!_connectDevice) {
+    statusEl.className = 'status error';
+    statusEl.textContent = 'ADB library failed to load. Check your browser console (F12) for errors.';
+    retryBtn.style.display = 'block';
+    return;
+  }
+
+  statusEl.textContent = 'Requesting device access...';
+  try {
+    adb = await _connectDevice();
+    statusEl.className = 'status success';
+    statusEl.textContent = '✓ Connected';
+    setTimeout(() => showScreen('consent', 3), 800);
+  } catch (err) {
+    statusEl.className = 'status error';
+    statusEl.textContent = 'Connection failed: ' + err.message;
+    if (err.message.includes('Timed out') || err.message.includes('authenticate')) {
+      document.getElementById('manual-fallback').style.display = 'block';
+    }
+    retryBtn.style.display = 'block';
+  }
+}
+
+document.getElementById('btn-connect').onclick = doConnect;
+document.getElementById('btn-retry').onclick = doConnect;
+
+</script>
+<script type="module">
+var __defProp=Object.defineProperty;var __export=(target,all)=>{for(var name in all)__defProp(target,name,{get:all[name],enumerable:!0})};var PromiseResolver=class{#promise;get promise(){return this.#promise}#resolve;#reject;#state="running";get state(){return this.#state}constructor(){this.#promise=new Promise((resolve,reject)=>{this.#resolve=resolve,this.#reject=reject})}resolve=value=>{this.#resolve(value),this.#state="resolved"};reject=reason=>{this.#reject(reason),this.#state="rejected"}};var AsyncOperationManager=class{nextId;pendingResolvers=new Map;constructor(startId=0){this.nextId=startId}add(){let id=this.nextId++,resolver=new PromiseResolver;return this.pendingResolvers.set(id,resolver),[id,resolver.promise]}getResolver(id){if(!this.pendingResolvers.has(id))return null;let resolver=this.pendingResolvers.get(id);return this.pendingResolvers.delete(id),resolver}resolve(id,result){let resolver=this.getResolver(id);return resolver!==null?(resolver.resolve(result),!0):!1}reject(id,reason){let resolver=this.getResolver(id);return resolver!==null?(resolver.reject(reason),!0):!1}};function delay(time){return new Promise(resolve=>{globalThis.setTimeout(()=>resolve(),time)})}function isPromiseLike(value){return typeof value=="object"&&value!==null&&"then"in value}function advance(iterator,next){for(;;){let{done,value}=iterator.next(next);if(done)return value;if(isPromiseLike(value))return value.then(value2=>advance(iterator,{resolved:value2}),error=>advance(iterator,{error}));next=value}}function bipedal(fn,bindThis){function result(...args){let iterator=fn.call(this,function*(value){if(isPromiseLike(value)){let result2=yield value;if("resolved"in result2)return result2.resolved;throw result2.error}return value},...args);return advance(iterator,void 0)}return bindThis?result.bind(bindThis):result}function defaultFieldSerializer(serializer){return(source,context)=>{if("buffer"in context){let buffer2=serializer(source,context);return context.buffer.set(buffer2,context.index),buffer2.length}else return serializer(source,context)}}function byobFieldSerializer(size,serializer){return(source,context)=>{if("buffer"in context)return context.index??=0,serializer(source,context),size;{let buffer2=new Uint8Array(size);return serializer(source,{buffer:buffer2,index:0,littleEndian:context.littleEndian}),buffer2}}}function _field(size,type,serialize,deserialize,options){let field2={size,type,serialize:type==="default"?defaultFieldSerializer(serialize):byobFieldSerializer(size,serialize),deserialize:bipedal(deserialize),omitInit:options==null?void 0:options.omitInit};return options!=null&&options.init&&(field2.init=options.init),field2}var field=_field;var EmptyUint8Array=new Uint8Array(0);function copyMaybeDifferentLength(dest,source,index,length){source.length<length?(dest.set(source,index),dest.fill(0,index+source.length,index+length)):source.length===length?dest.set(source,index):dest.set(source.subarray(0,length),index)}function buffer(lengthOrField,converter){if(typeof lengthOrField=="number"){let serialize,deserialize2,init2;return lengthOrField===0?(serialize=()=>{},converter?deserialize2=function*(){return converter.convert(EmptyUint8Array)}:deserialize2=function*(){return EmptyUint8Array}):(serialize=(value,{buffer:buffer2,index})=>copyMaybeDifferentLength(buffer2,value,index,lengthOrField),converter?(deserialize2=function*(then,reader){let array=reader.readExactly(lengthOrField);return converter.convert(yield*then(array))},init2=value=>converter.back(value)):deserialize2=function*(_then,reader){return reader.readExactly(lengthOrField)}),field(lengthOrField,"byob",serialize,deserialize2,{init:init2})}if((typeof lengthOrField=="object"||typeof lengthOrField=="function")&&"serialize"in lengthOrField){let deserialize2,init2;return converter?(deserialize2=function*(then,reader,context){let length=yield*then(lengthOrField.deserialize(reader,context)),array=length!==0?reader.readExactly(length):EmptyUint8Array;return converter.convert(yield*then(array))},init2=value=>converter.back(value)):deserialize2=function*(then,reader,context){let length=yield*then(lengthOrField.deserialize(reader,context));return length!==0?reader.readExactly(length):EmptyUint8Array},field(lengthOrField.size,"default",(value,{littleEndian})=>{if(lengthOrField.type==="default"){let lengthBuffer=lengthOrField.serialize(value.length,{littleEndian});if(value.length===0)return lengthBuffer;let result=new Uint8Array(lengthBuffer.length+value.length);return result.set(lengthBuffer,0),result.set(value,lengthBuffer.length),result}else{let result=new Uint8Array(lengthOrField.size+value.length);return lengthOrField.serialize(value.length,{buffer:result,index:0,littleEndian}),result.set(value,lengthOrField.size),result}},deserialize2,{init:init2})}if(typeof lengthOrField=="string"){let deserialize2,init2;return converter?(deserialize2=function*(then,reader,{dependencies}){let length=dependencies[lengthOrField],array=length!==0?reader.readExactly(length):EmptyUint8Array;return converter.convert(yield*then(array))},init2=(value,dependencies)=>{let array=converter.back(value);return dependencies[lengthOrField]=array.length,array}):(deserialize2=function*(_then,reader,{dependencies}){let length=dependencies[lengthOrField];return length!==0?reader.readExactly(length):EmptyUint8Array},init2=(value,dependencies)=>{let array=value;return dependencies[lengthOrField]=array.length,array}),field(0,"default",source=>source,deserialize2,{init:init2})}let deserialize,init;return converter?(deserialize=function*(then,reader,{dependencies}){let rawLength=dependencies[lengthOrField.field],length=lengthOrField.convert(rawLength),array=length!==0?reader.readExactly(length):EmptyUint8Array;return converter.convert(yield*then(array))},init=(value,dependencies)=>{let array=converter.back(value);return dependencies[lengthOrField.field]=lengthOrField.back(array.length),array}):(deserialize=function*(_then,reader,{dependencies}){let rawLength=dependencies[lengthOrField.field],length=lengthOrField.convert(rawLength);return length!==0?reader.readExactly(length):EmptyUint8Array},init=(value,dependencies)=>{let array=value;return dependencies[lengthOrField.field]=lengthOrField.back(array.length),array}),field(0,"default",source=>source,deserialize,{init})}var ExactReadableEndedError=class extends Error{constructor(){super("ExactReadable ended")}},Uint8ArrayExactReadable=class{#data;#position;get position(){return this.#position}constructor(data){this.#data=data,this.#position=0}readExactly(length){if(this.#position+length>this.#data.length)throw new ExactReadableEndedError;let result=this.#data.subarray(this.#position,this.#position+length);return this.#position+=length,result}};var StructDeserializeError=class extends Error{constructor(message){super(message)}},StructNotEnoughDataError=class extends StructDeserializeError{constructor(){super("The underlying readable was ended before the struct was fully deserialized")}},StructEmptyError=class extends StructDeserializeError{constructor(){super("The underlying readable doesn't contain any more struct")}};function struct(fields,options){let fieldList=Object.entries(fields),size=0,byob=!0;for(let[,field2]of fieldList)size+=field2.size,byob&&field2.type!=="byob"&&(byob=!1);let littleEndian=options.littleEndian,extra=options.extra?Object.getOwnPropertyDescriptors(options.extra):void 0;return{littleEndian,fields,extra:options.extra,type:byob?"byob":"default",size,serialize(source,bufferOrContext){var _a;let temp={...source};for(let[key,field2]of fieldList)if(key in temp&&"init"in field2){let result=(_a=field2.init)==null?void 0:_a.call(field2,temp[key],temp);temp[key]=result}let sizes=new Array(fieldList.length),buffers=new Array(fieldList.length);{let context2={littleEndian};for(let[index2,[key,field2]]of fieldList.entries())field2.type==="byob"?sizes[index2]=field2.size:(buffers[index2]=field2.serialize(temp[key],context2),sizes[index2]=buffers[index2].length)}let size2=sizes.reduce((sum,size3)=>sum+size3,0),externalBuffer,buffer2,index;if(bufferOrContext instanceof Uint8Array){if(bufferOrContext.length<size2)throw new Error("Buffer too small");externalBuffer=!0,buffer2=bufferOrContext,index=0}else if(typeof bufferOrContext=="object"&&"buffer"in bufferOrContext){if(externalBuffer=!0,buffer2=bufferOrContext.buffer,index=bufferOrContext.index??0,buffer2.length-index<size2)throw new Error("Buffer too small")}else externalBuffer=!1,buffer2=new Uint8Array(size2),index=0;let context={buffer:buffer2,index,littleEndian};for(let[index2,[key,field2]]of fieldList.entries())buffers[index2]?buffer2.set(buffers[index2],context.index):field2.serialize(temp[key],context),context.index+=sizes[index2];return externalBuffer?size2:buffer2},deserialize:bipedal(function*(then,reader){let startPosition=reader.position,result={},context={dependencies:result,littleEndian};try{for(let[key,field2]of fieldList)result[key]=yield*then(field2.deserialize(reader,context))}catch(e){throw e instanceof ExactReadableEndedError?reader.position===startPosition?new StructEmptyError:new StructNotEnoughDataError:e}return extra&&Object.defineProperties(result,extra),options.postDeserialize?options.postDeserialize.call(result,result):result})}}function extend(base,fields,options){return struct(Object.assign({},base.fields,fields),{littleEndian:(options==null?void 0:options.littleEndian)??base.littleEndian,extra:base.extra,postDeserialize:options==null?void 0:options.postDeserialize})}function getInt32(buffer2,offset,littleEndian){return littleEndian?buffer2[offset]|buffer2[offset+1]<<8|buffer2[offset+2]<<16|buffer2[offset+3]<<24:buffer2[offset]<<24|buffer2[offset+1]<<16|buffer2[offset+2]<<8|buffer2[offset+3]}function setInt32(buffer2,offset,value,littleEndian){littleEndian?(buffer2[offset]=value,buffer2[offset+1]=value>>8,buffer2[offset+2]=value>>16,buffer2[offset+3]=value>>24):(buffer2[offset]=value>>24,buffer2[offset+1]=value>>16,buffer2[offset+2]=value>>8,buffer2[offset+3]=value)}function setInt64LittleEndian(buffer2,offset,value){buffer2[offset]=Number(value&0xffn),buffer2[offset+1]=Number(value>>8n&0xffn),buffer2[offset+2]=Number(value>>16n&0xffn),buffer2[offset+3]=Number(value>>24n&0xffn),buffer2[offset+4]=Number(value>>32n&0xffn),buffer2[offset+5]=Number(value>>40n&0xffn),buffer2[offset+6]=Number(value>>48n&0xffn),buffer2[offset+7]=Number(value>>56n&0xffn)}function setInt64BigEndian(buffer2,offset,value){buffer2[offset]=Number(value>>56n&0xffn),buffer2[offset+1]=Number(value>>48n&0xffn),buffer2[offset+2]=Number(value>>40n&0xffn),buffer2[offset+3]=Number(value>>32n&0xffn),buffer2[offset+4]=Number(value>>24n&0xffn),buffer2[offset+5]=Number(value>>16n&0xffn),buffer2[offset+6]=Number(value>>8n&0xffn),buffer2[offset+7]=Number(value&0xffn)}function getUint32LittleEndian(buffer2,offset){return(buffer2[offset]|buffer2[offset+1]<<8|buffer2[offset+2]<<16|buffer2[offset+3]<<24)>>>0}function getUint32(buffer2,offset,littleEndian){return littleEndian?(buffer2[offset]|buffer2[offset+1]<<8|buffer2[offset+2]<<16|buffer2[offset+3]<<24)>>>0:(buffer2[offset]<<24|buffer2[offset+1]<<16|buffer2[offset+2]<<8|buffer2[offset+3])>>>0}function setUint32LittleEndian(buffer2,offset,value){buffer2[offset]=value,buffer2[offset+1]=value>>8,buffer2[offset+2]=value>>16,buffer2[offset+3]=value>>24}function setUint32(buffer2,offset,value,littleEndian){littleEndian?(buffer2[offset]=value,buffer2[offset+1]=value>>8,buffer2[offset+2]=value>>16,buffer2[offset+3]=value>>24):(buffer2[offset]=value>>24,buffer2[offset+1]=value>>16,buffer2[offset+2]=value>>8,buffer2[offset+3]=value)}function getUint64BigEndian(buffer2,offset){return BigInt(buffer2[offset])<<56n|BigInt(buffer2[offset+1])<<48n|BigInt(buffer2[offset+2])<<40n|BigInt(buffer2[offset+3])<<32n|BigInt(buffer2[offset+4])<<24n|BigInt(buffer2[offset+5])<<16n|BigInt(buffer2[offset+6])<<8n|BigInt(buffer2[offset+7])}function getUint64(buffer2,offset,littleEndian){return littleEndian?BigInt(buffer2[offset])|BigInt(buffer2[offset+1])<<8n|BigInt(buffer2[offset+2])<<16n|BigInt(buffer2[offset+3])<<24n|BigInt(buffer2[offset+4])<<32n|BigInt(buffer2[offset+5])<<40n|BigInt(buffer2[offset+6])<<48n|BigInt(buffer2[offset+7])<<56n:BigInt(buffer2[offset])<<56n|BigInt(buffer2[offset+1])<<48n|BigInt(buffer2[offset+2])<<40n|BigInt(buffer2[offset+3])<<32n|BigInt(buffer2[offset+4])<<24n|BigInt(buffer2[offset+5])<<16n|BigInt(buffer2[offset+6])<<8n|BigInt(buffer2[offset+7])}function setUint64(buffer2,offset,value,littleEndian){littleEndian?(buffer2[offset]=Number(value&0xffn),buffer2[offset+1]=Number(value>>8n&0xffn),buffer2[offset+2]=Number(value>>16n&0xffn),buffer2[offset+3]=Number(value>>24n&0xffn),buffer2[offset+4]=Number(value>>32n&0xffn),buffer2[offset+5]=Number(value>>40n&0xffn),buffer2[offset+6]=Number(value>>48n&0xffn),buffer2[offset+7]=Number(value>>56n&0xffn)):(buffer2[offset]=Number(value>>56n&0xffn),buffer2[offset+1]=Number(value>>48n&0xffn),buffer2[offset+2]=Number(value>>40n&0xffn),buffer2[offset+3]=Number(value>>32n&0xffn),buffer2[offset+4]=Number(value>>24n&0xffn),buffer2[offset+5]=Number(value>>16n&0xffn),buffer2[offset+6]=Number(value>>8n&0xffn),buffer2[offset+7]=Number(value&0xffn))}function number(size,serialize,deserialize){let fn=()=>fn;return Object.assign(fn,field(size,"byob",serialize,deserialize)),fn}var u8=number(1,(value,{buffer:buffer2,index})=>{buffer2[index]=value},function*(then,reader){return(yield*then(reader.readExactly(1)))[0]});var u32=number(4,(value,{buffer:buffer2,index,littleEndian})=>{setUint32(buffer2,index,value,littleEndian)},function*(then,reader,{littleEndian}){let data=yield*then(reader.readExactly(4));return getUint32(data,0,littleEndian)}),s32=number(4,(value,{buffer:buffer2,index,littleEndian})=>{setInt32(buffer2,index,value,littleEndian)},function*(then,reader,{littleEndian}){let data=yield*then(reader.readExactly(4));return getInt32(data,0,littleEndian)}),u64=number(8,(value,{buffer:buffer2,index,littleEndian})=>{setUint64(buffer2,index,value,littleEndian)},function*(then,reader,{littleEndian}){let data=yield*then(reader.readExactly(8));return getUint64(data,0,littleEndian)});var{TextEncoder,TextDecoder}=globalThis,SharedEncoder=new TextEncoder,SharedDecoder=new TextDecoder;function encodeUtf8(input){return SharedEncoder.encode(input)}function decodeUtf8(buffer2){return SharedDecoder.decode(buffer2)}var string=lengthOrField=>{let field2=buffer(lengthOrField,{convert:decodeUtf8,back:encodeUtf8});return field2.as=()=>field2,field2};var{AbortController}=globalThis,ReadableStream=(()=>{let{ReadableStream:ReadableStream2}=globalThis;return ReadableStream2.from||(ReadableStream2.from=function(iterable){let iterator=Symbol.asyncIterator in iterable?iterable[Symbol.asyncIterator]():iterable[Symbol.iterator]();return new ReadableStream2({async pull(controller){let result=await iterator.next();if(result.done){controller.close();return}controller.enqueue(result.value)},async cancel(reason){var _a;await((_a=iterator.return)==null?void 0:_a.call(iterator,reason))}})}),(!ReadableStream2.prototype[Symbol.asyncIterator]||!ReadableStream2.prototype.values)&&(ReadableStream2.prototype.values=async function*(options){let reader=this.getReader();try{for(;;){let{done,value}=await reader.read();if(done)return;yield value}}finally{options!=null&&options.preventCancel||await reader.cancel(),reader.releaseLock()}},ReadableStream2.prototype[Symbol.asyncIterator]=ReadableStream2.prototype.values),ReadableStream2})(),{WritableStream,TransformStream}=globalThis;var PushReadableStream=class extends ReadableStream{constructor(source,strategy,logger){let waterMarkLow,zeroHighWaterMarkAllowEnqueue=!1,abortController=new AbortController;super({start:controller=>{let result=source({abortSignal:abortController.signal,enqueue:async chunk=>{if(logger==null||logger({source:"producer",operation:"enqueue",value:chunk,phase:"start"}),abortController.signal.aborted){logger==null||logger({source:"producer",operation:"enqueue",value:chunk,phase:"ignored"});return}if(controller.desiredSize===null){controller.enqueue(chunk);return}if(zeroHighWaterMarkAllowEnqueue){zeroHighWaterMarkAllowEnqueue=!1,controller.enqueue(chunk),logger==null||logger({source:"producer",operation:"enqueue",value:chunk,phase:"complete"});return}if(controller.desiredSize<=0&&(logger==null||logger({source:"producer",operation:"enqueue",value:chunk,phase:"waiting"}),waterMarkLow=new PromiseResolver,await waterMarkLow.promise,abortController.signal.aborted)){logger==null||logger({source:"producer",operation:"enqueue",value:chunk,phase:"ignored"});return}controller.enqueue(chunk),logger==null||logger({source:"producer",operation:"enqueue",value:chunk,phase:"complete"})},close(){if(logger==null||logger({source:"producer",operation:"close",explicit:!0,phase:"start"}),abortController.signal.aborted){logger==null||logger({source:"producer",operation:"close",explicit:!0,phase:"ignored"});return}controller.close(),logger==null||logger({source:"producer",operation:"close",explicit:!0,phase:"complete"})},error(e){logger==null||logger({source:"producer",operation:"error",explicit:!0,phase:"start"}),controller.error(e),logger==null||logger({source:"producer",operation:"error",explicit:!0,phase:"complete"})}});result&&"then"in result&&result.then(()=>{logger==null||logger({source:"producer",operation:"close",explicit:!1,phase:"start"});try{controller.close(),logger==null||logger({source:"producer",operation:"close",explicit:!1,phase:"complete"})}catch{logger==null||logger({source:"producer",operation:"close",explicit:!1,phase:"ignored"})}},e=>{logger==null||logger({source:"producer",operation:"error",explicit:!1,phase:"start"}),controller.error(e),logger==null||logger({source:"producer",operation:"error",explicit:!1,phase:"complete"})})},pull:()=>{logger==null||logger({source:"consumer",operation:"pull",phase:"start"}),waterMarkLow?waterMarkLow.resolve():(strategy==null?void 0:strategy.highWaterMark)===0&&(zeroHighWaterMarkAllowEnqueue=!0),logger==null||logger({source:"consumer",operation:"pull",phase:"complete"})},cancel:reason=>{logger==null||logger({source:"consumer",operation:"cancel",phase:"start"}),abortController.abort(reason),waterMarkLow==null||waterMarkLow.resolve(),logger==null||logger({source:"consumer",operation:"cancel",phase:"complete"})}},strategy)}};function tryClose(controller){try{return controller.close(),!0}catch{return!1}}async function tryCancel(stream){try{return await stream.cancel(),!0}catch{return!1}}var BufferedReadableStream=class{#buffered;#bufferedOffset=0;#bufferedLength=0;#position=0;get position(){return this.#position}stream;reader;constructor(stream){this.stream=stream,this.reader=stream.getReader()}#readBuffered(length){if(!this.#buffered)return;let value=this.#buffered.subarray(this.#bufferedOffset,this.#bufferedOffset+length);return this.#bufferedLength>length?(this.#position+=length,this.#bufferedOffset+=length,this.#bufferedLength-=length,value):(this.#position+=this.#bufferedLength,this.#buffered=void 0,this.#bufferedOffset=0,this.#bufferedLength=0,value)}async#readSource(length){let{done,value}=await this.reader.read();if(done)throw new ExactReadableEndedError;return value.length>length?(this.#buffered=value,this.#bufferedOffset=length,this.#bufferedLength=value.length-length,this.#position+=length,value.subarray(0,length)):(this.#position+=value.length,value)}iterateExactly(length){let state=this.#buffered?0:1;return{next:()=>{switch(state){case 0:{let value=this.#readBuffered(length);return value.length===length?state=2:(length-=value.length,state=1),{done:!1,value}}case 1:return state=3,{done:!1,value:this.#readSource(length).then(value=>(value.length===length?state=2:(length-=value.length,state=1),value))};case 2:return{done:!0,value:void 0};case 3:throw new Error("Can't call `next` before previous Promise resolves");default:throw new Error("unreachable")}}}}readExactly=bipedal(function*(then,length){let result,index=0,initial=this.#readBuffered(length);if(initial){if(initial.length===length)return initial;result=new Uint8Array(length),result.set(initial,index),index+=initial.length,length-=initial.length}else result=new Uint8Array(length);for(;length>0;){let value=yield*then(this.#readSource(length));result.set(value,index),index+=value.length,length-=value.length}return result});release(){return this.#bufferedLength>0?new PushReadableStream(async controller=>{let buffered=this.#buffered.subarray(this.#bufferedOffset);for(await controller.enqueue(buffered),controller.abortSignal.addEventListener("abort",()=>{tryCancel(this.reader)});;){let{done,value}=await this.reader.read();if(done)return;await controller.enqueue(value)}}):(this.reader.releaseLock(),this.stream)}async cancel(reason){await this.reader.cancel(reason)}};var BufferedTransformStream=class{#readable;get readable(){return this.#readable}#writable;get writable(){return this.#writable}constructor(transform){let bufferedStreamController,writableStreamController,buffered=new BufferedReadableStream(new PushReadableStream(controller=>{bufferedStreamController=controller}));this.#readable=new ReadableStream({async pull(controller){try{let value=await transform(buffered);controller.enqueue(value)}catch(e){if(e instanceof StructEmptyError){controller.close();return}throw e}},cancel:reason=>writableStreamController.error(reason)}),this.#writable=new WritableStream({start(controller){writableStreamController=controller},async write(chunk){await bufferedStreamController.enqueue(chunk)},abort(){bufferedStreamController.close()},close(){bufferedStreamController.close()}})}};var ConcatStringStream=class{#result="";#resolver=new PromiseResolver;#writable=new WritableStream({write:chunk=>{this.#result+=chunk},close:()=>{this.#resolver.resolve(this.#result),this.#readableController.enqueue(this.#result),this.#readableController.close()},abort:reason=>{this.#resolver.reject(reason),this.#readableController.error(reason)}});get writable(){return this.#writable}#readableController;#readable=new ReadableStream({start:controller=>{this.#readableController=controller}});get readable(){return this.#readable}constructor(){Object.defineProperties(this.#readable,{then:{get:()=>this.#resolver.promise.then.bind(this.#resolver.promise)},catch:{get:()=>this.#resolver.promise.catch.bind(this.#resolver.promise)},finally:{get:()=>this.#resolver.promise.finally.bind(this.#resolver.promise)}})}},ConcatBufferStream=class{#segments=[];#resolver=new PromiseResolver;#writable=new WritableStream({write:chunk=>{this.#segments.push(chunk)},close:()=>{let result,offset=0;switch(this.#segments.length){case 0:result=EmptyUint8Array;break;case 1:result=this.#segments[0];break;default:result=new Uint8Array(this.#segments.reduce((prev,item)=>prev+item.length,0));for(let segment of this.#segments)result.set(segment,offset),offset+=segment.length;break}this.#resolver.resolve(result),this.#readableController.enqueue(result),this.#readableController.close()},abort:reason=>{this.#resolver.reject(reason),this.#readableController.error(reason)}});get writable(){return this.#writable}#readableController;#readable=new ReadableStream({start:controller=>{this.#readableController=controller}});get readable(){return this.#readable}constructor(){Object.defineProperties(this.#readable,{then:{get:()=>this.#resolver.promise.then.bind(this.#resolver.promise)},catch:{get:()=>this.#resolver.promise.catch.bind(this.#resolver.promise)},finally:{get:()=>this.#resolver.promise.finally.bind(this.#resolver.promise)}})}};var ConsumableReadableStream=class _ConsumableReadableStream extends ReadableStream{static async enqueue(controller,chunk){let output=new Consumable(chunk);controller.enqueue(output),await output.consumed}constructor(source,strategy){let wrappedController,wrappedStrategy;strategy&&(wrappedStrategy={},"highWaterMark"in strategy&&(wrappedStrategy.highWaterMark=strategy.highWaterMark),"size"in strategy&&(wrappedStrategy.size=chunk=>strategy.size(chunk.value))),super({start(controller){var _a;return wrappedController={enqueue(chunk){return _ConsumableReadableStream.enqueue(controller,chunk)},close(){controller.close()},error(reason){controller.error(reason)}},(_a=source.start)==null?void 0:_a.call(source,wrappedController)},pull(){var _a;return(_a=source.pull)==null?void 0:_a.call(source,wrappedController)},cancel(reason){var _a;return(_a=source.cancel)==null?void 0:_a.call(source,reason)}},wrappedStrategy)}};var ConsumableWrapByteReadableStream=class extends ReadableStream{constructor(stream,chunkSize,min){let reader=stream.getReader({mode:"byob"}),array=new Uint8Array(chunkSize);super({async pull(controller){let{done,value}=await reader.read(array,{min});if(done){controller.close();return}await ConsumableReadableStream.enqueue(controller,value),array=new Uint8Array(value.buffer)},cancel(reason){return reader.cancel(reason)}})}};var ConsumableWrapWritableStream=class extends WritableStream{constructor(stream){let writer=stream.getWriter();super({write(chunk){return chunk.tryConsume(chunk2=>writer.write(chunk2))},abort(reason){return writer.abort(reason)},close(){return writer.close()}})}};var ConsumableWritableStream=class extends WritableStream{static async write(writer,value){let consumable=new Consumable(value);await writer.write(consumable),await consumable.consumed}constructor(sink,strategy){let wrappedStrategy;strategy&&(wrappedStrategy={},"highWaterMark"in strategy&&(wrappedStrategy.highWaterMark=strategy.highWaterMark),"size"in strategy&&(wrappedStrategy.size=chunk=>strategy.size(chunk instanceof Consumable?chunk.value:chunk))),super({start(controller){var _a;return(_a=sink.start)==null?void 0:_a.call(sink,controller)},write(chunk,controller){return chunk.tryConsume(chunk2=>{var _a;return(_a=sink.write)==null?void 0:_a.call(sink,chunk2,controller)})},abort(reason){var _a;return(_a=sink.abort)==null?void 0:_a.call(sink,reason)},close(){var _a;return(_a=sink.close)==null?void 0:_a.call(sink)}},wrappedStrategy)}};var{console}=globalThis,createTask=(()=>{var _a;return((_a=console==null?void 0:console.createTask)==null?void 0:_a.bind(console))??(()=>({run(callback){return callback()}}))})();var Consumable=class{static WritableStream=ConsumableWritableStream;static WrapWritableStream=ConsumableWrapWritableStream;static ReadableStream=ConsumableReadableStream;static WrapByteReadableStream=ConsumableWrapByteReadableStream;#task;#resolver;value;consumed;constructor(value){this.#task=createTask("Consumable"),this.value=value,this.#resolver=new PromiseResolver,this.consumed=this.#resolver.promise}consume(){this.#resolver.resolve()}error(error){this.#resolver.reject(error)}tryConsume(callback){try{let result=this.#task.run(()=>callback(this.value));return isPromiseLike(result)?result=result.then(value=>(this.#resolver.resolve(),value),e=>{throw this.#resolver.reject(e),e}):this.#resolver.resolve(),result}catch(e){throw this.#resolver.reject(e),e}}};var maybe_consumable_exports={};__export(maybe_consumable_exports,{WrapWritableStream:()=>MaybeConsumableWrapWritableStream,WritableStream:()=>MaybeConsumableWritableStream,getValue:()=>getValue,tryConsume:()=>tryConsume});function getValue(value){return value instanceof Consumable?value.value:value}function tryConsume(value,callback){return value instanceof Consumable?value.tryConsume(callback):callback(value)}var MaybeConsumableWrapWritableStream=class extends WritableStream{constructor(stream){let writer=stream.getWriter();super({write(chunk){return tryConsume(chunk,chunk2=>writer.write(chunk2))},abort(reason){return writer.abort(reason)},close(){return writer.close()}})}};var MaybeConsumableWritableStream=class extends WritableStream{constructor(sink,strategy){let wrappedStrategy;strategy&&(wrappedStrategy={},"highWaterMark"in strategy&&(wrappedStrategy.highWaterMark=strategy.highWaterMark),"size"in strategy&&(wrappedStrategy.size=chunk=>strategy.size(chunk instanceof Consumable?chunk.value:chunk))),super({start(controller){var _a;return(_a=sink.start)==null?void 0:_a.call(sink,controller)},write(chunk,controller){return tryConsume(chunk,chunk2=>{var _a;return(_a=sink.write)==null?void 0:_a.call(sink,chunk2,controller)})},abort(reason){var _a;return(_a=sink.abort)==null?void 0:_a.call(sink,reason)},close(){var _a;return(_a=sink.close)==null?void 0:_a.call(sink)}},wrappedStrategy)}};var BufferCombiner=class{#capacity;#buffer;#offset;#available;constructor(size){this.#capacity=size,this.#buffer=new Uint8Array(size),this.#offset=0,this.#available=size}*push(data){let offset=0,available=data.length;if(this.#offset!==0)if(available>=this.#available){if(this.#buffer.set(data.subarray(0,this.#available),this.#offset),offset+=this.#available,available-=this.#available,yield this.#buffer,this.#offset=0,this.#available=this.#capacity,available===0)return}else{this.#buffer.set(data,this.#offset),this.#offset+=available,this.#available-=available;return}for(;available>=this.#capacity;){let end=offset+this.#capacity;yield data.subarray(offset,end),offset=end,available-=this.#capacity}available>0&&(this.#buffer.set(data.subarray(offset),this.#offset),this.#offset+=available,this.#available-=available)}flush(){if(this.#offset===0)return;let output=this.#buffer.subarray(0,this.#offset);return this.#offset=0,this.#available=this.#capacity,output}},DistributionStream=class extends TransformStream{constructor(size,combine=!1){let combiner=combine?new BufferCombiner(size):void 0;super({async transform(chunk,controller){await maybe_consumable_exports.tryConsume(chunk,async chunk2=>{if(combiner)for(let buffer2 of combiner.push(chunk2))await Consumable.ReadableStream.enqueue(controller,buffer2);else{let offset=0,available=chunk2.length;for(;available>0;){let end=offset+size;await Consumable.ReadableStream.enqueue(controller,chunk2.subarray(offset,end)),offset=end,available-=size}}})},flush(controller){if(combiner){let data=combiner.flush();data&&controller.enqueue(data)}}})}};function getWrappedReadableStream(wrapper,controller){return"start"in wrapper?wrapper.start(controller):typeof wrapper=="function"?wrapper(controller):wrapper}var WrapReadableStream=class extends ReadableStream{readable;#reader;constructor(wrapper,strategy){super({start:async controller=>{let readable=await getWrappedReadableStream(wrapper,controller);this.readable=readable,this.#reader=this.readable.getReader()},pull:async controller=>{var _a;let{done,value}=await this.#reader.read().catch(e=>{throw"error"in wrapper&&wrapper.error(e),e});done?(controller.close(),"close"in wrapper&&await((_a=wrapper.close)==null?void 0:_a.call(wrapper))):controller.enqueue(value)},cancel:async reason=>{var _a;await this.#reader.cancel(reason),"cancel"in wrapper&&await((_a=wrapper.cancel)==null?void 0:_a.call(wrapper,reason))}},strategy)}};var NOOP=()=>{},DuplexStreamFactory=class{#readableControllers=[];#writers=[];#writableClosed=!1;get writableClosed(){return this.#writableClosed}#closed=new PromiseResolver;get closed(){return this.#closed.promise}#options;constructor(options){this.#options=options??{}}wrapReadable(readable,strategy){return new WrapReadableStream({start:controller=>(this.#readableControllers.push(controller),readable),cancel:async()=>{await this.close()},close:async()=>{await this.dispose()}},strategy)}createWritable(stream){let writer=stream.getWriter();return this.#writers.push(writer),new WritableStream({write:async chunk=>{await writer.write(chunk)},abort:async reason=>{await writer.abort(reason),await this.close()},close:async()=>{await writer.close().catch(NOOP),await this.close()}})}async close(){var _a,_b;if(!this.#writableClosed){this.#writableClosed=!0,await((_b=(_a=this.#options).close)==null?void 0:_b.call(_a))!==!1&&await this.dispose();for(let writer of this.#writers)writer.close().catch(NOOP)}}async dispose(){var _a,_b;this.#writableClosed=!0,this.#closed.resolve();for(let controller of this.#readableControllers)tryClose(controller);await((_b=(_a=this.#options).dispose)==null?void 0:_b.call(_a))}};var Global=globalThis,TextDecoderStream=Global.TextDecoderStream,TextEncoderStream=Global.TextEncoderStream;function pipeFrom(writable,pair){let writer=pair.writable.getWriter(),pipe=pair.readable.pipeTo(writable);return new WritableStream({async write(chunk){await writer.write(chunk)},async close(){await writer.close(),await pipe}})}var StructDeserializeStream=class extends BufferedTransformStream{constructor(struct2){super(stream=>struct2.deserialize(stream))}};var AutoDisposable=class{#disposables=[];constructor(){this.dispose=this.dispose.bind(this)}addDisposable(disposable){return this.#disposables.push(disposable),disposable}dispose(){for(let disposable of this.#disposables)disposable.dispose();this.#disposables=[]}};var EventEmitter=class{listeners=[];constructor(){this.event=this.event.bind(this)}addEventListener(info){this.listeners.push(info);let remove=()=>{let index=this.listeners.indexOf(info);index!==-1&&this.listeners.splice(index,1)};return remove.dispose=remove,remove}event=(listener,thisArg,...args)=>{let info={listener,thisArg,args};return this.addEventListener(info)};fire(e){for(let info of this.listeners.slice())info.listener.call(info.thisArg,e,...info.args)}dispose(){this.listeners.length=0}};var Undefined=Symbol("undefined"),StickyEventEmitter=class extends EventEmitter{#value=Undefined;addEventListener(info){return this.#value!==Undefined&&info.listener.call(info.thisArg,this.#value,...info.args),super.addEventListener(info)}fire(e){this.#value=e,super.fire(e)}};var AdbServiceBase=class extends AutoDisposable{#adb;get adb(){return this.#adb}constructor(adb){super(),this.#adb=adb}};var Version=struct({version:u32},{littleEndian:!0}),AdbFrameBufferV1=struct({bpp:u32,size:u32,width:u32,height:u32,red_offset:u32,red_length:u32,blue_offset:u32,blue_length:u32,green_offset:u32,green_length:u32,alpha_offset:u32,alpha_length:u32,data:buffer("size")},{littleEndian:!0}),AdbFrameBufferV2=struct({bpp:u32,colorSpace:u32,size:u32,width:u32,height:u32,red_offset:u32,red_length:u32,blue_offset:u32,blue_length:u32,green_offset:u32,green_length:u32,alpha_offset:u32,alpha_length:u32,data:buffer("size")},{littleEndian:!0}),AdbFrameBufferError=class extends Error{constructor(message,options){super(message,options)}},AdbFrameBufferUnsupportedVersionError=class extends AdbFrameBufferError{constructor(version){super(`Unsupported FrameBuffer version ${version}`)}},AdbFrameBufferForbiddenError=class extends AdbFrameBufferError{constructor(){super("FrameBuffer is disabled by current app")}};async function framebuffer(adb){let socket=await adb.createSocket("framebuffer:"),stream=new BufferedReadableStream(socket.readable),version;try{({version}=await Version.deserialize(stream))}catch(e){throw e instanceof StructEmptyError?new AdbFrameBufferForbiddenError:e}switch(version){case 1:return await AdbFrameBufferV1.deserialize(stream);case 2:return await AdbFrameBufferV2.deserialize(stream);default:throw new AdbFrameBufferUnsupportedVersionError(version)}}var AdbPower=class extends AdbServiceBase{reboot(mode=""){return this.adb.createSocketAndWait(`reboot:${mode}`)}bootloader(){return this.reboot("bootloader")}fastboot(){return this.reboot("fastboot")}recovery(){return this.reboot("recovery")}sideload(){return this.reboot("sideload")}qualcommEdlMode(){return this.reboot("edl")}powerOff(){return this.adb.subprocess.noneProtocol.spawnWaitText(["reboot","-p"])}powerButton(longPress=!1){let args=["input","keyevent"];return longPress&&args.push("--longpress"),args.push("POWER"),this.adb.subprocess.noneProtocol.spawnWaitText(args)}samsungOdin(){return this.reboot("download")}};function toLocalUint8Array(value){if(value.buffer instanceof ArrayBuffer)return value;let copy=new Uint8Array(value.length);return copy.set(value),copy}var AutoResetEvent=class{#set;#queue=[];constructor(initialSet=!1){this.#set=initialSet}wait(){if(!this.#set&&(this.#set=!0,this.#queue.length===0))return Promise.resolve();let resolver=new PromiseResolver;return this.#queue.push(resolver),resolver.promise}notifyOne(){this.#queue.length!==0?this.#queue.pop().resolve():this.#set=!1}dispose(){for(let item of this.#queue)item.reject(new Error("The AutoResetEvent has been disposed"));this.#queue.length=0}};var[charToIndex,indexToChar,paddingChar]=(()=>{let charToIndex2=[],indexToChar2=[];function addRange(start,end){let charCodeStart=start.charCodeAt(0),charCodeEnd=end.charCodeAt(0);for(let charCode=charCodeStart;charCode<=charCodeEnd;charCode+=1)charToIndex2[charCode]=indexToChar2.length,indexToChar2.push(charCode)}return addRange("A","Z"),addRange("a","z"),addRange("0","9"),addRange("+","+"),addRange("/","/"),[charToIndex2,indexToChar2,61]})();function calculateBase64EncodedLength(inputLength){let remainder=inputLength%3,paddingLength=remainder!==0?3-remainder:0;return[(inputLength+paddingLength)/3*4,paddingLength]}function encodeBase64(input,output){let[outputLength,paddingLength]=calculateBase64EncodedLength(input.length);if(output){if(output.length<outputLength)throw new TypeError("output buffer is too small");if(output=output.subarray(0,outputLength),input.buffer!==output.buffer)encodeForward(input,output,paddingLength);else if(output.byteOffset+output.length-(paddingLength+1)<=input.byteOffset+input.length)encodeForward(input,output,paddingLength);else if(output.byteOffset>=input.byteOffset-1)encodeBackward(input,output,paddingLength);else throw new TypeError("input and output cannot overlap");return outputLength}else return output=new Uint8Array(outputLength),encodeForward(input,output,paddingLength),output}function encodeForward(input,output,paddingLength){let inputIndex=0,outputIndex=0;for(;inputIndex<input.length-2;){let x=input[inputIndex];inputIndex+=1;let y=input[inputIndex];inputIndex+=1;let z=input[inputIndex];inputIndex+=1,output[outputIndex]=indexToChar[x>>2],outputIndex+=1,output[outputIndex]=indexToChar[(x&3)<<4|y>>4],outputIndex+=1,output[outputIndex]=indexToChar[(y&15)<<2|z>>6],outputIndex+=1,output[outputIndex]=indexToChar[z&63],outputIndex+=1}if(paddingLength===2){let x=input[inputIndex];inputIndex+=1,output[outputIndex]=indexToChar[x>>2],outputIndex+=1,output[outputIndex]=indexToChar[(x&3)<<4],outputIndex+=1,output[outputIndex]=paddingChar,outputIndex+=1,output[outputIndex]=paddingChar}else if(paddingLength===1){let x=input[inputIndex];inputIndex+=1;let y=input[inputIndex];inputIndex+=1,output[outputIndex]=indexToChar[x>>2],outputIndex+=1,output[outputIndex]=indexToChar[(x&3)<<4|y>>4],outputIndex+=1,output[outputIndex]=indexToChar[(y&15)<<2],outputIndex+=1,output[outputIndex]=paddingChar}}function encodeBackward(input,output,paddingLength){let inputIndex=input.length-1,outputIndex=output.length-1;if(paddingLength===2){let x=input[inputIndex];inputIndex-=1,output[outputIndex]=paddingChar,outputIndex-=1,output[outputIndex]=paddingChar,outputIndex-=1,output[outputIndex]=indexToChar[(x&3)<<4],outputIndex-=1,output[outputIndex]=indexToChar[x>>2],outputIndex-=1}else if(paddingLength===1){let y=input[inputIndex];inputIndex-=1;let x=input[inputIndex];inputIndex-=1,output[outputIndex]=paddingChar,outputIndex-=1,output[outputIndex]=indexToChar[(y&15)<<2],outputIndex-=1,output[outputIndex]=indexToChar[(x&3)<<4|y>>4],outputIndex-=1,output[outputIndex]=indexToChar[x>>2],outputIndex-=1}for(;inputIndex>=0;){let z=input[inputIndex];inputIndex-=1;let y=input[inputIndex];inputIndex-=1;let x=input[inputIndex];inputIndex-=1,output[outputIndex]=indexToChar[z&63],outputIndex-=1,output[outputIndex]=indexToChar[(y&15)<<2|z>>6],outputIndex-=1,output[outputIndex]=indexToChar[(x&3)<<4|y>>4],outputIndex-=1,output[outputIndex]=indexToChar[x>>2],outputIndex-=1}}function hexCharToNumber(char){if(char<48)throw new TypeError(`Invalid hex char ${char}`);if(char<58)return char-48;if(char<65)throw new TypeError(`Invalid hex char ${char}`);if(char<71)return char-55;if(char<97)throw new TypeError(`Invalid hex char ${char}`);if(char<103)return char-87;throw new TypeError(`Invalid hex char ${char}`)}function hexToNumber(data){let result=0;for(let i=0;i<data.length;i+=1)result=result<<4|hexCharToNumber(data[i]);return result}var NOOP2=()=>{};function unreachable(...args){throw new Error(`Unreachable. Arguments:
+`+args.join(`
+`))}function sequenceEqual(a,b){if(a.length!==b.length)return!1;for(let i=0;i<a.length;i+=1)if(a[i]!==b[i])return!1;return!0}var AdbReverseStringResponse=struct({length:string(4),content:string({field:"length",convert(value){return Number.parseInt(value,16)},back(value){return value.toString(16).padStart(4,"0")}})},{littleEndian:!0}),AdbReverseError=class extends Error{constructor(message){super(message)}},AdbReverseNotSupportedError=class extends AdbReverseError{constructor(){super("ADB reverse tunnel is not supported on this device when connected wirelessly.")}},AdbReverseErrorResponse=extend(AdbReverseStringResponse,{},{postDeserialize(value){throw value.content==="more than one device/emulator"?new AdbReverseNotSupportedError:new AdbReverseError(value.content)}});function decimalToNumber(buffer2){let value=0;for(let byte of buffer2){if(byte<48||byte>57)return value;value=value*10+byte-48}return value}var OKAY=encodeUtf8("OKAY"),AdbReverseService=class extends AdbServiceBase{#deviceAddressToLocalAddress=new Map;async createBufferedStream(service){let socket=await this.adb.createSocket(service);return new BufferedReadableStream(socket.readable)}async sendRequest(service){let stream=await this.createBufferedStream(service),response=await stream.readExactly(4);return sequenceEqual(response,OKAY)||await AdbReverseErrorResponse.deserialize(stream),stream}async list(){let stream=await this.createBufferedStream("reverse:list-forward");return(await AdbReverseStringResponse.deserialize(stream)).content.split(`
+`).filter(line=>!!line).map(line=>{let[deviceSerial,localName,remoteName]=line.split(" ");return{deviceSerial,localName,remoteName}})}async addExternal(deviceAddress,localAddress){let stream=await this.sendRequest(`reverse:forward:${deviceAddress};${localAddress}`);if(deviceAddress.startsWith("tcp:")){let position=stream.position;try{let length=hexToNumber(await stream.readExactly(4));deviceAddress=`tcp:${decimalToNumber(await stream.readExactly(length))}`}catch(e){if(!(e instanceof ExactReadableEndedError&&stream.position===position))throw e}}return deviceAddress}async add(deviceAddress,handler,localAddress){localAddress=await this.adb.transport.addReverseTunnel(handler,localAddress);try{return deviceAddress=await this.addExternal(deviceAddress,localAddress),this.#deviceAddressToLocalAddress.set(deviceAddress,localAddress),deviceAddress}catch(e){throw await this.adb.transport.removeReverseTunnel(localAddress),e}}async remove(deviceAddress){let localAddress=this.#deviceAddressToLocalAddress.get(deviceAddress);localAddress&&await this.adb.transport.removeReverseTunnel(localAddress),await this.sendRequest(`reverse:killforward:${deviceAddress}`)}async removeAll(){await this.adb.transport.clearReverseTunnels(),this.#deviceAddressToLocalAddress.clear(),await this.sendRequest("reverse:killforward-all")}};var AdbNoneProtocolProcessImpl=class{#socket;get stdin(){return this.#socket.writable}get output(){return this.#socket.readable}#exited;get exited(){return this.#exited}constructor(socket,signal){if(this.#socket=socket,signal){let exited=new PromiseResolver;this.#socket.closed.then(()=>exited.resolve(void 0),e=>exited.reject(e)),signal.addEventListener("abort",()=>{exited.reject(signal.reason),this.#socket.close()}),this.#exited=exited.promise}else this.#exited=this.#socket.closed}kill(){return this.#socket.close()}};var AdbNoneProtocolPtyProcess=class{#socket;#writer;#input;get input(){return this.#input}get output(){return this.#socket.readable}get exited(){return this.#socket.closed}constructor(socket){this.#socket=socket,this.#writer=this.#socket.writable.getWriter(),this.#input=new maybe_consumable_exports.WritableStream({write:chunk=>this.#writer.write(chunk)})}sigint(){return this.#writer.write(new Uint8Array([3]))}kill(){return this.#socket.close()}};function escapeArg(s){let result="";result+="'";let base=0;for(;;){let found=s.indexOf("'",base);if(found===-1){result+=s.substring(base);break}result+=s.substring(base,found),result+=String.raw`'\''`,base=found+1}return result+="'",result}function splitCommand(command){let result=[],quote,isEscaped=!1,start=0;for(let i=0,len=command.length;i<len;i+=1){if(isEscaped){isEscaped=!1;continue}let char=command.charAt(i);switch(char){case" ":!quote&&i!==start&&(result.push(command.substring(start,i)),start=i+1);break;case"'":case'"':quote?char===quote&&(quote=void 0):quote=char;break;case"\\":isEscaped=!0;break}}return start<command.length&&result.push(command.substring(start)),result}var AdbNoneProtocolSpawner=class{#spawn;constructor(spawn){this.#spawn=spawn}spawn(command,signal){return signal==null||signal.throwIfAborted(),typeof command=="string"&&(command=splitCommand(command)),this.#spawn(command,signal)}async spawnWait(command){return await(await this.spawn(command)).output.pipeThrough(new ConcatBufferStream)}async spawnWaitText(command){return await(await this.spawn(command)).output.pipeThrough(new TextDecoderStream).pipeThrough(new ConcatStringStream)}};var AdbNoneProtocolSubprocessService=class extends AdbNoneProtocolSpawner{#adb;get adb(){return this.#adb}constructor(adb){super(async(command,signal)=>{let socket=await this.#adb.createSocket(`exec:${command.join(" ")}`);if(signal!=null&&signal.aborted)throw await socket.close(),signal.reason;return new AdbNoneProtocolProcessImpl(socket,signal)}),this.#adb=adb}async pty(command){return command===void 0?command="":Array.isArray(command)&&(command=command.join(" ")),new AdbNoneProtocolPtyProcess(await this.#adb.createSocket(`shell:${command}`))}};var AdbFeature={ShellV2:"shell_v2",Cmd:"cmd",StatV2:"stat_v2",ListV2:"ls_v2",FixedPushMkdir:"fixed_push_mkdir",Abb:"abb",AbbExec:"abb_exec",SendReceiveV2:"sendrecv_v2",DelayedAck:"delayed_ack"};var AdbShellProtocolId={Stdin:0,Stdout:1,Stderr:2,Exit:3,CloseStdin:4,WindowSizeChange:5},AdbShellProtocolPacket=struct({id:u8(),data:buffer(u32)},{littleEndian:!0});var AdbShellProtocolProcessImpl=class{#socket;#writer;#stdin;get stdin(){return this.#stdin}#stdout;get stdout(){return this.#stdout}#stderr;get stderr(){return this.#stderr}#exited;get exited(){return this.#exited}constructor(socket,signal){this.#socket=socket;let stdoutController,stderrController;this.#stdout=new PushReadableStream(controller=>{stdoutController=controller}),this.#stderr=new PushReadableStream(controller=>{stderrController=controller});let exited=new PromiseResolver;this.#exited=exited.promise,socket.readable.pipeThrough(new StructDeserializeStream(AdbShellProtocolPacket)).pipeTo(new WritableStream({write:async chunk=>{switch(chunk.id){case AdbShellProtocolId.Exit:exited.resolve(chunk.data[0]);break;case AdbShellProtocolId.Stdout:await stdoutController.enqueue(chunk.data);break;case AdbShellProtocolId.Stderr:await stderrController.enqueue(chunk.data);break;default:break}}})).then(()=>{stdoutController.close(),stderrController.close(),exited.reject(new Error("Socket ended without exit message"))},e=>{stdoutController.error(e),stderrController.error(e),exited.reject(e)}),signal&&signal.addEventListener("abort",()=>{exited.reject(signal.reason),this.#socket.close()}),this.#writer=this.#socket.writable.getWriter(),this.#stdin=new maybe_consumable_exports.WritableStream({write:async chunk=>{await this.#writer.write(AdbShellProtocolPacket.serialize({id:AdbShellProtocolId.Stdin,data:chunk}))},close:()=>this.#writer.write(AdbShellProtocolPacket.serialize({id:AdbShellProtocolId.CloseStdin,data:EmptyUint8Array}))})}kill(){return this.#socket.close()}};var AdbShellProtocolPtyProcess=class{#socket;#writer;#input;get input(){return this.#input}#stdout;get output(){return this.#stdout}#exited=new PromiseResolver;get exited(){return this.#exited.promise}constructor(socket){this.#socket=socket;let stdoutController;this.#stdout=new PushReadableStream(controller=>{stdoutController=controller}),socket.readable.pipeThrough(new StructDeserializeStream(AdbShellProtocolPacket)).pipeTo(new WritableStream({write:async chunk=>{switch(chunk.id){case AdbShellProtocolId.Exit:this.#exited.resolve(chunk.data[0]);break;case AdbShellProtocolId.Stdout:await stdoutController.enqueue(chunk.data);break}}})).then(()=>{stdoutController.close(),this.#exited.reject(new Error("Socket ended without exit message"))},e=>{stdoutController.error(e),this.#exited.reject(e)}),this.#writer=this.#socket.writable.getWriter(),this.#input=new maybe_consumable_exports.WritableStream({write:chunk=>this.#writeStdin(chunk)})}#writeStdin(chunk){return this.#writer.write(AdbShellProtocolPacket.serialize({id:AdbShellProtocolId.Stdin,data:chunk}))}async resize(rows,cols){await this.#writer.write(AdbShellProtocolPacket.serialize({id:AdbShellProtocolId.WindowSizeChange,data:encodeUtf8(`${rows}x${cols},0x0\0`)}))}sigint(){return this.#writeStdin(new Uint8Array([3]))}kill(){return this.#socket.close()}};var AdbShellProtocolSpawner=class{#spawn;constructor(spawn){this.#spawn=spawn}spawn(command,signal){return signal==null||signal.throwIfAborted(),typeof command=="string"&&(command=splitCommand(command)),this.#spawn(command,signal)}async spawnWait(command){let process=await this.spawn(command),[stdout,stderr,exitCode]=await Promise.all([process.stdout.pipeThrough(new ConcatBufferStream),process.stderr.pipeThrough(new ConcatBufferStream),process.exited]);return{stdout,stderr,exitCode}}async spawnWaitText(command){let process=await this.spawn(command),[stdout,stderr,exitCode]=await Promise.all([process.stdout.pipeThrough(new TextDecoderStream).pipeThrough(new ConcatStringStream),process.stderr.pipeThrough(new TextDecoderStream).pipeThrough(new ConcatStringStream),process.exited]);return{stdout,stderr,exitCode}}};var AdbShellProtocolSubprocessService=class extends AdbShellProtocolSpawner{#adb;get adb(){return this.#adb}get isSupported(){return this.#adb.canUseFeature(AdbFeature.ShellV2)}constructor(adb){super(async(command,signal)=>{let socket=await this.#adb.createSocket(`shell,v2,raw:${command.join(" ")}`);if(signal!=null&&signal.aborted)throw await socket.close(),signal.reason;return new AdbShellProtocolProcessImpl(socket,signal)}),this.#adb=adb}async pty(options){let service="shell,v2,pty";return options!=null&&options.terminalType&&(service+=",TERM="+options.terminalType),service+=":",options&&(typeof options.command=="string"?service+=options.command:Array.isArray(options.command)&&(service+=options.command.join(" "))),new AdbShellProtocolPtyProcess(await this.#adb.createSocket(service))}};var AdbSubprocessService=class{#adb;get adb(){return this.#adb}#noneProtocol;get noneProtocol(){return this.#noneProtocol}#shellProtocol;get shellProtocol(){return this.#shellProtocol}constructor(adb){this.#adb=adb,this.#noneProtocol=new AdbNoneProtocolSubprocessService(adb),adb.canUseFeature(AdbFeature.ShellV2)&&(this.#shellProtocol=new AdbShellProtocolSubprocessService(adb))}};function encodeAsciiUnchecked(value){let result=new Uint8Array(value.length);for(let i=0;i<value.length;i+=1)result[i]=value.charCodeAt(i);return result}function adbSyncEncodeId(value){let buffer2=encodeAsciiUnchecked(value);return getUint32LittleEndian(buffer2,0)}var AdbSyncResponseId={Entry:adbSyncEncodeId("DENT"),Entry2:adbSyncEncodeId("DNT2"),Lstat:adbSyncEncodeId("STAT"),Stat:adbSyncEncodeId("STA2"),Lstat2:adbSyncEncodeId("LST2"),Done:adbSyncEncodeId("DONE"),Data:adbSyncEncodeId("DATA"),Ok:adbSyncEncodeId("OKAY"),Fail:adbSyncEncodeId("FAIL")},AdbSyncError=class extends Error{},AdbSyncFailResponse=struct({message:string(u32)},{littleEndian:!0,postDeserialize(value){throw new AdbSyncError(value.message)}});async function adbSyncReadResponse(stream,id,type){typeof id=="string"&&(id=adbSyncEncodeId(id));let buffer2=await stream.readExactly(4);switch(getUint32LittleEndian(buffer2,0)){case AdbSyncResponseId.Fail:throw await AdbSyncFailResponse.deserialize(stream),new Error("Unreachable");case id:return await type.deserialize(stream);default:throw new Error(`Expected '${id}', but got '${decodeUtf8(buffer2)}'`)}}async function*adbSyncReadResponses(stream,id,type){for(typeof id=="string"&&(id=adbSyncEncodeId(id));;){let buffer2=await stream.readExactly(4);switch(getUint32LittleEndian(buffer2,0)){case AdbSyncResponseId.Fail:await AdbSyncFailResponse.deserialize(stream),unreachable();case AdbSyncResponseId.Done:await stream.readExactly(type.size);return;case id:yield await type.deserialize(stream);break;default:throw new Error(`Expected '${id}' or '${AdbSyncResponseId.Done}', but got '${decodeUtf8(buffer2)}'`)}}}var AdbSyncRequestId={List:adbSyncEncodeId("LIST"),ListV2:adbSyncEncodeId("LIS2"),Send:adbSyncEncodeId("SEND"),SendV2:adbSyncEncodeId("SND2"),Lstat:adbSyncEncodeId("STAT"),Stat:adbSyncEncodeId("STA2"),LstatV2:adbSyncEncodeId("LST2"),Data:adbSyncEncodeId("DATA"),Done:adbSyncEncodeId("DONE"),Receive:adbSyncEncodeId("RECV")},AdbSyncNumberRequest=struct({id:u32,arg:u32},{littleEndian:!0});async function adbSyncWriteRequest(writable,id,value){if(typeof id=="string"&&(id=adbSyncEncodeId(id)),typeof value=="number"){await writable.write(AdbSyncNumberRequest.serialize({id,arg:value}));return}typeof value=="string"&&(value=encodeUtf8(value)),await writable.write(AdbSyncNumberRequest.serialize({id,arg:value.length})),await writable.write(value)}var LinuxFileType={Directory:4,File:8,Link:10},AdbSyncLstatResponse=struct({mode:u32,size:u32,mtime:u32},{littleEndian:!0,extra:{get type(){return this.mode>>12},get permission(){return this.mode&4095}},postDeserialize(value){if(value.mode===0&&value.size===0&&value.mtime===0)throw new Error("lstat error");return value}}),AdbSyncStatErrorCode={SUCCESS:0,EACCES:13,EEXIST:17,EFAULT:14,EFBIG:27,EINTR:4,EINVAL:22,EIO:5,EISDIR:21,ELOOP:40,EMFILE:24,ENAMETOOLONG:36,ENFILE:23,ENOENT:2,ENOMEM:12,ENOSPC:28,ENOTDIR:20,EOVERFLOW:75,EPERM:1,EROFS:30,ETXTBSY:26},AdbSyncStatErrorName=Object.fromEntries(Object.entries(AdbSyncStatErrorCode).map(([key,value])=>[value,key])),AdbSyncStatResponse=struct({error:u32(),dev:u64,ino:u64,mode:u32,nlink:u32,uid:u32,gid:u32,size:u64,atime:u64,mtime:u64,ctime:u64},{littleEndian:!0,extra:{get type(){return this.mode>>12},get permission(){return this.mode&4095}},postDeserialize(value){if(value.error)throw new Error(AdbSyncStatErrorName[value.error]);return value}});async function adbSyncLstat(socket,path,v2){let locked=await socket.lock();try{if(v2)return await adbSyncWriteRequest(locked,AdbSyncRequestId.LstatV2,path),await adbSyncReadResponse(locked,AdbSyncResponseId.Lstat2,AdbSyncStatResponse);{await adbSyncWriteRequest(locked,AdbSyncRequestId.Lstat,path);let response=await adbSyncReadResponse(locked,AdbSyncResponseId.Lstat,AdbSyncLstatResponse);return{mode:response.mode,size:BigInt(response.size),mtime:BigInt(response.mtime),get type(){return response.type},get permission(){return response.permission}}}}finally{locked.release()}}async function adbSyncStat(socket,path){let locked=await socket.lock();try{return await adbSyncWriteRequest(locked,AdbSyncRequestId.Stat,path),await adbSyncReadResponse(locked,AdbSyncResponseId.Stat,AdbSyncStatResponse)}finally{locked.release()}}var AdbSyncEntryResponse=extend(AdbSyncLstatResponse,{name:string(u32)}),AdbSyncEntry2Response=extend(AdbSyncStatResponse,{name:string(u32)});async function*adbSyncOpenDirV2(socket,path){let locked=await socket.lock();try{await adbSyncWriteRequest(locked,AdbSyncRequestId.ListV2,path);for await(let item of adbSyncReadResponses(locked,AdbSyncResponseId.Entry2,AdbSyncEntry2Response))item.error===AdbSyncStatErrorCode.SUCCESS&&(yield item)}finally{locked.release()}}async function*adbSyncOpenDirV1(socket,path){let locked=await socket.lock();try{await adbSyncWriteRequest(locked,AdbSyncRequestId.List,path);for await(let item of adbSyncReadResponses(locked,AdbSyncResponseId.Entry,AdbSyncEntryResponse))yield item}finally{locked.release()}}async function*adbSyncOpenDir(socket,path,v2){if(v2)yield*adbSyncOpenDirV2(socket,path);else for await(let item of adbSyncOpenDirV1(socket,path))yield{mode:item.mode,size:BigInt(item.size),mtime:BigInt(item.mtime),get type(){return item.type},get permission(){return item.permission},name:item.name}}var AdbSyncDataResponse=struct({data:buffer(u32)},{littleEndian:!0});async function*adbSyncPullGenerator(socket,path){let locked=await socket.lock(),done=!1;try{await adbSyncWriteRequest(locked,AdbSyncRequestId.Receive,path);for await(let packet of adbSyncReadResponses(locked,AdbSyncResponseId.Data,AdbSyncDataResponse))yield packet.data;done=!0}catch(e){throw done=!0,e}finally{if(!done)for await(let packet of adbSyncReadResponses(locked,AdbSyncResponseId.Data,AdbSyncDataResponse));locked.release()}}function adbSyncPull(socket,path){return ReadableStream.from(adbSyncPullGenerator(socket,path))}var ADB_SYNC_MAX_PACKET_SIZE=64*1024,AdbSyncOkResponse=struct({unused:u32},{littleEndian:!0});async function pipeFileData(locked,file,packetSize,mtime){let abortController=new AbortController;file.pipeThrough(new DistributionStream(packetSize,!0)).pipeTo(new maybe_consumable_exports.WritableStream({write(chunk){return adbSyncWriteRequest(locked,AdbSyncRequestId.Data,chunk)}}),{signal:abortController.signal}).then(async()=>{await adbSyncWriteRequest(locked,AdbSyncRequestId.Done,mtime),await locked.flush()},NOOP2),await adbSyncReadResponse(locked,AdbSyncResponseId.Ok,AdbSyncOkResponse).catch(e=>{throw abortController.abort(),e})}async function adbSyncPushV1({socket,filename,file,type=LinuxFileType.File,permission=438,mtime=Date.now()/1e3|0,packetSize=ADB_SYNC_MAX_PACKET_SIZE}){let locked=await socket.lock();try{let mode=type<<12|permission,pathAndMode=`${filename},${mode.toString()}`;await adbSyncWriteRequest(locked,AdbSyncRequestId.Send,pathAndMode),await pipeFileData(locked,file,packetSize,mtime)}finally{locked.release()}}var AdbSyncSendV2Flags={None:0,Brotli:1,Lz4:2,Zstd:4,DryRun:2147483648},AdbSyncSendV2Request=struct({id:u32,mode:u32,flags:u32()},{littleEndian:!0});async function adbSyncPushV2({socket,filename,file,type=LinuxFileType.File,permission=438,mtime=Date.now()/1e3|0,packetSize=ADB_SYNC_MAX_PACKET_SIZE,dryRun=!1}){let locked=await socket.lock();try{await adbSyncWriteRequest(locked,AdbSyncRequestId.SendV2,filename);let mode=type<<12|permission,flags=AdbSyncSendV2Flags.None;dryRun&&(flags|=AdbSyncSendV2Flags.DryRun),await locked.write(AdbSyncSendV2Request.serialize({id:AdbSyncRequestId.SendV2,mode,flags})),await pipeFileData(locked,file,packetSize,mtime)}finally{locked.release()}}function adbSyncPush(options){if(options.v2)return adbSyncPushV2(options);if(options.dryRun)throw new Error("dryRun is not supported in v1");return adbSyncPushV1(options)}var AdbSyncSocketLocked=class{#writer;#readable;#socketLock;#writeLock=new AutoResetEvent;#combiner;get position(){return this.#readable.position}constructor(writer,readable,bufferSize,lock){this.#writer=writer,this.#readable=readable,this.#socketLock=lock,this.#combiner=new BufferCombiner(bufferSize)}#write(buffer2){return Consumable.WritableStream.write(this.#writer,buffer2)}async flush(){try{await this.#writeLock.wait();let buffer2=this.#combiner.flush();buffer2&&await this.#write(buffer2)}finally{this.#writeLock.notifyOne()}}async write(data){try{await this.#writeLock.wait();for(let buffer2 of this.#combiner.push(data))await this.#write(buffer2)}finally{this.#writeLock.notifyOne()}}async readExactly(length){return await this.flush(),await this.#readable.readExactly(length)}release(){this.#combiner.flush(),this.#socketLock.notifyOne()}async close(){await this.#readable.cancel()}},AdbSyncSocket=class{#lock=new AutoResetEvent;#socket;#locked;constructor(socket,bufferSize){this.#socket=socket,this.#locked=new AdbSyncSocketLocked(socket.writable.getWriter(),new BufferedReadableStream(socket.readable),bufferSize,this.#lock)}async lock(){return await this.#lock.wait(),this.#locked}async close(){await this.#locked.close(),await this.#socket.close()}};function dirname(path){let end=path.lastIndexOf("/");if(end===-1)throw new Error("Invalid path");return end===0?"/":path.substring(0,end)}var AdbSync=class{_adb;_socket;#supportsStat;#supportsListV2;#fixedPushMkdir;#supportsSendReceiveV2;#needPushMkdirWorkaround;get supportsStat(){return this.#supportsStat}get supportsListV2(){return this.#supportsListV2}get fixedPushMkdir(){return this.#fixedPushMkdir}get supportsSendReceiveV2(){return this.#supportsSendReceiveV2}get needPushMkdirWorkaround(){return this.#needPushMkdirWorkaround}constructor(adb,socket){this._adb=adb,this._socket=new AdbSyncSocket(socket,adb.maxPayloadSize),this.#supportsStat=adb.canUseFeature(AdbFeature.StatV2),this.#supportsListV2=adb.canUseFeature(AdbFeature.ListV2),this.#fixedPushMkdir=adb.canUseFeature(AdbFeature.FixedPushMkdir),this.#supportsSendReceiveV2=adb.canUseFeature(AdbFeature.SendReceiveV2),this.#needPushMkdirWorkaround=this._adb.canUseFeature(AdbFeature.ShellV2)&&!this.fixedPushMkdir}async lstat(path){return await adbSyncLstat(this._socket,path,this.#supportsStat)}async stat(path){if(!this.#supportsStat)throw new Error("Not supported");return await adbSyncStat(this._socket,path)}async isDirectory(path){try{return await this.lstat(path+"/"),!0}catch{return!1}}opendir(path){return adbSyncOpenDir(this._socket,path,this.supportsListV2)}async readdir(path){let results=[];for await(let entry of this.opendir(path))results.push(entry);return results}read(filename){return adbSyncPull(this._socket,filename)}async write(options){this.needPushMkdirWorkaround&&await this._adb.subprocess.noneProtocol.spawnWait(["mkdir","-p",escapeArg(dirname(options.filename))]),await adbSyncPush({v2:this.supportsSendReceiveV2,socket:this._socket,...options})}lockSocket(){return this._socket.lock()}dispose(){return this._socket.close()}};function parsePort(value){if(!(!value||value==="0"))return Number.parseInt(value,10)}var AdbTcpIpService=class extends AdbServiceBase{async getListenAddresses(){let serviceListenAddresses=await this.adb.getProp("service.adb.listen_addrs"),servicePort=await this.adb.getProp("service.adb.tcp.port"),persistPort=await this.adb.getProp("persist.adb.tcp.port");return{serviceListenAddresses:serviceListenAddresses!=""?serviceListenAddresses.split(","):[],servicePort:parsePort(servicePort),persistPort:parsePort(persistPort)}}async setPort(port){if(port<=0)throw new TypeError(`Invalid port ${port}`);let output=await this.adb.createSocketAndWait(`tcpip:${port}`);if(output!==`restarting in TCP mode port: ${port}
+`)throw new Error(output);return output}async disable(){let output=await this.adb.createSocketAndWait("usb:");if(output!==`restarting in USB mode
+`)throw new Error(output);return output}};var Adb=class{#transport;get transport(){return this.#transport}get serial(){return this.#transport.serial}get maxPayloadSize(){return this.#transport.maxPayloadSize}get banner(){return this.#transport.banner}get disconnected(){return this.#transport.disconnected}get clientFeatures(){return this.#transport.clientFeatures}get deviceFeatures(){return this.banner.features}subprocess;power;reverse;tcpip;constructor(transport){this.#transport=transport,this.subprocess=new AdbSubprocessService(this),this.power=new AdbPower(this),this.reverse=new AdbReverseService(this),this.tcpip=new AdbTcpIpService(this)}canUseFeature(feature){return this.clientFeatures.includes(feature)&&this.deviceFeatures.includes(feature)}async createSocket(service){return this.#transport.connect(service)}async createSocketAndWait(service){return await(await this.createSocket(service)).readable.pipeThrough(new TextDecoderStream).pipeThrough(new ConcatStringStream)}getProp(key){return this.subprocess.noneProtocol.spawnWaitText(["getprop",key]).then(output=>output.trim())}rm(filenames,options){let args=["rm"];if(options!=null&&options.recursive&&args.push("-r"),options!=null&&options.force&&args.push("-f"),Array.isArray(filenames))for(let filename of filenames)args.push(escapeArg(filename));else args.push(escapeArg(filenames));return args.push("</dev/null"),this.subprocess.noneProtocol.spawnWaitText(args)}async sync(){let socket=await this.createSocket("sync:");return new AdbSync(this,socket)}async framebuffer(){return framebuffer(this)}async close(){await this.#transport.close()}};var AdbBannerKey={Product:"ro.product.name",Model:"ro.product.model",Device:"ro.product.device",Features:"features"},AdbBanner=class _AdbBanner{static parse(banner){let product,model,device,features=[],pieces=banner.split("::");if(pieces.length>1){let props=pieces[1];for(let prop of props.split(";")){if(!prop)continue;let keyValue=prop.split("=");if(keyValue.length!==2)continue;let[key,value]=keyValue;switch(key){case AdbBannerKey.Product:product=value;break;case AdbBannerKey.Model:model=value;break;case AdbBannerKey.Device:device=value;break;case AdbBannerKey.Features:features=value.split(",");break}}}return new _AdbBanner(product,model,device,features)}#product;get product(){return this.#product}#model;get model(){return this.#model}#device;get device(){return this.#device}#features=[];get features(){return this.#features}constructor(product,model,device,features){this.#product=product,this.#model=model,this.#device=device,this.#features=features}};function getBigUint(array,byteOffset,length){let result=0n;for(let i=byteOffset;i<byteOffset+length;i+=8){result<<=64n;let value=getUint64BigEndian(array,i);result|=value}return result}function setBigUint(array,byteOffset,length,value,littleEndian){if(littleEndian)for(;value>0n;)setInt64LittleEndian(array,byteOffset,value),byteOffset+=8,value>>=64n;else{let position=byteOffset+length-8;for(;value>0n;)setInt64BigEndian(array,position,value),position-=8,value>>=64n}}var RsaPrivateKeyNOffset=38,RsaPrivateKeyNLength=2048/8,RsaPrivateKeyDOffset=303,RsaPrivateKeyDLength=2048/8;function rsaParsePrivateKey(key){let n=getBigUint(key,RsaPrivateKeyNOffset,RsaPrivateKeyNLength),d=getBigUint(key,RsaPrivateKeyDOffset,RsaPrivateKeyDLength);return[n,d]}function nonNegativeMod(m,d){let r=m%d;return r>0?r:r+(d>0?d:-d)}function modInverse(a,m){if(a=nonNegativeMod(a,m),!a||m<2)return NaN;let s=[],b=m;for(;b;)[a,b]=[b,a%b],s.push({a,b});if(a!==1)return NaN;let x=1,y=0;for(let i=s.length-2;i>=0;i-=1)[x,y]=[y,x-y*Math.floor(s[i].a/s[i].b)];return nonNegativeMod(y,m)}var ModulusLengthInBytes=2048/8,ModulusLengthInWords=ModulusLengthInBytes/4;function adbGetPublicKeySize(){return 8+ModulusLengthInBytes+ModulusLengthInBytes+4}function adbGeneratePublicKey(privateKey,output){let outputType,outputLength=adbGetPublicKeySize();if(!output)output=new Uint8Array(outputLength),outputType="Uint8Array";else{if(output.length<outputLength)throw new TypeError("output buffer is too small");outputType="number"}let outputView=new DataView(output.buffer,output.byteOffset,output.length),outputOffset=0;outputView.setUint32(outputOffset,ModulusLengthInWords,!0),outputOffset+=4;let[n]=rsaParsePrivateKey(privateKey),n0inv=-modInverse(Number(n%2n**32n),2**32);outputView.setInt32(outputOffset,n0inv,!0),outputOffset+=4,setBigUint(output,outputOffset,ModulusLengthInBytes,n,!0),outputOffset+=ModulusLengthInBytes;let rr=2n**4096n%n;return setBigUint(output,outputOffset,ModulusLengthInBytes,rr,!0),outputOffset+=ModulusLengthInBytes,outputView.setUint32(outputOffset,65537,!0),outputOffset+=4,outputType==="Uint8Array"?output:outputLength}function powMod(base,exponent,modulus){if(modulus===1n)return 0n;let r=1n;for(base=base%modulus;exponent>0n;)BigInt.asUintN(1,exponent)===1n&&(r=r*base%modulus),base=base*base%modulus,exponent>>=1n;return r}var SHA1_DIGEST_LENGTH=20,ASN1_SEQUENCE=48,ASN1_OCTET_STRING=4,ASN1_NULL=5,ASN1_OID=6,SHA1_DIGEST_INFO=new Uint8Array([ASN1_SEQUENCE,13+SHA1_DIGEST_LENGTH,ASN1_SEQUENCE,9,ASN1_OID,5,1*40+3,14,3,2,26,ASN1_NULL,0,ASN1_OCTET_STRING,SHA1_DIGEST_LENGTH]);function rsaSign(privateKey,data){let[n,d]=rsaParsePrivateKey(privateKey),padded=new Uint8Array(256),index=0;padded[index]=0,index+=1,padded[index]=1,index+=1;let fillLength=padded.length-SHA1_DIGEST_INFO.length-data.length-1;for(;index<fillLength;)padded[index]=255,index+=1;padded[index]=0,index+=1,padded.set(SHA1_DIGEST_INFO,index),index+=SHA1_DIGEST_INFO.length,padded.set(data,index);let signature=powMod(getBigUint(padded,0,padded.length),d,n);return setBigUint(padded,0,padded.length,signature,!1),padded}var AdbCommand={Auth:1213486401,Close:1163086915,Connect:1314410051,Okay:1497451343,Open:1313165391,Write:1163154007},AdbPacketHeader=struct({command:u32,arg0:u32,arg1:u32,payloadLength:u32,checksum:u32,magic:s32},{littleEndian:!0}),AdbPacket=extend(AdbPacketHeader,{payload:buffer("payloadLength")});function calculateChecksum(payload){return payload.reduce((result,item)=>result+item,0)}var AdbPacketSerializeStream=class extends TransformStream{constructor(){let headerBuffer=new Uint8Array(AdbPacketHeader.size);super({transform:async(chunk,controller)=>{await chunk.tryConsume(async chunk2=>{let init=chunk2;init.payloadLength=init.payload.length,AdbPacketHeader.serialize(init,headerBuffer),await Consumable.ReadableStream.enqueue(controller,headerBuffer),init.payloadLength&&await Consumable.ReadableStream.enqueue(controller,init.payload)})}})}};var AdbAuthType={Token:1,Signature:2,PublicKey:3},AdbSignatureAuthenticator=async function*(credentialStore2,getNextRequest){for await(let key of credentialStore2.iterateKeys()){let packet=await getNextRequest();if(packet.arg0!==AdbAuthType.Token)return;let signature=rsaSign(key.buffer,packet.payload);yield{command:AdbCommand.Auth,arg0:AdbAuthType.Signature,arg1:0,payload:signature}}},AdbPublicKeyAuthenticator=async function*(credentialStore2,getNextRequest){var _a;if((await getNextRequest()).arg0!==AdbAuthType.Token)return;let privateKey;for await(let key of credentialStore2.iterateKeys()){privateKey=key;break}privateKey||(privateKey=await credentialStore2.generateKey());let publicKeyLength=adbGetPublicKeySize(),[publicKeyBase64Length]=calculateBase64EncodedLength(publicKeyLength),nameBuffer=(_a=privateKey.name)!=null&&_a.length?encodeUtf8(privateKey.name):EmptyUint8Array,publicKeyBuffer=new Uint8Array(publicKeyBase64Length+(nameBuffer.length?nameBuffer.length+1:0)+1);adbGeneratePublicKey(privateKey.buffer,publicKeyBuffer),encodeBase64(publicKeyBuffer.subarray(0,publicKeyLength),publicKeyBuffer),nameBuffer.length&&(publicKeyBuffer[publicKeyBase64Length]=32,publicKeyBuffer.set(nameBuffer,publicKeyBase64Length+1)),yield{command:AdbCommand.Auth,arg0:AdbAuthType.PublicKey,arg1:0,payload:publicKeyBuffer}},ADB_DEFAULT_AUTHENTICATORS=[AdbSignatureAuthenticator,AdbPublicKeyAuthenticator],AdbAuthenticationProcessor=class{authenticators;#credentialStore;#pendingRequest=new PromiseResolver;#iterator;constructor(authenticators,credentialStore2){this.authenticators=authenticators,this.#credentialStore=credentialStore2}#getNextRequest=()=>this.#pendingRequest.promise;async*#invokeAuthenticator(){for(let authenticator of this.authenticators)for await(let packet of authenticator(this.#credentialStore,this.#getNextRequest))this.#pendingRequest=new PromiseResolver,yield packet}async process(packet){this.#iterator||(this.#iterator=this.#invokeAuthenticator()),this.#pendingRequest.resolve(packet);let result=await this.#iterator.next();if(result.done)throw new Error("No authenticator can handle the request");return result.value}dispose(){var _a,_b;(_b=(_a=this.#iterator)==null?void 0:_a.return)==null||_b.call(_a)}};var AdbDaemonSocketController=class{#dispatcher;localId;remoteId;localCreated;service;#readable;#readableController;get readable(){return this.#readable}#writableController;writable;#closed=!1;#closedPromise=new PromiseResolver;get closed(){return this.#closedPromise.promise}#socket;get socket(){return this.#socket}#availableWriteBytesChanged;#availableWriteBytes=0;constructor(options){this.#dispatcher=options.dispatcher,this.localId=options.localId,this.remoteId=options.remoteId,this.localCreated=options.localCreated,this.service=options.service,this.#readable=new PushReadableStream(controller=>{this.#readableController=controller}),this.writable=new maybe_consumable_exports.WritableStream({start:controller=>{this.#writableController=controller,controller.signal.addEventListener("abort",()=>{var _a;(_a=this.#availableWriteBytesChanged)==null||_a.reject(controller.signal.reason)})},write:async data=>{let size=data.length,chunkSize=this.#dispatcher.options.maxPayloadSize;for(let start=0,end=chunkSize;start<size;start=end,end+=chunkSize){let chunk=data.subarray(start,end);await this.#writeChunk(chunk)}}}),this.#socket=new AdbDaemonSocket(this),this.#availableWriteBytes=options.availableWriteBytes}async#writeChunk(data){let length=data.length;for(;this.#availableWriteBytes<length;){let resolver=new PromiseResolver;this.#availableWriteBytesChanged=resolver,await resolver.promise}this.#availableWriteBytes===1/0?this.#availableWriteBytes=-1:this.#availableWriteBytes-=length,await this.#dispatcher.sendPacket(AdbCommand.Write,this.localId,this.remoteId,data)}async enqueue(data){await this.#readableController.enqueue(data)}ack(bytes){var _a;this.#availableWriteBytes+=bytes,(_a=this.#availableWriteBytesChanged)==null||_a.resolve()}async close(){var _a;if(!this.#closed){this.#closed=!0,(_a=this.#availableWriteBytesChanged)==null||_a.reject(new Error("Socket closed"));try{this.#writableController.error(new Error("Socket closed"))}catch{}await this.#dispatcher.sendPacket(AdbCommand.Close,this.localId,this.remoteId,EmptyUint8Array)}}dispose(){this.#readableController.close(),this.#closedPromise.resolve(void 0)}},AdbDaemonSocket=class{#controller;get localId(){return this.#controller.localId}get remoteId(){return this.#controller.remoteId}get localCreated(){return this.#controller.localCreated}get service(){return this.#controller.service}get readable(){return this.#controller.readable}get writable(){return this.#controller.writable}get closed(){return this.#controller.closed}constructor(controller){this.#controller=controller}close(){return this.#controller.close()}};var AdbPacketDispatcher=class{#initializers=new AsyncOperationManager(1);#sockets=new Map;#writer;options;#closed=!1;#disconnected=new PromiseResolver;get disconnected(){return this.#disconnected.promise}#incomingSocketHandlers=new Map;#readAbortController=new AbortController;constructor(connection,options){this.options=options,this.options.initialDelayedAckBytes<0&&(this.options.initialDelayedAckBytes=0),connection.readable.pipeTo(new WritableStream({write:async(packet,controller)=>{switch(packet.command){case AdbCommand.Close:await this.#handleClose(packet);break;case AdbCommand.Okay:this.#handleOkay(packet);break;case AdbCommand.Open:await this.#handleOpen(packet);break;case AdbCommand.Write:this.#handleWrite(packet).catch(e=>{controller.error(e)});break;default:throw new Error(`Unknown command: ${packet.command.toString(16)}`)}}}),{preventCancel:options.preserveConnection??!1,signal:this.#readAbortController.signal}).then(()=>{this.#dispose()},e=>{this.#closed||this.#disconnected.reject(e),this.#dispose()}),this.#writer=connection.writable.getWriter()}async#handleClose(packet){if(packet.arg0===0&&this.#initializers.reject(packet.arg1,new Error("Socket open failed")))return;let socket=this.#sockets.get(packet.arg1);if(socket){await socket.close(),socket.dispose(),this.#sockets.delete(packet.arg1);return}}#handleOkay(packet){let ackBytes;if(this.options.initialDelayedAckBytes!==0){if(packet.payload.length!==4)throw new Error("Invalid OKAY packet. Payload size should be 4");ackBytes=getUint32LittleEndian(packet.payload,0)}else{if(packet.payload.length!==0)throw new Error("Invalid OKAY packet. Payload size should be 0");ackBytes=1/0}if(this.#initializers.resolve(packet.arg1,{remoteId:packet.arg0,availableWriteBytes:ackBytes}))return;let socket=this.#sockets.get(packet.arg1);if(socket){socket.ack(ackBytes);return}this.sendPacket(AdbCommand.Close,packet.arg1,packet.arg0,EmptyUint8Array)}#sendOkay(localId,remoteId,ackBytes){let payload;return this.options.initialDelayedAckBytes!==0?(payload=new Uint8Array(4),setUint32LittleEndian(payload,0,ackBytes)):payload=EmptyUint8Array,this.sendPacket(AdbCommand.Okay,localId,remoteId,payload)}async#handleOpen(packet){let[localId]=this.#initializers.add();this.#initializers.resolve(localId,void 0);let remoteId=packet.arg0,availableWriteBytes=packet.arg1,service=decodeUtf8(packet.payload);if(service.endsWith("\0")&&(service=service.substring(0,service.length-1)),this.options.initialDelayedAckBytes===0){if(availableWriteBytes!==0)throw new Error("Invalid OPEN packet. arg1 should be 0");availableWriteBytes=1/0}else if(availableWriteBytes===0)throw new Error("Invalid OPEN packet. arg1 should be greater than 0");let handler=this.#incomingSocketHandlers.get(service);if(!handler){await this.sendPacket(AdbCommand.Close,0,remoteId,EmptyUint8Array);return}let controller=new AdbDaemonSocketController({dispatcher:this,localId,remoteId,localCreated:!1,service,availableWriteBytes});try{await handler(controller.socket),this.#sockets.set(localId,controller),await this.#sendOkay(localId,remoteId,this.options.initialDelayedAckBytes)}catch{await this.sendPacket(AdbCommand.Close,0,remoteId,EmptyUint8Array)}}async#handleWrite(packet){let socket=this.#sockets.get(packet.arg1);if(!socket)throw new Error(`Unknown local socket id: ${packet.arg1}`);let handled=!1,promises=[(async()=>{await socket.enqueue(packet.payload),await this.#sendOkay(packet.arg1,packet.arg0,packet.payload.length),handled=!0})()];this.options.readTimeLimit&&promises.push((async()=>{if(await delay(this.options.readTimeLimit),!handled)throw new Error(`readable of \`${socket.service}\` has stalled for ${this.options.readTimeLimit} milliseconds`)})()),await Promise.race(promises)}async createSocket(service){this.options.appendNullToServiceString&&(service+="\0");let[localId,initializer]=this.#initializers.add();await this.sendPacket(AdbCommand.Open,localId,this.options.initialDelayedAckBytes,service);let{remoteId,availableWriteBytes}=await initializer,controller=new AdbDaemonSocketController({dispatcher:this,localId,remoteId,localCreated:!0,service,availableWriteBytes});return this.#sockets.set(localId,controller),controller.socket}addReverseTunnel(service,handler){this.#incomingSocketHandlers.set(service,handler)}removeReverseTunnel(address){this.#incomingSocketHandlers.delete(address)}clearReverseTunnels(){this.#incomingSocketHandlers.clear()}async sendPacket(command,arg0,arg1,payload){if(typeof payload=="string"&&(payload=encodeUtf8(payload)),payload.length>this.options.maxPayloadSize)throw new TypeError("payload too large");await Consumable.WritableStream.write(this.#writer,{command,arg0,arg1,payload,checksum:this.options.calculateChecksum?calculateChecksum(payload):0,magic:command^4294967295})}async close(){await Promise.all(Array.from(this.#sockets.values(),socket=>socket.close())),this.#closed=!0,this.#readAbortController.abort(),this.options.preserveConnection?this.#writer.releaseLock():await this.#writer.close()}#dispose(){for(let socket of this.#sockets.values())socket.dispose();this.#disconnected.resolve()}};var ADB_DAEMON_VERSION_OMIT_CHECKSUM=16777217,ADB_DAEMON_DEFAULT_FEATURES=[AdbFeature.ShellV2,AdbFeature.Cmd,AdbFeature.StatV2,AdbFeature.ListV2,AdbFeature.FixedPushMkdir,"apex",AdbFeature.Abb,"fixed_push_symlink_timestamp",AdbFeature.AbbExec,"remount_shell","track_app",AdbFeature.SendReceiveV2,"sendrecv_v2_brotli","sendrecv_v2_lz4","sendrecv_v2_zstd","sendrecv_v2_dry_run_send",AdbFeature.DelayedAck],ADB_DAEMON_DEFAULT_INITIAL_PAYLOAD_SIZE=32*1024*1024,AdbDaemonTransport=class _AdbDaemonTransport{static async authenticate({serial,connection,credentialStore:credentialStore2,authenticators=ADB_DEFAULT_AUTHENTICATORS,features=ADB_DAEMON_DEFAULT_FEATURES,initialDelayedAckBytes=ADB_DAEMON_DEFAULT_INITIAL_PAYLOAD_SIZE,...options}){let version=16777217,maxPayloadSize=1024*1024,resolver=new PromiseResolver,authProcessor=new AdbAuthenticationProcessor(authenticators,credentialStore2),abortController=new AbortController,pipe=connection.readable.pipeTo(new WritableStream({async write(packet){switch(packet.command){case AdbCommand.Connect:version=Math.min(version,packet.arg0),maxPayloadSize=Math.min(maxPayloadSize,packet.arg1),resolver.resolve(decodeUtf8(packet.payload));break;case AdbCommand.Auth:{let response=await authProcessor.process(packet);await sendPacket(response);break}default:break}}}),{preventCancel:!0,signal:abortController.signal}).then(()=>{resolver.reject(new Error("Connection closed unexpectedly"))},e=>{resolver.reject(e)}),writer=connection.writable.getWriter();async function sendPacket(init){init.checksum=calculateChecksum(init.payload),init.magic=init.command^4294967295,await Consumable.WritableStream.write(writer,init)}let actualFeatures=features.slice();if(initialDelayedAckBytes<=0){let index=features.indexOf(AdbFeature.DelayedAck);index!==-1&&actualFeatures.splice(index,1)}let banner;try{await sendPacket({command:AdbCommand.Connect,arg0:version,arg1:maxPayloadSize,payload:encodeUtf8(`host::features=${actualFeatures.join(",")}`)}),banner=await resolver.promise}finally{abortController.abort(),writer.releaseLock(),await pipe}return new _AdbDaemonTransport({serial,connection,version,maxPayloadSize,banner,features:actualFeatures,initialDelayedAckBytes,...options})}#connection;get connection(){return this.#connection}#dispatcher;#serial;get serial(){return this.#serial}#protocolVersion;get protocolVersion(){return this.#protocolVersion}get maxPayloadSize(){return this.#dispatcher.options.maxPayloadSize}#banner;get banner(){return this.#banner}get disconnected(){return this.#dispatcher.disconnected}#clientFeatures;get clientFeatures(){return this.#clientFeatures}constructor({serial,connection,version,banner,features=ADB_DAEMON_DEFAULT_FEATURES,initialDelayedAckBytes,...options}){if(this.#serial=serial,this.#connection=connection,this.#banner=AdbBanner.parse(banner),this.#clientFeatures=features,features.includes(AdbFeature.DelayedAck)){if(initialDelayedAckBytes<=0)throw new TypeError("`initialDelayedAckBytes` must be greater than 0 when DelayedAck feature is enabled.");this.#banner.features.includes(AdbFeature.DelayedAck)||(initialDelayedAckBytes=0)}else initialDelayedAckBytes=0;let calculateChecksum2,appendNullToServiceString;version>=ADB_DAEMON_VERSION_OMIT_CHECKSUM?(calculateChecksum2=!1,appendNullToServiceString=!1):(calculateChecksum2=!0,appendNullToServiceString=!0),this.#dispatcher=new AdbPacketDispatcher(connection,{calculateChecksum:calculateChecksum2,appendNullToServiceString,initialDelayedAckBytes,...options}),this.#protocolVersion=version}connect(service){return this.#dispatcher.createSocket(service)}addReverseTunnel(handler,address){return address||(address=`localabstract:reverse_${Math.random().toString().substring(2)}`),this.#dispatcher.addReverseTunnel(address,handler),address}removeReverseTunnel(address){this.#dispatcher.removeReverseTunnel(address)}clearReverseTunnels(){this.#dispatcher.clearReverseTunnels()}close(){return this.#dispatcher.close()}};function unorderedRemove(array,index){index<0||index>=array.length||(array[index]=array[array.length-1],array.length-=1)}var DeviceBusyError=class extends Error{constructor(cause){super("The device is already in used by another program",{cause})}};function isErrorName(e,name){return typeof e=="object"&&e!==null&&"name"in e&&e.name===name}function isUsbInterfaceFilter(filter){return filter.classCode!==void 0&&filter.subclassCode!==void 0&&filter.protocolCode!==void 0}function matchUsbInterfaceFilter(alternate,filter){return alternate.interfaceClass===filter.classCode&&alternate.interfaceSubclass===filter.subclassCode&&alternate.interfaceProtocol===filter.protocolCode}function findUsbInterface(device,filter){for(let configuration of device.configurations)for(let interface_ of configuration.interfaces)for(let alternate of interface_.alternates)if(matchUsbInterfaceFilter(alternate,filter))return{configuration,interface_,alternate}}function padNumber(value){return value.toString(16).padStart(4,"0")}function getSerialNumber(device){return device.serialNumber?device.serialNumber:padNumber(device.vendorId)+"x"+padNumber(device.productId)}function findUsbEndpoints(endpoints){if(endpoints.length===0)throw new TypeError("No endpoints given");let inEndpoint,outEndpoint;for(let endpoint of endpoints)switch(endpoint.direction){case"in":if(inEndpoint=endpoint,outEndpoint)return{inEndpoint,outEndpoint};break;case"out":if(outEndpoint=endpoint,inEndpoint)return{inEndpoint,outEndpoint};break}throw inEndpoint?outEndpoint?new Error("unreachable"):new TypeError("No output endpoint found."):new TypeError("No input endpoint found.")}function matchFilter(device,filter){return filter.vendorId!==void 0&&device.vendorId!==filter.vendorId||filter.productId!==void 0&&device.productId!==filter.productId||filter.serialNumber!==void 0&&getSerialNumber(device)!==filter.serialNumber?!1:isUsbInterfaceFilter(filter)?findUsbInterface(device,filter)||!1:!0}function matchFilters(device,filters,exclusionFilters){if(exclusionFilters&&exclusionFilters.length>0&&matchFilters(device,exclusionFilters))return!1;for(let filter of filters){let result=matchFilter(device,filter);if(result)return result}return!1}var AdbDefaultInterfaceFilter={classCode:255,subclassCode:66,protocolCode:1};function mergeDefaultAdbInterfaceFilter(filters){return!filters||filters.length===0?[AdbDefaultInterfaceFilter]:filters.map(filter=>({...filter,classCode:filter.classCode??AdbDefaultInterfaceFilter.classCode,subclassCode:filter.subclassCode??AdbDefaultInterfaceFilter.subclassCode,protocolCode:filter.protocolCode??AdbDefaultInterfaceFilter.protocolCode}))}var AdbDaemonWebUsbConnection=class{#device;get device(){return this.#device}#inEndpoint;get inEndpoint(){return this.#inEndpoint}#outEndpoint;get outEndpoint(){return this.#outEndpoint}#readable;get readable(){return this.#readable}#writable;get writable(){return this.#writable}constructor(device,inEndpoint,outEndpoint,usbManager){this.#device=device,this.#inEndpoint=inEndpoint,this.#outEndpoint=outEndpoint;let closed2=!1,duplex=new DuplexStreamFactory({close:async()=>{try{closed2=!0,await device.raw.close()}catch{}},dispose:()=>{closed2=!0,usbManager.removeEventListener("disconnect",handleUsbDisconnect)}});function handleUsbDisconnect(e){e.device===device.raw&&duplex.dispose().catch(unreachable)}usbManager.addEventListener("disconnect",handleUsbDisconnect),this.#readable=duplex.wrapReadable(new ReadableStream({pull:async controller=>{let packet=await this.#transferIn();packet?controller.enqueue(packet):controller.close()}},{highWaterMark:0}));let zeroMask=outEndpoint.packetSize-1;this.#writable=pipeFrom(duplex.createWritable(new maybe_consumable_exports.WritableStream({write:async chunk=>{try{await device.raw.transferOut(outEndpoint.endpointNumber,toLocalUint8Array(chunk)),zeroMask&&!(chunk.length&zeroMask)&&await device.raw.transferOut(outEndpoint.endpointNumber,EmptyUint8Array)}catch(e){if(closed2)return;throw e}}})),new AdbPacketSerializeStream)}async#transferIn(){try{for(;;){let result=await this.#device.raw.transferIn(this.#inEndpoint.endpointNumber,this.#inEndpoint.packetSize);if(result.data.byteLength!==24)continue;let buffer2=new Uint8Array(result.data.buffer),stream=new Uint8ArrayExactReadable(buffer2),packet=AdbPacketHeader.deserialize(stream);if(packet.magic===(packet.command^4294967295)){if(packet.payloadLength!==0){let result2=await this.#device.raw.transferIn(this.#inEndpoint.endpointNumber,packet.payloadLength);packet.payload=new Uint8Array(result2.data.buffer)}else packet.payload=EmptyUint8Array;return packet}}}catch(e){if(isErrorName(e,"NetworkError")&&(await new Promise(resolve=>{setTimeout(()=>{resolve()},100)}),closed))return;throw e}}},AdbDaemonWebUsbDevice=class _AdbDaemonWebUsbDevice{static DeviceBusyError=DeviceBusyError;#interface;#usbManager;#raw;get raw(){return this.#raw}#serial;get serial(){return this.#serial}get name(){return this.#raw.productName}constructor(device,interface_,usbManager){this.#raw=device,this.#serial=getSerialNumber(device),this.#interface=interface_,this.#usbManager=usbManager}async#claimInterface(){var _a;this.#raw.opened||await this.#raw.open();let{configuration,interface_,alternate}=this.#interface;if(((_a=this.#raw.configuration)==null?void 0:_a.configurationValue)!==configuration.configurationValue&&await this.#raw.selectConfiguration(configuration.configurationValue),!interface_.claimed)try{await this.#raw.claimInterface(interface_.interfaceNumber)}catch(e){throw isErrorName(e,"NetworkError")?new _AdbDaemonWebUsbDevice.DeviceBusyError(e):e}return interface_.alternate.alternateSetting!==alternate.alternateSetting&&await this.#raw.selectAlternateInterface(interface_.interfaceNumber,alternate.alternateSetting),findUsbEndpoints(alternate.endpoints)}async connect(){let{inEndpoint,outEndpoint}=await this.#claimInterface();return new AdbDaemonWebUsbConnection(this,inEndpoint,outEndpoint,this.#usbManager)}};var AdbDaemonWebUsbDeviceObserver=class _AdbDaemonWebUsbDeviceObserver{static async create(usb,options={}){let devices=await usb.getDevices();return new _AdbDaemonWebUsbDeviceObserver(usb,devices,options)}#filters;#exclusionFilters;#usbManager;#onDeviceAdd=new EventEmitter;onDeviceAdd=this.#onDeviceAdd.event;#onDeviceRemove=new EventEmitter;onDeviceRemove=this.#onDeviceRemove.event;#onListChange=new StickyEventEmitter;onListChange=this.#onListChange.event;current=[];constructor(usb,initial,options={}){this.#filters=mergeDefaultAdbInterfaceFilter(options.filters),this.#exclusionFilters=options.exclusionFilters,this.#usbManager=usb,this.current=initial.map(device=>this.#convertDevice(device)).filter(device=>!!device),this.#onListChange.fire(this.current),this.#usbManager.addEventListener("connect",this.#handleConnect),this.#usbManager.addEventListener("disconnect",this.#handleDisconnect)}#convertDevice(device){let interface_=matchFilters(device,this.#filters,this.#exclusionFilters);if(interface_)return new AdbDaemonWebUsbDevice(device,interface_,this.#usbManager)}#handleConnect=e=>{let device=this.#convertDevice(e.device);if(!device||this.current.some(item=>item.raw===device.raw))return;let next=this.current.slice();next.push(device),this.current=next,this.#onDeviceAdd.fire([device]),this.#onListChange.fire(this.current)};#handleDisconnect=e=>{let index=this.current.findIndex(device=>device.raw===e.device);if(index!==-1){let device=this.current[index],next=this.current.slice();unorderedRemove(next,index),this.current=next,this.#onDeviceRemove.fire([device]),this.#onListChange.fire(this.current)}};stop(){this.#usbManager.removeEventListener("connect",this.#handleConnect),this.#usbManager.removeEventListener("disconnect",this.#handleDisconnect),this.#onDeviceAdd.dispose(),this.#onDeviceRemove.dispose(),this.#onListChange.dispose()}};var AdbDaemonWebUsbDeviceManager=class _AdbDaemonWebUsbDeviceManager{static BROWSER=typeof globalThis.navigator<"u"&&globalThis.navigator.usb?new _AdbDaemonWebUsbDeviceManager(globalThis.navigator.usb):void 0;#usbManager;constructor(usbManager){this.#usbManager=usbManager}async requestDevice(options={}){let filters=mergeDefaultAdbInterfaceFilter(options.filters);try{let device=await this.#usbManager.requestDevice({filters,exclusionFilters:options.exclusionFilters}),interface_=matchFilters(device,filters,options.exclusionFilters);return interface_?(this.#usbManager.dispatchEvent(new USBConnectionEvent("connect",{device})),new AdbDaemonWebUsbDevice(device,interface_,this.#usbManager)):void 0}catch(e){if(isErrorName(e,"NotFoundError"))return;throw e}}async getDevices(options={}){let filters=mergeDefaultAdbInterfaceFilter(options.filters),devices=await this.#usbManager.getDevices(),result=[];for(let device of devices){let interface_=matchFilters(device,filters,options.exclusionFilters);interface_&&result.push(new AdbDaemonWebUsbDevice(device,interface_,this.#usbManager))}return result}trackDevices(options={}){return AdbDaemonWebUsbDeviceObserver.create(this.#usbManager,options)}};function openDatabase(){return new Promise((resolve,reject)=>{let request=indexedDB.open("Tango",1);request.onerror=()=>{reject(request.error)},request.onupgradeneeded=()=>{request.result.createObjectStore("Authentication",{autoIncrement:!0})},request.onsuccess=()=>{let db=request.result;resolve(db)}})}async function saveKey(key){let db=await openDatabase();return new Promise((resolve,reject)=>{let transaction=db.transaction("Authentication","readwrite"),putRequest=transaction.objectStore("Authentication").add(key);putRequest.onerror=()=>{reject(putRequest.error)},putRequest.onsuccess=()=>{resolve()},transaction.onerror=()=>{reject(transaction.error)},transaction.oncomplete=()=>{db.close()}})}async function getAllKeys(){let db=await openDatabase();return new Promise((resolve,reject)=>{let transaction=db.transaction("Authentication","readonly"),getRequest=transaction.objectStore("Authentication").getAll();getRequest.onerror=()=>{reject(getRequest.error)},getRequest.onsuccess=()=>{resolve(getRequest.result)},transaction.onerror=()=>{reject(transaction.error)},transaction.oncomplete=()=>{db.close()}})}var AdbWebCredentialStore=class{#appName;constructor(appName="Tango"){this.#appName=appName}async generateKey(){let{privateKey:cryptoKey}=await crypto.subtle.generateKey({name:"RSASSA-PKCS1-v1_5",modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:"SHA-1"},!0,["sign","verify"]),privateKey=new Uint8Array(await crypto.subtle.exportKey("pkcs8",cryptoKey));return await saveKey(privateKey),{buffer:privateKey,name:`${this.#appName}@${globalThis.location.hostname}`}}async*iterateKeys(){for(let key of await getAllKeys())yield{buffer:key,name:`${this.#appName}@${globalThis.location.hostname}`}}};var Manager=AdbDaemonWebUsbDeviceManager.BROWSER,credentialStore=new AdbWebCredentialStore("Blink Setup");async function connectDevice(){if(!Manager)throw new Error("WebUSB not supported in this browser");let device=await Manager.requestDevice();if(!device)throw new Error("No device selected");let connection=await device.connect(),transport=await AdbDaemonTransport.authenticate({serial:device.serial,connection,credentialStore});return new Adb(transport)}async function runShellCommand(adb,command){return{stdout:await adb.subprocess.noneProtocol.spawnWaitText(command),stderr:"",exitCode:0}}async function grantWriteSecureSettings(adb,packageName){return runShellCommand(adb,`pm grant ${packageName} android.permission.WRITE_SECURE_SETTINGS`)}async function enableAccessibilityService(adb,serviceName){let currentValue=(await runShellCommand(adb,"settings get secure enabled_accessibility_services")).stdout.trim(),newValue;if(currentValue==="null"||currentValue==="")newValue=serviceName;else{if(currentValue.includes(serviceName))return{stdout:"Already enabled",stderr:"",exitCode:0};newValue=`${currentValue}:${serviceName}`}return runShellCommand(adb,`settings put secure enabled_accessibility_services ${newValue}`)}async function checkPermission(adb,packageName,permission){return(await adb.subprocess.noneProtocol.spawnWaitText(`dumpsys package ${packageName} | grep ${permission}`)).includes("granted=true")}async function disconnect(adb){try{await adb.close()}catch{}}export{checkPermission,connectDevice,disconnect,enableAccessibilityService,grantWriteSecureSettings,runShellCommand};
+
+
+// Signal to the plain script that the bundle loaded successfully
+_connectDevice = connectDevice;
+
+// ── Step 1: Banking Mode & Auto-Recovery (WRITE_SECURE_SETTINGS) ──────────────
+document.getElementById('btn-grant-notif').onclick = async () => {
+  const statusEl = document.getElementById('notif-status');
+  const actionsEl = document.getElementById('notif-actions');
+  statusEl.className = 'status info';
+  statusEl.textContent = 'Granting permission…';
+
+  try {
+    await grantWriteSecureSettings(adb, 'com.blink.app');
+    const verified = await checkPermission(adb, 'com.blink.app', 'WRITE_SECURE_SETTINGS');
+    if (verified) {
+      statusEl.className = 'status success';
+      statusEl.textContent = '✓ Banking Mode &amp; Auto-Recovery permission granted';
+      actionsEl.style.display = 'none';
+      step1Done = true;
+      granted.push('Banking Mode &amp; Auto-Recovery');
+      updateBankingStep();
+    } else {
+      statusEl.className = 'status warn';
+      statusEl.textContent = 'Grant ran but could not verify. Restart Blink app to confirm.';
+      step1Done = true;
+      updateBankingStep();
+    }
+  } catch (err) {
+    statusEl.className = 'status error';
+    statusEl.textContent = 'Failed: ' + err.message;
+  }
+};
+
+document.getElementById('btn-skip-notif').onclick = () => {
+  document.getElementById('notif-status').className = 'status info';
+  document.getElementById('notif-status').textContent = 'Skipped — Banking Mode and A11y self-heal will not be available.';
+  document.getElementById('notif-actions').style.display = 'none';
+  updateBankingStep();
+};
+
+// ── Step 2: Screen Protection Service (Accessibility) ─────────────────────────
+document.getElementById('btn-grant-a11y').onclick = async () => {
+  const statusEl = document.getElementById('a11y-status');
+  const actionsEl = document.getElementById('a11y-actions');
+  statusEl.className = 'status info';
+  statusEl.textContent = 'Enabling accessibility service…';
+
+  try {
+    const svc = 'com.blink.app/com.blink.intercept.BlinkAccessibilityService';
+    const res = await enableAccessibilityService(adb, svc);
+    if (res.stdout.includes('com.blink.app') || res.stdout === 'Already enabled') {
+      statusEl.className = 'status success';
+      statusEl.textContent = '✓ Screen protection service enabled';
+      actionsEl.style.display = 'none';
+      step2Done = true;
+      granted.push('Screen Protection Service');
+    } else {
+      statusEl.className = 'status warn';
+      statusEl.textContent = 'Enabled but could not verify. You may need to enable manually in Settings → Accessibility.';
+    }
+  } catch (err) {
+    statusEl.className = 'status error';
+    statusEl.textContent = 'Failed: ' + err.message;
+  }
+};
+
+document.getElementById('btn-skip-a11y').onclick = () => {
+  document.getElementById('a11y-status').className = 'status info';
+  document.getElementById('a11y-status').textContent = 'Skipped — enable manually in Settings → Accessibility → Blink.';
+  document.getElementById('a11y-actions').style.display = 'none';
+};
+
+// ── Step 3: Banking Mode ──────────────────────────────────────────────────────
+function updateBankingStep() {
+  const btn = document.getElementById('btn-grant-banking');
+  const depTag = document.getElementById('banking-dep-tag');
+  btn.disabled = !step1Done;
+  depTag.style.display = step1Done ? 'none' : 'inline-block';
+}
+
+document.getElementById('btn-grant-banking').onclick = () => {
+  document.getElementById('banking-status').className = 'status success';
+  document.getElementById('banking-status').textContent = '✓ Enable Banking Mode in Blink app → Settings → Notifications → Banking Mode.';
+  document.getElementById('banking-actions').style.display = 'none';
+  step3Done = true;
+  granted.push('Banking Mode (enable in app)');
+  document.getElementById('banking-tip').style.display = 'list-item';
+};
+
+document.getElementById('btn-skip-banking').onclick = () => {
+  document.getElementById('banking-status').className = 'status info';
+  document.getElementById('banking-status').textContent = 'Skipped — enable later in Blink → Settings → Notifications.';
+  document.getElementById('banking-actions').style.display = 'none';
+};
+
+// ── Finish ────────────────────────────────────────────────────────────────────
+document.getElementById('btn-to-done').onclick = async () => {
+  if (adb) {
+    await disconnect(adb);
+    adb = null;
+  }
+
+  const summary = document.getElementById('done-summary');
+  if (granted.length > 0) {
+    summary.textContent = 'Granted: ' + granted.join(', ');
+  } else {
+    summary.textContent = 'No permissions granted this session. You can run setup again anytime.';
+    summary.className = 'status warn';
+  }
+
+  showScreen('done', 4);
+};
+</script>
+</body>
+</html>

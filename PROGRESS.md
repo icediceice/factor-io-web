@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-03-03 15:33
+> Last updated: 2026-03-03 (project-init re-run audit)
 
 ## Current Focus
 
@@ -11,7 +11,8 @@ Project just initialized. Awaiting first task.
 
 Upcoming work in priority order:
 
-- [ ] <add tasks here>
+- [ ] Define tech stack and scaffold project source code
+- [ ] Once tech stack is known: run crawl4ai to scrape docs → upload to NotebookLM → add notebook ID to CLAUDE.md
 
 ## Tier Overrides
 

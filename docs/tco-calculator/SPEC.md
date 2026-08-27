@@ -124,3 +124,88 @@ of how many tokens (up to capacity) traverse it. Engine rules:
 demand 80M tok/mo. `local_first` serves 80M locally → total **$10,000**. Advisory
 blend 70/30 (local/API) → $10,000 + 24M × $0.01/1M overflow = **$10,240** — flagged
 `dominated`, never emitted as the recommendation.
+
+---
+
+## 3. OfferContract — the tariff data model
+
+### 3.1 Design rule: no scalar normalization
+
+A single "cost per 1M tokens" scalar cannot represent the verified upstream pricing
+shapes, so the engine never collapses offers into one. Two shapes ground the design:
+
+**OpenRouter model entry** `[VERIFIED: openrouter.ai/docs/guides/overview/models]` —
+the `pricing` object carries string-valued meters `prompt`, `completion`, `request`
+(fixed per-request fee), `image`, `web_search`, `internal_reasoning`,
+`input_cache_read`, `input_cache_write`, plus an optional `overrides: PricingOverride[]`
+array of conditional pricing overrides.
+
+**LiteLLM model cost map** `[VERIFIED: docs.litellm.ai custom_pricing +
+custom_model_cost_map + add_model_pricing]` — per-model entries carry
+`input_cost_per_token` / `output_cost_per_token`, character meters
+(`input_cost_per_character`, `output_cost_per_character`), threshold-suffixed
+variants (pattern `_above_<N>k_tokens`, e.g. `_above_200k_tokens`; observed set spans
+~30 suffixes including `_above_128k/200k/256k/272k/512k_tokens`), service-tier
+suffixed variants (`_flex`, `_priority`, `_batches`), cache meters
+(`cache_read_input_token_cost`, `cache_creation_input_token_cost`, including
+`above_1hr` and `above_200k` variants), regional uplift multipliers
+(`regional_endpoint_uplift_multiplier`, `regional_processing_uplift_multiplier_eu`,
+`regional_processing_uplift_multiplier_us`), a `tiered_pricing[]` range array, and
+non-token meters (`per_image`, `per_pixel`, `per_second` — audio and video, the
+latter with interval thresholds — `per_query`, `per_page`, `per_session`, `dbu`).
+
+**Normative consequence:** ingestion is FIELD-GRAMMAR driven, not an enumerated
+hardcoded list — the parser recognizes the suffix/meter grammar and carries any
+well-formed field, because both feeds grow fields routinely. Unknown fields follow
+the per-feed lenient rules in §4.5.
+
+### 3.2 The tariff union (finite)
+
+Every admitted offer resolves to exactly one member of:
+
+| Member | Unit basis | Covers |
+|---|---|---|
+| `TokenTariff` | per-token, per-request, per-operation meters | Chat/completion models incl. cache, reasoning, threshold, tier and uplift modifiers |
+| `CharacterTariff` | per-character in/out | Character-priced models (TTS/OCR-class, per LiteLLM character meters) |
+| `HourlyTariff` | per-hour × topology | Lane C GPU instances; provisioned/rented endpoints |
+
+An offer that resolves to none of the three is `quarantined` with the reason string
+preserved in snapshot provenance — never silently dropped, never coerced.
+
+Meters inside a `TokenTariff` keep their full key structure
+(`meter × threshold × service_tier × region_uplift`); threshold selection and tier
+selection happen at quote time per §4.3.
+
+### 3.3 Offer identity
+
+```
+offer_id = (seller, channel, product, region, purchase_term)
+```
+
+Where a feed provides a canonical key it MUST be used as the identity carrier:
+OpenRouter's model id/canonical slug — **never the display name** (display names
+collide across providers and change at will; fixture F9). Cloud SKUs synthesize
+identity as `provider:serviceCode:sku:region:term`. Renaming an offer's display name
+must never fork or merge identities.
+
+### 3.4 Offer state machine
+
+```
+active ──(absent in 1 refresh)──▶ suspect_missing
+suspect_missing ──(reappears)──▶ active
+suspect_missing ──(absent N_CONSECUTIVE refreshes, default 3)──▶ retired
+{any} ──(quarantine rule §4.5 fires)──▶ quarantined
+quarantined ──(explicit re-admission after review)──▶ active
+```
+
+`suspect_missing` offers remain servable but every quote citing one is flagged
+`price_stale_risk`. Every transition is recorded in snapshot provenance with the
+observed refresh id and timestamp.
+
+### 3.5 Decimal-string arithmetic
+
+All money quantities — unit prices, multipliers, uplifts, discount rates, totals —
+travel as decimal strings and are computed in exact decimal arithmetic; IEEE-754
+float is prohibited on any money path. Display rounding is explicit (half-up at
+declared precision, default 2 for totals, 8 for per-token unit prices). Fixture F10
+pins the exactness contract. The meter grammar, not a scalar, is the contract.

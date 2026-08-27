@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPEC — AI Inference TCO Calculator (v0.1)</title>
+<style>
+  :root { --ink:#1a1d21; --muted:#5b6470; --line:#d8dde3; --accent:#0b57d0; --bg-soft:#f4f6f8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); line-height:1.55; background:#fff; }
+  header { border-bottom:1px solid var(--line); padding:28px 24px 18px; background:var(--bg-soft); }
+  header h1 { margin:0 0 6px; font-size:1.6rem; }
+  header .meta { margin:0; color:var(--muted); font-size:.9rem; }
+  header .notice { margin:10px 0 0; padding:10px 12px; border:1px solid var(--line); border-left:4px solid var(--accent); background:#fff; font-size:.85rem; }
+  .wrap { max-width:900px; margin:0 auto; padding:24px; }
+  nav#toc { border:1px solid var(--line); border-radius:8px; padding:14px 18px; margin-bottom:28px; background:var(--bg-soft); }
+  nav#toc strong { display:block; margin-bottom:6px; }
+  nav#toc a { color:var(--accent); text-decoration:none; }
+  nav#toc a:hover { text-decoration:underline; }
+  nav#toc .t3 { margin-left:18px; }
+  nav#toc div { margin:2px 0; font-size:.92rem; }
+  main h1 { font-size:1.5rem; border-bottom:2px solid var(--line); padding-bottom:.3em; }
+  main h2 { font-size:1.25rem; margin-top:2.2em; border-bottom:1px solid var(--line); padding-bottom:.25em; }
+  main h3 { font-size:1.05rem; margin-top:1.6em; }
+  main p { margin:.7em 0; }
+  main ul, main ol { margin:.6em 0; padding-left:1.6em; }
+  main li { margin:.25em 0; }
+  main hr { border:none; border-top:1px solid var(--line); margin:2em 0; }
+  main table { border-collapse:collapse; margin:1em 0; width:100%; font-size:.92rem; display:block; overflow-x:auto; }
+  main th, main td { border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+  main th { background:var(--bg-soft); }
+  main pre { background:var(--bg-soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.45; }
+  main code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:var(--bg-soft); border-radius:4px; padding:1px 4px; font-size:.88em; }
+  main pre code { background:none; padding:0; border-radius:0; }
+  .error { padding:14px; border:1px solid #c0392b; border-radius:6px; background:#fdecea; }
+  footer { color:var(--muted); font-size:.8rem; border-top:1px solid var(--line); margin-top:40px; padding:16px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-top:0;padding-bottom:0">
+    <h1>SPEC — AI Inference TCO Calculator</h1>
+    <p class="meta">Normative draft v0.1 · 2026-08-27 · plan thread 1542478190939996174 · factor-io-web</p>
+    <p class="notice"><strong>Public artifact.</strong> Carries no client rates, margins, or named
+    engagements (SPEC §7.3). The source of truth is <code>docs/tco-calculator/SPEC.md</code> in the
+    repository; this page renders that file and stays in sync with it.</p>
+  </div>
+</header>
+<div class="wrap">
+  <nav id="toc" hidden></nav>
+  <main id="spec">Loading SPEC.md…</main>
+  <footer>Rendered from SPEC.md at view time. If the two ever disagree, the markdown file in the repository wins.</footer>
+</div>
+<script>
+(function(){
+  "use strict";
+  function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function inline(s){
+    s = esc(s);
+    var codes = [];
+    s = s.replace(/`([^`]+)`/g, function(m,c){ codes.push(c); return "\u0000"+(codes.length-1)+"\u0000"; });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+    s = s.replace(/\u0000(\d+)\u0000/g, function(m,i){ return "<code>"+codes[+i]+"</code>"; });
+    return s;
+  }
+  function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,80); }
+
+  function render(md){
+    var lines = md.split("\n"), out = [], toc = [], i = 0, n = lines.length;
+    while (i < n){
+      var line = lines[i];
+      if (/^```/.test(line)){                       // fenced code
+        var buf = []; i++;
+        while (i < n && !/^```/.test(lines[i])){ buf.push(lines[i]); i++; }
+        i++; out.push("<pre><code>"+esc(buf.join("\n"))+"</code></pre>"); continue;
+      }
+      var h = line.match(/^(#{1,6})\s+(.*)$/);      // heading
+      if (h){
+        var lvl = h[1].length, txt = h[2], id = slug(txt);
+        out.push("<h"+lvl+" id=\""+id+"\">"+inline(txt)+"</h"+lvl+">");
+        if (lvl === 2 || lvl === 3) toc.push({ lvl:lvl, id:id, txt:txt });
+        i++; continue;
+      }
+      if (/^-{3,}\s*$/.test(line)){ out.push("<hr>"); i++; continue; }
+      if (/^\|/.test(line) && i+1 < n && /^\|[\s\-:|]+\|\s*$/.test(lines[i+1])){  // table
+        var rows = [];
+        while (i < n && /^\|/.test(lines[i])){ rows.push(lines[i]); i++; }
+        var cells = function(r){ return r.replace(/^\|/,"").replace(/\|$/,"").split("|"); };
+        var html = "<table><thead><tr>";
+        cells(rows[0]).forEach(function(c){ html += "<th>"+inline(c.trim())+"</th>"; });
+        html += "</tr></thead><tbody>";
+        for (var r = 2; r < rows.length; r++){
+          html += "<tr>";
+          cells(rows[r]).forEach(function(c){ html += "<td>"+inline(c.trim())+"</td>"; });
+          html += "</tr>";
+        }
+        out.push(html+"</tbody></table>"); continue;
+      }
+      var m = line.match(/^(\s*)(\d+\.|-)\s+(.*)$/);   // list
+      if (m){
+        var ordered = /^\d+\./.test(m[2]), tag = ordered ? "ol" : "ul";
+        var items = [], cur = m[3]; i++;
+        while (i < n){
+          var l2 = lines[i];
+          var m2 = l2.match(/^(\s*)(\d+\.|-)\s+(.*)$/);
+          if (m2){ items.push(cur); cur = m2[3]; i++; continue; }
+          if (/^\s{2,}\S/.test(l2)){ cur += " " + l2.trim(); i++; continue; }
+          break;
+        }
+        items.push(cur);
+        var lh = "<"+tag+">";
+        items.forEach(function(it){ lh += "<li>"+inline(it)+"</li>"; });
+        out.push(lh+"</"+tag+">"); continue;
+      }
+      if (/^\s*$/.test(line)){ i++; continue; }
+      var para = [line.trim()]; i++;                // paragraph
+      while (i < n && !/^\s*$/.test(lines[i]) && !/^(#{1,6}\s|```|\||-{3,}\s*$)/.test(lines[i]) && !/^(\s*)(\d+\.|-)\s+/.test(lines[i])){
+        para.push(lines[i].trim()); i++;
+      }
+      out.push("<p>"+inline(para.join(" "))+"</p>");
+    }
+    document.getElementById("spec").innerHTML = out.join("\n");
+    var nav = document.getElementById("toc");
+    if (toc.length){
+      var th = "<strong>Contents</strong>";
+      toc.forEach(function(t){ th += "<div class=\"t"+t.lvl+"\"><a href=\"#"+t.id+"\">"+esc(t.txt)+"</a></div>"; });
+      nav.innerHTML = th; nav.hidden = false;
+    }
+  }
+
+  fetch("SPEC.md", { cache: "no-store" }).then(function(r){
+    if (!r.ok) throw new Error("HTTP "+r.status);
+    return r.text();
+  }).then(render).catch(function(e){
+    document.getElementById("spec").innerHTML =
+      "<p class=\"error\">Could not load SPEC.md ("+esc(String(e))+"). "+
+      "This page renders the sibling SPEC.md over HTTP — serve the directory "+
+      "(e.g. <code>python3 -m http.server</code>) or open it on the hosted site.</p>";
+  });
+})();
+</script>
+</body>
+</html>

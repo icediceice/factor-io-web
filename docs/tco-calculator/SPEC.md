@@ -200,7 +200,8 @@ quarantined ──(explicit re-admission after review)──▶ active
 
 `suspect_missing` offers remain servable but every quote citing one is flagged
 `price_stale_risk`. Every transition is recorded in snapshot provenance with the
-observed refresh id and timestamp.
+observed refresh id and timestamp. The `N_CONSECUTIVE` default of 3 is
+`[ASSUMED — spec author; open decision O3]`.
 
 ### 3.5 Decimal-string arithmetic
 

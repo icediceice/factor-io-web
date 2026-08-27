@@ -492,3 +492,165 @@ The hosted artifact of this spec and any public calculator page carry NO client
 rates, margins, or named engagements: commercial defaults shipped publicly are
 generic placeholders labelled `assumed`. Client-specific figures exist only in
 private quote exports.
+
+---
+
+## 8. UX and screen flow
+
+```
+S1 Workload  →  S2 Lanes & routing  →  S3 Results  ⇄  S4 Sensitivity & provenance
+```
+
+- **S1 Workload:** demand (tokens/mo, request count), shape distributions, unit
+  basis + reference tokenizer (§4.1), `required_p95_tok_s` SLO.
+- **S2 Lanes & routing:** Lane A fixed cost + capacity; routing policy selection
+  (§2.2 — advisory blend input with `dominated` flag rendered inline); Lane C
+  topology; Lane B model set. Changing the lane selection triggers slice fetches
+  under the §9 budget.
+- **S3 Results:** TCO curve over horizon; cost-per-1M per lane with `exact|estimated`
+  labels; breakeven utilization; p95 feasibility verdicts (`feasible|infeasible|
+  unknown`) — never the word "guarantee"; freshness banner (§5.5).
+- **S4 Sensitivity & provenance:** sensitivity table over declared ranges; every
+  number clickable into a provenance popover (source feed, `observed_at`, digest,
+  exact/estimated reasons, evidence row if any); overlay toggle (infra-only /
+  fully-loaded); quote export for consultants.
+
+UX rules: no number without a provenance popover; no estimate without its reason
+list; stale or quarantined inputs are visible at the point of use, never hidden.
+
+---
+
+## 9. Client data contracts and payload budget
+
+### 9.1 Objects
+
+- `manifest.json` — always fetched: schema version, snapshot digest, per-source
+  `SourceStatus` envelopes (§5.2), model index (identity §3.3, admitted meters,
+  slice pointers), lane definition summaries.
+- `slices/<digest>.json` — content-addressed, fetched LAZILY: per-feed/per-lane
+  offer data; the client fetches only the slices its selected lanes/models need.
+
+### 9.2 Byte budget (normative)
+
+| Object | Ceiling (compressed) |
+|---|---|
+| `manifest.json` | ≤ 64 KB |
+| one model slice | ≤ 8 KB |
+| one feed slice | ≤ 256 KB |
+| first-load total for the default lane view | ≤ 512 KB |
+
+Rationale `[VERIFIED sizes at plan grounding]`: the LiteLLM cost map alone is
+~1.8 MB and AWS per-service offer files reach hundreds of MB — so raw feeds are
+NEVER shipped to the client. The pipeline pre-reduces them to in-scope SKUs/meters
+and content-addresses the result; the budget above is the admission test for any
+new feed or field set.
+
+### 9.3 Versioning
+
+Contracts are semver'd; an incompatible change bumps MAJOR; the client pins the
+manifest version it loaded and refuses a mismatched major. A reverted publish (§5.3)
+re-serves the prior digest with zero extra state.
+
+---
+
+## 10. Non-functional requirements
+
+1. **Determinism:** identical workload + identical snapshot digest → byte-identical
+   result JSON (canonical key order, decimal-string money math §3.5).
+2. **Offline-capable:** once slices load, recomputation needs no network.
+3. **Static delivery:** GitHub Pages only; no server-side computation; no third-party
+   runtime CDN dependencies (repo convention: self-contained assets).
+4. **Privacy:** no analytics, no tracking; nothing leaves the page.
+5. **Performance:** first interactive ≤ 2 s on a mid-range device within the §9
+   budget; recomputation ≤ 100 ms.
+6. **Accessibility:** WCAG 2.1 AA baseline; keyboard-navigable; provenance popovers
+   reachable and announced.
+7. **Currency:** USD only in v0.1; non-USD feeds normalized at ingestion with the
+   rate recorded in provenance.
+
+---
+
+## 11. Risk register
+
+| # | Risk | Mitigation (normative ref) |
+|---|---|---|
+| R1 | Feed schema drift breaks pricing | Lenient rules §4.4; quarantine only meter-affecting unknowns; unknown keys logged |
+| R2 | Actions schedule delay/drop/60-day disable freezes snapshot | Data-age freshness §5.2; keepalive §5.4; Actions-independent staleness check |
+| R3 | Commit-on-change-only compounds R2 | Unconditional heartbeat commit §5.4 |
+| R4 | Evidence sparsity leaves feasibility `unknown` | Honest `unknown` §6.4; partial matches as annotations only |
+| R5 | GPU instance price volatility | Short feed TTLs (§5.1); STALE banner §5.5 |
+| R6 | Payload bloat degrades the client | §9 byte budget as admission test; content-addressed slices |
+| R7 | Client rates/margins leak into public surfaces | Publication boundary §7.3 |
+| R8 | Dominated blend misleads the user | `dominated` flag with delta §2.2; never emitted as optimum |
+| R9 | Tokenizer conversion drift silently corrupts estimates | `no_conversion` instead of 1:1 §4.1; factor provenance displayed |
+| R10 | GCP API key exposure | Actions-secrets-only §5.6; absence of credentials in all artifacts |
+
+---
+
+## 12. Open decisions, roadmap, acceptance fixtures
+
+### 12.1 Open decisions
+
+- **O1.** Source and owner for `conv[]` tokenizer conversion factors (§4.1).
+- **O2.** Per-feed TTL calibration — §5.1 defaults are `[ASSUMED]` until first
+  ingestion measures drift.
+- **O3.** Retire threshold `N_CONSECUTIVE` (default 3, §3.4).
+- **O4.** Evidence-row curation process — hand-curated in v0.1; pipeline deferred.
+- **O5.** Public commercial-overlay placeholder rate card (generic, `assumed`).
+- **O6.** Lane C topology presets for v0.1 (which GPU instances to pre-reduce).
+
+### 12.2 Phased roadmap
+
+1. **P1 Ingestion:** Actions workflow, snapshot format, SourceStatus envelopes,
+   keepalive + staleness check (fixtures F5, F6).
+2. **P2 Engine:** offer normalization (§3), quote semantics (§4), lane math (§2)
+   (fixtures F1–F4, F7, F9, F10).
+3. **P3 Client:** manifest + slices + screens S1–S4 inside the §9 budget.
+4. **P4 Throughput:** evidence store, `modelled_p95_capacity` (fixture F8).
+5. **P5 Overlay & polish:** §7 overlay, quote export, accessibility audit.
+
+### 12.3 Verification rule
+
+Every auto-update claim in this spec names a §5.1 endpoint verified at grounding;
+every shipped default is labelled `measured` or `assumed`. Implementation phases may
+not close while any acceptance fixture below fails.
+
+### 12.4 Acceptance fixtures F1–F10 (NORMATIVE)
+
+Each fixture is a test case the implementation MUST pass. Setup → action → expected.
+
+- **F1 — No scalar collapse.** Setup: LiteLLM entry with `input_cost_per_token` and
+  `input_cost_per_token_above_128k_tokens`. Action: quote a 200k-prompt request.
+  Expected: both meters retained; the threshold meter applies; no merged scalar
+  exists anywhere in the pipeline.
+- **F2 — Unknown override skipped.** Setup: OpenRouter offer whose `pricing.overrides[]`
+  contains one entry with an unrecognized condition field. Action: quote a default
+  request. Expected: that entry skipped, top-level price applied, offer `active`,
+  skip logged to provenance.
+- **F3 — Unknown field tolerated.** Setup: LiteLLM entry with a new unknown
+  top-level key. Action: ingest. Expected: offer `active`; key ignored and logged.
+- **F4 — Meter-affecting unknown quarantines.** Setup: unknown suffix modifier
+  attached to the only meter the quote would use. Action: ingest + quote. Expected:
+  offer `quarantined` with reason preserved; lane reports the gap.
+- **F5 — Stale envelope surfaces.** Setup: snapshot with a consumed source past
+  `expires_at`. Action: render results. Expected: results shown under `STALE
+  PRICING` banner listing the source.
+- **F6 — Commit time is not freshness.** Setup: snapshot whose `observed_at` is
+  expired but whose commit timestamp is recent. Action: freshness check. Expected:
+  stale verdict — data age wins over commit time.
+- **F7 — Capacity-constrained local_first.** Setup: §2.3 anchor (100M cap,
+  $10,000/mo, 80M demand, advisory 70/30 blend). Action: compare. Expected: total
+  $10,000 at the derived 100% local split; advisory blend flagged `dominated` with
+  the $240 delta; the dominated blend is never emitted as the optimum.
+- **F8 — Evidence mismatch yields unknown.** Setup: evidence rows only at
+  concurrency 256, 128/128. Action: query concurrency 8, 8000/1000. Expected:
+  `modelled_p95_capacity = unknown`, verdict `unknown`; the partial match appears,
+  if at all, only as an annotation with mismatched dimensions listed.
+- **F9 — Identity by canonical slug.** Setup: two offers sharing a display name but
+  with distinct canonical slugs (and a display-name rename of one). Action: ingest.
+  Expected: identities stay distinct; no merge, no fork.
+- **F10 — Decimal exactness.** Setup: canonical money arithmetic battery (0.1+0.2
+  class sums; token-count × per-token unit multiplications at scale). Action:
+  compute. Expected: exact decimal equality; zero IEEE-754 artifacts.
+
+An implementation passing F1–F10 honors this spec; one failing any fixture does not.

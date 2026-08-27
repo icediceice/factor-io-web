@@ -5,7 +5,7 @@
 
 ## Current Focus
 
-AI inference TCO calculator: normative spec v0.1 written (docs/tco-calculator/SPEC.md + shareable spec-artifact.html); implementation phases P1–P5 pending per SPEC §12.2.
+Discoverability: light-tools now has a dedicated static page and the site has a real crawl layer (robots/sitemap/llms.txt) plus raw-HTML metadata. Next up is the AI inference TCO calculator — spec v0.1 written, implementation phases P1–P5 pending per SPEC §12.2.
 
 ## Task Queue
 

@@ -397,3 +397,98 @@ renders the result under a `STALE PRICING` banner with the offending sources lis
 The GCP Cloud Billing API key lives ONLY in GitHub Actions secrets. It never appears
 in snapshots, slice files, client payloads, or logs. Feeds requiring credentials the
 pipeline cannot hold are excluded from the registry rather than half-supported.
+
+---
+
+## 6. Throughput and utilization
+
+### 6.1 The two throughput quantities
+
+| Name | Direction | Definition |
+|---|---|---|
+| `required_p95_tok_s` | USER SLO INPUT | The p95 per-request generation rate the workload needs. The user owns this number. |
+| `modelled_p95_capacity` | DERIVED OUTPUT | What the calculator models a configuration can sustain at p95, derived strictly from evidence (§6.3). |
+
+Feasibility is the comparison `required_p95_tok_s ≤ modelled_p95_capacity`, emitted
+per lane configuration with one of three verdicts: `feasible` (evidence-backed),
+`infeasible` (evidence-backed), or `unknown` (§6.4). The calculator NEVER prints the
+word "guarantee" — a guarantee is a contract a human signs, not a number a model
+emits.
+
+### 6.2 Lane capacity and utilization math
+
+- Lane A: user-declared `tokens/s` ceiling and monthly token budget; utilization =
+  demand/capacity; TCO is flat up to capacity (per §2.3) so unit cost falls with
+  utilization — this is what creates the breakeven against Lane B.
+- Lane C: hourly cost amortized over `tokens/s × utilization × seconds`; unit cost
+  is hyperbolic in utilization; breakeven vs Lane B is the utilization where
+  `hourly/(throughput×util)` crosses the API per-token price.
+- Lane B: no utilization economics; unit cost is the tariff itself (§3/§4).
+
+### 6.3 Evidence rows and matching dimensions
+
+`modelled_p95_capacity` is backed ONLY by evidence rows, each carrying the full
+condition set it was measured under:
+
+```
+evidence_row = {
+  model_revision,          // exact weights revision, not family
+  runtime, runtime_version,// e.g. vLLM 0.x / TRT-LLM n.x
+  quantization,
+  hardware_topology,       // GPU model × count × interconnect
+  prompt_output_dist,      // e.g. 128/128, 8000/1000
+  concurrency,
+  batch_mode,              // continuous/static/none
+  percentile_window,       // the window the p95 was computed over
+  value_tok_s, provenance  // source citation
+}
+```
+
+Matching rule: an evidence row supports a configuration ONLY on every dimension.
+There is no interpolation, no "close enough," no scaling between rows: 11,200 tok/s
+measured at concurrency 256 with 128/128 prompt/output says NOTHING about
+concurrency 8 at 8000/1000 — different dimension, different answer.
+
+### 6.4 Unknown, not fabricated
+
+No row matches all dimensions → `modelled_p95_capacity = unknown` and the verdict is
+`unknown`. A partial match may be SHOWN as an annotation with the mismatched
+dimensions listed, but it never becomes the number. Fixture F8 pins this.
+
+### 6.5 Provenance of shipped defaults
+
+Every default shipped with the calculator is labelled `measured` (with source) or
+`assumed` (with owner + date + re-verification date). Two seed numbers require
+disclosure: **11,200 tok/s and 3,400 tok/s** figures carried in planning material
+are operator packet inputs — `[ASSUMED — operator-supplied, externally UNVERIFIED;
+owner: spec author; re-verify before first public release]`. They MUST NOT ship as
+evidence rows without a real benchmark citation; they may ship only as clearly
+labelled placeholder defaults.
+
+---
+
+## 7. Commercial layer (overlay)
+
+### 7.1 Components
+
+| Component | Shape | Input basis |
+|---|---|---|
+| Enterprise licensing | recurring | per-seat / per-node / per-token royalty, as declared |
+| AI consulting | recurring or SOW | hourly rate or fixed statement-of-work |
+| Implementation | one-time | integration fee, phased if declared |
+
+### 7.2 Application rules
+
+The overlay applies per §4.5 order — LAST, itemized, never folded into unit prices.
+Each component carries its own provenance (`measured`/`assumed` per §6.5) and its
+own `exact|estimated` label. TCO curves render in two modes: infra-only and
+fully-loaded (`fully_loaded` label mandatory). Consultant-facing quote export lists
+overlay line items separately so margins and client-specific rates stay out of the
+engine entirely.
+
+### 7.3 Publication boundary
+
+The hosted artifact of this spec and any public calculator page carry NO client
+rates, margins, or named engagements: commercial defaults shipped publicly are
+generic placeholders labelled `assumed`. Client-specific figures exist only in
+private quote exports.

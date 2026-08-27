@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>light-tools — token-efficient file and shell tools for AI coding agents | Factor IO</title>
+<meta name="description" content="light-tools is an open-source MCP server that replaces the built-in file and shell tools used by AI coding agents with token-efficient versions. One Go binary, stdio, no daemon. Multi-file reads, span edits, read dedup and searchable command output.">
+<link rel="canonical" href="https://studio.factor-io.com/light-tools.html">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Factor IO">
+<meta property="og:title" content="light-tools — token-efficient file and shell tools for AI coding agents">
+<meta property="og:description" content="Open-source MCP server that replaces a coding agent's built-in file and shell tools. Read less, write less, waste fewer turns.">
+<meta property="og:url" content="https://studio.factor-io.com/light-tools.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="light-tools — token-efficient file and shell tools for AI coding agents">
+<meta name="twitter:description" content="Open-source MCP server that replaces a coding agent's built-in file and shell tools. Read less, write less, waste fewer turns.">
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root { color-scheme:dark; --accent:#B46EFF; --cyan:#22D3EE; }
+  body { background:#0A0A0F; color:#E8E6F0; font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:800px; margin:0 auto; padding:48px 28px 96px; }
+  .top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:56px; font-size:13.5px; }
+  .brand { letter-spacing:.08em; font-weight:600; }
+  .brand em { font-style:normal; color:var(--cyan); }
+  .back { color:rgba(232,230,240,.5); text-decoration:none; }
+  .back:hover { color:var(--cyan); }
+  .eyebrow { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+  h1 { font-size:clamp(30px,5.4vw,46px); line-height:1.12; letter-spacing:-.025em; font-weight:650; margin-bottom:20px; text-wrap:balance; }
+  .lede { font-size:clamp(17px,2vw,19px); line-height:1.65; color:rgba(232,230,240,.72); margin-bottom:28px; text-wrap:pretty; }
+  .stats { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:34px; }
+  .stat { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; line-height:1.5; color:rgba(232,230,240,.72); border:1px solid rgba(232,230,240,.14); border-radius:999px; padding:6px 13px; }
+  .stat b { color:var(--cyan); font-weight:500; }
+  .cta { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:8px; }
+  .btn { display:inline-block; padding:12px 20px; border-radius:4px; font-size:14.5px; font-weight:500; text-decoration:none; border:1px solid; }
+  .btn-p { background:var(--accent); border-color:var(--accent); color:#0A0A0F; }
+  .btn-p:hover { box-shadow:0 8px 26px rgba(180,110,255,.28); }
+  .btn-s { background:transparent; border-color:rgba(232,230,240,.2); color:#E8E6F0; }
+  .btn-s:hover { border-color:var(--cyan); color:#fff; }
+  .kicker { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:rgba(232,230,240,.4); margin:52px 0 14px; }
+  .kicker b { color:var(--cyan); font-weight:400; }
+  h2 { font-size:24px; letter-spacing:-.015em; font-weight:600; margin-bottom:14px; text-wrap:balance; }
+  h3 { font-size:17px; font-weight:600; margin:26px 0 8px; }
+  p { color:rgba(232,230,240,.72); margin-bottom:14px; text-wrap:pretty; }
+  ul { margin:0 0 14px 22px; color:rgba(232,230,240,.72); }
+  li { margin-bottom:8px; }
+  strong { color:#E8E6F0; font-weight:600; }
+  a { color:var(--cyan); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em; background:rgba(232,230,240,.07); padding:2px 6px; border-radius:3px; color:#E8E6F0; }
+  pre { background:rgba(27,27,32,.7); border:1px solid rgba(232,230,240,.1); border-radius:4px; padding:16px 18px; overflow-x:auto; margin-bottom:14px; }
+  pre code { background:none; padding:0; font-size:13px; line-height:1.65; color:rgba(232,230,240,.86); }
+  .card { border:1px solid rgba(232,230,240,.1); border-radius:4px; background:rgba(27,27,32,.45); padding:22px 24px; margin-bottom:16px; }
+  .card h3 { margin-top:0; }
+  .card p:last-child { margin-bottom:0; }
+  .tablewrap { overflow-x:auto; margin-bottom:14px; }
+  table { border-collapse:collapse; width:100%; min-width:460px; font-size:14.5px; }
+  th, td { text-align:left; padding:11px 14px; border-bottom:1px solid rgba(232,230,240,.09); vertical-align:top; color:rgba(232,230,240,.72); }
+  th { color:#E8E6F0; font-weight:600; font-size:13px; letter-spacing:.03em; }
+  td code { white-space:nowrap; }
+  .note { border-left:2px solid var(--accent); padding:2px 0 2px 18px; margin:18px 0; color:rgba(232,230,240,.66); font-size:15px; }
+  .faq { border-bottom:1px solid rgba(232,230,240,.09); padding:20px 0; }
+  .faq:first-of-type { border-top:1px solid rgba(232,230,240,.09); }
+  .faq h3 { margin:0 0 8px; font-size:16.5px; color:#E8E6F0; }
+  .faq p:last-child { margin-bottom:0; }
+  .byline { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; border:1px solid rgba(232,230,240,.1); border-radius:4px; background:rgba(27,27,32,.45); padding:24px; }
+  .byline p:last-child { margin-bottom:0; }
+  .foot { margin-top:72px; padding-top:24px; border-top:1px solid rgba(232,230,240,.08); font-size:13px; color:rgba(232,230,240,.4); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .foot a { color:rgba(232,230,240,.4); }
+  .foot a:hover { color:var(--cyan); }
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://studio.factor-io.com/light-tools.html#software",
+      "name": "light-tools",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Model Context Protocol server",
+      "operatingSystem": "Linux, macOS, Windows",
+      "description": "Open-source MCP server that replaces the built-in file and shell tools used by AI coding agents with token-efficient versions. Provides multi-file reads, windowed reads with continuation cursors, read deduplication, span edits and searchable command output.",
+      "url": "https://studio.factor-io.com/light-tools.html",
+      "downloadUrl": "https://www.npmjs.com/package/@factor-i-o/light-tools",
+      "installUrl": "https://github.com/icediceice/light-tools",
+      "softwareHelp": "https://github.com/icediceice/light-tools/blob/main/docs/REFERENCE.md",
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@id": "https://studio.factor-io.com/#founder" },
+      "publisher": { "@id": "https://studio.factor-io.com/#organization" }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://studio.factor-io.com/light-tools.html#source",
+      "name": "light-tools",
+      "description": "MCP server providing token-efficient file, shell, remote-shell, copy and service-probe tools for AI coding agents. Single Go binary, stdio transport, no daemon or database.",
+      "codeRepository": "https://github.com/icediceice/light-tools",
+      "programmingLanguage": "Go",
+      "runtimePlatform": "Model Context Protocol",
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "author": { "@id": "https://studio.factor-io.com/#founder" },
+      "maintainer": { "@id": "https://studio.factor-io.com/#founder" },
+      "about": { "@id": "https://studio.factor-io.com/light-tools.html#software" }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://studio.factor-io.com/#founder",
+      "name": "Thanat Manasakool",
+      "jobTitle": "Founder & Principal Engineer",
+      "description": "Twenty-plus years in enterprise infrastructure, including five years as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading channel partners.",
+      "worksFor": { "@id": "https://studio.factor-io.com/#organization" },
+      "sameAs": [
+        "https://www.linkedin.com/in/thanat-manasakool-3101905a/",
+        "https://github.com/icediceice"
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://studio.factor-io.com/#organization",
+      "name": "Factor IO",
+      "legalName": "Factor I O Co., Ltd.",
+      "url": "https://studio.factor-io.com/",
+      "email": "admin@factor-io.com",
+      "description": "Independent software studio building privacy-first Android apps and AI infrastructure.",
+      "founder": { "@id": "https://studio.factor-io.com/#founder" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Factor IO", "item": "https://studio.factor-io.com/" },
+        { "@type": "ListItem", "position": 2, "name": "light-tools", "item": "https://studio.factor-io.com/light-tools.html" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is light-tools?",
+          "acceptedAnswer": { "@type": "Answer", "text": "light-tools is an open-source MCP server that replaces the built-in file and shell tools used by AI coding agents with versions designed for token efficiency. It ships as a single Go binary, speaks the Model Context Protocol over stdio, and needs no daemon or database. It provides five tools: light_file, light_bash, light_ssh, light_scp and light_ops." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does light-tools work with Claude Code?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Running light-tools init --client claude registers light-tools with Claude Code. An --client antigravity option exists for Antigravity, and light-tools init --client print emits the MCP configuration for any other MCP-capable agent without changing anything. Because light-tools is a stdio server, the client starts it with the session and there is no background daemon to manage." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does light-tools replace my code search or language server?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. light-tools is explicitly not a replacement for code search, indexing, language servers or repository intelligence, and it is designed to sit alongside whichever code-intelligence layer you already use. light-tools handles a different part of the problem: how the agent reads, writes and operates on the machine after it already knows what it wants to do." }
+        },
+        {
+          "@type": "Question",
+          "name": "How much context does light-tools actually save?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Across 319K tool calls in the broader Light stack's telemetry, 2,190.9M tokens were considered and 345.0M delivered, which is roughly 84% less of the considered corpus reaching model context in that dataset. That figure is a lower bound from partial instrumentation: corpus size was measured on 36.8% of calls and delivered size on 15.2%, with uninstrumented stages falling back to the previous measured point. It is a Light-stack measurement of the same targeting primitive, not a claim that every individual light-tools call saves 84%." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it safe to give a coding agent filesystem access through light-tools?",
+          "acceptedAnswer": { "@type": "Answer", "text": "light-tools snapshots every file mutation before it happens so a bad edit can be restored, refuses ambiguous or dangerous mutations rather than guessing, inspects destructive wildcard operations before execution when their surface can be determined safely, and does not register disabled tools at all. Filesystem access can be bounded with allowed_roots. However, confinement is not a shell sandbox: allowed_roots bounds light_file paths, local SCP endpoints and caller-supplied light_ops paths, and while light_bash has its working directory bounded, the commands it runs can still reach outside that directory. Read SECURITY.md before treating confinement as a security boundary." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does light-tools need a daemon, server or database?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. light-tools is a single Go binary that speaks MCP over stdio. The coding agent starts it with the session, so there is no background process, no database and nothing to keep running between sessions." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I install light-tools?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Install globally from npm with npm install --global @factor-i-o/light-tools, which requires Node 18.17 or later and npm 10 or later. Alternatively build from source with go install -tags treesitter github.com/icediceice/light-tools/cmd/light-tools@latest, or use the checksum-verifying install.sh and install.ps1 scripts published with GitHub releases." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I disable individual light-tools tools?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Passing --disable-tool, for example light-tools --disable-tool light_ssh --disable-tool light_scp, means those tools are never registered, so the model cannot call them at all. This is a registration-time exclusion rather than a runtime permission check." }
+        },
+        {
+          "@type": "Question",
+          "name": "What does light-tools cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nothing. light-tools is free and open source under GPL-3.0-or-later, published by Factor I O Co., Ltd. at github.com/icediceice/light-tools." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does light-tools collect telemetry?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Local telemetry is aggregate-only: no paths, arguments, commands, hostnames or usernames are sent anywhere. It can be disabled entirely by setting DO_NOT_TRACK=1 or a non-empty LIGHT_NO_TELEMETRY." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which platforms does light-tools support?",
+          "acceptedAnswer": { "@type": "Answer", "text": "light-tools ships native builds for Linux, macOS and Windows on both amd64 and arm64. Symbol and outline extraction uses tree-sitter everywhere except Windows arm64, which is built without CGo and falls back to a no-symbol mode; all five tools still work there." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <span class="brand">FACTOR&#8202;<em>I&#8202;O</em></span>
+    <a class="back" href="./">&#8592; Back to the studio</a>
+  </div>
+
+  <div class="eyebrow">Open source &middot; MCP server</div>
+  <h1>Your coding agent shouldn't read 2,000 lines to change five.</h1>
+  <p class="lede">
+    <strong>light-tools</strong> replaces the file and shell tools your AI coding agent ships with.
+    One Go binary, speaks MCP over stdio, no daemon and no database.
+    Read less, write less, waste fewer turns.
+  </p>
+
+  <div class="stats">
+    <span class="stat"><b>~84%</b> less delivered to context &mdash; Light-stack telemetry, lower bound</span>
+    <span class="stat"><b>319K</b> tool calls measured</span>
+    <span class="stat"><b>5</b> tools</span>
+    <span class="stat"><b>GPL-3.0</b>-or-later</span>
+  </div>
+
+  <div class="cta">
+    <a class="btn btn-p" href="https://github.com/icediceice/light-tools" rel="noopener">View on GitHub &#8594;</a>
+    <a class="btn btn-s" href="#install">Install &#8594;</a>
+  </div>
+
+  <div class="kicker"><b>01</b> / In one paragraph</div>
+
+  <div class="card">
+    <h3>What light-tools is</h3>
+    <p>
+      light-tools is an open-source MCP server that replaces the built-in file and shell tools used by
+      AI coding agents with versions designed for token efficiency. It ships as a single Go binary,
+      speaks the Model Context Protocol over stdio, and needs no daemon or database. It provides five
+      tools: <code>light_file</code>, <code>light_bash</code>, <code>light_ssh</code>,
+      <code>light_scp</code> and <code>light_ops</code>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Who light-tools is for</h3>
+    <p>
+      Anyone running an MCP-capable coding agent &mdash; Claude Code, Antigravity, or any client that
+      can start a stdio MCP server &mdash; who is paying for context they did not need. It is most
+      useful on large repositories, long sessions, and noisy build or test output. Install it with
+      <code>npm install --global @factor-i-o/light-tools</code>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>When <em>not</em> to use light-tools</h3>
+    <p>
+      light-tools is not a replacement for code search, indexing, language servers or repository
+      intelligence &mdash; keep whichever code-intelligence layer you already use. It solves a
+      different part of the problem: how the agent reads, writes and operates on the machine
+      <em>after</em> it already knows what it wants to do. It is also not a shell sandbox; see
+      <a href="#safety">Safety</a> before treating its confinement as a security boundary.
+    </p>
+  </div>
+
+  <div class="kicker"><b>02</b> / What changes</div>
+  <h2>Four things stop costing you context</h2>
+
+  <h3>Read several files in one go</h3>
+  <p>
+    When an agent needs code from several files, light-tools lets it request the relevant parts of all
+    of them in a single tool call instead of fetching them one at a time. That removes tool round trips
+    and puts the related code in front of the model together. Large files are paged rather than dumped,
+    and the agent receives an exact continuation cursor when more content exists.
+  </p>
+
+  <h3>Change only the code that changed</h3>
+  <p>
+    Many old/new replacement tools make the model emit both the code being replaced and its
+    replacement. light-tools can edit by span instead: point at the lines or symbol to change and send
+    only the new content. When the old and new blocks are about the same size, that roughly halves the
+    edit payload &mdash; on output tokens, usually the more expensive side of model usage.
+  </p>
+
+  <h3>Don't send the same file twice</h3>
+  <p>
+    If the agent re-reads a file whose content has not changed, light-tools returns a short dedup notice
+    instead of pushing identical bytes back into context. If the file did change, it is sent normally.
+  </p>
+
+  <h3>Keep noisy commands out of the context window</h3>
+  <p>
+    Builds, tests and logs can produce thousands of lines. light-tools keeps the useful part inline and
+    spills oversized output to an indexed file that stays searchable and addressable by line range. The
+    goal is not to hide information &mdash; it is to stop paying the context cost before the agent knows
+    whether it needs that information.
+  </p>
+
+  <div class="note">
+    None of this requires the model to remember to &ldquo;be efficient.&rdquo; The behaviour lives in the
+    tools, so it applies on every call whether or not the model is paying attention.
+  </div>
+
+  <div class="kicker"><b>03</b> / The tools</div>
+  <h2>Five tools, all registered by default</h2>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>light_file</code></td><td>Read, search, inspect symbols and edit files without unnecessary full-file traffic</td></tr>
+      <tr><td><code>light_bash</code></td><td>Run local commands with bounded, searchable output</td></tr>
+      <tr><td><code>light_ssh</code></td><td>Run commands on a remote host through a named profile</td></tr>
+      <tr><td><code>light_scp</code></td><td>Copy files to or from a remote host through a named profile</td></tr>
+      <tr><td><code>light_ops</code></td><td>Read-only service, port and log inspection</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Any tool can be withheld entirely. A disabled tool is not registered, so the model cannot call it:</p>
+  <pre><code>light-tools --disable-tool light_ssh --disable-tool light_scp</code></pre>
+
+  <div class="kicker"><b>04</b> / Install</div>
+  <h2 id="install">Install light-tools</h2>
+
+  <p>From npm, which requires Node 18.17 or later and npm 10 or later:</p>
+  <pre><code>npm install --global @factor-i-o/light-tools</code></pre>
+
+  <p>Or build it directly from source:</p>
+  <pre><code>go install -tags treesitter github.com/icediceice/light-tools/cmd/light-tools@latest</code></pre>
+
+  <p>Checksum-verifying installers are also published with each GitHub release:</p>
+  <pre><code>curl -fsSL https://raw.githubusercontent.com/icediceice/light-tools/main/install.sh | sh</code></pre>
+
+  <h3>Register it with your agent</h3>
+  <p>For a known client:</p>
+  <pre><code>light-tools init --client claude</code></pre>
+  <p>
+    <code>--client antigravity</code> is also supported, and <code>--client print</code> emits the MCP
+    configuration without changing anything, for any other MCP-capable agent. Then restart the coding
+    agent &mdash; light-tools is a stdio server, so the client starts it with the session and there is no
+    background daemon to manage.
+  </p>
+
+  <div class="note">
+    <strong>Verify before replacing your native tools.</strong> Do not disable your agent's built-in file
+    and terminal tools until light-tools starts correctly and you have a working fallback. An agent with
+    no native tools and a misconfigured MCP server may be unable to repair its own setup.
+  </div>
+
+  <div class="kicker"><b>05</b> / Measured</div>
+  <h2>What the numbers actually say</h2>
+
+  <p>
+    Across <strong>319K tool calls</strong> in the broader Light stack's telemetry, 2,190.9M tokens were
+    considered and 345.0M delivered &mdash; about <strong>84% less of the considered corpus reaching model
+    context</strong> in that dataset, measured with partial instrumentation (corpus size on 36.8% of calls,
+    delivered size on 15.2%, with uninstrumented stages falling back to the previous measured point) and
+    published deliberately as a lower bound.
+  </p>
+  <p>
+    That is a Light-stack measurement of the same targeting and output-reduction primitive that
+    light-tools uses &mdash; it is <em>not</em> a claim that every individual light-tools call saves 84%.
+    Other aggregate figures from the same dataset: 37.0M tokens in, 6.7 GB of exec bytes saved, a 12.0&times;
+    raw-to-compacted ratio, and 3.2s average latency across all tools.
+  </p>
+  <p>
+    Separately, a local measurement over <strong>45 tool calls</strong> in three throwaway sessions on the
+    light-tools repository itself recorded 12,194 tokens saved by terse output, 164,087 bytes by read
+    dedup, and 116,363 bytes by span writes rather than full rewrites &mdash; a small sample, not a
+    benchmark and not an extrapolated rate.
+  </p>
+
+  <div class="kicker"><b>06</b> / Safety</div>
+  <h2 id="safety">What is protected, and what isn't</h2>
+
+  <p>Coding agents make ordinary mistakes: wrong field names, misspelled verbs, malformed values, overly broad shell commands. light-tools tries to make those mistakes cheap without silently guessing about dangerous mutations:</p>
+  <ul>
+    <li>File writes are snapshotted before mutation, so a bad edit can be restored</li>
+    <li>Obvious argument mistakes are repaired and reported back to the model</li>
+    <li>Ambiguous or dangerous mutations are refused rather than guessed</li>
+    <li>Destructive wildcard operations are inspected before execution when their surface can be determined safely</li>
+    <li>Disabled tools are never registered at all</li>
+    <li>Errors point at the failing field or payload location and say what to fix</li>
+    <li>Filesystem access can be bounded with <code>allowed_roots</code></li>
+  </ul>
+
+  <div class="note">
+    <strong>Confinement is not a shell sandbox.</strong> <code>allowed_roots</code> bounds
+    <code>light_file</code> paths, local SCP endpoints and caller-supplied <code>light_ops</code> paths.
+    <code>light_bash</code> has its working directory bounded, but the commands it runs can still reach
+    outside that directory. Read
+    <a href="https://github.com/icediceice/light-tools/blob/main/SECURITY.md" rel="noopener">SECURITY.md</a>
+    before treating confinement as a security boundary.
+  </div>
+
+  <div class="kicker"><b>07</b> / Platforms</div>
+  <h2>Where light-tools runs</h2>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>OS</th><th>amd64</th><th>arm64</th><th>Symbol extraction</th></tr></thead>
+    <tbody>
+      <tr><td>Linux</td><td>native</td><td>native</td><td>tree-sitter</td></tr>
+      <tr><td>macOS</td><td>native</td><td>native</td><td>tree-sitter</td></tr>
+      <tr><td>Windows</td><td>native</td><td>native</td><td>tree-sitter on amd64; no-symbol fallback on arm64</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Windows arm64 is built without CGo. All five tools still work there; only symbol and outline extraction degrade.</p>
+
+  <div class="kicker"><b>08</b> / Questions</div>
+  <h2>Frequently asked questions</h2>
+
+  <div class="faq">
+    <h3>What is light-tools?</h3>
+    <p>light-tools is an open-source MCP server that replaces the built-in file and shell tools used by AI coding agents with versions designed for token efficiency. It ships as a single Go binary, speaks the Model Context Protocol over stdio, and needs no daemon or database. It provides five tools: <code>light_file</code>, <code>light_bash</code>, <code>light_ssh</code>, <code>light_scp</code> and <code>light_ops</code>.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Does light-tools work with Claude Code?</h3>
+    <p>Yes. Running <code>light-tools init --client claude</code> registers light-tools with Claude Code. An <code>--client antigravity</code> option exists for Antigravity, and <code>light-tools init --client print</code> emits the MCP configuration for any other MCP-capable agent without changing anything. Because light-tools is a stdio server, the client starts it with the session and there is no background daemon to manage.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Does light-tools replace my code search or language server?</h3>
+    <p>No. light-tools is explicitly not a replacement for code search, indexing, language servers or repository intelligence, and it is designed to sit alongside whichever code-intelligence layer you already use. light-tools handles a different part of the problem: how the agent reads, writes and operates on the machine after it already knows what it wants to do.</p>
+  </div>
+
+  <div class="faq">
+    <h3>How much context does light-tools actually save?</h3>
+    <p>Across 319K tool calls in the broader Light stack's telemetry, 2,190.9M tokens were considered and 345.0M delivered, which is roughly 84% less of the considered corpus reaching model context in that dataset &mdash; a lower bound from partial instrumentation, with corpus size measured on 36.8% of calls and delivered size on 15.2%. It is a Light-stack measurement of the same targeting primitive, not a claim that every individual light-tools call saves 84%.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Is it safe to give a coding agent filesystem access through light-tools?</h3>
+    <p>light-tools snapshots every file mutation before it happens so a bad edit can be restored, refuses ambiguous or dangerous mutations rather than guessing, inspects destructive wildcard operations before execution when their surface can be determined safely, and does not register disabled tools at all. Filesystem access can be bounded with <code>allowed_roots</code>. However, confinement is not a shell sandbox: <code>allowed_roots</code> bounds <code>light_file</code> paths, local SCP endpoints and caller-supplied <code>light_ops</code> paths, and while <code>light_bash</code> has its working directory bounded, the commands it runs can still reach outside that directory. Read <a href="https://github.com/icediceice/light-tools/blob/main/SECURITY.md" rel="noopener">SECURITY.md</a> before treating confinement as a security boundary.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Does light-tools need a daemon, server or database?</h3>
+    <p>No. light-tools is a single Go binary that speaks MCP over stdio. The coding agent starts it with the session, so there is no background process, no database and nothing to keep running between sessions.</p>
+  </div>
+
+  <div class="faq">
+    <h3>How do I install light-tools?</h3>
+    <p>Install globally from npm with <code>npm install --global @factor-i-o/light-tools</code>, which requires Node 18.17 or later and npm 10 or later. Alternatively build from source with <code>go install -tags treesitter github.com/icediceice/light-tools/cmd/light-tools@latest</code>, or use the checksum-verifying <code>install.sh</code> and <code>install.ps1</code> scripts published with GitHub releases.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Can I disable individual light-tools tools?</h3>
+    <p>Yes. Passing <code>--disable-tool</code>, for example <code>light-tools --disable-tool light_ssh --disable-tool light_scp</code>, means those tools are never registered, so the model cannot call them at all. This is a registration-time exclusion rather than a runtime permission check.</p>
+  </div>
+
+  <div class="faq">
+    <h3>What does light-tools cost?</h3>
+    <p>Nothing. light-tools is free and open source under GPL-3.0-or-later, published by Factor I O Co., Ltd. at <a href="https://github.com/icediceice/light-tools" rel="noopener">github.com/icediceice/light-tools</a>.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Does light-tools collect telemetry?</h3>
+    <p>Local telemetry is aggregate-only: no paths, arguments, commands, hostnames or usernames are sent anywhere. It can be disabled entirely by setting <code>DO_NOT_TRACK=1</code> or a non-empty <code>LIGHT_NO_TELEMETRY</code>.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Which platforms does light-tools support?</h3>
+    <p>light-tools ships native builds for Linux, macOS and Windows on both amd64 and arm64. Symbol and outline extraction uses tree-sitter everywhere except Windows arm64, which is built without CGo and falls back to a no-symbol mode; all five tools still work there.</p>
+  </div>
+
+  <div class="kicker"><b>09</b> / Documentation</div>
+  <h2>Read further</h2>
+  <ul>
+    <li><a href="https://github.com/icediceice/light-tools" rel="noopener">Source repository</a> &mdash; README, releases and checksums</li>
+    <li><a href="https://github.com/icediceice/light-tools/blob/main/AGENT-SETUP.md" rel="noopener">AGENT-SETUP.md</a> &mdash; the full setup procedure</li>
+    <li><a href="https://github.com/icediceice/light-tools/blob/main/SECURITY.md" rel="noopener">SECURITY.md</a> &mdash; what is and is not protected</li>
+    <li><a href="https://github.com/icediceice/light-tools/blob/main/docs/REFERENCE.md" rel="noopener">docs/REFERENCE.md</a> &mdash; exact tool and verb semantics</li>
+  </ul>
+
+  <div class="kicker"><b>10</b> / Built by</div>
+  <div class="byline">
+    <div>
+      <h3 style="margin-top:0">Thanat Manasakool &mdash; Founder &amp; Principal Engineer, Factor I O</h3>
+      <p>
+        Twenty-plus years in enterprise infrastructure, including five years as an Ecosystem Solutions
+        Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to
+        Thailand's leading channel partners.
+      </p>
+      <p>
+        light-tools is one component of Light, the internal AI-infrastructure stack Factor I O runs on,
+        extracted to stand alone.
+        <a href="https://www.linkedin.com/in/thanat-manasakool-3101905a/" rel="noopener">LinkedIn</a> &middot;
+        <a href="https://github.com/icediceice" rel="noopener">GitHub</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>&copy; 2026 Factor I O Co., Ltd. &mdash; GPL-3.0-or-later</span>
+    <span>
+      <a href="./">Studio</a> &middot;
+      <a href="privacy.html">Privacy</a> &middot;
+      <a href="mailto:admin@factor-io.com">admin@factor-io.com</a>
+    </span>
+  </div>
+
+</div>
+</body>
+</html>

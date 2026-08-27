@@ -303,3 +303,97 @@ The overlay applies LAST, always itemized, never folded into unit prices. Per-1M
 outputs are infra-only unless the user toggles fully-loaded mode, and then the label
 MUST read `fully_loaded_per_1M`. Infra price and commercial layer never share a
 number without a label.
+
+---
+
+## 5. Pricing feed registry and freshness protocol
+
+### 5.1 Feed registry (verified endpoints)
+
+| # | Source | Endpoint | Auth | Consumed content |
+|---|---|---|---|---|
+| 1 | AWS Price List Bulk API | `pricing.us-east-1.amazonaws.com` (public offer files under `/offers/...`) | none `[VERIFIED: docs.aws.amazon.com Price List Bulk API]` | GPU-instance offer files for in-scope service codes (per-service JSON/CSV) |
+| 2 | Azure Retail Prices API | `prices.azure.com/api/retail/prices` | none — unauthenticated by design `[VERIFIED: learn.microsoft.com retail-prices]` | `$filter` + `$skip` pages for GPU VM meters |
+| 3 | GCP Cloud Billing Catalog | `cloudbilling.googleapis.com` (`services` / `services.skus`) | API key `[VERIFIED: plan grounding]` | GPU SKUs + pricing info; key confined to Actions secrets (§5.6) |
+| 4 | LiteLLM model cost map | LiteLLM GitHub raw `model_prices` JSON | none `[VERIFIED: docs.litellm.ai]` | Full model cost map (§3.1 LiteLLM field inventory) |
+| 5 | OpenRouter models API | `openrouter.ai/api/v1/models` | none `[VERIFIED: openrouter.ai docs]` | Model list incl. pricing object + overrides (§3.1 OpenRouter inventory) |
+
+The registry table itself is config data in the ingestion pipeline; adding a feed is
+a config change, not an engine change, provided its normalization maps into the §3
+tariff union.
+
+### 5.2 SourceStatus freshness envelope
+
+Every source carries one envelope, persisted into the snapshot:
+
+```
+source_status = {
+  source_id,
+  status,          // fresh | stale | expired | error
+  observed_at,     // when THIS data was fetched (data age anchor)
+  last_success_at, // last refresh that completed and parsed
+  expires_at,      // observed_at + per-source TTL (config)
+  digest,          // content hash of the ingested slice
+  record_count
+}
+```
+
+Freshness is derived ONLY from per-source data age (`observed_at` vs now vs
+`expires_at`). Commit timestamps and cron timestamps are never freshness evidence
+(§5.4). A digest mismatch between manifest and slice is treated as `error` and the
+slice is unservable.
+
+### 5.3 Ingestion and publish protocol — GIT primitives only
+
+Ingestion runs as a GitHub Actions scheduled workflow:
+
+1. fetch every registered feed; normalize into the §3 union; validate record counts;
+2. write versioned `snapshot.json` (prices + models + provenance + per-source
+   `fetched_at`) plus digest-addressed slice files;
+3. publish = ONE atomic commit updating the manifest pointer + changed slices;
+4. rollback = `git revert` of the publish commit; the client pins the manifest
+   version it loaded.
+
+No external store, no database, no server: the repo IS the publication channel and
+GitHub Pages the delivery surface.
+
+### 5.4 GitHub Actions pathologies (and why cron is never evidence)
+
+Two VERIFIED platform behaviours drive the design:
+
+1. `[VERIFIED: GitHub docs / community discussion #185355]` The `schedule` event can
+   be delayed during periods of high load, and "if the load is sufficiently high
+   enough, some queued jobs may be dropped." A cron timestamp therefore is NEVER
+   evidence of a completed refresh.
+2. `[VERIFIED: GitHub docs]` GitHub automatically disables scheduled workflows after
+   60 consecutive days of no repository activity. `[VERIFIED: this repo's git log]`
+   shows exactly this risk profile — a 137-day default-branch gap (2026-03-03 →
+   2026-07-18).
+
+Compounding failure: the ingestion workflow commits only when prices CHANGE. A
+stable-price stretch produces no commits → the 60-day inactivity counter keeps
+running → the trigger is silently disabled → the snapshot freezes while appearing
+"published."
+
+Mitigations, both NORMATIVE:
+
+- **Keepalive commit:** an unconditional scheduled heartbeat commit to the default
+  branch (timestamp marker file) at an interval safely below 60 days, independent of
+  whether prices changed.
+- **Actions-independent staleness check:** freshness is judged from the envelope
+  INSIDE the snapshot (§5.2), rendered client-side as a staleness banner once
+  `expires_at` passes. This check must function even if Actions never runs again —
+  a frozen feed must fail loudly, never silently.
+
+### 5.5 Client-side freshness rendering
+
+The calculator refuses to hide age: every result screen shows the newest
+`observed_at` across the feeds it consumed; any consumed source past `expires_at`
+renders the result under a `STALE PRICING` banner with the offending sources listed;
+`error` sources remove their lane/offer from servability and the gap is shown.
+
+### 5.6 Secret handling
+
+The GCP Cloud Billing API key lives ONLY in GitHub Actions secrets. It never appears
+in snapshots, slice files, client payloads, or logs. Feeds requiring credentials the
+pipeline cannot hold are excluded from the registry rather than half-supported.

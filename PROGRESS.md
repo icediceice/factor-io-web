@@ -1,11 +1,11 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-08-20 14:24 (privacy statement live for Cat Countdown / Factor IO)
+> Last updated: 2026-08-27 11:36 (TCO calculator spec v0.1 written)
 
 ## Current Focus
 
-Cat Countdown launch prep: generalized Factor IO Privacy Statement live at studio.factor-io.com/privacy.html.
+AI inference TCO calculator: normative spec v0.1 written (docs/tco-calculator/SPEC.md + shareable spec-artifact.html); implementation phases P1–P5 pending per SPEC §12.2.
 
 ## Task Queue
 
@@ -13,12 +13,23 @@ Upcoming work in priority order:
 
 - [ ] Define tech stack and scaffold project source code
 - [ ] Once tech stack is known: run crawl4ai to scrape docs → upload to NotebookLM → add notebook ID to nlm/SKILL.md
+- [ ] TCO calculator P1: pricing ingestion workflow + snapshot format per SPEC §5 (fixtures F5, F6)
+- [ ] TCO calculator P2–P5 per SPEC §12.2 (engine, client, throughput evidence, overlay); settle open decisions O1–O6
 
 ## Tier Overrides
 
 *(Populated by escalation events. Survives compaction — do not remove.)*
 
 ## Work Log
+
+### 2026-08-27
+
+#### 11:36 — TCO calculator normative spec v0.1 written
+- **What:** Authored `docs/tco-calculator/SPEC.md` (plan 1542478190939996174): three comparison lanes (owned local, model API, rented GPU) with hybrid replaced by routing policies (local_first derived split, api_first+failover, fixed_split); capacity-constrained math so owned fixed cost is never double-charged (F7); TokenTariff|CharacterTariff|HourlyTariff union keyed by canonical slug with offer state machine and decimal-string arithmetic; quote semantics with request-instant predicate evaluation and per-feed lenient unknown-field rules (blanket quarantine rejected); verified feed registry (AWS Bulk, Azure Retail, GCP Catalog, LiteLLM, OpenRouter) with SourceStatus freshness envelope, git-primitive publish, keepalive commit + Actions-independent staleness check against the 60-day auto-disable trap; evidence-gated throughput (required_p95_tok_s SLO vs modelled_p95_capacity, unknown-not-fabricated); commercial overlay itemized after lane math; payload byte budget; normative acceptance fixtures F1–F10. Published shareable artifact page `spec-artifact.html` (renders sibling SPEC.md, zero CDN dependencies, no confidential figures per §7.3). End-to-end verify pass caught and fixed four unlabelled shipped defaults (feed TTLs, N_CONSECUTIVE, rounding precision).
+- **Files:** docs/tco-calculator/SPEC.md (new), docs/tco-calculator/spec-artifact.html (new), PROGRESS.md
+- **Next:** P1 implementation (Actions ingestion + snapshot format, fixtures F5/F6); settle open decisions O1–O6 in SPEC §12.1
+- **Known issues:** spec-artifact.html requires HTTP serving (fetches sibling SPEC.md — no file:// support); SPEC §5.1 TTL defaults and §6.5 seed throughput figures (11,200/3,400 tok/s) are labelled [ASSUMED] pending calibration/verification
+
 
 ### 2026-08-20
 

@@ -208,7 +208,8 @@ observed refresh id and timestamp. The `N_CONSECUTIVE` default of 3 is
 All money quantities — unit prices, multipliers, uplifts, discount rates, totals —
 travel as decimal strings and are computed in exact decimal arithmetic; IEEE-754
 float is prohibited on any money path. Display rounding is explicit (half-up at
-declared precision, default 2 for totals, 8 for per-token unit prices). Fixture F10
+declared precision, default 2 for totals, 8 for per-token unit prices `[ASSUMED —
+spec author]`). Fixture F10
 pins the exactness contract. The meter grammar, not a scalar, is the contract.
 
 ---

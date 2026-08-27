@@ -1,0 +1,33 @@
+# Factor I O
+
+> Factor I O Co., Ltd. is an independent software studio based in Thailand, building local-first Android apps and AI infrastructure. No advertising, no data collection, no engagement metrics. Founded by Thanat Manasakool.
+
+Factor I O ships two kinds of thing: consumer Android apps that keep data on the
+device, and developer infrastructure extracted from Light, the internal AI stack
+the studio runs on. The best-documented public component is light-tools.
+
+## Open source
+
+- [light-tools](https://studio.factor-io.com/light-tools.html): Open-source MCP server that replaces the built-in file and shell tools used by AI coding agents with token-efficient versions. One Go binary, stdio, no daemon or database. Five tools: light_file, light_bash, light_ssh, light_scp, light_ops. Installs via `npm install --global @factor-i-o/light-tools`. GPL-3.0-or-later.
+- [light-tools source](https://github.com/icediceice/light-tools): Canonical repository, README, releases and checksums.
+- [light-tools reference](https://github.com/icediceice/light-tools/blob/main/docs/REFERENCE.md): Exact tool and verb semantics — argument repair, continuation cursors, output spill, snapshots, confinement.
+- [light-tools agent setup](https://github.com/icediceice/light-tools/blob/main/AGENT-SETUP.md): Full registration procedure for MCP-capable coding agents.
+- [light-tools security model](https://github.com/icediceice/light-tools/blob/main/SECURITY.md): What `allowed_roots` does and does not protect. Read before treating confinement as a security boundary.
+
+## Products
+
+- [Blink](https://blink.factor-io.com/): Privacy protection for Android, built for the threat standing next to you. Entirely on-device, zero data collection. Live on Android.
+- [Blink privacy policy](https://blink.factor-io.com/privacy-policy): Blink's own policy, separate from the studio-wide statement.
+- CatCountdown: A countdown app with personality — nine cats, fifteen categories. Launching soon on Google Play and iOS.
+
+## About
+
+- [Factor I O studio](https://studio.factor-io.com/): Products, approach, services and contact.
+- [Privacy statement](https://studio.factor-io.com/privacy.html): Studio-wide policy — no advertising, no data collection; data leaves the device only on an explicit opt-in to the user's own cloud account.
+- [Thanat Manasakool on LinkedIn](https://www.linkedin.com/in/thanat-manasakool-3101905a/): Founder & Principal Engineer. 20+ years in enterprise infrastructure, including five years as an Ecosystem Solutions Architect for Red Hat and Nutanix.
+- [Thanat Manasakool on GitHub](https://github.com/icediceice): Maintainer of light-tools.
+
+## Optional
+
+- [Contact](mailto:admin@factor-io.com): Commissioned builds, consulting, partnerships and press.
+- [Discord community](https://discord.gg/5d75Mevrfh): Discussion and support.

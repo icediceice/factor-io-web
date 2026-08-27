@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-08-27 11:36 (TCO calculator spec v0.1 written)
+> Last updated: 2026-08-27 15:55 (light-tools page + SEO/AEO/GEO crawl layer shipped)
 
 ## Current Focus
 

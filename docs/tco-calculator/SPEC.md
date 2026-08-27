@@ -600,7 +600,7 @@ re-serves the prior digest with zero extra state.
 - **O1.** Source and owner for `conv[]` tokenizer conversion factors (§4.1).
 - **O2.** Per-feed TTL calibration — §5.1 defaults are `[ASSUMED]` until first
   ingestion measures drift.
-- **O3.** Retire threshold `N_CONSECUTIVE` (default 3, §3.4).
+- **O3.** Retire threshold `N_CONSECUTIVE` (default 3 `[ASSUMED]`, §3.4).
 - **O4.** Evidence-row curation process — hand-curated in v0.1; pipeline deferred.
 - **O5.** Public commercial-overlay placeholder rate card (generic, `assumed`).
 - **O6.** Lane C topology presets for v0.1 (which GPU instances to pre-reduce).

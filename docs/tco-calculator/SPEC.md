@@ -209,3 +209,97 @@ travel as decimal strings and are computed in exact decimal arithmetic; IEEE-754
 float is prohibited on any money path. Display rounding is explicit (half-up at
 declared precision, default 2 for totals, 8 for per-token unit prices). Fixture F10
 pins the exactness contract. The meter grammar, not a scalar, is the contract.
+
+---
+
+## 4. QuoteSemantics
+
+### 4.1 Tokenizer-independent workload definition
+
+User demand is expressed in tokenizer-independent workload units, then converted per
+model:
+
+```
+workload = {
+  input_units, output_units,          // quantities
+  unit_basis,                         // reference_tokens | characters
+  reference_tokenizer,                // declared when unit_basis = reference_tokens
+  request_count,
+  shape: { prompt_len_dist, output_len_dist, cache_read_share,
+           image_share, search_share, ... }
+}
+```
+
+For each quoted model, a conversion factor table `conv[model.family]` maps workload
+units to that model's billing units. Any quote that passes through a conversion MUST
+display the factor and its provenance. A model with no known conversion factor is
+quoted `no_conversion` — the engine never assumes 1:1.
+
+### 4.2 Exact vs estimated cost-per-1M eligibility
+
+A cost-per-1M figure is labelled `exact` only when ALL of:
+
+1. every consumed meter has direct tariff coverage (no invented meter),
+2. workload units equal the model's billing units (no conversion applied),
+3. every predicate/override affecting the quote resolved cleanly (§4.3),
+4. the cited offer is `active` and inside its freshness envelope (§5).
+
+Otherwise the figure is `estimated` and carries a non-empty reason list drawn from:
+`converted_units`, `extrapolated_shape`, `price_stale_risk`, `standby_share_assumed`,
+`mixed_basis`. Cross-lane ratios mixing exact and estimated inputs are flagged
+`mixed_basis`.
+
+### 4.3 Evaluation at the REQUEST instant, not the fetch instant
+
+Predicates and overrides resolve against the attributes of the request being quoted,
+against tariffs as fetched:
+
+- Threshold variants (`_above_<N>k_tokens`) resolve on the request's prompt length.
+- Cache meters resolve on the request's cache read/write usage.
+- Service-tier variants (`_flex`/`_priority`/`_batches`) resolve on the requested tier.
+- Regional uplifts resolve on the requested region.
+- OpenRouter `pricing.overrides[]`: entries whose conditions match the request
+  replace the corresponding top-level meters for this quote; multiple matches on one
+  meter resolve last-in-array-wins with the applied override list recorded.
+
+Top-level OpenRouter keys are always valid under default conditions; they are the
+fallback whenever no override matches. The freshness envelope (§5) bounds tariff AGE;
+it never supplies request context — predicate resolution never reads fetch-time state.
+
+### 4.4 Lenient unknown-field rules (per feed)
+
+A blanket "unknown field quarantines the offer" rule contradicts both feeds'
+documented consumer contracts and is REJECTED:
+
+- LiteLLM `[VERIFIED: docs.litellm.ai]`: new optional fields are added regularly;
+  consumers should ignore unknown fields rather than reject them
+  (`additionalProperties: true`).
+- OpenRouter `[VERIFIED: openrouter.ai models docs]`: consumers should skip entries
+  containing condition fields they do not recognize rather than apply their prices.
+
+Normative rules:
+
+1. Unknown OFFER-level field → ignore; offer stays `active`; the unknown key is
+   logged to ingestion provenance (fixture F3).
+2. Unrecognized OVERRIDE/tiered-entry condition → skip THAT ENTRY ONLY and fall back
+   to top-level pricing (fixture F2).
+3. Quarantine ONLY when an unknown field bears on the SELECTED meter — e.g. an
+   unknown multiplier or suffix attached to the exact meter being priced. The offer
+   goes `quarantined` with reason preserved; the lane falls back or reports the gap
+   (fixture F4).
+
+This keeps routine upstream field additions from deleting usable models — a blanket
+quarantine would be a self-inflicted outage on every feed schema drift.
+
+### 4.5 Commercial overlay application order
+
+```
+1. lane cost at feed tariffs            (§2/§3 — infra cost)
+2. declared volume / committed-use discounts  (explicit, itemized)
+3. commercial overlay                   (§7: licensing, consulting, implementation)
+```
+
+The overlay applies LAST, always itemized, never folded into unit prices. Per-1M
+outputs are infra-only unless the user toggles fully-loaded mode, and then the label
+MUST read `fully_loaded_per_1M`. Infra price and commercial layer never share a
+number without a label.

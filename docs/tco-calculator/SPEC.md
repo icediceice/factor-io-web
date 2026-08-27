@@ -322,6 +322,10 @@ The registry table itself is config data in the ingestion pipeline; adding a fee
 a config change, not an engine change, provided its normalization maps into the §3
 tariff union.
 
+Default per-feed TTLs for the freshness envelope (§5.2): cloud price lists
+(AWS/Azure/GCP) 7 days; model tariff feeds (LiteLLM/OpenRouter) 3 days `[ASSUMED —
+spec author; calibrated at first ingestion per open decision O2]`.
+
 ### 5.2 SourceStatus freshness envelope
 
 Every source carries one envelope, persisted into the snapshot:

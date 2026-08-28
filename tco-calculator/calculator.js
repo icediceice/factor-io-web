@@ -161,17 +161,12 @@ export function advisoryBlendCost({ demandTokens, blendLocalPct, overflowUnitCos
 // failover share; a pure standby still surfaces its fixed cost, labelled.
 export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fallbackFixedMonthly, failoverShare, failoverRate }) {
   const lines = [{ item: "lane_b_base", amount: bMonthlyTotal.toString() }];
-  let total = Dec.from(bMonthlyTotal);
+  let total = Rat.from(bMonthlyTotal); // Rat accumulator — a non-terminating failover cost must still land in the total (peer G7)
   const share = Rat.from(failoverShare);
   if (cmpMoney(share, ZERO) > 0) {
     const failoverCost = Rat.from(bMonthlyTotal).mul(share).mul(Rat.from(failoverRate));
-    const fc = ratToDecExact(failoverCost);
-    if (fc !== null) {
-      total = total.add(fc);
-      lines.push({ item: "failover_traffic", amount: fc.toString(), note: `failover_rate x share of demand on fallback lane ${fallbackKind}` });
-    } else {
-      lines.push({ item: "failover_traffic", amount: failoverCost.toString(), note: "rational, non-terminating — displayed via formatHalfUp" });
-    }
+    total = total.add(failoverCost);
+    lines.push({ item: "failover_traffic", amount: ratStr(failoverCost), note: `failover_rate x share of demand on fallback lane ${fallbackKind}` });
     if (fallbackKind !== "B") {
       // The fallback lane serves tokens -> it is in service -> its fixed cost is
       // incurred exactly once (SPEC 2.3).

@@ -70,6 +70,11 @@ test("builder distinguishes first omission from third via previousManifest", () 
   assert.equal(ids2["litellm:vendor/beta"].state, "suspect_missing");
   assert.equal(ids2["litellm:vendor/beta"].missing_streak, 1);
   assert.equal(ids2["litellm:vendor/alpha"].state, "active");
+  // The omitted offer's PAYLOAD carries over (peer G3): state changes
+  // availability semantics, it must not erase the offer from the catalog.
+  assert.ok(r2.catalog.offers["litellm:vendor/beta"], "omitted offer payload carried");
+  assert.equal(r2.catalog.offers["litellm:vendor/beta"].state, "suspect_missing");
+  assert.equal(r2.catalog.offers["litellm:vendor/beta"].prices.input, "0.000003");
 
   // Fourth refresh: beta absent three consecutive times -> retired.
   const r3 = buildSnapshot({ previousManifest: r2.manifest, previousCatalog: r2.catalog, refreshId: "r3", fetchedAt: T0 + 2 * DAY, feeds: feeds2 });

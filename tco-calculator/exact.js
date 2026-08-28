@@ -258,8 +258,10 @@ export function parseJSONExact(text) {
     } else if (ch === '-' || (ch >= '0' && ch <= '9')) {
       const start = i;
       i++;
-      while (i < n && "+-eE.".includes(text[i]) === true) i++;
-      while (i < n && ((text[i] >= '0' && text[i] <= '9'))) i++;
+      // In well-formed JSON a number literal is followed only by , ] } or
+      // whitespace — none in this charset — so a permissive scan is safe and
+      // the regex below rejects anything malformed.
+      while (i < n && /[0-9.eE+-]/.test(text[i])) i++;
       const lit = text.slice(start, i);
       if (!/^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/.test(lit)) {
         throw new TypeError(`parseJSONExact: malformed number literal ${JSON.stringify(lit)} at offset ${start}`);

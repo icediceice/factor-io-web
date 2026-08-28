@@ -1,33 +1,33 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1787895324834",
-  "generated_at": "2026-08-28T05:35:24.834Z",
-  "snapshot_digest": "2077f2a16bf78b00",
+  "refresh_id": "refresh-1787898942725",
+  "generated_at": "2026-08-28T06:35:42.725Z",
+  "snapshot_digest": "9ee58deaa11277c7",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-2077f2a16bf78b00.json",
-      "digest": "2077f2a16bf78b00",
-      "bytes": 2215182
+      "path": "catalog-9ee58deaa11277c7.json",
+      "digest": "9ee58deaa11277c7",
+      "bytes": 2407414
     }
   },
   "sources": {
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-08-28T05:35:24.834Z",
-      "last_success_at": "2026-08-28T05:35:24.834Z",
-      "expires_at": "2026-08-31T05:35:24.834Z",
-      "root_digest": "53931f782548ea9f",
-      "record_count": 380,
+      "observed_at": "2026-08-28T06:35:42.725Z",
+      "last_success_at": "2026-08-28T06:35:42.725Z",
+      "expires_at": "2026-08-31T06:35:42.725Z",
+      "root_digest": "5334b0c5cc7a111a",
+      "record_count": 369,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-08-28T05:35:24.834Z",
-      "last_success_at": "2026-08-28T05:35:24.834Z",
-      "expires_at": "2026-08-31T05:35:24.834Z",
+      "observed_at": "2026-08-28T06:35:42.725Z",
+      "last_success_at": "2026-08-28T06:35:42.725Z",
+      "expires_at": "2026-08-31T06:35:42.725Z",
       "root_digest": "8f7916e48c728cb1",
       "record_count": 2594,
       "missing_streak": 0
@@ -27826,7 +27826,7 @@
       ]
     },
     {
-      "id": "openrouter:aion-labs/aion-2.0-20260223",
+      "id": "openrouter:aion-labs/aion-2.0",
       "name": "AionLabs: Aion-2.0",
       "tariff": "token",
       "state": "active",
@@ -27837,7 +27837,7 @@
       ]
     },
     {
-      "id": "openrouter:aion-labs/aion-3.0-20260707",
+      "id": "openrouter:aion-labs/aion-3.0",
       "name": "AionLabs: Aion-3.0",
       "tariff": "token",
       "state": "active",
@@ -27848,7 +27848,7 @@
       ]
     },
     {
-      "id": "openrouter:aion-labs/aion-3.0-mini-20260707",
+      "id": "openrouter:aion-labs/aion-3.0-mini",
       "name": "AionLabs: Aion-3.0-Mini",
       "tariff": "token",
       "state": "active",
@@ -27869,7 +27869,7 @@
       ]
     },
     {
-      "id": "openrouter:allenai/olmo-3-32b-think-20251121",
+      "id": "openrouter:allenai/olmo-3-32b-think",
       "name": "AllenAI: Olmo 3 32B Think",
       "tariff": "token",
       "state": "active",
@@ -27954,8 +27954,8 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-4-opus-20250522",
-      "name": "Anthropic: Claude Opus 4",
+      "id": "openrouter:anthropic/claude-fable-5",
+      "name": "Anthropic: Claude Fable 5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27968,161 +27968,7 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-4-sonnet-20250522",
-      "name": "Anthropic: Claude Sonnet 4",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.1-opus-20250805",
-      "name": "Anthropic: Claude Opus 4.1 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.5-haiku-20251001",
-      "name": "Anthropic: Claude Haiku 4.5 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.5-opus-20251124",
-      "name": "Anthropic: Claude Opus 4.5 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.5-sonnet-20250929",
-      "name": "Anthropic: Claude Sonnet 4.5 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.6-opus-20260205",
-      "name": "Anthropic: Claude Opus 4.6 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.6-sonnet-20260217",
-      "name": "Anthropic: Claude Sonnet 4.6 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.7-opus-20260416",
-      "name": "Anthropic: Claude Opus 4.7 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.7-opus-fast-20260512",
-      "name": "Anthropic: Claude Opus 4.7 (Fast)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.8-opus-20260528",
-      "name": "Anthropic: Claude Opus 4.8 (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-4.8-opus-fast-20260528",
-      "name": "Anthropic: Claude Opus 4.8 (Fast)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-5-fable-20260609",
+      "id": "openrouter:anthropic/claude-fable-5:batch",
       "name": "Anthropic: Claude Fable 5 (batch)",
       "tariff": "token",
       "state": "active",
@@ -28136,8 +27982,8 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-opus-5-20260723",
-      "name": "Claude Opus 5 (batch)",
+      "id": "openrouter:anthropic/claude-haiku-4.5",
+      "name": "Anthropic: Claude Haiku 4.5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28150,7 +27996,217 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-opus-5-fast-20260723",
+      "id": "openrouter:anthropic/claude-haiku-4.5:batch",
+      "name": "Anthropic: Claude Haiku 4.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4",
+      "name": "Anthropic: Claude Opus 4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.1",
+      "name": "Anthropic: Claude Opus 4.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.1:batch",
+      "name": "Anthropic: Claude Opus 4.1 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.5",
+      "name": "Anthropic: Claude Opus 4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.5:batch",
+      "name": "Anthropic: Claude Opus 4.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.6",
+      "name": "Anthropic: Claude Opus 4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.6:batch",
+      "name": "Anthropic: Claude Opus 4.6 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.7",
+      "name": "Anthropic: Claude Opus 4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.7-fast",
+      "name": "Anthropic: Claude Opus 4.7 (Fast)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.7:batch",
+      "name": "Anthropic: Claude Opus 4.7 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.8",
+      "name": "Anthropic: Claude Opus 4.8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.8-fast",
+      "name": "Anthropic: Claude Opus 4.8 (Fast)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-4.8:batch",
+      "name": "Anthropic: Claude Opus 4.8 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-5",
+      "name": "Claude Opus 5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-opus-5-fast",
       "name": "Claude Opus 5 (Fast)",
       "tariff": "token",
       "state": "active",
@@ -28164,7 +28220,105 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-sonnet-5-20260630",
+      "id": "openrouter:anthropic/claude-opus-5:batch",
+      "name": "Claude Opus 5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-4",
+      "name": "Anthropic: Claude Sonnet 4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-4.5",
+      "name": "Anthropic: Claude Sonnet 4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-4.5:batch",
+      "name": "Anthropic: Claude Sonnet 4.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-4.6",
+      "name": "Anthropic: Claude Sonnet 4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-4.6:batch",
+      "name": "Anthropic: Claude Sonnet 4.6 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-5",
+      "name": "Anthropic: Claude Sonnet 5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-5:batch",
       "name": "Anthropic: Claude Sonnet 5 (batch)",
       "tariff": "token",
       "state": "active",
@@ -28209,7 +28363,7 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-1.6-20250625",
+      "id": "openrouter:bytedance-seed/seed-1.6",
       "name": "ByteDance Seed: Seed 1.6",
       "tariff": "token",
       "state": "active",
@@ -28219,7 +28373,7 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-1.6-flash-20250625",
+      "id": "openrouter:bytedance-seed/seed-1.6-flash",
       "name": "ByteDance Seed: Seed 1.6 Flash",
       "tariff": "token",
       "state": "active",
@@ -28229,7 +28383,7 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-2-1-turbo-20260810",
+      "id": "openrouter:bytedance-seed/seed-2-1-turbo",
       "name": "ByteDance Seed: Seed 2.1 Turbo",
       "tariff": "token",
       "state": "active",
@@ -28239,7 +28393,7 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-2.0-code-20260730",
+      "id": "openrouter:bytedance-seed/seed-2.0-code",
       "name": "ByteDance Seed: Seed-2.0-Code",
       "tariff": "token",
       "state": "active",
@@ -28249,7 +28403,7 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-2.0-lite-20260309",
+      "id": "openrouter:bytedance-seed/seed-2.0-lite",
       "name": "ByteDance Seed: Seed-2.0-Lite",
       "tariff": "token",
       "state": "active",
@@ -28259,7 +28413,7 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-2.0-mini-20260224",
+      "id": "openrouter:bytedance-seed/seed-2.0-mini",
       "name": "ByteDance Seed: Seed-2.0-Mini",
       "tariff": "token",
       "state": "active",
@@ -28280,7 +28434,17 @@
       ]
     },
     {
-      "id": "openrouter:cohere/command-a-03-2025",
+      "id": "openrouter:cognitivecomputations/dolphin-mistral-24b-venice-edition",
+      "name": "Venice: Uncensored",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:cohere/command-a",
       "name": "Cohere: Command A",
       "tariff": "token",
       "state": "active",
@@ -28320,7 +28484,7 @@
       ]
     },
     {
-      "id": "openrouter:cohere/north-mini-code-20260617",
+      "id": "openrouter:cohere/north-mini-code:free",
       "name": "Cohere: North Mini Code (free)",
       "tariff": "token",
       "state": "active",
@@ -28330,7 +28494,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-chat-v3",
+      "id": "openrouter:deepseek/deepseek-chat",
       "name": "DeepSeek: DeepSeek V3",
       "tariff": "token",
       "state": "active",
@@ -28403,7 +28567,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-v3.2-20251201",
+      "id": "openrouter:deepseek/deepseek-v3.2",
       "name": "DeepSeek: DeepSeek V3.2",
       "tariff": "token",
       "state": "active",
@@ -28424,7 +28588,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-v4-flash-20260423",
+      "id": "openrouter:deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash 0423",
       "tariff": "token",
       "state": "active",
@@ -28435,7 +28599,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-v4-flash-20260731",
+      "id": "openrouter:deepseek/deepseek-v4-flash-0731",
       "name": "DeepSeek: DeepSeek V4 Flash 0731",
       "tariff": "token",
       "state": "active",
@@ -28446,7 +28610,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-v4-flash-vision-exp-20260821",
+      "id": "openrouter:deepseek/deepseek-v4-flash-vision-exp",
       "name": "DeepSeek: DeepSeek V4 Flash Vision Exp",
       "tariff": "token",
       "state": "active",
@@ -28457,7 +28621,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-v4-pro-20260423",
+      "id": "openrouter:deepseek/deepseek-v4-pro",
       "name": "DeepSeek: DeepSeek V4 Pro 0423",
       "tariff": "token",
       "state": "active",
@@ -28468,7 +28632,7 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-v4-pro-20260813",
+      "id": "openrouter:deepseek/deepseek-v4-pro-0813",
       "name": "DeepSeek: DeepSeek V4 Pro 0813",
       "tariff": "token",
       "state": "active",
@@ -28479,7 +28643,7 @@
       ]
     },
     {
-      "id": "openrouter:dots-studio/dots-3-note-preview-20260813",
+      "id": "openrouter:dots-studio/dots-3-note-preview:free",
       "name": "Dots Studio: Dots3-Note Preview (free)",
       "tariff": "token",
       "state": "active",
@@ -28490,7 +28654,7 @@
     },
     {
       "id": "openrouter:google/gemini-2.5-flash",
-      "name": "Google: Gemini 2.5 Flash (batch)",
+      "name": "Google: Gemini 2.5 Flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28500,7 +28664,8 @@
         "audio_in",
         "web_search",
         "reasoning",
-        "cache_read"
+        "cache_read",
+        "cache_write"
       ]
     },
     {
@@ -28522,37 +28687,7 @@
     },
     {
       "id": "openrouter:google/gemini-2.5-flash-lite",
-      "name": "Google: Gemini 2.5 Flash Lite (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "image_in",
-        "audio_in",
-        "web_search",
-        "reasoning",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:google/gemini-2.5-pro",
-      "name": "Google: Gemini 2.5 Pro (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "image_in",
-        "audio_in",
-        "web_search",
-        "reasoning",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:google/gemini-2.5-pro-preview-03-25",
-      "name": "Google: Gemini 2.5 Pro Preview 05-06",
+      "name": "Google: Gemini 2.5 Flash Lite",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28567,7 +28702,53 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-2.5-pro-preview-06-05",
+      "id": "openrouter:google/gemini-2.5-flash-lite:batch",
+      "name": "Google: Gemini 2.5 Flash Lite (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-2.5-flash:batch",
+      "name": "Google: Gemini 2.5 Flash (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-2.5-pro",
+      "name": "Google: Gemini 2.5 Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-2.5-pro-preview",
       "name": "Google: Gemini 2.5 Pro Preview 06-05",
       "tariff": "token",
       "state": "active",
@@ -28583,7 +28764,54 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3-flash-preview-20251217",
+      "id": "openrouter:google/gemini-2.5-pro-preview-05-06",
+      "name": "Google: Gemini 2.5 Pro Preview 05-06",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-2.5-pro:batch",
+      "name": "Google: Gemini 2.5 Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3-flash-preview",
+      "name": "Google: Gemini 3 Flash Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3-flash-preview:batch",
       "name": "Google: Gemini 3 Flash Preview (batch)",
       "tariff": "token",
       "state": "active",
@@ -28597,7 +28825,7 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3-pro-image-20260528",
+      "id": "openrouter:google/gemini-3-pro-image",
       "name": "Google: Nano Banana Pro (Gemini 3 Pro Image)",
       "tariff": "token",
       "state": "active",
@@ -28614,7 +28842,7 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3-pro-image-preview-20251120",
+      "id": "openrouter:google/gemini-3-pro-image-preview",
       "name": "Google: Nano Banana Pro (Gemini 3 Pro Image Preview)",
       "tariff": "token",
       "state": "active",
@@ -28631,7 +28859,7 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-flash-image-20260528",
+      "id": "openrouter:google/gemini-3.1-flash-image",
       "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image)",
       "tariff": "token",
       "state": "active",
@@ -28643,7 +28871,7 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-flash-image-preview-20260226",
+      "id": "openrouter:google/gemini-3.1-flash-image-preview",
       "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)",
       "tariff": "token",
       "state": "active",
@@ -28655,8 +28883,8 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-flash-lite-20260507",
-      "name": "Google: Gemini 3.1 Flash Lite (batch)",
+      "id": "openrouter:google/gemini-3.1-flash-lite",
+      "name": "Google: Gemini 3.1 Flash Lite",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28666,11 +28894,12 @@
         "audio_in",
         "web_search",
         "reasoning",
-        "cache_read"
+        "cache_read",
+        "cache_write"
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-flash-lite-image-20260630",
+      "id": "openrouter:google/gemini-3.1-flash-lite-image",
       "name": "Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
       "tariff": "token",
       "state": "active",
@@ -28682,7 +28911,7 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-flash-lite-preview-20260303",
+      "id": "openrouter:google/gemini-3.1-flash-lite-preview",
       "name": "Google: Gemini 3.1 Flash Lite Preview",
       "tariff": "token",
       "state": "active",
@@ -28698,8 +28927,8 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-pro-preview-20260219",
-      "name": "Google: Gemini 3.1 Pro Preview (batch)",
+      "id": "openrouter:google/gemini-3.1-flash-lite:batch",
+      "name": "Google: Gemini 3.1 Flash Lite (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28708,11 +28937,28 @@
         "image_in",
         "audio_in",
         "web_search",
-        "reasoning"
+        "reasoning",
+        "cache_read"
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.1-pro-preview-customtools-20260219",
+      "id": "openrouter:google/gemini-3.1-pro-preview",
+      "name": "Google: Gemini 3.1 Pro Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3.1-pro-preview-customtools",
       "name": "Google: Gemini 3.1 Pro Preview Custom Tools",
       "tariff": "token",
       "state": "active",
@@ -28728,8 +28974,22 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.5-flash-20260519",
-      "name": "Google: Gemini 3.5 Flash (batch)",
+      "id": "openrouter:google/gemini-3.1-pro-preview:batch",
+      "name": "Google: Gemini 3.1 Pro Preview (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3.5-flash",
+      "name": "Google: Gemini 3.5 Flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28739,11 +28999,28 @@
         "audio_in",
         "web_search",
         "reasoning",
-        "cache_read"
+        "cache_read",
+        "cache_write"
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.5-flash-lite-20260721",
+      "id": "openrouter:google/gemini-3.5-flash-lite",
+      "name": "Google: Gemini 3.5 Flash Lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3.5-flash-lite:batch",
       "name": "Google: Gemini 3.5 Flash Lite (batch)",
       "tariff": "token",
       "state": "active",
@@ -28758,7 +29035,38 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.6-flash-20260721",
+      "id": "openrouter:google/gemini-3.5-flash:batch",
+      "name": "Google: Gemini 3.5 Flash (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3.6-flash",
+      "name": "Google: Gemini 3.6 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3.6-flash:batch",
       "name": "Google: Gemini 3.6 Flash (batch)",
       "tariff": "token",
       "state": "active",
@@ -28774,7 +29082,23 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-3.7-flash-20260813",
+      "id": "openrouter:google/gemini-3.7-flash",
+      "name": "Google: Gemini 3.7 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-3.7-flash:batch",
       "name": "Google: Gemini 3.7 Flash (batch)",
       "tariff": "token",
       "state": "active",
@@ -28831,7 +29155,17 @@
       ]
     },
     {
-      "id": "openrouter:google/gemma-4-26b-a4b-it-20260403",
+      "id": "openrouter:google/gemma-4-26b-a4b-it",
+      "name": "Google: Gemma 4 26B A4B ",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemma-4-26b-a4b-it:free",
       "name": "Google: Gemma 4 26B A4B  (free)",
       "tariff": "token",
       "state": "active",
@@ -28841,7 +29175,18 @@
       ]
     },
     {
-      "id": "openrouter:google/gemma-4-31b-it-20260402",
+      "id": "openrouter:google/gemma-4-31b-it",
+      "name": "Google: Gemma 4 31B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemma-4-31b-it:free",
       "name": "Google: Gemma 4 31B (free)",
       "tariff": "token",
       "state": "active",
@@ -28851,7 +29196,7 @@
       ]
     },
     {
-      "id": "openrouter:google/lyria-3-clip-preview-20260330",
+      "id": "openrouter:google/lyria-3-clip-preview",
       "name": "Google: Lyria 3 Clip Preview",
       "tariff": "token",
       "state": "active",
@@ -28861,7 +29206,7 @@
       ]
     },
     {
-      "id": "openrouter:google/lyria-3-pro-preview-20260330",
+      "id": "openrouter:google/lyria-3-pro-preview",
       "name": "Google: Lyria 3 Pro Preview",
       "tariff": "token",
       "state": "active",
@@ -28891,7 +29236,7 @@
       ]
     },
     {
-      "id": "openrouter:ibm-granite/granite-4.1-8b-20260429",
+      "id": "openrouter:ibm-granite/granite-4.1-8b",
       "name": "IBM: Granite 4.1 8B",
       "tariff": "token",
       "state": "active",
@@ -28902,7 +29247,7 @@
       ]
     },
     {
-      "id": "openrouter:inception/mercury-2-20260304",
+      "id": "openrouter:inception/mercury-2",
       "name": "Inception: Mercury 2",
       "tariff": "token",
       "state": "active",
@@ -28913,7 +29258,7 @@
       ]
     },
     {
-      "id": "openrouter:inclusionai/ling-3.0-flash-20260723",
+      "id": "openrouter:inclusionai/ling-3.0-flash",
       "name": "Ling-3.0-flash",
       "tariff": "token",
       "state": "active",
@@ -28924,7 +29269,7 @@
       ]
     },
     {
-      "id": "openrouter:inclusionai/ling-3.0-flash-fin-20260827",
+      "id": "openrouter:inclusionai/ling-3.0-flash-fin:free",
       "name": "Ling 3.0 Flash Fin (free)",
       "tariff": "token",
       "state": "active",
@@ -28934,7 +29279,7 @@
       ]
     },
     {
-      "id": "openrouter:kwaipilot/kat-coder-air-v2.5-20260710",
+      "id": "openrouter:kwaipilot/kat-coder-air-v2.5",
       "name": "Kwaipilot: KAT-Coder-Air V2.5",
       "tariff": "token",
       "state": "active",
@@ -28945,7 +29290,7 @@
       ]
     },
     {
-      "id": "openrouter:kwaipilot/kat-coder-pro-v2-20260327",
+      "id": "openrouter:kwaipilot/kat-coder-pro-v2",
       "name": "Kwaipilot: KAT-Coder-Pro V2",
       "tariff": "token",
       "state": "active",
@@ -28956,7 +29301,7 @@
       ]
     },
     {
-      "id": "openrouter:kwaipilot/kat-coder-pro-v2.5-20260710",
+      "id": "openrouter:kwaipilot/kat-coder-pro-v2.5",
       "name": "Kwaipilot: KAT-Coder-Pro V2.5",
       "tariff": "token",
       "state": "active",
@@ -28967,7 +29312,7 @@
       ]
     },
     {
-      "id": "openrouter:liquid/lfm-2.5-2.6b-20260811",
+      "id": "openrouter:liquid/lfm-2.5-2.6b:free",
       "name": "LiquidAI: LFM2.5-2.6B (free)",
       "tariff": "token",
       "state": "active",
@@ -28987,7 +29332,7 @@
       ]
     },
     {
-      "id": "openrouter:meituan/longcat-2.0-20260720",
+      "id": "openrouter:meituan/longcat-2.0",
       "name": "Meituan: LongCat 2.0",
       "tariff": "token",
       "state": "active",
@@ -29050,7 +29395,7 @@
       ]
     },
     {
-      "id": "openrouter:meta-llama/llama-4-maverick-17b-128e-instruct",
+      "id": "openrouter:meta-llama/llama-4-maverick",
       "name": "Meta: Llama 4 Maverick",
       "tariff": "token",
       "state": "active",
@@ -29060,7 +29405,7 @@
       ]
     },
     {
-      "id": "openrouter:meta-llama/llama-4-scout-17b-16e-instruct",
+      "id": "openrouter:meta-llama/llama-4-scout",
       "name": "Meta: Llama 4 Scout",
       "tariff": "token",
       "state": "active",
@@ -29081,7 +29426,7 @@
       ]
     },
     {
-      "id": "openrouter:meta/muse-glimmer-30b-20260810",
+      "id": "openrouter:meta/muse-glimmer-30b",
       "name": "Meta: Muse Glimmer 30B",
       "tariff": "token",
       "state": "active",
@@ -29092,7 +29437,7 @@
       ]
     },
     {
-      "id": "openrouter:meta/muse-spark-1.1-20260709",
+      "id": "openrouter:meta/muse-spark-1.1",
       "name": "Meta: Muse Spark 1.1",
       "tariff": "token",
       "state": "active",
@@ -29104,7 +29449,7 @@
       ]
     },
     {
-      "id": "openrouter:meta/muse-spark-1.2-20260805",
+      "id": "openrouter:meta/muse-spark-1.2",
       "name": "Meta: Muse Spark 1.2",
       "tariff": "token",
       "state": "active",
@@ -29116,7 +29461,7 @@
       ]
     },
     {
-      "id": "openrouter:meta/muse-spark-1.2-contributor-20260805",
+      "id": "openrouter:meta/muse-spark-1.2-contributor",
       "name": "Meta: Muse Spark 1.2 Contributor",
       "tariff": "token",
       "state": "active",
@@ -29178,7 +29523,7 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m2-her-20260123",
+      "id": "openrouter:minimax/minimax-m2-her",
       "name": "MiniMax: MiniMax M2-her",
       "tariff": "token",
       "state": "active",
@@ -29200,7 +29545,7 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m2.5-20260211",
+      "id": "openrouter:minimax/minimax-m2.5",
       "name": "MiniMax: MiniMax M2.5",
       "tariff": "token",
       "state": "active",
@@ -29211,7 +29556,18 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m2.7-20260318",
+      "id": "openrouter:minimax/minimax-m2.7",
+      "name": "MiniMax: MiniMax M2.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:minimax/minimax-m2.7:free",
       "name": "MiniMax: MiniMax M2.7 (free)",
       "tariff": "token",
       "state": "active",
@@ -29221,7 +29577,29 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m3-20260531",
+      "id": "openrouter:minimax/minimax-m3",
+      "name": "MiniMax: MiniMax M3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:minimax/minimax-m3:batch",
+      "name": "MiniMax: MiniMax M3 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:minimax/minimax-m3:free",
       "name": "MiniMax: MiniMax M3 (free)",
       "tariff": "token",
       "state": "active",
@@ -29330,6 +29708,16 @@
       ]
     },
     {
+      "id": "openrouter:mistralai/mistral-medium-3-5",
+      "name": "Mistral: Mistral Medium 3.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:mistralai/mistral-medium-3.1",
       "name": "Mistral: Mistral Medium 3.1",
       "tariff": "token",
@@ -29338,16 +29726,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:mistralai/mistral-medium-3.5-20260430",
-      "name": "Mistral: Mistral Medium 3.5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -29361,7 +29739,7 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/mistral-saba-2502",
+      "id": "openrouter:mistralai/mistral-saba",
       "name": "Mistral: Saba",
       "tariff": "token",
       "state": "active",
@@ -29393,7 +29771,7 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/mistral-small-3.1-24b-instruct-2503",
+      "id": "openrouter:mistralai/mistral-small-3.1-24b-instruct",
       "name": "Mistral: Mistral Small 3.1 24B",
       "tariff": "token",
       "state": "active",
@@ -29403,7 +29781,7 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/mistral-small-3.2-24b-instruct-2506",
+      "id": "openrouter:mistralai/mistral-small-3.2-24b-instruct",
       "name": "Mistral: Mistral Small 3.2 24B",
       "tariff": "token",
       "state": "active",
@@ -29456,7 +29834,7 @@
       ]
     },
     {
-      "id": "openrouter:moonshotai/kimi-k2-thinking-20251106",
+      "id": "openrouter:moonshotai/kimi-k2-thinking",
       "name": "MoonshotAI: Kimi K2 Thinking",
       "tariff": "token",
       "state": "active",
@@ -29467,7 +29845,7 @@
       ]
     },
     {
-      "id": "openrouter:moonshotai/kimi-k2.5-0127",
+      "id": "openrouter:moonshotai/kimi-k2.5",
       "name": "MoonshotAI: Kimi K2.5",
       "tariff": "token",
       "state": "active",
@@ -29478,7 +29856,7 @@
       ]
     },
     {
-      "id": "openrouter:moonshotai/kimi-k2.6-20260420",
+      "id": "openrouter:moonshotai/kimi-k2.6",
       "name": "MoonshotAI: Kimi K2.6",
       "tariff": "token",
       "state": "active",
@@ -29489,7 +29867,7 @@
       ]
     },
     {
-      "id": "openrouter:moonshotai/kimi-k2.7-code-20260612",
+      "id": "openrouter:moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "tariff": "token",
       "state": "active",
@@ -29500,7 +29878,7 @@
       ]
     },
     {
-      "id": "openrouter:moonshotai/kimi-k3-20260715",
+      "id": "openrouter:moonshotai/kimi-k3",
       "name": "MoonshotAI: Kimi K3",
       "tariff": "token",
       "state": "active",
@@ -29604,7 +29982,7 @@
       ]
     },
     {
-      "id": "openrouter:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning-20260428",
+      "id": "openrouter:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "name": "NVIDIA: Nemotron 3 Nano Omni (free)",
       "tariff": "token",
       "state": "active",
@@ -29614,7 +29992,17 @@
       ]
     },
     {
-      "id": "openrouter:nvidia/nemotron-3-super-120b-a12b-20230311",
+      "id": "openrouter:nvidia/nemotron-3-super-120b-a12b",
+      "name": "NVIDIA: Nemotron 3 Super",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
       "name": "NVIDIA: Nemotron 3 Super (free)",
       "tariff": "token",
       "state": "active",
@@ -29624,7 +30012,29 @@
       ]
     },
     {
-      "id": "openrouter:nvidia/nemotron-3-ultra-550b-a55b-20260604",
+      "id": "openrouter:nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "NVIDIA: Nemotron 3 Ultra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3-ultra-550b-a55b:batch",
+      "name": "NVIDIA: Nemotron 3 Ultra (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free",
       "name": "NVIDIA: Nemotron 3 Ultra (free)",
       "tariff": "token",
       "state": "active",
@@ -29634,7 +30044,7 @@
       ]
     },
     {
-      "id": "openrouter:nvidia/nemotron-3.5-content-safety-20260604",
+      "id": "openrouter:nvidia/nemotron-3.5-content-safety:free",
       "name": "NVIDIA: Nemotron 3.5 Content Safety (free)",
       "tariff": "token",
       "state": "active",
@@ -29644,7 +30054,18 @@
       ]
     },
     {
-      "id": "openrouter:nvidia/nemotron-3.5-lightning-20260807",
+      "id": "openrouter:nvidia/nemotron-3.5-lightning",
+      "name": "NVIDIA: Nemotron 3.5 Lightning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3.5-lightning:free",
       "name": "NVIDIA: Nemotron 3.5 Lightning (free)",
       "tariff": "token",
       "state": "active",
@@ -29724,7 +30145,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-4.1-2025-04-14",
+      "id": "openrouter:openai/gpt-4.1",
       "name": "OpenAI: GPT-4.1",
       "tariff": "token",
       "state": "active",
@@ -29736,7 +30157,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-4.1-mini-2025-04-14",
+      "id": "openrouter:openai/gpt-4.1-mini",
       "name": "OpenAI: GPT-4.1 Mini",
       "tariff": "token",
       "state": "active",
@@ -29748,7 +30169,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-4.1-nano-2025-04-14",
+      "id": "openrouter:openai/gpt-4.1-nano",
       "name": "OpenAI: GPT-4.1 Nano",
       "tariff": "token",
       "state": "active",
@@ -29825,7 +30246,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5-2025-08-07",
+      "id": "openrouter:openai/gpt-5",
       "name": "OpenAI: GPT-5",
       "tariff": "token",
       "state": "active",
@@ -29863,7 +30284,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5-mini-2025-08-07",
+      "id": "openrouter:openai/gpt-5-mini",
       "name": "OpenAI: GPT-5 Mini",
       "tariff": "token",
       "state": "active",
@@ -29875,7 +30296,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5-nano-2025-08-07",
+      "id": "openrouter:openai/gpt-5-nano",
       "name": "OpenAI: GPT-5 Nano",
       "tariff": "token",
       "state": "active",
@@ -29887,7 +30308,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5-pro-2025-10-06",
+      "id": "openrouter:openai/gpt-5-pro",
       "name": "OpenAI: GPT-5 Pro",
       "tariff": "token",
       "state": "active",
@@ -29898,7 +30319,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.1-20251113",
+      "id": "openrouter:openai/gpt-5.1",
       "name": "OpenAI: GPT-5.1",
       "tariff": "token",
       "state": "active",
@@ -29910,7 +30331,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.1-codex-20251113",
+      "id": "openrouter:openai/gpt-5.1-codex",
       "name": "OpenAI: GPT-5.1-Codex",
       "tariff": "token",
       "state": "active",
@@ -29922,7 +30343,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.1-codex-max-20251204",
+      "id": "openrouter:openai/gpt-5.1-codex-max",
       "name": "OpenAI: GPT-5.1-Codex-Max",
       "tariff": "token",
       "state": "active",
@@ -29934,7 +30355,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.1-codex-mini-20251113",
+      "id": "openrouter:openai/gpt-5.1-codex-mini",
       "name": "OpenAI: GPT-5.1-Codex-Mini",
       "tariff": "token",
       "state": "active",
@@ -29946,7 +30367,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.2-20251211",
+      "id": "openrouter:openai/gpt-5.2",
       "name": "OpenAI: GPT-5.2",
       "tariff": "token",
       "state": "active",
@@ -29958,7 +30379,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.2-chat-20251211",
+      "id": "openrouter:openai/gpt-5.2-chat",
       "name": "OpenAI: GPT-5.2 Chat",
       "tariff": "token",
       "state": "active",
@@ -29970,7 +30391,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.2-codex-20260114",
+      "id": "openrouter:openai/gpt-5.2-codex",
       "name": "OpenAI: GPT-5.2-Codex",
       "tariff": "token",
       "state": "active",
@@ -29982,7 +30403,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.2-pro-20251211",
+      "id": "openrouter:openai/gpt-5.2-pro",
       "name": "OpenAI: GPT-5.2 Pro",
       "tariff": "token",
       "state": "active",
@@ -29993,7 +30414,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.3-codex-20260224",
+      "id": "openrouter:openai/gpt-5.3-codex",
       "name": "OpenAI: GPT-5.3-Codex",
       "tariff": "token",
       "state": "active",
@@ -30005,7 +30426,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.4-20260305",
+      "id": "openrouter:openai/gpt-5.4",
       "name": "OpenAI: GPT-5.4",
       "tariff": "token",
       "state": "active",
@@ -30017,7 +30438,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.4-image-2-20260421",
+      "id": "openrouter:openai/gpt-5.4-image-2",
       "name": "OpenAI: GPT-5.4 Image 2",
       "tariff": "token",
       "state": "active",
@@ -30030,7 +30451,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.4-mini-20260317",
+      "id": "openrouter:openai/gpt-5.4-mini",
       "name": "OpenAI: GPT-5.4 Mini",
       "tariff": "token",
       "state": "active",
@@ -30042,7 +30463,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.4-nano-20260317",
+      "id": "openrouter:openai/gpt-5.4-nano",
       "name": "OpenAI: GPT-5.4 Nano",
       "tariff": "token",
       "state": "active",
@@ -30054,7 +30475,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.4-pro-20260305",
+      "id": "openrouter:openai/gpt-5.4-pro",
       "name": "OpenAI: GPT-5.4 Pro",
       "tariff": "token",
       "state": "active",
@@ -30065,7 +30486,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.5-20260423",
+      "id": "openrouter:openai/gpt-5.5",
       "name": "OpenAI: GPT-5.5",
       "tariff": "token",
       "state": "active",
@@ -30077,7 +30498,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.5-pro-20260423",
+      "id": "openrouter:openai/gpt-5.5-pro",
       "name": "OpenAI: GPT-5.5 Pro",
       "tariff": "token",
       "state": "active",
@@ -30088,7 +30509,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.6-luna-20260709",
+      "id": "openrouter:openai/gpt-5.6-luna",
       "name": "OpenAI: GPT-5.6 Luna",
       "tariff": "token",
       "state": "active",
@@ -30101,7 +30522,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.6-luna-pro-20260709",
+      "id": "openrouter:openai/gpt-5.6-luna-pro",
       "name": "OpenAI: GPT-5.6 Luna Pro",
       "tariff": "token",
       "state": "active",
@@ -30114,7 +30535,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.6-sol-20260709",
+      "id": "openrouter:openai/gpt-5.6-sol",
       "name": "OpenAI: GPT-5.6 Sol",
       "tariff": "token",
       "state": "active",
@@ -30127,7 +30548,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.6-sol-pro-20260709",
+      "id": "openrouter:openai/gpt-5.6-sol-pro",
       "name": "OpenAI: GPT-5.6 Sol Pro",
       "tariff": "token",
       "state": "active",
@@ -30140,7 +30561,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.6-terra-20260709",
+      "id": "openrouter:openai/gpt-5.6-terra",
       "name": "OpenAI: GPT-5.6 Terra",
       "tariff": "token",
       "state": "active",
@@ -30153,7 +30574,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-5.6-terra-pro-20260709",
+      "id": "openrouter:openai/gpt-5.6-terra-pro",
       "name": "OpenAI: GPT-5.6 Terra Pro",
       "tariff": "token",
       "state": "active",
@@ -30190,7 +30611,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-chat-latest-20260505",
+      "id": "openrouter:openai/gpt-chat-latest",
       "name": "OpenAI: GPT Chat Latest",
       "tariff": "token",
       "state": "active",
@@ -30234,7 +30655,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o1-2024-12-17",
+      "id": "openrouter:openai/o1",
       "name": "OpenAI: o1",
       "tariff": "token",
       "state": "active",
@@ -30257,7 +30678,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o3-2025-04-16",
+      "id": "openrouter:openai/o3",
       "name": "OpenAI: o3",
       "tariff": "token",
       "state": "active",
@@ -30269,7 +30690,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o3-mini-2025-01-31",
+      "id": "openrouter:openai/o3-mini",
       "name": "OpenAI: o3 Mini",
       "tariff": "token",
       "state": "active",
@@ -30281,7 +30702,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o3-mini-high-2025-01-31",
+      "id": "openrouter:openai/o3-mini-high",
       "name": "OpenAI: o3 Mini High",
       "tariff": "token",
       "state": "active",
@@ -30293,7 +30714,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o3-pro-2025-06-10",
+      "id": "openrouter:openai/o3-pro",
       "name": "OpenAI: o3 Pro",
       "tariff": "token",
       "state": "active",
@@ -30304,7 +30725,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o4-mini-2025-04-16",
+      "id": "openrouter:openai/o4-mini",
       "name": "OpenAI: o4 Mini",
       "tariff": "token",
       "state": "active",
@@ -30316,7 +30737,7 @@
       ]
     },
     {
-      "id": "openrouter:openai/o4-mini-high-2025-04-16",
+      "id": "openrouter:openai/o4-mini-high",
       "name": "OpenAI: o4 Mini High",
       "tariff": "token",
       "state": "active",
@@ -30388,7 +30809,7 @@
       ]
     },
     {
-      "id": "openrouter:perceptron/perceptron-mk1-20260512",
+      "id": "openrouter:perceptron/perceptron-mk1",
       "name": "Perceptron: Perceptron Mk1",
       "tariff": "token",
       "state": "active",
@@ -30454,7 +30875,18 @@
       ]
     },
     {
-      "id": "openrouter:poolside/laguna-s-2.1-20260720",
+      "id": "openrouter:poolside/laguna-s-2.1",
+      "name": "Poolside: Laguna S 2.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:poolside/laguna-s-2.1:free",
       "name": "Poolside: Laguna S 2.1 (free)",
       "tariff": "token",
       "state": "active",
@@ -30464,7 +30896,18 @@
       ]
     },
     {
-      "id": "openrouter:poolside/laguna-xs-2.1-20260625",
+      "id": "openrouter:poolside/laguna-xs-2.1",
+      "name": "Poolside: Laguna XS 2.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:poolside/laguna-xs-2.1:free",
       "name": "Poolside: Laguna XS 2.1 (free)",
       "tariff": "token",
       "state": "active",
@@ -30504,7 +30947,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen-plus-2025-01-25",
+      "id": "openrouter:qwen/qwen-plus",
       "name": "Qwen: Qwen-Plus",
       "tariff": "token",
       "state": "active",
@@ -30536,7 +30979,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-14b-04-28",
+      "id": "openrouter:qwen/qwen3-14b",
       "name": "Qwen: Qwen3 14B",
       "tariff": "token",
       "state": "active",
@@ -30546,7 +30989,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-235b-a22b-04-28",
+      "id": "openrouter:qwen/qwen3-235b-a22b",
       "name": "Qwen: Qwen3 235B A22B",
       "tariff": "token",
       "state": "active",
@@ -30556,7 +30999,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-235b-a22b-07-25",
+      "id": "openrouter:qwen/qwen3-235b-a22b-2507",
       "name": "Qwen: Qwen3 235B A22B Instruct 2507",
       "tariff": "token",
       "state": "active",
@@ -30577,7 +31020,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-30b-a3b-04-28",
+      "id": "openrouter:qwen/qwen3-30b-a3b",
       "name": "Qwen: Qwen3 30B A3B",
       "tariff": "token",
       "state": "active",
@@ -30607,7 +31050,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-32b-04-28",
+      "id": "openrouter:qwen/qwen3-32b",
       "name": "Qwen: Qwen3 32B",
       "tariff": "token",
       "state": "active",
@@ -30617,13 +31060,24 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-8b-04-28",
+      "id": "openrouter:qwen/qwen3-8b",
       "name": "Qwen: Qwen3 8B",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:qwen/qwen3-coder",
+      "name": "Qwen: Qwen3 Coder 480B A35B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -30634,17 +31088,6 @@
       "meters": [
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "openrouter:qwen/qwen3-coder-480b-a35b-07-25",
-      "name": "Qwen: Qwen3 Coder 480B A35B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
       ]
     },
     {
@@ -30660,7 +31103,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-coder-next-2025-02-03",
+      "id": "openrouter:qwen/qwen3-coder-next",
       "name": "Qwen: Qwen3 Coder Next",
       "tariff": "token",
       "state": "active",
@@ -30695,7 +31138,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-max-thinking-20260123",
+      "id": "openrouter:qwen/qwen3-max-thinking",
       "name": "Qwen: Qwen3 Max Thinking",
       "tariff": "token",
       "state": "active",
@@ -30705,7 +31148,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-next-80b-a3b-instruct-2509",
+      "id": "openrouter:qwen/qwen3-next-80b-a3b-instruct",
       "name": "Qwen: Qwen3 Next 80B A3B Instruct",
       "tariff": "token",
       "state": "active",
@@ -30716,7 +31159,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-next-80b-a3b-thinking-2509",
+      "id": "openrouter:qwen/qwen3-next-80b-a3b-thinking",
       "name": "Qwen: Qwen3 Next 80B A3B Thinking",
       "tariff": "token",
       "state": "active",
@@ -30797,7 +31240,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-122b-a10b-20260224",
+      "id": "openrouter:qwen/qwen3.5-122b-a10b",
       "name": "Qwen: Qwen3.5-122B-A10B",
       "tariff": "token",
       "state": "active",
@@ -30807,7 +31250,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-27b-20260224",
+      "id": "openrouter:qwen/qwen3.5-27b",
       "name": "Qwen: Qwen3.5-27B",
       "tariff": "token",
       "state": "active",
@@ -30817,7 +31260,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-35b-a3b-20260224",
+      "id": "openrouter:qwen/qwen3.5-35b-a3b",
       "name": "Qwen: Qwen3.5-35B-A3B",
       "tariff": "token",
       "state": "active",
@@ -30828,7 +31271,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-397b-a17b-20260216",
+      "id": "openrouter:qwen/qwen3.5-397b-a17b",
       "name": "Qwen: Qwen3.5 397B A17B",
       "tariff": "token",
       "state": "active",
@@ -30838,7 +31281,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-9b-20260310",
+      "id": "openrouter:qwen/qwen3.5-9b",
       "name": "Qwen: Qwen3.5-9B",
       "tariff": "token",
       "state": "active",
@@ -30848,7 +31291,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-flash-20260224",
+      "id": "openrouter:qwen/qwen3.5-flash-02-23",
       "name": "Qwen: Qwen3.5-Flash",
       "tariff": "token",
       "state": "active",
@@ -30858,7 +31301,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.5-plus-20260216",
+      "id": "openrouter:qwen/qwen3.5-plus-02-15",
       "name": "Qwen: Qwen3.5 Plus 2026-02-15",
       "tariff": "token",
       "state": "active",
@@ -30879,17 +31322,18 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.6-27b-20260422",
+      "id": "openrouter:qwen/qwen3.6-27b",
       "name": "Qwen: Qwen3.6 27B",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.6-35b-a3b-20260415",
+      "id": "openrouter:qwen/qwen3.6-35b-a3b",
       "name": "Qwen: Qwen3.6 35B A3B",
       "tariff": "token",
       "state": "active",
@@ -30911,7 +31355,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.6-max-preview-20260420",
+      "id": "openrouter:qwen/qwen3.6-max-preview",
       "name": "Qwen: Qwen3.6 Max Preview",
       "tariff": "token",
       "state": "active",
@@ -30922,7 +31366,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.6-plus-04-02",
+      "id": "openrouter:qwen/qwen3.6-plus",
       "name": "Qwen: Qwen3.6 Plus",
       "tariff": "token",
       "state": "active",
@@ -30933,7 +31377,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.7-flash-20260727",
+      "id": "openrouter:qwen/qwen3.7-flash",
       "name": "Qwen: Qwen3.7 Flash",
       "tariff": "token",
       "state": "active",
@@ -30945,7 +31389,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.7-max-20260520",
+      "id": "openrouter:qwen/qwen3.7-max",
       "name": "Qwen: Qwen3.7 Max",
       "tariff": "token",
       "state": "active",
@@ -30957,7 +31401,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.7-plus-20260602",
+      "id": "openrouter:qwen/qwen3.7-plus",
       "name": "Qwen: Qwen3.7 Plus",
       "tariff": "token",
       "state": "active",
@@ -30969,7 +31413,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.8-2.4t-a95b-20260812",
+      "id": "openrouter:qwen/qwen3.8-2.4t-a95b",
       "name": "Qwen: Qwen3.8 2.4T A95B",
       "tariff": "token",
       "state": "active",
@@ -30980,7 +31424,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.8-27b-20260814",
+      "id": "openrouter:qwen/qwen3.8-27b",
       "name": "Qwen: Qwen3.8 27B",
       "tariff": "token",
       "state": "active",
@@ -30992,7 +31436,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.8-flash-20260826",
+      "id": "openrouter:qwen/qwen3.8-flash",
       "name": "Qwen: Qwen3.8 Flash",
       "tariff": "token",
       "state": "active",
@@ -31004,7 +31448,7 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.8-max-20260803",
+      "id": "openrouter:qwen/qwen3.8-max",
       "name": "Qwen: Qwen3.8 Max",
       "tariff": "token",
       "state": "active",
@@ -31016,7 +31460,7 @@
       ]
     },
     {
-      "id": "openrouter:rekaai/reka-edge-2603",
+      "id": "openrouter:rekaai/reka-edge",
       "name": "Reka Edge",
       "tariff": "token",
       "state": "active",
@@ -31046,7 +31490,7 @@
       ]
     },
     {
-      "id": "openrouter:relace/relace-search-20251208",
+      "id": "openrouter:relace/relace-search",
       "name": "Relace: Relace Search",
       "tariff": "token",
       "state": "active",
@@ -31056,7 +31500,7 @@
       ]
     },
     {
-      "id": "openrouter:sakana/fugu-ultra-20260615",
+      "id": "openrouter:sakana/fugu-ultra",
       "name": "Sakana: Fugu Ultra",
       "tariff": "token",
       "state": "active",
@@ -31068,7 +31512,7 @@
       ]
     },
     {
-      "id": "openrouter:sakana/namazu-20260811",
+      "id": "openrouter:sakana/sakana-namazu",
       "name": "Sakana: Sakana Namazu",
       "tariff": "token",
       "state": "active",
@@ -31100,7 +31544,7 @@
       ]
     },
     {
-      "id": "openrouter:sao10k/l3.3-euryale-70b-v2.3",
+      "id": "openrouter:sao10k/l3.3-euryale-70b",
       "name": "Sao10K: Llama 3.3 Euryale 70B",
       "tariff": "token",
       "state": "active",
@@ -31120,7 +31564,7 @@
       ]
     },
     {
-      "id": "openrouter:stepfun/step-3.7-flash-20260528",
+      "id": "openrouter:stepfun/step-3.7-flash",
       "name": "StepFun: Step 3.7 Flash",
       "tariff": "token",
       "state": "active",
@@ -31141,7 +31585,7 @@
       ]
     },
     {
-      "id": "openrouter:tencent/hy-mt2-1.8b-20260521",
+      "id": "openrouter:tencent/hy-mt2-1.8b",
       "name": "Tencent: Hy-MT2-1.8B",
       "tariff": "token",
       "state": "active",
@@ -31151,7 +31595,7 @@
       ]
     },
     {
-      "id": "openrouter:tencent/hy-mt2-30b-a3b-20260521",
+      "id": "openrouter:tencent/hy-mt2-30b-a3b",
       "name": "Tencent: Hy-MT2-30B-A3B",
       "tariff": "token",
       "state": "active",
@@ -31161,7 +31605,7 @@
       ]
     },
     {
-      "id": "openrouter:tencent/hy-mt2-7b-20260521",
+      "id": "openrouter:tencent/hy-mt2-7b",
       "name": "Tencent: Hy-MT2-7B",
       "tariff": "token",
       "state": "active",
@@ -31171,7 +31615,7 @@
       ]
     },
     {
-      "id": "openrouter:tencent/hy3-20260706",
+      "id": "openrouter:tencent/hy3",
       "name": "Tencent: Hy3",
       "tariff": "token",
       "state": "active",
@@ -31182,8 +31626,19 @@
       ]
     },
     {
-      "id": "openrouter:tencent/hy3-preview-20260421",
+      "id": "openrouter:tencent/hy3-preview",
       "name": "Tencent: Hy3 preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:tencent/hy4-preview",
+      "name": "Tencent: Hy4 preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -31225,8 +31680,30 @@
       ]
     },
     {
-      "id": "openrouter:thinkingmachines/inkling-20260715",
-      "name": "Thinking Machines: Inkling (free)",
+      "id": "openrouter:thinkingmachines/inkling",
+      "name": "Thinking Machines: Inkling",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:thinkingmachines/inkling-small",
+      "name": "Thinking Machines: Inkling Small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:thinkingmachines/inkling-small:free",
+      "name": "Thinking Machines: Inkling Small (free)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -31235,8 +31712,19 @@
       ]
     },
     {
-      "id": "openrouter:thinkingmachines/inkling-small-20260730",
-      "name": "Thinking Machines: Inkling Small (free)",
+      "id": "openrouter:thinkingmachines/inkling:batch",
+      "name": "Thinking Machines: Inkling (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:thinkingmachines/inkling:free",
+      "name": "Thinking Machines: Inkling (free)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -31266,7 +31754,7 @@
       ]
     },
     {
-      "id": "openrouter:upstage/solar-pro4-20260810",
+      "id": "openrouter:upstage/solar-pro4",
       "name": "Upstage: Solar Pro 4",
       "tariff": "token",
       "state": "active",
@@ -31277,17 +31765,7 @@
       ]
     },
     {
-      "id": "openrouter:venice/uncensored",
-      "name": "Venice: Uncensored",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:writer/palmyra-x5-20250428",
+      "id": "openrouter:writer/palmyra-x5",
       "name": "Writer: Palmyra X5",
       "tariff": "token",
       "state": "active",
@@ -31297,7 +31775,7 @@
       ]
     },
     {
-      "id": "openrouter:x-ai/grok-4.20-20260309",
+      "id": "openrouter:x-ai/grok-4.20",
       "name": "SpaceXAI: Grok 4.20",
       "tariff": "token",
       "state": "active",
@@ -31309,7 +31787,7 @@
       ]
     },
     {
-      "id": "openrouter:x-ai/grok-4.20-multi-agent-20260309",
+      "id": "openrouter:x-ai/grok-4.20-multi-agent",
       "name": "SpaceXAI: Grok 4.20 Multi-Agent",
       "tariff": "token",
       "state": "active",
@@ -31321,7 +31799,7 @@
       ]
     },
     {
-      "id": "openrouter:x-ai/grok-4.3-20260430",
+      "id": "openrouter:x-ai/grok-4.3",
       "name": "SpaceXAI: Grok 4.3",
       "tariff": "token",
       "state": "active",
@@ -31333,7 +31811,7 @@
       ]
     },
     {
-      "id": "openrouter:x-ai/grok-4.5-20260708",
+      "id": "openrouter:x-ai/grok-4.5",
       "name": "SpaceXAI: Grok 4.5",
       "tariff": "token",
       "state": "active",
@@ -31345,7 +31823,7 @@
       ]
     },
     {
-      "id": "openrouter:x-ai/grok-4.6-20260810",
+      "id": "openrouter:x-ai/grok-4.6",
       "name": "SpaceXAI: Grok 4.6",
       "tariff": "token",
       "state": "active",
@@ -31357,7 +31835,7 @@
       ]
     },
     {
-      "id": "openrouter:x-ai/grok-build-0.1-20260520",
+      "id": "openrouter:x-ai/grok-build-0.1",
       "name": "SpaceXAI: Grok Build 0.1",
       "tariff": "token",
       "state": "active",
@@ -31369,7 +31847,7 @@
       ]
     },
     {
-      "id": "openrouter:xiaomi/mimo-v2.5-20260422",
+      "id": "openrouter:xiaomi/mimo-v2.5",
       "name": "Xiaomi: MiMo-V2.5",
       "tariff": "token",
       "state": "active",
@@ -31380,7 +31858,7 @@
       ]
     },
     {
-      "id": "openrouter:xiaomi/mimo-v2.5-pro-20260422",
+      "id": "openrouter:xiaomi/mimo-v2.5-pro",
       "name": "Xiaomi: MiMo-V2.5-Pro",
       "tariff": "token",
       "state": "active",
@@ -31435,7 +31913,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-4.6-20251208",
+      "id": "openrouter:z-ai/glm-4.6v",
       "name": "Z.ai: GLM 4.6V",
       "tariff": "token",
       "state": "active",
@@ -31446,7 +31924,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-4.7-20251222",
+      "id": "openrouter:z-ai/glm-4.7",
       "name": "Z.ai: GLM 4.7",
       "tariff": "token",
       "state": "active",
@@ -31457,7 +31935,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-4.7-flash-20260119",
+      "id": "openrouter:z-ai/glm-4.7-flash",
       "name": "Z.ai: GLM 4.7 Flash",
       "tariff": "token",
       "state": "active",
@@ -31468,7 +31946,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5-20260211",
+      "id": "openrouter:z-ai/glm-5",
       "name": "Z.ai: GLM 5",
       "tariff": "token",
       "state": "active",
@@ -31479,7 +31957,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5-turbo-20260315",
+      "id": "openrouter:z-ai/glm-5-turbo",
       "name": "Z.ai: GLM 5 Turbo",
       "tariff": "token",
       "state": "active",
@@ -31490,7 +31968,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5.1-20260406",
+      "id": "openrouter:z-ai/glm-5.1",
       "name": "Z.ai: GLM 5.1",
       "tariff": "token",
       "state": "active",
@@ -31501,7 +31979,18 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5.2-20260616",
+      "id": "openrouter:z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.2:free",
       "name": "Z.ai: GLM 5.2 (free)",
       "tariff": "token",
       "state": "active",
@@ -31511,7 +32000,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5.3-20260816",
+      "id": "openrouter:z-ai/glm-5.3",
       "name": "Z.ai: GLM 5.3",
       "tariff": "token",
       "state": "active",
@@ -31522,7 +32011,7 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5.3-flash-20260826",
+      "id": "openrouter:z-ai/glm-5.3-flash",
       "name": "Z.ai: GLM 5.3 Flash",
       "tariff": "token",
       "state": "active",
@@ -31533,166 +32022,8 @@
       ]
     },
     {
-      "id": "openrouter:z-ai/glm-5v-turbo-20260401",
+      "id": "openrouter:z-ai/glm-5v-turbo",
       "name": "Z.ai: GLM 5V Turbo",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:~anthropic/claude-fable-latest",
-      "name": "Anthropic: Claude Fable Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:~anthropic/claude-haiku-latest",
-      "name": "Anthropic Claude Haiku Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:~anthropic/claude-opus-latest",
-      "name": "Anthropic: Claude Opus Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:~anthropic/claude-sonnet-latest",
-      "name": "Anthropic Claude Sonnet Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:~deepseek/deepseek-v4-flash-latest",
-      "name": "DeepSeek V4 Flash Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:~google/gemini-flash-latest",
-      "name": "Google Gemini Flash Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "image_in",
-        "audio_in",
-        "web_search",
-        "reasoning",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:~google/gemini-pro-latest",
-      "name": "Google Gemini Pro Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "image_in",
-        "audio_in",
-        "web_search",
-        "reasoning",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:~moonshotai/kimi-latest",
-      "name": "MoonshotAI Kimi Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:~openai/gpt-latest",
-      "name": "OpenAI GPT Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:~openai/gpt-mini-latest",
-      "name": "OpenAI GPT Mini Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:~x-ai/grok-latest",
-      "name": "xAI: Grok Latest",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:~z-ai/glm-latest",
-      "name": "Z.ai: GLM Latest",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -31705,355 +32036,85 @@
   "provenance": {
     "logs": [
       {
-        "offer": "openrouter:deepseek/deepseek-v4-flash-vision-exp-20260821",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
+        "offer": "openrouter:~z-ai/glm-latest",
+        "rule": "alias_skipped",
+        "target": "z-ai/glm-5.3"
       },
       {
-        "offer": "openrouter:deepseek/deepseek-v4-flash-vision-exp-20260821",
-        "rule": "override_entry_skipped",
-        "index": 2,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-flash-vision-exp-20260821",
-        "rule": "override_entry_skipped",
-        "index": 3,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-flash-vision-exp-20260821",
-        "rule": "override_entry_skipped",
-        "index": 4,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-flash-vision-exp-20260821",
-        "rule": "override_entry_skipped",
-        "index": 5,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:bytedance-seed/seed-2.0-code-20260730",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-pro-20260813",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-pro-20260813",
-        "rule": "override_entry_skipped",
-        "index": 2,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-pro-20260813",
-        "rule": "override_entry_skipped",
-        "index": 3,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-pro-20260813",
-        "rule": "override_entry_skipped",
-        "index": 4,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:deepseek/deepseek-v4-pro-20260813",
-        "rule": "override_entry_skipped",
-        "index": 5,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:x-ai/grok-4.6-20260810",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3.7-flash-20260727",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3.7-flash-20260727",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.6-luna-pro-20260709",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.6-luna-20260709",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.6-terra-pro-20260709",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.6-terra-20260709",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.6-sol-pro-20260709",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.6-sol-20260709",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:x-ai/grok-4.5-20260708",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
+        "offer": "openrouter:~deepseek/deepseek-v4-flash-latest",
+        "rule": "alias_skipped",
+        "target": "deepseek/deepseek-v4-flash-0731"
       },
       {
         "offer": "openrouter:~x-ai/grok-latest",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
+        "rule": "alias_skipped",
+        "target": "x-ai/grok-4.6"
       },
       {
-        "offer": "openrouter:tencent/hy3-20260706",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
+        "offer": "openrouter:~anthropic/claude-fable-latest",
+        "rule": "alias_skipped",
+        "target": "anthropic/claude-fable-5"
       },
       {
-        "offer": "openrouter:tencent/hy3-20260706",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
+        "offer": "openrouter:~anthropic/claude-haiku-latest",
+        "rule": "alias_skipped",
+        "target": "anthropic/claude-haiku-4.5"
       },
       {
-        "offer": "openrouter:sakana/fugu-ultra-20260615",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3.7-plus-20260602",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:x-ai/grok-build-0.1-20260520",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:x-ai/grok-4.3-20260430",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
+        "offer": "openrouter:~openai/gpt-mini-latest",
+        "rule": "alias_skipped",
+        "target": "openai/gpt-5.4-mini"
       },
       {
         "offer": "openrouter:~google/gemini-pro-latest",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
+        "rule": "alias_skipped",
+        "target": "google/gemini-3.1-pro-preview"
+      },
+      {
+        "offer": "openrouter:~moonshotai/kimi-latest",
+        "rule": "alias_skipped",
+        "target": "moonshotai/kimi-k3"
+      },
+      {
+        "offer": "openrouter:~google/gemini-flash-latest",
+        "rule": "alias_skipped",
+        "target": "google/gemini-3.7-flash"
+      },
+      {
+        "offer": "openrouter:~anthropic/claude-sonnet-latest",
+        "rule": "alias_skipped",
+        "target": "anthropic/claude-sonnet-5"
       },
       {
         "offer": "openrouter:~openai/gpt-latest",
+        "rule": "alias_skipped",
+        "target": "openai/gpt-5.6-sol"
+      },
+      {
+        "offer": "openrouter:~anthropic/claude-opus-latest",
+        "rule": "alias_skipped",
+        "target": "anthropic/claude-opus-5"
+      },
+      {
+        "offer": "openrouter:google/gemini-3.1-pro-preview-customtools",
+        "rule": "override_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_field:input_audio_cache"
+      },
+      {
+        "offer": "openrouter:google/gemini-3.1-pro-preview-customtools",
         "rule": "override_entry_skipped",
         "index": 0,
         "reason": "unrecognized_condition_field"
       },
       {
-        "offer": "openrouter:qwen/qwen3.5-plus-20260420",
+        "offer": "openrouter:google/gemini-3.1-pro-preview",
         "rule": "override_entry_skipped",
         "index": 0,
-        "reason": "unrecognized_condition_field"
+        "reason": "unrecognized_field:input_audio_cache"
       },
       {
-        "offer": "openrouter:qwen/qwen3.6-flash",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3.6-max-preview-20260420",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.5-pro-20260423",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.5-20260423",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3.6-plus-04-02",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:x-ai/grok-4.20-multi-agent-20260309",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:x-ai/grok-4.20-20260309",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:bytedance-seed/seed-2.0-lite-20260309",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.4-pro-20260305",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:openai/gpt-5.4-20260305",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:bytedance-seed/seed-2.0-mini-20260224",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:google/gemini-3.1-pro-preview-customtools-20260219",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:google/gemini-3.1-pro-preview-20260219",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:google/gemini-3.1-pro-preview-20260219",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3.5-plus-20260216",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-max-thinking-20260123",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-max-thinking-20260123",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:bytedance-seed/seed-1.6-flash-20250625",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:bytedance-seed/seed-1.6-20250625",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:anthropic/claude-4.5-sonnet-20250929",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:anthropic/claude-4.5-sonnet-20250929",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-max",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-max",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-coder-plus",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-coder-plus",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-coder-flash",
-        "rule": "override_entry_skipped",
-        "index": 0,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen3-coder-flash",
-        "rule": "override_entry_skipped",
-        "index": 1,
-        "reason": "unrecognized_condition_field"
-      },
-      {
-        "offer": "openrouter:qwen/qwen-plus-2025-07-28",
+        "offer": "openrouter:google/gemini-3.1-pro-preview",
         "rule": "override_entry_skipped",
         "index": 0,
         "reason": "unrecognized_condition_field"
@@ -32062,7 +32123,7 @@
         "offer": "openrouter:google/gemini-2.5-pro",
         "rule": "override_entry_skipped",
         "index": 0,
-        "reason": "unrecognized_condition_field"
+        "reason": "unrecognized_field:input_audio_cache"
       },
       {
         "offer": "openrouter:google/gemini-2.5-pro",
@@ -32071,25 +32132,37 @@
         "reason": "unrecognized_condition_field"
       },
       {
-        "offer": "openrouter:google/gemini-2.5-pro-preview-06-05",
+        "offer": "openrouter:google/gemini-2.5-pro:batch",
+        "rule": "override_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_field:input_audio_cache"
+      },
+      {
+        "offer": "openrouter:google/gemini-2.5-pro:batch",
         "rule": "override_entry_skipped",
         "index": 0,
         "reason": "unrecognized_condition_field"
       },
       {
-        "offer": "openrouter:anthropic/claude-4-sonnet-20250522",
+        "offer": "openrouter:google/gemini-2.5-pro-preview",
+        "rule": "override_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_field:input_audio_cache"
+      },
+      {
+        "offer": "openrouter:google/gemini-2.5-pro-preview",
         "rule": "override_entry_skipped",
         "index": 0,
         "reason": "unrecognized_condition_field"
       },
       {
-        "offer": "openrouter:google/gemini-2.5-pro-preview-03-25",
+        "offer": "openrouter:google/gemini-2.5-pro-preview-05-06",
         "rule": "override_entry_skipped",
         "index": 0,
-        "reason": "unrecognized_condition_field"
+        "reason": "unrecognized_field:input_audio_cache"
       },
       {
-        "offer": "openrouter:qwen/qwen-plus-2025-01-25",
+        "offer": "openrouter:google/gemini-2.5-pro-preview-05-06",
         "rule": "override_entry_skipped",
         "index": 0,
         "reason": "unrecognized_condition_field"

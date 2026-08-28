@@ -96,8 +96,10 @@ test("failed source reuses last good resource, preserves last_success_at, fabric
   assert.equal(s2.root_digest, s1.root_digest, "last good resource digest preserved");
   assert.equal(s2.record_count, s1.record_count);
   assert.equal(s2.missing_streak, 1);
-  // The failed source's offers still carried over from the previous snapshot state.
-  assert.ok(r2.catalog.offers_state.some((o) => o.offer_id === "litellm:vendor/alpha" && o.state === "suspect_missing"));
+  // The failed source's offers carry over with their previous state unchanged:
+  // absence during a source outage is not evidence, and the risk lives at the
+  // SOURCE level (error status -> F5 banner), not per-offer.
+  assert.ok(r2.catalog.offers_state.some((o) => o.offer_id === "litellm:vendor/alpha" && o.state === "active"));
 });
 
 test("expiration_date retires an offer directly at build time", () => {

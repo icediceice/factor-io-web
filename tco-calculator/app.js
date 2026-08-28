@@ -135,7 +135,7 @@ async function fillModels(sel) {
     return;
   }
   const feed = $("fb-feed").value;
-  const models = state.manifest.models.filter((m) => m.id.startsWith(`${feed}:`) && m.state !== "quarantined");
+  const models = state.manifest.models.filter((m) => m.id.startsWith(`${feed}:`) && m.state !== "quarantined" && m.state !== "retired");
   const byName = [...models].sort((a, b) => a.name.localeCompare(b.name));
   $("fb-model").innerHTML = byName.map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`).join("");
   const cur = byName.find((m) => /gpt-4o/.test(m.id)) ?? byName.find((m) => /claude/.test(m.id)) ?? byName[0];

@@ -189,7 +189,8 @@ function run() {
     state.result = runComparison({ workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay, evidenceRows: [] });
     renderResults(state.result);
   } catch (e) {
-    showGap(`the comparison could not run: ${escapeHtml(e.message)}`);
+    const where = String(e.stack ?? "").split("\n").slice(1, 3).join(" | ");
+    showGap(`the comparison could not run: ${escapeHtml(e.message)} <br><code>${escapeHtml(where)}</code>`);
   }
 }
 

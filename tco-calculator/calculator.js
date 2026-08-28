@@ -195,11 +195,11 @@ export function ratToDecExact(r) {
 function pow(b, e) { let r = 1n; for (let i = 0n; i < e; i++) r *= b; return r; }
 
 // ------------------------------------------------------------------ breakeven
-// Lane C vs B: the utilization where hourly/(tok_s x util) crosses the API
-// per-token price (SPEC 6.2) — util* = hourly / (tok_s x bPerToken).
+// Lane C vs B: the utilization where hourly/(tok_s x util x 3600) crosses the
+// API per-token price (SPEC 6.2) — util* = hourly / (tok_s x 3600 x bPerToken).
 export function breakevenUtilizationC({ hourlyRate, tokensS, bPerToken }) {
   if (tokensS === null || tokensS <= 0) return { value: null, reason: "zero_capacity" };
-  const denom = Rat.of(BigInt(tokensS), 1n).mul(Rat.from(bPerToken));
+  const denom = Rat.of(BigInt(tokensS) * 3600n, 1n).mul(Rat.from(bPerToken));
   if (denom.isZero()) return { value: null, reason: "zero_price" };
   return { value: Rat.from(hourlyRate).div(denom), reason: null };
 }

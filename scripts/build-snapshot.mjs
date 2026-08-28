@@ -217,21 +217,13 @@ async function main() {
       litellm: { ok: true, value: parseJSONExact(await readFile(`${SAMPLES_DIR}litellm-cost-map.json`, "utf8")) },
     };
   } else {
-    const orPromise = fetchOpenRouterAll();
-    const llPromise = fetchJSON(LITELLM_URL);
+    const orPromise = fetchOpenRouterAllText();
+    const llPromise = fetchText(LITELLM_URL);
     const settled = await Promise.allSettled([orPromise, llPromise]);
     feeds = {
       openrouter: settled[0].status === "fulfilled" ? { ok: true, value: settled[0].value } : { ok: false, error: settled[0].reason },
-      litellm: settled[1].status === "fulfilled" ? { ok: true, value: parseJSONExact(JSON.stringify(settled[1].value)) } : { ok: false, error: settled[1].reason },
+      litellm: settled[1].status === "fulfilled" ? { ok: true, value: parseJSONExact(settled[1].value) } : { ok: false, error: settled[1].reason },
     };
-    // parseJSONExact(JSON.stringify(x)) round-trips the text through exactness
-    // for numeric literals the network layer already decoded.
-    if (settled[1].status === "fulfilled") {
-      // A double-detour already happened inside res.json(); freeze-by-text
-      // (--samples) is the exactness-critical path. Live path: values with
-      // short decimals round-trip their decimal value through IEEE-754; the
-      // builder emits canonical decimal strings either way.
-    }
   }
 
   const { manifest, catalogBytes, catalog } = buildSnapshot({ previousManifest, refreshId, fetchedAt, feeds });

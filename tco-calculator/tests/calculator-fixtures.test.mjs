@@ -176,7 +176,7 @@ test("api_first: failover traffic prices at rate x share; standby fixed surfaces
   const hot = runComparison({
     ...base,
     laneA: F7_LANE_A,
-    routing: { policy: "api_first", failover: { fallback: "A", share: "10", rate: "2" } },
+    routing: { policy: "api_first", failover: { fallback: "A", share: "0.1", rate: "2" } }, // share is a FRACTION of demand
   });
   // B 800 + failover 800 x 10% x 2 = 160 + A fixed 10000 (in service, charged once)
   assert.equal(hot.routing_result.recommended_monthly_total, "10960");

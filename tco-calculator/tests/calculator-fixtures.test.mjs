@@ -102,7 +102,7 @@ test("rate ceiling binds through buckets: 80M over 4 days at 100 tok/s overflows
   assert.equal(run.lanes.A.served_tokens, 34560000);
   assert.equal(run.lanes.A.overflow_tokens, 45440000);
   assert.equal(run.lanes.A.rate_ceiling_binding, "rate_and_monthly");
-  assert.ok(run.lanes.A.lines.some((l) => l.item === "overflow_secondary" && l.amount === "0.4544"));
+  assert.ok(run.lanes.A.lines.some((l) => l.item === "overflow_secondary" && l.amount === "454.4")); // 45.44M x $10/1M
 });
 
 test("absent temporal data yields capacity_temporal_unknown, never a silent aggregate", () => {

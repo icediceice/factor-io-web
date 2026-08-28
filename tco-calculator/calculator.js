@@ -15,6 +15,22 @@ import { quoteOffer } from "./pricing.js";
 
 const HOURS_MONTH = 730; // [ASSUMED — spec author] 8760/12, stated in provenance
 
+// Money coercion: totals travel as canonical decimal strings OR reduced n/d
+// strings (Lane C amortization is genuinely non-terminating). Everything
+// internal funnels through here before arithmetic.
+function toRat(x) {
+  if (x instanceof Rat) return x;
+  const s = String(x);
+  const m = /^(-?\d+)\/(\d+)$/.exec(s);
+  if (m) return Rat.of(BigInt(m[1]), BigInt(m[2]));
+  return Rat.from(Dec.from(s));
+}
+function ratStr(x) {
+  const r = toRat(x);
+  const d = ratToDecExact(r);
+  return d === null ? r.toString() : d.toString(); // decimal form when exact
+}
+
 // --------------------------------------------------------------- bucket math
 // Distribute monthly demand over time buckets and route under BOTH ceilings.
 // buckets: [{ hours: int, tokens: int }] — shares of the month with their demand.

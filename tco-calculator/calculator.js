@@ -423,20 +423,25 @@ export function runComparison({
   let recommendedTotal = null;
   if (policy === "local_first") {
     const split = routed ?? derivedLocalFirstSplit({ demandTokens: demand, aMonthlyCapacity: laneA && laneA.monthly_token_budget ? laneA.monthly_token_budget : demand });
-    routingResult.derived_split = { local_tokens: split.local, overflow_tokens: split.overflow, local_share: split.local_share.toString() };
+    routingResult.derived_split = {
+      local_tokens: split.local,
+      overflow_tokens: split.overflow,
+      local_share: (demand === 0 ? Rat.of(0n, 1n) : Rat.of(BigInt(split.local), BigInt(demand))).toString(),
+    };
     recommendedTotal = laneAResult.enabled && split.local > 0 ? laneAResult.monthly_total : (bMonthly === null ? null : bMonthly.toString());
-    if (routing.advisory_blend) {
+    if (routing.advisory_blend && laneA && laneA.enabled) {
       const adv = advisoryBlendCost({
         demandTokens: demand,
         blendLocalPct: routing.advisory_blend.local_pct,
-        overflowUnitCost: overflowUnit === null ? null : (() => { const d = ratToDecExact(Rat.from(overflowUnit)); return d === null ? null : d.toString(); })(),
+        overflowUnitCost: overflowUnit === null ? null : ratStr(overflowUnit),
         laneAFixed: laneA.fixed_monthly,
         aMonthlyCapacity: laneA.monthly_token_budget ?? demand,
         marginalPerToken: laneA.marginal_per_token ?? null,
       });
-      const cmpv = cmpMoney(adv.total, Dec.from(recommendedTotal));
+      const cmpv = cmpMoney(adv.total, toRat(recommendedTotal));
+      const deltaRat = Rat.from(adv.total).sub(toRat(recommendedTotal));
       routingResult.advisory = cmpv > 0
-        ? { total: adv.total.toString(), status: "dominated", delta: adv.total.sub(Dec.from(recommendedTotal)).toString(), note: "advisory blend loses to the derived split — never emitted as the optimum" }
+        ? { total: adv.total.toString(), status: "dominated", delta: ratStr(deltaRat), note: "advisory blend loses to the derived split — never emitted as the optimum" }
         : { total: adv.total.toString(), status: cmpv === 0 ? "equal" : "preferred", note: "advisory blend matches or beats the derived split" };
     }
   } else if (policy === "api_first") {

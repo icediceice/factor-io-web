@@ -183,7 +183,7 @@ test("api_first: failover traffic prices at rate x share; standby fixed surfaces
   assert.equal(hot.routing_result.recommended_monthly_total, "10960");
 });
 
-test("fixed_split: pinned split computed exactly, derived optimum attached as annotation only", () => {
+test("fixed_split: per-allocation evaluation charges Lane A's fixed exactly once (peer G4)", () => {
   const r = runComparison({
     workload: F7_WORKLOAD,
     catalog: f7Catalog(),
@@ -191,11 +191,75 @@ test("fixed_split: pinned split computed exactly, derived optimum attached as an
     laneB: F7_LANE_B,
     routing: { policy: "fixed_split", pinned: { a_pct: 50, b_pct: 50 } },
   });
-  assert.equal(r.routing_result.pinned.total, "5400"); // 50% x 10000 + 50% x 800
-  assert.equal(r.routing_result.recommended_monthly_total, "5400");
+  // A serves its 40M allocation (< 100M capacity) -> full $10,000 fixed ONCE;
+  // B serves the other 40M = 40,000 requests x $0.01 = $400. Prorating the
+  // full lane totals (50% x 10000 + 50% x 800 = 5400) was the F7 defect under
+  // a policy label — a pinned share may not fractionally discount a fixed asset.
+  assert.equal(r.routing_result.pinned.total, "10400");
+  assert.equal(r.routing_result.recommended_monthly_total, "10400");
+  assert.equal(r.routing_result.pinned.allocations.a_tokens, 40000000);
+  assert.equal(r.routing_result.pinned.allocations.b_tokens, 40000000);
+  assert.equal(r.routing_result.pinned.allocations.b_requests, 40000);
+  assert.ok(r.routing_result.pinned.lines.some((l) => l.lane === "A" && l.item === "lane_a_fixed" && l.amount === "10000"));
+  assert.ok(r.routing_result.pinned.lines.some((l) => l.lane === "B" && l.item === "lane_b_allocated" && l.amount === "400"));
   assert.ok(r.routing_result.derived_optimum_note);
   assert.equal(r.routing_result.derived_optimum_note.total, "10000");
   assert.match(r.routing_result.derived_optimum_note.note, /never silently replaced/);
+});
+
+ test("no buckets: the monthly budget still binds; an undeclared rate ceiling stays known (peer G6)", () => {
+  const r = routeDemandBuckets({ demandTokens: 80000000, monthlyBudget: 50000000, rateCeiling: null, buckets: null });
+  assert.equal(r.local, 50000000);
+  assert.equal(r.overflow, 30000000);
+  assert.equal(r.temporal_known, true); // nothing temporal was declared
+  const run = runComparison({
+    workload: F7_WORKLOAD,
+    catalog: f7Catalog(),
+    laneA: { ...F7_LANE_A, monthly_token_budget: 50000000 },
+    laneB: F7_LANE_B,
+    routing: { policy: "local_first" },
+  });
+  assert.equal(run.lanes.A.served_tokens, 50000000);
+  assert.equal(run.lanes.A.overflow_tokens, 30000000);
+  assert.ok(!run.reasons.includes("capacity_temporal_unknown")); // no rate ceiling declared
+  assert.ok(run.lanes.A.lines.some((l) => l.item === "overflow_secondary" && l.amount === "300")); // 30M x $10/1M
+  // F7 regression guard: capacity 100M >= demand -> all local, unchanged total.
+  const f7 = runComparison({ workload: F7_WORKLOAD, catalog: f7Catalog(), laneA: F7_LANE_A, laneB: F7_LANE_B, routing: { policy: "local_first" } });
+  assert.equal(f7.lanes.A.monthly_total, "10000");
+});
+
+test("non-terminating overflow marginal stays exact money — never null, never dropped (peer G7)", () => {
+  // bMonthly = 3 x 1000 x 0.00001 = 0.03; bPerToken = 0.03 / 81M = 1/2.7e9.
+  // 2.7e9 = 3^3 x 2^8 x 5^8 — the 3^3 makes the per-token quotient
+  // non-terminating, the exact case where Dec.from(null) used to crash.
+  const run = runComparison({
+    workload: { ...F7_WORKLOAD, demand_tokens_mo: 81000000, request_count_mo: 3 },
+    catalog: f7Catalog(),
+    laneA: { ...F7_LANE_A, monthly_token_budget: 30000000 },
+    laneB: F7_LANE_B,
+    routing: { policy: "local_first", advisory_blend: { local_pct: 70 } },
+  });
+  assert.equal(run.lanes.A.served_tokens, 30000000);
+  assert.equal(run.lanes.A.overflow_tokens, 51000000);
+  assert.ok(!run.reasons.includes("secondary_lane_unpriced"));
+  // overflow = 51M x 1/2.7e9 = 51/2700 = 17/900; total = 10000 + 17/900.
+  assert.equal(run.lanes.A.monthly_total, "9000017/900");
+});
+
+ test("Lane C dimensional check: tok/s means per SECOND — hours and per-1M carry the 3600 (peer G5)", () => {
+  const r = runComparison({
+    workload: F7_WORKLOAD,
+    catalog: f7Catalog(),
+    laneB: F7_LANE_B,
+    laneC: { enabled: true, tokens_s: 3400, hourly_rate: "3.00", utilization: "0.5" },
+    routing: { policy: "api_first", failover: { fallback: "C", share: "0", rate: "1" } },
+  });
+  assert.equal(r.lanes.C.hours, "2000/153"); // 80M / (3400 x 0.5 x 3600) seconds -> ~13.07 hours
+  assert.equal(r.lanes.C.monthly_total, "2000/51"); // $3 x 2000/153 h
+  assert.equal(r.lanes.C.per_1m.value, "25/51"); // per-token 1/2040000 x 1M
+  const [bn, bd] = r.breakeven.lane_C_vs_B.utilization.split("/");
+  // util* = 3 / (3400 x 0.00001 x 3600) = 5/204 = 0.0245098... (>0, <1, honest)
+  assert.equal(formatHalfUp(new Rat(BigInt(bn), BigInt(bd)), 4), "0.0245");
 });
 
 test("overlay applies LAST, itemized, with mandatory fully-loaded labelling", () => {

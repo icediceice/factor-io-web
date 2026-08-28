@@ -64,7 +64,8 @@ test("Rational arithmetic stays exact through quotients", () => {
   assert.equal(perTok.toString(), "1/3");
   // Breakeven: 10000 fixed / 0.01 per tok / 1M = 1B tok... 10000/0.01 = 1,000,000.
   const be = Rat.from(Dec.from("10000")).div(Dec.from("0.01"));
-  assert.equal(be.toString(), "1000000");
+  assert.equal(be.toString(), "1000000/1"); // reduced canonical form of the exact integer
+  assert.ok(be.eq(Rat.of(1000000n, 1n)));
 });
 
 test("formatHalfUp is half-away-from-zero and is the only rounding API", () => {

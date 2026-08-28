@@ -240,7 +240,7 @@ export function applyOverlay({ laneTotals, horizonMonths, components, fullyLoade
     const infra = Dec.from(t);
     totals[lane] = {
       infra_total: infra.toString(),
-      fully_loaded_total: infra.add(overlayTotal.mul(Rat.of(1n, 1n))).toString(),
+      fully_loaded_total: infra.add(overlayTotal).toString(),
     };
   }
   return {

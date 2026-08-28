@@ -233,6 +233,21 @@ function renderResults(r) {
     `<td class="n">${B.monthly_total === null ? "—" : numProv(money(B.monthly_total), quoteRows(B.primary_offer, q))}</td>` +
     `<td class="n">${B.per_1m.value === null ? `— (${B.per_1m.reason})` : numProv(fmtPer1M(B.per_1m.value), quoteRows(B.primary_offer, q))}</td>` +
     `<td class="n">${numProv(money(r.curve[0].B), quoteRows(B.primary_offer, q))}</td></tr>`];
+  if (r.lanes.A.enabled) {
+    const A = r.lanes.A;
+    const aRows = [
+      ["snapshot digest", state.manifest.snapshot_digest],
+      ["fixed monthly", money(A.lines.find((l) => l.item === "lane_a_fixed")?.amount ?? "0") + " — charged once"],
+      ["served / overflow tokens", `${A.served_tokens} / ${A.overflow_tokens}`],
+      ["utilization", A.utilization === null ? (A.utilization_reason ?? "—") : String(A.utilization)],
+      ["rate ceiling", A.rate_ceiling_binding === null ? "not set" : `${A.rate_ceiling_binding}${A.rate_ceiling_known ? "" : " (temporal data absent)"}`],
+    ];
+    const per1mA = A.per_1m && A.per_1m.value !== null ? numProv(fmtPer1M(A.per_1m.value), aRows) : `— (${A.per_1m?.reason ?? "n/a"})`;
+    rows.push("<tr><td>Lane A — owned stack</td>"
+      + "<td class=\"n\">" + numProv(money(A.monthly_total), aRows) + "</td>"
+      + "<td class=\"n\">" + per1mA + "</td>"
+      + "<td class=\"n\">" + numProv(money(r.curve[0].A), [["snapshot digest", state.manifest.snapshot_digest]]) + "</td></tr>");
+  }
   if (r.lanes.C.enabled) {
     // NOTE: prov rows are extracted — a template literal nested inside an array
     // inside a template literal breaks module-goal parsing (found in browser).

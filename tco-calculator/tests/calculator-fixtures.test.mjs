@@ -232,8 +232,9 @@ test("determinism: identical workload + snapshot -> byte-identical result JSON",
   const a = JSON.stringify(mk());
   const b = JSON.stringify(mk());
   assert.equal(a, b);
-  // Canonical decimal strings throughout — no exponent notation, no trailing zeros.
-  assert.ok(!a.includes("e-") && !a.includes("E-"));
+  // Canonical decimal strings throughout: no money value may appear as an
+  // exponent-notation literal in the result JSON.
+  assert.ok(!/"-?\d+(\.\d+)?[eE][+-]?\d+"/.test(a), "money values must be plain decimal strings");
 });
 
 test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util", () => {

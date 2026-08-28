@@ -70,11 +70,13 @@ async function fetchOpenRouterAllText() {
 const LITELLM_URL = "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json";
 
 // --------------------------------------------------------------- snapshot core
-export function buildSnapshot({ previousManifest = null, refreshId, fetchedAt, feeds }) {
+export function buildSnapshot({ previousManifest = null, previousCatalog = null, refreshId, fetchedAt, feeds }) {
   const now = fetchedAt;
   const prevSources = previousManifest?.sources ?? {};
+  // Offer state lives in the CATALOG (the manifest is the pointer); the publish
+  // protocol commits the manifest + changed catalog together (SPEC 5.3).
   const prevState = new Map();
-  for (const o of previousManifest?.offers_state ?? []) prevState.set(o.offer_id, o);
+  for (const o of previousCatalog?.offers_state ?? []) prevState.set(o.offer_id, o);
 
   const offers = {};
   const sourceRecords = {};

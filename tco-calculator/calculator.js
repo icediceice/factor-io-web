@@ -460,7 +460,7 @@ export function runComparison({
     const part = (pct, laneTotal, lane) => {
       if (!pct) return;
       const share = Rat.of(BigInt(pct), 100n);
-      const r = Rat.from(laneTotal).mul(share);
+      const r = toRat(laneTotal).mul(share);
       const d = ratToDecExact(r);
       if (d !== null) total = total.add(d);
       lines.push({ lane, pct, amount: d === null ? r.toString() : d.toString() });

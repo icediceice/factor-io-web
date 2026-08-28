@@ -451,9 +451,14 @@ export function quoteOffer(offer, req) {
   let clean = true;
   for (const [stem, qty] of consumed) {
     const sel = selectMeter(prices, stem, req);
+    if (sel.key === null && stem === "request") {
+      // No per-request fee published = no fee (exact), not missing coverage.
+      meters.push({ meter: stem, selected_key: null, unit_price: "0", quantity: qty, note: "no_request_fee" });
+      continue;
+    }
     if (sel.key === null) {
       clean = false;
-      reasons.push(sel.note === "threshold_unmet" ? "extrapolated_shape" : "extrapolated_shape");
+      reasons.push("extrapolated_shape");
       meters.push({ meter: stem, selected_key: null, unit_price: null, quantity: qty, note: sel.note ?? "no_tariff_coverage" });
       continue;
     }

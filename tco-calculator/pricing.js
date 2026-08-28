@@ -318,14 +318,17 @@ export function compileOpenRouterModel(model) {
       for (const [k, v] of Object.entries(entry)) {
         if (OVERRIDE_CONDITION_KEYS.has(k)) {
           if (k === "min_prompt_tokens") {
-            if (!Number.isFinite(v)) { bad = true; break; }
-            conditions.min_prompt_tokens = v;
+            const n = conditionInt(v);
+            if (Number.isNaN(n)) { bad = true; break; }
+            conditions.min_prompt_tokens = n;
           } else if (k === "utc_days") {
-            if (!Array.isArray(v) || !v.every((d) => typeof d === "string")) { bad = true; break; }
-            conditions.utc_days = [...v];
+            const days = conditionDays(v);
+            if (days === null) { bad = true; break; }
+            conditions.utc_days = days;
           } else {
-            if (!Number.isFinite(v)) { bad = true; break; }
-            conditions[k] = v;
+            const n = conditionInt(v);
+            if (Number.isNaN(n)) { bad = true; break; }
+            conditions[k] = n;
           }
         } else {
           const spec = OPENROUTER_KEY_MAP[k];

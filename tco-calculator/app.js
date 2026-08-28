@@ -200,3 +200,30 @@ const srcTag = (quote) => quote && quote.exact
 function numProv(valueHtml, rows) {
   return `<span ${prov(rows)}>${valueHtml}</span>`;
 }
+
+function quoteRows(offerId, quote) {
+  return [
+    ["snapshot digest", state.manifest.snapshot_digest],
+    ["offer", offerId ?? "none"],
+    ["exact", quote ? String(quote.exact) : "false"],
+    ["reasons", quote && quote.reasons.length ? quote.reasons.join(", ") : "none"],
+    ["applied overrides", quote ? JSON.stringify(quote.applied_overrides) : "[]"],
+    ["meters", quote ? quote.meters.map((m) => `${m.meter}=${m.selected_key ?? "none"}x${m.quantity}`).join("; ") : "—"],
+    ["sources", Object.entries(state.manifest.sources).map(([k, v]) => `${k}@${String(v.observed_at).slice(0, 10)}`).join("; ")],
+    ["snapshot generated", state.manifest.generated_at],
+  ];
+}
+
+function renderResults(r) {
+  const B = r.lanes.B;
+  const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
+  const rows = [`<tr><td>Lane B — API <code>${escapeHtml(B.primary_offer ?? "none")}</code>${srcTag(q)}</td>` +
+    `<td class="n">${B.monthly_total === null ? "—" : numProv(money(B.monthly_total), quoteRows(B.primary_offer, q))}</td>` +
+    `<td class="n">${B.per_1m.value === null ? `— (${B.per_1m.reason})` : numProv(fmtPer1M(B.per_1m.value), quoteRows(B.primary_offer, q))}</td>` +
+    `<td class="n">${numProv(money(r.curve[0].B), quoteRows(B.primary_offer, q))}</td></tr>`];
+  if (r.lanes.C.enabled) {
+    rows.push(`<tr><td>Lane C — rented GPU <span class="tag tag-est">assumed rates</span></td>` +
+      `<td class="n">${numProv(money(r.lanes.C.monthly_total), [["snapshot digest", state.manifest.snapshot_digest], ["hourly rate", `${r.lanes.C.hourly_rate} (assumed preset)`], ["hours", r.lanes.C.hours], ["utilization", r.lanes.C.utilization]]])}</td>` +
+      `<td class="n">${r.lanes.C.per_1m.value === null ? `— (${r.lanes.C.per_1m_reason ?? "unknown"})` : numProv(fmtPer1M(r.lanes.C.per_1m.value), [["snapshot digest", state.manifest.snapshot_digest], ["hourly rate", "assumed preset"]])}</td>` +
+      `<td class="n">${numProv(money(r.curve[0].C), [["snapshot digest", state.manifest.snapshot_digest]])}</td></tr>`);
+  }

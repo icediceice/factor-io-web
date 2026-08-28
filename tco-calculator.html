@@ -80,6 +80,46 @@
   .foot a:hover { color:var(--cyan); }
   .muted { color:rgba(232,230,240,.45); font-size:13px; }
   svg.curve { width:100%; height:220px; }
+  /* ── disclosure ────────────────────────────────────────────────── */
+  details.disclose { margin:14px 0 0; }
+  details.disclose > summary {
+    cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:9px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:rgba(232,230,240,.45); border:1px solid rgba(232,230,240,.14);
+    border-radius:999px; padding:7px 15px; transition:color 160ms,border-color 160ms,background 160ms;
+    -webkit-user-select:none; user-select:none;
+  }
+  details.disclose > summary::-webkit-details-marker { display:none; }
+  details.disclose > summary::after { content:"+"; font-size:13px; line-height:1; color:var(--accent); }
+  details.disclose[open] > summary::after { content:"\2212"; }
+  details.disclose > summary:hover { color:#E8E6F0; border-color:rgba(180,110,255,.5); background:rgba(180,110,255,.08); }
+  details.disclose > summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  details.disclose > *:not(summary) { margin-top:14px; }
+  details.adv { margin:34px 0 0; }
+  details.adv > summary { font-size:12px; letter-spacing:.2em; padding:9px 18px; }
+
+  /* ── level 0: preset cards ─────────────────────────────────────── */
+  .presets { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
+  .preset {
+    text-align:left; cursor:pointer; background:rgba(27,27,32,.45); color:#E8E6F0;
+    border:1px solid rgba(232,230,240,.12); border-radius:5px; padding:18px 19px;
+    display:flex; flex-direction:column; gap:7px; font:inherit;
+    transition:border-color 160ms,background 160ms,transform 160ms;
+  }
+  .preset:hover { border-color:rgba(180,110,255,.45); background:rgba(31,31,37,.62); transform:translateY(-1px); }
+  .preset:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .preset[aria-checked="true"] { border-color:var(--accent); background:rgba(180,110,255,.1); }
+  .preset .p-name { font-size:16px; font-weight:600; letter-spacing:-.01em; }
+  .preset .p-vol { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; color:var(--cyan); }
+  .preset .p-sum { font-size:13px; line-height:1.5; color:rgba(232,230,240,.55); }
+
+  /* ── level 1: lane cards ───────────────────────────────────────── */
+  .lanes { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .lane { border:1px solid rgba(232,230,240,.1); border-radius:5px; background:rgba(27,27,32,.45); padding:20px 22px; }
+  .lane-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .lane-h h3 { font-size:15.5px; margin:0; font-weight:600; }
+  .lane-n { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:17px; color:#E8E6F0; white-space:nowrap; }
+  .lane .grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
 </style>
 
 <script type="application/ld+json">
@@ -110,102 +150,140 @@
 
   <div class="eyebrow">Decision support &middot; pricing data cited per source</div>
   <h1>What should this inference workload actually cost?</h1>
-  <p class="lede">
-    Compare <strong>three lanes</strong> &mdash; owned local hardware, a cloud model API, rented GPU nodes &mdash;
-    over your demand, horizon and routing policy. Prices come from cited public feeds with observed-at
-    timestamps; arithmetic is decimal-exact; every number carries provenance. Modelled throughput verdicts
-    say <strong>unknown</strong> unless a cited benchmark matches your configuration on every dimension.
-  </p>
-
-  <div class="snav">
-    <a href="#s1">S1 &middot; Workload</a>
-    <a href="#s2">S2 &middot; Lanes &amp; routing</a>
-    <a href="#s3">S3 &middot; Results</a>
-    <a href="#s4">S4 &middot; Sensitivity &amp; provenance</a>
-  </div>
+  <p class="lede">Pick a workload, press Compare, and every number tells you where it came from.</p>
+  <details class="disclose"><summary>How this works</summary>
+    <p>
+      Compares <strong>three lanes</strong> &mdash; owned local hardware, a cloud model API, rented GPU nodes &mdash;
+      over your demand, horizon and routing policy. Prices come from cited public feeds with observed-at
+      timestamps; arithmetic is decimal-exact; every number carries provenance. Modelled throughput verdicts
+      say <strong>unknown</strong> unless a cited benchmark matches your configuration on every dimension.
+      Demand is tokenizer-independent by convention: entries are reference tokens for your declared tokenizer.
+      No cross-model conversion is applied in v0.1 &mdash; quoting a model whose billing units differ is
+      labelled estimated, never silently 1:1.
+    </p>
+  </details>
 
   <div id="banner" class="banner" role="alert"></div>
   <div id="gapbox"></div>
 
-  <div class="kicker"><b>S1</b> / Workload</div>
-  <h2>State the demand, not the vendor</h2>
-  <div class="card">
-    <div class="grid">
-      <div><label for="f-demand">Demand (tokens / month) <span class="req">*</span></label><input id="f-demand" type="text" inputmode="numeric" value="80000000"></div>
-      <div><label for="f-requests">Requests / month</label><input id="f-requests" type="text" inputmode="numeric" value="80000"></div>
-      <div><label for="f-prompt">Avg prompt tokens</label><input id="f-prompt" type="text" inputmode="numeric" value="1000"></div>
-      <div><label for="f-output">Avg output tokens</label><input id="f-output" type="text" inputmode="numeric" value="500"></div>
-      <div><label for="f-cache">Cache-read tokens / request</label><input id="f-cache" type="text" inputmode="numeric" value="0"></div>
-      <div><label for="f-horizon">Horizon (months)</label><input id="f-horizon" type="text" inputmode="numeric" value="12"></div>
-      <div><label for="f-p95">Required p95 tok/s (SLO)</label><input id="f-p95" type="text" inputmode="numeric" placeholder="leave empty if none"></div>
-      <div><label for="f-utc">Quote instant (UTC hour)</label><select id="f-utc"></select></div>
-    </div>
-    <p class="muted" style="margin:12px 0 0">Demand is tokenizer-independent by convention: entries are reference tokens for your declared tokenizer. No cross-model conversion is applied in v0.1 &mdash; quoting a model whose billing units differ is labelled estimated, never silently 1:1.</p>
+  <!-- ─────────────────────────── LEVEL 0 ─────────────────────────── -->
+  <div class="kicker"><b>01</b> / Workload</div>
+  <h2>Which of these looks like your workload?</h2>
+  <div id="preset-cards" class="presets" role="radiogroup" aria-label="workload preset">
+    <p class="muted">Loading presets&hellip;</p>
+  </div>
+  <p class="muted" id="preset-note" style="margin:14px 0 0"></p>
+
+  <div style="margin-top:26px">
+    <button id="run" class="btn btn-p">Compare &#8594;</button>
+    <span class="muted" style="margin-left:10px">Nothing is sent anywhere &mdash; the comparison runs in this page.</span>
   </div>
 
-  <div class="kicker"><b>S2</b> / Lanes &amp; routing</div>
-  <h2>Declare the lanes and the policy</h2>
-  <div class="card">
-    <h3 style="margin-bottom:12px">Lane A &mdash; owned local stack</h3>
-    <div class="grid">
-      <div><label for="fa-fixed">Fixed cost ($ / month)</label><input id="fa-fixed" type="text" inputmode="decimal" value="10000"></div>
-      <div><label for="fa-budget">Monthly token budget</label><input id="fa-budget" type="text" inputmode="numeric" value="100000000"></div>
-      <div><label for="fa-rate">Rate ceiling (tok/s)</label><input id="fa-rate" type="text" inputmode="numeric" placeholder="e.g. 100"></div>
-      <div><label for="fa-days">Demand arrival window (days)</label><input id="fa-days" type="text" inputmode="numeric" placeholder="empty = spread over month"></div>
-    </div>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:12px">Lane B &mdash; cloud model API</h3>
-    <div class="grid">
-      <div><label for="fb-feed">Price feed</label><select id="fb-feed"><option value="litellm">LiteLLM cost map</option><option value="openrouter">OpenRouter</option></select></div>
-      <div><label for="fb-model">Model</label><select id="fb-model"><option value="">loading snapshot&hellip;</option></select></div>
-    </div>
-    <p class="muted" id="fb-model-note" style="margin:10px 0 0"></p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:12px">Lane C &mdash; rented GPU node</h3>
-    <div class="grid">
-      <div><label for="fc-preset">Topology preset</label><select id="fc-preset"></select></div>
-      <div><label for="fc-hourly">Hourly rate ($)</label><input id="fc-hourly" type="text" inputmode="decimal"></div>
-      <div><label for="fc-toks">Planning tok/s (assumed)</label><input id="fc-toks" type="text" inputmode="numeric"></div>
-      <div><label for="fc-util">Utilization (0&ndash;1)</label><input id="fc-util" type="text" inputmode="decimal" value="0.7"></div>
-    </div>
-    <p class="muted" id="fc-note" style="margin:10px 0 0"></p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:12px">Routing policy</h3>
-    <div class="grid">
-      <div><label for="fr-policy">Policy</label>
-        <select id="fr-policy">
-          <option value="local_first">local_first &mdash; derived split</option>
-          <option value="api_first">api_first + failover</option>
-          <option value="fixed_split">fixed_split (contractual)</option>
-        </select>
-      </div>
-      <div><label for="fr-blend">Advisory local blend %</label><input id="fr-blend" type="text" inputmode="numeric" value="70"></div>
-      <div><label for="fr-failshare">Failover share (fraction)</label><input id="fr-failshare" type="text" inputmode="decimal" value="0"></div>
-      <div><label for="fr-failrate">Failover rate multiplier</label><input id="fr-failrate" type="text" inputmode="decimal" value="2"></div>
-    </div>
-  </div>
-  <button id="run" class="btn btn-p">Compute comparison &#8594;</button>
-
-  <div class="kicker"><b>S3</b> / Results</div>
+  <!-- ─────────────────────────── RESULTS ─────────────────────────── -->
+  <div class="kicker"><b>02</b> / Results</div>
   <h2>The comparison, with its receipts</h2>
-  <div id="results"><p class="muted">Run a comparison to populate this screen.</p></div>
+  <div id="results"><p class="muted">Pick a workload above and press Compare.</p></div>
 
-  <div class="kicker"><b>S4</b> / Sensitivity &amp; provenance</div>
+  <!-- ─────────────────────────── LEVEL 1 ─────────────────────────── -->
+  <div id="level1" hidden>
+    <div class="kicker"><b>03</b> / Adjust</div>
+    <h2>Change one lane at a time</h2>
+    <div class="lanes">
+
+      <div class="lane">
+        <div class="lane-h"><h3>Lane A &mdash; owned stack</h3><span class="lane-n" id="lane-a-total">&mdash;</span></div>
+        <details class="disclose"><summary>Adjust</summary>
+          <div class="grid">
+            <div><label for="fa-fixed">Fixed cost ($ / month)</label><input id="fa-fixed" type="text" inputmode="decimal" value="10000"></div>
+            <div><label for="fa-budget">Monthly token budget</label><input id="fa-budget" type="text" inputmode="numeric" value="100000000"></div>
+            <div><label for="fa-rate">Rate ceiling (tok/s)</label><input id="fa-rate" type="text" inputmode="numeric" placeholder="e.g. 100"></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="lane">
+        <div class="lane-h"><h3>Lane B &mdash; cloud model API</h3><span class="lane-n" id="lane-b-total">&mdash;</span></div>
+        <details class="disclose"><summary>Adjust</summary>
+          <div class="grid">
+            <div><label for="fb-feed">Price feed</label><select id="fb-feed"><option value="litellm">LiteLLM cost map</option><option value="openrouter">OpenRouter</option></select></div>
+            <div><label for="fb-model">Model</label><select id="fb-model"><option value="">loading snapshot&hellip;</option></select></div>
+          </div>
+          <p class="muted" id="fb-model-note" style="margin:10px 0 0"></p>
+        </details>
+      </div>
+
+      <div class="lane">
+        <div class="lane-h"><h3>Lane C &mdash; rented GPU <span class="tag tag-est">assumed rates</span></h3><span class="lane-n" id="lane-c-total">&mdash;</span></div>
+        <details class="disclose"><summary>Adjust</summary>
+          <div class="grid">
+            <div><label for="fc-preset">Topology preset</label><select id="fc-preset"></select></div>
+            <div><label for="fc-hourly">Hourly rate ($)</label><input id="fc-hourly" type="text" inputmode="decimal"></div>
+            <div><label for="fc-toks">Planning tok/s (assumed)</label><input id="fc-toks" type="text" inputmode="numeric"></div>
+            <div><label for="fc-util">Utilization (0&ndash;1)</label><input id="fc-util" type="text" inputmode="decimal" value="0.7"></div>
+          </div>
+          <p class="muted" id="fc-note" style="margin:10px 0 0"></p>
+        </details>
+      </div>
+
+      <div class="lane">
+        <div class="lane-h"><h3>Workload</h3><span class="lane-n" id="lane-w-total">&mdash;</span></div>
+        <details class="disclose"><summary>Adjust</summary>
+          <div class="grid">
+            <div><label for="f-demand">Demand (tokens / month) <span class="req">*</span></label><input id="f-demand" type="text" inputmode="numeric" value="80000000"></div>
+            <div><label for="f-requests">Requests / month</label><input id="f-requests" type="text" inputmode="numeric" value="80000"></div>
+            <div><label for="f-prompt">Avg prompt tokens</label><input id="f-prompt" type="text" inputmode="numeric" value="1000"></div>
+            <div><label for="f-output">Avg output tokens</label><input id="f-output" type="text" inputmode="numeric" value="500"></div>
+            <div><label for="f-horizon">Horizon (months)</label><input id="f-horizon" type="text" inputmode="numeric" value="12"></div>
+          </div>
+        </details>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────── LEVEL 2 ─────────────────────────── -->
+  <details class="disclose adv" id="level2">
+    <summary>Advanced</summary>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-bottom:12px">Workload detail</h3>
+      <div class="grid">
+        <div><label for="f-cache">Cache-read tokens / request</label><input id="f-cache" type="text" inputmode="numeric" value="0"></div>
+        <div><label for="f-p95">Required p95 tok/s (SLO)</label><input id="f-p95" type="text" inputmode="numeric" placeholder="leave empty if none"></div>
+        <div><label for="f-utc">Price as of</label><select id="f-utc"></select></div>
+        <div><label for="fa-days">Traffic spread over (days)</label><input id="fa-days" type="text" inputmode="numeric" placeholder="empty = spread over month"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px">Routing policy</h3>
+      <div class="grid">
+        <div><label for="fr-policy">Policy</label>
+          <select id="fr-policy">
+            <option value="local_first">local_first &mdash; derived split</option>
+            <option value="api_first">api_first + failover</option>
+            <option value="fixed_split">fixed_split (contractual)</option>
+          </select>
+        </div>
+        <div><label for="fr-blend">Split traffic: % local</label><input id="fr-blend" type="text" inputmode="numeric" value="70"></div>
+        <div><label for="fr-failshare">Failover share (fraction)</label><input id="fr-failshare" type="text" inputmode="decimal" value="0"></div>
+        <div><label for="fr-failrate">Failover rate multiplier</label><input id="fr-failrate" type="text" inputmode="decimal" value="2"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Commercial overlay (operator-entered)</h3>
+      <div class="grid">
+        <div><label for="fo-license">Licensing ($ / month)</label><input id="fo-license" type="text" inputmode="decimal" value="0"></div>
+        <div><label for="fo-consult">Consulting ($ / month)</label><input id="fo-consult" type="text" inputmode="decimal" value="0"></div>
+        <div><label for="fo-impl">Implementation ($ one-time)</label><input id="fo-impl" type="text" inputmode="decimal" value="0"></div>
+        <div><label for="fo-loaded">Mode</label><select id="fo-loaded"><option value="infra">infra-only per 1M</option><option value="loaded">fully-loaded per 1M</option></select></div>
+      </div>
+      <p class="muted" style="margin:10px 0 0">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices. The overlay is itemized last.</p>
+    </div>
+  </details>
+
+  <!-- ────────────────────── SENSITIVITY & PROVENANCE ────────────────────── -->
+  <div class="kicker"><b>04</b> / Sensitivity &amp; provenance</div>
   <h2>How the numbers move, and where they came from</h2>
   <div id="sensitivity"><p class="muted">Sensitivity over demand and price appears after a run.</p></div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">Commercial overlay (operator-entered)</h3>
-    <div class="grid">
-      <div><label for="fo-license">Licensing ($ / month)</label><input id="fo-license" type="text" inputmode="decimal" value="0"></div>
-      <div><label for="fo-consult">Consulting ($ / month)</label><input id="fo-consult" type="text" inputmode="decimal" value="0"></div>
-      <div><label for="fo-impl">Implementation ($ one-time)</label><input id="fo-impl" type="text" inputmode="decimal" value="0"></div>
-      <div><label for="fo-loaded">Mode</label><select id="fo-loaded"><option value="infra">infra-only per 1M</option><option value="loaded">fully-loaded per 1M</option></select></div>
-    </div>
-    <p class="muted" style="margin:10px 0 0">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices. The overlay is itemized last.</p>
-  </div>
 
   <div class="foot">
     <span>&copy; 2026 Factor I O Co., Ltd. &mdash; prices cited per source, snapshot in <code>tco-calculator/data/</code></span>

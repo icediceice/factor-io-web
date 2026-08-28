@@ -70,6 +70,29 @@
   .foot { margin-top:72px; padding-top:24px; border-top:1px solid rgba(232,230,240,.08); font-size:13px; color:rgba(232,230,240,.4); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
   .foot a { color:rgba(232,230,240,.4); }
   .foot a:hover { color:var(--cyan); }
+  p.lead { color:#E8E6F0; font-size:17px; font-weight:500; line-height:1.5; margin-bottom:12px; text-wrap:balance; }
+  .card p.lead { font-size:16.5px; }
+  details.disclose { margin:0 0 18px; }
+  details.disclose > summary, details.faq > summary {
+    cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:9px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:rgba(232,230,240,.42); border:1px solid rgba(232,230,240,.13);
+    border-radius:999px; padding:7px 14px; transition:color 160ms,border-color 160ms,background 160ms;
+    -webkit-user-select:none; user-select:none;
+  }
+  details.disclose > summary::-webkit-details-marker, details.faq > summary::-webkit-details-marker { display:none; }
+  details.disclose > summary::after, details.faq > summary::after { content:"+"; font-size:13px; line-height:1; color:var(--accent); }
+  details.disclose[open] > summary::after, details.faq[open] > summary::after { content:"\2212"; }
+  details.disclose > summary:hover, details.faq > summary:hover { color:#E8E6F0; border-color:rgba(180,110,255,.45); background:rgba(180,110,255,.07); }
+  details.disclose > summary:focus-visible, details.faq > summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  details.disclose > *:not(summary), details.faq > *:not(summary) { margin-top:14px; }
+  details.faq > summary {
+    font-family:inherit; font-size:16.5px; letter-spacing:normal; text-transform:none;
+    color:#E8E6F0; border:0; border-radius:0; padding:0; gap:12px;
+  }
+  details.faq > summary:hover { background:transparent; border:0; color:var(--cyan); }
+  details.faq > summary::after { margin-left:auto; }
+  details.faq { display:block; }
 </style>
 
 <script type="application/ld+json">
@@ -231,68 +254,89 @@
 
   <div class="card">
     <h3>What light-tools is</h3>
-    <p>
+    <p class="lead">An MCP server that replaces your agent&rsquo;s file and shell tools.</p>
+  <details class="disclose"><summary>Details</summary>
+  <p>
       light-tools is an open-source MCP server that replaces the built-in file and shell tools used by
       AI coding agents with versions designed for token efficiency. It ships as a single Go binary,
       speaks the Model Context Protocol over stdio, and needs no daemon or database. It provides five
       tools: <code>light_file</code>, <code>light_bash</code>, <code>light_ssh</code>,
       <code>light_scp</code> and <code>light_ops</code>.
     </p>
+  </details>
   </div>
 
   <div class="card">
     <h3>Who light-tools is for</h3>
-    <p>
+    <p class="lead">Anyone paying for context their agent didn&rsquo;t need.</p>
+  <details class="disclose"><summary>Details</summary>
+  <p>
       Anyone running an MCP-capable coding agent &mdash; Claude Code, Antigravity, or any client that
       can start a stdio MCP server &mdash; who is paying for context they did not need. It is most
       useful on large repositories, long sessions, and noisy build or test output. Install it with
       <code>npm install --global @factor-i-o/light-tools</code>.
     </p>
+  </details>
   </div>
 
   <div class="card">
     <h3>When <em>not</em> to use light-tools</h3>
-    <p>
+    <p class="lead">Not a code-search replacement, and not a sandbox.</p>
+  <details class="disclose"><summary>Details</summary>
+  <p>
       light-tools is not a replacement for code search, indexing, language servers or repository
       intelligence &mdash; keep whichever code-intelligence layer you already use. It solves a
       different part of the problem: how the agent reads, writes and operates on the machine
       <em>after</em> it already knows what it wants to do. It is also not a shell sandbox; see
       <a href="#safety">Safety</a> before treating its confinement as a security boundary.
     </p>
+  </details>
   </div>
 
   <div class="kicker"><b>02</b> / What changes</div>
   <h2>Four things stop costing you context</h2>
 
   <h3>Read several files in one go</h3>
+  <p class="lead">Ask for parts of many files in one call.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     When an agent needs code from several files, light-tools lets it request the relevant parts of all
     of them in a single tool call instead of fetching them one at a time. That removes tool round trips
     and puts the related code in front of the model together. Large files are paged rather than dumped,
     and the agent receives an exact continuation cursor when more content exists.
   </p>
+  </details>
 
   <h3>Change only the code that changed</h3>
+  <p class="lead">Send the new code, not the old code too.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     Many old/new replacement tools make the model emit both the code being replaced and its
     replacement. light-tools can edit by span instead: point at the lines or symbol to change and send
     only the new content. When the old and new blocks are about the same size, that roughly halves the
     edit payload &mdash; on output tokens, usually the more expensive side of model usage.
   </p>
+  </details>
 
   <h3>Don't send the same file twice</h3>
+  <p class="lead">Re-reading an unchanged file costs nothing.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     If the agent re-reads a file whose content has not changed, light-tools returns a short dedup notice
     instead of pushing identical bytes back into context. If the file did change, it is sent normally.
   </p>
+  </details>
 
   <h3>Keep noisy commands out of the context window</h3>
+  <p class="lead">Build noise stays out of the context window.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     Builds, tests and logs can produce thousands of lines. light-tools keeps the useful part inline and
     spills oversized output to an indexed file that stays searchable and addressable by line range. The
     goal is not to hide information &mdash; it is to stop paying the context cost before the agent knows
     whether it needs that information.
   </p>
+  </details>
 
   <div class="note">
     None of this requires the model to remember to &ldquo;be efficient.&rdquo; The behaviour lives in the
@@ -349,6 +393,8 @@
   <div class="kicker"><b>05</b> / Measured</div>
   <h2>What the numbers actually say</h2>
 
+  <p class="lead">84% less of the corpus reached model context.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     Across <strong>319K tool calls</strong> in the broader Light stack's telemetry, 2,190.9M tokens were
     considered and 345.0M delivered &mdash; about <strong>84% less of the considered corpus reaching model
@@ -356,6 +402,9 @@
     delivered size on 15.2%, with uninstrumented stages falling back to the previous measured point) and
     published deliberately as a lower bound.
   </p>
+  </details>
+  <p class="lead">That is a lower bound, not a per-call rate.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     That is a Light-stack measurement of the same targeting and output-reduction primitive that
     light-tools uses &mdash; it is <em>not</em> a claim that every individual light-tools call saves 84%.
@@ -363,17 +412,24 @@
     and are lower bounds too: 37.0M tokens in, 6.7 GB of exec bytes saved, a 12.0&times; raw-to-compacted
     ratio, and 3.2s average latency across all tools.
   </p>
+  </details>
+  <p class="lead">A separate 45-call local sample, not a benchmark.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>
     Separately, a local measurement over <strong>45 tool calls</strong> in three throwaway sessions on the
     light-tools repository itself recorded 12,194 tokens saved by terse output, 164,087 bytes by read
     dedup, and 116,363 bytes by span writes rather than full rewrites &mdash; a small sample, not a
     benchmark and not an extrapolated rate.
   </p>
+  </details>
 
   <div class="kicker"><b>06</b> / Safety</div>
   <h2 id="safety">What is protected, and what isn't</h2>
 
+  <p class="lead">Mistakes are made cheap; dangerous ones are refused.</p>
+  <details class="disclose"><summary>Details</summary>
   <p>Coding agents make ordinary mistakes: wrong field names, misspelled verbs, malformed values, overly broad shell commands. light-tools tries to make those mistakes cheap without silently guessing about dangerous mutations:</p>
+  </details>
   <ul>
     <li>File writes are snapshotted before mutation, so a bad edit can be restored</li>
     <li>Obvious argument mistakes are repaired and reported back to the model</li>
@@ -411,60 +467,49 @@
   <div class="kicker"><b>08</b> / Questions</div>
   <h2>Frequently asked questions</h2>
 
-  <div class="faq">
-    <h3>What is light-tools?</h3>
+  <details class="faq"><summary>What is light-tools?</summary>
     <p>light-tools is an open-source MCP server that replaces the built-in file and shell tools used by AI coding agents with versions designed for token efficiency. It ships as a single Go binary, speaks the Model Context Protocol over stdio, and needs no daemon or database. It provides five tools: <code>light_file</code>, <code>light_bash</code>, <code>light_ssh</code>, <code>light_scp</code> and <code>light_ops</code>.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Does light-tools work with Claude Code?</h3>
+  <details class="faq"><summary>Does light-tools work with Claude Code?</summary>
     <p>Yes. Running <code>light-tools init --client claude</code> registers light-tools with Claude Code. An <code>--client antigravity</code> option exists for Antigravity, and <code>light-tools init --client print</code> emits the MCP configuration for any other MCP-capable agent without changing anything. Because light-tools is a stdio server, the client starts it with the session and there is no background daemon to manage.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Does light-tools replace my code search or language server?</h3>
+  <details class="faq"><summary>Does light-tools replace my code search or language server?</summary>
     <p>No. light-tools is explicitly not a replacement for code search, indexing, language servers or repository intelligence, and it is designed to sit alongside whichever code-intelligence layer you already use. light-tools handles a different part of the problem: how the agent reads, writes and operates on the machine after it already knows what it wants to do.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>How much context does light-tools actually save?</h3>
+  <details class="faq"><summary>How much context does light-tools actually save?</summary>
     <p>Across 319K tool calls in the broader Light stack's telemetry, 2,190.9M tokens were considered and 345.0M delivered, which is roughly 84% less of the considered corpus reaching model context in that dataset &mdash; a lower bound from partial instrumentation, with corpus size measured on 36.8% of calls and delivered size on 15.2%. It is a Light-stack measurement of the same targeting primitive, not a claim that every individual light-tools call saves 84%.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Is it safe to give a coding agent filesystem access through light-tools?</h3>
+  <details class="faq"><summary>Is it safe to give a coding agent filesystem access through light-tools?</summary>
     <p>light-tools snapshots every file mutation before it happens so a bad edit can be restored, refuses ambiguous or dangerous mutations rather than guessing, inspects destructive wildcard operations before execution when their surface can be determined safely, and does not register disabled tools at all. Filesystem access can be bounded with <code>allowed_roots</code>. However, confinement is not a shell sandbox: <code>allowed_roots</code> bounds <code>light_file</code> paths, local SCP endpoints and caller-supplied <code>light_ops</code> paths, and while <code>light_bash</code> has its working directory bounded, the commands it runs can still reach outside that directory. Read <a href="https://github.com/icediceice/light-tools/blob/main/SECURITY.md" rel="noopener">SECURITY.md</a> before treating confinement as a security boundary.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Does light-tools need a daemon, server or database?</h3>
+  <details class="faq"><summary>Does light-tools need a daemon, server or database?</summary>
     <p>No. light-tools is a single Go binary that speaks MCP over stdio. The coding agent starts it with the session, so there is no background process, no database and nothing to keep running between sessions.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>How do I install light-tools?</h3>
+  <details class="faq"><summary>How do I install light-tools?</summary>
     <p>Install globally from npm with <code>npm install --global @factor-i-o/light-tools</code>, which requires Node 18.17 or later and npm 10 or later. Alternatively build from source with <code>go install -tags treesitter github.com/icediceice/light-tools/cmd/light-tools@latest</code>, or use the checksum-verifying <code>install.sh</code> and <code>install.ps1</code> scripts published with GitHub releases.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Can I disable individual light-tools tools?</h3>
+  <details class="faq"><summary>Can I disable individual light-tools tools?</summary>
     <p>Yes. Passing <code>--disable-tool</code>, for example <code>light-tools --disable-tool light_ssh --disable-tool light_scp</code>, means those tools are never registered, so the model cannot call them at all. This is a registration-time exclusion rather than a runtime permission check.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>What does light-tools cost?</h3>
+  <details class="faq"><summary>What does light-tools cost?</summary>
     <p>Nothing. light-tools is free and open source under GPL-3.0-or-later, published by Factor I O Co., Ltd. at <a href="https://github.com/icediceice/light-tools" rel="noopener">github.com/icediceice/light-tools</a>.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Does light-tools collect telemetry?</h3>
+  <details class="faq"><summary>Does light-tools collect telemetry?</summary>
     <p>Local telemetry is aggregate-only: no paths, arguments, commands, hostnames or usernames are sent anywhere. It can be disabled entirely by setting <code>DO_NOT_TRACK=1</code> or a non-empty <code>LIGHT_NO_TELEMETRY</code>.</p>
-  </div>
+  </details>
 
-  <div class="faq">
-    <h3>Which platforms does light-tools support?</h3>
+  <details class="faq"><summary>Which platforms does light-tools support?</summary>
     <p>light-tools ships native builds for Linux, macOS and Windows on both amd64 and arm64. Symbol and outline extraction uses tree-sitter everywhere except Windows arm64, which is built without CGo and falls back to a no-symbol mode; all five tools still work there.</p>
-  </div>
+  </details>
 
   <div class="kicker"><b>09</b> / Documentation</div>
   <h2>Read further</h2>

@@ -82,6 +82,9 @@ async function init() {
     renderBanner(freshnessView(state.manifest, Date.now()));
     await loadPresets();
     wireS2();
+    // After wireS2 so the preset's feed choice is the LAST selection generation
+    // to fire, and after loadPresets because a card sets fc-preset and applies it.
+    await loadWorkloadPresets();
   } catch (e) {
     showGap(`the pricing snapshot could not be loaded (${escapeHtml(e.message)}). The calculator shows no numbers without its cited data.`);
     throw e;
@@ -109,6 +112,78 @@ function applyPreset() {
   $("fc-hourly").value = p.hourly_rate;
   $("fc-toks").value = p.assumed_tok_s_ceiling;
   $("fc-note").innerHTML = `rate <strong>${p.rate_label}</strong>: ${escapeHtml(p.rate_note)} · tok/s <strong>${p.tok_s_label}</strong> planning placeholder — <strong>not a benchmark</strong>; the throughput verdict stays unknown without real evidence.`;
+}
+
+// ------------------------------------------------- level 0: workload presets
+// Presets are PLANNING ASSUMPTIONS, never measurements. Every card carries its
+// own assumed tag and the store's provenance line is rendered under the grid —
+// selecting one fills exactly the inputs a user would otherwise type, and the
+// Lane C hourly/tok-s figures still come from lane-c-presets.json so their
+// cited (and conflicting) sourcing is not laundered away by this convenience.
+async function loadWorkloadPresets() {
+  const res = await fetch("./tco-calculator/data/workload-presets.json");
+  state.workloadPresets = await res.json();
+  const wrap = $("preset-cards");
+  wrap.innerHTML = state.workloadPresets.presets.map((p) => {
+    const cls = p.assumption_label === "assumed" ? "tag-est" : "tag-unknown";
+    return `<button type="button" class="preset" role="radio" aria-checked="false" data-preset="${escapeHtml(p.id)}">`
+      + `<span class="p-name">${escapeHtml(p.label)}</span>`
+      + `<span class="p-vol">${escapeHtml(p.volume_label)}<span class="tag ${cls}">${escapeHtml(p.assumption_label)}</span></span>`
+      + `<span class="p-sum">${escapeHtml(p.summary)}</span></button>`;
+  }).join("");
+  for (const b of wrap.querySelectorAll(".preset")) {
+    b.addEventListener("click", () => applyWorkloadPreset(b.dataset.preset));
+  }
+  applyWorkloadPreset("coding-agent");
+}
+
+function applyWorkloadPreset(id) {
+  const p = state.workloadPresets.presets.find((x) => x.id === id);
+  if (!p) return;
+  for (const btn of $("preset-cards").querySelectorAll(".preset")) {
+    btn.setAttribute("aria-checked", String(btn.dataset.preset === id));
+  }
+  let feedChanged = false;
+  for (const [field, value] of Object.entries(p.fields ?? {})) {
+    const el = $(field);
+    if (!el) continue;
+    if (field === "fb-feed" && el.value !== value) feedChanged = true;
+    el.value = value;
+    // Lane C's rate + tok/s are owned by lane-c-presets.json, not by this file.
+    if (field === "fc-preset") applyPreset();
+  }
+  if (feedChanged) fillModels(beginSelection());
+
+  const pv = state.workloadPresets.provenance ?? {};
+  const dated = pv.observed ? ` &middot; set ${escapeHtml(pv.observed)}, re-verify before ${escapeHtml(pv.re_verify_before)}` : "";
+  $("preset-note").innerHTML = `<strong>${escapeHtml(p.label)}</strong> &mdash; every field is `
+    + `<span class="tag ${p.assumption_label === "assumed" ? "tag-est" : "tag-unknown"}">${escapeHtml(p.assumption_label)}</span> `
+    + `${escapeHtml(p.assumption_note)}${dated}. Open <em>Adjust</em> or <em>Advanced</em> to state your own numbers.`;
+}
+
+// Level 1 is revealed only after a run, and each lane shows its own total with
+// the same provenance popover the results table uses — disclosure hides FIELDS,
+// never the attribution of a number.
+function renderLaneSummary(r) {
+  $("level1").hidden = false;
+  const digest = [["snapshot digest", state.manifest.snapshot_digest]];
+  const put = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+  const A = r.lanes.A, B = r.lanes.B, C = r.lanes.C;
+  const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
+
+  put("lane-a-total", A.enabled && A.monthly_total !== null && A.monthly_total !== undefined
+    ? numProv(money(A.monthly_total), [["fixed monthly", money(A.lines.find((l) => l.item === "lane_a_fixed")?.amount ?? "0") + " — charged once"], ["served / overflow tokens", `${A.served_tokens} / ${A.overflow_tokens}`], ...digest])
+    : "&mdash;");
+  put("lane-b-total", B.monthly_total !== null && B.monthly_total !== undefined
+    ? numProv(money(B.monthly_total), quoteRows(B.primary_offer, q)) + srcTag(q)
+    : "&mdash;");
+  put("lane-c-total", C.enabled && C.monthly_total !== null && C.monthly_total !== undefined
+    ? numProv(money(C.monthly_total), [["hourly rate", C.hourly_rate + " (assumed preset)"], ["hours", String(C.hours)], ["utilization", String(C.utilization)], ...digest])
+    : "&mdash;");
+  // Read the workload off the inputs the ENGINE actually consumed, not off the
+  // DOM again — otherwise an edit made after Compare would relabel a stale run.
+  const w = state.inputs.workload;
+  put("lane-w-total", `<span class="muted">${(w.demand_tokens_mo ?? 0).toLocaleString("en-US")} tok/mo</span>`);
 }
 
 // Lazy catalog fetch driven by lane/model selection — generation-guarded.
@@ -317,6 +392,7 @@ function renderResults(r) {
   `;
   $("export").addEventListener("click", () => exportQuote(r));
   renderSensitivity();
+  renderLaneSummary(r);
 }
 
 const coerce = (v) => {

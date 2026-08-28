@@ -278,16 +278,23 @@ function openRouterMeterKey(stemSpec, extra = {}) {
 }
 
 export function compileOpenRouterModel(model) {
+  // model.id is the unique per-variant key. canonical_slug is SHARED across
+  // :batch/:free variants and their paid sibling (anthropic/claude-opus-4.1 and
+  // anthropic/claude-opus-4.1:batch carry the same slug, 2x-different prices),
+  // so keying by slug let the last variant overwrite the first (peer G2). The
+  // id is itself a canonical slug, so the F9 rule (never the display name)
+  // still holds; canonical_slug rides along as lineage metadata.
   const offer = emptyOffer({
-    offer_id: `openrouter:${model.canonical_slug ?? model.id}`,
+    offer_id: `openrouter:${model.id}`,
     seller: "openrouter",
     seller_source: "openrouter",
     channel: "api",
-    product: model.canonical_slug ?? model.id, // canonical slug — never the display name (F9)
+    product: model.id,
     region: "*",
     purchase_term: "on_demand",
     display_name: model.name ?? model.id,
   });
+  offer.canonical_slug = typeof model.canonical_slug === "string" ? model.canonical_slug : null;
   offer.ingest_mode = "chat";
   if (typeof model.expiration_date === "string" && model.expiration_date) {
     offer.expiration_date = model.expiration_date; // direct retirement signal

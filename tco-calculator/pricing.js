@@ -344,13 +344,15 @@ function utcMinutesDay(t) {
 }
 
 function windowMatch(t, start, end) {
-  // Wrap-aware: t >= start || t < end; start inclusive, end exclusive.
-  // A plain in-range window start < end satisfies the same expression:
-  // t>=start || t<end is false exactly on start <= t < end being violated... (see tests)
+  // Start inclusive, end exclusive. A window whose start > end wraps midnight
+  // (t >= start || t < end); a plain window is start <= t < end. Zero-width
+  // (start == end) spans the whole day.
   const { hhmm } = utcMinutesDay(t);
   if (start === null && end === null) return true;
   if (start === null) return hhmm < end;
   if (end === null) return hhmm >= start;
+  if (start === end) return true;
+  if (start < end) return hhmm >= start && hhmm < end;
   return hhmm >= start || hhmm < end;
 }
 

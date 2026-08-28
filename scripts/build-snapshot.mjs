@@ -241,7 +241,7 @@ async function main() {
     };
   }
 
-  const { manifest, catalogBytes, catalog } = buildSnapshot({ previousManifest, refreshId, fetchedAt, feeds });
+  const { manifest, catalogBytes, catalog } = buildSnapshot({ previousManifest, previousCatalog, refreshId, fetchedAt, feeds });
 
   await mkdir(DATA_DIR, { recursive: true });
   await writeFile(`${DATA_DIR}${manifest.resources.catalog.path}`, catalogBytes);

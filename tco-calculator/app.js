@@ -160,8 +160,11 @@ function run() {
       time_buckets: null,
     };
     const days = intInput("fa-days");
-    if (days && workload.demand_tokens_mo > 0) {
-      workload.time_buckets = [{ hours: days * 24, tokens: workload.demand_tokens_mo }];
+    if (workload.demand_tokens_mo > 0) {
+      // An empty arrival window means "spread over month" per the field label:
+      // pass an explicit whole-month bucket (730 h) rather than null, so the
+      // monthly and rate ceilings actually bind (peer G6 — null skipped both).
+      workload.time_buckets = [{ hours: days ? days * 24 : 730, tokens: workload.demand_tokens_mo }];
     }
 
     const laneA = {

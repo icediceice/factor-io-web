@@ -222,10 +222,22 @@ function renderResults(r) {
     `<td class="n">${B.per_1m.value === null ? `— (${B.per_1m.reason})` : numProv(fmtPer1M(B.per_1m.value), quoteRows(B.primary_offer, q))}</td>` +
     `<td class="n">${numProv(money(r.curve[0].B), quoteRows(B.primary_offer, q))}</td></tr>`];
   if (r.lanes.C.enabled) {
-    rows.push(`<tr><td>Lane C — rented GPU <span class="tag tag-est">assumed rates</span></td>` +
-      `<td class="n">${numProv(money(r.lanes.C.monthly_total), [["snapshot digest", state.manifest.snapshot_digest], ["hourly rate", `${r.lanes.C.hourly_rate} (assumed preset)`], ["hours", r.lanes.C.hours], ["utilization", r.lanes.C.utilization]]])}</td>` +
-      `<td class="n">${r.lanes.C.per_1m.value === null ? `— (${r.lanes.C.per_1m_reason ?? "unknown"})` : numProv(fmtPer1M(r.lanes.C.per_1m.value), [["snapshot digest", state.manifest.snapshot_digest], ["hourly rate", "assumed preset"]])}</td>` +
-      `<td class="n">${numProv(money(r.curve[0].C), [["snapshot digest", state.manifest.snapshot_digest]])}</td></tr>`);
+    // NOTE: prov rows are extracted — a template literal nested inside an array
+    // inside a template literal breaks module-goal parsing (found in browser).
+    const cRows = [
+      ["snapshot digest", state.manifest.snapshot_digest],
+      ["hourly rate", r.lanes.C.hourly_rate + " (assumed preset)"],
+      ["hours", String(r.lanes.C.hours)],
+      ["utilization", String(r.lanes.C.utilization)],
+    ];
+    const cDigest = [["snapshot digest", state.manifest.snapshot_digest]];
+    const per1mC = r.lanes.C.per_1m.value === null
+      ? "— (" + (r.lanes.C.per_1m_reason ?? "unknown") + ")"
+      : numProv(fmtPer1M(r.lanes.C.per_1m.value), cRows);
+    rows.push("<tr><td>Lane C — rented GPU <span class=\"tag tag-est\">assumed rates</span></td>"
+      + "<td class=\"n\">" + numProv(money(r.lanes.C.monthly_total), cRows) + "</td>"
+      + "<td class=\"n\">" + per1mC + "</td>"
+      + "<td class=\"n\">" + numProv(money(r.curve[0].C), cDigest) + "</td></tr>");
   }
 
   const adv = r.routing_result.advisory

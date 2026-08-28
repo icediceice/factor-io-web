@@ -109,6 +109,51 @@ test("failed source reuses last good resource, preserves last_success_at, fabric
   // absence during a source outage is not evidence, and the risk lives at the
   // SOURCE level (error status -> F5 banner), not per-offer.
   assert.ok(r2.catalog.offers_state.some((o) => o.offer_id === "litellm:vendor/alpha" && o.state === "active"));
+  // ...and the claim is about the PAYLOAD, not just the state row (peer G3):
+  // the last-good offer stays quotable from the carried catalog.
+  assert.ok(r2.catalog.offers["litellm:vendor/alpha"], "last-good payload carried through the outage");
+  assert.equal(r2.catalog.offers["litellm:vendor/alpha"].prices.input, "0.000001");
+  assert.equal(r2.catalog.offers["litellm:vendor/alpha"].state, "active");
+});
+
+test("duplicate offer ids are rejected, never last-write-wins (peer G2)", () => {
+  const feeds = {
+    openrouter: { ok: true, value: [
+      { id: "x/dup", canonical_slug: "x/dup", name: "Dup", pricing: { prompt: "0.000001", completion: "0.000002" } },
+      { id: "x/dup", canonical_slug: "x/dup", name: "Dup again", pricing: { prompt: "0.000009", completion: "0.000009" } },
+    ] },
+    litellm: { ok: true, value: {} },
+  };
+  assert.throws(() => buildSnapshot({ refreshId: "dup", fetchedAt: T0, feeds }), /duplicate offer id/);
+});
+
+test("alias records are skipped, not double-listed; id keys, slug is lineage (peer G2)", () => {
+  const feeds = okFeeds();
+  feeds.openrouter = { ok: true, value: [
+    { id: "z/glm", canonical_slug: "z/glm-20260101", name: "GLM", pricing: { prompt: "0.000001", completion: "0.000002" } },
+    { id: "~z/glm-latest", canonical_slug: "z/glm-20260101", name: "GLM latest", alias_target: { slug: "z/glm" }, pricing: { prompt: "0.000001", completion: "0.000002" } },
+  ] };
+  const r = buildSnapshot({ refreshId: "alias", fetchedAt: T0, feeds });
+  assert.ok(r.catalog.offers["openrouter:z/glm"]);
+  assert.ok(!r.catalog.offers["openrouter:~z/glm-latest"], "alias not independently quotable");
+  assert.ok(r.manifest.provenance.logs.some((l) => l.rule === "alias_skipped" && l.offer === "openrouter:~z/glm-latest"));
+  // The id is the key; canonical_slug rides along as lineage metadata.
+  assert.equal(r.catalog.offers["openrouter:z/glm"].canonical_slug, "z/glm-20260101");
+});
+
+ test("batch/paid siblings sharing a canonical_slug both survive with distinct prices (peer G2)", () => {
+  const feeds = okFeeds();
+  feeds.openrouter = { ok: true, value: [
+    { id: "a/model", canonical_slug: "a/model-20260101", name: "Model", pricing: { prompt: "0.000015", completion: "0.000075" } },
+    { id: "a/model:batch", canonical_slug: "a/model-20260101", name: "Model (batch)", pricing: { prompt: "0.0000075", completion: "0.0000375" } },
+  ] };
+  const r = buildSnapshot({ refreshId: "batch", fetchedAt: T0, feeds });
+  const paid = r.catalog.offers["openrouter:a/model"];
+  const batch = r.catalog.offers["openrouter:a/model:batch"];
+  assert.ok(paid && batch, "both variants present under their own ids");
+  assert.equal(paid.prices.input, "0.000015");
+  assert.equal(batch.prices.input, "0.0000075");
+  assert.equal(paid.canonical_slug, batch.canonical_slug, "slug lineage shared, ids distinct");
 });
 
 test("expiration_date retires an offer directly at build time", () => {

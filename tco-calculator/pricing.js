@@ -453,7 +453,6 @@ export function quoteOffer(offer, req) {
 
   const meters = [];
   let cost = ZERO;
-  let clean = true;
   for (const [stem, qty] of consumed) {
     const sel = selectMeter(prices, stem, req);
     if (sel.key === null && stem === "request") {

@@ -244,6 +244,35 @@ const OPENROUTER_KEY_MAP = {
 };
 const OVERRIDE_CONDITION_KEYS = new Set(["min_prompt_tokens", "utc_days", "utc_start", "utc_end"]);
 
+// Override conditions arrive as JSON numeric literals in the raw envelope. The
+// production parse path is parseJSONExact (ONE parser for prices and conditions
+// alike), so literals land here as exact TEXT: "128000", not 128000. Coerce
+// strictly back to an exact safe-range integer, or NaN to reject the entry
+// (peer G1: Number.isFinite("128000") is false, which skipped every entry).
+function conditionInt(v) {
+  if (typeof v === "number") return Number.isInteger(v) ? v : NaN;
+  if (typeof v === "string" && /^-?\d+$/.test(v)) {
+    const n = Number(v);
+    return Number.isSafeInteger(n) ? n : NaN;
+  }
+  return NaN;
+}
+
+// utc_days carries full day names ("saturday" — the live feed's form) or codes
+// ("sat"). Normalize to the engine's 3-letter codes; an unrecognized name is an
+// unrecognized CONDITION VALUE — the entry is skipped, never silently matched.
+function conditionDays(v) {
+  if (!Array.isArray(v)) return null;
+  const days = [];
+  for (const d of v) {
+    if (typeof d !== "string") return null;
+    const code = d.trim().toLowerCase().slice(0, 3);
+    if (!UTC_DAY_NAMES.includes(code)) return null;
+    days.push(code);
+  }
+  return days;
+}
+
 function openRouterMeterKey(stemSpec, extra = {}) {
   return meterKey({ stem: stemSpec.stem, cacheAge: stemSpec.cacheAge ?? null, tier: "std", ...extra });
 }

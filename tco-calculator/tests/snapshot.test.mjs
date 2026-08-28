@@ -87,7 +87,7 @@ test("builder distinguishes first omission from third via previousManifest", () 
 test("failed source reuses last good resource, preserves last_success_at, fabricates nothing", () => {
   const r1 = buildSnapshot({ refreshId: "r1", fetchedAt: T0, feeds: okFeeds() });
   const feeds2 = { openrouter: okFeeds().openrouter, litellm: { ok: false, error: new Error("HTTP 503") } };
-  const r2 = buildSnapshot({ previousManifest: r1.manifest, refreshId: "r2", fetchedAt: T0 + DAY, feeds: feeds2 });
+  const r2 = buildSnapshot({ previousManifest: r1.manifest, previousCatalog: r1.catalog, refreshId: "r2", fetchedAt: T0 + DAY, feeds: feeds2 });
   const s1 = r1.manifest.sources.litellm;
   const s2 = r2.manifest.sources.litellm;
   assert.equal(s2.status, "error");

@@ -107,3 +107,56 @@ export function laneCMonthly({ hourlyRate, tokensS, utilization, servedTokens })
   const total = Rat.from(hourlyRate).mul(hours);
   return { total, hours, lines: [{ item: "lane_c_hours", amount: total.toString(), note: `hourly x ${hours.toString()}h` }] };
 }
+
+// ------------------------------------------------------- routing: local_first
+// The split is DERIVED (SPEC 2.2), never user-set. A user-set blend is advisory:
+// when the derived split beats it, the advisory number is shown flagged
+// `dominated` with the delta — never emitted as the optimum (fixture F7).
+export function derivedLocalFirstSplit({ demandTokens, aMonthlyCapacity }) {
+  const local = Math.min(demandTokens, Math.max(0, aMonthlyCapacity));
+  return { local, overflow: demandTokens - local, local_share: demandTokens === 0 ? Rat.of(0n, 1n) : Rat.of(BigInt(local), BigInt(demandTokens)) };
+}
+
+export function advisoryBlendCost({ demandTokens, blendLocalPct, overflowUnitCost, laneAFixed, aMonthlyCapacity, marginalPerToken }) {
+  const localTokens = Math.floor((demandTokens * blendLocalPct) / 100);
+  const overflow = demandTokens - localTokens;
+  const a = laneAMonthly({ fixedMonthly: laneAFixed, localTokens, overflowTokens: overflow, overflowUnitCost, marginalPerToken });
+  return { total: a.total, local_tokens: localTokens, overflow_tokens: overflow };
+}
+
+// -------------------------------------------------------- routing: api_first
+// Lane B serves; the declared fallback carries outage traffic at failover_rate x
+// failover share; a pure standby still surfaces its fixed cost, labelled.
+export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fallbackFixedMonthly, failoverShare, failoverRate }) {
+  const lines = [{ item: "lane_b_base", amount: bMonthlyTotal.toString() }];
+  let total = Dec.from(bMonthlyTotal);
+  const share = Rat.from(failoverShare);
+  if (cmpMoney(share, ZERO) > 0) {
+    const failoverTokens = Math.floor(Number(share.mul(Rat.of(BigInt(demandTokens), 1n)).toString().split("/")[0]) / Number(share.toString().split("/")[1] || 1));
+    void failoverTokens;
+    const failoverCost = Rat.from(bMonthlyTotal).mul(share).mul(Rat.from(failoverRate));
+    const fc = ratToDecExact(failoverCost);
+    if (fc !== null) {
+      total = total.add(fc);
+      lines.push({ item: "failover_traffic", amount: fc.toString(), note: `failover_rate x share of demand on fallback lane ${fallbackKind}` });
+    } else {
+      lines.push({ item: "failover_traffic", amount: failoverCost.toString(), note: "rational, non-terminating — displayed via formatHalfUp" });
+    }
+  } else if (fallbackKind !== "B") {
+    lines.push({ item: "standby_fixed", amount: Dec.from(fallbackFixedMonthly).toString(), note: "pure standby — fixed cost surfaced (SPEC 2.2)" });
+    total = total.add(Dec.from(fallbackFixedMonthly));
+  }
+  return { total, lines };
+}
+
+function ratToDecExact(r) {
+  // Exact Decimal for a terminating rational; null otherwise.
+  let d = r.d;
+  let twos = 0n, fives = 0n;
+  while (d % 2n === 0n) { d /= 2n; twos++; }
+  while (d % 5n === 0n) { d /= 5n; fives++; }
+  if (d !== 1n) return null;
+  const e = twos > fives ? twos : fives;
+  return new Dec(r.n * pow(5n, fives) * pow(2n, twos === fives ? 0n : (twos > fives ? 0n : 0n)) , 0n).mul(new Dec(pow(10n, e), 0n)).div(new Dec(pow(10n, e), 0n));
+}
+function pow(b, e) { let r = 1n; for (let i = 0n; i < e; i++) r *= b; return r; }

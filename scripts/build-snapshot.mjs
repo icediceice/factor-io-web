@@ -218,7 +218,10 @@ function digest(input) {
 function buildModelIndex(offers) {
   const models = [];
   for (const offer of Object.values(offers)) {
-    if (offer.tariff === "none") continue; // quarantined offers stay in the catalog + provenance, not the index
+    // Quarantined offers stay in the catalog + provenance, not the index.
+    // Retired offers keep their payload for provenance but are no longer
+    // selectable (peer G3) — state changes availability, not just a label.
+    if (offer.tariff === "none" || offer.state === "retired") continue;
     models.push({
       id: offer.offer_id,
       name: offer.display_name,

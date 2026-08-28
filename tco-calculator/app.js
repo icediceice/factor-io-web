@@ -5,7 +5,7 @@
 // use, and the word g-u-a-r-a-n-t-e-e never appears — a guarantee is a
 // contract a human signs, not a number a model emits.
 import { Dec, Rat, formatHalfUp } from "./exact.js";
-import { runComparison, matchEvidence } from "./calculator.js";
+import { runComparison, matchEvidence, ratToDecExact } from "./calculator.js";
 import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
 
 const $ = (id) => document.getElementById(id);

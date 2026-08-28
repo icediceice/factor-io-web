@@ -18,7 +18,7 @@ async function fetchJSON(url) {
 }
 
 // OpenRouter paginates: `limit` defaults to 500 and `links.next` carries the rest.
-// An unpaginated fetch silently truncates the catalog (>400 models).
+// An unpaginated fetch silently truncates; total_count is the truncation guard.
 async function fetchOpenRouterAll() {
   const models = [];
   let url = "https://openrouter.ai/api/v1/models";

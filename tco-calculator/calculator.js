@@ -259,10 +259,10 @@ export function applyOverlay({ laneTotals, horizonMonths, components, fullyLoade
   }
   const totals = {};
   for (const [lane, t] of Object.entries(laneTotals)) {
-    const infra = Dec.from(t);
+    const infra = toRat(t); // lane totals may be non-terminating rationals (Lane C)
     totals[lane] = {
-      infra_total: infra.toString(),
-      fully_loaded_total: infra.add(overlayTotal).toString(),
+      infra_total: ratStr(infra),
+      fully_loaded_total: ratStr(infra.add(overlayTotal)),
     };
   }
   return {

@@ -72,8 +72,8 @@ test("builder distinguishes first omission from third via previousManifest", () 
   assert.equal(ids2["litellm:vendor/alpha"].state, "active");
 
   // Fourth refresh: beta absent three consecutive times -> retired.
-  const r3 = buildSnapshot({ previousManifest: r2.manifest, refreshId: "r3", fetchedAt: T0 + 2 * DAY, feeds: feeds2 });
-  const r4 = buildSnapshot({ previousManifest: r3.manifest, refreshId: "r4", fetchedAt: T0 + 3 * DAY, feeds: feeds2 });
+  const r3 = buildSnapshot({ previousManifest: r2.manifest, previousCatalog: r2.catalog, refreshId: "r3", fetchedAt: T0 + 2 * DAY, feeds: feeds2 });
+  const r4 = buildSnapshot({ previousManifest: r3.manifest, previousCatalog: r3.catalog, refreshId: "r4", fetchedAt: T0 + 3 * DAY, feeds: feeds2 });
   const ids4 = Object.fromEntries(r4.catalog.offers_state.map((o) => [o.offer_id, o]));
   assert.equal(ids4["litellm:vendor/beta"].state, "retired");
   assert.equal(ids4["litellm:vendor/beta"].missing_streak, 3);

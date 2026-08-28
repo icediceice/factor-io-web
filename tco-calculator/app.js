@@ -292,6 +292,7 @@ function renderResults(r) {
     : "";
 
   $("results").innerHTML = `
+    ${rec}
     <div class="card">
       <table>
         <thead><tr><th>Lane · policy ${escapeHtml(r.policy)}</th><th class="n">TCO / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month TCO</th></tr></thead>

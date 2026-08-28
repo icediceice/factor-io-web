@@ -169,7 +169,7 @@ export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fa
   return { total, lines };
 }
 
-function ratToDecExact(r) {
+export function ratToDecExact(r) {
   // Exact Decimal for a terminating rational n/(2^a 5^b); null otherwise.
   // n/(2^a 5^b) = n x 2^(e-a) x 5^(e-b) / 10^e with e = max(a, b).
   let d = r.d;

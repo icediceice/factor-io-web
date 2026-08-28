@@ -18,7 +18,14 @@ const state = {
 };
 
 const decStr = (v) => Dec.from(String(v)).toString();
-const money = (x) => "$" + formatHalfUp(x instanceof Dec || x instanceof Rat ? x : Dec.from(String(x)), 2);
+const money = (x) => {
+  if (x === null || x === undefined) return "—";
+  if (x instanceof Dec || x instanceof Rat) return "$" + formatHalfUp(x, 2);
+  const s = String(x);
+  const m = /^(-?\d+)\/(\d+)$/.exec(s); // non-terminating totals travel as reduced n/d
+  if (m) return "$" + formatHalfUp(new Rat(BigInt(m[1]), BigInt(m[2])), 2);
+  return "$" + formatHalfUp(Dec.from(s), 2);
+};
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

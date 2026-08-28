@@ -352,21 +352,64 @@ function renderCurve(curve) {
   return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="TCO curve over the horizon">${labels}${paths}${axis}</svg>`;
 }
 
+// Scale one offer's prices by an exact rational factor — the sensitivity's
+// price axis re-quotes a scaled TARIFF through the engine; it never rescales a
+// displayed number with floating-point math (peer G9).
+function scaleOfferPrices(offer, pm) {
+  const scale = (s) => {
+    const p = Rat.from(Dec.from(s)).mul(Rat.from(Dec.from(String(pm))));
+    const d = ratToDecExact(p);
+    return d === null ? null : d.toString();
+  };
+  const clone = JSON.parse(JSON.stringify(offer));
+  for (const k of Object.keys(clone.prices ?? {})) {
+    const v = scale(clone.prices[k]);
+    if (v === null) return null;
+    clone.prices[k] = v;
+  }
+  for (const o of clone.overrides ?? []) {
+    for (const k of Object.keys(o.prices ?? {})) {
+      const v = scale(o.prices[k]);
+      if (v === null) return null;
+      o.prices[k] = v;
+    }
+  }
+  return clone;
+}
+
 function renderSensitivity() {
   const r = state.result;
-  if (!r || r.lanes.B.per_1m.value === null) return;
-  const base = Number(fmtPer1M(r.lanes.B.per_1m.value));
+  const inp = state.inputs;
+  const primary = inp?.laneB?.offer_ids?.[0] ?? null;
+  if (!r || !inp || !primary || !state.catalog?.offers?.[primary]) {
+    $("sensitivity").innerHTML = `<div class="card"><h3>Sensitivity</h3><p class="muted">Select a priced API model — the demand/price grid reruns the full comparison per cell and needs a priced offer.</p></div>`;
+    return;
+  }
   const demandMultipliers = [0.5, 0.75, 1, 1.5, 2];
   const priceMultipliers = [0.8, 1, 1.25];
   const head = `<tr><th>demand \ price</th>${priceMultipliers.map((p) => `<th class="n">x${p}</th>`).join("")}</tr>`;
   const body = demandMultipliers.map((dm) => {
     const cells = priceMultipliers.map((pm) => {
+      const workload = {
+        ...inp.workload,
+        demand_tokens_mo: Math.round(inp.workload.demand_tokens_mo * dm),
+        request_count_mo: Math.round(inp.workload.request_count_mo * dm),
+        time_buckets: inp.workload.time_buckets?.map((b) => ({ hours: b.hours, tokens: Math.round(b.tokens * dm) })) ?? null,
+      };
+      let catalog = inp.catalog;
+      if (pm !== 1) {
+        const scaled = scaleOfferPrices(state.catalog.offers[primary], pm);
+        if (scaled === null) return `<td class="n muted">n/d</td>`;
+        catalog = { offers: { [primary]: scaled } };
+      }
+      const res = runComparison({ ...inp, workload, catalog, evidenceRows: [] });
+      const tco = res.routing_result.recommended_monthly_total;
       const cls = dm === 1 && pm === 1 ? `style="color:#E8E6F0"` : "";
-      return `<td class="n" ${cls}>${(base * dm * pm).toFixed(6)}</td>`;
+      return `<td class="n" ${cls}>${tco === null || tco === undefined ? "—" : numProv(money(tco), [["cell", `demand x${dm}, API price x${pm} — full engine rerun`], ["snapshot digest", state.manifest.snapshot_digest]])}</td>`;
     }).join("");
     return `<tr><td>x${dm}</td>${cells}</tr>`;
   }).join("");
-  $("sensitivity").innerHTML = `<div class="card"><h3>API lane per-1M sensitivity</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Lane B unit economics are linear in demand and tariff. Lane A per-unit cost FALLS with utilization (see breakeven); Lane C is hyperbolic in utilization — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
+  $("sensitivity").innerHTML = `<div class="card"><h3>Recommended TCO sensitivity — full engine rerun per cell</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell is a fresh runComparison: demand and request count scale together with the workload shape held constant (counts rounded); the price axis re-quotes a tariff scaled exactly. Lane A per-unit cost FALLS with utilization (see breakeven); Lane C is hyperbolic — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
 }
 
 function exportQuote(r) {

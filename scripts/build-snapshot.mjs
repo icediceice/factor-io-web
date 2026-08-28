@@ -158,25 +158,6 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
     offersState.push({ offer_id: offerId, state: next.state, missing_streak: next.missing_streak });
   }
 
-  // --- Per-source SourceStatus envelopes (SPEC 5.2).
-  for (const [sourceId, cfg] of Object.entries(SOURCES)) {
-    const prev = prevSources[sourceId] ?? null;
-    const ok = feeds[sourceId]?.ok === true;
-    const observed = ok ? new Date(now).toISOString() : prev?.observed_at ?? null; // never fabricated
-    const lastSuccess = ok ? new Date(now).toISOString() : prev?.last_success_at ?? null;
-    const missingStreak = ok ? 0 : (prev?.missing_streak ?? 0) + 1;
-    sourceRecords[sourceId] = {
-      source_id: sourceId,
-      status: ok ? "fresh" : "error",
-      observed_at: observed,
-      last_success_at: lastSuccess,
-      expires_at: observed ? new Date(Date.parse(observed) + cfg.ttl_days * 86400000).toISOString() : null,
-      root_digest: ok ? digest(JSON.stringify(sourceOffers[sourceId])) : prev?.root_digest ?? null,
-      record_count: ok ? sourceOffers[sourceId].length : prev?.record_count ?? 0,
-      missing_streak: missingStreak,
-    };
-  }
-
   // --- Catalog resource + manifest index.
   const catalog = { offers, offers_state: offersState };
   const catalogBytes = Buffer.from(JSON.stringify(catalog));

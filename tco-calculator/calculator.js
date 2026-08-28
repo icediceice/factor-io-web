@@ -140,6 +140,12 @@ export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fa
     } else {
       lines.push({ item: "failover_traffic", amount: failoverCost.toString(), note: "rational, non-terminating — displayed via formatHalfUp" });
     }
+    if (fallbackKind !== "B") {
+      // The fallback lane serves tokens -> it is in service -> its fixed cost is
+      // incurred exactly once (SPEC 2.3).
+      total = total.add(Dec.from(fallbackFixedMonthly));
+      lines.push({ item: "fallback_fixed", amount: Dec.from(fallbackFixedMonthly).toString(), note: `fallback lane ${fallbackKind} is in service — fixed charged once` });
+    }
   } else if (fallbackKind !== "B") {
     lines.push({ item: "standby_fixed", amount: Dec.from(fallbackFixedMonthly).toString(), note: "pure standby — fixed cost surfaced (SPEC 2.2)" });
     total = total.add(Dec.from(fallbackFixedMonthly));

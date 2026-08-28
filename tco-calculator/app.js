@@ -256,8 +256,8 @@ function renderResults(r) {
     ? `<p class="muted">Derived optimum for comparison: ${money(r.routing_result.derived_optimum_note.total)} — ${escapeHtml(r.routing_result.derived_optimum_note.note)}</p>`
     : "";
 
-  const beA = r.breakeven.lane_A_vs_B ? `<li>Lane A breakeven vs API: ${numProv(`${formatHalfUp(r.breakeven.lane_A_vs_B.demand_tokens, 0)} tokens/mo`, [["basis", "fixed / API per-token"]])}${r.breakeven.lane_A_vs_B.utilization ? ` (${formatHalfUp(r.breakeven.lane_A_vs_B.utilization, 4)} of capacity)` : ` (${r.breakeven.lane_A_vs_B.utilization_reason})`}</li>` : "";
-  const beC = r.breakeven.lane_C_vs_B && r.breakeven.lane_C_vs_B.utilization ? `<li>Lane C breakeven utilization vs API: ${numProv(formatHalfUp(r.breakeven.lane_C_vs_B.utilization, 4), [["basis", "hourly / (tok/s x API per-token)"]])}</li>` : (r.breakeven.lane_C_vs_B ? `<li>Lane C breakeven: ${r.breakeven.lane_C_vs_B.reason}</li>` : "");
+  const beA = r.breakeven.lane_A_vs_B ? `<li>Lane A breakeven vs API: ${numProv(`${fmt(r.breakeven.lane_A_vs_B.demand_tokens, 0)} tokens/mo`, [["basis", "fixed / API per-token"]])}${r.breakeven.lane_A_vs_B.utilization ? ` (${fmt(r.breakeven.lane_A_vs_B.utilization, 4)} of capacity)` : ` (${r.breakeven.lane_A_vs_B.utilization_reason})`}</li>` : "";
+  const beC = r.breakeven.lane_C_vs_B && r.breakeven.lane_C_vs_B.utilization ? `<li>Lane C breakeven utilization vs API: ${numProv(fmt(r.breakeven.lane_C_vs_B.utilization, 4), [["basis", "hourly / (tok/s x API per-token)"]])}</li>` : (r.breakeven.lane_C_vs_B ? `<li>Lane C breakeven: ${r.breakeven.lane_C_vs_B.reason}</li>` : "");
 
   const verdictLi = (label, v) => v === null ? "" : `<li>${label}: <strong>${v.verdict}</strong>${v.verdict === "unknown" ? ` <span class="tag tag-unknown">no evidence row matches all dimensions</span>` : ` @ ${v.modelled_p95_capacity} tok/s`}${v.annotation ? ` <span class="muted">partial: ${v.annotation.mismatched_dimensions.join(", ")} differ</span>` : ""}</li>`;
 

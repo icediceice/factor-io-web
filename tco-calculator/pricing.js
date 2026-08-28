@@ -298,8 +298,12 @@ export function compileOpenRouterModel(model) {
         } else {
           const spec = OPENROUTER_KEY_MAP[k];
           if (!spec) {
-            offer.provenance.logs.push({ rule: "override_price_key_dropped", index: i, key: k });
-            continue;
+            // Neither a known condition nor a recognized price key: it may be a
+            // new CONDITION the vendor added — skip the whole entry (rule 2),
+            // offer survives, skip logged.
+            offer.provenance.logs.push({ rule: "override_entry_skipped", index: i, reason: `unrecognized_field:${k}` });
+            bad = true;
+            break;
           }
           const p = priceString(v);
           if (p !== null) prices[openRouterMeterKey(spec)] = p;

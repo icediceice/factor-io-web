@@ -394,3 +394,62 @@ export function runComparison({
     quotes,
     gaps: Object.entries(quotes).filter(([, q]) => !q.servable).map(([id, q]) => ({ offer_id: id, gap_reason: q.gap_reason })),
   };
+
+  // ---- Routing policy result: the optimum is always the DERIVED split under
+  // the declared policy; advisory/pinned numbers annotate, never replace (F7).
+  const routingResult = { policy };
+  let recommendedTotal = null;
+  if (policy === "local_first") {
+    const split = routed ?? derivedLocalFirstSplit({ demandTokens: demand, aMonthlyCapacity: laneA && laneA.monthly_token_budget ? laneA.monthly_token_budget : demand });
+    routingResult.derived_split = { local_tokens: split.local, overflow_tokens: split.overflow, local_share: split.local_share.toString() };
+    recommendedTotal = laneAResult.enabled && split.local > 0 ? laneAResult.monthly_total : (bMonthly === null ? null : bMonthly.toString());
+    if (routing.advisory_blend) {
+      const adv = advisoryBlendCost({
+        demandTokens: demand,
+        blendLocalPct: routing.advisory_blend.local_pct,
+        overflowUnitCost: overflowUnit === null ? null : (() => { const d = ratToDecExact(Rat.from(overflowUnit)); return d === null ? null : d.toString(); })(),
+        laneAFixed: laneA.fixed_monthly,
+        aMonthlyCapacity: laneA.monthly_token_budget ?? demand,
+        marginalPerToken: laneA.marginal_per_token ?? null,
+      });
+      const cmpv = cmpMoney(adv.total, Dec.from(recommendedTotal));
+      routingResult.advisory = cmpv > 0
+        ? { total: adv.total.toString(), status: "dominated", delta: adv.total.sub(Dec.from(recommendedTotal)).toString(), note: "advisory blend loses to the derived split — never emitted as the optimum" }
+        : { total: adv.total.toString(), status: cmpv === 0 ? "equal" : "preferred", note: "advisory blend matches or beats the derived split" };
+    }
+  } else if (policy === "api_first") {
+    const f = routing.failover ?? { rate: "1", share: "0", fallback: "A" };
+    const fbKind = f.fallback === "C" ? "C" : "A";
+    const fbFixed = fbKind === "C"
+      ? (laneC && laneC.enabled ? Rat.from(laneC.hourly_rate).mul(Rat.of(24n * 30n, 1n)).toString() : "0")
+      : (laneA && laneA.enabled ? laneA.fixed_monthly : "0");
+    const af = apiFirstFailover({ demandTokens: demand, bMonthlyTotal: bMonthly ?? "0", fallbackKind: fbKind, fallbackFixedMonthly: fbFixed, failoverShare: f.share, failoverRate: f.rate });
+    routingResult.failover = { fallback: fbKind, share: f.share, rate: f.rate, lines: af.lines };
+    recommendedTotal = af.total.toString();
+  } else if (policy === "fixed_split") {
+    const pinned = routing.pinned; // {a_pct, b_pct, c_pct}
+    let total = ZERO;
+    const lines = [];
+    const part = (pct, laneTotal, lane) => {
+      if (!pct) return;
+      const share = Rat.of(BigInt(pct), 100n);
+      const r = Rat.from(laneTotal).mul(share);
+      const d = ratToDecExact(r);
+      if (d !== null) total = total.add(d);
+      lines.push({ lane, pct, amount: d === null ? r.toString() : d.toString() });
+    };
+    part(pinned.a_pct ?? 0, laneAResult.enabled ? laneAResult.monthly_total : "0", "A");
+    part(pinned.b_pct ?? 0, bMonthly ?? "0", "B");
+    part(pinned.c_pct ?? 0, laneCStandalone.enabled ? laneCStandalone.monthly_total : "0", "C");
+    routingResult.pinned = { ...pinned, lines, total: total.toString() };
+    recommendedTotal = routingResult.pinned.total;
+    // Non-substituting comparison annotation: the derived optimum + its total.
+    if (laneA && laneA.enabled) {
+      const split = derivedLocalFirstSplit({ demandTokens: demand, aMonthlyCapacity: laneA.monthly_token_budget ?? demand });
+      const a = laneAMonthly({ fixedMonthly: laneA.fixed_monthly, localTokens: split.local, overflowTokens: split.overflow, overflowUnitCost: overflowUnit === null ? null : ratToDecExact(Rat.from(overflowUnit)), marginalPerToken: laneA.marginal_per_token ?? null });
+      routingResult.derived_optimum_note = { split: { local_tokens: split.local, overflow_tokens: split.overflow }, total: a.total.toString(), note: "comparison annotation only — the pinned split is never silently replaced (SPEC 2.2)" };
+    }
+  } else {
+    throw new TypeError(`runComparison: unknown routing policy ${policy}`);
+  }
+  routingResult.recommended_monthly_total = recommendedTotal;

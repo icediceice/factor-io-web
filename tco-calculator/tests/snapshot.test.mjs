@@ -82,6 +82,10 @@ test("builder distinguishes first omission from third via previousManifest", () 
   const ids4 = Object.fromEntries(r4.catalog.offers_state.map((o) => [o.offer_id, o]));
   assert.equal(ids4["litellm:vendor/beta"].state, "retired");
   assert.equal(ids4["litellm:vendor/beta"].missing_streak, 3);
+  // Retired keeps its payload for provenance but leaves the selectable index.
+  assert.ok(r4.catalog.offers["litellm:vendor/beta"], "retired payload kept for provenance");
+  assert.equal(r4.catalog.offers["litellm:vendor/beta"].state, "retired");
+  assert.ok(!r4.manifest.models.some((m) => m.id === "litellm:vendor/beta"), "retired offers are not selectable");
 
   // Reappearance after suspect_missing revives to active; retired does NOT self-revive.
   const r5 = buildSnapshot({ previousManifest: r4.manifest, previousCatalog: r4.catalog, refreshId: "r5", fetchedAt: T0 + 4 * DAY, feeds: okFeeds() });

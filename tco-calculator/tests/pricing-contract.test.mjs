@@ -56,11 +56,13 @@ test("every LiteLLM chat entry compiles: admitted offers carry token meters, oth
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
     if (entry.mode !== "chat" && entry.mode !== "completion") { skippedModes++; continue; }
     const offer = compileLiteLLMEntry(key, entry);
-    if (offer.tariff === "token") {
+    if (offer.tariff === "token" || offer.tariff === "character") {
       admitted++;
       assert.ok(Object.keys(offer.prices).length > 0, `${key} admitted without prices`);
+      assert.equal(offer.state, "active", `${key} admitted offer must be active`);
     } else {
       quarantined++;
+      assert.equal(offer.tariff, "none");
       assert.equal(offer.state, "quarantined");
       assert.ok(offer.quarantine_reason, `${key} quarantined without reason`);
     }

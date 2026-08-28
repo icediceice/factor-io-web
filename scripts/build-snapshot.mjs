@@ -40,10 +40,12 @@ const SOURCES = {
 };
 
 // ---------------------------------------------------------------- fetch layer
-async function fetchJSON(url) {
+// Fetch TEXT and parse with parseJSONExact — never res.json(), which would
+// detour every numeric price literal through IEEE-754 before we see it.
+async function fetchText(url) {
   const res = await fetch(url, { headers: { "user-agent": UA, accept: "application/json" } });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
-  return res.json();
+  return res.text();
 }
 
 async function fetchOpenRouterAll() {

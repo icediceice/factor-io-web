@@ -94,7 +94,15 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
   // --- OpenRouter (values are strings; plain parse is exact)
   if (feeds.openrouter.ok) {
     for (const model of feeds.openrouter.value) {
+      // Alias records point at another model's identity — routing conveniences,
+      // not independently quotable offers (and they carry a pricing COPY, so
+      // compiling them would double-list the tariff) (peer G2).
+      if (model.alias_target) {
+        provenance.openrouter.logs.push({ offer: `openrouter:${model.id}`, rule: "alias_skipped", target: model.alias_target?.slug ?? null });
+        continue;
+      }
       const offer = compileOpenRouterModel(model);
+      if (offers[offer.offer_id]) throw new Error(`openrouter: duplicate offer id ${offer.offer_id} — refusing last-write-wins`); // peer G2
       offers[offer.offer_id] = offer;
       sourceOffers.openrouter.push(offer.offer_id);
       if (offer.provenance.logs.length) provenance.openrouter.logs.push(...offer.provenance.logs.map((l) => ({ offer: offer.offer_id, ...l })));

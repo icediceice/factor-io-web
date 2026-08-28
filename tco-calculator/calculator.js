@@ -150,13 +150,15 @@ export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fa
 }
 
 function ratToDecExact(r) {
-  // Exact Decimal for a terminating rational; null otherwise.
+  // Exact Decimal for a terminating rational n/(2^a 5^b); null otherwise.
+  // n/(2^a 5^b) = n x 2^(e-a) x 5^(e-b) / 10^e with e = max(a, b).
   let d = r.d;
   let twos = 0n, fives = 0n;
   while (d % 2n === 0n) { d /= 2n; twos++; }
   while (d % 5n === 0n) { d /= 5n; fives++; }
   if (d !== 1n) return null;
   const e = twos > fives ? twos : fives;
-  return new Dec(r.n * pow(5n, fives) * pow(2n, twos === fives ? 0n : (twos > fives ? 0n : 0n)) , 0n).mul(new Dec(pow(10n, e), 0n)).div(new Dec(pow(10n, e), 0n));
+  const num = r.n * pow(2n, e - twos) * pow(5n, e - fives);
+  return new Dec(num, e);
 }
 function pow(b, e) { let r = 1n; for (let i = 0n; i < e; i++) r *= b; return r; }

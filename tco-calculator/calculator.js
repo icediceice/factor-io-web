@@ -267,3 +267,49 @@ export function tcoCurve(laneMonthlyTotals, horizonMonths) {
   }
   return points;
 }
+
+// ------------------------------------------------------------- runComparison
+// The canonical composition (S1 workload -> S3 results). Determinism (SPEC 10.1):
+// identical workload + identical snapshot -> byte-identical result JSON — every
+// money value is a canonical decimal string, every key is constructed in fixed
+// order, nothing reads wall-clock state.
+export function runComparison({
+  workload,
+  catalog,
+  laneA = null,
+  laneB = null,
+  laneC = null,
+  routing,
+  overlay = null,
+  evidenceRows = [],
+}) {
+  const reasons = [];
+  const demand = workload.demand_tokens_mo;
+  const reqs = workload.request_count_mo;
+  const horizon = workload.horizon_months;
+  const reqShape = {
+    prompt_tokens: workload.prompt_tokens,
+    output_tokens: workload.output_tokens,
+    cache_read_tokens: workload.cache_read_tokens_per_req ?? 0,
+    cache_write_tokens: workload.cache_write_tokens_per_req ?? 0,
+    request_count: 1,
+    tier: workload.tier ?? "std",
+    quote_utc: workload.quote_utc ?? null,
+    now: workload.now ?? null,
+  };
+
+  // ---- Lane B: quote every selected offer at the request shape.
+  const quotes = {};
+  let primaryId = null;
+  let bRequestCost = null;
+  for (const id of (laneB && laneB.offer_ids) || []) {
+    const offer = catalog.offers[id];
+    const q = offer ? quoteOffer(offer, reqShape) : { servable: false, gap_reason: "not_in_catalog", reasons: [], meters: [], applied_overrides: [], cost: null };
+    quotes[id] = q;
+    if (q.servable && bRequestCost === null) {
+      primaryId = id;
+      bRequestCost = Dec.from(q.cost);
+    }
+  }
+  const bMonthly = bRequestCost === null ? null : bRequestCost.mul(BigInt(reqs));
+  const bPerToken = bMonthly === null || demand === 0 ? null : bMonthly.div(BigInt(demand)); // Dec: terminating (price x int / int may not terminate... use Rat)

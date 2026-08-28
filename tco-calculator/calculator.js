@@ -25,7 +25,7 @@ function toRat(x) {
   if (m) return Rat.of(BigInt(m[1]), BigInt(m[2]));
   return Rat.from(Dec.from(s));
 }
-function ratStr(x) {
+export function ratStr(x) {
   const r = toRat(x);
   const d = ratToDecExact(r);
   return d === null ? r.toString() : d.toString(); // decimal form when exact

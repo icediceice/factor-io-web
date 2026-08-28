@@ -15,6 +15,10 @@ import { Dec, Rat, ZERO } from "./exact.js";
 
 export const N_CONSECUTIVE_RETIRE = 3; // [ASSUMED — spec author; open decision O3]
 
+// Recognized-and-consumed LiteLLM metadata: neither a meter nor an unknown —
+// it is the feed's documented envelope, so it never lands in ignored_fields.
+const LITELLM_METADATA = /^(litellm_provider|mode|max_input_tokens|max_output_tokens|max_tokens|model_name|model_type|deprecation_date|processor_split|temperature|top_p|rpm|tpm|rpd|ppm|sample_spec|supports_[a-z_]+)$/;
+
 // ---------------------------------------------------------------- meter keys
 // Meter identity keeps its full structure (SPEC 3.2): stem × threshold ×
 // cache-age × service tier × region. Canonical text form is the serialized key.

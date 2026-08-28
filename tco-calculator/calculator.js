@@ -160,3 +160,110 @@ function ratToDecExact(r) {
   return new Dec(num, e);
 }
 function pow(b, e) { let r = 1n; for (let i = 0n; i < e; i++) r *= b; return r; }
+
+// ------------------------------------------------------------------ breakeven
+// Lane C vs B: the utilization where hourly/(tok_s x util) crosses the API
+// per-token price (SPEC 6.2) — util* = hourly / (tok_s x bPerToken).
+export function breakevenUtilizationC({ hourlyRate, tokensS, bPerToken }) {
+  if (tokensS === null || tokensS <= 0) return { value: null, reason: "zero_capacity" };
+  const denom = Rat.of(BigInt(tokensS), 1n).mul(Rat.from(bPerToken));
+  if (denom.isZero()) return { value: null, reason: "zero_price" };
+  return { value: Rat.from(hourlyRate).div(denom), reason: null };
+}
+
+// Lane A vs B: the demand where amortized fixed per token crosses the API
+// per-token price — demand* = fixed / bPerToken; as utilization vs capacity.
+export function breakevenDemandA({ fixedMonthly, bPerToken, aMonthlyCapacity }) {
+  const p = Rat.from(bPerToken);
+  if (p.isZero()) return { value: null, reason: "zero_price" };
+  const demand = Rat.from(fixedMonthly).div(p);
+  const utilization = aMonthlyCapacity === null || aMonthlyCapacity <= 0
+    ? { value: null, reason: "zero_capacity" }
+    : { value: demand.div(Rat.of(BigInt(aMonthlyCapacity), 1n)), reason: null };
+  return { demand_tokens: demand, utilization };
+}
+
+// --------------------------------------------------------- evidence matching
+// All-dimensions rule (SPEC 6.3/6.4): a row supports a configuration ONLY on
+// every dimension. No interpolation, no scaling. Partial matches are annotations
+// listing the mismatched dimensions — never the number (fixture F8).
+export const EVIDENCE_DIMS = [
+  "model_revision", "runtime", "runtime_version", "quantization",
+  "hardware_topology", "prompt_output_dist", "concurrency", "batch_mode",
+  "percentile_window",
+];
+
+export function matchEvidence(rows, config, requiredP95) {
+  const exact = [];
+  let annotation = null;
+  for (const row of rows ?? []) {
+    const mismatched = [];
+    let matched = 0;
+    for (const dim of EVIDENCE_DIMS) {
+      if (config[dim] === undefined || row[dim] === undefined || row[dim] !== config[dim]) {
+        mismatched.push(dim);
+      } else {
+        matched++;
+      }
+    }
+    if (mismatched.length === 0) {
+      exact.push(row);
+    } else if (matched > 0 && annotation === null) {
+      annotation = { row_value_tok_s: row.value_tok_s ?? null, mismatched_dimensions: mismatched, provenance: row.provenance ?? null };
+    }
+  }
+  if (exact.length === 0) {
+    return { verdict: "unknown", modelled_p95_capacity: null, annotation };
+  }
+  // All exact rows must agree on the verdict direction against the SLO.
+  const best = exact.reduce((a, b) => (cmpMoney(Dec.from(String(b.value_tok_s)), Dec.from(String(a.value_tok_s))) > 0 ? b : a));
+  const verdict = requiredP95 === null || requiredP95 === undefined
+    ? "unknown"
+    : Number(requiredP95) <= Number(best.value_tok_s) ? "feasible" : "infeasible";
+  return { verdict, modelled_p95_capacity: best.value_tok_s, evidence_rows: exact.length, annotation: null };
+}
+
+// ---------------------------------------------------------- commercial overlay
+// Applied LAST (SPEC 4.5/7): always itemized, never folded into unit prices.
+// Rates are operator-entered at runtime; nothing here ships a rate card.
+export function applyOverlay({ laneTotals, horizonMonths, components, fullyLoaded }) {
+  const itemized = [];
+  let overlayTotal = ZERO;
+  for (const c of components ?? []) {
+    const amount = Dec.from(c.amount);
+    const extended = c.basis === "monthly" ? amount.mul(BigInt(horizonMonths)) : amount;
+    overlayTotal = overlayTotal.add(extended);
+    itemized.push({ name: c.name, basis: c.basis, amount: amount.toString(), extended: extended.toString(), provenance: c.provenance ?? "assumed" });
+  }
+  const totals = {};
+  for (const [lane, t] of Object.entries(laneTotals)) {
+    const infra = Dec.from(t);
+    totals[lane] = {
+      infra_total: infra.toString(),
+      fully_loaded_total: infra.add(overlayTotal.mul(Rat.of(1n, 1n))).toString(),
+    };
+  }
+  return {
+    itemized,
+    overlay_total: overlayTotal.toString(),
+    totals,
+    label: fullyLoaded ? "fully_loaded_per_1M" : "infra_per_1M",
+    note: fullyLoaded
+      ? "fully-loaded mode: per-1M labels read fully_loaded_per_1M (SPEC 4.5)"
+      : "infra-only: commercial overlay itemized separately (SPEC 4.5)",
+  };
+}
+
+// ------------------------------------------------------------------ TCO curve
+// Constant monthly demand -> cumulative totals are linear in the horizon month.
+export function tcoCurve(laneMonthlyTotals, horizonMonths) {
+  const points = [];
+  for (let m = 1; m <= horizonMonths; m++) {
+    const row = { month: m };
+    for (const [lane, t] of Object.entries(laneMonthlyTotals)) {
+      row[lane] = Dec.from(t).mul(BigInt(m)).toString();
+    }
+    points.push(row);
+  }
+  return points;
+}

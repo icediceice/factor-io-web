@@ -65,5 +65,6 @@ export function utilizationOf(demandTokens, capacityTokens) {
 // Effective per-1M for a lane total over demand. Zero demand is out of domain.
 export function per1M(totalCost, demandTokens) {
   if (demandTokens === 0) return { value: null, reason: "zero_demand" };
-  return { value: Rat.from(totalCost).div(Rat.of(BigInt(demandTokens), 1n)).div(Rat.of(1n, 1000000n)).neg().neg(), reason: null };
+  // (total / demand) x 1M — dividing by the Rational 1/1000000 multiplies by 1M.
+  return { value: Rat.from(totalCost).div(Rat.of(BigInt(demandTokens), 1n)).div(Rat.of(1n, 1000000n)), reason: null };
 }

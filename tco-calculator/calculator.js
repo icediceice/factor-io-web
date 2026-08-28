@@ -427,7 +427,7 @@ export function runComparison({
     const f = routing.failover ?? { rate: "1", share: "0", fallback: "A" };
     const fbKind = f.fallback === "C" ? "C" : "A";
     const fbFixed = fbKind === "C"
-      ? (laneC && laneC.enabled ? Rat.from(laneC.hourly_rate).mul(Rat.of(24n * 30n, 1n)).toString() : "0")
+      ? (laneC && laneC.enabled ? (ratToDecExact(Rat.from(laneC.hourly_rate).mul(Rat.of(720n, 1n))) ?? "0") : "0") // 720h standby month
       : (laneA && laneA.enabled ? laneA.fixed_monthly : "0");
     const af = apiFirstFailover({ demandTokens: demand, bMonthlyTotal: bMonthly ?? "0", fallbackKind: fbKind, fallbackFixedMonthly: fbFixed, failoverShare: f.share, failoverRate: f.rate });
     routingResult.failover = { fallback: fbKind, share: f.share, rate: f.rate, lines: af.lines };

@@ -23,7 +23,7 @@ async function fetchOpenRouterAll() {
   const models = [];
   let url = "https://openrouter.ai/api/v1/models";
   let pages = 0;
-  let firstPageEnvelope = null;
+  let totalCount = null;
   while (url) {
     const page = await fetchJSON(url);
     if (!page || !Array.isArray(page.data)) throw new Error("openrouter: unexpected envelope shape");

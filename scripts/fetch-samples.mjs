@@ -27,12 +27,7 @@ async function fetchOpenRouterAll() {
   while (url) {
     const page = await fetchJSON(url);
     if (!page || !Array.isArray(page.data)) throw new Error("openrouter: unexpected envelope shape");
-    if (firstPageEnvelope === null) {
-      firstPageEnvelope = page;
-      if (page.links?.next == null) {
-        throw new Error("openrouter: first page has no links.next but the catalog exceeds 400 models — pagination contract changed");
-      }
-    }
+    if (firstPageEnvelope === null) firstPageEnvelope = page;
     models.push(...page.data);
     url = page.links?.next ?? null;
     if (++pages > 100) throw new Error("openrouter: pagination runaway (>100 pages)");

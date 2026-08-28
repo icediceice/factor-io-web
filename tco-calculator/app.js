@@ -135,3 +135,68 @@ async function fillModels(sel) {
   if (cur) $("fb-model").value = cur.id;
   $("fb-model-note").textContent = `${models.length} models · snapshot ${state.manifest.snapshot_digest} · generated ${state.manifest.generated_at}`;
 }
+
+// --------------------------------------------------------------------- run()
+function run() {
+  clearGap();
+  try {
+    const workload = {
+      demand_tokens_mo: intInput("f-demand") ?? 0,
+      request_count_mo: intInput("f-requests") ?? 0,
+      prompt_tokens: intInput("f-prompt") ?? 0,
+      output_tokens: intInput("f-output") ?? 0,
+      cache_read_tokens_per_req: intInput("f-cache") ?? 0,
+      horizon_months: intInput("f-horizon") ?? 1,
+      required_p95_tok_s: intInput("f-p95"),
+      quote_utc: Date.parse($("f-utc").value),
+      now: Date.now(),
+      time_buckets: null,
+    };
+    const days = intInput("fa-days");
+    if (days && workload.demand_tokens_mo > 0) {
+      workload.time_buckets = [{ hours: days * 24, tokens: workload.demand_tokens_mo }];
+    }
+
+    const laneA = {
+      enabled: true,
+      fixed_monthly: decInput("fa-fixed") ?? "0",
+      monthly_token_budget: intInput("fa-budget"),
+      tokens_s_ceiling: intInput("fa-rate"),
+    };
+    const laneB = { enabled: true, offer_ids: [$("fb-model").value].filter(Boolean) };
+    const laneC = {
+      enabled: true,
+      tokens_s: intInput("fc-toks"),
+      hourly_rate: decInput("fc-hourly") ?? "0",
+      utilization: decInput("fc-util") ?? "0.7",
+      hardware_topology: $("fc-preset").selectedOptions[0]?.textContent ?? null,
+    };
+    const routing = {
+      policy: $("fr-policy").value,
+      advisory_blend: { local_pct: intInput("fr-blend") ?? 70 },
+      failover: { fallback: "A", share: decInput("fr-failshare") ?? "0", rate: decInput("fr-failrate") ?? "2" },
+      pinned: { a_pct: 50, b_pct: 50 },
+    };
+    const overlay = {
+      fully_loaded: $("fo-loaded").value === "loaded",
+      components: [
+        { name: "enterprise-licensing", basis: "monthly", amount: decInput("fo-license") ?? "0" },
+        { name: "ai-consulting", basis: "monthly", amount: decInput("fo-consult") ?? "0" },
+        { name: "implementation", basis: "one_time", amount: decInput("fo-impl") ?? "0" },
+      ].filter((c) => Dec.from(c.amount).sign() > 0),
+    };
+
+    state.result = runComparison({ workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay, evidenceRows: [] });
+    renderResults(state.result);
+  } catch (e) {
+    showGap(`the comparison could not run: ${escapeHtml(e.message)}`);
+  }
+}
+
+const srcTag = (quote) => quote && quote.exact
+  ? `<span class="tag tag-exact">exact</span>`
+  : `<span class="tag tag-est">estimated</span>`;
+
+function numProv(valueHtml, rows) {
+  return `<span ${prov(rows)}>${valueHtml}</span>`;
+}

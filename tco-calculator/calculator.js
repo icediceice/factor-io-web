@@ -314,3 +314,17 @@ export function runComparison({
   const bMonthly = bRequestCost === null ? null : bRequestCost.mul(BigInt(reqs));
   // Quotient -> Rational (the architecture rule). Per-token B is exact n/d.
   const bPerToken = bMonthly === null || demand === 0 ? null : Rat.from(bMonthly).div(Rat.of(BigInt(demand), 1n));
+
+  // ---- Routing: derive the split, never take it as input (SPEC 2.2).
+  const policy = routing.policy;
+  let routed = null;
+  if (laneA && laneA.enabled) {
+    const routedBuckets = routeDemandBuckets({
+      demandTokens: demand,
+      monthlyBudget: laneA.monthly_token_budget ?? null,
+      rateCeiling: laneA.tokens_s_ceiling ?? null,
+      buckets: workload.time_buckets ?? null,
+    });
+    if (!routedBuckets.temporal_known) reasons.push("capacity_temporal_unknown");
+    routed = routedBuckets;
+  }

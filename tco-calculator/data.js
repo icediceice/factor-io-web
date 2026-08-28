@@ -33,9 +33,10 @@ export async function loadManifest(signal) {
   if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
   const manifest = await res.json();
   // SPEC 9.3: the client pins the manifest version it loaded and refuses a
-  // mismatched major.
-  const major = String(manifest.schema ?? "").split(".")[0];
-  if (major !== "1") throw new Error(`unsupported manifest schema major: ${manifest.schema}`);
+  // mismatched major. Schema ids read like factor-io.tco-manifest/1.0.0 — the
+  // semver is the trailing dotted triple after the slash.
+  const m = /(\d+)\.\d+\.\d+$/.exec(String(manifest.schema ?? ""));
+  if (!m || m[1] !== "1") throw new Error(`unsupported manifest schema major: ${manifest.schema}`);
   return manifest;
 }
 

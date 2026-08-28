@@ -56,7 +56,15 @@ async function fetchOpenRouterAllText() {
   while (url) {
     const page = parseJSONExact(await fetchText(url));
     if (!page || !Array.isArray(page.data)) throw new Error("openrouter: unexpected envelope shape");
-    if (totalCount === null) totalCount = page.total_count;
+    if (totalCount === null) {
+      // parseJSONExact delivers numeric literals as exact text — coerce
+      // strictly here or the truncation guard below silently never runs
+      // ("305" failed Number.isFinite and pagination went unverified, peer G1).
+      const tc = typeof page.total_count === "string" && /^-?\d+$/.test(page.total_count)
+        ? Number(page.total_count)
+        : page.total_count;
+      totalCount = Number.isSafeInteger(tc) ? tc : null;
+    }
     models.push(...page.data);
     url = page.links?.next ?? null;
     if (++pages > 100) throw new Error("openrouter: pagination runaway");

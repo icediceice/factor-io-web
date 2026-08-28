@@ -56,8 +56,8 @@ test("F7: derived local_first emits $10,000; advisory 70/30 is dominated with th
   assert.equal(r.routing_result.derived_split.overflow_tokens, 0);
   assert.equal(r.routing_result.recommended_monthly_total, "10000"); // the optimum — not the blend
   assert.equal(r.routing_result.advisory.status, "dominated");
-  assert.equal(r.routing_result.advisory.total, "10000.24");
-  assert.equal(r.routing_result.advisory.delta, "0.24");
+  assert.equal(r.routing_result.advisory.total, "10240"); // 10000 + 24M x $10/1M
+  assert.equal(r.routing_result.advisory.delta, "240"); // the SPEC normative delta
   assert.equal(r.lanes.A.monthly_total, "10000");
   // Lane A fixed charged exactly once; no per-token re-pricing of in-capacity tokens.
   assert.ok(r.lanes.A.lines.some((l) => l.item === "lane_a_fixed" && l.amount === "10000"));

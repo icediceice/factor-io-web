@@ -140,8 +140,10 @@ export function classifyLiteLLMField(key) {
 const priceString = (v) => {
   if (v === null || v === undefined) return null;
   if (typeof v === "number") throw new TypeError("pricing: numeric feed value reached the compiler — parse feeds with parseJSONExact");
-  const d = Dec.from(String(v));
-  return d.toString();
+  if (typeof v !== "string") return null; // nested metadata (sample_spec etc.) is not a price
+  const t = v.trim();
+  if (!/^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(t)) return null; // unparseable on a meter: treat as absent
+  return Dec.from(t).toString();
 };
 
 function emptyOffer(identity) {

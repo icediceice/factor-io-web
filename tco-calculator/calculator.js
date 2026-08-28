@@ -10,7 +10,7 @@
 //   per-bucket capacity = min(period tokens remaining, rate x bucket duration)
 // Absent temporal data the rate ceiling cannot be evaluated — the result says
 // capacity_temporal_unknown, it never silently substitutes the monthly scalar.
-import { Dec, Rat, ZERO, cmpMoney, minMoney } from "./exact.js";
+import { Dec, Rat, ZERO, cmpMoney } from "./exact.js";
 import { quoteOffer } from "./pricing.js";
 
 const HOURS_MONTH = 730; // [ASSUMED — spec author] 8760/12, stated in provenance

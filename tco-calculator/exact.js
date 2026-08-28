@@ -163,3 +163,115 @@ export class Rat {
   toString() { return `${this.n}/${this.d}`; } // provenance form; display goes through formatHalfUp
   toJSON() { return this.toString(); }
 }
+
+function decFromString(text) {
+  const t = String(text).trim();
+  const m = /^([+-]?)(\d*)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/.exec(t);
+  if (!m || (!m[2] && !m[3])) throw new TypeError(`Dec.from: not a decimal string: ${JSON.stringify(text)}`);
+  const sign = m[1] === "-" ? -1n : 1n;
+  const intPart = m[2] || "0";
+  const fracPart = m[3] || "";
+  let c = sign * BigInt(intPart + fracPart);
+  let s = BigInt(fracPart.length);
+  const exp = m[4] ? BigInt(m[4]) : CZ;
+  if (exp > CZ) {
+    if (exp <= s) { s -= exp; } else { c *= pow10(exp - s); s = CZ; }
+  } else if (exp < CZ) {
+    s -= exp;
+  }
+  return new Dec(c, s);
+}
+
+function pow10(e) {
+  let r = 1n;
+  for (let i = 0n; i < e; i++) r *= 10n;
+  return r;
+}
+
+function scale(c, from, to) {
+  return from === to ? c : c * pow10(to - from);
+}
+
+// Mixed-type exact comparison: everything routes through Rat (Dec -> Rat is exact).
+export function cmpMoney(a, b) {
+  const x = Rat.from(a);
+  const y = Rat.from(b);
+  const l = x.n * y.d;
+  const r = y.n * x.d;
+  return l < r ? -1 : l > r ? 1 : 0;
+}
+
+export function minMoney(a, b) { return cmpMoney(a, b) <= 0 ? a : b; }
+export function maxMoney(a, b) { return cmpMoney(a, b) >= 0 ? a : b; }
+
+export function sumMoney(values) {
+  let acc = new Dec(CZ, CZ);
+  for (const v of values) acc = acc.add(v);
+  return acc;
+}
+
+// formatHalfUp — the ONLY rounding API (SPEC 3.5). Half-away-from-zero at exact .5.
+// Accepts Dec or Rat; returns a plain decimal string with exactly `places` fractional digits.
+export function formatHalfUp(v, places) {
+  throwOnNumber(v, "formatHalfUp");
+  if (!Number.isInteger(places) || places < 0) throw new TypeError("formatHalfUp: places must be a non-negative integer");
+  const p = BigInt(places);
+  let n, d;
+  if (v instanceof Dec) { n = v.c; d = pow10(v.s); }
+  else if (v instanceof Rat) { n = v.n; d = v.d; }
+  else throw new TypeError("formatHalfUp: value must be Dec or Rat");
+  const neg = n < CZ;
+  const an = neg ? -n : n;
+  const scaled = an * pow10(p);
+  let q = scaled / d;
+  const r = scaled % d;
+  if (r * 2n >= d) q += 1n;
+  let out;
+  if (places === 0) {
+    out = q.toString();
+  } else {
+    const digits = q.toString().padStart(places + 1, "0");
+    out = digits.slice(0, -places) + "." + digits.slice(-places);
+  }
+  return neg && q !== CZ ? "-" + out : out;
+}
+
+// parseJSONExact — JSON.parse that preserves every number literal as source text.
+// Feed prices travel as JSON numeric literals (LiteLLM); JSON.parse would detour
+// them through IEEE-754. This tokenizer quotes unquoted number literals instead,
+// so `5e-8` arrives as the string "5e-8" and Dec.from stays exact.
+export function parseJSONExact(text) {
+  let i = 0;
+  const n = text.length;
+  let out = "";
+  while (i < n) {
+    const ch = text[i];
+    if (ch === '"') {
+      const start = i;
+      i++;
+      while (i < n) {
+        if (text[i] === "\\") i += 2;
+        else if (text[i] === '"') { i++; break; }
+        else i++;
+      }
+      out += text.slice(start, i);
+    } else if (ch === '-' || (ch >= '0' && ch <= '9')) {
+      const start = i;
+      i++;
+      while (i < n && "+-eE.".includes(text[i]) === true) i++;
+      while (i < n && ((text[i] >= '0' && text[i] <= '9'))) i++;
+      const lit = text.slice(start, i);
+      if (!/^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/.test(lit)) {
+        throw new TypeError(`parseJSONExact: malformed number literal ${JSON.stringify(lit)} at offset ${start}`);
+      }
+      out += '"' + lit + '"';
+    } else {
+      out += ch;
+      i++;
+    }
+  }
+  return JSON.parse(out);
+}
+
+export const ZERO = new Dec(CZ, CZ);
+export const ONE = new Dec(1n, CZ);

@@ -46,7 +46,7 @@ const litellm = await fetchJSON(LITELLM_URL);
 if (!litellm || typeof litellm !== "object" || Array.isArray(litellm)) {
   throw new Error("litellm: expected a top-level object keyed by model id");
 }
-const { models: openrouter, firstPageEnvelope, pages } = await fetchOpenRouterAll();
+const { models: openrouter, pages } = await fetchOpenRouterAll();
 
 await mkdir(OUT, { recursive: true });
 

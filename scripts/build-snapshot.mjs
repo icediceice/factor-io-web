@@ -213,7 +213,7 @@ async function main() {
   let feeds;
   if (useSamples) {
     feeds = {
-      openrouter: { ok: true, value: JSON.parse(await readFile(`${SAMPLES_DIR}openrouter-models.json", "utf8")) },
+      openrouter: { ok: true, value: JSON.parse(await readFile(`${SAMPLES_DIR}openrouter-models.json`, "utf8")) },
       litellm: { ok: true, value: parseJSONExact(await readFile(`${SAMPLES_DIR}litellm-cost-map.json`, "utf8")) },
     };
   } else {

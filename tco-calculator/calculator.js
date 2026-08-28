@@ -466,21 +466,60 @@ export function runComparison({
     routingResult.failover = { fallback: fbKind, share: f.share, rate: f.rate, lines: af.lines };
     recommendedTotal = ratStr(af.total);
   } else if (policy === "fixed_split") {
+    // Per-allocation evaluation (peer G4): the pinned shares allocate DEMAND,
+    // and each lane is evaluated ON ITS ALLOCATION — Lane A's fixed cost is
+    // charged exactly once whenever its allocation serves any token. Prorating
+    // a precomputed full-lane total by the share fractionally discounts a fixed
+    // asset: the F7 defect wearing a policy label (50% x $10,000 = $5,000).
     const pinned = routing.pinned; // {a_pct, b_pct, c_pct}
-    let total = ZERO;
+    const aPct = pinned.a_pct ?? 0, bPct = pinned.b_pct ?? 0, cPct = pinned.c_pct ?? 0;
+    const aAlloc = Math.floor((demand * aPct) / 100);
+    const cAlloc = Math.floor((demand * cPct) / 100);
+    const bAlloc = demand - aAlloc - cAlloc; // flooring remainder — no token lost
+    const bReq = bPct > 0 ? reqs - Math.floor((reqs * aPct) / 100) - Math.floor((reqs * cPct) / 100) : 0;
+    let total = new Rat(0n, 1n);
     const lines = [];
-    const part = (pct, laneTotal, lane) => {
-      if (!pct) return;
-      const share = Rat.of(BigInt(pct), 100n);
-      const r = toRat(laneTotal).mul(share);
-      const d = ratToDecExact(r);
-      if (d !== null) total = total.add(d);
-      lines.push({ lane, pct, amount: d === null ? r.toString() : d.toString() });
+    if (aPct > 0 && laneA && laneA.enabled) {
+      const routedA = routeDemandBuckets({
+        demandTokens: aAlloc,
+        monthlyBudget: laneA.monthly_token_budget ?? null,
+        rateCeiling: laneA.tokens_s_ceiling ?? null,
+        buckets: workload.time_buckets ?? null,
+      });
+      if (!routedA.temporal_known) reasons.push("capacity_temporal_unknown");
+      const a = laneAMonthly({
+        fixedMonthly: laneA.fixed_monthly,
+        localTokens: routedA.local,
+        overflowTokens: routedA.overflow,
+        overflowUnitCost: overflowUnit === null ? null : Rat.from(overflowUnit),
+        marginalPerToken: laneA.marginal_per_token ?? null,
+      });
+      if (routedA.overflow > 0 && overflowUnit === null) reasons.push("secondary_lane_unpriced");
+      total = total.add(a.total);
+      for (const l of a.lines) lines.push({ lane: "A", ...l });
+    }
+    if (bPct > 0) {
+      if (bRequestCost === null) reasons.push("lane_b_unpriced");
+      else if (bReq > 0) {
+        const bt = bRequestCost.mul(BigInt(bReq));
+        total = total.add(bt);
+        lines.push({ lane: "B", item: "lane_b_allocated", amount: bt.toString(), note: `${bReq} of ${reqs} requests at the API request cost` });
+      }
+    }
+    if (cPct > 0 && laneC && laneC.enabled) {
+      const c = laneCMonthly({ hourlyRate: laneC.hourly_rate, tokensS: laneC.tokens_s, utilization: laneC.utilization, servedTokens: cAlloc });
+      if (c.out_of_domain) reasons.push("lane_c_zero_utilization_or_capacity");
+      else {
+        total = total.add(c.total);
+        lines.push({ lane: "C", item: "lane_c_hours", amount: ratStr(c.total), note: `${cAlloc} tokens at ${laneC.tokens_s} tok/s x ${laneC.utilization} util` });
+      }
+    }
+    routingResult.pinned = {
+      ...pinned,
+      allocations: { a_tokens: aAlloc, b_tokens: bAlloc, c_tokens: cAlloc, b_requests: bReq },
+      lines,
+      total: ratStr(total),
     };
-    part(pinned.a_pct ?? 0, laneAResult.enabled ? laneAResult.monthly_total : "0", "A");
-    part(pinned.b_pct ?? 0, bMonthly ?? "0", "B");
-    part(pinned.c_pct ?? 0, laneCStandalone.enabled ? laneCStandalone.monthly_total : "0", "C");
-    routingResult.pinned = { ...pinned, lines, total: total.toString() };
     recommendedTotal = routingResult.pinned.total;
     // Non-substituting comparison annotation: the derived optimum + its total.
     if (laneA && laneA.enabled) {

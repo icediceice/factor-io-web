@@ -246,7 +246,8 @@ test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util"
   });
   // hours = 80e6 / (3400 x 0.5) = 47058.8235... = 800000/17 reduced; exact Rat.
   assert.equal(r.lanes.C.hours, "800000/17");
-  const monthly = Rat.from(r.lanes.C.monthly_total);
+  const [mn, md] = r.lanes.C.monthly_total.split("/");
+  const monthly = new Rat(BigInt(mn), BigInt(md));
   assert.ok(monthly.n > 0n);
   // Breakeven vs B is present and exact.
   assert.ok(r.breakeven.lane_C_vs_B.utilization);

@@ -232,9 +232,10 @@ function renderResults(r) {
       ["utilization", String(r.lanes.C.utilization)],
     ];
     const cDigest = [["snapshot digest", state.manifest.snapshot_digest]];
-    const per1mC = r.lanes.C.per_1m.value === null
-      ? "— (" + (r.lanes.C.per_1m_reason ?? "unknown") + ")"
-      : numProv(fmtPer1M(r.lanes.C.per_1m.value), cRows);
+    const cPer1m = r.lanes.C.per_1m ?? { value: null, reason: r.lanes.C.per_1m_reason };
+    const per1mC = cPer1m.value === null || cPer1m.value === undefined
+      ? "— (" + (cPer1m.reason ?? "unknown") + ")"
+      : numProv(fmtPer1M(cPer1m.value), cRows);
     rows.push("<tr><td>Lane C — rented GPU <span class=\"tag tag-est\">assumed rates</span></td>"
       + "<td class=\"n\">" + numProv(money(r.lanes.C.monthly_total), cRows) + "</td>"
       + "<td class=\"n\">" + per1mC + "</td>"

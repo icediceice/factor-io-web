@@ -114,3 +114,52 @@ export class Dec {
 
   toJSON() { return this.toString(); }
 }
+
+export class Rat {
+  constructor(n, d) {
+    if (typeof n !== "bigint" || typeof d !== "bigint") throw new TypeError("Rat: numerator and denominator must be BigInt");
+    if (d === CZ) throw new RangeError("Rat: zero denominator — guard the zero domain at the call site");
+    if (d < CZ) { n = -n; d = -d; }
+    const g = gcd(n, d); // reduce ON CONSTRUCTION — load-bearing for identity (SPEC 10.1)
+    if (g > 1n) { n /= g; d /= g; }
+    this.n = n;
+    this.d = d;
+    Object.freeze(this);
+  }
+
+  static of(n, d) { return new Rat(BigInt(n), BigInt(d)); }
+
+  static from(v) {
+    throwOnNumber(v, "Rat.from");
+    if (v instanceof Rat) return v;
+    if (v instanceof Dec) return new Rat(v.c, pow10(v.s));
+    if (typeof v === "bigint") return new Rat(v, 1n);
+    if (typeof v === "string") return Rat.from(Dec.from(v));
+    throw new TypeError(`Rat.from: unsupported value ${typeof v}`);
+  }
+
+  add(o) { const r = Rat.from(o); return new Rat(this.n * r.d + r.n * this.d, this.d * r.d); }
+  sub(o) { const r = Rat.from(o); return new Rat(this.n * r.d - r.n * this.d, this.d * r.d); }
+  mul(o) { const r = Rat.from(o); return new Rat(this.n * r.n, this.d * r.d); }
+
+  div(o) {
+    const r = Rat.from(o);
+    if (r.n === CZ) throw new RangeError("Rat.div: division by zero — guard the zero domain at the call site");
+    return new Rat(this.n * r.d, this.d * r.n);
+  }
+
+  neg() { return new Rat(-this.n, this.d); }
+  abs() { return this.n < CZ ? this.neg() : this; }
+  isZero() { return this.n === CZ; }
+  sign() { return this.n < CZ ? -1 : this.n === CZ ? 0 : 1; }
+
+  cmp(o) { return cmpMoney(this, o); }
+  eq(o) { return this.cmp(o) === 0; }
+  lt(o) { return this.cmp(o) < 0; }
+  le(o) { return this.cmp(o) <= 0; }
+  gt(o) { return this.cmp(o) > 0; }
+  ge(o) { return this.cmp(o) >= 0; }
+
+  toString() { return `${this.n}/${this.d}`; } // provenance form; display goes through formatHalfUp
+  toJSON() { return this.toString(); }
+}

@@ -212,10 +212,17 @@ async function main() {
   const refreshId = `refresh-${fetchedAt}`;
 
   let previousManifest = null;
+  let previousCatalog = null;
   try {
     previousManifest = JSON.parse(await readFile(MANIFEST_PATH, "utf8"));
+    const prevRef = previousManifest.resources?.catalog;
+    if (prevRef?.kind === "external") {
+      previousCatalog = JSON.parse(await readFile(`${DATA_DIR}${prevRef.path}`, "utf8"));
+    } else if (prevRef?.kind === "inline") {
+      previousCatalog = prevRef.data; // ResourceRef inline variant (v1 union)
+    }
   } catch {
-    // first run — no previous manifest
+    // first run — no previous snapshot
   }
 
   let feeds;

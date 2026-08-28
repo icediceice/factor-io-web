@@ -524,8 +524,8 @@ export function runComparison({
     // Non-substituting comparison annotation: the derived optimum + its total.
     if (laneA && laneA.enabled) {
       const split = derivedLocalFirstSplit({ demandTokens: demand, aMonthlyCapacity: laneA.monthly_token_budget ?? demand });
-      const a = laneAMonthly({ fixedMonthly: laneA.fixed_monthly, localTokens: split.local, overflowTokens: split.overflow, overflowUnitCost: overflowUnit === null ? null : ratToDecExact(Rat.from(overflowUnit)), marginalPerToken: laneA.marginal_per_token ?? null });
-      routingResult.derived_optimum_note = { split: { local_tokens: split.local, overflow_tokens: split.overflow }, total: a.total.toString(), note: "comparison annotation only — the pinned split is never silently replaced (SPEC 2.2)" };
+      const a = laneAMonthly({ fixedMonthly: laneA.fixed_monthly, localTokens: split.local, overflowTokens: split.overflow, overflowUnitCost: overflowUnit === null ? null : Rat.from(overflowUnit), marginalPerToken: laneA.marginal_per_token ?? null });
+      routingResult.derived_optimum_note = { split: { local_tokens: split.local, overflow_tokens: split.overflow }, total: ratStr(a.total), note: "comparison annotation only — the pinned split is never silently replaced (SPEC 2.2)" };
     }
   } else {
     throw new TypeError(`runComparison: unknown routing policy ${policy}`);

@@ -1,0 +1,4 @@
+{
+  "note": "Evidence store ships EMPTY by mandate (SPEC 6.5): the 11,200 and 3,400 tok/s planning figures are operator-packet inputs, externally UNVERIFIED, and MUST NOT ship as evidence rows without a real benchmark citation. Every throughput verdict is honestly unknown until a curated row lands (open decision O4).",
+  "rows": []
+}

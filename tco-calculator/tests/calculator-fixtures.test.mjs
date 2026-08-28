@@ -250,7 +250,8 @@ test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util"
   assert.ok(monthly.n > 0n);
   // Breakeven vs B is present and exact.
   assert.ok(r.breakeven.lane_C_vs_B.utilization);
-  const beUtil = Rat.from(r.breakeven.lane_C_vs_B.utilization);
+  const [bn, bd] = r.breakeven.lane_C_vs_B.utilization.split("/");
+  const beUtil = new Rat(BigInt(bn), BigInt(bd));
   // hourly / (tok_s x bPerToken) = 3 / (3400 x 0.00001) = 3/0.034 = 88.235... (>1, honest)
   assert.equal(formatHalfUp(beUtil, 4), "88.2353");
 });

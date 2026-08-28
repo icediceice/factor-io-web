@@ -425,7 +425,12 @@ export function quoteOffer(offer, req) {
   if (offer.state === "retired") return gap(false, "retired");
 
   const { prices, applied } = effectivePrices(offer, req);
-  if (offer.state === "suspect_missing") reasons.push("price_stale_risk");
+  let clean = true;
+  if (offer.state === "suspect_missing") {
+    // SPEC 4.2 condition 4: an offer outside its healthy state is never exact.
+    clean = false;
+    reasons.push("price_stale_risk");
+  }
   if (offer.expiration_date && req.now != null && Date.parse(offer.expiration_date) <= req.now) {
     return gap(false, "expired");
   }

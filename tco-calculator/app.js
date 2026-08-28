@@ -53,3 +53,85 @@ function renderBanner(fresh) {
     b.classList.remove("show");
   }
 }
+
+// ---------------------------------------------------------- snapshot loading
+async function init() {
+  // UTC hour selector: the quote instant is a DECLARED input (determinism),
+  // never silently wall-clock.
+  const sel = $("f-utc");
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  for (let h = 0; h < 24; h++) {
+    const opt = document.createElement("option");
+    const iso = `${today}T${String(h).padStart(2, "0")}:00:00Z`;
+    opt.value = iso;
+    opt.textContent = `${String(h).padStart(2, "0")}:00 UTC${h === now.getUTCHours() ? " (now)" : ""}`;
+    sel.appendChild(opt);
+  }
+  sel.value = `${today}T${String(now.getUTCHours()).padStart(2, "0")}:00:00Z`;
+
+  try {
+    state.manifest = await loadManifest();
+    renderBanner(freshnessView(state.manifest, Date.now()));
+    await loadPresets();
+    wireS2();
+  } catch (e) {
+    showGap(`the pricing snapshot could not be loaded (${escapeHtml(e.message)}). The calculator shows no numbers without its cited data.`);
+    throw e;
+  }
+}
+
+async function loadPresets() {
+  const res = await fetch("./tco-calculator/data/lane-c-presets.json");
+  state.presets = await res.json();
+  const sel = $("fc-preset");
+  sel.innerHTML = "";
+  for (const p of state.presets.presets) {
+    const opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = `${p.label} — ${money(p.hourly_rate)}/hr (${p.rate_label})`;
+    sel.appendChild(opt);
+  }
+  applyPreset();
+  sel.addEventListener("change", applyPreset);
+}
+
+function applyPreset() {
+  const p = state.presets.presets.find((x) => x.id === $("fc-preset").value);
+  if (!p) return;
+  $("fc-hourly").value = p.hourly_rate;
+  $("fc-toks").value = p.assumed_tok_s_ceiling;
+  $("fc-note").innerHTML = `rate <strong>${p.rate_label}</strong>: ${escapeHtml(p.rate_note)} · tok/s <strong>${p.tok_s_label}</strong> planning placeholder — <strong>not a benchmark</strong>; the throughput verdict stays unknown without real evidence.`;
+}
+
+// Lazy catalog fetch driven by lane/model selection — generation-guarded.
+function wireS2() {
+  $("fb-feed").addEventListener("change", () => fillModels(beginSelection()));
+  $("run").addEventListener("click", run);
+  fillModels(beginSelection());
+}
+
+async function fillModels(sel) {
+  const g = sel.generation;
+  $("fb-model").innerHTML = `<option value="">loading snapshot…</option>`;
+  try {
+    if (!state.catalog) {
+      const cat = await resolveResource(state.manifest, "catalog", sel.signal);
+      if (g !== currentGeneration()) return; // a newer selection superseded this fetch
+      state.catalog = cat;
+      state.catalogGeneration = g;
+    }
+  } catch (e) {
+    if (g !== currentGeneration()) return;
+    $("fb-model").innerHTML = `<option value="">unavailable</option>`;
+    showGap(`model pricing could not be loaded after a bounded retry (${escapeHtml(e.message)}). Showing a gap, never stale prices.`);
+    return;
+  }
+  const feed = $("fb-feed").value;
+  const models = state.manifest.models.filter((m) => m.id.startsWith(`${feed}:`) && m.state !== "quarantined");
+  const byName = [...models].sort((a, b) => a.name.localeCompare(b.name));
+  $("fb-model").innerHTML = byName.map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`).join("");
+  const cur = byName.find((m) => /gpt-4o/.test(m.id)) ?? byName.find((m) => /claude/.test(m.id)) ?? byName[0];
+  if (cur) $("fb-model").value = cur.id;
+  $("fb-model-note").textContent = `${models.length} models · snapshot ${state.manifest.snapshot_digest} · generated ${state.manifest.generated_at}`;
+}

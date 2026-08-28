@@ -180,6 +180,7 @@ export function compileLiteLLMEntry(key, entry) {
 
   for (const [k, v] of Object.entries(entry)) {
     if (k === "tiered_pricing") continue;
+    if (LITELLM_METADATA.test(k)) continue;
     const cls = classifyLiteLLMField(k);
     if (cls.kind === "meter") {
       const p = priceString(v);

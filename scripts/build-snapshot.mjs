@@ -166,11 +166,21 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
   for (const [offerId, prev] of prevState) {
     if (offers[offerId]) continue;
     const prefix = offerId.split(":")[0];
+    const prevOffer = previousCatalog?.offers?.[offerId] ?? null;
     if (sourceRecords[prefix]?.status === "error") {
+      // Source outage: absence is not evidence. The last-good PAYLOAD carries
+      // over unchanged — a failed refresh never destroys the last good quote;
+      // the risk lives at the source level (F5 banner), not per-offer (G3).
+      if (prevOffer) offers[offerId] = { ...prevOffer };
       offersState.push({ offer_id: offerId, state: prev.state, missing_streak: prev.missing_streak ?? 0 });
       continue;
     }
+    // First/second omission on a healthy source: the offer advances toward
+    // retirement AND stays quotable from its carried payload (quoteOffer flags
+    // suspect_missing inexact with price_stale_risk). State bookkeeping without
+    // the payload made suspect_missing/resilience unreachable (peer G3).
     const next = nextState(prev.state, { present: false, missingStreak: prev.missing_streak ?? 0 });
+    if (prevOffer) offers[offerId] = { ...prevOffer, state: next.state, missing_streak: next.missing_streak };
     offersState.push({ offer_id: offerId, state: next.state, missing_streak: next.missing_streak });
   }
 

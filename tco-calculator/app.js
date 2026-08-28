@@ -196,7 +196,8 @@ function run() {
       ].filter((c) => Dec.from(c.amount).sign() > 0),
     };
 
-    state.result = runComparison({ workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay, evidenceRows: [] });
+    state.inputs = { workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay };
+    state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
   } catch (e) {
     const where = String(e.stack ?? "").split("\n").slice(1, 6).join(" | ");

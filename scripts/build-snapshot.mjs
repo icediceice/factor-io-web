@@ -113,12 +113,6 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
   }
 
   // --- Per-source SourceStatus envelopes FIRST (the state machine consults them).
-  const sourceRecords = {};
-  const sourceOffers = { openrouter: [], litellm: [] };
-  for (const offerId of Object.keys(offers)) {
-    const prefix = offerId.slice(0, offerId.indexOf(" :") + 0) || offerId.split(":")[0];
-    void prefix;
-  }
   for (const [sourceId, cfg] of Object.entries(SOURCES)) {
     const prev = prevSources[sourceId] ?? null;
     const ok = feeds[sourceId]?.ok === true;

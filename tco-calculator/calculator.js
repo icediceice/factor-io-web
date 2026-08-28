@@ -134,8 +134,8 @@ export function laneCMonthly({ hourlyRate, tokensS, utilization, servedTokens })
   if (u.isZero() || tokensS === null || tokensS <= 0) {
     return { total: ZERO, hours: Rat.of(0n, 1n), lines: [], out_of_domain: "zero_utilization_or_capacity" };
   }
-  // hours = servedTokens / (tokensS x util)
-  const hours = Rat.of(BigInt(servedTokens) * u.d, u.n * BigInt(tokensS));
+  // hours = servedTokens / (tokensS x util x 3600) — tokensS is per SECOND.
+  const hours = Rat.of(BigInt(servedTokens) * u.d, u.n * BigInt(tokensS) * 3600n);
   const total = Rat.from(hourlyRate).mul(hours);
   return { total, hours, lines: [{ item: "lane_c_hours", amount: total.toString(), note: `hourly x ${hours.toString()}h` }] };
 }

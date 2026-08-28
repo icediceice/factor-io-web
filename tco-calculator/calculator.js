@@ -283,7 +283,7 @@ export function tcoCurve(laneMonthlyTotals, horizonMonths) {
   for (let m = 1; m <= horizonMonths; m++) {
     const row = { month: m };
     for (const [lane, t] of Object.entries(laneMonthlyTotals)) {
-      row[lane] = Dec.from(t).mul(BigInt(m)).toString();
+      row[lane] = ratStr(toRat(t).mul(Rat.of(BigInt(m), 1n)));
     }
     points.push(row);
   }

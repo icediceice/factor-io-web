@@ -295,6 +295,14 @@ function renderResults(r) {
   renderSensitivity();
 }
 
+const coerce = (v) => {
+  if (v instanceof Dec || v instanceof Rat) return v;
+  const s = String(v);
+  const m = /^(-?\d+)\/(\d+)$/.exec(s);
+  return m ? new Rat(BigInt(m[1]), BigInt(m[2])) : Dec.from(s);
+};
+const fmt = (v, places) => (v === null || v === undefined ? "—" : formatHalfUp(coerce(v), places));
+
 const fmtPer1M = (v) => {
   if (v === null || v === undefined) return "—";
   if (v instanceof Rat || v instanceof Dec) return formatHalfUp(v, 6);

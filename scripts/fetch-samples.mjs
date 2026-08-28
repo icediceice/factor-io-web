@@ -36,7 +36,7 @@ async function fetchOpenRouterAll() {
   if (Number.isFinite(total) && models.length !== total) {
     throw new Error(`openrouter: truncated list — fetched ${models.length} of total_count ${total}`);
   }
-  return { models, firstPageEnvelope, pages };
+  return { models, pages };
 }
 
 const LITELLM_URL =

@@ -128,3 +128,206 @@ export function classifyLiteLLMField(key) {
   }
   return { kind: "ignored" };
 }
+
+// ------------------------------------------------------------- offer assembly
+// Every admitted offer resolves to exactly one member of the tariff union
+// (SPEC 3.2). v0.1 admits chat/completion entries as token tariffs; entries that
+// admit but resolve to no member are quarantined with the reason preserved.
+const priceString = (v) => {
+  if (v === null || v === undefined) return null;
+  if (typeof v === "number") throw new TypeError("pricing: numeric feed value reached the compiler — parse feeds with parseJSONExact");
+  const d = Dec.from(String(v));
+  return d.toString();
+};
+
+function emptyOffer(identity) {
+  return {
+    ...identity,
+    tariff: "none",
+    state: "active",
+    quarantine_reason: null,
+    missing_streak: 0,
+    expiration_date: null,
+    prices: {},
+    overrides: [],
+    multipliers: {},
+    tiered: [],
+    ignored_fields: [],
+    unknown_meter_fields: [],
+    provenance: { source: identity.seller_source, logs: [] },
+  };
+}
+
+export function compileLiteLLMEntry(key, entry) {
+  const provider = typeof entry.litellm_provider === "string" && entry.litellm_provider
+    ? entry.litellm_provider
+    : (key.includes("/") ? key.split("/")[0] : "unknown");
+  const offer = emptyOffer({
+    offer_id: `litellm:${key}`,
+    seller: provider,
+    seller_source: "litellm",
+    channel: "api",
+    product: key, // the map key is the canonical slug — never a display name
+    region: "*",
+    purchase_term: "on_demand",
+    display_name: key,
+  });
+  offer.ingest_mode = typeof entry.mode === "string" ? entry.mode : null;
+
+  for (const [k, v] of Object.entries(entry)) {
+    if (k === "tiered_pricing") continue;
+    const cls = classifyLiteLLMField(k);
+    if (cls.kind === "meter") {
+      const p = priceString(v);
+      if (p !== null) offer.prices[cls.key] = p;
+    } else if (cls.kind === "uplift") {
+      const p = priceString(v);
+      if (p !== null) offer.multipliers[cls.key] = p;
+    } else if (cls.kind === "stem_unknown") {
+      offer.unknown_meter_fields.push({ key: k, stem: cls.stem });
+    } else {
+      offer.ignored_fields.push(k); // rule 1: ignore + log, offer stays active
+    }
+  }
+
+  // tiered_pricing[] — range array; each range becomes threshold meters on the
+  // range LOWER bound (strictly greater, uniform with the threshold grammar).
+  // An unrecognized condition inside one tier entry skips THAT ENTRY only (rule 2).
+  if (Array.isArray(entry.tiered_pricing)) {
+    entry.tiered_pricing.forEach((tier, i) => {
+      if (!tier || typeof tier !== "object" || !Array.isArray(tier.range) || tier.range.length !== 2
+        || !Number.isFinite(tier.range[0])) {
+        offer.provenance.logs.push({ rule: "tier_entry_skipped", index: i, reason: "unrecognized_tier_shape" });
+        return;
+      }
+      const lo = tier.range[0];
+      for (const [k, v] of Object.entries(tier)) {
+        if (k === "range") continue;
+        const cls = classifyLiteLLMField(k);
+        if (cls.kind === "meter") {
+          const p = priceString(v);
+          if (p !== null) offer.prices[meterKey({ stem: cls.stem, threshold: lo > 0 ? lo : null, tier: `range${i}` })] = p;
+        } else {
+          offer.provenance.logs.push({ rule: "tier_entry_skipped", index: i, reason: `unrecognized_tier_field:${k}` });
+          return;
+        }
+      }
+    });
+  }
+
+  finishAdmission(offer);
+  return offer;
+}
+
+// OpenRouter recognized base pricing keys — SPEC 3.1 inventory.
+const OPENROUTER_KEY_MAP = {
+  prompt: { stem: "input" },
+  completion: { stem: "output" },
+  input_cache_read: { stem: "cache_read" },
+  input_cache_write: { stem: "cache_write" },
+  request: { stem: "request", per: "request" },
+  internal_reasoning: { stem: "reasoning" },
+  web_search: { stem: "web_search", per: "call" },
+  image: { stem: "image_in" },
+  image_output: { stem: "image_out" },
+  audio: { stem: "audio_in" },
+  audio_output: { stem: "audio_out" },
+  input_cache_write_1h: { stem: "cache_write", cacheAge: "1hr" },
+};
+const OVERRIDE_CONDITION_KEYS = new Set(["min_prompt_tokens", "utc_days", "utc_start", "utc_end"]);
+
+function openRouterMeterKey(stemSpec, extra = {}) {
+  return meterKey({ stem: stemSpec.stem, cacheAge: stemSpec.cacheAge ?? null, tier: "std", ...extra });
+}
+
+export function compileOpenRouterModel(model) {
+  const offer = emptyOffer({
+    offer_id: `openrouter:${model.canonical_slug ?? model.id}`,
+    seller: "openrouter",
+    seller_source: "openrouter",
+    channel: "api",
+    product: model.canonical_slug ?? model.id, // canonical slug — never the display name (F9)
+    region: "*",
+    purchase_term: "on_demand",
+    display_name: model.name ?? model.id,
+  });
+  offer.ingest_mode = "chat";
+  if (typeof model.expiration_date === "string" && model.expiration_date) {
+    offer.expiration_date = model.expiration_date; // direct retirement signal
+  }
+
+  const pricing = model.pricing ?? {};
+  for (const [k, v] of Object.entries(pricing)) {
+    if (k === "overrides") continue;
+    const spec = OPENROUTER_KEY_MAP[k];
+    if (!spec) { offer.ignored_fields.push(`pricing.${k}`); continue; } // rule 1
+    const p = priceString(v);
+    if (p !== null) offer.prices[openRouterMeterKey(spec)] = p;
+  }
+
+  // pricing.overrides[] — structured conditional entries. Unrecognized CONDITION
+  // field skips THAT ENTRY ONLY, offer survives (rule 2 — the vendor consumer
+  // contract); unrecognized PRICE key inside an entry is dropped from the entry
+  // (that key inherits the base price) and logged.
+  if (Array.isArray(pricing.overrides)) {
+    pricing.overrides.forEach((entry, i) => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+        offer.provenance.logs.push({ rule: "override_entry_skipped", index: i, reason: "not_an_object" });
+        return;
+      }
+      const conditions = {};
+      const prices = {};
+      let bad = false;
+      for (const [k, v] of Object.entries(entry)) {
+        if (OVERRIDE_CONDITION_KEYS.has(k)) {
+          if (k === "min_prompt_tokens") {
+            if (!Number.isFinite(v)) { bad = true; break; }
+            conditions.min_prompt_tokens = v;
+          } else if (k === "utc_days") {
+            if (!Array.isArray(v) || !v.every((d) => typeof d === "string")) { bad = true; break; }
+            conditions.utc_days = [...v];
+          } else {
+            if (!Number.isFinite(v)) { bad = true; break; }
+            conditions[k] = v;
+          }
+        } else {
+          const spec = OPENROUTER_KEY_MAP[k];
+          if (!spec) {
+            offer.provenance.logs.push({ rule: "override_price_key_dropped", index: i, key: k });
+            continue;
+          }
+          const p = priceString(v);
+          if (p !== null) prices[openRouterMeterKey(spec)] = p;
+        }
+      }
+      if (bad) {
+        offer.provenance.logs.push({ rule: "override_entry_skipped", index: i, reason: "unrecognized_condition_field" });
+        return; // rule 2: skip the entry, keep the offer
+      }
+      if (Object.keys(prices).length === 0) {
+        offer.provenance.logs.push({ rule: "override_entry_skipped", index: i, reason: "no_recognized_price_keys" });
+        return;
+      }
+      offer.overrides.push({ conditions, prices });
+    });
+  }
+
+  finishAdmission(offer);
+  return offer;
+}
+
+// Admission: resolve the tariff union member; quarantine when none fits.
+function finishAdmission(offer) {
+  const hasToken = Object.keys(offer.prices).some((k) => TOKEN_STEMS.has(parseMeterKey(k).stem));
+  const hasCharacter = Object.keys(offer.prices).some((k) => {
+    const stem = parseMeterKey(k).stem;
+    return stem === "char_in" || stem === "char_out";
+  });
+  if (hasToken) offer.tariff = "token";
+  else if (hasCharacter) offer.tariff = "character";
+  else {
+    offer.tariff = "none";
+    offer.state = "quarantined";
+    offer.quarantine_reason = "no_tariff_resolution";
+  }
+}

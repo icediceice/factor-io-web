@@ -137,7 +137,7 @@ export function laneCMonthly({ hourlyRate, tokensS, utilization, servedTokens })
   // hours = servedTokens / (tokensS x util x 3600) — tokensS is per SECOND.
   const hours = Rat.of(BigInt(servedTokens) * u.d, u.n * BigInt(tokensS) * 3600n);
   const total = Rat.from(hourlyRate).mul(hours);
-  return { total, hours, lines: [{ item: "lane_c_hours", amount: total.toString(), note: `hourly x ${hours.toString()}h` }] };
+  return { total, hours, lines: [{ item: "lane_c_hours", amount: ratStr(total), note: `hourly x ${hours.toString()}h` }] };
 }
 
 // ------------------------------------------------------- routing: local_first

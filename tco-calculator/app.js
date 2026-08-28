@@ -268,6 +268,10 @@ function renderResults(r) {
       + "<td class=\"n\">" + numProv(money(r.curve[0].C), cDigest) + "</td></tr>");
   }
 
+  // The recommendation is a rendered number, not only hidden JSON (peer G8):
+  // the F7 optimum must be visible as the policy's recommended TCO.
+  const rec = (r.routing_result.recommended_monthly_total === null || r.routing_result.recommended_monthly_total === undefined) ? "" :
+    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Recommended — ${escapeHtml(r.policy)}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ["snapshot digest", state.manifest.snapshot_digest]])}<span class="muted" style="font-size:.85rem"> / month at the entered workload</span></div></div>`;
   const adv = r.routing_result.advisory
     ? `<p class="muted">Advisory blend ${money(r.routing_result.advisory.total)} — <strong>${escapeHtml(r.routing_result.advisory.status)}</strong>${r.routing_result.advisory.delta ? ` (delta ${money(r.routing_result.advisory.delta)})` : ""}. ${escapeHtml(r.routing_result.advisory.note)}</p>`
     : "";

@@ -75,9 +75,9 @@ test("F7 arithmetic check: advisory blend cost function directly", () => {
   });
   assert.equal(adv.local_tokens, 56000000);
   assert.equal(adv.overflow_tokens, 24000000);
-  assert.equal(adv.total.toString(), "10000.24");
+  assert.equal(adv.total.toString(), "10240");
   const delta = adv.total.sub(Dec.from("10000"));
-  assert.equal(formatHalfUp(delta, 2), "0.24");
+  assert.equal(formatHalfUp(delta, 2), "240.00");
 });
 
 test("rate ceiling binds through buckets: 80M over 4 days at 100 tok/s overflows at 45.44M", () => {

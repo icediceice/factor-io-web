@@ -190,8 +190,8 @@ test("fixed_split: pinned split computed exactly, derived optimum attached as an
     laneB: F7_LANE_B,
     routing: { policy: "fixed_split", pinned: { a_pct: 50, b_pct: 50 } },
   });
-  assert.equal(r.routing_result.pinned.total, "5000.4"); // 5000 + 0.4
-  assert.equal(r.routing_result.recommended_monthly_total, "5000.4");
+  assert.equal(r.routing_result.pinned.total, "5400"); // 50% x 10000 + 50% x 800
+  assert.equal(r.routing_result.recommended_monthly_total, "5400");
   assert.ok(r.routing_result.derived_optimum_note);
   assert.equal(r.routing_result.derived_optimum_note.total, "10000");
   assert.match(r.routing_result.derived_optimum_note.note, /never silently replaced/);

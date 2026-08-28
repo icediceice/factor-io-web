@@ -48,13 +48,13 @@ async function fetchText(url) {
   return res.text();
 }
 
-async function fetchOpenRouterAll() {
+async function fetchOpenRouterAllText() {
   const models = [];
   let url = "https://openrouter.ai/api/v1/models";
   let totalCount = null;
   let pages = 0;
   while (url) {
-    const page = await fetchJSON(url);
+    const page = parseJSONExact(await fetchText(url));
     if (!page || !Array.isArray(page.data)) throw new Error("openrouter: unexpected envelope shape");
     if (totalCount === null) totalCount = page.total_count;
     models.push(...page.data);

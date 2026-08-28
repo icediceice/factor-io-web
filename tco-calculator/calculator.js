@@ -400,8 +400,7 @@ export function runComparison({
       monthly_total: m.total.toString(),
       per_token: perTok.value === null ? null : perTok.value.toString(),
       per_token_reason: perTok.reason,
-      per_1m: pm.value === null ? null : pm.value.toString(),
-      per_1m_reason: pm.reason,
+      per_1m: { value: pm.value === null ? null : pm.value.toString(), reason: pm.reason },
       lines: m.lines,
     };
   })();

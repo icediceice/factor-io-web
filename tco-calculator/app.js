@@ -287,10 +287,13 @@ function renderResults(r) {
   renderSensitivity();
 }
 
-const fmtPer1M = (ratStr) => {
-  const m = /^(-?\d+)\/(\d+)$/.exec(String(ratStr));
-  const v = m ? new Rat(BigInt(m[1]), BigInt(m[2])) : Dec.from(String(ratStr));
-  return formatHalfUp(v, 6);
+const fmtPer1M = (v) => {
+  if (v === null || v === undefined) return "—";
+  if (v instanceof Rat || v instanceof Dec) return formatHalfUp(v, 6);
+  const s = String(v);
+  const m = /^(-?\d+)\/(\d+)$/.exec(s);
+  if (m) return formatHalfUp(new Rat(BigInt(m[1]), BigInt(m[2])), 6);
+  return formatHalfUp(Dec.from(s), 6);
 };
 
 function renderCurve(curve) {

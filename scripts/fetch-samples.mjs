@@ -56,8 +56,6 @@ await writeFile(new URL("litellm-cost-map.json", OUT), litBytes);
 const orBytes = Buffer.from(JSON.stringify(openrouter));
 await writeFile(new URL("openrouter-models.json", OUT), orBytes);
 
-const page1Bytes = Buffer.from(JSON.stringify(firstPageEnvelope));
-await writeFile(new URL("openrouter-page1-envelope.json", OUT), page1Bytes);
 
 const sha = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 console.log(

@@ -331,3 +331,193 @@ function finishAdmission(offer) {
     offer.quarantine_reason = "no_tariff_resolution";
   }
 }
+
+// ---------------------------------------------------------- quote resolution
+// Predicates resolve against the REQUEST being quoted, never fetch state
+// (SPEC 4.3). The quote instant for time-windowed overrides arrives as
+// quote_utc (ms epoch) — the workload owns it, deterministically.
+export const DAY_MS = 86400000;
+
+function utcMinutesDay(t) {
+  const d = new Date(t);
+  return { day: d.toISOString().slice(0, 3).toLowerCase(), hhmm: d.getUTCHours() * 100 + d.getUTCMinutes() };
+}
+
+function windowMatch(t, start, end) {
+  // Wrap-aware: t >= start || t < end; start inclusive, end exclusive.
+  // A plain in-range window start < end satisfies the same expression:
+  // t>=start || t<end is false exactly on start <= t < end being violated... (see tests)
+  const { hhmm } = utcMinutesDay(t);
+  if (start === null && end === null) return true;
+  if (start === null) return hhmm < end;
+  if (end === null) return hhmm >= start;
+  return hhmm >= start || hhmm < end;
+}
+
+export function overrideMatches(conditions, req) {
+  if (conditions.min_prompt_tokens !== undefined && !(req.prompt_tokens > conditions.min_prompt_tokens)) return false;
+  if (conditions.utc_start !== undefined || conditions.utc_end !== undefined) {
+    if (req.quote_utc == null) return false; // cannot resolve — caller flags the quote inexact
+    if (!windowMatch(req.quote_utc, conditions.utc_start ?? null, conditions.utc_end ?? null)) return false;
+  }
+  if (conditions.utc_days !== undefined) {
+    if (req.quote_utc == null) return false;
+    if (!conditions.utc_days.includes(utcMinutesDay(req.quote_utc).day)) return false;
+  }
+  return true;
+}
+
+function effectivePrices(offer, req) {
+  const prices = { ...offer.prices };
+  const applied = [];
+  offer.overrides.forEach((entry, i) => {
+    if (!overrideMatches(entry.conditions, req)) return;
+    applied.push(i);
+    for (const [k, v] of Object.entries(entry.prices)) prices[k] = v; // later entries win PER KEY
+  });
+  return { prices, applied };
+}
+
+function selectMeter(prices, stem, req) {
+  // Candidates for the stem; threshold selection resolves on the request PROMPT
+  // length (SPEC 4.3) and is STRICTLY GREATER, uniformly across feeds.
+  const candidates = [];
+  for (const k of Object.keys(prices)) {
+    const m = parseMeterKey(k);
+    if (m.stem !== stem) continue;
+    candidates.push({ key: k, ...m });
+  }
+  if (candidates.length === 0) return { key: null, note: null };
+  const tier = req.tier ?? "std";
+  let pool = candidates.filter((c) => c.tier === tier);
+  let note = null;
+  if (pool.length === 0 && tier !== "std") {
+    pool = candidates.filter((c) => c.tier === "std");
+    if (pool.length > 0) note = "tier_fallback";
+  }
+  if (pool.length === 0) return { key: null, note: null };
+  const applicable = pool.filter((c) => c.threshold === null || (req.prompt_tokens > c.threshold));
+  if (applicable.length === 0) return { key: null, note: "threshold_unmet" };
+  applicable.sort((a, b) => (b.threshold ?? -1) - (a.threshold ?? -1)); // largest qualifying threshold wins
+  // Range tiers (tiered_pricing) carry explicit tier=rangeN selectors; they only
+  // reach here through the caller-provided tier name, so base selection is stable.
+  return { key: applicable[0].key, note };
+}
+
+// Quote a token-tariff offer for one request shape. All quantities are integers
+// (token counts); money math is Dec throughout; the cost is a Decimal.
+export function quoteOffer(offer, req) {
+  const reasons = [];
+  const gap = (servable, gapReason) => ({ servable, gap_reason: gapReason, reasons: [], meters: [], applied_overrides: [], cost: null });
+  if (offer.state === "quarantined") return gap(false, `quarantined:${offer.quarantine_reason ?? "unknown"}`);
+  if (offer.tariff !== "token") return gap(false, `tariff:${offer.tariff}`);
+  if (offer.state === "retired") return gap(false, "retired");
+
+  const { prices, applied } = effectivePrices(offer, req);
+  if (offer.state === "suspect_missing") reasons.push("price_stale_risk");
+  if (offer.expiration_date && req.now != null && Date.parse(offer.expiration_date) <= req.now) {
+    return gap(false, "expired");
+  }
+
+  const consumed = [
+    ["input", req.prompt_tokens],
+    ["output", req.output_tokens],
+    ["cache_read", req.cache_read_tokens ?? 0],
+    ["cache_write", req.cache_write_tokens ?? 0],
+    ["request", req.request_count ?? 1],
+  ].filter(([, qty]) => qty > 0);
+
+  // Rule 3: an unknown stem-suffix field quarantines the quote only when it
+  // bears on a meter this quote actually selects.
+  const selectedStems = new Set(consumed.map(([stem]) => stem));
+  const unknowns = offer.unknown_meter_fields.filter((u) => selectedStems.has(u.stem));
+  if (unknowns.length > 0) {
+    return gap(false, `quarantined:meter_affecting_unknown:${unknowns[0].key}`);
+  }
+
+  const meters = [];
+  let cost = ZERO;
+  let clean = true;
+  for (const [stem, qty] of consumed) {
+    const sel = selectMeter(prices, stem, req);
+    if (sel.key === null) {
+      clean = false;
+      reasons.push(sel.note === "threshold_unmet" ? "extrapolated_shape" : "extrapolated_shape");
+      meters.push({ meter: stem, selected_key: null, unit_price: null, quantity: qty, note: sel.note ?? "no_tariff_coverage" });
+      continue;
+    }
+    if (sel.note === "tier_fallback") {
+      clean = false;
+      reasons.push("extrapolated_shape");
+    }
+    const unit = Dec.from(prices[sel.key]);
+    const line = unit.mul(BigInt(qty));
+    cost = cost.add(line);
+    meters.push({ meter: stem, selected_key: sel.key, unit_price: prices[sel.key], quantity: qty, line_cost: line.toString() });
+  }
+
+  // Time-windowed overrides present but no quote instant supplied: predicates
+  // did not resolve cleanly (SPEC 4.2 condition 3).
+  if (req.quote_utc == null && offer.overrides.some((o) => o.conditions.utc_start !== undefined || o.conditions.utc_end !== undefined || o.conditions.utc_days !== undefined)) {
+    clean = false;
+    reasons.push("extrapolated_shape");
+  }
+
+  return {
+    servable: true,
+    gap_reason: null,
+    exact: clean,
+    reasons: [...new Set(reasons)],
+    meters,
+    applied_overrides: applied,
+    cost: cost.toString(),
+  };
+}
+
+// ------------------------------------------------------- offer state machine
+// active -> suspect_missing -> retired on consecutive absence; reappearing
+// revives suspect_missing; quarantine is entered by rule and left by review.
+export function nextState(prevState, { present = true, missingStreak = 0, quarantined = false } = {}) {
+  if (quarantined) return { state: "quarantined", missing_streak: 0 };
+  if (present) return { state: prevState === "suspect_missing" || prevState === "active" ? "active" : prevState, missing_streak: 0 };
+  const streak = missingStreak + 1;
+  if (prevState === "retired" || prevState === "quarantined") return { state: prevState, missing_streak: streak };
+  if (streak >= N_CONSECUTIVE_RETIRE) return { state: "retired", missing_streak: streak };
+  return { state: "suspect_missing", missing_streak: streak };
+}
+
+// --------------------------------------------------------------- freshness
+// Derived ONLY from per-source data age (SPEC 5.2). Commit and cron timestamps
+// are never evidence (SPEC 5.4, KB 1542498870259617795).
+export function sourceVerdict(source, now) {
+  if (!source || source.status === "error") return "error";
+  if (!source.observed_at || !source.expires_at) return "error";
+  const exp = Date.parse(source.expires_at);
+  const obs = Date.parse(source.observed_at);
+  if (!Number.isFinite(exp) || !Number.isFinite(obs)) return "error";
+  if (now >= exp) return "expired";
+  const ttl = exp - obs;
+  if (now >= obs + (ttl * 3) / 5) return "stale"; // approaching the envelope
+  return "fresh";
+}
+
+// Banner payload for consumed sources past their envelope (SPEC 5.5, fixture F5).
+export function staleBanner(sources, now) {
+  const offending = Object.values(sources ?? {}).filter((s) => sourceVerdict(s, now) === "expired");
+  if (offending.length === 0) return null;
+  return {
+    level: "STALE PRICING",
+    sources: offending.map((s) => ({ source_id: s.source_id, observed_at: s.observed_at, expires_at: s.expires_at })),
+  };
+}
+
+export function newestObservedAt(sources) {
+  let newest = null;
+  for (const s of Object.values(sources ?? {})) {
+    const t = s?.observed_at ? Date.parse(s.observed_at) : NaN;
+    if (Number.isFinite(t) && (newest === null || t > newest)) newest = t;
+  }
+  return newest === null ? null : new Date(newest).toISOString();
+}
+
+export { Rat };

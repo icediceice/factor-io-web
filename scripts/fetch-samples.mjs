@@ -63,7 +63,6 @@ console.log(
     {
       litellm: { models: Object.keys(litellm).length, bytes: litBytes.length, sha: sha(litBytes) },
       openrouter: { models: openrouter.length, bytes: orBytes.length, pages, sha: sha(orBytes) },
-      openrouter_page1_envelope: { bytes: page1Bytes.length },
     },
     null,
     2,

@@ -310,8 +310,8 @@ test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util"
     laneC: { enabled: true, tokens_s: 3400, hourly_rate: "3.00", utilization: "0.5" },
     routing: { policy: "api_first", failover: { fallback: "C", share: "0", rate: "1" } },
   });
-  // hours = 80e6 / (3400 x 0.5) = 47058.8235... = 800000/17 reduced; exact Rat.
-  assert.equal(r.lanes.C.hours, "800000/17");
+  // hours = 80e6 / (3400 x 0.5 x 3600 s/h) = 13.07... = 2000/153 reduced; exact Rat.
+  assert.equal(r.lanes.C.hours, "2000/153");
   const [mn, md] = r.lanes.C.monthly_total.split("/");
   const monthly = new Rat(BigInt(mn), BigInt(md));
   assert.ok(monthly.n > 0n);
@@ -319,6 +319,6 @@ test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util"
   assert.ok(r.breakeven.lane_C_vs_B.utilization);
   const [bn, bd] = r.breakeven.lane_C_vs_B.utilization.split("/");
   const beUtil = new Rat(BigInt(bn), BigInt(bd));
-  // hourly / (tok_s x bPerToken) = 3 / (3400 x 0.00001) = 3/0.034 = 88.235... (>1, honest)
-  assert.equal(formatHalfUp(beUtil, 4), "88.2353");
+  // util* = hourly / (tok_s x 3600 x bPerToken) = 3 / (3400 x 3600 x 0.00001) = 5/204 (0.0245, honest)
+  assert.equal(formatHalfUp(beUtil, 4), "0.0245");
 });

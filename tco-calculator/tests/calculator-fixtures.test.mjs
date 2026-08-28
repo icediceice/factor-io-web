@@ -244,8 +244,8 @@ test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util"
     laneC: { enabled: true, tokens_s: 3400, hourly_rate: "3.00", utilization: "0.5" },
     routing: { policy: "api_first", failover: { fallback: "C", share: "0", rate: "1" } },
   });
-  // hours = 80e6 / (3400 x 0.5) = 47058.8235294...; the TOTAL is Rat 3 x that.
-  assert.equal(r.lanes.C.hours, "470588235294117647/10000000000000");
+  // hours = 80e6 / (3400 x 0.5) = 47058.8235... = 800000/17 reduced; exact Rat.
+  assert.equal(r.lanes.C.hours, "800000/17");
   const monthly = Rat.from(r.lanes.C.monthly_total);
   assert.ok(monthly.n > 0n);
   // Breakeven vs B is present and exact.

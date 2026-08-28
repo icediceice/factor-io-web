@@ -248,7 +248,7 @@ export function matchEvidence(rows, config, requiredP95) {
 // ---------------------------------------------------------- commercial overlay
 // Applied LAST (SPEC 4.5/7): always itemized, never folded into unit prices.
 // Rates are operator-entered at runtime; nothing here ships a rate card.
-export function applyOverlay({ laneTotals, horizonMonths, components, fullyLoaded }) {
+export function applyOverlay({ laneTotals, horizonMonths, components, fullyLoaded }) { // overlay LAST (SPEC 4.5)
   const itemized = [];
   let overlayTotal = ZERO;
   for (const c of components ?? []) {

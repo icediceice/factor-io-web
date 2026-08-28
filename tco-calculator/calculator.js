@@ -1,9 +1,11 @@
 // calculator.js — lane math, routing policies, capacity ceilings, breakeven,
 // evidence-gated throughput, commercial overlay (SPEC §2, §6, §7).
 //
-// Every quotient here is a Rational; every total is a Decimal. Lane A's fixed
-// cost is charged exactly once whenever it serves >= 1 token — never blended
-// back into per-token prices (that is the F7 defect).
+// Every quotient here is a Rational; every lane total is exact MONEY (Decimal
+// when it terminates, Rational when it does not) serialized through ratStr at
+// the boundary — never a null, never a dropped line (peer verify G7). Lane A's
+// fixed cost is charged exactly once whenever it serves >= 1 token — never
+// blended back into per-token prices or prorated by a routing share (F7/G4).
 //
 // Routing applies BOTH Lane-A ceilings (SPEC 6.2): a monthly token budget AND a
 // tok/s rate ceiling. Rate ceilings bind through time buckets:

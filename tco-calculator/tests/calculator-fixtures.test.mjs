@@ -11,6 +11,7 @@ import {
   matchEvidence,
   applyOverlay,
   advisoryBlendCost,
+  ratStr,
 } from "../calculator.js";
 
 // The F7 anchor (SPEC 2.3): Lane A 100M tok/mo capacity at $10,000/mo fixed,

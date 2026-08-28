@@ -1,20 +1,20 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-08-27 15:55 (light-tools page + SEO/AEO/GEO crawl layer shipped)
+> Last updated: 2026-08-28 06:10 (AI inference TCO calculator shipped — engine, snapshot, client, fixtures F1–F10)
 
 ## Current Focus
 
-Discoverability: light-tools now has a dedicated static page and the site has a real crawl layer (robots/sitemap/llms.txt) plus raw-HTML metadata. Next up is the AI inference TCO calculator — spec v0.1 written, implementation phases P1–P5 pending per SPEC §12.2.
+The AI inference TCO calculator (SPEC v0.1) is implemented and locally verified end to end: decimal-exact engine, frozen-feed contract tests, live pricing snapshot, zero-build client page, and browser-verified S1–S4 flows. Remaining work is operational: snapshot refresh automation, evidence ingestion for Lane C measured rates, feed TTL calibration.
 
 ## Task Queue
 
 Upcoming work in priority order:
 
+- [ ] Snapshot refresh automation (scheduled rebuild + staleness banner is already client-side; needs a cron/keepalive publisher per SPEC §5.6 — commit timestamps are never freshness evidence)
+- [ ] Evidence ingestion: replace the empty evidence store with cited measured tok/s rows (all-dimensions match rule) and re-verify Lane C presets against vendor pages
+- [ ] Calibrate feed TTLs and N_CONSECUTIVE_RETIRE against real feed update cadence (SPEC §5.1 defaults are [ASSUMED])
 - [ ] Define tech stack and scaffold project source code
-- [ ] Once tech stack is known: run crawl4ai to scrape docs → upload to NotebookLM → add notebook ID to nlm/SKILL.md
-- [ ] TCO calculator P1: pricing ingestion workflow + snapshot format per SPEC §5 (fixtures F5, F6)
-- [ ] TCO calculator P2–P5 per SPEC §12.2 (engine, client, throughput evidence, overlay); settle open decisions O1–O6
 
 ## Tier Overrides
 

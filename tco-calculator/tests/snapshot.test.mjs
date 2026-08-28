@@ -65,7 +65,7 @@ test("builder distinguishes first omission from third via previousManifest", () 
   // Second refresh: vendor/beta vanished -> suspect_missing, streak 1.
   const feeds2 = okFeeds();
   delete feeds2.litellm.value["vendor/beta"];
-  const r2 = buildSnapshot({ previousManifest: r1.manifest, refreshId: "r2", fetchedAt: T0 + DAY, feeds: feeds2 });
+  const r2 = buildSnapshot({ previousManifest: r1.manifest, previousCatalog: r1.catalog, refreshId: "r2", fetchedAt: T0 + DAY, feeds: feeds2 });
   const ids2 = Object.fromEntries(r2.catalog.offers_state.map((o) => [o.offer_id, o]));
   assert.equal(ids2["litellm:vendor/beta"].state, "suspect_missing");
   assert.equal(ids2["litellm:vendor/beta"].missing_streak, 1);

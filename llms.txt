@@ -14,6 +14,10 @@ the studio runs on. The best-documented public component is light-tools.
 - [light-tools agent setup](https://github.com/icediceice/light-tools/blob/main/AGENT-SETUP.md): Full registration procedure for MCP-capable coding agents.
 - [light-tools security model](https://github.com/icediceice/light-tools/blob/main/SECURITY.md): What `allowed_roots` does and does not protect. Read before treating confinement as a security boundary.
 
+## Tools
+
+- [AI Inference TCO Calculator](https://studio.factor-io.com/tco-calculator.html): Decision-support calculator comparing owned inference hardware, cloud model APIs and rented GPU nodes over a stated workload. TCO curves, cost per 1M tokens, breakeven utilization and evidence-gated throughput verdicts. Prices come from cited public feeds (LiteLLM cost map, OpenRouter) with observed-at timestamps and a client-side freshness envelope; arithmetic is decimal-exact (BigInt, no floats on money paths); every number carries provenance; throughput says unknown unless a cited benchmark matches on every dimension. Zero build step, no analytics, nothing leaves the page. Normative spec: docs/tco-calculator/SPEC.md.
+
 ## Products
 
 - [Blink](https://blink.factor-io.com/): Privacy protection for Android, built for the threat standing next to you. Entirely on-device, zero data collection. Live on Android.

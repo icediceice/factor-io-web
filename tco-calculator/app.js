@@ -18,7 +18,7 @@ const state = {
 };
 
 const decStr = (v) => Dec.from(String(v)).toString();
-const money = (x) => "$" + formatHalfUp(x, 2);
+const money = (x) => "$" + formatHalfUp(x instanceof Dec || x instanceof Rat ? x : Dec.from(String(x)), 2);
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

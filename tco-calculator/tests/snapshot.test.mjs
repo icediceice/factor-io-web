@@ -79,7 +79,7 @@ test("builder distinguishes first omission from third via previousManifest", () 
   assert.equal(ids4["litellm:vendor/beta"].missing_streak, 3);
 
   // Reappearance after suspect_missing revives to active; retired does NOT self-revive.
-  const r5 = buildSnapshot({ previousManifest: r4.manifest, refreshId: "r5", fetchedAt: T0 + 4 * DAY, feeds: okFeeds() });
+  const r5 = buildSnapshot({ previousManifest: r4.manifest, previousCatalog: r4.catalog, refreshId: "r5", fetchedAt: T0 + 4 * DAY, feeds: okFeeds() });
   const ids5 = Object.fromEntries(r5.catalog.offers_state.map((o) => [o.offer_id, o]));
   assert.equal(ids5["litellm:vendor/beta"].state, "retired"); // retired requires explicit re-admission
 });

@@ -312,4 +312,5 @@ export function runComparison({
     }
   }
   const bMonthly = bRequestCost === null ? null : bRequestCost.mul(BigInt(reqs));
-  const bPerToken = bMonthly === null || demand === 0 ? null : bMonthly.div(BigInt(demand)); // Dec: terminating (price x int / int may not terminate... use Rat)
+  // Quotient -> Rational (the architecture rule). Per-token B is exact n/d.
+  const bPerToken = bMonthly === null || demand === 0 ? null : Rat.from(bMonthly).div(Rat.of(BigInt(demand), 1n));

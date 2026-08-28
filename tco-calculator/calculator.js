@@ -328,3 +328,69 @@ export function runComparison({
     if (!routedBuckets.temporal_known) reasons.push("capacity_temporal_unknown");
     routed = routedBuckets;
   }
+
+  const overflowUnit = (() => {
+    // The secondary lane's marginal per-token price for Lane A overflow.
+    if ((routing.secondary ?? "B") === "C" && laneC && laneC.enabled) {
+      const c = laneCPerToken({ hourlyRate: laneC.hourly_rate, tokensS: laneC.tokens_s, utilization: laneC.utilization });
+      return c.value === null ? null : c.value;
+    }
+    return bPerToken; // Rat
+  })();
+
+  const laneAResult = (() => {
+    if (!laneA || !laneA.enabled) return { enabled: false, monthly_total: null };
+    const local = routed ? routed.local : 0;
+    const overflow = routed ? routed.overflow : 0;
+    const a = laneAMonthly({
+      fixedMonthly: laneA.fixed_monthly,
+      localTokens: local,
+      overflowTokens: overflow,
+      overflowUnitCost: overflowUnit === null ? null : ratToDecExact(Rat.from(overflowUnit)),
+      marginalPerToken: laneA.marginal_per_token ?? null,
+    });
+    if (overflow > 0 && overflowUnit === null) reasons.push("secondary_lane_unpriced");
+    const util = utilizationOf(demand, laneA.monthly_token_budget ?? null);
+    return {
+      enabled: true,
+      served_tokens: local,
+      overflow_tokens: overflow,
+      monthly_total: a.total.toString(),
+      lines: a.lines,
+      utilization: util.value === null ? null : util.value.toString(),
+      utilization_reason: util.reason,
+      rate_ceiling_binding: routed ? routed.binding : null,
+      rate_ceiling_known: routed ? routed.temporal_known : null,
+    };
+  })();
+
+  const laneCStandalone = (() => {
+    if (!laneC || !laneC.enabled) return { enabled: false, monthly_total: null };
+    const m = laneCMonthly({ hourlyRate: laneC.hourly_rate, tokensS: laneC.tokens_s, utilization: laneC.utilization, servedTokens: demand });
+    const perTok = laneCPerToken({ hourlyRate: laneC.hourly_rate, tokensS: laneC.tokens_s, utilization: laneC.utilization });
+    const pm = per1M(m.total, demand);
+    return {
+      enabled: true,
+      tokens_s: laneC.tokens_s,
+      hourly_rate: laneC.hourly_rate.toString(),
+      utilization: laneC.utilization.toString(),
+      hours: m.hours.toString(),
+      monthly_total: m.total.toString(),
+      per_token: perTok.value === null ? null : perTok.value.toString(),
+      per_token_reason: perTok.reason,
+      per_1m: pm.value === null ? null : pm.value.toString(),
+      per_1m_reason: pm.reason,
+      lines: m.lines,
+    };
+  })();
+
+  const laneBResult = {
+    enabled: !!(laneB && laneB.enabled),
+    primary_offer: primaryId,
+    request_cost: bRequestCost === null ? null : bRequestCost.toString(),
+    monthly_total: bMonthly === null ? null : bMonthly.toString(),
+    per_token: bPerToken === null ? null : bPerToken.toString(),
+    per_1m: bMonthly === null || demand === 0 ? { value: null, reason: "zero_demand" } : (() => { const p = per1M(bMonthly, demand); return { value: p.value === null ? null : p.value.toString(), reason: p.reason }; })(),
+    quotes,
+    gaps: Object.entries(quotes).filter(([, q]) => !q.servable).map(([id, q]) => ({ offer_id: id, gap_reason: q.gap_reason })),
+  };

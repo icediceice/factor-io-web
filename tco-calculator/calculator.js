@@ -36,7 +36,12 @@ export function ratStr(x) {
 // buckets: [{ hours: int, tokens: int }] — shares of the month with their demand.
 export function routeDemandBuckets({ demandTokens, monthlyBudget, rateCeiling, buckets }) {
   if (!Array.isArray(buckets) || buckets.length === 0 || !buckets.every((b) => Number.isFinite(b.hours) && Number.isFinite(b.tokens) && b.hours > 0 && b.tokens >= 0)) {
-    return { local: demandTokens, overflow: 0, temporal_known: false, binding: "monthly" };
+    // Absent temporal data the MONTHLY ceiling still binds (peer G6): local
+    // demand is capped at the monthly budget and the remainder overflows. Only
+    // a DECLARED rate ceiling with no buckets leaves capacity unknown — with no
+    // ceiling at all, the monthly scalar fully determines the route.
+    const local = monthlyBudget === null ? demandTokens : Math.min(demandTokens, Math.max(0, monthlyBudget));
+    return { local, overflow: demandTokens - local, temporal_known: rateCeiling === null, binding: "monthly" };
   }
   let remainingBudget = monthlyBudget === null ? Infinity : monthlyBudget;
   let local = 0;

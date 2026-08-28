@@ -48,7 +48,9 @@ export function laneCPerToken({ hourlyRate, tokensS, utilization }) {
   const u = Rat.from(utilization);
   if (u.isZero()) return { value: null, reason: "zero_utilization" };
   if (tokensS === null || tokensS <= 0) return { value: null, reason: "zero_capacity" };
-  const perToken = Rat.from(hourlyRate).div(Rat.of(BigInt(tokensS) * u.d, u.n));
+  // hourly / (tokensS x util) — the hourly amortization quotient.
+  const denominator = Rat.of(u.n * BigInt(tokensS), u.d); // tokensS x util
+  const perToken = Rat.from(hourlyRate).div(denominator);
   return { value: perToken, reason: null };
 }
 

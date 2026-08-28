@@ -453,8 +453,8 @@ export function runComparison({
       const cmpv = cmpMoney(adv.total, toRat(recommendedTotal));
       const deltaRat = Rat.from(adv.total).sub(toRat(recommendedTotal));
       routingResult.advisory = cmpv > 0
-        ? { total: adv.total.toString(), status: "dominated", delta: ratStr(deltaRat), note: "advisory blend loses to the derived split — never emitted as the optimum" }
-        : { total: adv.total.toString(), status: cmpv === 0 ? "equal" : "preferred", note: "advisory blend matches or beats the derived split" };
+        ? { total: ratStr(adv.total), status: "dominated", delta: ratStr(deltaRat), note: "advisory blend loses to the derived split — never emitted as the optimum" }
+        : { total: ratStr(adv.total), status: cmpv === 0 ? "equal" : "preferred", note: "advisory blend matches or beats the derived split" };
     }
   } else if (policy === "api_first") {
     const f = routing.failover ?? { rate: "1", share: "0", fallback: "A" };

@@ -202,12 +202,13 @@ export function compileLiteLLMEntry(key, entry) {
   // An unrecognized condition inside one tier entry skips THAT ENTRY only (rule 2).
   if (Array.isArray(entry.tiered_pricing)) {
     entry.tiered_pricing.forEach((tier, i) => {
-      if (!tier || typeof tier !== "object" || !Array.isArray(tier.range) || tier.range.length !== 2
-        || !Number.isFinite(tier.range[0])) {
+      const lo = tier && typeof tier === "object" && Array.isArray(tier.range) && tier.range.length === 2
+        ? Number(tier.range[0]) // feeds carry range bounds as strings
+        : NaN;
+      if (!Number.isFinite(lo)) {
         offer.provenance.logs.push({ rule: "tier_entry_skipped", index: i, reason: "unrecognized_tier_shape" });
         return;
       }
-      const lo = tier.range[0];
       for (const [k, v] of Object.entries(tier)) {
         if (k === "range") continue;
         const cls = classifyLiteLLMField(k);

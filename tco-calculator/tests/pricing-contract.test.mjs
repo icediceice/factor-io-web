@@ -135,6 +135,56 @@ test("regional uplift multipliers are carried, never folded into unit prices", (
   assert.ok(found > 0, "sample should carry regional uplifts");
 });
 
+test("production parse path: parseJSONExact envelope still applies thresholds and windows (peer G1)", () => {
+  // The live fetch parses the raw envelope with parseJSONExact — numeric
+  // condition literals land as TEXT ("128000", not 128000). Recreate that
+  // exact shape: re-serialize a scheduled model and re-parse through
+  // parseJSONExact, then verify the schedule still compiles AND applies.
+  const src = openrouter.find((m) => (m.pricing?.overrides ?? []).length > 1);
+  assert.ok(src, "sample should contain a scheduled model");
+  const raw = parseJSONExact(JSON.stringify(src));
+  const offer = compileOpenRouterModel(raw);
+  assert.ok(offer.overrides.length > 0, "numeric-string conditions must not skip entries");
+  assert.equal(offer.offer_id, `openrouter:${src.id}`); // id-keyed (peer G2)
+  // Threshold: STRICTLY greater, resolved from the numeric-string condition.
+  const thrIdx = offer.overrides.findIndex((o) => o.conditions.min_prompt_tokens !== undefined);
+  if (thrIdx >= 0) {
+    const thr = offer.overrides[thrIdx].conditions.min_prompt_tokens;
+    const below = quoteOffer(offer, REQ({ prompt_tokens: thr }));
+    const above = quoteOffer(offer, REQ({ prompt_tokens: thr + 1 }));
+    assert.equal(above.applied_overrides.includes(thrIdx), true);
+    assert.equal(below.applied_overrides.includes(thrIdx), false);
+  }
+  // Weekday-only entries must NOT match on a Saturday instant.
+  const wdIdx = offer.overrides.findIndex((o) => o.conditions.utc_days && !o.conditions.utc_days.includes("sat") && !o.conditions.utc_days.includes("sun"));
+  if (wdIdx >= 0) {
+    const sat = quoteOffer(offer, REQ({ quote_utc: Date.parse("2026-09-05T12:00:00Z") })); // Saturday
+    assert.equal(sat.applied_overrides.includes(wdIdx), false);
+  }
+});
+
+test("utc day windows match the calendar weekday, not a string prefix (peer G1)", () => {
+  // Contract-shaped schedule: weekend flat discount, weekday 10:00->midnight
+  // (midnight wrap) double rate — the deepseek shape observed in the live feed.
+  const offer = compileOpenRouterModel({
+    id: "probe/weekday", canonical_slug: "probe/weekday", name: "Probe",
+    pricing: {
+      prompt: "0.000001", completion: "0.000001",
+      overrides: [
+        { utc_days: ["saturday", "sunday"], prompt: "0.0000005" },
+        { utc_days: ["monday", "tuesday", "wednesday", "thursday", "friday"], utc_start: 1000, utc_end: 0, prompt: "0.000002" },
+      ],
+    },
+  });
+  assert.equal(offer.overrides.length, 2, "full-name days and hhmm conditions must compile");
+  const unit = (q) => quoteOffer(offer, REQ(q)).meters.find((m) => m.meter === "input").unit_price;
+  assert.equal(unit({ quote_utc: Date.parse("2026-09-05T12:00:00Z") }), "0.0000005"); // Saturday 12:00
+  assert.equal(unit({ quote_utc: Date.parse("2026-09-02T12:00:00Z") }), "0.000002"); // Wednesday 12:00 — inside 10:00->midnight wrap
+  assert.equal(unit({ quote_utc: Date.parse("2026-09-02T09:00:00Z") }), "0.000001"); // Wednesday 09:00 — before the window
+  assert.equal(unit({ quote_utc: Date.parse("2026-09-04T23:59:00Z") }), "0.000002"); // Friday 23:59 — inside the wrap
+  assert.equal(unit({ quote_utc: Date.parse("2026-09-06T00:00:00Z") }), "0.0000005"); // Sunday 00:00
+});
+
 test("unknown stem-suffix fields exist in the wild and classify as stem_unknown", () => {
   // The live sample must exercise rule-3 candidates; if upstream renames the
   // pattern this test failing is the signal to re-inspect the grammar.

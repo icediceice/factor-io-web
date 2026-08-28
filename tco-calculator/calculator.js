@@ -379,21 +379,23 @@ export function runComparison({
       fixedMonthly: laneA.fixed_monthly,
       localTokens: local,
       overflowTokens: overflow,
-      overflowUnitCost: overflowUnit === null ? null : ratToDecExact(Rat.from(overflowUnit)),
+      overflowUnitCost: overflowUnit === null ? null : Rat.from(overflowUnit), // Rat in — the accumulator handles non-terminating quotients (G7)
       marginalPerToken: laneA.marginal_per_token ?? null,
     });
     if (overflow > 0 && overflowUnit === null) reasons.push("secondary_lane_unpriced");
     const util = utilizationOf(demand, laneA.monthly_token_budget ?? null);
+    const aPer1m = per1M(a.total, demand);
     return {
       enabled: true,
       served_tokens: local,
       overflow_tokens: overflow,
-      monthly_total: a.total.toString(),
+      monthly_total: ratStr(a.total),
       lines: a.lines,
       utilization: util.value === null ? null : util.value.toString(),
       utilization_reason: util.reason,
       rate_ceiling_binding: routed ? routed.binding : null,
       rate_ceiling_known: routed ? routed.temporal_known : null,
+      per_1m: { value: aPer1m.value === null ? null : aPer1m.value.toString(), reason: aPer1m.reason },
     };
   })();
 

@@ -350,9 +350,14 @@ function finishAdmission(offer) {
 // quote_utc (ms epoch) — the workload owns it, deterministically.
 export const DAY_MS = 86400000;
 
+const UTC_DAY_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
 function utcMinutesDay(t) {
   const d = new Date(t);
-  return { day: d.toISOString().slice(0, 3).toLowerCase(), hhmm: d.getUTCHours() * 100 + d.getUTCMinutes() };
+  // Day of week MUST come from the calendar API: getUTCDay() 0=Sun..6=Sat.
+  // toISOString().slice(0, 3) is the YEAR ("202"), which could never match a
+  // day name — every utc_days schedule silently failed to apply (peer G1).
+  return { day: UTC_DAY_NAMES[d.getUTCDay()], hhmm: d.getUTCHours() * 100 + d.getUTCMinutes() };
 }
 
 function windowMatch(t, start, end) {

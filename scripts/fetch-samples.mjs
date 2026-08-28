@@ -27,7 +27,7 @@ async function fetchOpenRouterAll() {
   while (url) {
     const page = await fetchJSON(url);
     if (!page || !Array.isArray(page.data)) throw new Error("openrouter: unexpected envelope shape");
-    if (firstPageEnvelope === null) firstPageEnvelope = page;
+    if (totalCount === null) totalCount = page.total_count;
     models.push(...page.data);
     url = page.links?.next ?? null;
     if (++pages > 100) throw new Error("openrouter: pagination runaway (>100 pages)");

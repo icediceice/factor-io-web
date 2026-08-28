@@ -17,7 +17,9 @@
 //   * no literal "</" survives inside the encoded block
 import fs from 'node:fs';
 
-const FILE = '/Git/factor-io-web/index.html';
+// Overridable so the record can be VERIFIED by replaying it against the
+// pre-change index.html and diffing the resulting template block.
+const FILE = process.argv[2] || '/Git/factor-io-web/index.html';
 const OPEN = '<script type="__bundler/template">';
 const CLOSE = '<' + '/script>';
 // Codepoints are constructed, never typed: a literal U+200A pasted into this
@@ -73,12 +75,16 @@ sub('style block',
   @keyframes disclose-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}`);
 
 // -------------------------------------------------------------------- hero
-// Hero takes the new sub with NO toggle: the replacement retains every claim of
-// the original (local-first, no tracking, answers to you), so nothing is lost
-// to deletion. Deliberate deviation from the blanket per-section toggle rule.
+// The hero follows the same rule as every other section: the compressed
+// sentence is what you see, the original prose is DEMOTED, never deleted.
+// The <details> must be a SIBLING after </p> — nesting it inside the hero
+// paragraph would auto-close that <p> in the parser and drop its styling,
+// so the anchor deliberately swallows the closing tag.
+const HERO_STYLE = 'font-size:16px; line-height:1.7; color:rgba(232,230,240,.62); margin:0; max-width:58ch; text-wrap:pretty';
+const HERO_PROSE = `An independent studio building Android apps and AI infrastructure that answer to one person ${MD} you. Local-first. Privacy by default. No hidden masters.`;
 sub('hero sub',
-  `An independent studio building Android apps and AI infrastructure that answer to one person ${MD} you. Local-first. Privacy by default. No hidden masters.`,
-  `Local-first apps and AI tools. No ads, no tracking, no metrics.`);
+  `${HERO_PROSE}</p>`,
+  `Local-first apps and AI tools. No ads, no tracking, no metrics.</p>${details(HERO_PROSE, HERO_STYLE)}`);
 
 // ----------------------------------------------------------------- products
 sub('blink',
@@ -88,6 +94,13 @@ sub('blink',
 sub('catcountdown',
   `<p style="font-size:15.5px; line-height:1.65; color:rgba(232,230,240,.66); margin:0 0 26px; flex:1; text-wrap:pretty">A countdown app with personality. Nine cats, fifteen categories, and a soft claymorphic look that makes the waiting a little warmer. Set a date, pick your cat, watch it count down to the thing you${RS}re looking forward to.</p>`,
   `<div style="margin:0 0 26px; flex:1">${lead('Nine cats, fifteen categories. Soon on Play and iOS.')}${details(`A countdown app with personality. Nine cats, fifteen categories, and a soft claymorphic look that makes the waiting a little warmer. Set a date, pick your cat, watch it count down to the thing you${RS}re looking forward to.`)}</div>`);
+
+// The standalone "Coming soon" badge is now redundant: the lead sentence above
+// already says "Soon on Play and iOS". Removed rather than demoted because no
+// claim is lost — there is nothing left to put behind a toggle.
+sub('catcountdown badge',
+  `<div style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.04em; color:rgba(232,230,240,.4)">Coming soon to Google Play and iOS</div>`,
+  '');
 
 // ----------------------------------------------------------------- approach
 const APPROACH_PROSE = `<span style="font-weight:600; letter-spacing:.04em">FACTOR${HAIR}<span style="color:#22D3EE">I${HAIR}O</span></span> runs on <span style="color:#22D3EE; font-family:'JetBrains Mono',monospace; font-size:.92em">Light</span> ${MD} a custom AI-infrastructure stack that lets a small team design, build, test, and maintain production software end to end. It${RS}s the quiet reason a lean studio moves at the pace of a much larger one, without the overhead.`;
@@ -129,9 +142,9 @@ const hairAfter = countHair(tpl);
 if (hairAfter !== hairBefore) {
   throw new Error(`U+200A hair-space count changed: ${hairBefore} -> ${hairAfter} (prose must be demoted, never deleted)`);
 }
-if (applied !== 11) throw new Error(`expected 11 substitutions, applied ${applied}`);
-if ((tpl.match(/<details class="disclose">/g) || []).length !== 9) {
-  throw new Error('expected 9 disclosure toggles');
+if (applied !== 12) throw new Error(`expected 12 substitutions, applied ${applied}`);
+if ((tpl.match(/<details class="disclose">/g) || []).length !== 10) {
+  throw new Error('expected 10 disclosure toggles');
 }
 
 // The block is a JSON STRING LITERAL: it must keep its enclosing quotes.
@@ -146,7 +159,7 @@ const out = src.slice(0, start) + raw + src.slice(end);
 if (out.split(OPEN).length - 1 !== 1) throw new Error('template block count changed');
 fs.writeFileSync(FILE, out);
 
-console.log(`ok — ${applied} substitutions, 9 disclosures`);
+console.log(`ok — ${applied} substitutions, 10 disclosures`);
 console.log(`hair-spaces preserved: ${hairBefore}`);
 console.log(`template ${tpl.length} chars, encoded ${raw.length} chars`);
 console.log(`file ${src.length} -> ${out.length} bytes`);

@@ -108,9 +108,9 @@
       "id": "custom",
       "label": "Custom",
       "summary": "Start from the current values and edit",
-      "volume_label": "your numbers",
-      "assumption_label": "yours",
-      "assumption_note": "nothing is filled in or overwritten — open Adjust and Advanced and state the workload yourself",
+      "volume_label": "current values",
+      "assumption_label": "assumed",
+      "assumption_note": "nothing is overwritten — the current values stay planning assumptions until you review and edit them",
       "fields": {}
     }
   ]

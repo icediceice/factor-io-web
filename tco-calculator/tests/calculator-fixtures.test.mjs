@@ -76,7 +76,7 @@ test("F7 arithmetic check: advisory blend cost function directly", () => {
   });
   assert.equal(adv.local_tokens, 56000000);
   assert.equal(adv.overflow_tokens, 24000000);
-  assert.equal(adv.total.toString(), "10240");
+  assert.equal(ratStr(adv.total), "10240"); // lane totals are exact money (Rat-capable), serialized canonically
   const delta = adv.total.sub(Dec.from("10000"));
   assert.equal(formatHalfUp(delta, 2), "240.00");
 });

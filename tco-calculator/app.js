@@ -227,3 +227,104 @@ function renderResults(r) {
       `<td class="n">${r.lanes.C.per_1m.value === null ? `— (${r.lanes.C.per_1m_reason ?? "unknown"})` : numProv(fmtPer1M(r.lanes.C.per_1m.value), [["snapshot digest", state.manifest.snapshot_digest], ["hourly rate", "assumed preset"]])}</td>` +
       `<td class="n">${numProv(money(r.curve[0].C), [["snapshot digest", state.manifest.snapshot_digest]])}</td></tr>`);
   }
+
+  const adv = r.routing_result.advisory
+    ? `<p class="muted">Advisory blend ${money(r.routing_result.advisory.total)} — <strong>${escapeHtml(r.routing_result.advisory.status)}</strong>${r.routing_result.advisory.delta ? ` (delta ${money(r.routing_result.advisory.delta)})` : ""}. ${escapeHtml(r.routing_result.advisory.note)}</p>`
+    : "";
+  const don = r.routing_result.derived_optimum_note
+    ? `<p class="muted">Derived optimum for comparison: ${money(r.routing_result.derived_optimum_note.total)} — ${escapeHtml(r.routing_result.derived_optimum_note.note)}</p>`
+    : "";
+
+  const beA = r.breakeven.lane_A_vs_B ? `<li>Lane A breakeven vs API: ${numProv(`${formatHalfUp(r.breakeven.lane_A_vs_B.demand_tokens, 0)} tokens/mo`, [["basis", "fixed / API per-token"]])}${r.breakeven.lane_A_vs_B.utilization ? ` (${formatHalfUp(r.breakeven.lane_A_vs_B.utilization, 4)} of capacity)` : ` (${r.breakeven.lane_A_vs_B.utilization_reason})`}</li>` : "";
+  const beC = r.breakeven.lane_C_vs_B && r.breakeven.lane_C_vs_B.utilization ? `<li>Lane C breakeven utilization vs API: ${numProv(formatHalfUp(r.breakeven.lane_C_vs_B.utilization, 4), [["basis", "hourly / (tok/s x API per-token)"]])}</li>` : (r.breakeven.lane_C_vs_B ? `<li>Lane C breakeven: ${r.breakeven.lane_C_vs_B.reason}</li>` : "");
+
+  const verdictLi = (label, v) => v === null ? "" : `<li>${label}: <strong>${v.verdict}</strong>${v.verdict === "unknown" ? ` <span class="tag tag-unknown">no evidence row matches all dimensions</span>` : ` @ ${v.modelled_p95_capacity} tok/s`}${v.annotation ? ` <span class="muted">partial: ${v.annotation.mismatched_dimensions.join(", ")} differ</span>` : ""}</li>`;
+
+  const failover = r.routing_result.failover
+    ? `<p class="muted">Failover: fallback lane ${escapeHtml(r.routing_result.failover.fallback)} at share ${escapeHtml(r.routing_result.failover.share)} x rate ${escapeHtml(r.routing_result.failover.rate)}.</p>`
+    : "";
+  const pinned = r.routing_result.pinned
+    ? `<p class="muted">Pinned split honored: ${r.routing_result.pinned.lines.map((l) => `${l.lane} ${l.pct}% = ${money(l.amount)}`).join(" · ")} — total ${money(r.routing_result.pinned.total)}.</p>`
+    : "";
+
+  $("results").innerHTML = `
+    <div class="card">
+      <table>
+        <thead><tr><th>Lane · policy ${escapeHtml(r.policy)}</th><th class="n">TCO / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month TCO</th></tr></thead>
+        <tbody>${rows.join("")}</tbody>
+      </table>
+      ${r.overlay && r.overlay.itemized.length ? `<p class="muted">Overlay itemized last: ${r.overlay.itemized.map((i) => `${escapeHtml(i.name)} ${money(i.extended)} (${i.basis}, ${i.provenance})`).join(" · ")} — total ${money(r.overlay.overlay_total)} · ${escapeHtml(r.overlay.note)}</p>` : ""}
+      ${adv}${don}${failover}${pinned}
+      ${r.reasons.length ? `<div class="gap"><strong>Honest caveats:</strong> ${r.reasons.map(escapeHtml).join("; ")}</div>` : ""}
+      ${B.gaps.map((g) => `<div class="gap"><strong>${escapeHtml(g.offer_id)}</strong>: ${escapeHtml(g.gap_reason ?? "unservable")} — the lane falls back or reports the gap.</div>`).join("")}
+      ${q && q.meters ? `<p class="muted">Meter resolution: ${q.meters.map((m) => `${m.meter} &rarr; ${m.selected_key ?? m.note}`).join(" · ")}</p>` : ""}
+    </div>
+    <div class="card">
+      <h3>Breakeven &amp; feasibility</h3>
+      <ul style="color:rgba(232,230,240,.72)">${beA}${beC}${verdictLi("Lane A p95 vs SLO", r.throughput.verdicts.lane_A)}${verdictLi("Lane C p95 vs SLO", r.throughput.verdicts.lane_C)}</ul>
+      <p class="muted">Feasibility verdicts are evidence-gated: unknown beats invented. The shipped evidence store is empty by mandate (SPEC 6.5).</p>
+    </div>
+    <div class="card">
+      <h3>TCO curve</h3>
+      ${renderCurve(r.curve)}
+    </div>
+    <p><button class="btn btn-s" id="export">Export quote (JSON)</button> <span class="muted">every input, the snapshot digest, and per-meter provenance.</span></p>
+  `;
+  $("export").addEventListener("click", () => exportQuote(r));
+  renderSensitivity();
+}
+
+const fmtPer1M = (ratStr) => {
+  const m = /^(-?\d+)\/(\d+)$/.exec(String(ratStr));
+  const v = m ? new Rat(BigInt(m[1]), BigInt(m[2])) : Dec.from(String(ratStr));
+  return formatHalfUp(v, 6);
+};
+
+function renderCurve(curve) {
+  const w = 900, h = 220, pad = 34;
+  const lanes = ["A", "B", "C"];
+  const colors = { A: "#B46EFF", B: "#22D3EE", C: "#34D399" };
+  const maxV = Math.max(...curve.flatMap((p) => lanes.map((l) => Number(p[l]) || 0)), 1);
+  const x = (m) => pad + ((m - 1) / Math.max(1, curve.length - 1)) * (w - pad * 2);
+  const y = (v) => h - pad - (v / maxV) * (h - pad * 2);
+  const paths = lanes.map((l) => {
+    const pts = curve.map((p) => `${x(p.month).toFixed(1)},${y(Number(p[l]) || 0).toFixed(1)}`).join(" ");
+    return `<polyline points="${pts}" fill="none" stroke="${colors[l]}" stroke-width="2" />`;
+  }).join("");
+  const labels = lanes.map((l, i) => `<text x="${pad + i * 130}" y="18" fill="${colors[l]}" font-size="12" font-family="monospace">Lane ${l}</text>`).join("");
+  const axis = `<text x="${pad}" y="${h - 8}" fill="rgba(232,230,240,.4)" font-size="11" font-family="monospace">mo 1</text><text x="${w - pad - 30}" y="${h - 8}" fill="rgba(232,230,240,.4)" font-size="11" font-family="monospace">mo ${curve.length}</text>`;
+  return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="TCO curve over the horizon">${labels}${paths}${axis}</svg>`;
+}
+
+function renderSensitivity() {
+  const r = state.result;
+  if (!r || r.lanes.B.per_1m.value === null) return;
+  const base = Number(fmtPer1M(r.lanes.B.per_1m.value));
+  const demandMultipliers = [0.5, 0.75, 1, 1.5, 2];
+  const priceMultipliers = [0.8, 1, 1.25];
+  const head = `<tr><th>demand \ price</th>${priceMultipliers.map((p) => `<th class="n">x${p}</th>`).join("")}</tr>`;
+  const body = demandMultipliers.map((dm) => {
+    const cells = priceMultipliers.map((pm) => {
+      const cls = dm === 1 && pm === 1 ? `style="color:#E8E6F0"` : "";
+      return `<td class="n" ${cls}>${(base * dm * pm).toFixed(6)}</td>`;
+    }).join("");
+    return `<tr><td>x${dm}</td>${cells}</tr>`;
+  }).join("");
+  $("sensitivity").innerHTML = `<div class="card"><h3>API lane per-1M sensitivity</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Lane B unit economics are linear in demand and tariff. Lane A per-unit cost FALLS with utilization (see breakeven); Lane C is hyperbolic in utilization — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
+}
+
+function exportQuote(r) {
+  const payload = {
+    generated_at: new Date().toISOString(),
+    snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
+    result: r,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `tco-quote-${state.manifest.snapshot_digest}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+init();

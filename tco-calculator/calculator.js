@@ -453,3 +453,69 @@ export function runComparison({
     throw new TypeError(`runComparison: unknown routing policy ${policy}`);
   }
   routingResult.recommended_monthly_total = recommendedTotal;
+
+  // ---- Throughput feasibility: evidence-gated, unknown-not-fabricated (SPEC 6).
+  const requiredP95 = workload.required_p95_tok_s ?? null;
+  const throughput = { required_p95_tok_s: requiredP95, verdicts: {} };
+  const configDims = {
+    model_revision: workload.model_revision ?? null,
+    runtime: workload.runtime ?? null,
+    runtime_version: workload.runtime_version ?? null,
+    quantization: workload.quantization ?? null,
+    hardware_topology: laneC && laneC.enabled ? laneC.hardware_topology ?? null : null,
+    prompt_output_dist: `${workload.prompt_tokens}/${workload.output_tokens}`,
+    concurrency: workload.concurrency ?? null,
+    batch_mode: workload.batch_mode ?? null,
+    percentile_window: workload.percentile_window ?? "p95",
+  };
+  throughput.verdicts.lane_A = laneA && laneA.enabled ? matchEvidence(evidenceRows, { ...configDims, hardware_topology: laneA.hardware_topology ?? null }, requiredP95) : null;
+  throughput.verdicts.lane_C = laneC && laneC.enabled ? matchEvidence(evidenceRows, configDims, requiredP95) : null;
+
+  // ---- Breakeven answers (SPEC 1.4 Q3).
+  const breakeven = {};
+  if (laneA && laneA.enabled && bPerToken !== null) {
+    const be = breakevenDemandA({ fixedMonthly: laneA.fixed_monthly, bPerToken, aMonthlyCapacity: laneA.monthly_token_budget ?? null });
+    breakeven.lane_A_vs_B = {
+      demand_tokens: be.demand_tokens.toString(),
+      utilization: be.utilization.value === null ? null : be.utilization.value.toString(),
+      utilization_reason: be.utilization.reason,
+    };
+  }
+  if (laneC && laneC.enabled && bPerToken !== null) {
+    const be = breakevenUtilizationC({ hourlyRate: laneC.hourly_rate, tokensS: laneC.tokens_s, bPerToken });
+    breakeven.lane_C_vs_B = { utilization: be.value === null ? null : be.value.toString(), reason: be.reason };
+  }
+
+  // ---- Overlay LAST (SPEC 4.5): itemized, labelled, never folded in.
+  let overlayResult = null;
+  if (overlay && overlay.components && overlay.components.length > 0) {
+    overlayResult = applyOverlay({
+      laneTotals: {
+        A: laneAResult.enabled ? laneAResult.monthly_total : "0",
+        B: bMonthly === null ? "0" : bMonthly.toString(),
+        C: laneCStandalone.enabled ? laneCStandalone.monthly_total : "0",
+      },
+      horizonMonths: horizon,
+      components: overlay.components,
+      fullyLoaded: !!overlay.fully_loaded,
+    });
+  }
+
+  const curve = tcoCurve({
+    A: laneAResult.enabled ? laneAResult.monthly_total : "0",
+    B: bMonthly === null ? "0" : bMonthly.toString(),
+    C: laneCStandalone.enabled ? laneCStandalone.monthly_total : "0",
+  }, horizon);
+
+  return {
+    policy,
+    lanes: { A: laneAResult, B: laneBResult, C: laneCStandalone },
+    routing_result: routingResult,
+    breakeven,
+    throughput,
+    overlay: overlayResult,
+    curve,
+    horizon_months: horizon,
+    reasons: [...new Set(reasons)],
+  };
+}

@@ -97,23 +97,32 @@ export function per1M(totalCost, demandTokens) {
 // any token; in-capacity tokens carry no per-token A charge (a declared marginal
 // is itemized separately); overflow is priced at the SECONDARY lane's marginal.
 export function laneAMonthly({ fixedMonthly, localTokens, overflowTokens, overflowUnitCost, marginalPerToken }) {
-  if (localTokens <= 0) {
+  if (localTokens <= 0 && overflowTokens <= 0) {
     return { total: ZERO, fixed_charged: false, lines: [] };
   }
-  const fixed = Dec.from(fixedMonthly);
-  const lines = [{ item: "lane_a_fixed", amount: fixed.toString(), note: "charged once — in-capacity tokens carry no per-token re-pricing" }];
-  let total = fixed;
-  if (marginalPerToken !== null && marginalPerToken !== undefined) {
-    const marg = Dec.from(marginalPerToken).mul(BigInt(localTokens));
-    lines.push({ item: "lane_a_marginal", amount: marg.toString(), note: "user-entered power/ops marginal, itemized (SPEC 2.3)" });
-    total = total.add(marg);
+  // Rat accumulator (peer G7): the overflow unit cost is a QUOTIENT (B monthly
+  // / demand) and is non-terminating in general. A Decimal drop site either
+  // crashed on Dec.from(null) for the non-terminating case or silently dropped
+  // the line from the total. Callers serialize through ratStr, which stays a
+  // canonical decimal string whenever the total terminates (SPEC 10.1).
+  let total = new Rat(0n, 1n);
+  const lines = [];
+  if (localTokens > 0) {
+    const fixed = Dec.from(fixedMonthly);
+    lines.push({ item: "lane_a_fixed", amount: fixed.toString(), note: "charged once — in-capacity tokens carry no per-token re-pricing" });
+    total = total.add(fixed);
+    if (marginalPerToken !== null && marginalPerToken !== undefined) {
+      const marg = Dec.from(marginalPerToken).mul(BigInt(localTokens));
+      lines.push({ item: "lane_a_marginal", amount: marg.toString(), note: "user-entered power/ops marginal, itemized (SPEC 2.3)" });
+      total = total.add(marg);
+    }
   }
-  if (overflowTokens > 0) {
-    const ovf = Dec.from(overflowUnitCost).mul(BigInt(overflowTokens));
-    lines.push({ item: "overflow_secondary", amount: ovf.toString(), note: `${overflowTokens} tokens priced at the secondary lane's marginal tariff` });
+  if (overflowTokens > 0 && overflowUnitCost !== null && overflowUnitCost !== undefined) {
+    const ovf = toRat(overflowUnitCost).mul(BigInt(overflowTokens));
+    lines.push({ item: "overflow_secondary", amount: ratStr(ovf), note: `${overflowTokens} tokens priced at the secondary lane's marginal tariff` });
     total = total.add(ovf);
   }
-  return { total, fixed_charged: true, lines };
+  return { total, fixed_charged: localTokens > 0, lines };
 }
 
 // Lane C monthly cost from served tokens: hours = tokens / (tok_s x util);

@@ -98,15 +98,12 @@ export function laneAMonthly({ fixedMonthly, localTokens, overflowTokens, overfl
 // a user decision — the UI surfaces standby cost separately).
 export function laneCMonthly({ hourlyRate, tokensS, utilization, servedTokens }) {
   if (servedTokens <= 0) return { total: ZERO, hours: new Rat(0n, 1n), lines: [] };
-  const hours = Rat.of(BigInt(servedTokens), 1n).div(Rat.of(uN(tokensS, utilization) , uD(utilization)));
+  const u = Rat.from(utilization);
+  if (u.isZero() || tokensS === null || tokensS <= 0) {
+    return { total: ZERO, hours: Rat.of(0n, 1n), lines: [], out_of_domain: "zero_utilization_or_capacity" };
+  }
+  // hours = servedTokens / (tokensS x util)
+  const hours = Rat.of(BigInt(servedTokens) * u.d, u.n * BigInt(tokensS));
   const total = Rat.from(hourlyRate).mul(hours);
   return { total, hours, lines: [{ item: "lane_c_hours", amount: total.toString(), note: `hourly x ${hours.toString()}h` }] };
-}
-
-function uN(tokensS, utilization) {
-  const u = Rat.from(utilization);
-  return u.n * BigInt(tokensS);
-}
-function uD(utilization) {
-  return Rat.from(utilization).d;
 }

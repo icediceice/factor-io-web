@@ -132,8 +132,6 @@ export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fa
   let total = Dec.from(bMonthlyTotal);
   const share = Rat.from(failoverShare);
   if (cmpMoney(share, ZERO) > 0) {
-    const failoverTokens = Math.floor(Number(share.mul(Rat.of(BigInt(demandTokens), 1n)).toString().split("/")[0]) / Number(share.toString().split("/")[1] || 1));
-    void failoverTokens;
     const failoverCost = Rat.from(bMonthlyTotal).mul(share).mul(Rat.from(failoverRate));
     const fc = ratToDecExact(failoverCost);
     if (fc !== null) {

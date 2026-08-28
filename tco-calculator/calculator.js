@@ -464,7 +464,7 @@ export function runComparison({
       : (laneA && laneA.enabled ? laneA.fixed_monthly : "0");
     const af = apiFirstFailover({ demandTokens: demand, bMonthlyTotal: bMonthly ?? "0", fallbackKind: fbKind, fallbackFixedMonthly: fbFixed, failoverShare: f.share, failoverRate: f.rate });
     routingResult.failover = { fallback: fbKind, share: f.share, rate: f.rate, lines: af.lines };
-    recommendedTotal = af.total.toString();
+    recommendedTotal = ratStr(af.total);
   } else if (policy === "fixed_split") {
     const pinned = routing.pinned; // {a_pct, b_pct, c_pct}
     let total = ZERO;

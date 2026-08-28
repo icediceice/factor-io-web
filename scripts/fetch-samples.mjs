@@ -32,6 +32,10 @@ async function fetchOpenRouterAll() {
     url = page.links?.next ?? null;
     if (++pages > 100) throw new Error("openrouter: pagination runaway (>100 pages)");
   }
+  const total = firstPageEnvelope.total_count;
+  if (Number.isFinite(total) && models.length !== total) {
+    throw new Error(`openrouter: truncated list — fetched ${models.length} of total_count ${total}`);
+  }
   return { models, firstPageEnvelope, pages };
 }
 

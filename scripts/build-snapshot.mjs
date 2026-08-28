@@ -112,6 +112,31 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
     provenance.litellm.error = String(feeds.litellm.error ?? "fetch failed");
   }
 
+  // --- Per-source SourceStatus envelopes FIRST (the state machine consults them).
+  const sourceRecords = {};
+  const sourceOffers = { openrouter: [], litellm: [] };
+  for (const offerId of Object.keys(offers)) {
+    const prefix = offerId.slice(0, offerId.indexOf(" :") + 0) || offerId.split(":")[0];
+    void prefix;
+  }
+  for (const [sourceId, cfg] of Object.entries(SOURCES)) {
+    const prev = prevSources[sourceId] ?? null;
+    const ok = feeds[sourceId]?.ok === true;
+    const observed = ok ? new Date(now).toISOString() : prev?.observed_at ?? null; // never fabricated
+    const lastSuccess = ok ? new Date(now).toISOString() : prev?.last_success_at ?? null;
+    const missingStreak = ok ? 0 : (prev?.missing_streak ?? 0) + 1;
+    sourceRecords[sourceId] = {
+      source_id: sourceId,
+      status: ok ? "fresh" : "error",
+      observed_at: observed,
+      last_success_at: lastSuccess,
+      expires_at: observed ? new Date(Date.parse(observed) + cfg.ttl_days * 86400000).toISOString() : null,
+      root_digest: ok ? digest(JSON.stringify(sourceOffers[sourceId])) : prev?.root_digest ?? null,
+      record_count: ok ? sourceOffers[sourceId].length : prev?.record_count ?? 0,
+      missing_streak: missingStreak,
+    };
+  }
+
   // --- Offer state machine against the previous refresh (SPEC 3.4).
   const offersState = [];
   for (const [offerId, offer] of Object.entries(offers)) {
@@ -126,9 +151,15 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
     offer.missing_streak = next.missing_streak;
     offersState.push({ offer_id: offerId, state: offer.state, missing_streak: offer.missing_streak });
   }
-  // Absent offers streak toward retired.
+  // Absent offers streak toward retired — EXCEPT when their source errored:
+  // an absence is only evidence when the source itself refreshed successfully.
   for (const [offerId, prev] of prevState) {
     if (offers[offerId]) continue;
+    const prefix = offerId.split(":")[0];
+    if (sourceRecords[prefix]?.status === "error") {
+      offersState.push({ offer_id: offerId, state: prev.state, missing_streak: prev.missing_streak ?? 0 });
+      continue;
+    }
     const next = nextState(prev.state, { present: false, missingStreak: prev.missing_streak ?? 0 });
     offersState.push({ offer_id: offerId, state: next.state, missing_streak: next.missing_streak });
   }

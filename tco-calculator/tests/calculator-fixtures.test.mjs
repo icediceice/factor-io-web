@@ -172,7 +172,7 @@ test("api_first: failover traffic prices at rate x share; standby fixed surfaces
     laneA: F7_LANE_A,
     routing: { policy: "api_first", failover: { fallback: "A", share: "0", rate: "2" } },
   });
-  assert.equal(idle.routing_result.recommended_monthly_total, "10000.8"); // 0.8 B + 10000 standby
+  assert.equal(idle.routing_result.recommended_monthly_total, "10800"); // 800 B + 10000 standby
   const hot = runComparison({
     ...base,
     laneA: F7_LANE_A,

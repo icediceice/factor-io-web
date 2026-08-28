@@ -69,8 +69,10 @@ export function laneCPerToken({ hourlyRate, tokensS, utilization }) {
   const u = Rat.from(utilization);
   if (u.isZero()) return { value: null, reason: "zero_utilization" };
   if (tokensS === null || tokensS <= 0) return { value: null, reason: "zero_capacity" };
-  // hourly / (tokensS x util) — the hourly amortization quotient.
-  const denominator = Rat.of(u.n * BigInt(tokensS), u.d); // tokensS x util
+  // hourly / (tokensS x util x 3600) — tokensS is tokens per SECOND and the
+  // rate is per HOUR: the 3600 s/h factor is dimensional, not cosmetic
+  // (peer G5: dropping it priced every Lane C token 3600x too high).
+  const denominator = Rat.of(u.n * BigInt(tokensS) * 3600n, u.d);
   const perToken = Rat.from(hourlyRate).div(denominator);
   return { value: perToken, reason: null };
 }

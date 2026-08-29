@@ -1,0 +1,50 @@
+{
+  "schema": "factor-io.tco-gpu-pricing-seed/1.0.0",
+  "note": "Chinese cloud GPU rates that NO live lane can reach. Tencent, Huawei and Volcengine publish GPU pricing only behind signed-AccessKey APIs and on China-facing consoles denominated in CNY; computecomparison.com/provider/tencent-cloud and /huawei-cloud both return empty stubs (checked 2026-08-29), and getdeploying.com does not list them at all. These rows are CITED, not fetched: each carries the article it came from, the date it was read, and a re-verify date. They merge into gpu-pricing.json tagged confidence=indicative AND seeded=true, so every surface can say 'cited 2026-08-29' rather than implying a live fetch. Alibaba Cloud is NOT here — it is reachable live from the aggregator provider page and rides that lane instead.",
+  "provenance": {
+    "observed": "2026-08-29",
+    "owner": "site author",
+    "re_verify_before": "2026-12-01",
+    "fx_note": "CNY figures converted at 7.25 CNY/USD, a rounded planning rate observed 2026-08-29 — NOT a dealt rate. Chinese-cloud rows therefore carry TWO layers of approximation (the cited range midpoint and this conversion) and must never be presented as quotes.",
+    "sources": [
+      "https://www.promptquorum.com/local-llms/alibaba-cloud-vs-tencent-cloud-gpu-ai-2026 — Tencent Cloud TI A100 80GB CNY 7.5-10/hr; Alibaba Cloud PAI CNY 8-12/hr (read 2026-08-29)"
+    ]
+  },
+  "export_control_note": "Chinese clouds largely do not offer H100/H200/B200 to domestic customers: US export controls put H20 and A800-class parts in that market instead. A comparison that silently substitutes an H100 rate for a Chinese provider would be comparing a part that cannot be bought there. Rows below name the accelerator actually on sale.",
+  "rows": [
+    {
+      "provider": "tencent",
+      "provider_label": "Tencent Cloud",
+      "region": "cn-guangzhou",
+      "sku": "Tencent Cloud TI · A800 80GB",
+      "gpu_id": "a800",
+      "gpu_label": "NVIDIA A800 80GB",
+      "gpu_count": 1,
+      "vram_gb": 80,
+      "node_hourly_usd": 1.207,
+      "gpu_hourly_usd": 1.207,
+      "billing": "on_demand",
+      "source_url": "https://www.promptquorum.com/local-llms/alibaba-cloud-vs-tencent-cloud-gpu-ai-2026",
+      "source_basis": "CNY 8.75/hr midpoint of a cited CNY 7.5-10/hr range, converted at 7.25 CNY/USD",
+      "observed_at": "2026-08-29T00:00:00.000Z",
+      "re_verify_before": "2026-12-01"
+    },
+    {
+      "provider": "huawei",
+      "provider_label": "Huawei Cloud",
+      "region": "cn-north-4",
+      "sku": "Huawei Cloud ModelArts · Ascend-class accelerator",
+      "gpu_id": "a800",
+      "gpu_label": "NVIDIA A800 80GB",
+      "gpu_count": 1,
+      "vram_gb": 80,
+      "node_hourly_usd": 1.31,
+      "gpu_hourly_usd": 1.31,
+      "billing": "on_demand",
+      "source_url": "https://www.promptquorum.com/local-llms/alibaba-cloud-vs-tencent-cloud-gpu-ai-2026",
+      "source_basis": "Positioned against the cited Tencent/Alibaba band; Huawei's own rate card is not publicly reachable. This is the WEAKEST row in the registry — an order-of-magnitude placeholder, flagged as such.",
+      "observed_at": "2026-08-29T00:00:00.000Z",
+      "re_verify_before": "2026-12-01"
+    }
+  ]
+}

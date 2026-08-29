@@ -150,109 +150,168 @@
 
   <div class="eyebrow">Decision support &middot; pricing data cited per source</div>
   <h1>What should this inference workload actually cost?</h1>
-  <p class="lede">Pick a workload, press Compare, and every number tells you where it came from.</p>
-  <details class="disclose"><summary>How this works</summary>
-    <p>
-      Compares <strong>three lanes</strong> &mdash; owned local hardware, a cloud model API, rented GPU nodes &mdash;
-      over your demand, horizon and routing policy. Prices come from cited public feeds with observed-at
-      timestamps; arithmetic is decimal-exact; every number carries provenance. Modelled throughput verdicts
-      say <strong>unknown</strong> unless a cited benchmark matches your configuration on every dimension.
-      Demand is tokenizer-independent by convention: entries are reference tokens for your declared tokenizer.
-      No cross-model conversion is applied in v0.1 &mdash; quoting a model whose billing units differ is
-      labelled estimated, never silently 1:1.
-    </p>
-  </details>
+  <p class="lede">Enter how many people use it. Get the monthly cost of each option, the peak rate you have to serve, and the month self-hosting pays back.</p>
 
   <div id="banner" class="banner" role="alert"></div>
   <div id="gapbox"></div>
 
-  <!-- ─────────────────────────── LEVEL 0 ─────────────────────────── -->
-  <div class="kicker"><b>01</b> / Workload</div>
-  <h2>Which of these looks like your workload?</h2>
+  <!-- ─────────────────────────── 01 PRESET ─────────────────────────── -->
+  <div class="kicker"><b>01</b> / Starting point</div>
+  <h2>Pick a shape, then change any number</h2>
   <div id="preset-cards" class="presets" role="radiogroup" aria-label="workload preset">
     <p class="muted">Loading presets&hellip;</p>
   </div>
   <p class="muted" id="preset-note" style="margin:14px 0 0"></p>
 
-  <div style="margin-top:26px">
-    <button id="run" class="btn btn-p">Compare &#8594;</button>
-    <span class="muted" style="margin-left:10px">Nothing is sent anywhere &mdash; the comparison runs in this page.</span>
-  </div>
+  <!-- ─────────────────────────── 02 DEMAND ─────────────────────────── -->
+  <div class="kicker"><b>02</b> / Demand</div>
+  <h2>Who uses it, and how often</h2>
 
-  <!-- ─────────────────────────── RESULTS ─────────────────────────── -->
-  <div class="kicker"><b>02</b> / Results</div>
-  <h2>The comparison, with its receipts</h2>
-  <div id="results"><p class="muted">Pick a workload above and press Compare.</p></div>
-
-  <!-- ─────────────────────────── LEVEL 1 ─────────────────────────── -->
-  <div id="level1" hidden>
-    <div class="kicker"><b>03</b> / Adjust</div>
-    <h2>Change one lane at a time</h2>
-    <div class="lanes">
-
-      <div class="lane">
-        <div class="lane-h"><h3>Lane A &mdash; owned stack</h3><span class="lane-n" id="lane-a-total">&mdash;</span></div>
-        <details class="disclose"><summary>Adjust</summary>
-          <div class="grid">
-            <div><label for="fa-fixed">Fixed cost ($ / month)</label><input id="fa-fixed" type="text" inputmode="decimal" value="10000"></div>
-            <div><label for="fa-budget">Monthly token budget</label><input id="fa-budget" type="text" inputmode="numeric" value="100000000"></div>
-            <div><label for="fa-rate">Rate ceiling (tok/s)</label><input id="fa-rate" type="text" inputmode="numeric" placeholder="e.g. 100"></div>
-          </div>
-        </details>
-      </div>
-
-      <div class="lane">
-        <div class="lane-h"><h3>Lane B &mdash; cloud model API</h3><span class="lane-n" id="lane-b-total">&mdash;</span></div>
-        <details class="disclose"><summary>Adjust</summary>
-          <div class="grid">
-            <div><label for="fb-feed">Price feed</label><select id="fb-feed"><option value="litellm">LiteLLM cost map</option><option value="openrouter">OpenRouter</option></select></div>
-            <div><label for="fb-model">Model</label><select id="fb-model"><option value="">loading snapshot&hellip;</option></select></div>
-          </div>
-          <p class="muted" id="fb-model-note" style="margin:10px 0 0"></p>
-        </details>
-      </div>
-
-      <div class="lane">
-        <div class="lane-h"><h3>Lane C &mdash; rented GPU <span class="tag tag-est">assumed rates</span></h3><span class="lane-n" id="lane-c-total">&mdash;</span></div>
-        <details class="disclose"><summary>Adjust</summary>
-          <div class="grid">
-            <div><label for="fc-preset">Topology preset</label><select id="fc-preset"></select></div>
-            <div><label for="fc-hourly">Hourly rate ($)</label><input id="fc-hourly" type="text" inputmode="decimal"></div>
-            <div><label for="fc-toks">Planning tok/s (assumed)</label><input id="fc-toks" type="text" inputmode="numeric"></div>
-            <div><label for="fc-util">Utilization (0&ndash;1)</label><input id="fc-util" type="text" inputmode="decimal" value="0.7"></div>
-          </div>
-          <p class="muted" id="fc-note" style="margin:10px 0 0"></p>
-        </details>
-      </div>
-
-      <div class="lane">
-        <div class="lane-h"><h3>Workload</h3><span class="lane-n" id="lane-w-total">&mdash;</span></div>
-        <details class="disclose"><summary>Adjust</summary>
-          <div class="grid">
-            <div><label for="f-demand">Demand (tokens / month) <span class="req">*</span></label><input id="f-demand" type="text" inputmode="numeric" value="80000000"></div>
-            <div><label for="f-requests">Requests / month</label><input id="f-requests" type="text" inputmode="numeric" value="80000"></div>
-            <div><label for="f-prompt">Avg prompt tokens</label><input id="f-prompt" type="text" inputmode="numeric" value="1000"></div>
-            <div><label for="f-output">Avg output tokens</label><input id="f-output" type="text" inputmode="numeric" value="500"></div>
-            <div><label for="f-horizon">Horizon (months)</label><input id="f-horizon" type="text" inputmode="numeric" value="12"></div>
-          </div>
-        </details>
-      </div>
-
+  <div class="card">
+    <div class="grid">
+      <div><label for="f-users">Users <span class="req">*</span></label><input id="f-users" type="text" inputmode="numeric" value="500"></div>
+      <div><label for="f-sessions-day">Sessions / user / day</label><input id="f-sessions-day" type="text" inputmode="decimal" value="2"></div>
+      <div><label for="f-days">Working days / month</label><input id="f-days" type="text" inputmode="numeric" value="21"></div>
+      <div><label for="f-horizon">Horizon (months)</label><input id="f-horizon" type="text" inputmode="numeric" value="36"></div>
     </div>
   </div>
 
-  <!-- ─────────────────────────── LEVEL 2 ─────────────────────────── -->
+  <div class="card">
+    <div class="lane-h" style="margin-bottom:10px">
+      <h3 style="font-size:15.5px">Workload mix</h3>
+      <span class="lane-n" id="mix-sum">&mdash;</span>
+    </div>
+    <p class="muted" style="margin-bottom:14px">
+      Shares must add to exactly <code>1</code>. A mix that does not is <strong>refused, not rescaled</strong> &mdash;
+      silently normalising a mistyped share would change the answer with nothing on screen to show it.
+    </p>
+    <div class="grid">
+      <div><label for="f-mix-chat">Chat</label><input id="f-mix-chat" type="text" inputmode="decimal" value="0.7"></div>
+      <div><label for="f-mix-rag">RAG</label><input id="f-mix-rag" type="text" inputmode="decimal" value="0.3"></div>
+      <div><label for="f-mix-graphrag">Graph RAG</label><input id="f-mix-graphrag" type="text" inputmode="decimal" value="0"></div>
+      <div><label for="f-mix-agentic">Agentic</label><input id="f-mix-agentic" type="text" inputmode="decimal" value="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:15.5px; margin-bottom:10px">Serving speed</h3>
+    <p class="muted" style="margin-bottom:14px">
+      Sizing binds on the <strong>peak second</strong>, not the monthly total: the same volume is comfortable
+      spread evenly and unservable at a 9am peak.
+    </p>
+    <div class="grid">
+      <div><label for="f-peak-frac">Peak concurrency (fraction of users)</label><input id="f-peak-frac" type="text" inputmode="decimal" value="0.05"></div>
+      <div><label for="f-tps-stream">Tokens/s per stream</label><input id="f-tps-stream" type="text" inputmode="numeric" value="30"></div>
+    </div>
+  </div>
+
+  <div id="derived" class="card" aria-live="polite">
+    <p class="muted">Derived demand appears here as you type.</p>
+  </div>
+
+  <div style="margin-top:26px">
+    <button id="run" class="btn btn-p">Calculate &#8594;</button>
+    <span class="muted" style="margin-left:10px">Nothing is sent anywhere &mdash; this runs in the page.</span>
+  </div>
+
+  <!-- ─────────────────────────── 03 OPTIONS ─────────────────────────── -->
+  <div class="kicker"><b>03</b> / Options</div>
+  <h2>Three ways to serve that demand</h2>
+  <div class="lanes">
+
+    <div class="lane">
+      <div class="lane-h"><h3>Self-hosted</h3><span class="lane-n" id="opt-self-total">&mdash;</span></div>
+      <div class="grid" style="margin-top:14px">
+        <div><label for="f-sh-gpu">Accelerator</label><select id="f-sh-gpu"></select></div>
+        <div><label for="f-sh-count">GPUs <span class="muted" id="f-sh-count-hint"></span></label><input id="f-sh-count" type="text" inputmode="numeric" placeholder="derived from peak"></div>
+        <div><label for="f-sh-tps-gpu">Tokens/s per GPU <span class="tag tag-est">assumed</span></label><input id="f-sh-tps-gpu" type="text" inputmode="numeric" placeholder="from table"></div>
+        <div><label for="f-sh-capex">Capex ($ one-time)</label><input id="f-sh-capex" type="text" inputmode="decimal" value="0"></div>
+        <div><label for="f-sh-fixed">Fixed opex ($ / month)</label><input id="f-sh-fixed" type="text" inputmode="decimal" value="10000"></div>
+        <div><label for="f-sh-budget">Monthly token budget</label><input id="f-sh-budget" type="text" inputmode="numeric" placeholder="derived from capacity"></div>
+      </div>
+      <p class="muted" id="f-sh-note" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="lane">
+      <div class="lane-h"><h3>Model API</h3><span class="lane-n" id="opt-api-total">&mdash;</span></div>
+      <div class="grid" style="margin-top:14px">
+        <div><label for="fb-feed">Price feed</label><select id="fb-feed"><option value="litellm">LiteLLM cost map</option><option value="openrouter">OpenRouter</option></select></div>
+        <div><label for="fb-model">Model</label><select id="fb-model"><option value="">loading snapshot&hellip;</option></select></div>
+      </div>
+      <p class="muted" id="fb-model-note" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="lane">
+      <div class="lane-h"><h3>Rented GPU</h3><span class="lane-n" id="opt-rent-total">&mdash;</span></div>
+      <div class="grid" style="margin-top:14px">
+        <div><label for="f-rent-provider">Provider</label><select id="f-rent-provider"></select></div>
+        <div><label for="f-rent-gpu">Accelerator</label><select id="f-rent-gpu"></select></div>
+        <div><label for="f-rent-util">Utilization (0&ndash;1)</label><input id="f-rent-util" type="text" inputmode="decimal" value="0.7"></div>
+      </div>
+      <p class="muted" id="f-rent-note" style="margin:10px 0 0"></p>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────── 04 RESULTS ─────────────────────────── -->
+  <div class="kicker"><b>04</b> / Results</div>
+  <h2>The comparison, with its receipts</h2>
+  <div id="results"><p class="muted">Set the demand above and press Calculate.</p></div>
+
+  <!-- ─────────────────────────── ADVANCED ─────────────────────────── -->
   <details class="disclose adv" id="level2">
     <summary>Advanced</summary>
+
     <div class="card" style="margin-top:16px">
-      <h3 style="margin-bottom:12px">Workload detail</h3>
+      <h3 style="margin-bottom:8px">Token shape per turn</h3>
+      <p class="muted" style="margin-bottom:14px">
+        RAG and Agentic differ by roughly an order of magnitude per turn, which is why each workload
+        carries its own shape instead of one blended average. Cached input is tracked separately because
+        it is tariffed separately.
+      </p>
+      <table>
+        <thead><tr><th>Workload</th><th class="n">Turns / session</th><th class="n">Input</th><th class="n">Output</th><th class="n">Cached input</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Chat</td>
+            <td class="n"><input id="f-chat-turns" type="text" inputmode="numeric" value="6"></td>
+            <td class="n"><input id="f-chat-in" type="text" inputmode="numeric" value="300"></td>
+            <td class="n"><input id="f-chat-out" type="text" inputmode="numeric" value="250"></td>
+            <td class="n"><input id="f-chat-cached" type="text" inputmode="numeric" value="0"></td>
+          </tr>
+          <tr>
+            <td>RAG</td>
+            <td class="n"><input id="f-rag-turns" type="text" inputmode="numeric" value="5"></td>
+            <td class="n"><input id="f-rag-in" type="text" inputmode="numeric" value="3000"></td>
+            <td class="n"><input id="f-rag-out" type="text" inputmode="numeric" value="400"></td>
+            <td class="n"><input id="f-rag-cached" type="text" inputmode="numeric" value="1000"></td>
+          </tr>
+          <tr>
+            <td>Graph RAG</td>
+            <td class="n"><input id="f-graphrag-turns" type="text" inputmode="numeric" value="4"></td>
+            <td class="n"><input id="f-graphrag-in" type="text" inputmode="numeric" value="6000"></td>
+            <td class="n"><input id="f-graphrag-out" type="text" inputmode="numeric" value="500"></td>
+            <td class="n"><input id="f-graphrag-cached" type="text" inputmode="numeric" value="2000"></td>
+          </tr>
+          <tr>
+            <td>Agentic</td>
+            <td class="n"><input id="f-agentic-turns" type="text" inputmode="numeric" value="12"></td>
+            <td class="n"><input id="f-agentic-in" type="text" inputmode="numeric" value="9000"></td>
+            <td class="n"><input id="f-agentic-out" type="text" inputmode="numeric" value="1200"></td>
+            <td class="n"><input id="f-agentic-cached" type="text" inputmode="numeric" value="4000"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">Service level &amp; pricing instant</h3>
       <div class="grid">
-        <div><label for="f-cache">Cache-read tokens / request</label><input id="f-cache" type="text" inputmode="numeric" value="0"></div>
         <div><label for="f-p95">Required p95 tok/s (SLO)</label><input id="f-p95" type="text" inputmode="numeric" placeholder="leave empty if none"></div>
         <div><label for="f-utc">Price as of</label><select id="f-utc"></select></div>
-        <div><label for="fa-days">Traffic spread over (days)</label><input id="fa-days" type="text" inputmode="numeric" placeholder="empty = spread over month"></div>
       </div>
     </div>
+
     <div class="card">
       <h3 style="margin-bottom:12px">Routing policy</h3>
       <div class="grid">
@@ -263,11 +322,12 @@
             <option value="fixed_split">fixed_split (contractual)</option>
           </select>
         </div>
-        <div><label for="fr-blend">Split traffic: % local</label><input id="fr-blend" type="text" inputmode="numeric" value="70"></div>
+        <div><label for="fr-blend">Split traffic: % self-hosted</label><input id="fr-blend" type="text" inputmode="numeric" value="70"></div>
         <div><label for="fr-failshare">Failover share (fraction)</label><input id="fr-failshare" type="text" inputmode="decimal" value="0"></div>
         <div><label for="fr-failrate">Failover rate multiplier</label><input id="fr-failrate" type="text" inputmode="decimal" value="2"></div>
       </div>
     </div>
+
     <div class="card">
       <h3 style="margin-bottom:10px">Commercial overlay (operator-entered)</h3>
       <div class="grid">
@@ -281,7 +341,7 @@
   </details>
 
   <!-- ────────────────────── SENSITIVITY & PROVENANCE ────────────────────── -->
-  <div class="kicker"><b>04</b> / Sensitivity &amp; provenance</div>
+  <div class="kicker"><b>05</b> / Sensitivity &amp; provenance</div>
   <h2>How the numbers move, and where they came from</h2>
   <div id="sensitivity"><p class="muted">Sensitivity over demand and price appears after a run.</p></div>
 

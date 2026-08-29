@@ -592,22 +592,37 @@ private quote exports.
 ## 8. UX and screen flow
 
 ```
-S1 Workload  →  S2 Lanes & routing  →  S3 Results  ⇄  S4 Sensitivity & provenance
+S1 Workload  →  S2 Options & routing  →  S3 Results  ⇄  S4 Sensitivity & provenance
 ```
 
-- **S1 Workload:** demand (tokens/mo, request count), shape distributions, unit
-  basis + reference tokenizer (§4.1), `required_p95_tok_s` SLO.
-- **S2 Lanes & routing:** Lane A fixed cost + capacity; routing policy selection
-  (§2.2 — advisory blend input with `dominated` flag rendered inline); Lane C
-  topology; Lane B model set. Changing the lane selection triggers slice fetches
-  under the §9 budget.
-- **S3 Results:** TCO curve over horizon; cost-per-1M per lane with `exact|estimated`
-  labels; breakeven utilization; p95 feasibility verdicts (`feasible|infeasible|
-  unknown`) — never the word "guarantee"; freshness banner (§5.5).
+**It is a calculator, not an essay.** v0.1 wrapped the numbers in explanatory prose;
+v0.2 removes it. Attribution is not narrative: every number keeps its click-through
+provenance popover, and the tags (`exact`, `estimated`, `assumed`, `first_party`,
+`indicative`, `unknown`) stay. What goes is the prose *around* the numbers.
+
+- **S1 Workload:** preset selector; **user count**, sessions/user/day, working
+  days/month; the workload **mix** rows (RAG, Graph RAG, Agentic, Chat) with shares
+  and per-turn token shapes; peak concurrency and the per-stream speed floor (§6.2);
+  `required_p95_tok_s` SLO. Derived totals render alongside their inputs and each is
+  overridable (§2.4).
+- **S2 Options & routing:** Self-hosted capex + monthly opex + capacity; Rented GPU
+  **provider** and topology (§5.7); Model API model set; routing policy selection
+  (§2.2 — advisory blend input with `dominated` flag rendered inline). Changing the
+  selection triggers slice fetches under the §9 budget.
+- **S3 Results:** peak tok/s and whether each option holds the speed floor;
+  **payback in months** (§2.5); TCO curve over horizon; cost-per-1M per option with
+  `exact|estimated` labels; p95 feasibility verdicts (`feasible|infeasible|unknown`)
+  — never the word "guarantee"; freshness banner (§5.5).
 - **S4 Sensitivity & provenance:** sensitivity table over declared ranges; every
   number clickable into a provenance popover (source feed, `observed_at`, digest,
   exact/estimated reasons, evidence row if any); overlay toggle (infra-only /
   fully-loaded); quote export for consultants.
+
+**Naming contract (normative).** The strings `Lane`, `Lane A`, `Lane B` and `Lane C`
+MUST NOT appear in any rendered surface or in the exported quote. The engine's
+internal `A`/`B`/`C` keys are mapped to `self_hosted` / `model_api` / `rented_gpu`
+at render and at export. §12.4's fixtures continue to address the engine keys
+directly; that is the boundary, and it is one-directional.
 
 UX rules: no number without a provenance popover; no estimate without its reason
 list; stale or quarantined inputs are visible at the point of use, never hidden.

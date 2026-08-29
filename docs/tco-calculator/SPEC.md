@@ -723,6 +723,17 @@ result is a refusal listing WHY per attempted size — never a silent fallback.
 VRAM capacity is NOT duplicated in `serving-models.json`: `gpu-pricing.json` remains
 the single source of truth for it, and the serving table adds bandwidth only.
 
+**How provenance is carried — normative.** `serving-models.json` holds ONE file-level
+`provenance` object (`owner`, `observed`, `re_verify_before`) that every row inherits;
+a row whose expiry genuinely differs overrides it explicitly. On top of that, each row
+carries the provenance that is actually its own: a `cited` or `inferred` accelerator or
+model row carries `source_url` and `observed_at`, while an `exact` or `assumed`
+constant carries `basis` and an explanatory `note`. Per-row `source_url` on a
+definitional constant is deliberately absent — "two bytes per parameter" has no
+citation, and manufacturing one to satisfy a uniform schema would breach the
+provenance mandate this table exists to enforce. `inferred` rows keep
+`"source_url": null` for the same reason: `unknown` beats invented.
+
 **6.6.6 What is NOT modelled — normative.** Every throughput figure derived here is
 tagged `assumed` and MUST NOT satisfy a `modelled_p95_capacity` verdict (§6.3–§6.5).
 It rests on stated efficiency constants, not measurement. Specifically excluded:
@@ -736,6 +747,22 @@ An entered `Measured tok/s per GPU` outranks the roofline, and the roofline outr
 the v0.2 constant. The v0.2 path REMAINS as the fallback for an accelerator with no
 published bandwidth figure, so such a provider keeps its row in the cross-provider
 table instead of vanishing from the comparison.
+
+**The fallback is scoped to MISSING DATA, never to a refusal — normative.** The two
+outcomes are not interchangeable and MUST NOT be collapsed:
+
+| Outcome | Meaning | What the calculator does |
+|---|---|---|
+| no bandwidth published for the accelerator | the DATA is absent | falls back to the v0.2 constant, labelled `a per-accelerator planning constant, not this model` |
+| `ServingRefusal` from `servingPlan` | the model does not physically FIT | the self-hosted option is NOT sized and NOT priced; results and verdict are cleared and the per-size refusal is shown |
+
+Pricing a refused configuration from the v0.2 constant would put a monthly cost — and
+potentially a "lowest" verdict — on hardware that cannot hold the model, which is the
+single most damaging error this calculator can make. The ONE exception is an entered
+`Measured tok/s per GPU`: it outranks the roofline by the rule above, so a user who
+has benchmarked the configuration may proceed past the refusal. The fit panel is then
+tagged `did not size the fleet`, because the roofline's own figures no longer describe
+what was costed.
 
 **6.6.7 Worked example (regression anchor).** Qwen3 8B, BF16, H100 80GB
 (3350 GB/s, 0.80 efficiency, 10% overhead), 32,768 context, 30 tok/s floor:
@@ -823,8 +850,17 @@ know what a KV head is. Therefore:
   `no_viable_configuration`). The raw keys survive in the provenance popover and the
   exported quote, which are the technical record.
 - Expert controls stay reachable but DEMOTED into collapsed `Architecture detail`
-  and `Service level, routing & overlay` sections. Demoted, never removed: raw
-  architecture fields remain editable, including a KV-bytes-per-token override.
+  and `Service level, routing & overlay` sections. Demoted, never removed: the raw
+  architecture is editable per LAYER GROUP — attention kind (full / sliding / linear
+  / MLA), layer count, KV heads, head dim, tensors per layer, plus the window for a
+  sliding group and the latent rank and RoPE dim for an MLA one — with a
+  KV-bytes-per-token override as a separate expert shortcut.
+- **The architecture editor is GENERATED from the selected preset's own groups, one
+  block each — normative.** A single architecture dropdown would flatten a hybrid
+  into whichever kind was picked, and a hybrid is exactly the case a flat model gets
+  wrong (§6.6.1). A blank or unparseable field falls back to that group's preset
+  value rather than propagating a refusal, because since §6.6.4 a refusal legitimately
+  stops the comparison and a half-typed number must not.
 - A mix that does not sum to 1 is refused (§2.4), so the refusal comes with a
   one-click remedy that says where the remainder went, rather than leaving the user
   to do the arithmetic they came here to avoid.
@@ -833,7 +869,8 @@ know what a KV head is. Therefore:
 sessions/user/day, working days, peak concurrency, per-stream speed floor §6.2) →
 *What they do* (mix shares + per-turn token shapes) → **The model you'd run**
 (§6.6: model, size, active size, context, weight precision, serving stack, serving
-mode; collapsed: KV precision, concurrency cap, KV-bytes override) → *Hardware &
+mode; collapsed: KV precision, concurrency cap, the per-group architecture editor,
+KV-bytes override) → *Hardware &
 prices* (owned accelerator, GPU count, measured tok/s override, rented provider +
 accelerator + utilization, API price feed + model) → *Money* (capex, monthly opex;
 collapsed: token budget, `required_p95_tok_s`, quote instant, routing policy,
@@ -849,7 +886,12 @@ overlay).
    `assumed` tag. A configuration that does not serve renders its REASON and what to
    change, never a blank panel.
 3. **Demand** — sessions, turns, tokens per month, peak tok/s, and the sized fleet
-   stated as replicas x GPUs-per-replica with the basis it was solved from.
+   with the basis it was solved from. **The stated basis and topology MUST name the
+   input that actually sized the fleet, not the most detailed one available** — only
+   the roofline path solves replicas, so a fleet sized from a measured figure or the
+   v0.2 constant is stated as a flat count and labelled as such. Reporting replica
+   topology for a fleet that was never solved in replicas is a provenance error at
+   the exact point where a buyer decides which number to trust.
 4. **Recommendation and payback** (§2.5), then per-option cost/month, cost-per-1M
    with `exact|estimated`, the **rented-GPU cross-provider table** — every provider
    priced for this load at its cheapest holding SKU, sized on its OWN accelerator AND

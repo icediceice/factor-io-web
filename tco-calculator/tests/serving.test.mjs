@@ -462,3 +462,42 @@ test("regression: a Dec total and a non-terminating Rat total compare and subtra
   assert.equal(b.lt(a), true);
   assert.equal(formatHalfUp(a.sub(b), 2), "9666.67");
 });
+
+// regression: the on-screen architecture editor (app.js:readArchGroups) emits ONE
+// group object per kind, and the engine must accept every shape it can produce —
+// including the fields a kind switch adds that the preset never carried. Pinned
+// here because the editor itself is DOM-bound and cannot be imported.
+test("regression: every shape the architecture editor emits is priced by the engine", () => {
+  const B = "2"; // BF16
+  const bytes = (groups) => formatHalfUp(kvBytesPerToken(groups, B), 0);
+
+  // full — the shape rendered for kind=full: layers, kv_heads, head_dim, tensors.
+  const full = { kind: "full", layers: 36, kv_heads: 8, head_dim: 128, tensors: 2 };
+  assert.equal(bytes([full]), "147456");
+
+  // sliding — same fields plus window_tokens, which caps RETENTION, not cost/token.
+  const sliding = { kind: "sliding", layers: 36, kv_heads: 8, head_dim: 128, tensors: 2, window_tokens: 1024 };
+  assert.equal(bytes([sliding]), "147456");
+  assert.equal(formatHalfUp(groupRetainedTokens(sliding, new Rat(32768n, 1n)), 0), "1024");
+  // Switching TO sliding from a preset that declared no window leaves it null;
+  // that must retain the whole context, never throw.
+  const noWindow = { ...sliding, window_tokens: null };
+  assert.equal(formatHalfUp(groupRetainedTokens(noWindow, new Rat(32768n, 1n)), 0), "32768");
+
+  // linear — the editor emits kind + layers only, and the cache cost is exactly 0.
+  assert.equal(bytes([{ kind: "linear", layers: 36 }]), "0");
+
+  // mla — kv_lora_rank + qk_rope_head_dim, the two fields a full/sliding preset
+  // never carries, so the editor substitutes 1 rather than letting count() refuse.
+  const mla = { kind: "mla", layers: 36, kv_lora_rank: 512, qk_rope_head_dim: 64 };
+  assert.equal(bytes([mla]), String(36 * (512 + 64) * 2));
+  assert.doesNotThrow(() => bytes([{ kind: "mla", layers: 36, kv_lora_rank: 1, qk_rope_head_dim: 1 }]));
+
+  // A hybrid keeps one block per group, and the four kinds price DISTINCTLY —
+  // the whole reason the editor is per-group instead of one architecture dropdown.
+  const priced = [full, sliding, { kind: "linear", layers: 36 }, mla]
+    .map((g) => formatHalfUp(groupBytesPerToken(g, B), 0));
+  assert.equal(new Set(priced).size, 3); // full and sliding share cost/token by design
+  assert.equal(priced[2], "0");
+  assert.equal(bytes([sliding, full]), "294912");
+});

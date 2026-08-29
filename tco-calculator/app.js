@@ -236,6 +236,116 @@ async function loadServingModels() {
   applyModelPreset(d.models[0].id);
 }
 
+// The four architectures the buyer named are a per-LAYER-GROUP property, and a real
+// model can mix them: Gemma runs sliding and full layers together, Qwen3-Next runs
+// GDN and full. So the editor is GENERATED from the chosen preset's own groups —
+// one block each — rather than offering a single architecture dropdown that would
+// silently flatten a hybrid into whichever kind happened to be picked. That
+// flattening is the exact error the layer-group model exists to prevent.
+const GROUP_KINDS = [
+  ["full", "Full attention — every token retained"],
+  ["sliding", "Sliding window — retains only its span"],
+  ["linear", "Linear / GDN — no growing cache"],
+  ["mla", "MLA — compressed latent cache"],
+];
+
+const gf = (i, k) => `f-g${i}-${k}`;
+
+function groupFieldsHtml(i, g) {
+  const num = (k, label, val, sub) => `
+    <div class="f">
+      <label for="${gf(i, k)}">${label}</label>
+      <input id="${gf(i, k)}" type="text" inputmode="numeric" value="${escapeHtml(String(val ?? ""))}">
+      <span class="sub">${sub}</span>
+    </div>`;
+  if (g.kind === "linear") {
+    return `<p class="muted" style="margin:0">These layers carry a constant recurrent state, so they add <strong>0 bytes per token</strong> however long the context runs. That state itself is <span class="tag tag-unknown">unmodelled</span>, not assumed to be zero.</p>
+      ${`<div class="row one">${num("layers", "Layers", g.layers, "How many layers in this group.")}</div>`}`;
+  }
+  if (g.kind === "mla") {
+    return `<div class="row three">
+      ${num("layers", "Layers", g.layers, "Layers in this group.")}
+      ${num("lora", "KV latent rank", g.kv_lora_rank, "The compressed dimension actually stored.")}
+      ${num("rope", "RoPE head dim", g.qk_rope_head_dim, "Carried uncompressed alongside it.")}
+    </div>`;
+  }
+  return `<div class="row three">
+      ${num("layers", "Layers", g.layers, "Layers in this group.")}
+      ${num("heads", "KV heads", g.kv_heads, "Grouped-query models share these across attention heads.")}
+      ${num("dim", "Head dim", g.head_dim, "Width of one head.")}
+    </div>
+    <div class="row${g.kind === "sliding" ? "" : " one"}">
+      ${num("tensors", "Tensors per layer", g.tensors ?? 2, "2 for separate K and V; 1 when the layer unifies them.")}
+      ${g.kind === "sliding" ? num("window", "Window (tokens)", g.window_tokens, "Past this span an old token leaves as a new one arrives, so these layers stop growing.") : ""}
+    </div>`;
+}
+
+function renderArchGroups(groups) {
+  state.archGroups = groups ?? [];
+  const box = $("sv-groups");
+  if (!box) return;
+  box.innerHTML = state.archGroups.map((g, i) => `
+    <div class="grp">
+      <div class="glabel">Group ${i + 1}${state.archGroups.length > 1 ? ` of ${state.archGroups.length}` : ""}</div>
+      <div class="row one">
+        <div class="f">
+          <label for="${gf(i, "kind")}">Attention type</label>
+          <select id="${gf(i, "kind")}">${GROUP_KINDS.map(([k, l]) =>
+            `<option value="${k}"${g.kind === k ? " selected" : ""}>${escapeHtml(l)}</option>`).join("")}</select>
+        </div>
+      </div>
+      ${groupFieldsHtml(i, g)}
+    </div>`).join("");
+
+  // Changing the KIND changes WHICH fields exist, so that one re-renders the block
+  // from the edited values before recomputing; everything else just recomputes.
+  for (let i = 0; i < state.archGroups.length; i++) {
+    $(gf(i, "kind"))?.addEventListener("change", () => {
+      const next = readArchGroups() ?? state.archGroups;
+      renderArchGroups(next);
+      onLiveInput();
+    });
+    for (const k of ["layers", "heads", "dim", "tensors", "window", "lora", "rope"]) {
+      $(gf(i, k))?.addEventListener("input", onLiveInput);
+    }
+  }
+}
+
+/**
+ * Read the editor back into engine group shape.
+ *
+ * A blank or unparseable field falls back to the PRESET's value for that field
+ * rather than propagating as a refusal: mid-typing states would otherwise blank the
+ * whole comparison, and since v0.3 a refusal legitimately stops the sizing (§6.6.4).
+ */
+function readArchGroups() {
+  const base = state.archGroups;
+  if (!Array.isArray(base) || base.length === 0) return null;
+  if (!$(gf(0, "kind"))) return null;
+  return base.map((b, i) => {
+    const n = (k, fallback) => {
+      const v = intInput(gf(i, k));
+      return v === null || !Number.isFinite(v) || v <= 0 ? fallback : v;
+    };
+    const kind = $(gf(i, "kind"))?.value ?? b.kind;
+    const g = { kind, layers: n("layers", b.layers) };
+    if (kind === "linear") return g;
+    if (kind === "mla") {
+      // Switching kind can ask for a field the preset group never had; the
+      // engine's own count() would refuse, so a neutral 1 keeps the edit alive
+      // and visible instead of blanking the screen mid-experiment.
+      g.kv_lora_rank = n("lora", b.kv_lora_rank ?? 1);
+      g.qk_rope_head_dim = n("rope", b.qk_rope_head_dim ?? 1);
+      return g;
+    }
+    g.kv_heads = n("heads", b.kv_heads ?? 1);
+    g.head_dim = n("dim", b.head_dim ?? 1);
+    g.tensors = n("tensors", b.tensors ?? 2);
+    if (kind === "sliding") g.window_tokens = n("window", b.window_tokens ?? null);
+    return g;
+  });
+}
+
 // Selecting a model fills the fields a user would otherwise have to look up in a
 // config.json. Every one stays editable — the preset is a starting point, not a lock.
 function applyModelPreset(id) {
@@ -245,7 +355,21 @@ function applyModelPreset(id) {
   $("f-sv-active").value = m.active_params_b;
   $("f-sv-ctx").value = String(m.context_default);
   $("f-sv-kvbytes").value = "";
+  renderArchGroups(m.groups);
   onLiveInput();
+}
+
+// Which sentence describes this stack. Order matters: a hybrid is named by the
+// property that changes the answer most, and "no growing cache at all" outranks
+// "some layers slide", which outranks "everything is retained".
+function archKeyOf(spec, preset) {
+  if (spec?.kv_override) return preset?.architecture;
+  const kinds = new Set((spec?.groups ?? []).map((g) => g.kind));
+  if (kinds.has("linear")) return "gdn";
+  if (kinds.has("mla")) return "mla";
+  if (kinds.has("sliding")) return "sliding";
+  if (kinds.has("full")) return "full";
+  return preset?.architecture;
 }
 
 const ARCH_WORDS = {
@@ -265,6 +389,10 @@ function currentModelSpec() {
     params_b: decInput("f-sv-params") ?? m.params_b,
     active_params_b: decInput("f-sv-active") ?? m.active_params_b,
   };
+  // The architecture editor is authoritative over the preset when it is hydrated,
+  // so an edited kind, layer count, window or MLA dimension reaches the engine.
+  const edited = readArchGroups();
+  if (edited) spec.groups = edited;
   const kvOverride = decInput("f-sv-kvbytes");
   if (kvOverride !== null) {
     // A flat bytes-per-token figure carries NO layer structure, so it cannot
@@ -323,6 +451,7 @@ function solveServingFor(gpuId) {
 function buildServingPlan() {
   state.serving = null;
   state.servingGap = null;
+  state.servingRefusal = null;
   if (!state.servingData) return null;
   const gpuId = $("f-sh-gpu").value;
   try {
@@ -334,7 +463,18 @@ function buildServingPlan() {
     state.serving = p;
     return p;
   } catch (e) {
-    state.servingGap = e instanceof ServingRefusal ? e.message : `serving model error — ${e.message}`;
+    // The two outcomes are NOT interchangeable, and collapsing them was a real
+    // defect: a null above means the DATA is missing, which SPEC §6.6.6 says the
+    // v0.2 constant legitimately covers; a ServingRefusal means the model does not
+    // physically fit, which §6.6.4 says is "never a silent fallback". The refusal
+    // is recorded here and re-raised by computeDemand, so an impossible fleet is
+    // not priced — only a measured figure, which outranks the roofline, may pass it.
+    if (e instanceof ServingRefusal) {
+      state.servingGap = e.message;
+      state.servingRefusal = e;
+      return null;
+    }
+    state.servingGap = `serving model error — ${e.message}`;
     return null;
   }
 }
@@ -353,7 +493,9 @@ function renderServingNote() {
 
   const moe = spec && Number(spec.active_params_b) < Number(spec.params_b)
     ? ` Mixture-of-experts: all ${escapeHtml(String(spec.params_b))}B sit in memory, only ${escapeHtml(String(spec.active_params_b))}B are read per token.` : "";
-  $("sv-note").innerHTML = `${escapeHtml(ARCH_WORDS[m.architecture] ?? "")} <strong>${escapeHtml(kvText)}</strong> of cache per token.${moe}`;
+  // Described from the groups ACTUALLY in play, not from the preset's label — an
+  // edited architecture that still read "full attention" would be a lie on screen.
+  $("sv-note").innerHTML = `${escapeHtml(ARCH_WORDS[archKeyOf(spec, m)] ?? "")} <strong>${escapeHtml(kvText)}</strong> of cache per token.${moe}`;
 
   const cite = m.source_url
     ? `Layer structure cited from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">the published architecture</a>, verified against the model's own config.`
@@ -369,9 +511,17 @@ function renderFitPanel() {
   const p = state.serving;
   const box = $("fit");
   if (!p) {
+    // What happens NEXT differs by which of the two outcomes this is, so the panel
+    // must not promise a fallback comparison that a refusal now correctly stops.
+    const overridden = state.sizingBasis === "user_override";
+    const after = state.servingRefusal
+      ? overridden
+        ? "Your measured tok/s per GPU outranks the model, so the comparison below still runs on it. Clear that field and the comparison stops rather than pricing a fleet that cannot hold the model."
+        : "The comparison below does not run: sizing a fleet that cannot hold this model would put a price on a configuration you cannot buy."
+      : "The comparison below still runs on the per-accelerator planning constant.";
     box.innerHTML = state.servingGap
       ? `<div class="card"><h3>Fit &amp; speed</h3><div class="gap"><strong>This configuration does not serve:</strong> ${escapeHtml(state.servingGap)}</div>
-         <p class="muted">Try a smaller model, a lower precision, a shorter context, or a bigger accelerator. The comparison below still runs on the per-accelerator planning constant.</p></div>`
+         <p class="muted">Try a smaller model, a lower precision, a shorter context, or a bigger accelerator. ${escapeHtml(after)}</p></div>`
       : "";
     return;
   }
@@ -391,7 +541,13 @@ function renderFitPanel() {
   ];
   const tight = Number(p.batch.text) <= 2;
   return void (box.innerHTML = `<div class="card">
-    <h3>Fit &amp; speed <span class="tag tag-est">modelled</span></h3>
+    <h3>Fit &amp; speed <span class="tag tag-est">modelled</span>${
+      state.sizingBasis === "user_override"
+        ? ` <span class="tag tag-unknown">did not size the fleet</span>`
+        : ""}</h3>${
+      state.sizingBasis === "user_override"
+        ? `<p class="muted" style="margin:0 0 9px">Your measured tok/s per GPU outranks the model, so the numbers below describe what the roofline predicts &mdash; the fleet and the costs were sized from your figure.</p>`
+        : ""}
     <div class="kpi">
       <div><label>Fits on</label><div class="v">${numProv(`${p.gpus_per_replica} &times; ${escapeHtml(gpuLabel)}`, rows)}</div></div>
       <div><label>VRAM used / usable</label><div class="v">${p.vram_gb_used_per_gpu.text} / ${p.vram_gb_usable_per_gpu.text} GB</div></div>
@@ -543,13 +699,27 @@ function computeDemand(usersOverride = null) {
   // sizing the fleet. A null plan is not a failure — it is the v0.2 fallback,
   // and gpusForLoad keeps the per-accelerator constant path for exactly that.
   const serving = buildServingPlan();
+  const override = decInput("f-sh-tps-gpu");
+  // A configuration the roofline REFUSED is not priced from the v0.2 constant.
+  // That fallback exists for an accelerator with no published bandwidth (§6.6.6),
+  // not for a model that cannot fit (§6.6.4). A measured figure outranks the
+  // roofline, so it — and only it — may proceed past a refusal.
+  if (state.servingRefusal && override === null) throw state.servingRefusal;
   const sizing = gpusForLoad({
     peakTokensPerSecond: peak.peak_tokens_s.text,
     gpuId,
-    tokensPerSecondPerGpu: decInput("f-sh-tps-gpu"),
+    tokensPerSecondPerGpu: override,
     serving,
   });
-  return { demand, peak, sizing, gpuId, serving };
+  // Which input ACTUALLY sized the fleet. gpusForLoad gives the override
+  // precedence, so branching on `serving` being truthy would credit the roofline
+  // for a fleet the user's own benchmark sized — and print replica topology the
+  // override path never produced.
+  const sizingBasis = override !== null ? "user_override"
+    : sizing.serving_basis === "roofline" ? "roofline"
+    : "assumed";
+  state.sizingBasis = sizingBasis;
+  return { demand, peak, sizing, gpuId, serving, sizingBasis };
 }
 
 // The live readout under the demand inputs. It must never show a number derived
@@ -572,7 +742,7 @@ function refreshDerived() {
   renderServingNote();
 
   try {
-    const { demand, peak, sizing, serving } = computeDemand();
+    const { demand, peak, sizing, serving, sizingBasis } = computeDemand();
     state.demand = { demand, peak, sizing };
     if (!$("f-sh-tps-gpu").value.trim()) $("f-sh-tps-gpu").placeholder = `${sizing.tokens_s_per_gpu.text} (${serving ? "from the model" : "assumed"})`;
     $("f-sh-count-hint").textContent = `— ${sizing.gpus_required.text} needed at peak`;
@@ -583,13 +753,17 @@ function refreshDerived() {
       : "";
     // Where tokens/s per GPU CAME FROM is the number the whole comparison turns
     // on, so it carries its basis inline rather than only inside a popover.
-    const gpuBasis = serving
+    const gpuBasis = sizingBasis === "roofline"
       ? `solved from ${escapeHtml($("f-sv-model").selectedOptions[0]?.textContent ?? "the model")} at ${groupInt(serving.context_tokens.text)} tokens of context`
-      : sizing.assumed ? "a per-accelerator planning constant, not this model" : "your figure";
-    const fleet = serving
-      ? `<strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}`
-        + ` &mdash; ${sizing.replicas?.text ?? "?"} cop${sizing.replicas?.text === "1" ? "y" : "ies"} of the model, ${serving.gpus_per_replica} GPU${serving.gpus_per_replica === 1 ? "" : "s"} each`
-      : `<strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}`;
+      : sizingBasis === "user_override" ? "your measured figure, which outranks the model"
+      : "a per-accelerator planning constant, not this model";
+    const card = `<strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}`;
+    // Replica topology exists ONLY on the roofline path — gpusForLoad's override
+    // and constant paths size a flat count and return no replicas, so printing
+    // "? copies" there was the renderer inventing a structure that was never solved.
+    const fleet = sizingBasis === "roofline"
+      ? `${card} &mdash; ${sizing.replicas.text} cop${sizing.replicas.text === "1" ? "y" : "ies"} of the model, ${serving.gpus_per_replica} GPU${serving.gpus_per_replica === 1 ? "" : "s"} each`
+      : card;
 
     $("derived").innerHTML = `
       <div class="kpi">
@@ -607,8 +781,13 @@ function refreshDerived() {
       </p>`;
   } catch (e) {
     state.demand = null;
-    const why = e instanceof DemandRefusal ? e.message : `input problem — ${e.message}`;
-    $("derived").innerHTML = `<div class="gap"><strong>Demand not computed:</strong> ${escapeHtml(why)}</div>`;
+    state.sizingBasis = null;
+    // A ServingRefusal here is the model not fitting, which is an ANSWER, not a
+    // crash — it must read like one rather than as "input problem — ...".
+    const why = (e instanceof DemandRefusal || e instanceof ServingRefusal)
+      ? e.message : `input problem — ${e.message}`;
+    const what = e instanceof ServingRefusal ? "This configuration cannot be served" : "Demand not computed";
+    $("derived").innerHTML = `<div class="gap"><strong>${what}:</strong> ${escapeHtml(why)}</div>`;
   }
 
   renderFitPanel();
@@ -768,8 +947,14 @@ function run() {
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
   } catch (e) {
-    if (e instanceof DemandRefusal) {
-      showGap(`${escapeHtml(e.message)}`);
+    if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
+      // Clear both output surfaces. Leaving the previous run's totals and verdict
+      // standing under a refusal is how an impossible configuration keeps a price
+      // tag — and the verdict is exactly the number a buyer reads first.
+      state.result = null;
+      $("results").innerHTML = "";
+      $("verdict").innerHTML = "";
+      showGap(escapeHtml(e.message));
       return;
     }
     // The visible gap can be overwritten by a later async load, so the stack also

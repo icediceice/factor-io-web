@@ -108,6 +108,15 @@
   details.adv > summary:hover { color:var(--ink); }
   details.adv > *:not(summary) { margin-top:7px; }
 
+  /* One editor block per attention layer GROUP. A hybrid has more than one, and
+     collapsing them into a single architecture selector is precisely the error the
+     layer-group model exists to avoid — so the editor is generated from whatever
+     groups the chosen preset actually has. */
+  .grp { border:1px solid rgba(232,230,240,.13); border-radius:4px; padding:8px 9px; margin-top:6px; }
+  .grp > .glabel { font:10.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
+  .grp .row { margin-bottom:6px; }
+  .grp .row:last-child { margin-bottom:0; }
+
   /* ── output ───────────────────────────────────────────────────────── */
   .card { border:1px solid var(--line); border-radius:5px; background:var(--panel); padding:15px 17px; margin-bottom:12px; }
   .card > h3 { font-size:14px; font-weight:600; margin-bottom:9px; letter-spacing:-.005em; }
@@ -328,9 +337,16 @@
         </div>
         <div class="row one">
           <div class="f">
+            <label>Attention layers</label>
+            <span class="sub">The preset's own layer structure, editable. This is what decides the cache cost per token: a sliding window stops growing past its span, GDN layers never grow at all, and MLA stores one compressed latent instead of keys and values. A hybrid model keeps one block per group.</span>
+            <div id="sv-groups"></div>
+          </div>
+        </div>
+        <div class="row one">
+          <div class="f">
             <label for="f-sv-kvbytes">KV bytes per token <span class="tag tag-est">override</span></label>
             <input id="f-sv-kvbytes" type="text" inputmode="numeric" placeholder="from the model's layer structure">
-            <span class="sub">The single number that decides how context costs you. Derived from the selected model's layers; enter your own from its <code>config.json</code> if you have it.</span>
+            <span class="sub">Expert shortcut. Leave blank and the layer structure above is used. Fill it in and that structure is bypassed entirely &mdash; including window-based retention, which a single flat number cannot express.</span>
           </div>
         </div>
         <p class="muted" id="sv-arch-note"></p>

@@ -1,23 +1,43 @@
-// app.js — S2 lanes & routing, S3 results, S4 sensitivity & provenance.
+// app.js — demand entry, option comparison, results, sensitivity & provenance.
 //
 // UX rules are normative (SPEC 8): no number without provenance, no estimate
 // without its reason list, stale/quarantined inputs visible at the point of
 // use, and the word g-u-a-r-a-n-t-e-e never appears — a guarantee is a
 // contract a human signs, not a number a model emits.
+//
+// NAMING CONTRACT (SPEC 8, normative): the strings "Lane", "Lane A", "Lane B"
+// and "Lane C" MUST NOT appear in any rendered surface or in the exported quote.
+// The engine keeps its internal A/B/C keys — 14 fixture call sites bind them to
+// the F1–F10 acceptance anchors — so the rename happens HERE, at the render and
+// export boundary, through OPTION. Renaming the engine instead would rewrite
+// those fixtures, and they are the regression net for the ×3600 dimensional bug.
 import { Dec, Rat, formatHalfUp } from "./exact.js";
 import { runComparison, matchEvidence, ratToDecExact } from "./calculator.js";
 import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
+import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
+
+// The single place the engine's internal keys become user-facing names.
+const OPTION = {
+  A: { key: "self_hosted", label: "Self-hosted", color: "#B46EFF" },
+  B: { key: "model_api", label: "Model API", color: "#22D3EE" },
+  C: { key: "rented_gpu", label: "Rented GPU", color: "#34D399" },
+};
+const OPTION_KEYS = ["A", "B", "C"];
+
+// Mix/shape field ids use `graphrag`; the engine's workload type is `graph_rag`.
+const MIX_FIELD = { chat: "chat", rag: "rag", graph_rag: "graphrag", agentic: "agentic" };
 
 const $ = (id) => document.getElementById(id);
 const state = {
   manifest: null,
   catalog: null,
   catalogGeneration: -1,
-  presets: null,
+  gpuPricing: null,
+  workloadPresets: null,
   result: null,
+  demand: null,
 };
 
-const decStr = (v) => Dec.from(String(v)).toString();
 const money = (x) => {
   if (x === null || x === undefined) return "—";
   if (x instanceof Dec || x instanceof Rat) return "$" + formatHalfUp(x, 2);
@@ -29,6 +49,7 @@ const money = (x) => {
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const groupInt = (s) => { const n = Number(s); return Number.isFinite(n) ? n.toLocaleString("en-US") : String(s); };
 
 // Provenance popover — every rendered number is clickable into this.
 const pop = $("pop");
@@ -45,10 +66,9 @@ document.addEventListener("click", (e) => {
 });
 
 const prov = (rows) => `class="src" role="button" tabindex="0" aria-label="show provenance" data-prov='${JSON.stringify({ rows }).replaceAll("'", "")}'`;
+function numProv(valueHtml, rows) { return `<span ${prov(rows)}>${valueHtml}</span>`; }
 
-function showGap(msg) {
-  $("gapbox").innerHTML = `<div class="gap"><strong>Data gap:</strong> ${msg}</div>`;
-}
+function showGap(msg) { $("gapbox").innerHTML = `<div class="gap"><strong>Data gap:</strong> ${msg}</div>`; }
 function clearGap() { $("gapbox").innerHTML = ""; }
 
 function renderBanner(fresh) {
@@ -80,10 +100,8 @@ async function init() {
   try {
     state.manifest = await loadManifest();
     renderBanner(freshnessView(state.manifest, Date.now()));
-    await loadPresets();
-    wireS2();
-    // After wireS2 so the preset's feed choice is the LAST selection generation
-    // to fire, and after loadPresets because a card sets fc-preset and applies it.
+    await loadGpuPricing();
+    wireInputs();
     await loadWorkloadPresets();
   } catch (e) {
     showGap(`the pricing snapshot could not be loaded (${escapeHtml(e.message)}). The calculator shows no numbers without its cited data.`);
@@ -91,35 +109,67 @@ async function init() {
   }
 }
 
-async function loadPresets() {
-  const res = await fetch("./tco-calculator/data/lane-c-presets.json");
-  state.presets = await res.json();
-  const sel = $("fc-preset");
-  sel.innerHTML = "";
-  for (const p of state.presets.presets) {
-    const opt = document.createElement("option");
-    opt.value = p.id;
-    opt.textContent = `${p.label} — ${money(p.hourly_rate)}/hr (${p.rate_label})`;
-    sel.appendChild(opt);
-  }
-  applyPreset();
-  sel.addEventListener("change", applyPreset);
+// ------------------------------------------------------- GPU pricing registry
+// Populates BOTH the self-hosted accelerator picker (which needs the hardware
+// identity) and the rented-GPU provider/accelerator pickers (which need the
+// rate). Every rented rate renders its confidence tier at the point of use —
+// an indicative aggregator figure is never displayed as if it were a vendor quote.
+async function loadGpuPricing() {
+  const res = await fetch("./tco-calculator/data/gpu-pricing.json");
+  if (!res.ok) throw new Error(`gpu-pricing.json ${res.status}`);
+  state.gpuPricing = await res.json();
+
+  const gpus = state.gpuPricing.gpus ?? {};
+  const seen = [...new Set(state.gpuPricing.rows.map((r) => r.gpu_id))].sort();
+  $("f-sh-gpu").innerHTML = seen
+    .map((id) => `<option value="${escapeHtml(id)}">${escapeHtml(gpus[id]?.label ?? id)}</option>`)
+    .join("");
+  $("f-sh-gpu").value = seen.includes("h100") ? "h100" : seen[0];
+
+  const provs = Object.entries(state.gpuPricing.providers ?? {})
+    .sort((a, b) => (a[1].confidence === b[1].confidence ? a[1].label.localeCompare(b[1].label) : a[1].confidence === "first_party" ? -1 : 1));
+  $("f-rent-provider").innerHTML = provs
+    .map(([k, v]) => `<option value="${escapeHtml(k)}">${escapeHtml(v.label)} — ${escapeHtml(v.confidence)}</option>`)
+    .join("");
+  $("f-rent-provider").value = provs.find(([, v]) => v.confidence === "first_party")?.[0] ?? provs[0]?.[0];
+
+  $("f-rent-provider").addEventListener("change", fillRentGpus);
+  $("f-rent-gpu").addEventListener("change", renderRentNote);
+  $("f-sh-gpu").addEventListener("change", refreshDerived);
+  fillRentGpus();
 }
 
-function applyPreset() {
-  const p = state.presets.presets.find((x) => x.id === $("fc-preset").value);
-  if (!p) return;
-  $("fc-hourly").value = p.hourly_rate;
-  $("fc-toks").value = p.assumed_tok_s_ceiling;
-  $("fc-note").innerHTML = `rate <strong>${p.rate_label}</strong>: ${escapeHtml(p.rate_note)} · tok/s <strong>${p.tok_s_label}</strong> planning placeholder — <strong>not a benchmark</strong>; the throughput verdict stays unknown without real evidence.`;
+function fillRentGpus() {
+  const p = $("f-rent-provider").value;
+  const rows = state.gpuPricing.rows.filter((r) => r.provider === p);
+  const gpus = state.gpuPricing.gpus ?? {};
+  $("f-rent-gpu").innerHTML = rows
+    .map((r) => `<option value="${escapeHtml(r.gpu_id)}">${escapeHtml(gpus[r.gpu_id]?.label ?? r.gpu_id)} — $${r.gpu_hourly_usd}/GPU-hr</option>`)
+    .join("");
+  if (rows.length) $("f-rent-gpu").value = rows[0].gpu_id;
+  renderRentNote();
+}
+
+function currentRentRow() {
+  const p = $("f-rent-provider").value;
+  const g = $("f-rent-gpu").value;
+  return state.gpuPricing.rows.find((r) => r.provider === p && r.gpu_id === g) ?? null;
+}
+
+function renderRentNote() {
+  const row = currentRentRow();
+  if (!row) { $("f-rent-note").textContent = "no rate for this pairing"; return; }
+  const tier = row.confidence === "first_party"
+    ? `<span class="tag tag-exact">first-party</span> the vendor's own price list, fetched without credentials`
+    : `<span class="tag tag-est">indicative</span> public aggregator — the vendor's own API is credential-gated, so this is an order-of-magnitude planning figure, not a quote`;
+  const seeded = row.seeded ? " This row is <strong>seeded</strong> from a cited secondary source rather than fetched live." : "";
+  const basis = row.source_basis ? ` ${escapeHtml(row.source_basis)}` : "";
+  $("f-rent-note").innerHTML = `${escapeHtml(row.sku)} · $${row.gpu_hourly_usd}/GPU-hr · ${tier}.${seeded}${basis} Observed ${escapeHtml(String(row.observed_at).slice(0, 10))}.`;
 }
 
 // ------------------------------------------------- level 0: workload presets
-// Presets are PLANNING ASSUMPTIONS, never measurements. Every card carries its
-// own assumed tag and the store's provenance line is rendered under the grid —
-// selecting one fills exactly the inputs a user would otherwise type, and the
-// Lane C hourly/tok-s figures still come from lane-c-presets.json so their
-// cited (and conflicting) sourcing is not laundered away by this convenience.
+// Presets are PLANNING ASSUMPTIONS, never measurements. Selecting one fills
+// exactly the inputs a user would otherwise type; every field stays editable.
 async function loadWorkloadPresets() {
   const res = await fetch("./tco-calculator/data/workload-presets.json");
   state.workloadPresets = await res.json();
@@ -128,13 +178,13 @@ async function loadWorkloadPresets() {
     const cls = p.assumption_label === "assumed" ? "tag-est" : "tag-unknown";
     return `<button type="button" class="preset" role="radio" aria-checked="false" data-preset="${escapeHtml(p.id)}">`
       + `<span class="p-name">${escapeHtml(p.label)}</span>`
-      + `<span class="p-vol">${escapeHtml(p.volume_label)}<span class="tag ${cls}">${escapeHtml(p.assumption_label)}</span></span>`
+      + `<span class="p-vol">${escapeHtml(p.fields["f-users"])} users<span class="tag ${cls}">${escapeHtml(p.assumption_label)}</span></span>`
       + `<span class="p-sum">${escapeHtml(p.summary)}</span></button>`;
   }).join("");
   for (const b of wrap.querySelectorAll(".preset")) {
     b.addEventListener("click", () => applyWorkloadPreset(b.dataset.preset));
   }
-  applyWorkloadPreset("coding-agent");
+  applyWorkloadPreset(state.workloadPresets.presets[0].id);
 }
 
 function applyWorkloadPreset(id) {
@@ -143,54 +193,130 @@ function applyWorkloadPreset(id) {
   for (const btn of $("preset-cards").querySelectorAll(".preset")) {
     btn.setAttribute("aria-checked", String(btn.dataset.preset === id));
   }
-  let feedChanged = false;
+  // Per-workload token shapes come from the store's `defaults`, so a preset
+  // changes WHO uses the system and in what mix, not what a turn costs.
+  const shapes = state.workloadPresets.defaults?.shapes ?? {};
+  for (const [type, field] of Object.entries(MIX_FIELD)) {
+    const s = shapes[type];
+    if (!s) continue;
+    const set = (suffix, v) => { const el = $(`f-${field}-${suffix}`); if (el && v !== undefined) el.value = v; };
+    set("turns", s.turns_per_session);
+    set("in", s.in_tokens);
+    set("out", s.out_tokens);
+    set("cached", s.cached_tokens);
+  }
   for (const [field, value] of Object.entries(p.fields ?? {})) {
     const el = $(field);
-    if (!el) continue;
-    if (field === "fb-feed" && el.value !== value) feedChanged = true;
-    el.value = value;
-    // Lane C's rate + tok/s are owned by lane-c-presets.json, not by this file.
-    if (field === "fc-preset") applyPreset();
+    if (el) el.value = value;
   }
-  if (feedChanged) fillModels(beginSelection());
 
   const pv = state.workloadPresets.provenance ?? {};
   const dated = pv.observed ? ` &middot; set ${escapeHtml(pv.observed)}, re-verify before ${escapeHtml(pv.re_verify_before)}` : "";
   $("preset-note").innerHTML = `<strong>${escapeHtml(p.label)}</strong> &mdash; every field is `
     + `<span class="tag ${p.assumption_label === "assumed" ? "tag-est" : "tag-unknown"}">${escapeHtml(p.assumption_label)}</span> `
-    + `${escapeHtml(p.assumption_note)}${dated}. Open <em>Adjust</em> or <em>Advanced</em> to state your own numbers.`;
+    + `${escapeHtml(p.assumption_note)}${dated}. Change any number below.`;
+  refreshDerived();
 }
 
-// Level 1 is revealed only after a run, and each lane shows its own total with
-// the same provenance popover the results table uses — disclosure hides FIELDS,
-// never the attribution of a number.
-function renderLaneSummary(r) {
-  $("level1").hidden = false;
-  const digest = [["snapshot digest", state.manifest.snapshot_digest]];
-  const put = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
-  const A = r.lanes.A, B = r.lanes.B, C = r.lanes.C;
-  const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
-
-  put("lane-a-total", A.enabled && A.monthly_total !== null && A.monthly_total !== undefined
-    ? numProv(money(A.monthly_total), [["fixed monthly", money(A.lines.find((l) => l.item === "lane_a_fixed")?.amount ?? "0") + " — charged once"], ["served / overflow tokens", `${A.served_tokens} / ${A.overflow_tokens}`], ...digest])
-    : "&mdash;");
-  put("lane-b-total", B.monthly_total !== null && B.monthly_total !== undefined
-    ? numProv(money(B.monthly_total), quoteRows(B.primary_offer, q)) + srcTag(q)
-    : "&mdash;");
-  put("lane-c-total", C.enabled && C.monthly_total !== null && C.monthly_total !== undefined
-    ? numProv(money(C.monthly_total), [["hourly rate", C.hourly_rate + " (assumed preset)"], ["hours", String(C.hours)], ["utilization", String(C.utilization)], ...digest])
-    : "&mdash;");
-  // Read the workload off the inputs the ENGINE actually consumed, not off the
-  // DOM again — otherwise an edit made after Compare would relabel a stale run.
-  const w = state.inputs.workload;
-  put("lane-w-total", `<span class="muted">${(w.demand_tokens_mo ?? 0).toLocaleString("en-US")} tok/mo</span>`);
-}
-
-// Lazy catalog fetch driven by lane/model selection — generation-guarded.
-function wireS2() {
+// ------------------------------------------------------------ input plumbing
+function wireInputs() {
   $("fb-feed").addEventListener("change", () => fillModels(beginSelection()));
   $("run").addEventListener("click", run);
+  const live = [
+    "f-users", "f-sessions-day", "f-days",
+    "f-mix-chat", "f-mix-rag", "f-mix-graphrag", "f-mix-agentic",
+    "f-peak-frac", "f-tps-stream", "f-sh-tps-gpu",
+    ...Object.values(MIX_FIELD).flatMap((f) => [`f-${f}-turns`, `f-${f}-in`, `f-${f}-out`, `f-${f}-cached`]),
+  ];
+  for (const id of live) $(id)?.addEventListener("input", refreshDerived);
   fillModels(beginSelection());
+}
+
+function readMix() {
+  const mix = {};
+  for (const [type, field] of Object.entries(MIX_FIELD)) mix[type] = decInput(`f-mix-${field}`) ?? "0";
+  return mix;
+}
+
+function readShapes() {
+  const shapes = {};
+  for (const [type, field] of Object.entries(MIX_FIELD)) {
+    shapes[type] = {
+      turns_per_session: decInput(`f-${field}-turns`) ?? "0",
+      in_tokens: decInput(`f-${field}-in`) ?? "0",
+      out_tokens: decInput(`f-${field}-out`) ?? "0",
+      cached_tokens: decInput(`f-${field}-cached`) ?? "0",
+    };
+  }
+  return shapes;
+}
+
+// Build the demand model from the DOM. Throws DemandRefusal on bad input —
+// callers render the refusal rather than substituting a guess.
+function computeDemand() {
+  const demand = buildDemand({
+    users: decInput("f-users"),
+    sessionsPerUserDay: decInput("f-sessions-day"),
+    workingDaysMo: decInput("f-days"),
+    mix: readMix(),
+    shapes: readShapes(),
+  });
+  const peak = peakTokensPerSecond({
+    users: decInput("f-users"),
+    peakConcurrencyFraction: decInput("f-peak-frac"),
+    tokensPerSecondPerStream: decInput("f-tps-stream"),
+  });
+  const gpuId = $("f-sh-gpu").value;
+  const sizing = gpusForLoad({
+    peakTokensPerSecond: peak.peak_tokens_s.text,
+    gpuId,
+    tokensPerSecondPerGpu: decInput("f-sh-tps-gpu"),
+  });
+  return { demand, peak, sizing, gpuId };
+}
+
+// The live readout under the demand inputs. It must never show a number derived
+// from an invalid mix — a refusal is displayed instead, in full.
+function refreshDerived() {
+  const mixCheck = validateMix(readMix());
+  const sumEl = $("mix-sum");
+  if (mixCheck.ok) {
+    sumEl.innerHTML = `<span class="tag tag-exact">sums to 1</span>`;
+  } else if (mixCheck.code === "mix_does_not_sum_to_one") {
+    sumEl.innerHTML = `<span class="tag tag-est">sums to ${escapeHtml(mixCheck.sum_text)}</span>`;
+  } else {
+    sumEl.innerHTML = `<span class="tag tag-unknown">invalid</span>`;
+  }
+
+  try {
+    const { demand, peak, sizing } = computeDemand();
+    state.demand = { demand, peak, sizing };
+    if (!$("f-sh-tps-gpu").value.trim()) $("f-sh-tps-gpu").placeholder = `${sizing.tokens_s_per_gpu.text} (assumed)`;
+    $("f-sh-count-hint").textContent = `— ${sizing.gpus_required.text} needed at peak`;
+    if (!$("f-sh-count").value.trim()) $("f-sh-count").placeholder = `${sizing.gpus_required.text} (derived)`;
+
+    const perStreamWarn = peak.below_interactive_floor
+      ? ` <span class="tag tag-est">below ${peak.interactive_floor_tokens_s.text} tok/s</span> at this per-stream rate an interactive answer reads as slow`
+      : "";
+    $("derived").innerHTML = `
+      <div class="grid">
+        <div><label>Sessions / month</label><div class="num">${groupInt(demand.sessions_mo.text)}</div></div>
+        <div><label>Turns / month</label><div class="num">${groupInt(demand.turns_mo.text)}</div></div>
+        <div><label>Tokens / month</label><div class="num">${groupInt(demand.tokens_mo.text)}</div></div>
+        <div><label>Peak tokens / s</label><div class="num">${peak.peak_tokens_s.text}${perStreamWarn}</div></div>
+      </div>
+      <p class="muted" style="margin:14px 0 0">
+        ${groupInt(peak.concurrent_peak.text)} concurrent sessions at peak &middot;
+        in ${groupInt(demand.in_tokens_mo.text)} / out ${groupInt(demand.out_tokens_mo.text)} / cached ${groupInt(demand.cached_tokens_mo.text)} tokens per month &middot;
+        <strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}
+        to hold the peak at ${sizing.tokens_s_per_gpu.text} tok/s per GPU
+        <span class="tag ${sizing.assumed ? "tag-est" : "tag-exact"}">${sizing.assumed ? "assumed" : "your figure"}</span>
+      </p>`;
+  } catch (e) {
+    state.demand = null;
+    const why = e instanceof DemandRefusal ? e.message : `input problem — ${e.message}`;
+    $("derived").innerHTML = `<div class="gap"><strong>Demand not computed:</strong> ${escapeHtml(why)}</div>`;
+  }
 }
 
 async function fillModels(sel) {
@@ -222,39 +348,61 @@ async function fillModels(sel) {
 function run() {
   clearGap();
   try {
+    const { demand, peak, sizing, gpuId } = computeDemand();
+    state.demand = { demand, peak, sizing };
+
+    // The engine consumes whole tokens and whole requests. The demand model is
+    // exact, so rounding happens ONCE, here, at the boundary into the engine.
+    const demandTokens = Math.round(Number(demand.tokens_mo.text));
+    const requestCount = Math.round(Number(demand.turns_mo.text));
+    const inTok = Number(demand.in_tokens_mo.text);
+    const cachedTok = Number(demand.cached_tokens_mo.text);
+    const outTok = Number(demand.out_tokens_mo.text);
+
     const workload = {
-      demand_tokens_mo: intInput("f-demand") ?? 0,
-      request_count_mo: intInput("f-requests") ?? 0,
-      prompt_tokens: intInput("f-prompt") ?? 0,
-      output_tokens: intInput("f-output") ?? 0,
-      cache_read_tokens_per_req: intInput("f-cache") ?? 0,
+      demand_tokens_mo: demandTokens,
+      request_count_mo: requestCount,
+      // Per-request shape is the monthly total divided by turns: the engine
+      // quotes ONE request and multiplies, so a blended average is correct here
+      // precisely because the mix has already been applied upstream.
+      prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
+      output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
+      cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
       horizon_months: intInput("f-horizon") ?? 1,
       required_p95_tok_s: intInput("f-p95"),
       quote_utc: Date.parse($("f-utc").value),
       now: Date.now(),
       time_buckets: null,
     };
-    const days = intInput("fa-days");
-    if (workload.demand_tokens_mo > 0) {
-      // An empty arrival window means "spread over month" per the field label:
-      // pass an explicit whole-month bucket (730 h) rather than null, so the
-      // monthly and rate ceilings actually bind (peer G6 — null skipped both).
-      workload.time_buckets = [{ hours: days ? days * 24 : 730, tokens: workload.demand_tokens_mo }];
+    if (demandTokens > 0) {
+      workload.time_buckets = [{ hours: 730, tokens: demandTokens }];
     }
 
+    // Self-hosted capacity: the sized fleet's aggregate throughput over the
+    // month. Derived, and overridable — an entered budget wins.
+    const gpuCount = intInput("f-sh-count") ?? Number(sizing.gpus_required.text);
+    const fleetTokensS = gpuCount * Number(sizing.tokens_s_per_gpu.text);
+    const derivedBudget = Math.round(fleetTokensS * 3600 * 730);
     const laneA = {
       enabled: true,
-      fixed_monthly: decInput("fa-fixed") ?? "0",
-      monthly_token_budget: intInput("fa-budget"),
-      tokens_s_ceiling: intInput("fa-rate"),
+      fixed_monthly: decInput("f-sh-fixed") ?? "0",
+      capex: decInput("f-sh-capex") ?? "0",
+      monthly_token_budget: intInput("f-sh-budget") ?? derivedBudget,
+      tokens_s_ceiling: Math.round(fleetTokensS),
+      hardware_topology: `${gpuCount}x ${gpuId}`,
     };
     const laneB = { enabled: true, offer_ids: [$("fb-model").value].filter(Boolean) };
+
+    const rentRow = currentRentRow();
+    const rentGpus = gpuCount > 0 ? gpuCount : 1;
     const laneC = {
-      enabled: true,
-      tokens_s: intInput("fc-toks"),
-      hourly_rate: decInput("fc-hourly") ?? "0",
-      utilization: decInput("fc-util") ?? "0.7",
-      hardware_topology: $("fc-preset").selectedOptions[0]?.textContent ?? null,
+      enabled: !!rentRow,
+      tokens_s: Math.round(rentGpus * Number(sizing.tokens_s_per_gpu.text)),
+      // The registry quotes PER GPU; the option rents the same fleet size the
+      // peak requires, so the hourly rate is scaled by the GPU count.
+      hourly_rate: rentRow ? String(rentRow.gpu_hourly_usd * rentGpus) : "0",
+      utilization: decInput("f-rent-util") ?? "0.7",
+      hardware_topology: rentRow ? `${rentGpus}x ${rentRow.gpu_label} @ ${rentRow.provider_label}` : null,
     };
     const routing = {
       policy: $("fr-policy").value,
@@ -272,9 +420,14 @@ function run() {
     };
 
     state.inputs = { workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay };
+    state.rentRow = rentRow;
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
   } catch (e) {
+    if (e instanceof DemandRefusal) {
+      showGap(`${escapeHtml(e.message)}`);
+      return;
+    }
     const where = String(e.stack ?? "").split("\n").slice(1, 6).join(" | ");
     showGap(`the comparison could not run: ${escapeHtml(e.message)} <br><code>${escapeHtml(where)}</code>`);
   }
@@ -283,10 +436,6 @@ function run() {
 const srcTag = (quote) => quote && quote.exact
   ? `<span class="tag tag-exact">exact</span>`
   : `<span class="tag tag-est">estimated</span>`;
-
-function numProv(valueHtml, rows) {
-  return `<span ${prov(rows)}>${valueHtml}</span>`;
-}
 
 function quoteRows(offerId, quote) {
   return [
@@ -301,98 +450,175 @@ function quoteRows(offerId, quote) {
   ];
 }
 
+// ---------------------------------------------------------------- payback UI
+// A non-converging payback is rendered with its REASON in words — never as a
+// dash, an infinity, or a large number that reads like an answer (SPEC 2.5).
+const PAYBACK_REASON = {
+  opex_exceeds_target: "self-hosting costs more every month than this option, so it never catches up — no horizon changes that",
+  zero_capex: "no up-front cost was entered, so there is nothing to pay back",
+  negative_capex: "capex is negative, which the model does not interpret",
+};
+
+function paybackCard(r) {
+  const p = r.payback ?? {};
+  const targets = [["vs_model_api", OPTION.B.label], ["vs_rented_gpu", OPTION.C.label]].filter(([k]) => p[k]);
+  if (!targets.length) return "";
+  const rows = targets.map(([k, label]) => {
+    const v = p[k];
+    const rowsProv = [
+      ["capex", money(v.capex)],
+      ["self-hosted monthly", money(v.monthly_opex)],
+      [`${label} monthly`, money(v.target_monthly)],
+      ["monthly saving", money(v.monthly_savings)],
+      ["formula", "ceil(capex / (target monthly − self-hosted monthly))"],
+    ];
+    if (!v.converges) {
+      return `<tr><td>vs ${escapeHtml(label)}</td><td class="n"><strong>does not converge</strong></td>`
+        + `<td>${numProv(escapeHtml(PAYBACK_REASON[v.reason] ?? v.reason), rowsProv)}</td></tr>`;
+    }
+    const beyond = v.beyond_horizon
+      ? ` <span class="tag tag-est">beyond the ${escapeHtml(String(v.horizon_months))}-month horizon</span>`
+      : "";
+    return `<tr><td>vs ${escapeHtml(label)}</td>`
+      + `<td class="n"><strong>${numProv(`${v.months} month${v.months === 1 ? "" : "s"}`, rowsProv)}</strong>${beyond}</td>`
+      + `<td>saving ${money(v.monthly_savings)} / month against ${escapeHtml(label)}</td></tr>`;
+  }).join("");
+  return `<div class="card">
+    <h3 style="margin-bottom:10px">Payback on the self-hosted capex</h3>
+    <table><thead><tr><th>Compared with</th><th class="n">Pays back in</th><th>Basis</th></tr></thead><tbody>${rows}</tbody></table>
+    <p class="muted">Capex ${money(p.self_hosted_capex)} one-time, ${money(p.self_hosted_monthly_opex)} per month running. A payback past the horizon is shown as the true month, never truncated — reporting "slow" as "never" is the more damaging error.</p>
+  </div>`;
+}
+
+function sizingCard() {
+  const d = state.demand;
+  if (!d) return "";
+  const { demand, peak, sizing } = d;
+  const under = state.result && state.result.lanes.A.enabled
+    && Number(state.inputs.laneA.tokens_s_ceiling) < Number(peak.peak_tokens_s.text);
+  return `<div class="card">
+    <h3 style="margin-bottom:10px">Demand and sizing</h3>
+    <table>
+      <tbody>
+        <tr><td>Users</td><td class="n">${groupInt(demand.users.text)}</td><td class="muted">${escapeHtml(demand.users.basis)}</td></tr>
+        <tr><td>Sessions / month</td><td class="n">${groupInt(demand.sessions_mo.text)}</td><td class="muted">${escapeHtml(demand.sessions_mo.basis)}</td></tr>
+        <tr><td>Tokens / month</td><td class="n">${groupInt(demand.tokens_mo.text)}</td><td class="muted">${escapeHtml(demand.tokens_mo.basis)}</td></tr>
+        <tr><td>Peak tokens / s</td><td class="n">${peak.peak_tokens_s.text}</td><td class="muted">${groupInt(peak.concurrent_peak.text)} concurrent &times; ${peak.tokens_s_per_stream.text} tok/s per stream</td></tr>
+        <tr><td>GPUs to hold the peak</td><td class="n">${sizing.gpus_required.text}</td><td class="muted">${sizing.tokens_s_per_gpu.text} tok/s per GPU <span class="tag ${sizing.assumed ? "tag-est" : "tag-exact"}">${sizing.assumed ? "assumed" : "your figure"}</span></td></tr>
+      </tbody>
+    </table>
+    ${under ? `<div class="gap"><strong>Under-provisioned at peak:</strong> the self-hosted fleet clears the monthly total but not ${peak.peak_tokens_s.text} tok/s at peak. Monthly capacity is not a substitute for peak capacity.</div>` : ""}
+    <p class="muted">Per-workload rows appear in the exported quote. Every figure is derived unless marked <code>user_override</code>.</p>
+  </div>`;
+}
+
 function renderResults(r) {
   const B = r.lanes.B;
   const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
-  const rows = [`<tr><td>Lane B — API <code>${escapeHtml(B.primary_offer ?? "none")}</code>${srcTag(q)}</td>` +
+  const digest = [["snapshot digest", state.manifest.snapshot_digest]];
+
+  const rows = [`<tr><td>${OPTION.B.label} — <code>${escapeHtml(B.primary_offer ?? "none")}</code>${srcTag(q)}</td>` +
     `<td class="n">${B.monthly_total === null ? "—" : numProv(money(B.monthly_total), quoteRows(B.primary_offer, q))}</td>` +
     `<td class="n">${B.per_1m.value === null ? `— (${B.per_1m.reason})` : numProv(fmtPer1M(B.per_1m.value), quoteRows(B.primary_offer, q))}</td>` +
     `<td class="n">${numProv(money(r.curve[0].B), quoteRows(B.primary_offer, q))}</td></tr>`];
+
   if (r.lanes.A.enabled) {
     const A = r.lanes.A;
     const aRows = [
-      ["snapshot digest", state.manifest.snapshot_digest],
+      ...digest,
       ["fixed monthly", money(A.lines.find((l) => l.item === "lane_a_fixed")?.amount ?? "0") + " — charged once"],
+      ["capex (one-time)", money(r.payback?.self_hosted_capex ?? "0")],
       ["served / overflow tokens", `${A.served_tokens} / ${A.overflow_tokens}`],
       ["utilization", A.utilization === null ? (A.utilization_reason ?? "—") : String(A.utilization)],
-      ["rate ceiling", A.rate_ceiling_binding === null ? "not set" : `${A.rate_ceiling_binding}${A.rate_ceiling_known ? "" : " (temporal data absent)"}`],
+      ["fleet", state.inputs.laneA.hardware_topology],
     ];
     const per1mA = A.per_1m && A.per_1m.value !== null ? numProv(fmtPer1M(A.per_1m.value), aRows) : `— (${A.per_1m?.reason ?? "n/a"})`;
-    rows.push("<tr><td>Lane A — owned stack</td>"
-      + "<td class=\"n\">" + numProv(money(A.monthly_total), aRows) + "</td>"
-      + "<td class=\"n\">" + per1mA + "</td>"
-      + "<td class=\"n\">" + numProv(money(r.curve[0].A), [["snapshot digest", state.manifest.snapshot_digest]]) + "</td></tr>");
-  }
-  if (r.lanes.C.enabled) {
-    // NOTE: prov rows are extracted — a template literal nested inside an array
-    // inside a template literal breaks module-goal parsing (found in browser).
-    const cRows = [
-      ["snapshot digest", state.manifest.snapshot_digest],
-      ["hourly rate", r.lanes.C.hourly_rate + " (assumed preset)"],
-      ["hours", String(r.lanes.C.hours)],
-      ["utilization", String(r.lanes.C.utilization)],
-    ];
-    const cDigest = [["snapshot digest", state.manifest.snapshot_digest]];
-    const cPer1m = r.lanes.C.per_1m ?? { value: null, reason: r.lanes.C.per_1m_reason };
-    const per1mC = cPer1m.value === null || cPer1m.value === undefined
-      ? "— (" + (cPer1m.reason ?? "unknown") + ")"
-      : numProv(fmtPer1M(cPer1m.value), cRows);
-    rows.push("<tr><td>Lane C — rented GPU <span class=\"tag tag-est\">assumed rates</span></td>"
-      + "<td class=\"n\">" + numProv(money(r.lanes.C.monthly_total), cRows) + "</td>"
-      + "<td class=\"n\">" + per1mC + "</td>"
-      + "<td class=\"n\">" + numProv(money(r.curve[0].C), cDigest) + "</td></tr>");
+    rows.push(`<tr><td>${OPTION.A.label}</td>`
+      + `<td class="n">${numProv(money(A.monthly_total), aRows)}</td>`
+      + `<td class="n">${per1mA}</td>`
+      + `<td class="n">${numProv(money(r.curve[0].A), aRows)}</td></tr>`);
   }
 
-  // The recommendation is a rendered number, not only hidden JSON (peer G8):
-  // the F7 optimum must be visible as the policy's recommended TCO.
+  if (r.lanes.C.enabled) {
+    const C = r.lanes.C;
+    const row = state.rentRow;
+    const tier = row?.confidence === "first_party" ? "tag-exact" : "tag-est";
+    const tierWord = row?.confidence === "first_party" ? "first-party" : "indicative";
+    const cRows = [
+      ...digest,
+      ["provider", row ? row.provider_label : "—"],
+      ["sku", row ? row.sku : "—"],
+      ["per-GPU hourly", row ? `$${row.gpu_hourly_usd}` : "—"],
+      ["confidence", row ? row.confidence : "unknown"],
+      ["source", row ? row.source_url : "—"],
+      ["observed", row ? String(row.observed_at).slice(0, 10) : "—"],
+      ["hours", String(C.hours)],
+      ["utilization", String(C.utilization)],
+    ];
+    const cPer1m = C.per_1m ?? { value: null, reason: C.per_1m_reason };
+    const per1mC = cPer1m.value === null || cPer1m.value === undefined
+      ? `— (${cPer1m.reason ?? "unknown"})`
+      : numProv(fmtPer1M(cPer1m.value), cRows);
+    rows.push(`<tr><td>${OPTION.C.label}${row ? ` — ${escapeHtml(row.provider_label)}` : ""} <span class="tag ${tier}">${tierWord}</span></td>`
+      + `<td class="n">${numProv(money(C.monthly_total), cRows)}</td>`
+      + `<td class="n">${per1mC}</td>`
+      + `<td class="n">${numProv(money(r.curve[0].C), cRows)}</td></tr>`);
+  }
+
   const rec = (r.routing_result.recommended_monthly_total === null || r.routing_result.recommended_monthly_total === undefined) ? "" :
-    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Recommended — ${escapeHtml(r.policy)}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ["snapshot digest", state.manifest.snapshot_digest]])}<span class="muted" style="font-size:.85rem"> / month at the entered workload</span></div></div>`;
+    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Recommended — ${escapeHtml(r.policy)}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ...digest])}<span class="muted" style="font-size:.85rem"> / month at the entered demand</span></div></div>`;
+
   const adv = r.routing_result.advisory
     ? `<p class="muted">Advisory blend ${money(r.routing_result.advisory.total)} — <strong>${escapeHtml(r.routing_result.advisory.status)}</strong>${r.routing_result.advisory.delta ? ` (delta ${money(r.routing_result.advisory.delta)})` : ""}. ${escapeHtml(r.routing_result.advisory.note)}</p>`
     : "";
   const don = r.routing_result.derived_optimum_note
     ? `<p class="muted">Derived optimum for comparison: ${money(r.routing_result.derived_optimum_note.total)} — ${escapeHtml(r.routing_result.derived_optimum_note.note)}</p>`
     : "";
-
-  const beA = r.breakeven.lane_A_vs_B ? `<li>Lane A breakeven vs API: ${numProv(`${fmt(r.breakeven.lane_A_vs_B.demand_tokens, 0)} tokens/mo`, [["basis", "fixed / API per-token"]])}${r.breakeven.lane_A_vs_B.utilization ? ` (${fmt(r.breakeven.lane_A_vs_B.utilization, 4)} of capacity)` : ` (${r.breakeven.lane_A_vs_B.utilization_reason})`}</li>` : "";
-  const beC = r.breakeven.lane_C_vs_B && r.breakeven.lane_C_vs_B.utilization ? `<li>Lane C breakeven utilization vs API: ${numProv(fmt(r.breakeven.lane_C_vs_B.utilization, 4), [["basis", "hourly / (tok/s x API per-token)"]])}</li>` : (r.breakeven.lane_C_vs_B ? `<li>Lane C breakeven: ${r.breakeven.lane_C_vs_B.reason}</li>` : "");
+  const failover = r.routing_result.failover
+    ? `<p class="muted">Failover: fallback option ${escapeHtml(OPTION[r.routing_result.failover.fallback]?.label ?? r.routing_result.failover.fallback)} at share ${escapeHtml(r.routing_result.failover.share)} &times; rate ${escapeHtml(r.routing_result.failover.rate)}.</p>`
+    : "";
+  const pinned = r.routing_result.pinned
+    ? `<p class="muted">Pinned split honored: ${r.routing_result.pinned.lines.map((l) => `${escapeHtml(OPTION[l.lane]?.label ?? l.lane)} ${money(l.amount)}`).join(" · ")} — total ${money(r.routing_result.pinned.total)}.</p>`
+    : "";
 
   const verdictLi = (label, v) => v === null ? "" : `<li>${label}: <strong>${v.verdict}</strong>${v.verdict === "unknown" ? ` <span class="tag tag-unknown">no evidence row matches all dimensions</span>` : ` @ ${v.modelled_p95_capacity} tok/s`}${v.annotation ? ` <span class="muted">partial: ${v.annotation.mismatched_dimensions.join(", ")} differ</span>` : ""}</li>`;
 
-  const failover = r.routing_result.failover
-    ? `<p class="muted">Failover: fallback lane ${escapeHtml(r.routing_result.failover.fallback)} at share ${escapeHtml(r.routing_result.failover.share)} x rate ${escapeHtml(r.routing_result.failover.rate)}.</p>`
-    : "";
-  const pinned = r.routing_result.pinned
-    ? `<p class="muted">Pinned split honored: ${r.routing_result.pinned.lines.map((l) => `${l.lane} ${l.pct}% = ${money(l.amount)}`).join(" · ")} — total ${money(r.routing_result.pinned.total)}.</p>`
-    : "";
-
   $("results").innerHTML = `
     ${rec}
+    ${paybackCard(r)}
     <div class="card">
       <table>
-        <thead><tr><th>Lane · policy ${escapeHtml(r.policy)}</th><th class="n">TCO / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month TCO</th></tr></thead>
+        <thead><tr><th>Option · policy ${escapeHtml(r.policy)}</th><th class="n">Cost / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month total</th></tr></thead>
         <tbody>${rows.join("")}</tbody>
       </table>
       ${r.overlay && r.overlay.itemized.length ? `<p class="muted">Overlay itemized last: ${r.overlay.itemized.map((i) => `${escapeHtml(i.name)} ${money(i.extended)} (${i.basis}, ${i.provenance})`).join(" · ")} — total ${money(r.overlay.overlay_total)} · ${escapeHtml(r.overlay.note)}</p>` : ""}
       ${adv}${don}${failover}${pinned}
       ${r.reasons.length ? `<div class="gap"><strong>Honest caveats:</strong> ${r.reasons.map(escapeHtml).join("; ")}</div>` : ""}
-      ${B.gaps.map((g) => `<div class="gap"><strong>${escapeHtml(g.offer_id)}</strong>: ${escapeHtml(g.gap_reason ?? "unservable")} — the lane falls back or reports the gap.</div>`).join("")}
-      ${q && q.meters ? `<p class="muted">Meter resolution: ${q.meters.map((m) => `${m.meter} &rarr; ${m.selected_key ?? m.note}`).join(" · ")}</p>` : ""}
+      ${B.gaps.map((g) => `<div class="gap"><strong>${escapeHtml(g.offer_id)}</strong>: ${escapeHtml(g.gap_reason ?? "unservable")} — the option falls back or reports the gap.</div>`).join("")}
     </div>
+    ${sizingCard()}
     <div class="card">
-      <h3>Breakeven &amp; feasibility</h3>
-      <ul style="color:rgba(232,230,240,.72)">${beA}${beC}${verdictLi("Lane A p95 vs SLO", r.throughput.verdicts.lane_A)}${verdictLi("Lane C p95 vs SLO", r.throughput.verdicts.lane_C)}</ul>
+      <h3>Feasibility</h3>
+      <ul style="color:rgba(232,230,240,.72)">${verdictLi(`${OPTION.A.label} p95 vs SLO`, r.throughput.verdicts.lane_A)}${verdictLi(`${OPTION.C.label} p95 vs SLO`, r.throughput.verdicts.lane_C)}</ul>
       <p class="muted">Feasibility verdicts are evidence-gated: unknown beats invented. The shipped evidence store is empty by mandate (SPEC 6.5).</p>
     </div>
     <div class="card">
-      <h3>TCO curve</h3>
+      <h3>Cumulative cost over ${r.horizon_months} months</h3>
       ${renderCurve(r.curve)}
+      <p class="muted">Self-hosted starts at its capex and grows by its monthly cost; where its line crosses another is the payback month above.</p>
     </div>
     <p><button class="btn btn-s" id="export">Export quote (JSON)</button> <span class="muted">every input, the snapshot digest, and per-meter provenance.</span></p>
   `;
   $("export").addEventListener("click", () => exportQuote(r));
+  renderOptionTotals(r);
   renderSensitivity();
-  renderLaneSummary(r);
+}
+
+function renderOptionTotals(r) {
+  const put = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+  put("opt-self-total", r.lanes.A.enabled && r.lanes.A.monthly_total != null ? money(r.lanes.A.monthly_total) : "&mdash;");
+  put("opt-api-total", r.lanes.B.monthly_total != null ? money(r.lanes.B.monthly_total) : "&mdash;");
+  put("opt-rent-total", r.lanes.C.enabled && r.lanes.C.monthly_total != null ? money(r.lanes.C.monthly_total) : "&mdash;");
 }
 
 const coerce = (v) => {
@@ -414,18 +640,16 @@ const fmtPer1M = (v) => {
 
 function renderCurve(curve) {
   const w = 900, h = 220, pad = 34;
-  const lanes = ["A", "B", "C"];
-  const colors = { A: "#B46EFF", B: "#22D3EE", C: "#34D399" };
-  const maxV = Math.max(...curve.flatMap((p) => lanes.map((l) => Number(p[l]) || 0)), 1);
+  const maxV = Math.max(...curve.flatMap((p) => OPTION_KEYS.map((l) => Number(p[l]) || 0)), 1);
   const x = (m) => pad + ((m - 1) / Math.max(1, curve.length - 1)) * (w - pad * 2);
   const y = (v) => h - pad - (v / maxV) * (h - pad * 2);
-  const paths = lanes.map((l) => {
+  const paths = OPTION_KEYS.map((l) => {
     const pts = curve.map((p) => `${x(p.month).toFixed(1)},${y(Number(p[l]) || 0).toFixed(1)}`).join(" ");
-    return `<polyline points="${pts}" fill="none" stroke="${colors[l]}" stroke-width="2" />`;
+    return `<polyline points="${pts}" fill="none" stroke="${OPTION[l].color}" stroke-width="2" />`;
   }).join("");
-  const labels = lanes.map((l, i) => `<text x="${pad + i * 130}" y="18" fill="${colors[l]}" font-size="12" font-family="monospace">Lane ${l}</text>`).join("");
+  const labels = OPTION_KEYS.map((l, i) => `<text x="${pad + i * 150}" y="18" fill="${OPTION[l].color}" font-size="12" font-family="monospace">${OPTION[l].label}</text>`).join("");
   const axis = `<text x="${pad}" y="${h - 8}" fill="rgba(232,230,240,.4)" font-size="11" font-family="monospace">mo 1</text><text x="${w - pad - 30}" y="${h - 8}" fill="rgba(232,230,240,.4)" font-size="11" font-family="monospace">mo ${curve.length}</text>`;
-  return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="TCO curve over the horizon">${labels}${paths}${axis}</svg>`;
+  return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="cumulative cost over the horizon">${labels}${paths}${axis}</svg>`;
 }
 
 // Scale one offer's prices by an exact rational factor — the sensitivity's
@@ -461,10 +685,10 @@ function renderSensitivity() {
     $("sensitivity").innerHTML = `<div class="card"><h3>Sensitivity</h3><p class="muted">Select a priced API model — the demand/price grid reruns the full comparison per cell and needs a priced offer.</p></div>`;
     return;
   }
-  const demandMultipliers = [0.5, 0.75, 1, 1.5, 2];
+  const userMultipliers = [0.5, 0.75, 1, 1.5, 2];
   const priceMultipliers = [0.8, 1, 1.25];
-  const head = `<tr><th>demand \ price</th>${priceMultipliers.map((p) => `<th class="n">x${p}</th>`).join("")}</tr>`;
-  const body = demandMultipliers.map((dm) => {
+  const head = `<tr><th>users \\ API price</th>${priceMultipliers.map((p) => `<th class="n">&times;${p}</th>`).join("")}</tr>`;
+  const body = userMultipliers.map((dm) => {
     const cells = priceMultipliers.map((pm) => {
       const workload = {
         ...inp.workload,
@@ -481,18 +705,73 @@ function renderSensitivity() {
       const res = runComparison({ ...inp, workload, catalog, evidenceRows: [] });
       const tco = res.routing_result.recommended_monthly_total;
       const cls = dm === 1 && pm === 1 ? `style="color:#E8E6F0"` : "";
-      return `<td class="n" ${cls}>${tco === null || tco === undefined ? "—" : numProv(money(tco), [["cell", `demand x${dm}, API price x${pm} — full engine rerun`], ["snapshot digest", state.manifest.snapshot_digest]])}</td>`;
+      return `<td class="n" ${cls}>${tco === null || tco === undefined ? "—" : numProv(money(tco), [["cell", `users ×${dm}, API price ×${pm} — full engine rerun`], ["snapshot digest", state.manifest.snapshot_digest]])}</td>`;
     }).join("");
-    return `<tr><td>x${dm}</td>${cells}</tr>`;
+    return `<tr><td>&times;${dm}</td>${cells}</tr>`;
   }).join("");
-  $("sensitivity").innerHTML = `<div class="card"><h3>Recommended TCO sensitivity — full engine rerun per cell</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell is a fresh runComparison: demand and request count scale together with the workload shape held constant (counts rounded); the price axis re-quotes a tariff scaled exactly. Lane A per-unit cost FALLS with utilization (see breakeven); Lane C is hyperbolic — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
+  $("sensitivity").innerHTML = `<div class="card"><h3>Recommended cost sensitivity — full engine rerun per cell</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell is a fresh comparison: scaling users scales demand and turns together with the token shape held constant (counts rounded); the price axis re-quotes a tariff scaled exactly. ${OPTION.A.label} per-unit cost FALLS with utilization; ${OPTION.C.label} is hyperbolic — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
 }
 
+// The exported quote carries the OPTION names, never the engine's internal
+// A/B/C keys — the naming contract binds the export surface too (SPEC 8).
 function exportQuote(r) {
+  const named = {};
+  for (const k of OPTION_KEYS) named[OPTION[k].key] = r.lanes[k];
+  const d = state.demand;
   const payload = {
     generated_at: new Date().toISOString(),
     snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
-    result: r,
+    demand: d ? {
+      users: d.demand.users.text,
+      sessions_mo: { value: d.demand.sessions_mo.text, basis: d.demand.sessions_mo.basis },
+      turns_mo: { value: d.demand.turns_mo.text, basis: d.demand.turns_mo.basis },
+      tokens_mo: { value: d.demand.tokens_mo.text, basis: d.demand.tokens_mo.basis },
+      in_tokens_mo: d.demand.in_tokens_mo.text,
+      out_tokens_mo: d.demand.out_tokens_mo.text,
+      cached_tokens_mo: d.demand.cached_tokens_mo.text,
+      per_workload: d.demand.workloads.map((w) => ({
+        type: w.type,
+        share: w.share.text,
+        turns_mo: { value: w.turns_mo.text, basis: w.turns_mo.basis },
+        tokens_mo: w.tokens_mo.text,
+      })),
+      peak: {
+        concurrent_sessions: d.peak.concurrent_peak.text,
+        tokens_s_per_stream: d.peak.tokens_s_per_stream.text,
+        peak_tokens_s: d.peak.peak_tokens_s.text,
+        below_interactive_floor: d.peak.below_interactive_floor,
+      },
+      sizing: {
+        gpus_required: d.sizing.gpus_required.text,
+        tokens_s_per_gpu: { value: d.sizing.tokens_s_per_gpu.text, basis: d.sizing.tokens_s_per_gpu.basis },
+        assumed: d.sizing.assumed,
+      },
+    } : null,
+    rented_gpu_source: state.rentRow ? {
+      provider: state.rentRow.provider_label,
+      sku: state.rentRow.sku,
+      gpu_hourly_usd: state.rentRow.gpu_hourly_usd,
+      confidence: state.rentRow.confidence,
+      source_url: state.rentRow.source_url,
+      observed_at: state.rentRow.observed_at,
+    } : null,
+    result: {
+      policy: r.policy,
+      options: named,
+      routing_result: r.routing_result,
+      payback: r.payback,
+      breakeven: r.breakeven,
+      throughput: r.throughput,
+      overlay: r.overlay,
+      curve: r.curve.map((p) => ({
+        month: p.month,
+        [OPTION.A.key]: p.A,
+        [OPTION.B.key]: p.B,
+        [OPTION.C.key]: p.C,
+      })),
+      horizon_months: r.horizon_months,
+      reasons: r.reasons,
+    },
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const a = document.createElement("a");

@@ -347,7 +347,10 @@ async function fetchAggregator(observedAt) {
       const key = `${prov.key}:${gpu.id}`;
       if (seen.has(key)) continue;
       const perGpu = Number(m[3]);
-      if (!Number.isFinite(perGpu) || perGpu <= 0 || perGpu > 200) continue;
+      if (!acceptRate(perGpu, gpu)) {
+        findings.rejected.push({ provider: prov.key, gpu: gpu.id, rate: perGpu, page: prov.slug });
+        continue;
+      }
       seen.add(key);
       found++;
       rows.push(mkRow({ prov, gpu, perGpu, url, observedAt }));

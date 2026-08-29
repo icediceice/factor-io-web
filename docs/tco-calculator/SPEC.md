@@ -136,21 +136,59 @@ replaced.
 
 ### 2.3 Capacity-constrained math — owned fixed cost is never double-charged
 
-Lane A's fixed cost is incurred **once** whenever Lane A is in service, independent
-of how many tokens (up to capacity) traverse it. Engine rules:
+Self-hosted's fixed cost is incurred **once** whenever Self-hosted is in service,
+independent of how many tokens (up to capacity) traverse it. Engine rules:
 
-1. If Lane A serves ≥ 1 token in a period, its full fixed cost for that period is
-   charged exactly once.
-2. Tokens served within capacity add no per-token Lane-A charge (a user-entered
+1. If Self-hosted serves ≥ 1 token in a period, its full fixed cost for that period
+   is charged exactly once.
+2. Tokens served within capacity add no per-token Self-hosted charge (a user-entered
    power/ops marginal may be added, itemized separately).
-3. Overflow tokens are priced only at the secondary lane's marginal tariffs.
+3. Overflow tokens are priced only at the secondary option's marginal tariffs.
 4. No run may simultaneously charge the full fixed cost **and** a per-token blend
    that implicitly re-prices in-capacity tokens — that is the F7 defect.
 
-**Worked anchor (fixture F7):** Lane A capacity 100M tok/mo at $10,000/mo fixed;
+**Worked anchor (fixture F7):** Self-hosted capacity 100M tok/mo at $10,000/mo fixed;
 demand 80M tok/mo. `local_first` serves 80M locally → total **$10,000**. Advisory
 blend 70/30 (local/API) → $10,000 + 24M × $0.01/1M overflow = **$10,240** — flagged
 `dominated`, never emitted as the recommendation.
+
+### 2.4 Demand model — derived from users, never asserted as a token count
+
+v0.1 required `demand_tokens_mo` as a direct input. That is the one number a buyer
+cannot supply, so v0.2 derives it. A **session** is the unit of work; the workload
+**mix** carries the token shape, because RAG and Agentic differ by roughly an order
+of magnitude per turn and a single averaged shape hides that.
+
+```
+sessions_mo   = users × sessions_per_user_day × working_days_mo
+turns_mo(w)   = sessions_mo × mix_share(w) × turns_per_session(w)
+tokens_mo     = Σ_w turns_mo(w) × (in_tokens(w) + out_tokens(w) + cached_tokens(w))
+```
+
+Workload types are `rag`, `graph_rag`, `agentic`, `chat`. Mix shares are fractions
+summing to 1; a mix that does not sum to 1 is a **refusal**, not a silent
+renormalization — a mis-entered share otherwise changes the answer invisibly.
+
+Every derived quantity is **overridable**. An override is retained, labelled
+`user_override`, and never silently recomputed from the inputs that produced it.
+Derived-vs-overridden is visible at the point of use, per the §8 UX rules.
+
+### 2.5 Payback — a whole number of months, or an honest refusal
+
+v0.1 emitted breakeven as a token volume in prose. The decision question is *when*,
+so v0.2 emits months. Self-hosted carries a one-time `capex` and a `monthly_opex`;
+the comparison target is any other option's monthly total:
+
+```
+payback_months = ceil( capex / (target_monthly − monthly_opex) )    when target_monthly > monthly_opex
+               = does_not_converge                                   otherwise
+```
+
+`does_not_converge` is returned **with its reason** (`opex_exceeds_target` or
+`zero_capex`) and is never rendered as a large number, an infinity, or a dash. A
+payback beyond the declared horizon is returned as the true month with a
+`beyond_horizon` flag — truncating it to the horizon would misreport a real answer
+as an impossible one.
 
 ---
 

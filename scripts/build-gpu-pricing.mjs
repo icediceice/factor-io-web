@@ -280,6 +280,28 @@ const AGGREGATOR_GPU_PAGES = [
   { slug: "nvidia-b200", gpu: GPU.b200 },
 ];
 
+function escapeRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Lower bounds on a plausible ON-DEMAND per-GPU-hour rate, in USD. These are not
+// market estimates — they sit far below any real on-demand rate and exist ONLY to
+// catch a misparse. A scraper that grabs the wrong dollar figure does not fail; it
+// returns a confident, well-formed, wrong number, and $0.04/hr for an H100 would
+// make renting look free against self-hosting. Anything under the floor is REJECTED
+// and recorded in findings, never silently dropped and never rounded up.
+const MIN_PLAUSIBLE_USD = {
+  b200: 2.0, h200: 1.5, h100: 1.0, h20: 0.5,
+  a100_80: 0.4, a100_40: 0.3, a800: 0.4,
+  l40s: 0.3, l4: 0.1, a10g: 0.1,
+};
+
+function acceptRate(perGpu, gpu) {
+  if (!Number.isFinite(perGpu) || perGpu <= 0 || perGpu > 200) return false;
+  const floor = MIN_PLAUSIBLE_USD[gpu.id];
+  return floor === undefined ? true : perGpu >= floor;
+}
+
 function mkRow({ prov, gpu, perGpu, url, observedAt }) {
   return {
     provider: prov.key,

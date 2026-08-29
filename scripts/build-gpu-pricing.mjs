@@ -299,7 +299,7 @@ function escapeRe(s) {
 const MIN_PLAUSIBLE_USD = {
   b200: 2.0, h200: 1.5, h100: 1.0, h20: 0.5,
   a100_80: 0.4, a100_40: 0.3, a800: 0.4,
-  l40s: 0.3, l4: 0.1, a10g: 0.1,
+  l40s: 0.3, l4: 0.1, a10g: 0.1, a10: 0.1,
 };
 
 function acceptRate(perGpu, gpu) {

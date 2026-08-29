@@ -411,8 +411,9 @@ async function main() {
     generated_at: doc.generated_at,
     total_rows: doc.rows.length,
     first_party_rows: doc.rows.filter((r) => r.confidence === "first_party").length,
-    indicative_rows: doc.rows.filter((r) => r.confidence === "indicative").length,
-    providers: Object.fromEntries(Object.entries(doc.providers).map(([k, v]) => [k, `${v.rows} rows (${v.confidence})`])),
+    indicative_live_rows: doc.rows.filter((r) => r.confidence === "indicative" && !r.seeded).length,
+    indicative_seeded_rows: doc.rows.filter((r) => r.seeded).length,
+    providers: Object.fromEntries(Object.entries(doc.providers).map(([k, v]) => [k, `${v.rows} rows (${v.confidence}${v.seeded ? ", seeded" : ""})`])),
     aggregator_findings: agg.value.findings,
   }, null, 2));
 }

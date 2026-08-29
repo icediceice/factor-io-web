@@ -738,7 +738,13 @@ re-serves the prior digest with zero extra state.
 - **O3.** Retire threshold `N_CONSECUTIVE` (default 3 `[ASSUMED]`, §3.4).
 - **O4.** Evidence-row curation process — hand-curated in v0.1; pipeline deferred.
 - **O5.** Public commercial-overlay placeholder rate card (generic, `assumed`).
-- **O6.** Lane C topology presets for v0.1 (which GPU instances to pre-reduce).
+- **O6.** ~~Lane C topology presets for v0.1~~ — **SETTLED in v0.2** by the §5.7
+  generated registry; topology presets are no longer hand-maintained.
+- **O7.** GCP `first_party` promotion — needs a Cloud Billing API key in the §5.6
+  secret store; `indicative` until then (§5.7).
+- **O8.** `tokens_s_per_gpu` defaults remain `[ASSUMED]` (§6.2) and still block a
+  real `modelled_p95_capacity` verdict — same blocker as O4, now load-bearing for
+  sizing as well as feasibility.
 
 ### 12.2 Phased roadmap
 

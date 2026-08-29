@@ -356,6 +356,14 @@ async function fetchAggregator(observedAt) {
   }
 
   // --- lane 2: per-GPU pages (reaches GCP + the neoclouds)
+  // Anchor on the literal "On-Demand from $N" that follows a provider's heading.
+  // Verified against the live page 2026-08-29: Vast.ai's H100 block reads
+  // "On-Demand from $1.74 Reserved from $1.90 Spot from $0.35". An earlier
+  // first-dollar-after-the-name window returned $0.04 for that same row, so the
+  // "On-Demand from" literal is load-bearing rather than decoration — without it
+  // the parser reports a spot or unrelated figure as an on-demand rate, and does
+  // so with a perfectly well-formed number that no downstream check would catch.
+  const RATE_RE = /On-Demand\s+from\s+\$\s?([0-9]+(?:\.[0-9]+)?)/i;
   for (const { slug, gpu } of AGGREGATOR_GPU_PAGES) {
     const url = `https://getdeploying.com/gpus/${slug}`;
     let text;
@@ -370,14 +378,24 @@ async function fetchAggregator(observedAt) {
     for (const prov of AGGREGATOR_PROVIDERS) {
       const key = `${prov.key}:${gpu.id}`;
       if (seen.has(key)) continue;
-      // Bounded window from the provider's name to the first rate that follows.
-      // Widening it walks into the next provider's row and misattributes a price.
-      const idx = text.search(new RegExp(prov.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
-      if (idx < 0) continue;
-      const m = /\$\s?([0-9]+(?:\.[0-9]+)?)/.exec(text.slice(idx, idx + 260));
-      if (!m) continue;
-      const perGpu = Number(m[1]);
-      if (!Number.isFinite(perGpu) || perGpu <= 0 || perGpu > 200) continue;
+      // The provider's name also appears in the page nav and in the "which clouds
+      // offer X" list, where no rate follows. Walk EVERY occurrence and keep the
+      // first whose On-Demand rate falls inside that heading's own short window;
+      // a window wide enough to skip a miss would reach the NEXT provider's block.
+      const nameRe = new RegExp(escapeRe(prov.label), "gi");
+      let perGpu = null;
+      let hit;
+      while ((hit = nameRe.exec(text)) !== null) {
+        const m = RATE_RE.exec(text.slice(hit.index, hit.index + 220));
+        if (!m) continue;
+        perGpu = Number(m[1]);
+        break;
+      }
+      if (perGpu === null) continue;
+      if (!acceptRate(perGpu, gpu)) {
+        findings.rejected.push({ provider: prov.key, gpu: gpu.id, rate: perGpu, page: slug });
+        continue;
+      }
       seen.add(key);
       found++;
       rows.push(mkRow({ prov, gpu, perGpu, url, observedAt }));

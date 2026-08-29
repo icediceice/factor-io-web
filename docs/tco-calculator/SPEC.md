@@ -72,30 +72,35 @@ purchase execution, cluster scheduling, multi-currency conversion (USD only in v
 
 ### 1.4 Output contract (summary)
 
-Every comparison run emits: TCO curve over the horizon; cost per 1M tokens per lane;
-breakeven utilization; **p95 throughput feasibility** (user SLO `required_p95_tok_s`
-vs `modelled_p95_capacity` per §6 — the calculator never prints the word
-"guarantee" for a modelled number); and a sensitivity table over declared input
-ranges.
+Every comparison run emits: **peak tokens/second** and the per-stream speed floor
+(§6.2); monthly cost per option; **payback in whole months** or `does_not_converge`
+with its reason (§2.5); TCO curve over the horizon; cost per 1M tokens per option;
+**p95 throughput feasibility** (user SLO `required_p95_tok_s` vs
+`modelled_p95_capacity` per §6 — the calculator never prints the word "guarantee"
+for a modelled number); and a sensitivity table over declared input ranges.
 
 ---
 
-## 2. Comparison lanes and routing policies
+## 2. Comparison options, demand model, and routing policies
 
-### 2.1 Three lanes — there is no fourth "hybrid" lane
+### 2.1 Three options — there is no fourth "hybrid" option
 
-| Lane | Cost shape | Capacity | Priced from |
-|---|---|---|---|
-| **A — Owned local stack** | Fixed monthly (amortized hardware/lease + power + ops); marginal cost ≈ 0 up to capacity | Hard ceiling: tokens/s and tokens/month | User-entered capex/lease |
-| **B — Cloud model API** | Pure usage-based per-meter tariffs (§3); no capex | Rate-limited, effectively unbounded | OpenRouter, LiteLLM cost map, provider catalogs (§5) |
-| **C — Rented cloud GPU node** | Hourly instance tariffs × utilization | Per node topology; user-declared topology | AWS/Azure/GCP price lists (§5) |
+Named after what is being purchased. The engine's internal keys remain `A`/`B`/`C`
+so the §12.4 fixtures keep binding; those keys are mapped to the names below at
+render and export (§8) and **never reach a user**.
 
-Hybrid deployments exist, but **hybrid is a routing policy across A/B/C, not a cost
-lane.** A fourth hybrid lane duplicates an engine path that already composes lanes,
-and can only produce misleading numbers — see fixture F7 (§12.4): a user-set 70/30
-local/API blend over 100M tokens/mo local capacity against 80M demand emits $10,240
-where local-first serves all 80M for $10,000. Routing percentages are derived
-quantities, not exogenous inputs.
+| Option | Engine key | Cost shape | Capacity | Priced from |
+|---|---|---|---|---|
+| **Self-hosted** | `A` | One-time **capex** + monthly opex (power, ops, colo); marginal cost ≈ 0 up to capacity | Hard ceiling: tokens/s and tokens/month | User-entered capex + opex, sized from §6.2 |
+| **Model API** | `B` | Pure usage-based per-meter tariffs (§3); no capex | Rate-limited, effectively unbounded | OpenRouter, LiteLLM cost map (§5) |
+| **Rented GPU** | `C` | Hourly instance tariffs × utilization, **per named provider** | Per node topology; user-declared topology | AWS, Azure, GCP, Alibaba, Tencent, Huawei, neoclouds (§5.7) |
+
+Hybrid deployments exist, but **hybrid is a routing policy across the three, not a
+fourth option.** A fourth hybrid option duplicates an engine path that already
+composes them, and can only produce misleading numbers — see fixture F7 (§12.4): a
+user-set 70/30 local/API blend over 100M tokens/mo local capacity against 80M demand
+emits $10,240 where local-first serves all 80M for $10,000. Routing percentages are
+derived quantities, not exogenous inputs.
 
 The commercial layer (enterprise licensing, AI consulting, implementation — §7) is
 an **overlay** applied after lane math, itemized, never folded into unit prices.

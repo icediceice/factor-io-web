@@ -29,14 +29,24 @@ const BASE = {
 
 // ------------------------------------------------------------------ the mix
 
-test("mix: 0.4+0.4+0.1+0.1 sums to one — the case IEEE-754 gets wrong", () => {
-  // In floats this sums to 0.9999999999999999 and a naive implementation would
+test("mix: 0.3+0.3+0.3+0.1 sums to one — the case IEEE-754 gets wrong", () => {
+  // In floats this sums to 0.9999999999999999, so a naive implementation would
   // REFUSE a mix the user entered correctly. This test is the whole reason the
-  // mix is carried as an exact rational.
-  assert.equal(0.4 + 0.4 + 0.1 + 0.1 === 1, false, "precondition: floats do get this wrong");
-  const v = validateMix({ chat: "0.4", rag: "0.4", graph_rag: "0.1", agentic: "0.1" });
+  // mix is carried as an exact rational rather than as numbers.
+  assert.equal(0.3 + 0.3 + 0.3 + 0.1 === 1, false, "precondition: floats do get this wrong");
+  const v = validateMix({ chat: "0.3", rag: "0.3", graph_rag: "0.3", agentic: "0.1" });
   assert.equal(v.ok, true);
   assert.equal(v.sum_text, "1.000000");
+});
+
+test("mix: the float verdict depends on SUMMATION ORDER; the exact one does not", () => {
+  // 0.1+0.2+0.7 is exactly 1 in floats but 0.7+0.2+0.1 is 0.9999999999999999.
+  // A float implementation would therefore accept or refuse the SAME mix based on
+  // which workload happened to hold which share — a bug with no visible cause.
+  assert.equal(0.1 + 0.2 + 0.7 === 1, true);
+  assert.equal(0.7 + 0.2 + 0.1 === 1, false);
+  assert.equal(validateMix({ rag: "0.1", graph_rag: "0.2", agentic: "0.7" }).ok, true);
+  assert.equal(validateMix({ rag: "0.7", graph_rag: "0.2", agentic: "0.1" }).ok, true);
 });
 
 test("mix: thirds sum to one exactly", () => {

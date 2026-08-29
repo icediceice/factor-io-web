@@ -323,7 +323,7 @@ function mkRow({ prov, gpu, perGpu, url, observedAt }) {
 
 async function fetchAggregator(observedAt) {
   const rows = [];
-  const findings = { provider_pages: [], gpu_pages: [] };
+  const findings = { provider_pages: [], gpu_pages: [], rejected: [] };
   const seen = new Set(); // `${provider}:${gpu_id}` — first lane to land a pair wins
   let anyPageParsed = false;
 

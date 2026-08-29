@@ -9,7 +9,7 @@ import {
   WORKLOAD_TYPES,
   TOKENS_S_PER_GPU_ASSUMED,
 } from "../demand.js";
-import { paybackMonths, tcoCurve } from "../calculator.js";
+import { paybackMonths, tcoCurve, rentedGpuByProvider } from "../calculator.js";
 
 // SPEC 2.4 — demand is DERIVED from users, never asserted as a token count.
 
@@ -315,4 +315,94 @@ test("curve and paybackMonths agree on the crossover month", () => {
   const pts = tcoCurve({ A: aMonthly, B: bMonthly }, 24, { A: capex });
   const crossover = pts.find((pt) => Number(pt.A) <= Number(pt.B)).month;
   assert.equal(crossover, p.months);
+});
+
+// -------------------------------------------- scaling users vs scaling demand
+// Verify-ship G1: the sensitivity grid used to scale the monthly token total and
+// reuse the base fleet under an axis labelled "users". These pin the difference
+// the label was claiming — the fleet is a STEP function of the peak second, and
+// no amount of linear demand scaling reveals where the step is.
+
+test("sizing: scaling users crosses a GPU boundary that scaling monthly demand never shows", () => {
+  const MIX = { chat: "0.25", rag: "0.25", graph_rag: "0.25", agentic: "0.25" };
+  const peakAt = (users) => peakTokensPerSecond({ users, peakConcurrencyFraction: "0.05", tokensPerSecondPerStream: "30" });
+  const gpusAt = (users) => gpusForLoad({ peakTokensPerSecond: peakAt(users).peak_tokens_s.text, gpuId: "h100" });
+  const tokensAt = (users) => Number(buildDemand({ ...BASE, users, mix: MIX }).tokens_mo.text);
+
+  // 500 people at a 5% peak is 25 concurrent streams at 30 tok/s: one H100 holds it.
+  assert.equal(peakAt(500).peak_tokens_s.text, "750.00");
+  assert.equal(gpusAt(500).gpus_required.text, "1");
+
+  // 4x the people is 4x the peak second, and 3000 tok/s no longer fits on one.
+  assert.equal(peakAt(2000).peak_tokens_s.text, "3000.00");
+  assert.equal(gpusAt(2000).gpus_required.text, "2");
+
+  // Monthly demand meanwhile scales perfectly linearly — which is exactly why a
+  // grid that scales only the monthly total keeps reporting the base fleet's cost.
+  assert.equal(tokensAt(2000), 4 * tokensAt(500));
+});
+
+// ------------------------------------------------ rented GPU, every provider
+// Verify-ship G3: the buyer's question is "who is cheapest for MY load", which a
+// one-provider-at-a-time picker cannot answer.
+
+const REGISTRY = [
+  { provider: "aws", provider_label: "AWS", sku: "p5.48xlarge", gpu_id: "h100", gpu_label: "H100 80GB", gpu_hourly_usd: 12.29, confidence: "first_party", source_url: "https://aws.example/pricing", observed_at: "2026-08-01T00:00:00Z" },
+  { provider: "aws", provider_label: "AWS", sku: "g5.xlarge", gpu_id: "a10g", gpu_label: "A10G", gpu_hourly_usd: 1.006, confidence: "first_party", source_url: "https://aws.example/pricing", observed_at: "2026-08-01T00:00:00Z" },
+  { provider: "azure", provider_label: "Azure", sku: "ND-H100-v5", gpu_id: "h100", gpu_label: "H100 80GB", gpu_hourly_usd: 9.8, confidence: "first_party", source_url: "https://azure.example/retail", observed_at: "2026-08-01T00:00:00Z" },
+  { provider: "gcp", provider_label: "Google Cloud", sku: "a3-highgpu-8g", gpu_id: "h100", gpu_label: "H100 80GB", gpu_hourly_usd: 11.06, confidence: "indicative", source_url: "https://agg.example/gcp", observed_at: "2026-08-01T00:00:00Z" },
+  { provider: "alibaba", provider_label: "Alibaba Cloud", sku: "ecs.gn7e", gpu_id: "a100_80", gpu_label: "A100 80GB", gpu_hourly_usd: 2.4, confidence: "indicative", source_url: "https://agg.example/alibaba", observed_at: "2026-08-01T00:00:00Z" },
+  { provider: "tencent", provider_label: "Tencent Cloud", sku: "GN10Xp", gpu_id: "a800", gpu_label: "A800", gpu_hourly_usd: 3.1, confidence: "indicative", source_url: "https://agg.example/tencent", observed_at: "2026-08-01T00:00:00Z" },
+  { provider: "huawei", provider_label: "Huawei Cloud", sku: "ai1s.ascend", gpu_id: "ascend_910b", gpu_label: "Ascend 910B", gpu_hourly_usd: 4.2, confidence: "indicative", source_url: "https://agg.example/huawei", observed_at: "2026-08-01T00:00:00Z" },
+];
+
+const sizeAt3000 = (gpuId) => gpusForLoad({ peakTokensPerSecond: "3000", gpuId });
+
+test("providers: every provider in the registry appears exactly once, priced or explicitly not", () => {
+  const res = rentedGpuByProvider({ rows: REGISTRY, utilization: "0.7", servedTokens: 187110000, sizeFor: sizeAt3000 });
+
+  const seen = [...res.priced.map((p) => p.provider), ...new Set(res.unservable.map((u) => u.provider))].sort();
+  assert.deepEqual(seen, ["alibaba", "aws", "azure", "gcp", "huawei", "tencent"]);
+  assert.equal(res.priced.length, 5, "five providers priced");
+});
+
+test("providers: an accelerator with no throughput assumption is reported, never dropped", () => {
+  // A provider VANISHING from a comparison reads as "not offered" when the truth
+  // is "not modelled" — the whole reason gpusForLoad refuses instead of defaulting.
+  const res = rentedGpuByProvider({ rows: REGISTRY, utilization: "0.7", servedTokens: 187110000, sizeFor: sizeAt3000 });
+  const huawei = res.unservable.find((u) => u.provider === "huawei");
+  assert.ok(huawei, "huawei is reported as unpriceable");
+  assert.equal(huawei.reason, "unknown_gpu");
+  assert.equal(res.priced.some((p) => p.provider === "huawei"), false);
+});
+
+test("providers: one row per provider, chosen on computed cost rather than on the lowest rate", () => {
+  const res = rentedGpuByProvider({ rows: REGISTRY, utilization: "0.7", servedTokens: 187110000, sizeFor: sizeAt3000 });
+  const aws = res.priced.filter((p) => p.provider === "aws");
+  assert.equal(aws.length, 1, "AWS is listed once, not once per SKU it sells");
+
+  // AWS offers both: 2x H100 at $12.29 (5000 tok/s of capacity) and 10x A10G at
+  // $1.006 (3000 tok/s). The winner is whichever costs less to serve the month —
+  // NOT the one needing fewer GPUs, and not the one with the lower hourly rate.
+  assert.equal(aws[0].gpu_id, "a10g");
+  assert.equal(aws[0].gpus_required, 10);
+
+  const totals = res.priced.map((p) => Number(p.monthly_total));
+  assert.deepEqual(totals, [...totals].sort((a, b) => a - b), "cheapest first");
+});
+
+test("providers: the fleet hourly rate is exact money, not a float product", () => {
+  // 3 x $2.40 is 7.199999999999999 in IEEE-754. A dollar figure carrying binary
+  // dust is the failure the Dec money path exists to prevent (SPEC 3.5).
+  assert.notEqual(String(2.4 * 3), "7.2", "precondition: floats do get this wrong");
+  const res = rentedGpuByProvider({ rows: REGISTRY, utilization: "0.7", servedTokens: 187110000, sizeFor: sizeAt3000 });
+  const alibaba = res.priced.find((p) => p.provider === "alibaba");
+  assert.equal(alibaba.gpus_required, 3, "3 x A100-80 holds 3000 tok/s at 1400 each");
+  assert.equal(alibaba.fleet_hourly_usd, "7.2");
+});
+
+test("providers: zero demand is refused with a reason, never priced as free", () => {
+  const res = rentedGpuByProvider({ rows: REGISTRY, utilization: "0.7", servedTokens: 0, sizeFor: sizeAt3000 });
+  assert.deepEqual(res.priced, []);
+  assert.equal(res.reason, "zero_demand");
 });

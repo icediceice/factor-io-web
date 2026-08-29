@@ -169,9 +169,20 @@ Workload types are `rag`, `graph_rag`, `agentic`, `chat`. Mix shares are fractio
 summing to 1; a mix that does not sum to 1 is a **refusal**, not a silent
 renormalization — a mis-entered share otherwise changes the answer invisibly.
 
-Every derived quantity is **overridable**. An override is retained, labelled
-`user_override`, and never silently recomputed from the inputs that produced it.
-Derived-vs-overridden is visible at the point of use, per the §8 UX rules.
+Every derived quantity carries a **basis** — `input`, `derived`, `assumed` or
+`user_override` — and `buildDemand` / `peakTokensPerSecond` accept an override for
+each one. An override is retained, labelled `user_override`, and never silently
+recomputed from the inputs that produced it. Derived-vs-overridden is visible at
+the point of use, per the §8 UX rules.
+
+**What v0.2 actually surfaces, stated plainly.** The override *controls* in the
+shipped client are the sizing ones: GPU count, tokens/s per GPU, and the monthly
+token budget. The demand-side slots — `sessions_mo`, `turns_mo`, `tokens_mo`,
+`concurrent_peak`, `peak_tokens_s` — exist in the module API and are honoured by
+the engine, but have no control yet, so those figures always render `derived`.
+This is a declared gap rather than an implied capability: every input *above* them
+(users, sessions/user/day, working days, mix shares, per-turn token shapes) is
+editable, and that is the customization the session model is built around.
 
 ### 2.5 Payback — a whole number of months, or an honest refusal
 
@@ -635,16 +646,21 @@ provenance popover, and the tags (`exact`, `estimated`, `assumed`, `first_party`
 - **S1 Workload:** preset selector; **user count**, sessions/user/day, working
   days/month; the workload **mix** rows (RAG, Graph RAG, Agentic, Chat) with shares
   and per-turn token shapes; peak concurrency and the per-stream speed floor (§6.2);
-  `required_p95_tok_s` SLO. Derived totals render alongside their inputs and each is
-  overridable (§2.4).
+  `required_p95_tok_s` SLO. Derived totals render alongside their inputs, each
+  tagged with its basis; the sizing quantities carry override controls (§2.4).
 - **S2 Options & routing:** Self-hosted capex + monthly opex + capacity; Rented GPU
   **provider** and topology (§5.7); Model API model set; routing policy selection
   (§2.2 — advisory blend input with `dominated` flag rendered inline). Changing the
   selection triggers slice fetches under the §9 budget.
 - **S3 Results:** peak tok/s and whether each option holds the speed floor;
-  **payback in months** (§2.5); TCO curve over horizon; cost-per-1M per option with
-  `exact|estimated` labels; p95 feasibility verdicts (`feasible|infeasible|unknown`)
-  — never the word "guarantee"; freshness banner (§5.5).
+  **payback in months** (§2.5); the **rented-GPU cross-provider table** — every
+  provider in the registry priced for this load, one row each at the cheapest SKU
+  that holds the peak, sized on its OWN accelerator so providers rank by delivered
+  capacity rather than sticker rate, and a provider that cannot be priced is listed
+  with its reason instead of dropped; TCO curve over horizon; cost-per-1M per option
+  with `exact|estimated` labels; p95 feasibility verdicts
+  (`feasible|infeasible|unknown`) — never the word "guarantee"; freshness banner
+  (§5.5).
 - **S4 Sensitivity & provenance:** sensitivity table over declared ranges; every
   number clickable into a provenance popover (source feed, `observed_at`, digest,
   exact/estimated reasons, evidence row if any); overlay toggle (infra-only /

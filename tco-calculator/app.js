@@ -12,7 +12,7 @@
 // export boundary, through OPTION. Renaming the engine instead would rewrite
 // those fixtures, and they are the regression net for the ×3600 dimensional bug.
 import { Dec, Rat, formatHalfUp } from "./exact.js";
-import { runComparison, matchEvidence, ratToDecExact } from "./calculator.js";
+import { runComparison, matchEvidence, ratToDecExact, rentedGpuByProvider } from "./calculator.js";
 import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
 import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
 
@@ -139,21 +139,30 @@ async function loadGpuPricing() {
   fillRentGpus();
 }
 
+// Option values are the registry ROW INDEX, never the gpu id. A provider
+// routinely lists the same accelerator at several rates — different regions or
+// instance families — and keying the option on gpu_id alone made every one of
+// them resolve to the FIRST matching row: the user picked a $1.006 rate and was
+// quoted $2.272791, silently. The sku is shown so the duplicates are tellable apart.
 function fillRentGpus() {
   const p = $("f-rent-provider").value;
-  const rows = state.gpuPricing.rows.filter((r) => r.provider === p);
   const gpus = state.gpuPricing.gpus ?? {};
-  $("f-rent-gpu").innerHTML = rows
-    .map((r) => `<option value="${escapeHtml(r.gpu_id)}">${escapeHtml(gpus[r.gpu_id]?.label ?? r.gpu_id)} — $${r.gpu_hourly_usd}/GPU-hr</option>`)
+  const opts = state.gpuPricing.rows
+    .map((r, i) => ({ r, i }))
+    .filter(({ r }) => r.provider === p);
+  $("f-rent-gpu").innerHTML = opts
+    .map(({ r, i }) => `<option value="${i}">${escapeHtml(gpus[r.gpu_id]?.label ?? r.gpu_id)} — $${r.gpu_hourly_usd}/GPU-hr · ${escapeHtml(r.sku)}</option>`)
     .join("");
-  if (rows.length) $("f-rent-gpu").value = rows[0].gpu_id;
+  if (opts.length) $("f-rent-gpu").value = String(opts[0].i);
   renderRentNote();
 }
 
 function currentRentRow() {
-  const p = $("f-rent-provider").value;
-  const g = $("f-rent-gpu").value;
-  return state.gpuPricing.rows.find((r) => r.provider === p && r.gpu_id === g) ?? null;
+  const v = $("f-rent-gpu").value;
+  if (v === "") return null;
+  const i = Number(v);
+  const rows = state.gpuPricing?.rows ?? [];
+  return Number.isInteger(i) && i >= 0 && i < rows.length ? rows[i] : null;
 }
 
 function renderRentNote() {
@@ -253,16 +262,20 @@ function readShapes() {
 
 // Build the demand model from the DOM. Throws DemandRefusal on bad input —
 // callers render the refusal rather than substituting a guess.
-function computeDemand() {
+// `usersOverride` lets a what-if scenario (the sensitivity grid) re-derive the
+// WHOLE model at a different headcount rather than scaling the monthly total and
+// leaving the fleet at its base size — see buildScenario.
+function computeDemand(usersOverride = null) {
+  const users = usersOverride ?? decInput("f-users");
   const demand = buildDemand({
-    users: decInput("f-users"),
+    users,
     sessionsPerUserDay: decInput("f-sessions-day"),
     workingDaysMo: decInput("f-days"),
     mix: readMix(),
     shapes: readShapes(),
   });
   const peak = peakTokensPerSecond({
-    users: decInput("f-users"),
+    users,
     peakConcurrencyFraction: decInput("f-peak-frac"),
     tokensPerSecondPerStream: decInput("f-tps-stream"),
   });
@@ -345,82 +358,124 @@ async function fillModels(sel) {
 }
 
 // --------------------------------------------------------------------- run()
+// One scenario builder for the headline AND for every sensitivity cell, so a
+// what-if can never disagree with the main result about how much hardware the
+// demand needs. Scaling the user count re-derives sessions, tokens, the peak
+// second AND the fleet; scaling only the monthly token total — which is what the
+// pre-v0.2 demand axis did — holds the fleet at its base size and understates a
+// scaled scenario. An EXPLICITLY entered GPU count or token budget is the user's
+// declared fleet and stays fixed on purpose: that is the "my current hardware
+// under more load" question, and it is theirs to ask.
+function buildScenario(usersOverride = null) {
+  const { demand, peak, sizing, gpuId } = computeDemand(usersOverride);
+
+  // The engine consumes whole tokens and whole requests. The demand model is
+  // exact, so rounding happens ONCE, here, at the boundary into the engine.
+  const demandTokens = Math.round(Number(demand.tokens_mo.text));
+  const requestCount = Math.round(Number(demand.turns_mo.text));
+  const inTok = Number(demand.in_tokens_mo.text);
+  const cachedTok = Number(demand.cached_tokens_mo.text);
+  const outTok = Number(demand.out_tokens_mo.text);
+
+  const workload = {
+    demand_tokens_mo: demandTokens,
+    request_count_mo: requestCount,
+    // Per-request shape is the monthly total divided by turns: the engine
+    // quotes ONE request and multiplies, so a blended average is correct here
+    // precisely because the mix has already been applied upstream.
+    prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
+    output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
+    cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
+    horizon_months: intInput("f-horizon") ?? 1,
+    required_p95_tok_s: intInput("f-p95"),
+    quote_utc: Date.parse($("f-utc").value),
+    now: Date.now(),
+    time_buckets: null,
+  };
+  if (demandTokens > 0) {
+    workload.time_buckets = [{ hours: 730, tokens: demandTokens }];
+  }
+
+  // Self-hosted capacity: the sized fleet's aggregate throughput over the
+  // month. Derived, and overridable — an entered budget wins.
+  const gpuCount = intInput("f-sh-count") ?? Number(sizing.gpus_required.text);
+  const fleetTokensS = gpuCount * Number(sizing.tokens_s_per_gpu.text);
+  const derivedBudget = Math.round(fleetTokensS * 3600 * 730);
+  const laneA = {
+    enabled: true,
+    fixed_monthly: decInput("f-sh-fixed") ?? "0",
+    capex: decInput("f-sh-capex") ?? "0",
+    monthly_token_budget: intInput("f-sh-budget") ?? derivedBudget,
+    tokens_s_ceiling: Math.round(fleetTokensS),
+    hardware_topology: `${gpuCount}x ${gpuId}`,
+  };
+  const laneB = { enabled: true, offer_ids: [$("fb-model").value].filter(Boolean) };
+
+  // The rented option is sized on the accelerator being RENTED, never on the
+  // self-hosted pick: an L40S does not deliver H100 throughput, and charging one
+  // accelerator's rate at another's capacity makes a provider look cheap for a
+  // reason that has nothing to do with its price. An accelerator with no
+  // throughput assumption is reported as a gap rather than silently borrowing
+  // the self-hosted figure.
+  const rentRow = currentRentRow();
+  let rentSizing = null;
+  let rentGap = null;
+  if (rentRow) {
+    try {
+      rentSizing = gpusForLoad({ peakTokensPerSecond: peak.peak_tokens_s.text, gpuId: rentRow.gpu_id });
+    } catch (e) {
+      rentGap = e instanceof DemandRefusal ? e.message : String(e);
+    }
+  }
+  const rentGpus = rentSizing ? Math.max(1, Number(rentSizing.gpus_required.text)) : 0;
+  const laneC = {
+    enabled: !!rentSizing,
+    tokens_s: rentSizing ? Math.round(rentGpus * Number(rentSizing.tokens_s_per_gpu.text)) : 0,
+    // The registry quotes PER GPU; the option rents the fleet size this
+    // accelerator needs to hold the peak, so the hourly rate is scaled by that
+    // count — exactly, because a float multiply would put binary dust in a
+    // dollar figure.
+    hourly_rate: rentSizing ? Dec.from(String(rentRow.gpu_hourly_usd)).mul(BigInt(rentGpus)).toString() : "0",
+    utilization: decInput("f-rent-util") ?? "0.7",
+    hardware_topology: rentSizing ? `${rentGpus}x ${rentRow.gpu_label} @ ${rentRow.provider_label}` : null,
+  };
+  const routing = {
+    policy: $("fr-policy").value,
+    advisory_blend: { local_pct: intInput("fr-blend") ?? 70 },
+    failover: { fallback: "A", share: decInput("fr-failshare") ?? "0", rate: decInput("fr-failrate") ?? "2" },
+    pinned: { a_pct: 50, b_pct: 50 },
+  };
+  const overlay = {
+    fully_loaded: $("fo-loaded").value === "loaded",
+    components: [
+      { name: "enterprise-licensing", basis: "monthly", amount: decInput("fo-license") ?? "0" },
+      { name: "ai-consulting", basis: "monthly", amount: decInput("fo-consult") ?? "0" },
+      { name: "implementation", basis: "one_time", amount: decInput("fo-impl") ?? "0" },
+    ].filter((c) => Dec.from(c.amount).sign() > 0),
+  };
+
+  return {
+    demand, peak, sizing, gpuId, rentRow, rentGap,
+    inputs: { workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay },
+  };
+}
+
+// A headcount is a whole number of people — demand.js refuses a fractional one —
+// so a scaled sensitivity cell rounds to a real person rather than becoming a
+// refusal, and never falls below the single user the model needs to mean anything.
+function scaleUsers(baseUsers, multiplier) {
+  const n = Math.round(Number(baseUsers) * multiplier);
+  return String(Number.isFinite(n) && n > 1 ? n : 1);
+}
+
 function run() {
   clearGap();
   try {
-    const { demand, peak, sizing, gpuId } = computeDemand();
-    state.demand = { demand, peak, sizing };
-
-    // The engine consumes whole tokens and whole requests. The demand model is
-    // exact, so rounding happens ONCE, here, at the boundary into the engine.
-    const demandTokens = Math.round(Number(demand.tokens_mo.text));
-    const requestCount = Math.round(Number(demand.turns_mo.text));
-    const inTok = Number(demand.in_tokens_mo.text);
-    const cachedTok = Number(demand.cached_tokens_mo.text);
-    const outTok = Number(demand.out_tokens_mo.text);
-
-    const workload = {
-      demand_tokens_mo: demandTokens,
-      request_count_mo: requestCount,
-      // Per-request shape is the monthly total divided by turns: the engine
-      // quotes ONE request and multiplies, so a blended average is correct here
-      // precisely because the mix has already been applied upstream.
-      prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
-      output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
-      cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
-      horizon_months: intInput("f-horizon") ?? 1,
-      required_p95_tok_s: intInput("f-p95"),
-      quote_utc: Date.parse($("f-utc").value),
-      now: Date.now(),
-      time_buckets: null,
-    };
-    if (demandTokens > 0) {
-      workload.time_buckets = [{ hours: 730, tokens: demandTokens }];
-    }
-
-    // Self-hosted capacity: the sized fleet's aggregate throughput over the
-    // month. Derived, and overridable — an entered budget wins.
-    const gpuCount = intInput("f-sh-count") ?? Number(sizing.gpus_required.text);
-    const fleetTokensS = gpuCount * Number(sizing.tokens_s_per_gpu.text);
-    const derivedBudget = Math.round(fleetTokensS * 3600 * 730);
-    const laneA = {
-      enabled: true,
-      fixed_monthly: decInput("f-sh-fixed") ?? "0",
-      capex: decInput("f-sh-capex") ?? "0",
-      monthly_token_budget: intInput("f-sh-budget") ?? derivedBudget,
-      tokens_s_ceiling: Math.round(fleetTokensS),
-      hardware_topology: `${gpuCount}x ${gpuId}`,
-    };
-    const laneB = { enabled: true, offer_ids: [$("fb-model").value].filter(Boolean) };
-
-    const rentRow = currentRentRow();
-    const rentGpus = gpuCount > 0 ? gpuCount : 1;
-    const laneC = {
-      enabled: !!rentRow,
-      tokens_s: Math.round(rentGpus * Number(sizing.tokens_s_per_gpu.text)),
-      // The registry quotes PER GPU; the option rents the same fleet size the
-      // peak requires, so the hourly rate is scaled by the GPU count.
-      hourly_rate: rentRow ? String(rentRow.gpu_hourly_usd * rentGpus) : "0",
-      utilization: decInput("f-rent-util") ?? "0.7",
-      hardware_topology: rentRow ? `${rentGpus}x ${rentRow.gpu_label} @ ${rentRow.provider_label}` : null,
-    };
-    const routing = {
-      policy: $("fr-policy").value,
-      advisory_blend: { local_pct: intInput("fr-blend") ?? 70 },
-      failover: { fallback: "A", share: decInput("fr-failshare") ?? "0", rate: decInput("fr-failrate") ?? "2" },
-      pinned: { a_pct: 50, b_pct: 50 },
-    };
-    const overlay = {
-      fully_loaded: $("fo-loaded").value === "loaded",
-      components: [
-        { name: "enterprise-licensing", basis: "monthly", amount: decInput("fo-license") ?? "0" },
-        { name: "ai-consulting", basis: "monthly", amount: decInput("fo-consult") ?? "0" },
-        { name: "implementation", basis: "one_time", amount: decInput("fo-impl") ?? "0" },
-      ].filter((c) => Dec.from(c.amount).sign() > 0),
-    };
-
-    state.inputs = { workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay };
-    state.rentRow = rentRow;
+    const s = buildScenario();
+    state.demand = { demand: s.demand, peak: s.peak, sizing: s.sizing };
+    state.inputs = s.inputs;
+    state.rentRow = s.rentRow;
+    state.rentGap = s.rentGap;
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
   } catch (e) {
@@ -512,6 +567,79 @@ function sizingCard() {
   </div>`;
 }
 
+// Every provider in the registry, priced for THIS load. The picker answers one
+// provider at a time, which is not the question a buyer comparing AWS against
+// Azure against a Chinese cloud is actually asking — and asking it one selection
+// at a time makes the comparison the buyer's clerical work rather than the
+// calculator's output. Sets state.rentByProvider for the quote export.
+function providerCard() {
+  const d = state.demand;
+  const inp = state.inputs;
+  if (!d || !inp) { state.rentByProvider = null; return ""; }
+
+  const cmp = rentedGpuByProvider({
+    rows: state.gpuPricing?.rows ?? [],
+    utilization: inp.laneC.utilization,
+    servedTokens: inp.workload.demand_tokens_mo,
+    // Sized on ITS OWN accelerator against the same peak second — never on the
+    // self-hosted pick, which would price an L4 fleet as if it were H100s.
+    sizeFor: (gpuId) => gpusForLoad({ peakTokensPerSecond: d.peak.peak_tokens_s.text, gpuId }),
+  });
+  state.rentByProvider = cmp;
+
+  if (!cmp.priced.length) {
+    return `<div class="card"><h3>${OPTION.C.label} — every provider</h3><p class="muted">No provider could be priced for this load${cmp.reason ? ` (${escapeHtml(cmp.reason)})` : ""}.</p></div>`;
+  }
+
+  // Marked only when the provider AND the accelerator match: this table picks a
+  // provider's cheapest holding SKU, which is often not the one selected above,
+  // and marking on provider alone would label a different number as "yours".
+  const selected = state.rentRow?.provider ?? null;
+  const selectedGpu = state.rentRow?.gpu_id ?? null;
+  const body = cmp.priced.map((p) => {
+    const tier = p.confidence === "first_party" ? "tag-exact" : "tag-est";
+    const word = p.confidence === "first_party" ? "first-party" : "indicative";
+    const provRows = [
+      ["sku", String(p.sku)],
+      ["fleet", `${p.gpus_required} x ${p.gpu_label ?? p.gpu_id}`],
+      ["per-GPU hourly", `$${p.gpu_hourly_usd}`],
+      ["fleet hourly", `$${p.fleet_hourly_usd}`],
+      ["GPU-hours / month", p.hours],
+      ["confidence", p.confidence],
+      ["source", String(p.source_url)],
+      ["observed", String(p.observed_at).slice(0, 10)],
+      ["snapshot digest", state.manifest.snapshot_digest],
+    ];
+    const mark = p.provider === selected && p.gpu_id === selectedGpu ? ` <span class="muted">your selection</span>` : "";
+    return `<tr><td>${escapeHtml(p.provider_label)} <span class="tag ${tier}">${word}</span>${mark}</td>`
+      + `<td>${escapeHtml(p.gpu_label ?? p.gpu_id)}</td>`
+      + `<td class="n">${p.gpus_required}</td>`
+      + `<td class="n">$${escapeHtml(p.gpu_hourly_usd)}</td>`
+      + `<td class="n">${numProv(money(p.monthly_total), provRows)}</td></tr>`;
+  }).join("");
+
+  // The picker's own pairing could not be sized — say so here rather than let the
+  // Rented GPU option quietly vanish from the results table with no explanation.
+  const pickGap = state.rentGap
+    ? `<div class="gap"><strong>Your selected pairing is not priced:</strong> ${escapeHtml(state.rentGap)} The comparison below still stands; the option row above is omitted rather than guessed.</div>`
+    : "";
+
+  const missing = cmp.unservable.length
+    ? `<p class="muted">Not priced: ${[...new Set(cmp.unservable.map((u) => `${u.provider_label} (${u.gpu_id} — ${u.reason})`))].map(escapeHtml).join(", ")}. An unpriceable provider is reported rather than dropped — vanishing from the table would read as "not offered" when the truth is "not modelled".</p>`
+    : "";
+
+  return `<div class="card">
+    <h3>${OPTION.C.label} — every provider in the registry, priced for this load</h3>
+    <table>
+      <thead><tr><th>Provider</th><th>Accelerator</th><th class="n">GPUs</th><th class="n">$/GPU-hr</th><th class="n">Cost / month</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table>
+    ${pickGap}
+    <p class="muted">The cheapest SKU per provider that holds ${d.peak.peak_tokens_s.text} tok/s at peak, each sized on its own accelerator — so providers rank by delivered capacity, not by sticker rate. <span class="tag tag-exact">first-party</span> is the vendor's own published price list; <span class="tag tag-est">indicative</span> is a public aggregator, an order-of-magnitude planning figure rather than a quote.</p>
+    ${missing}
+  </div>`;
+}
+
 function renderResults(r) {
   const B = r.lanes.B;
   const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
@@ -597,6 +725,7 @@ function renderResults(r) {
       ${B.gaps.map((g) => `<div class="gap"><strong>${escapeHtml(g.offer_id)}</strong>: ${escapeHtml(g.gap_reason ?? "unservable")} — the option falls back or reports the gap.</div>`).join("")}
     </div>
     ${sizingCard()}
+    ${providerCard()}
     <div class="card">
       <h3>Feasibility</h3>
       <ul style="color:rgba(232,230,240,.72)">${verdictLi(`${OPTION.A.label} p95 vs SLO`, r.throughput.verdicts.lane_A)}${verdictLi(`${OPTION.C.label} p95 vs SLO`, r.throughput.verdicts.lane_C)}</ul>
@@ -682,34 +811,46 @@ function renderSensitivity() {
   const inp = state.inputs;
   const primary = inp?.laneB?.offer_ids?.[0] ?? null;
   if (!r || !inp || !primary || !state.catalog?.offers?.[primary]) {
-    $("sensitivity").innerHTML = `<div class="card"><h3>Sensitivity</h3><p class="muted">Select a priced API model — the demand/price grid reruns the full comparison per cell and needs a priced offer.</p></div>`;
+    $("sensitivity").innerHTML = `<div class="card"><h3>Sensitivity</h3><p class="muted">Select a priced API model — the user/price grid reruns the full comparison per cell and needs a priced offer.</p></div>`;
     return;
   }
+  const baseUsers = decInput("f-users");
   const userMultipliers = [0.5, 0.75, 1, 1.5, 2];
   const priceMultipliers = [0.8, 1, 1.25];
   const head = `<tr><th>users \\ API price</th>${priceMultipliers.map((p) => `<th class="n">&times;${p}</th>`).join("")}</tr>`;
-  const body = userMultipliers.map((dm) => {
+  const body = userMultipliers.map((um) => {
+    const users = scaleUsers(baseUsers, um);
+    // Each row is a WHOLE scenario at that headcount: sessions, tokens, the peak
+    // second and the fleet are re-derived together, so a row that crosses a GPU
+    // boundary is priced on the bigger fleet instead of silently reusing the base one.
+    let scen;
+    try {
+      scen = buildScenario(users);
+    } catch {
+      return `<tr><td>${groupInt(users)} <span class="muted">&times;${um}</span></td>${priceMultipliers.map(() => `<td class="n muted">n/d</td>`).join("")}</tr>`;
+    }
+    const fleet = `${scen.sizing.gpus_required.text} &times; ${escapeHtml(scen.gpuId)}`;
     const cells = priceMultipliers.map((pm) => {
-      const workload = {
-        ...inp.workload,
-        demand_tokens_mo: Math.round(inp.workload.demand_tokens_mo * dm),
-        request_count_mo: Math.round(inp.workload.request_count_mo * dm),
-        time_buckets: inp.workload.time_buckets?.map((b) => ({ hours: b.hours, tokens: Math.round(b.tokens * dm) })) ?? null,
-      };
-      let catalog = inp.catalog;
+      let catalog = scen.inputs.catalog;
       if (pm !== 1) {
         const scaled = scaleOfferPrices(state.catalog.offers[primary], pm);
         if (scaled === null) return `<td class="n muted">n/d</td>`;
         catalog = { offers: { [primary]: scaled } };
       }
-      const res = runComparison({ ...inp, workload, catalog, evidenceRows: [] });
+      const res = runComparison({ ...scen.inputs, catalog, evidenceRows: [] });
       const tco = res.routing_result.recommended_monthly_total;
-      const cls = dm === 1 && pm === 1 ? `style="color:#E8E6F0"` : "";
-      return `<td class="n" ${cls}>${tco === null || tco === undefined ? "—" : numProv(money(tco), [["cell", `users ×${dm}, API price ×${pm} — full engine rerun`], ["snapshot digest", state.manifest.snapshot_digest]])}</td>`;
+      const cls = um === 1 && pm === 1 ? `style="color:#E8E6F0"` : "";
+      return `<td class="n" ${cls}>${tco === null || tco === undefined ? "—" : numProv(money(tco), [
+        ["scenario", `${groupInt(users)} users, API price x${pm}`],
+        ["peak", `${scen.peak.peak_tokens_s.text} tok/s`],
+        ["fleet at this scale", `${scen.sizing.gpus_required.text} x ${scen.gpuId}`],
+        ["basis", "full engine rerun — demand, peak second and fleet all re-derived"],
+        ["snapshot digest", state.manifest.snapshot_digest],
+      ])}</td>`;
     }).join("");
-    return `<tr><td>&times;${dm}</td>${cells}</tr>`;
+    return `<tr><td>${groupInt(users)} <span class="muted">&times;${um} &middot; ${fleet}</span></td>${cells}</tr>`;
   }).join("");
-  $("sensitivity").innerHTML = `<div class="card"><h3>Recommended cost sensitivity — full engine rerun per cell</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell is a fresh comparison: scaling users scales demand and turns together with the token shape held constant (counts rounded); the price axis re-quotes a tariff scaled exactly. ${OPTION.A.label} per-unit cost FALLS with utilization; ${OPTION.C.label} is hyperbolic — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
+  $("sensitivity").innerHTML = `<div class="card"><h3>Recommended cost sensitivity — full engine rerun per cell</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell is a fresh comparison at that headcount: the user axis re-derives sessions, tokens, the peak second and the GPU count together, so the fleet grows with the load instead of staying pinned to the base scenario. An explicitly entered GPU count or token budget is your declared fleet and stays fixed. The price axis re-quotes a tariff scaled exactly. ${OPTION.A.label} per-unit cost FALLS with utilization; ${OPTION.C.label} is hyperbolic — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
 }
 
 // The exported quote carries the OPTION names, never the engine's internal
@@ -755,6 +896,11 @@ function exportQuote(r) {
       source_url: state.rentRow.source_url,
       observed_at: state.rentRow.observed_at,
     } : null,
+    // The cross-provider comparison travels with the quote: whoever receives this
+    // file needs the alternatives that were rejected, not only the one selected.
+    rented_gpu_by_provider: state.rentByProvider
+      ? { priced: state.rentByProvider.priced, unservable: state.rentByProvider.unservable }
+      : null,
     result: {
       policy: r.policy,
       options: named,

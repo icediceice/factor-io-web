@@ -142,6 +142,79 @@ export function laneCMonthly({ hourlyRate, tokensS, utilization, servedTokens })
   return { total, hours, lines: [{ item: "lane_c_hours", amount: ratStr(total), note: `hourly x ${hours.toString()}h` }] };
 }
 
+// -------------------------------------------------- rented GPU, every provider
+// The provider picker answers "what does THIS one cost". The buyer's actual
+// question is "who is cheapest for my load, and is that figure a vendor quote or
+// a scraped estimate" — so the comparison is computed across the whole registry.
+//
+// Sizing is re-derived PER ROW and never carried over from the self-hosted
+// accelerator: an H100 and an L4 need different GPU counts to hold the same peak
+// second, so pricing every provider at one fixed count ranks them by sticker
+// rate instead of by delivered capacity — the exact inversion this table exists
+// to prevent.
+//
+// `sizeFor` is injected rather than imported so this stays pure arithmetic with
+// no dependency on the demand module, and so a test can size rows deterministically.
+export function rentedGpuByProvider({ rows, utilization, servedTokens, sizeFor }) {
+  if (!(servedTokens > 0)) return { priced: [], unservable: [], reason: "zero_demand" };
+
+  const best = new Map();
+  const unservable = [];
+  const cannot = (row, reason, detail) => unservable.push({
+    provider: row.provider, provider_label: row.provider_label,
+    gpu_id: row.gpu_id, sku: row.sku, reason, detail,
+  });
+
+  for (const row of rows ?? []) {
+    let sized;
+    try {
+      sized = sizeFor(row.gpu_id);
+    } catch (e) {
+      // A provider that VANISHES from a comparison reads as "not offered" when
+      // the truth is "not modelled", so an unpriceable row is reported, not dropped.
+      cannot(row, e?.code ?? "sizing_failed", e?.message ?? String(e));
+      continue;
+    }
+    const count = BigInt(sized.gpus_required.text);
+    if (count <= 0n) { cannot(row, "zero_capacity", "no GPUs required at this load"); continue; }
+
+    // Money stays exact: the registry quotes a per-GPU decimal and a float
+    // multiply by the fleet count would put binary dust in a dollar figure.
+    const fleetHourly = Dec.from(String(row.gpu_hourly_usd)).mul(count);
+    const tokensS = Number(sized.capacity_tokens_s.text);
+    const c = laneCMonthly({ hourlyRate: fleetHourly.toString(), tokensS, utilization, servedTokens });
+    if (c.out_of_domain) { cannot(row, c.out_of_domain, "utilization or capacity is zero"); continue; }
+
+    const entry = {
+      provider: row.provider,
+      provider_label: row.provider_label,
+      sku: row.sku,
+      gpu_id: row.gpu_id,
+      gpu_label: row.gpu_label,
+      gpu_hourly_usd: String(row.gpu_hourly_usd),
+      gpus_required: Number(count),
+      fleet_hourly_usd: fleetHourly.toString(),
+      tokens_s: tokensS,
+      hours: ratStr(c.hours),
+      monthly_total: ratStr(c.total),
+      confidence: row.confidence,
+      source_url: row.source_url,
+      observed_at: row.observed_at,
+      rat: c.total,
+    };
+    // One row per provider: the cheapest SKU that actually holds the peak. A
+    // provider listing every SKU it sells would let catalogue breadth read as
+    // competitiveness.
+    const prev = best.get(row.provider);
+    if (prev === undefined || entry.rat.lt(prev.rat)) best.set(row.provider, entry);
+  }
+
+  const priced = [...best.values()]
+    .sort((a, b) => (a.rat.lt(b.rat) ? -1 : b.rat.lt(a.rat) ? 1 : a.provider_label.localeCompare(b.provider_label)))
+    .map(({ rat, ...e }) => e);
+  return { priced, unservable, reason: null };
+}
+
 // ------------------------------------------------------- routing: local_first
 // The split is DERIVED (SPEC 2.2), never user-set. A user-set blend is advisory:
 // when the derived split beats it, the advisory number is shown flagged

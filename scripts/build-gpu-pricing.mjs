@@ -398,9 +398,10 @@ async function main() {
     throw new Error(`aggregator GPU price fetch failed: ${agg.reason?.message ?? agg.reason}`);
   }
 
+  const seed = await loadSeed();
   const doc = await buildGpuPricing({
     observedAt,
-    sources: { aws: aws.value, azure: azure.value, aggregator: agg.value.rows },
+    sources: { aws: aws.value, azure: azure.value, aggregator: agg.value.rows, seed },
   });
 
   await mkdir(DATA_DIR, { recursive: true });

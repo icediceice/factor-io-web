@@ -267,54 +267,104 @@ const stripTags = (html) => html.replace(/<script[\s\S]*?<\/script>/gi, " ").rep
 // window walks into the NEXT accelerator's block and misattributes its price.
 const AGG_ROW = /(?:Nvidia|NVIDIA|AMD)\s+([A-Za-z0-9]+(?:\s+[A-Za-z0-9]+)?)\s+(\d+)\s?GB[^$]{0,140}?On-Demand\s+from\s+\$\s?([0-9]+(?:\.[0-9]+)?)/g;
 
+// Per-GPU pages, the SECOND lane. Kept alongside the provider lane because the
+// two have complementary blind spots and neither alone is sufficient: measured
+// 2026-08-29, provider pages yielded Alibaba but missed GCP entirely, while
+// per-GPU pages yielded GCP + the neoclouds but no Chinese cloud at all. Running
+// one and dropping the other trades a known gap for a different known gap.
+const AGGREGATOR_GPU_PAGES = [
+  { slug: "nvidia-h100", gpu: GPU.h100 },
+  { slug: "nvidia-h200", gpu: GPU.h200 },
+  { slug: "nvidia-a100", gpu: GPU.a100_80 },
+  { slug: "nvidia-l40s", gpu: GPU.l40s },
+  { slug: "nvidia-b200", gpu: GPU.b200 },
+];
+
+function mkRow({ prov, gpu, perGpu, url, observedAt }) {
+  return {
+    provider: prov.key,
+    provider_label: prov.label,
+    region: "unspecified",
+    sku: `${prov.label} ${gpu.label}`,
+    gpu_id: gpu.id,
+    gpu_label: gpu.label,
+    gpu_count: 1,
+    vram_gb: gpu.vram_gb,
+    node_hourly_usd: round6(perGpu),
+    gpu_hourly_usd: round6(perGpu),
+    billing: "on_demand",
+    confidence: "indicative",
+    source_url: url,
+    observed_at: observedAt,
+  };
+}
+
 async function fetchAggregator(observedAt) {
   const rows = [];
-  const findings = [];
+  const findings = { provider_pages: [], gpu_pages: [] };
+  const seen = new Set(); // `${provider}:${gpu_id}` — first lane to land a pair wins
   let anyPageParsed = false;
 
+  // --- lane 1: provider pages (reaches Alibaba)
   for (const prov of AGGREGATOR_PROVIDERS) {
     const url = `https://getdeploying.com/${prov.slug}`;
     let text;
     try {
       text = stripTags(await fetchText(url));
     } catch (e) {
-      findings.push({ provider: prov.key, error: String(e.message ?? e), gpus: 0 });
+      findings.provider_pages.push({ provider: prov.key, error: String(e.message ?? e), gpus: 0 });
       continue;
     }
     anyPageParsed = true;
-
-    const seen = new Set();
+    let found = 0;
     let m;
     AGG_ROW.lastIndex = 0;
     while ((m = AGG_ROW.exec(text)) !== null) {
-      const rawName = m[1].trim().toLowerCase().replace(/\s+/g, "");
-      const gpu = AGGREGATOR_GPU_ALIASES[rawName];
-      if (!gpu || seen.has(gpu.id)) continue;
+      const gpu = AGGREGATOR_GPU_ALIASES[m[1].trim().toLowerCase().replace(/\s+/g, "")];
+      if (!gpu) continue;
+      const key = `${prov.key}:${gpu.id}`;
+      if (seen.has(key)) continue;
       const perGpu = Number(m[3]);
       if (!Number.isFinite(perGpu) || perGpu <= 0 || perGpu > 200) continue;
-      seen.add(gpu.id);
-      rows.push({
-        provider: prov.key,
-        provider_label: prov.label,
-        region: "unspecified",
-        sku: `${prov.label} ${gpu.label}`,
-        gpu_id: gpu.id,
-        gpu_label: gpu.label,
-        gpu_count: 1,
-        vram_gb: gpu.vram_gb,
-        node_hourly_usd: round6(perGpu),
-        gpu_hourly_usd: round6(perGpu),
-        billing: "on_demand",
-        confidence: "indicative",
-        source_url: url,
-        observed_at: observedAt,
-      });
+      seen.add(key);
+      found++;
+      rows.push(mkRow({ prov, gpu, perGpu, url, observedAt }));
     }
-    findings.push({ provider: prov.key, gpus: seen.size });
+    findings.provider_pages.push({ provider: prov.key, gpus: found });
   }
 
-  mustShape(anyPageParsed, "aggregator", "at least one provider page to fetch", JSON.stringify(findings));
-  mustShape(rows.length > 0, "aggregator", "at least one GPU rate across all provider pages", JSON.stringify(findings));
+  // --- lane 2: per-GPU pages (reaches GCP + the neoclouds)
+  for (const { slug, gpu } of AGGREGATOR_GPU_PAGES) {
+    const url = `https://getdeploying.com/gpus/${slug}`;
+    let text;
+    try {
+      text = stripTags(await fetchText(url));
+    } catch (e) {
+      findings.gpu_pages.push({ slug, error: String(e.message ?? e), providers: 0 });
+      continue;
+    }
+    anyPageParsed = true;
+    let found = 0;
+    for (const prov of AGGREGATOR_PROVIDERS) {
+      const key = `${prov.key}:${gpu.id}`;
+      if (seen.has(key)) continue;
+      // Bounded window from the provider's name to the first rate that follows.
+      // Widening it walks into the next provider's row and misattributes a price.
+      const idx = text.search(new RegExp(prov.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
+      if (idx < 0) continue;
+      const m = /\$\s?([0-9]+(?:\.[0-9]+)?)/.exec(text.slice(idx, idx + 260));
+      if (!m) continue;
+      const perGpu = Number(m[1]);
+      if (!Number.isFinite(perGpu) || perGpu <= 0 || perGpu > 200) continue;
+      seen.add(key);
+      found++;
+      rows.push(mkRow({ prov, gpu, perGpu, url, observedAt }));
+    }
+    findings.gpu_pages.push({ slug, providers: found });
+  }
+
+  mustShape(anyPageParsed, "aggregator", "at least one aggregator page to fetch", JSON.stringify(findings));
+  mustShape(rows.length > 0, "aggregator", "at least one GPU rate across both aggregator lanes", JSON.stringify(findings));
   return { rows, findings };
 }
 

@@ -501,3 +501,54 @@ test("regression: every shape the architecture editor emits is priced by the eng
   assert.equal(priced[2], "0");
   assert.equal(bytes([sliding, full]), "294912");
 });
+
+// ───────────────────────── the SHIPPED data file, not a fixture of it
+//
+// serving-models.json is now GENERATED for most of its rows (stage 3/3 of the
+// refresh command pulls them from the Hugging Face Hub). A generated row reaches
+// the browser without a human ever having read it, so these two tests are the
+// only thing standing between a bad ingestion run and a preset that refuses —
+// or worse, prices — in front of a user.
+
+test("every preset the file ships is priceable, curated or derived", () => {
+  assert.ok(DATA.models.length > 0);
+  for (const m of DATA.models) {
+    assert.doesNotThrow(
+      () => kvBytesPerToken(m.groups, BF16),
+      `${m.id}: groups must price without a ServingRefusal`,
+    );
+    // At a real context, with a real quantisation, the way the UI calls it.
+    assert.doesNotThrow(
+      () => kvBytesPerSequence(m.groups, m.context_default, FP8),
+      `${m.id}: must price at its own default context`,
+    );
+    assert.doesNotThrow(
+      () => weightBytes({ paramsB: m.params_b, activeParamsB: m.active_params_b, bytesPerParam: BF16 }),
+      `${m.id}: parameter counts must be admissible`,
+    );
+  }
+});
+
+test("no two presets share an id, and every derived row declares its basis", () => {
+  // The id is the <select> option value AND the key the four falsifier tests
+  // above look their models up by. A duplicate would let one row shadow another
+  // and silently answer for it.
+  const ids = DATA.models.map((m) => m.id);
+  assert.equal(new Set(ids).size, ids.length, `duplicate preset id in ${ids.join(", ")}`);
+
+  for (const m of DATA.models.filter((x) => x.basis === "derived")) {
+    // A derived row has no independently published per-token KV figure, so it
+    // must NOT claim one — the four curated rows own that falsification.
+    assert.equal(m.kv_bytes_per_token_bf16_expected, null, `${m.id} must not claim a published KV figure`);
+    assert.ok(m.config_url, `${m.id} must cite the config.json it was derived from`);
+    assert.ok(["declared", "derived", "dense"].includes(m.active_params_basis), `${m.id} must state how active params were obtained`);
+  }
+
+  // The falsifiers survive every regeneration. If a refresh ever drops one, the
+  // engine's layer-group arithmetic loses its only independent check.
+  for (const id of ["qwen3-8b", "gemma-4-31b", "qwen3-next-80b-a3b", "deepseek-v3"]) {
+    const m = MODEL(id);
+    assert.ok(m, `curated falsifier ${id} was dropped by a refresh`);
+    assert.equal(formatHalfUp(kvBytesPerToken(m.groups, BF16), 0), String(m.kv_bytes_per_token_bf16_expected));
+  }
+});

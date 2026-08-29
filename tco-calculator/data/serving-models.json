@@ -6,57 +6,476 @@
     "owner": "site author",
     "re_verify_before": "2026-12-01"
   },
-
   "accelerator_note": "vram_gb is deliberately NOT duplicated here. It lives in gpu-pricing.json `gpus` and that stays the single source of truth — two copies of a capacity figure drift, and the copy that drifts is the one that silently mis-sizes a fleet. This file adds ONLY memory bandwidth, keyed by the same gpu_id.",
   "accelerators": {
-    "b200":    { "bandwidth_gb_s": "8000", "basis": "cited", "note": "Blackwell HBM3e.", "source_url": "https://getdeploying.com/gpus/nvidia-b200-vs-nvidia-h100", "observed_at": "2026-08-29" },
-    "h200":    { "bandwidth_gb_s": "4800", "basis": "cited", "note": "Same GH100 silicon as H100; HBM3e raises bandwidth.", "source_url": "https://www.spheron.network/blog/nvidia-h200-vs-b200-vs-gb200/", "observed_at": "2026-08-29" },
-    "h100":    { "bandwidth_gb_s": "3350", "basis": "cited", "note": "SXM HBM3.", "source_url": "https://www.civo.com/blog/comparing-nvidia-b200-and-h100", "observed_at": "2026-08-29" },
-    "h20":     { "bandwidth_gb_s": "4000", "basis": "cited", "note": "China-export Hopper: MORE bandwidth than H100 with far less compute, which is why it reads well on a bandwidth-bound decode model and poorly on prefill.", "source_url": "https://flopper.io/gpu/nvidia-h20-96gb", "observed_at": "2026-08-29" },
-    "a100_80": { "bandwidth_gb_s": "2039", "basis": "cited", "note": "SXM4 80GB HBM2e.", "source_url": "https://www.itcreations.com/nvidia-gpu/nvidia-a100-sxm-gpu", "observed_at": "2026-08-29" },
-    "a800":    { "bandwidth_gb_s": "2039", "basis": "inferred", "note": "NOT independently cited. A800 is the export-compliant A100 80GB: the NVLink interconnect is capped, the HBM2e stack is unchanged, so per-GPU bandwidth is taken as equal to a100_80. The cap affects multi-GPU scaling, which this model already discounts separately. Re-verify against a vendor datasheet before any figure derived from this row is quoted.", "source_url": null, "observed_at": "2026-08-29" },
-    "a100_40": { "bandwidth_gb_s": "1555", "basis": "cited", "note": "SXM4 40GB HBM2.", "source_url": "https://www.itcreations.com/nvidia-gpu/nvidia-a100-sxm-gpu", "observed_at": "2026-08-29" },
-    "l40s":    { "bandwidth_gb_s": "864",  "basis": "cited", "note": "Ada, GDDR6 — no HBM, which is why it falls behind at long context despite competitive compute.", "source_url": "https://www.spheron.network/blog/l40s-vs-a100/", "observed_at": "2026-08-29" },
-    "a10g":    { "bandwidth_gb_s": "600",  "basis": "cited", "note": "AWS G5-exclusive 300W variant.", "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4", "observed_at": "2026-08-29" },
-    "a10":     { "bandwidth_gb_s": "600",  "basis": "cited", "note": "150W PCIe part sold by Azure and Alibaba. Same 24GB and same bandwidth as A10G; the parts differ in power and clocks.", "source_url": "https://gpuperhour.com/compare/a10-vs-a100-sxm-80gb", "observed_at": "2026-08-29" },
-    "l4":      { "bandwidth_gb_s": "300",  "basis": "cited", "note": "Half the bandwidth of A10G at the same 24GB.", "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4", "observed_at": "2026-08-29" }
+    "b200": {
+      "bandwidth_gb_s": "8000",
+      "basis": "cited",
+      "note": "Blackwell HBM3e.",
+      "source_url": "https://getdeploying.com/gpus/nvidia-b200-vs-nvidia-h100",
+      "observed_at": "2026-08-29"
+    },
+    "h200": {
+      "bandwidth_gb_s": "4800",
+      "basis": "cited",
+      "note": "Same GH100 silicon as H100; HBM3e raises bandwidth.",
+      "source_url": "https://www.spheron.network/blog/nvidia-h200-vs-b200-vs-gb200/",
+      "observed_at": "2026-08-29"
+    },
+    "h100": {
+      "bandwidth_gb_s": "3350",
+      "basis": "cited",
+      "note": "SXM HBM3.",
+      "source_url": "https://www.civo.com/blog/comparing-nvidia-b200-and-h100",
+      "observed_at": "2026-08-29"
+    },
+    "h20": {
+      "bandwidth_gb_s": "4000",
+      "basis": "cited",
+      "note": "China-export Hopper: MORE bandwidth than H100 with far less compute, which is why it reads well on a bandwidth-bound decode model and poorly on prefill.",
+      "source_url": "https://flopper.io/gpu/nvidia-h20-96gb",
+      "observed_at": "2026-08-29"
+    },
+    "a100_80": {
+      "bandwidth_gb_s": "2039",
+      "basis": "cited",
+      "note": "SXM4 80GB HBM2e.",
+      "source_url": "https://www.itcreations.com/nvidia-gpu/nvidia-a100-sxm-gpu",
+      "observed_at": "2026-08-29"
+    },
+    "a800": {
+      "bandwidth_gb_s": "2039",
+      "basis": "inferred",
+      "note": "NOT independently cited. A800 is the export-compliant A100 80GB: the NVLink interconnect is capped, the HBM2e stack is unchanged, so per-GPU bandwidth is taken as equal to a100_80. The cap affects multi-GPU scaling, which this model already discounts separately. Re-verify against a vendor datasheet before any figure derived from this row is quoted.",
+      "source_url": null,
+      "observed_at": "2026-08-29"
+    },
+    "a100_40": {
+      "bandwidth_gb_s": "1555",
+      "basis": "cited",
+      "note": "SXM4 40GB HBM2.",
+      "source_url": "https://www.itcreations.com/nvidia-gpu/nvidia-a100-sxm-gpu",
+      "observed_at": "2026-08-29"
+    },
+    "l40s": {
+      "bandwidth_gb_s": "864",
+      "basis": "cited",
+      "note": "Ada, GDDR6 — no HBM, which is why it falls behind at long context despite competitive compute.",
+      "source_url": "https://www.spheron.network/blog/l40s-vs-a100/",
+      "observed_at": "2026-08-29"
+    },
+    "a10g": {
+      "bandwidth_gb_s": "600",
+      "basis": "cited",
+      "note": "AWS G5-exclusive 300W variant.",
+      "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4",
+      "observed_at": "2026-08-29"
+    },
+    "a10": {
+      "bandwidth_gb_s": "600",
+      "basis": "cited",
+      "note": "150W PCIe part sold by Azure and Alibaba. Same 24GB and same bandwidth as A10G; the parts differ in power and clocks.",
+      "source_url": "https://gpuperhour.com/compare/a10-vs-a100-sxm-80gb",
+      "observed_at": "2026-08-29"
+    },
+    "l4": {
+      "bandwidth_gb_s": "300",
+      "basis": "cited",
+      "note": "Half the bandwidth of A10G at the same 24GB.",
+      "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4",
+      "observed_at": "2026-08-29"
+    }
   },
-
   "weight_quantization": {
-    "bf16": { "label": "BF16 / FP16 — full precision", "bytes_per_param": "2",   "basis": "exact", "note": "The reference point. Two bytes per parameter is definitional, not an estimate." },
-    "fp8":  { "label": "FP8",                          "bytes_per_param": "1",   "basis": "exact", "note": "Hopper and newer. Halves both the weight footprint and the bytes read per decode step." },
-    "int8": { "label": "INT8 (W8A8)",                  "bytes_per_param": "1",   "basis": "exact", "note": "Same byte count as FP8; available on Ampere, which has no FP8 tensor cores." },
-    "int4": { "label": "INT4 (AWQ / GPTQ)",            "bytes_per_param": "0.5", "basis": "exact", "note": "Quantized weights only. Real INT4 checkpoints carry unquantized embeddings, norms and scales, so the true footprint sits ABOVE this figure — the model understates INT4 VRAM and overstates INT4 throughput. Stated, not corrected: the correction factor is checkpoint-specific and inventing one would be worse than naming the bias." }
+    "bf16": {
+      "label": "BF16 / FP16 — full precision",
+      "bytes_per_param": "2",
+      "basis": "exact",
+      "note": "The reference point. Two bytes per parameter is definitional, not an estimate."
+    },
+    "fp8": {
+      "label": "FP8",
+      "bytes_per_param": "1",
+      "basis": "exact",
+      "note": "Hopper and newer. Halves both the weight footprint and the bytes read per decode step."
+    },
+    "int8": {
+      "label": "INT8 (W8A8)",
+      "bytes_per_param": "1",
+      "basis": "exact",
+      "note": "Same byte count as FP8; available on Ampere, which has no FP8 tensor cores."
+    },
+    "int4": {
+      "label": "INT4 (AWQ / GPTQ)",
+      "bytes_per_param": "0.5",
+      "basis": "exact",
+      "note": "Quantized weights only. Real INT4 checkpoints carry unquantized embeddings, norms and scales, so the true footprint sits ABOVE this figure — the model understates INT4 VRAM and overstates INT4 throughput. Stated, not corrected: the correction factor is checkpoint-specific and inventing one would be worse than naming the bias."
+    }
   },
-
   "kv_quantization": {
-    "bf16": { "label": "BF16 KV cache", "bytes_per_element": "2", "basis": "exact" },
-    "fp8":  { "label": "FP8 KV cache",  "bytes_per_element": "1", "basis": "exact", "note": "Halves KV bytes per token, which is the dominant term at long context." },
-    "int8": { "label": "INT8 KV cache", "bytes_per_element": "1", "basis": "exact" }
+    "bf16": {
+      "label": "BF16 KV cache",
+      "bytes_per_element": "2",
+      "basis": "exact"
+    },
+    "fp8": {
+      "label": "FP8 KV cache",
+      "bytes_per_element": "1",
+      "basis": "exact",
+      "note": "Halves KV bytes per token, which is the dominant term at long context."
+    },
+    "int8": {
+      "label": "INT8 KV cache",
+      "bytes_per_element": "1",
+      "basis": "exact"
+    }
   },
-
   "runtimes": {
-    "vllm":     { "label": "vLLM",            "bandwidth_efficiency": "0.80", "basis": "assumed", "evidence_key": "vllm" },
-    "sglang":   { "label": "SGLang",          "bandwidth_efficiency": "0.80", "basis": "assumed", "evidence_key": "sglang" },
-    "trtllm":   { "label": "TensorRT-LLM",    "bandwidth_efficiency": "0.85", "basis": "assumed", "evidence_key": "trtllm" },
-    "llamacpp": { "label": "llama.cpp / GGUF","bandwidth_efficiency": "0.60", "basis": "assumed", "evidence_key": "llamacpp" }
+    "vllm": {
+      "label": "vLLM",
+      "bandwidth_efficiency": "0.80",
+      "basis": "assumed",
+      "evidence_key": "vllm"
+    },
+    "sglang": {
+      "label": "SGLang",
+      "bandwidth_efficiency": "0.80",
+      "basis": "assumed",
+      "evidence_key": "sglang"
+    },
+    "trtllm": {
+      "label": "TensorRT-LLM",
+      "bandwidth_efficiency": "0.85",
+      "basis": "assumed",
+      "evidence_key": "trtllm"
+    },
+    "llamacpp": {
+      "label": "llama.cpp / GGUF",
+      "bandwidth_efficiency": "0.60",
+      "basis": "assumed",
+      "evidence_key": "llamacpp"
+    }
   },
   "runtime_note": "[ASSUMED] — bandwidth_efficiency is the fraction of theoretical peak HBM bandwidth a decode step actually achieves. These are planning placeholders set by the site author on 2026-08-29, NOT measurements, and they are the single largest source of error in the derived throughput. They carry the assumed tag at every point of use and must never back a modelled_p95_capacity verdict (SPEC §6.5). Override with your own measurement.",
-
   "tensor_parallel": {
     "efficiency_per_extra_gpu": "0.92",
     "basis": "assumed",
     "note": "[ASSUMED] — each GPU past the first contributes this fraction of a full GPU's bandwidth, compounding, to stand in for collective-communication overhead. Real scaling depends on interconnect: NVLink/NVSwitch holds up far better than PCIe, and the A800's capped NVLink is exactly the case this flat factor does not capture. A planning shape, not a measurement."
   },
-
   "vram_overhead_fraction": {
     "value": "0.10",
     "basis": "assumed",
     "note": "[ASSUMED] — fraction of VRAM reserved for activations, CUDA graphs, allocator fragmentation and the runtime's own buffers, i.e. not available for weights or KV cache. The cited KV figures are LOGICAL cache; measured serving memory runs higher, and this fraction is the only thing standing in for that gap."
   },
-
   "model_note": "Every preset below reproduces a PUBLISHED per-token KV figure from the cited source, which itself verified each against the model's config.json. `kv_bytes_per_token_bf16_expected` is that published value: the test suite asserts the engine's own layer-group arithmetic lands on it exactly, so a formula error cannot ship silently. Layer groups are the general form — one flat layer count cannot express a hybrid, and the four architectures below are precisely the cases where a flat count is wrong.",
   "models": [
+    {
+      "id": "glm-5-3-flash",
+      "label": "GLM-5.3-Flash — linear/GDN hybrid, MoE",
+      "family": "zai-org",
+      "architecture": "hybrid",
+      "params_b": "321.32",
+      "active_params_b": "16.67",
+      "active_params_basis": "derived",
+      "context_default": 32768,
+      "context_max": 1048576,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "linear",
+          "layers": 34,
+          "state_bytes_per_seq": null
+        },
+        {
+          "kind": "mla",
+          "layers": 11,
+          "kv_lora_rank": 512,
+          "qk_rope_head_dim": 0
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 34 linear + 11 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (319.436B vs 321.323B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/zai-org/GLM-5.3-Flash",
+      "config_url": "https://huggingface.co/zai-org/GLM-5.3-Flash/resolve/main/config.json",
+      "model_type": "glm5_next_text",
+      "hub_downloads": "189793",
+      "hub_likes": "1547",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "glm-5-3",
+      "label": "GLM-5.3 — MLA latent cache, MoE",
+      "family": "zai-org",
+      "architecture": "mla",
+      "params_b": "753.33",
+      "active_params_b": "41.09",
+      "active_params_basis": "derived",
+      "context_default": 32768,
+      "context_max": 1048576,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "mla",
+          "layers": 78,
+          "kv_lora_rank": 512,
+          "qk_rope_head_dim": 64
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (752.683B vs 753.33B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/zai-org/GLM-5.3",
+      "config_url": "https://huggingface.co/zai-org/GLM-5.3/resolve/main/config.json",
+      "model_type": "glm_moe_dsa",
+      "hub_downloads": "8804",
+      "hub_likes": "1197",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "hy4-preview",
+      "label": "Hy4-preview — MLA latent cache, MoE",
+      "family": "tencent",
+      "architecture": "mla",
+      "params_b": "779.96",
+      "active_params_b": "41.42",
+      "active_params_basis": "derived",
+      "context_default": 32768,
+      "context_max": 1048576,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "mla",
+          "layers": 78,
+          "kv_lora_rank": 512,
+          "qk_rope_head_dim": 64
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (771.575B vs 779.961B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/tencent/Hy4-preview",
+      "config_url": "https://huggingface.co/tencent/Hy4-preview/resolve/main/config.json",
+      "model_type": "hy_v4",
+      "hub_downloads": "1394",
+      "hub_likes": "259",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "ornith-1-5-35b-a3b",
+      "label": "Ornith-1.5-35B-A3B — linear/GDN hybrid, MoE",
+      "family": "ornith-ai",
+      "architecture": "hybrid",
+      "params_b": "35.95",
+      "active_params_b": "3",
+      "active_params_basis": "declared",
+      "context_default": 32768,
+      "context_max": 262144,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "linear",
+          "layers": 30,
+          "state_bytes_per_seq": null
+        },
+        {
+          "kind": "full",
+          "layers": 10,
+          "kv_heads": 2,
+          "head_dim": 256,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 30 linear + 10 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B",
+      "config_url": "https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B/resolve/main/config.json",
+      "model_type": "qwen3_5_moe_text",
+      "hub_downloads": "106562",
+      "hub_likes": "487",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "s1-mini",
+      "label": "s1-mini — dense, full attention",
+      "family": "superwhisper",
+      "architecture": "full",
+      "params_b": "0.75",
+      "active_params_b": "0.75",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 40960,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "full",
+          "layers": 28,
+          "kv_heads": 8,
+          "head_dim": 128,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 28 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/superwhisper/s1-mini",
+      "config_url": "https://huggingface.co/superwhisper/s1-mini/resolve/main/config.json",
+      "model_type": "qwen3",
+      "hub_downloads": "5656",
+      "hub_likes": "295",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "ornith-1-5-9b",
+      "label": "Ornith-1.5-9B — linear/GDN hybrid",
+      "family": "ornith-ai",
+      "architecture": "hybrid",
+      "params_b": "9.65",
+      "active_params_b": "9.65",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 262144,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "linear",
+          "layers": 24,
+          "state_bytes_per_seq": null
+        },
+        {
+          "kind": "full",
+          "layers": 8,
+          "kv_heads": 4,
+          "head_dim": 256,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 24 linear + 8 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/ornith-ai/Ornith-1.5-9B",
+      "config_url": "https://huggingface.co/ornith-ai/Ornith-1.5-9B/resolve/main/config.json",
+      "model_type": "qwen3_5_text",
+      "hub_downloads": "162342",
+      "hub_likes": "249",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "granite-4-2-30b",
+      "label": "granite-4.2-30b — dense, full attention",
+      "family": "ibm-granite",
+      "architecture": "full",
+      "params_b": "29.28",
+      "active_params_b": "29.28",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "full",
+          "layers": 64,
+          "kv_heads": 8,
+          "head_dim": 128,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 64 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/ibm-granite/granite-4.2-30b",
+      "config_url": "https://huggingface.co/ibm-granite/granite-4.2-30b/resolve/main/config.json",
+      "model_type": "granite",
+      "hub_downloads": "2946",
+      "hub_likes": "89",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "granite-4-2-3b",
+      "label": "granite-4.2-3b — dense, full attention",
+      "family": "ibm-granite",
+      "architecture": "full",
+      "params_b": "3.66",
+      "active_params_b": "3.66",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "full",
+          "layers": 40,
+          "kv_heads": 8,
+          "head_dim": 64,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 40 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/ibm-granite/granite-4.2-3b",
+      "config_url": "https://huggingface.co/ibm-granite/granite-4.2-3b/resolve/main/config.json",
+      "model_type": "granite",
+      "hub_downloads": "5076",
+      "hub_likes": "53",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "granite-4-2-8b",
+      "label": "granite-4.2-8b — dense, full attention",
+      "family": "ibm-granite",
+      "architecture": "full",
+      "params_b": "8.79",
+      "active_params_b": "8.79",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "full",
+          "layers": 40,
+          "kv_heads": 8,
+          "head_dim": 128,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 40 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/ibm-granite/granite-4.2-8b",
+      "config_url": "https://huggingface.co/ibm-granite/granite-4.2-8b/resolve/main/config.json",
+      "model_type": "granite",
+      "hub_downloads": "5912",
+      "hub_likes": "50",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "qwen3-8-2-4t-a95b",
+      "label": "Qwen3.8-2.4T-A95B — linear/GDN hybrid, MoE",
+      "family": "qwen",
+      "architecture": "hybrid",
+      "params_b": "2446.18",
+      "active_params_b": "95",
+      "active_params_basis": "declared",
+      "context_default": 32768,
+      "context_max": 262144,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "linear",
+          "layers": 69,
+          "state_bytes_per_seq": null
+        },
+        {
+          "kind": "full",
+          "layers": 23,
+          "kv_heads": 4,
+          "head_dim": 256,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-08-29: 69 linear + 23 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B",
+      "config_url": "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B/resolve/main/config.json",
+      "model_type": "qwen3_5_moe_text",
+      "hub_downloads": "27374",
+      "hub_likes": "1181",
+      "observed_at": "2026-08-29"
+    },
     {
       "id": "qwen3-8b",
       "label": "Qwen3 8B — dense, full attention",
@@ -68,7 +487,13 @@
       "context_max": 32768,
       "kv_bytes_per_token_bf16_expected": 147456,
       "groups": [
-        { "kind": "full", "layers": 36, "kv_heads": 8, "head_dim": 128, "tensors": 2 }
+        {
+          "kind": "full",
+          "layers": 36,
+          "kv_heads": 8,
+          "head_dim": 128,
+          "tensors": 2
+        }
       ],
       "note": "The baseline case: every layer grows the cache and retains the whole context, so KV scales linearly with context length and dominates VRAM past ~8k.",
       "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
@@ -85,8 +510,21 @@
       "context_max": 131072,
       "kv_bytes_per_token_bf16_expected": 860160,
       "groups": [
-        { "kind": "sliding", "layers": 50, "kv_heads": 16, "head_dim": 256, "tensors": 2, "window_tokens": 1024 },
-        { "kind": "full",    "layers": 10, "kv_heads": 4,  "head_dim": 512, "tensors": 1 }
+        {
+          "kind": "sliding",
+          "layers": 50,
+          "kv_heads": 16,
+          "head_dim": 256,
+          "tensors": 2,
+          "window_tokens": 1024
+        },
+        {
+          "kind": "full",
+          "layers": 10,
+          "kv_heads": 4,
+          "head_dim": 512,
+          "tensors": 1
+        }
       ],
       "note": "Sliding layers cost the SAME per stored token as full attention — what changes is retention: once the 1024-token window is full, an old entry leaves as a new one arrives, so those 50 layers stop growing while the 10 global layers keep scaling. The global layers use unified K=V, hence tensors:1 instead of 2. Window size 1024 is the large-model value from the Gemma 3 technical report (§2, 'a smaller span of only 1024 tokens to the local layers... 1 global for every 5 local'); small models use 512. params_b is read from the model name, not from a config file.",
       "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
@@ -104,8 +542,18 @@
       "context_max": 262144,
       "kv_bytes_per_token_bf16_expected": 24576,
       "groups": [
-        { "kind": "linear", "layers": 36, "state_bytes_per_seq": null },
-        { "kind": "full",   "layers": 12, "kv_heads": 2, "head_dim": 256, "tensors": 2 }
+        {
+          "kind": "linear",
+          "layers": 36,
+          "state_bytes_per_seq": null
+        },
+        {
+          "kind": "full",
+          "layers": 12,
+          "kv_heads": 2,
+          "head_dim": 256,
+          "tensors": 2
+        }
       ],
       "note": "48 decoder layers with full attention every fourth, so only 12 grow a KV cache; the 36 Gated DeltaNet layers add 0 B/token. Combined with 3B active of 80B resident, this is the configuration that separates VRAM cost from bandwidth cost most sharply — and the reason a per-accelerator throughput constant cannot represent it. state_bytes_per_seq is null and therefore UNMODELLED: the DeltaNet recurrent state is fixed in sequence length but nonzero, so VRAM for this model is understated by a constant per concurrent sequence. Named rather than guessed (SPEC §6.4).",
       "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
@@ -123,7 +571,12 @@
       "context_max": 131072,
       "kv_bytes_per_token_bf16_expected": 70272,
       "groups": [
-        { "kind": "mla", "layers": 61, "kv_lora_rank": 512, "qk_rope_head_dim": 64 }
+        {
+          "kind": "mla",
+          "layers": 61,
+          "kv_lora_rank": 512,
+          "qk_rope_head_dim": 64
+        }
       ],
       "note": "Multi-head latent attention caches a compressed latent plus a rotary-key component, so the query-head count drops out of the per-token figure entirely: 61 x (512 + 64) x 2. A serving stack that expands the latent back into full K and V tensors has a different, larger footprint than this — the compact form is the architecture's claim, not every runtime's behaviour.",
       "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
@@ -140,11 +593,136 @@
       "context_max": 1048576,
       "kv_bytes_per_token_bf16_expected": null,
       "groups": [
-        { "kind": "full", "layers": 32, "kv_heads": 8, "head_dim": 128, "tensors": 2 }
+        {
+          "kind": "full",
+          "layers": 32,
+          "kv_heads": 8,
+          "head_dim": 128,
+          "tensors": 2
+        }
       ],
       "note": "Starting shape only — every field is meant to be overwritten from your model's config.json (num_hidden_layers, num_key_value_heads, head_dim). Nothing here is cited, and the calculator labels results from this preset accordingly.",
       "source_url": null,
       "observed_at": "2026-08-29"
     }
-  ]
+  ],
+  "derived_note": "The rows tagged basis:\"derived\" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on 2026-08-29, ranked by trendingScore. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.",
+  "skipped": [
+    {
+      "id": "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "unsloth/GLM-5.3-Flash-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "BreezeBlue/Breeze-TTS-2",
+      "reason": "pipeline_tag is \"text-to-speech\", not text-generation",
+      "detail": null
+    },
+    {
+      "id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "reason": "qk_rope_head_dim without kv_lora_rank — not classic MLA, cache width is not derivable from this config",
+      "detail": null
+    },
+    {
+      "id": "pipecat-ai/phonellm-alpha-1",
+      "reason": "mixture of experts whose active parameter count is not derivable — the geometry model does not reproduce the published total",
+      "detail": "geometry 102.336B vs published 31.578B"
+    },
+    {
+      "id": "ornith-ai/Ornith-1.5-35B-A3B-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "apodex/Apodex-1.1-mini",
+      "reason": "mixture of experts whose active parameter count is not derivable — the geometry model does not reproduce the published total",
+      "detail": "geometry 34.83B vs published 35.952B"
+    },
+    {
+      "id": "ornith-ai/Ornith-1.5-9B-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "incoai/GLM-5.3-Flash-DFlash2",
+      "reason": "DFlash2DraftModel is a speculative-decoding draft head, not a model that serves traffic on its own",
+      "detail": null
+    },
+    {
+      "id": "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "outsourc-e/Qwen3.8-27B-Unleashed-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "z-lab/Qwen3.8-27B-DFlash2",
+      "reason": "DFlash2DraftModel is a speculative-decoding draft head, not a model that serves traffic on its own",
+      "detail": null
+    },
+    {
+      "id": "unsloth/GLM-5.3-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "Cactus-Compute/needle2",
+      "reason": "no safetensors index — the Hub publishes no parameter count for this repo",
+      "detail": null
+    },
+    {
+      "id": "deepseek-ai/DeepSeek-V4-Pro-0813",
+      "reason": "qk_rope_head_dim without kv_lora_rank — not classic MLA, cache width is not derivable from this config",
+      "detail": null
+    },
+    {
+      "id": "incoai/Qwen3.8-27B-DFlash2",
+      "reason": "DFlash2DraftModel is a speculative-decoding draft head, not a model that serves traffic on its own",
+      "detail": null
+    },
+    {
+      "id": "empero-ai/Qwen3.8-2B-Distill-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "AtomicChat/Qwen3.8-Flash-Next-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "empero-ai/Qwen3.8-9B-Distill-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "zai-org/GLM-5.3-Flash-BF16",
+      "reason": "prices identically to zai-org/GLM-5.3-Flash — same parameter counts and same layer groups",
+      "detail": "duplicate serving shape"
+    },
+    {
+      "id": "JackAgentLead/Jack-3.8-27B-Coder-16GB-VRAM",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "LiquidAI/LFM2.5-2.6B",
+      "reason": "unmapped layer_types value \"conv\"",
+      "detail": "known: full_attention, sliding_attention, chunked_attention, linear_attention, mamba, recurrent, deepseek_sparse_attention, full_attention_mla"
+    }
+  ],
+  "skipped_note": "Candidates the mapper could not express, listed rather than dropped silently. A skip is a REFUSAL, not an absence: serving.js throws on an attention kind outside {full, sliding, linear, mla}, and it silently prices an MoE as dense when active parameters are unknown, so a row that cannot be derived must not be written. Hand-curate any row here that matters."
 }

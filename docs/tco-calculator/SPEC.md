@@ -779,6 +779,77 @@ At 4,096 context the same model yields KV 0.604 GB, batch 92, and
 **3,426.06** tok/s/GPU — an 8x swing from context alone, which the v0.2 constant
 erased entirely.
 
+**6.6.8 Where the presets come from — DERIVED rows, normative (v0.4).** The v0.3
+preset list was hand-curated and therefore aged silently: it kept rendering, and
+kept answering, while its newest entry fell a model generation behind. Stage 3/3 of
+the refresh command (`scripts/build-serving-models.mjs`, run by
+`node scripts/refresh-pricing.mjs`) regenerates it from the Hugging Face Hub.
+
+Ranking is by `trendingScore`, NOT by downloads. Cumulative downloads is a lifetime
+integral and therefore ranks by repository age: the live downloads top-10 is `gpt2`
+(2022), `facebook/opt-125m` (2022), three Qwen2.5 checkpoints (2024) and a
+`trl-internal-testing` CI fixture. Sorting a "latest models" refresh by downloads
+would make the list OLDER, which is the failure it exists to fix. `--sort` overrides.
+
+Each surviving repository's serving shape is read from its OWN files — never from
+its name, and never from a benchmark:
+
+| Field | Source |
+|---|---|
+| `groups[]` | `config.json` `layer_types[]`, tallied per kind (`text_config` unwrapped first for multimodal wrappers) |
+| `kv_heads`, `head_dim` | `num_key_value_heads`, `head_dim` (or `hidden_size / num_attention_heads`) |
+| `kv_lora_rank`, `qk_rope_head_dim` | the same config keys, for latent-cache models |
+| `params_b` | the Hub's `safetensors.total` — the index of the actual tensor headers |
+| `active_params_b` | a vendor-declared `-A<n>B` suffix, else computed from the MoE geometry |
+
+The layer-kind table is EXPLICIT and has no default: `full_attention`→`full`,
+`sliding_attention`/`chunked_attention`→`sliding`, `linear_attention`/`mamba`/
+`recurrent`→`linear`, `deepseek_sparse_attention`/`full_attention_mla`→`mla`. DSA
+maps to `mla` because it stores the same compressed latent and only READS a top-k
+subset; the sparse read is a compute effect, which §6.6.6 already excludes.
+
+**A row that cannot be expressed is SKIPPED, never approximated — normative.** Both
+failures below are invisible downstream, which is why neither may fall through:
+
+| Condition | Why a default would be wrong |
+|---|---|
+| a `layer_types` value outside the table | `serving.js` throws `unknown_attention_kind`, so the row would refuse in the user's browser; guessing `full` overstates KV for a linear layer without bound |
+| `qk_rope_head_dim` without `kv_lora_rank` | not classic MLA — DeepSeek-V4 carries `q_lora_rank`/`o_lora_rank` and a per-layer `compress_ratios[]` this model has no term for |
+| `sliding_window` with no per-layer pattern | treating every layer as sliding understates KV, treating none overstates it, and neither announces itself |
+| an MoE whose active parameters are underivable | `weightBytes` treats a null `activeParamsB` as EQUAL to total, pricing an MoE as dense and overstating `read_per_step` by the expert ratio |
+| a speculative-decoding draft head | it never serves traffic alone; its cost belongs to the model it drafts for |
+| a repository that prices identically to one already kept | a dtype sibling (`-BF16` beside an FP8 original) carries no `quantized` tag, so only the derived shape can catch it |
+
+Every skip is written to `skipped[]` in the data file WITH its reason. A silent drop
+would read as "the Hub had nothing newer", which is precisely the misreading that
+made this stage necessary.
+
+**The derived active-parameter count carries its own falsifier — normative.** Where
+no vendor figure is declared, the geometry model must reproduce the PUBLISHED
+`safetensors.total` to within 2% before its UNPUBLISHED active count is accepted;
+otherwise the model is skipped and both figures are reported. Arithmetic that cannot
+reproduce a number that is known has not earned the right to emit one that is not.
+Multi-token-prediction heads (`num_nextn_predict_layers`, `mtp_num_hidden_layers`)
+count toward the total — they sit in the checkpoint — but never toward active
+parameters, since they do not run during ordinary decode.
+
+**Derived rows are NOT verified rows, and the UI says so.** A derived row carries
+`basis: "derived"`, a `config_url`, an `active_params_basis` of
+`declared` | `derived` | `dense`, and `kv_bytes_per_token_bf16_expected: null` — it
+claims no published per-token figure, because none exists for it. The four
+hand-curated presets keep theirs and remain the engine's falsifiers under §6.6.1;
+`tests/serving.test.mjs` asserts each is still present after every regeneration, so a
+refresh cannot quietly delete the only independent check on the layer-group
+arithmetic. The model `<select>` groups the two classes under separate `<optgroup>`
+labels and the provenance line distinguishes `config-derived` from `verified`.
+
+**Freshness remains the client's call, not CI's.** This is a COMMAND, not a cron, for
+the reason recorded in `refresh-pricing.mjs`: GitHub disables scheduled workflows
+after 60 days of default-branch inactivity, so a green Actions tab is a freshness
+signal that cannot be trusted — and one that cannot be trusted is worse than none,
+because it is believed. The `SourceStatus` envelope reading `provenance.observed`
+(§5.2/§5.5) stays the only authority on staleness.
+
 ---
 
 ## 7. Commercial layer (overlay)
@@ -1013,6 +1084,17 @@ re-serves the prior digest with zero extra state.
 5. **P5 Overlay & polish:** §7 overlay, quote export, accessibility audit. — **shipped**
 6. **P6 v0.2 rework:** session demand model (§2.4), payback in months (§2.5),
    per-second sizing (§6.2), GPU pricing registry (§5.7), naming contract (§8).
+7. **P7 v0.3 serving model:** decode bandwidth roofline replacing the per-GPU
+   constant, layer-group KV across four architectures, single-screen live
+   recompute (§6.6, §8). — **shipped**
+8. **P8 v0.4 preset ingestion:** `serving-models.json` regenerated from the Hugging
+   Face Hub as stage 3/3 of `node scripts/refresh-pricing.mjs`, with an explicit
+   layer-kind table, skip-rather-than-approximate refusals, and a 2% falsifier on
+   every derived active-parameter count (§6.6.8). — **shipped.** The hand-curated
+   list it replaces is the reason this phase exists: it aged silently while still
+   rendering, which is the one failure mode a freshness banner cannot catch, because
+   the banner reports when the FILE was written and not whether its CONTENTS are
+   still the models anyone runs.
 
 ### 12.3 Verification rule
 

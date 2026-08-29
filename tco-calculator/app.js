@@ -221,8 +221,22 @@ async function loadServingModels() {
   state.servingData = await res.json();
   const d = state.servingData;
 
-  $("f-sv-model").innerHTML = d.models
-    .map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}</option>`).join("");
+  // Two provenance classes, and the difference is worth showing in the list
+  // itself. A DERIVED row was read out of the model's own config.json by the
+  // refresh command and has never been checked by a human; a CURATED row
+  // reproduces a per-token KV figure published independently, which the test
+  // suite asserts against exactly. Same engine and same arithmetic either way —
+  // what differs is how much independent confirmation stands behind the inputs.
+  const opt = (m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}</option>`;
+  const grp = (label, rows) => (rows.length
+    ? `<optgroup label="${escapeHtml(label)}">${rows.map(opt).join("")}</optgroup>` : "");
+  const derivedRows = d.models.filter((m) => m.basis === "derived");
+  const customRows = d.models.filter((m) => m.id === "custom");
+  const curatedRows = d.models.filter((m) => m.basis !== "derived" && m.id !== "custom");
+  $("f-sv-model").innerHTML =
+    grp(`Current — from Hugging Face, ${d.provenance?.observed ?? "undated"}`, derivedRows) +
+    grp("Verified against a published KV figure", curatedRows) +
+    grp("Your own configuration", customRows);
   const optsFor = (obj, labelKey) => Object.entries(obj)
     .map(([k, v]) => `<option value="${escapeHtml(k)}">${escapeHtml(v.label ?? k)}</option>`).join("");
   $("f-sv-wquant").innerHTML = optsFor(d.weight_quantization);
@@ -497,9 +511,23 @@ function renderServingNote() {
   // edited architecture that still read "full attention" would be a lie on screen.
   $("sv-note").innerHTML = `${escapeHtml(ARCH_WORDS[archKeyOf(spec, m)] ?? "")} <strong>${escapeHtml(kvText)}</strong> of cache per token.${moe}`;
 
-  const cite = m.source_url
-    ? `Layer structure cited from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">the published architecture</a>, verified against the model's own config.`
-    : `Nothing in this preset is cited — it is a starting shape for your own numbers.`;
+  // The claim on screen must match the provenance the row actually has. A derived
+  // row was read by a script minutes ago and checked by nobody; saying it was
+  // "verified" would be the kind of borrowed confidence this calculator exists to
+  // refuse, and it is exactly the sentence a buyer would quote back.
+  let cite;
+  if (m.basis === "derived") {
+    const activeWords = m.active_params_basis === "declared"
+      ? `Active parameters are the vendor's own figure from the model name.`
+      : m.active_params_basis === "derived"
+        ? `Active parameters are <span class="tag tag-est">computed</span> from the config's expert geometry — no vendor figure was published, and the computation was accepted only because it reproduced the Hub's total parameter count to within 2%.`
+        : `Every parameter is read each step; this model has no routed experts.`;
+    cite = `<span class="tag tag-est">config-derived</span> Layer structure read automatically from <a href="${escapeHtml(m.config_url ?? m.source_url)}" rel="nofollow noopener">the model's own config.json</a> on ${escapeHtml(String(m.observed_at ?? "an unrecorded date"))}, and parameter counts from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">its safetensors index</a>. No independently published per-token KV figure exists for this model, so unlike the verified presets nothing cross-checks the arithmetic below against an outside source. ${activeWords}`;
+  } else if (m.source_url) {
+    cite = `<span class="tag tag-exact">verified</span> Layer structure cited from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">the published architecture</a>, verified against the model's own config, and its published per-token KV figure is asserted exactly by the test suite.`;
+  } else {
+    cite = `Nothing in this preset is cited — it is a starting shape for your own numbers.`;
+  }
   const ovr = spec?.kv_override
     ? ` <span class="tag tag-est">override active</span> Your bytes-per-token figure replaces the layer structure, so window-based retention no longer applies and the figure is taken at the precision you already chose.`
     : "";

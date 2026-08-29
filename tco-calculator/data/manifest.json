@@ -1,23 +1,23 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1787975665881",
-  "generated_at": "2026-08-29T03:54:25.881Z",
-  "snapshot_digest": "cdd8b9eaffd21621",
+  "refresh_id": "refresh-1787998093464",
+  "generated_at": "2026-08-29T10:08:13.464Z",
+  "snapshot_digest": "2b56df231e5a3b29",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-cdd8b9eaffd21621.json",
-      "digest": "cdd8b9eaffd21621",
-      "bytes": 2420583
+      "path": "catalog-2b56df231e5a3b29.json",
+      "digest": "2b56df231e5a3b29",
+      "bytes": 2420546
     }
   },
   "sources": {
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-08-29T03:54:25.881Z",
-      "last_success_at": "2026-08-29T03:54:25.881Z",
-      "expires_at": "2026-09-01T03:54:25.881Z",
+      "observed_at": "2026-08-29T10:08:13.464Z",
+      "last_success_at": "2026-08-29T10:08:13.464Z",
+      "expires_at": "2026-09-01T10:08:13.464Z",
       "root_digest": "d4e291fb686383a5",
       "record_count": 384,
       "missing_streak": 0
@@ -25,9 +25,9 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-08-29T03:54:25.881Z",
-      "last_success_at": "2026-08-29T03:54:25.881Z",
-      "expires_at": "2026-09-01T03:54:25.881Z",
+      "observed_at": "2026-08-29T10:08:13.464Z",
+      "last_success_at": "2026-08-29T10:08:13.464Z",
+      "expires_at": "2026-09-01T10:08:13.464Z",
       "root_digest": "8f7916e48c728cb1",
       "record_count": 2594,
       "missing_streak": 0
@@ -27869,16 +27869,6 @@
       ]
     },
     {
-      "id": "openrouter:allenai/olmo-3-32b-think",
-      "name": "AllenAI: Olmo 3 32B Think",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:amazon/nova-2-lite-v1",
       "name": "Amazon: Nova 2 Lite",
       "tariff": "token",
@@ -28340,16 +28330,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:arcee-ai/virtuoso-large",
-      "name": "Arcee AI: Virtuoso Large",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {

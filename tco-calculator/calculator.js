@@ -679,13 +679,14 @@ export function runComparison({
     A: laneAResult.enabled ? laneAResult.monthly_total : "0",
     B: bMonthly === null ? "0" : bMonthly.toString(),
     C: laneCStandalone.enabled ? laneCStandalone.monthly_total : "0",
-  }, horizon);
+  }, horizon, { A: selfHostedCapex });
 
   return {
     policy,
     lanes: { A: laneAResult, B: laneBResult, C: laneCStandalone },
     routing_result: routingResult,
     breakeven,
+    payback,
     throughput,
     overlay: overlayResult,
     curve,

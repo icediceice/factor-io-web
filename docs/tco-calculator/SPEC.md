@@ -122,10 +122,11 @@ derived split dominates the advisory blend (as in F7), the calculator computes t
 derived split, shows the advisory number, and flags it `dominated` with the delta —
 it never emits the dominated blend as the optimum.
 
-**`api_first` + failover.** Serve from Lane B; a declared fallback lane (A or C)
-carries outage traffic. Fallback cost is charged at `failover_rate × assumed
-failover share`; a pure-standby fallback (share = 0) still surfaces the standby's
-fixed cost if it is Lane A or C, labelled `standby_fixed`.
+**`api_first` + failover.** Serve from Model API; a declared fallback option
+(Self-hosted or Rented GPU) carries outage traffic. Fallback cost is charged at
+`failover_rate × assumed failover share`; a pure-standby fallback (share = 0) still
+surfaces the standby's fixed cost if it is Self-hosted or Rented GPU, labelled
+`standby_fixed`.
 
 **`fixed_split`.** An explicit user-pinned split (contractual, regulatory, or
 residency reasons). The calculator computes exactly the pinned split and — as a

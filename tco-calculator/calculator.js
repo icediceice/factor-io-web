@@ -348,12 +348,22 @@ export function applyOverlay({ laneTotals, horizonMonths, components, fullyLoade
 
 // ------------------------------------------------------------------ TCO curve
 // Constant monthly demand -> cumulative totals are linear in the horizon month.
-export function tcoCurve(laneMonthlyTotals, horizonMonths) {
+// Cumulative spend per lane at each month of the horizon.
+//
+// `laneOneTime` carries a lane's ONE-TIME capex, added once at month 1 rather than
+// per month. It defaults to empty so the existing two-argument callers (and the
+// F1-F10 fixtures) are byte-identical. It is not optional in spirit: once the
+// self-hosted option carries a capex, a curve that omits it crosses the API line at
+// a different month than paybackMonths reports, and the UI would show two different
+// answers to the same question.
+export function tcoCurve(laneMonthlyTotals, horizonMonths, laneOneTime = {}) {
   const points = [];
   for (let m = 1; m <= horizonMonths; m++) {
     const row = { month: m };
     for (const [lane, t] of Object.entries(laneMonthlyTotals)) {
-      row[lane] = ratStr(toRat(t).mul(Rat.of(BigInt(m), 1n)));
+      const monthly = toRat(t).mul(Rat.of(BigInt(m), 1n));
+      const once = laneOneTime[lane] === undefined || laneOneTime[lane] === null ? null : toRat(laneOneTime[lane]);
+      row[lane] = ratStr(once === null ? monthly : monthly.add(once));
     }
     points.push(row);
   }

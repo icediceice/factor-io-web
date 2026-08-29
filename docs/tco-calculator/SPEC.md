@@ -469,6 +469,38 @@ The GCP Cloud Billing API key lives ONLY in GitHub Actions secrets. It never app
 in snapshots, slice files, client payloads, or logs. Feeds requiring credentials the
 pipeline cannot hold are excluded from the registry rather than half-supported.
 
+### 5.7 GPU pricing registry — provider coverage and confidence tiers
+
+Rented-GPU rates in v0.1 were hand-entered `[ASSUMED]` values carrying an unresolved
+conflict ($55.04 vs $98.32 for the same 8×H100 node). v0.2 replaces them with a
+generated registry, refreshed by `node scripts/refresh-pricing.mjs`, in which every
+row declares which of two confidence tiers it belongs to.
+
+**Verified at the endpoint on 2026-08-29** — these are `[VERIFIED]`, not assumed:
+
+| Provider | Endpoint | Auth | Tier |
+|---|---|---|---|
+| AWS | Price List Bulk API (`pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/…`) | none | `first_party` |
+| Azure | Retail Prices API (`prices.azure.com/api/retail/prices`) | none | `first_party` |
+| GCP | Cloud Billing Catalog API | **API key required** — returns `403 Method doesn't allow unregistered callers` unauthenticated | `indicative` |
+| Alibaba, Tencent, Huawei | signed AccessKey APIs | credentials required | `indicative` |
+| Neoclouds (RunPod, Lambda, Vast, CoreWeave) | varies | varies | `indicative` |
+
+- **`first_party`** — fetched from the vendor's own price list with no credential.
+  Carries `observed_at` and the endpoint URL.
+- **`indicative`** — read from a public aggregator because the vendor's own API is
+  credential-gated. Carries `observed_at`, the aggregator URL, and renders with an
+  `indicative` tag at every point of use. It is a planning figure accurate to the
+  order of magnitude, and the UI says so rather than implying vendor authority.
+
+**No third tier, and no silent promotion.** An aggregator number never renders as
+`first_party` because it happens to agree with one. If a parse fails its shape
+assertion the refresh **throws** — a silently empty provider list would ship a
+calculator with no GPU prices at all, which is worse than a loud failure.
+
+Adding GCP to `first_party` requires only a key in the §5.6 secret store; the
+registry is structured so that promotion changes the tier field and nothing else.
+
 ---
 
 ## 6. Throughput and utilization

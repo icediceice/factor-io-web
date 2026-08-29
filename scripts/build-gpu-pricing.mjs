@@ -110,7 +110,7 @@ const AZURE_SKUS = {
   ND96amsr_A100_v4: { gpu: GPU.a100_80, count: 8 },
   NC24ads_A100_v4: { gpu: GPU.a100_80, count: 1 },
   NC96ads_A100_v4: { gpu: GPU.a100_80, count: 4 },
-  NV36ads_A10_v5: { gpu: GPU.a10g, count: 1 },
+  NV36ads_A10_v5: { gpu: GPU.a10, count: 1 },
 };
 
 // ------------------------------------------------------- AWS (first_party)

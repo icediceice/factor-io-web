@@ -358,7 +358,7 @@ export async function buildGpuPricing({ observedAt, sources }) {
 
   const byProvider = {};
   for (const r of rows) {
-    byProvider[r.provider] ??= { label: r.provider_label, confidence: r.confidence, rows: 0, gpus: new Set() };
+    byProvider[r.provider] ??= { label: r.provider_label, confidence: r.confidence, seeded: !!r.seeded, rows: 0, gpus: new Set() };
     byProvider[r.provider].rows++;
     byProvider[r.provider].gpus.add(r.gpu_id);
   }

@@ -235,58 +235,64 @@ async function fetchAzure(observedAt) {
 // Regex over HTML is brittle BY NATURE. That is precisely why the shape
 // assertion below is unconditional: when the markup moves, this throws rather
 // than silently returning an empty provider list.
-const AGGREGATOR_GPUS = [
-  { slug: "nvidia-h100", gpu: GPU.h100 },
-  { slug: "nvidia-h200", gpu: GPU.h200 },
-  { slug: "nvidia-a100", gpu: GPU.a100_80 },
-  { slug: "nvidia-l40s", gpu: GPU.l40s },
-  { slug: "nvidia-b200", gpu: GPU.b200 },
-];
-
-// Providers we WANT from the aggregator, and the display names to match. The
-// Chinese clouds are the whole reason this lane exists.
+// PROVIDER pages, not per-GPU pages. The first cut of this read
+// getdeploying.com/gpus/<model> and returned gcp/coreweave/lambda/runpod/vast
+// but ZERO Chinese clouds — those pages only rank the providers stocking that
+// specific accelerator, and no Chinese cloud publishes an H100/H200 rate there
+// (US export controls put H20/A800-class parts in that market instead). Reading
+// each PROVIDER's own page inverts that: it yields whatever catalogue the
+// provider actually has, which is the only route to Alibaba.
 const AGGREGATOR_PROVIDERS = [
-  { key: "gcp", label: "Google Cloud", match: /Google Cloud/i },
-  { key: "alibaba", label: "Alibaba Cloud", match: /Alibaba Cloud/i },
-  { key: "tencent", label: "Tencent Cloud", match: /Tencent/i },
-  { key: "huawei", label: "Huawei Cloud", match: /Huawei/i },
-  { key: "volcengine", label: "Volcengine", match: /Volcengine|ByteDance/i },
-  { key: "runpod", label: "RunPod", match: /Runpod/i },
-  { key: "lambda", label: "Lambda Labs", match: /Lambda Labs|Lambda\b/i },
-  { key: "vast", label: "Vast.ai", match: /Vast\.ai/i },
-  { key: "coreweave", label: "CoreWeave", match: /CoreWeave/i },
+  { key: "gcp", label: "Google Cloud", slug: "google-cloud" },
+  { key: "alibaba", label: "Alibaba Cloud", slug: "alibaba-cloud" },
+  { key: "runpod", label: "RunPod", slug: "runpod" },
+  { key: "lambda", label: "Lambda Labs", slug: "lambda-labs" },
+  { key: "vast", label: "Vast.ai", slug: "vast-ai" },
+  { key: "coreweave", label: "CoreWeave", slug: "coreweave" },
 ];
 
-const stripTags = (html) => html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+// Aggregator GPU label -> our canonical id. Anything unlisted is SKIPPED, not
+// guessed: an unrecognised accelerator priced against the wrong vram_gb would
+// silently mis-size every deployment built on it.
+const AGGREGATOR_GPU_ALIASES = {
+  "h100": GPU.h100, "h200": GPU.h200, "b200": GPU.b200,
+  "a100": GPU.a100_80, "l40s": GPU.l40s, "l4": GPU.l4,
+  "a10": GPU.a10g, "a10g": GPU.a10g, "h20": GPU.h20, "a800": GPU.a800,
+};
+
+const stripTags = (html) => html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'").replace(/\s+/g, " ");
+
+// "Nvidia A10 24GB · 26 configs · 1x-8x On-Demand from $1.27 Reserved from $0.71"
+// The 140-char bound between the model name and its rate is deliberate: a looser
+// window walks into the NEXT accelerator's block and misattributes its price.
+const AGG_ROW = /(?:Nvidia|NVIDIA|AMD)\s+([A-Za-z0-9]+(?:\s+[A-Za-z0-9]+)?)\s+(\d+)\s?GB[^$]{0,140}?On-Demand\s+from\s+\$\s?([0-9]+(?:\.[0-9]+)?)/g;
 
 async function fetchAggregator(observedAt) {
   const rows = [];
+  const findings = [];
   let anyPageParsed = false;
-  const perGpuFindings = [];
 
-  for (const { slug, gpu } of AGGREGATOR_GPUS) {
-    const url = `https://getdeploying.com/gpus/${slug}`;
+  for (const prov of AGGREGATOR_PROVIDERS) {
+    const url = `https://getdeploying.com/${prov.slug}`;
     let text;
     try {
       text = stripTags(await fetchText(url));
     } catch (e) {
-      perGpuFindings.push({ slug, error: String(e.message ?? e), providers: 0 });
+      findings.push({ provider: prov.key, error: String(e.message ?? e), gpus: 0 });
       continue;
     }
     anyPageParsed = true;
-    let found = 0;
-    for (const prov of AGGREGATOR_PROVIDERS) {
-      // Look for "<Provider> ... $N.NN" within a bounded window — the table
-      // renders provider then rate. A wider window would cross into the next
-      // provider's row and misattribute the price.
-      const idx = text.search(prov.match);
-      if (idx < 0) continue;
-      const window = text.slice(idx, idx + 260);
-      const m = /\$\s?([0-9]+(?:\.[0-9]+)?)/.exec(window);
-      if (!m) continue;
-      const perGpu = Number(m[1]);
+
+    const seen = new Set();
+    let m;
+    AGG_ROW.lastIndex = 0;
+    while ((m = AGG_ROW.exec(text)) !== null) {
+      const rawName = m[1].trim().toLowerCase().replace(/\s+/g, "");
+      const gpu = AGGREGATOR_GPU_ALIASES[rawName];
+      if (!gpu || seen.has(gpu.id)) continue;
+      const perGpu = Number(m[3]);
       if (!Number.isFinite(perGpu) || perGpu <= 0 || perGpu > 200) continue;
-      found++;
+      seen.add(gpu.id);
       rows.push({
         provider: prov.key,
         provider_label: prov.label,
@@ -304,12 +310,35 @@ async function fetchAggregator(observedAt) {
         observed_at: observedAt,
       });
     }
-    perGpuFindings.push({ slug, providers: found });
+    findings.push({ provider: prov.key, gpus: seen.size });
   }
 
-  mustShape(anyPageParsed, "aggregator", "at least one GPU page to fetch", JSON.stringify(perGpuFindings));
-  mustShape(rows.length > 0, "aggregator", "at least one provider rate across all GPU pages", JSON.stringify(perGpuFindings));
-  return { rows, findings: perGpuFindings };
+  mustShape(anyPageParsed, "aggregator", "at least one provider page to fetch", JSON.stringify(findings));
+  mustShape(rows.length > 0, "aggregator", "at least one GPU rate across all provider pages", JSON.stringify(findings));
+  return { rows, findings };
+}
+
+// --------------------------------------- Chinese clouds (indicative, seeded)
+// Tencent, Huawei and Volcengine publish GPU pricing only behind signed-AccessKey
+// APIs and in CNY on their China-facing consoles; no Western aggregator carries
+// them (computecomparison.com/provider/tencent-cloud and /huawei-cloud both
+// return empty stubs, checked 2026-08-29). Rather than drop the market the
+// operator explicitly asked for, these ride a SEED file: cited, dated, and
+// carrying their own re-verify date so the client can age them out.
+//
+// A seed row is NOT a live row and never claims to be — it renders `indicative`
+// like any aggregator row, but additionally carries seeded:true and the citation
+// it came from, so the UI can say "cited 2026-08-29" rather than implying a fetch.
+async function loadSeed() {
+  const { readFile } = await import("node:fs/promises");
+  try {
+    const doc = JSON.parse(await readFile(`${DATA_DIR}gpu-pricing-seed.json`, "utf8"));
+    mustShape(Array.isArray(doc.rows), "seed", "rows array", doc);
+    return doc.rows.map((r) => ({ ...r, confidence: "indicative", seeded: true }));
+  } catch (e) {
+    if (e instanceof ShapeError) throw e;
+    return []; // absent seed is legitimate — the live lanes still stand alone
+  }
 }
 
 // Round to 6dp as a NUMBER only at the boundary. The engine re-parses these as

@@ -56,8 +56,8 @@ tool, a benchmark harness, a procurement system, or a cluster orchestrator.
 
 | Persona | Needs | Primary surfaces |
 |---|---|---|
-| Founder/CTO choosing a serving strategy | Lane comparison, breakeven, sensitivity, honest feasibility | Screens S1–S4 (§8) |
-| Consultant pricing a client engagement | Commercial overlay (licensing, consulting, implementation) itemized on top of lane math | §7 overlay toggle, quote export |
+| Founder/CTO choosing a serving strategy | Option comparison, payback month, sensitivity, honest feasibility | Screens S1–S4 (§8) |
+| Consultant pricing a client engagement | Commercial overlay (licensing, consulting, implementation) itemized on top of option math | §7 overlay toggle, quote export |
 | FinOps/finance reviewer | Provenance of every number; decimal-exact arithmetic; audit of feed freshness | Provenance popovers, SourceStatus panel (§5) |
 
 ### 1.3 Scope

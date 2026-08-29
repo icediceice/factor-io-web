@@ -263,7 +263,7 @@ const AGGREGATOR_PROVIDERS = [
 const AGGREGATOR_GPU_ALIASES = {
   "h100": GPU.h100, "h200": GPU.h200, "b200": GPU.b200,
   "a100": GPU.a100_80, "l40s": GPU.l40s, "l4": GPU.l4,
-  "a10": GPU.a10g, "a10g": GPU.a10g, "h20": GPU.h20, "a800": GPU.a800,
+  "a10": GPU.a10, "a10g": GPU.a10g, "h20": GPU.h20, "a800": GPU.a800,
 };
 
 const stripTags = (html) => html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'").replace(/\s+/g, " ");

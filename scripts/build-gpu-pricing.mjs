@@ -374,7 +374,7 @@ export async function buildGpuPricing({ observedAt, sources }) {
     },
     gpus: Object.fromEntries(Object.values(GPU).map((g) => [g.id, g])),
     providers: Object.fromEntries(
-      Object.entries(byProvider).map(([k, v]) => [k, { label: v.label, confidence: v.confidence, rows: v.rows, gpus: [...v.gpus].sort() }]),
+      Object.entries(byProvider).map(([k, v]) => [k, { label: v.label, confidence: v.confidence, seeded: v.seeded, rows: v.rows, gpus: [...v.gpus].sort() }]),
     ),
     rows,
   };

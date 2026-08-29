@@ -73,7 +73,13 @@ const GPU = {
   a100_40: { id: "a100_40", label: "NVIDIA A100 40GB", vram_gb: 40 },
   l40s: { id: "l40s", label: "NVIDIA L40S 48GB", vram_gb: 48 },
   l4: { id: "l4", label: "NVIDIA L4 24GB", vram_gb: 24 },
+  // A10 and A10G are NOT interchangeable and must not share an id. A10G is an
+  // AWS G5-exclusive 300W variant; the plain A10 is the 150W PCIe part Azure and
+  // Alibaba sell. Same 24GB, materially different throughput — and since the
+  // calculator hangs a per-GPU tok/s assumption off this id, folding them applies
+  // A10G throughput to A10 hardware and mis-sizes every deployment built on it.
   a10g: { id: "a10g", label: "NVIDIA A10G 24GB", vram_gb: 24 },
+  a10: { id: "a10", label: "NVIDIA A10 24GB", vram_gb: 24 },
   h20: { id: "h20", label: "NVIDIA H20 96GB", vram_gb: 96 },
   a800: { id: "a800", label: "NVIDIA A800 80GB", vram_gb: 80 },
 };

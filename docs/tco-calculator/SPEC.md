@@ -109,8 +109,9 @@ an **overlay** applied after lane math, itemized, never folded into unit prices.
 
 Exactly three policies are modelled. Every multi-lane run declares one.
 
-**`local_first`.** Serve `min(demand, local_capacity)` on Lane A; overflow routes to
-the declared secondary lane (B or C). The split is **derived**, never user-set:
+**`local_first`.** Serve `min(demand, local_capacity)` on Self-hosted; overflow
+routes to the declared secondary option (Model API or Rented GPU). The split is
+**derived**, never user-set:
 
 ```
 local_share = min(demand_tokens, local_capacity_tokens) / demand_tokens

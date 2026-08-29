@@ -350,7 +350,7 @@ function round6(n) {
 
 // ------------------------------------------------------------------- build
 export async function buildGpuPricing({ observedAt, sources }) {
-  const rows = [...sources.aws, ...sources.azure, ...sources.aggregator];
+  const rows = [...sources.aws, ...sources.azure, ...sources.aggregator, ...(sources.seed ?? [])];
   rows.sort((a, b) =>
     a.provider < b.provider ? -1 : a.provider > b.provider ? 1
       : a.gpu_id < b.gpu_id ? -1 : a.gpu_id > b.gpu_id ? 1

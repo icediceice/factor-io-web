@@ -15,6 +15,7 @@ import { Dec, Rat, formatHalfUp } from "./exact.js";
 import { runComparison, matchEvidence, ratToDecExact, rentedGpuByProvider } from "./calculator.js";
 import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
 import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
+import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -23,6 +24,16 @@ const OPTION = {
   C: { key: "rented_gpu", label: "Rented GPU", color: "#34D399" },
 };
 const OPTION_KEYS = ["A", "B", "C"];
+
+// The engine's routing keys are vocabulary, not English. Rendered surfaces get
+// the sentence; the raw key stays in the provenance rows and the exported quote,
+// which are the technical record and must keep the engine's own term.
+const POLICY_WORDS = {
+  local_first: "your own GPUs first",
+  api_first: "the API first, falling back to your own GPUs",
+  fixed_split: "a fixed split between the options",
+};
+const policyWords = (p) => POLICY_WORDS[p] ?? String(p);
 
 // Mix/shape field ids use `graphrag`; the engine's workload type is `graph_rag`.
 const MIX_FIELD = { chat: "chat", rag: "rag", graph_rag: "graphrag", agentic: "agentic" };
@@ -36,15 +47,30 @@ const state = {
   workloadPresets: null,
   result: null,
   demand: null,
+  // v0.3 serving model: the tables in serving-models.json, and the solved plan
+  // for the current selection. servingGap holds the REASON a plan could not be
+  // solved, so the fit panel can say what to change instead of going blank.
+  servingData: null,
+  serving: null,
+  servingGap: null,
+  // Live recompute must not fire mid-init: the catalog is not loaded yet and a
+  // comparison over an empty catalog renders a gap the user never caused.
+  ready: false,
 };
 
-const money = (x) => {
-  if (x === null || x === undefined) return "—";
-  if (x instanceof Dec || x instanceof Rat) return "$" + formatHalfUp(x, 2);
+// A total travels as a Dec, a Rat, or a reduced "n/d" string — a non-terminating
+// division keeps full precision instead of collapsing to a float. ONE parser, so
+// what gets displayed and what gets RANKED can never disagree about a price.
+const moneyValue = (x) => {
+  if (x === null || x === undefined) return null;
+  if (x instanceof Dec || x instanceof Rat) return x;
   const s = String(x);
-  const m = /^(-?\d+)\/(\d+)$/.exec(s); // non-terminating totals travel as reduced n/d
-  if (m) return "$" + formatHalfUp(new Rat(BigInt(m[1]), BigInt(m[2])), 2);
-  return "$" + formatHalfUp(Dec.from(s), 2);
+  const m = /^(-?\d+)\/(\d+)$/.exec(s);
+  return m ? new Rat(BigInt(m[1]), BigInt(m[2])) : Dec.from(s);
+};
+const money = (x) => {
+  const v = moneyValue(x);
+  return v === null ? "—" : "$" + formatHalfUp(v, 2);
 };
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
@@ -101,8 +127,14 @@ async function init() {
     state.manifest = await loadManifest();
     renderBanner(freshnessView(state.manifest, Date.now()));
     await loadGpuPricing();
+    await loadServingModels();
     wireInputs();
     await loadWorkloadPresets();
+    // Land on an answer, not an empty column. The default preset is a complete,
+    // labelled scenario, so the first thing the screen shows is a worked example
+    // the user edits — not a form they must fill before anything happens.
+    state.ready = true;
+    run();
   } catch (e) {
     showGap(`the pricing snapshot could not be loaded (${escapeHtml(e.message)}). The calculator shows no numbers without its cited data.`);
     throw e;
@@ -176,6 +208,203 @@ function renderRentNote() {
   $("f-rent-note").innerHTML = `${escapeHtml(row.sku)} · $${row.gpu_hourly_usd}/GPU-hr · ${tier}.${seeded}${basis} Observed ${escapeHtml(String(row.observed_at).slice(0, 10))}.`;
 }
 
+// ═════════════════════════════════════════ v0.3: the model being served
+// The v0.2 calculator sized every fleet from one constant per accelerator,
+// pinned at an ~8B-class model. What a GPU actually delivers is a function of
+// the model on it — size, context, attention architecture, quantisation — so
+// these controls are not a detail panel, they are the sizing input. See
+// serving.js for the roofline and SPEC §6.6 for the formulas.
+
+async function loadServingModels() {
+  const res = await fetch("./tco-calculator/data/serving-models.json");
+  if (!res.ok) throw new Error(`serving-models.json ${res.status}`);
+  state.servingData = await res.json();
+  const d = state.servingData;
+
+  $("f-sv-model").innerHTML = d.models
+    .map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}</option>`).join("");
+  const optsFor = (obj, labelKey) => Object.entries(obj)
+    .map(([k, v]) => `<option value="${escapeHtml(k)}">${escapeHtml(v.label ?? k)}</option>`).join("");
+  $("f-sv-wquant").innerHTML = optsFor(d.weight_quantization);
+  $("f-sv-kvquant").innerHTML = optsFor(d.kv_quantization);
+  $("f-sv-runtime").innerHTML = optsFor(d.runtimes);
+  $("f-sv-wquant").value = "bf16";
+  $("f-sv-kvquant").value = "bf16";
+  $("f-sv-runtime").value = "vllm";
+
+  $("f-sv-model").addEventListener("change", () => { applyModelPreset($("f-sv-model").value); });
+  applyModelPreset(d.models[0].id);
+}
+
+// Selecting a model fills the fields a user would otherwise have to look up in a
+// config.json. Every one stays editable — the preset is a starting point, not a lock.
+function applyModelPreset(id) {
+  const m = state.servingData?.models.find((x) => x.id === id);
+  if (!m) return;
+  $("f-sv-params").value = m.params_b;
+  $("f-sv-active").value = m.active_params_b;
+  $("f-sv-ctx").value = String(m.context_default);
+  $("f-sv-kvbytes").value = "";
+  onLiveInput();
+}
+
+const ARCH_WORDS = {
+  full: "Full attention — every layer keeps every token, so memory grows straight up with context.",
+  sliding: "Sliding window — most layers only remember the last stretch of tokens, so long context stays affordable.",
+  gdn: "Gated DeltaNet hybrid — most layers keep no growing cache at all, only the few full-attention ones do.",
+  mla: "Latent attention — the cache is compressed before it is stored, so it stays small at long context.",
+};
+
+// The model spec actually handed to the engine: the preset's layer structure,
+// with the user's own numbers on top.
+function currentModelSpec() {
+  const m = state.servingData?.models.find((x) => x.id === $("f-sv-model").value);
+  if (!m) return null;
+  const spec = {
+    ...m,
+    params_b: decInput("f-sv-params") ?? m.params_b,
+    active_params_b: decInput("f-sv-active") ?? m.active_params_b,
+  };
+  const kvOverride = decInput("f-sv-kvbytes");
+  if (kvOverride !== null) {
+    // A flat bytes-per-token figure carries NO layer structure, so it cannot
+    // express retention: a sliding window stops applying the moment you override.
+    // Taken at the KV precision already selected, which is why the element size
+    // passed alongside it is 1 — the user's number is the whole per-token cost.
+    spec.groups = [{ kind: "full", layers: 1, tensors: 1, kv_heads: 1, head_dim: kvOverride }];
+    spec.kv_override = true;
+  }
+  return spec;
+}
+
+// Solve the roofline for an ARBITRARY accelerator against the current model
+// selection. Two distinct outcomes, and the difference matters downstream:
+//   null  -> this accelerator has no published bandwidth, so the caller should
+//            fall back to the v0.2 per-accelerator constant. Returning null
+//            rather than throwing keeps such a provider IN the rented table.
+//   throw -> ServingRefusal: the model genuinely does not fit at any TP size.
+//            rentedGpuByProvider catches this and reports the provider as
+//            unpriceable WITH the reason, which is the honest answer.
+function solveServingFor(gpuId) {
+  const d = state.servingData;
+  if (!d) return null;
+  const acc = d.accelerators?.[gpuId];
+  const vramGb = state.gpuPricing?.gpus?.[gpuId]?.vram_gb;
+  if (!acc || vramGb === undefined) return null;
+  const model = currentModelSpec();
+  if (!model) return null;
+
+  const wq = d.weight_quantization[$("f-sv-wquant").value];
+  const kq = d.kv_quantization[$("f-sv-kvquant").value];
+  const rt = d.runtimes[$("f-sv-runtime").value];
+  const interactive = $("f-sv-mode").value === "interactive";
+
+  return servingPlan({
+    model,
+    contextTokens: decInput("f-sv-ctx") ?? model.context_default,
+    bytesPerParam: wq.bytes_per_param,
+    // An override is already the whole per-token cost (see currentModelSpec).
+    kvBytesPerElement: model.kv_override ? "1" : kq.bytes_per_element,
+    vramGb: String(vramGb),
+    bandwidthGbS: acc.bandwidth_gb_s,
+    runtimeEfficiency: rt.bandwidth_efficiency,
+    tpEfficiency: d.tensor_parallel.efficiency_per_extra_gpu,
+    vramOverheadFraction: d.vram_overhead_fraction.value,
+    // In batch mode there is no floor to hold, so batch is bounded only by
+    // memory — the classic throughput-vs-latency trade, made explicit.
+    perStreamFloorTokS: interactive ? (decInput("f-tps-stream") ?? "30") : null,
+    maxBatch: intInput("f-sv-maxbatch"),
+  });
+}
+
+// The plan for the SELECTED self-hosted accelerator. Records the REASON on
+// state.servingGap rather than throwing, because a model that does not fit is a
+// normal answer the fit panel must render, not a crash.
+function buildServingPlan() {
+  state.serving = null;
+  state.servingGap = null;
+  if (!state.servingData) return null;
+  const gpuId = $("f-sh-gpu").value;
+  try {
+    const p = solveServingFor(gpuId);
+    if (!p) {
+      state.servingGap = `no memory-bandwidth figure is published here for "${gpuId}", so the fleet falls back to the per-accelerator planning constant instead of this model.`;
+      return null;
+    }
+    state.serving = p;
+    return p;
+  } catch (e) {
+    state.servingGap = e instanceof ServingRefusal ? e.message : `serving model error — ${e.message}`;
+    return null;
+  }
+}
+
+function renderServingNote() {
+  const d = state.servingData;
+  const m = d?.models.find((x) => x.id === $("f-sv-model").value);
+  if (!m) return;
+  const spec = currentModelSpec();
+  let kvText = "—";
+  try {
+    const kq = d.kv_quantization[$("f-sv-kvquant").value];
+    const bytes = kvBytesPerToken(spec.groups, spec.kv_override ? "1" : kq.bytes_per_element);
+    kvText = `${groupInt(formatHalfUp(bytes, 0))} B/token`;
+  } catch { kvText = "not computable from this configuration"; }
+
+  const moe = spec && Number(spec.active_params_b) < Number(spec.params_b)
+    ? ` Mixture-of-experts: all ${escapeHtml(String(spec.params_b))}B sit in memory, only ${escapeHtml(String(spec.active_params_b))}B are read per token.` : "";
+  $("sv-note").innerHTML = `${escapeHtml(ARCH_WORDS[m.architecture] ?? "")} <strong>${escapeHtml(kvText)}</strong> of cache per token.${moe}`;
+
+  const cite = m.source_url
+    ? `Layer structure cited from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">the published architecture</a>, verified against the model's own config.`
+    : `Nothing in this preset is cited — it is a starting shape for your own numbers.`;
+  const ovr = spec?.kv_override
+    ? ` <span class="tag tag-est">override active</span> Your bytes-per-token figure replaces the layer structure, so window-based retention no longer applies and the figure is taken at the precision you already chose.`
+    : "";
+  $("sv-arch-note").innerHTML = `${cite}${ovr} ${escapeHtml(m.note ?? "")}`;
+}
+
+// The fit panel — the answer to "will this even run, and how fast".
+function renderFitPanel() {
+  const p = state.serving;
+  const box = $("fit");
+  if (!p) {
+    box.innerHTML = state.servingGap
+      ? `<div class="card"><h3>Fit &amp; speed</h3><div class="gap"><strong>This configuration does not serve:</strong> ${escapeHtml(state.servingGap)}</div>
+         <p class="muted">Try a smaller model, a lower precision, a shorter context, or a bigger accelerator. The comparison below still runs on the per-accelerator planning constant.</p></div>`
+      : "";
+    return;
+  }
+  const gpuLabel = $("f-sh-gpu").selectedOptions[0]?.textContent ?? "";
+  const d = state.servingData;
+  const rtKey = $("f-sv-runtime").value;
+  const rows = [
+    ["formula", "t_step = (weights_read + batch x kv_per_seq) / (gpus x bandwidth x efficiency)"],
+    ["weights read per step", `${p.weights_gb_read_per_step.text} GB`],
+    ["weights resident", `${p.weights_gb_resident.text} GB`],
+    ["KV per sequence", `${p.kv_gb_per_sequence.text} GB`],
+    ["KV per token", `${groupInt(p.kv_bytes_per_token.text)} B`],
+    ["bandwidth", `${d.accelerators[$("f-sh-gpu").value]?.bandwidth_gb_s ?? "—"} GB/s x ${d.runtimes[rtKey].bandwidth_efficiency} efficiency`],
+    ["tensor parallel", `${p.gpus_per_replica}`],
+    ["batch limited by", p.batch_bound_by],
+    ["basis", "modelled from a bandwidth roofline — decode only, prefill not counted"],
+  ];
+  const tight = Number(p.batch.text) <= 2;
+  return void (box.innerHTML = `<div class="card">
+    <h3>Fit &amp; speed <span class="tag tag-est">modelled</span></h3>
+    <div class="kpi">
+      <div><label>Fits on</label><div class="v">${numProv(`${p.gpus_per_replica} &times; ${escapeHtml(gpuLabel)}`, rows)}</div></div>
+      <div><label>VRAM used / usable</label><div class="v">${p.vram_gb_used_per_gpu.text} / ${p.vram_gb_usable_per_gpu.text} GB</div></div>
+      <div><label>Requests at once</label><div class="v">${numProv(p.batch.text, rows)}</div></div>
+      <div><label>Speed per user</label><div class="v">${p.per_stream_tokens_s.text} <span class="muted">tok/s</span></div></div>
+      <div><label>Tokens/s per GPU</label><div class="v">${numProv(p.tokens_s_per_gpu.text, rows)}</div></div>
+      <div><label>KV per request</label><div class="v">${p.kv_gb_per_sequence.text} <span class="muted">GB</span></div></div>
+    </div>
+    ${tight ? `<div class="gap"><strong>Only ${p.batch.text} request${p.batch.text === "1" ? "" : "s"} at a time.</strong> At this size and context there is almost no room left for concurrency, so throughput per GPU collapses. Shorter context or lower precision buys the most back.</div>` : ""}
+    <p class="muted">Limited by <strong>${escapeHtml(p.batch_bound_by)}</strong>. Throughput is <span class="tag tag-est">assumed</span> — it rests on a stated bandwidth-efficiency figure, not a benchmark, and never backs a p95 verdict. Prefill is not modelled, so a long-prompt workload will run slower than this.</p>
+  </div>`);
+}
+
 // ------------------------------------------------- level 0: workload presets
 // Presets are PLANNING ASSUMPTIONS, never measurements. Selecting one fills
 // exactly the inputs a user would otherwise type; every field stays editable.
@@ -183,14 +412,10 @@ async function loadWorkloadPresets() {
   const res = await fetch("./tco-calculator/data/workload-presets.json");
   state.workloadPresets = await res.json();
   const wrap = $("preset-cards");
-  wrap.innerHTML = state.workloadPresets.presets.map((p) => {
-    const cls = p.assumption_label === "assumed" ? "tag-est" : "tag-unknown";
-    return `<button type="button" class="preset" role="radio" aria-checked="false" data-preset="${escapeHtml(p.id)}">`
-      + `<span class="p-name">${escapeHtml(p.label)}</span>`
-      + `<span class="p-vol">${escapeHtml(p.fields["f-users"])} users<span class="tag ${cls}">${escapeHtml(p.assumption_label)}</span></span>`
-      + `<span class="p-sum">${escapeHtml(p.summary)}</span></button>`;
-  }).join("");
-  for (const b of wrap.querySelectorAll(".preset")) {
+  wrap.innerHTML = state.workloadPresets.presets.map((p) =>
+    `<button type="button" class="chip" role="radio" aria-checked="false" data-preset="${escapeHtml(p.id)}">${escapeHtml(p.label)}</button>`
+  ).join("");
+  for (const b of wrap.querySelectorAll(".chip")) {
     b.addEventListener("click", () => applyWorkloadPreset(b.dataset.preset));
   }
   applyWorkloadPreset(state.workloadPresets.presets[0].id);
@@ -199,7 +424,7 @@ async function loadWorkloadPresets() {
 function applyWorkloadPreset(id) {
   const p = state.workloadPresets.presets.find((x) => x.id === id);
   if (!p) return;
-  for (const btn of $("preset-cards").querySelectorAll(".preset")) {
+  for (const btn of $("preset-cards").querySelectorAll(".chip")) {
     btn.setAttribute("aria-checked", String(btn.dataset.preset === id));
   }
   // Per-workload token shapes come from the store's `defaults`, so a preset
@@ -224,21 +449,55 @@ function applyWorkloadPreset(id) {
   $("preset-note").innerHTML = `<strong>${escapeHtml(p.label)}</strong> &mdash; every field is `
     + `<span class="tag ${p.assumption_label === "assumed" ? "tag-est" : "tag-unknown"}">${escapeHtml(p.assumption_label)}</span> `
     + `${escapeHtml(p.assumption_note)}${dated}. Change any number below.`;
-  refreshDerived();
+  onLiveInput();
 }
 
 // ------------------------------------------------------------ input plumbing
 function wireInputs() {
   $("fb-feed").addEventListener("change", () => fillModels(beginSelection()));
   $("run").addEventListener("click", run);
+  $("mix-balance").addEventListener("click", balanceMix);
   const live = [
     "f-users", "f-sessions-day", "f-days",
     "f-mix-chat", "f-mix-rag", "f-mix-graphrag", "f-mix-agentic",
-    "f-peak-frac", "f-tps-stream", "f-sh-tps-gpu",
+    "f-peak-frac", "f-tps-stream", "f-sh-tps-gpu", "f-sh-count",
+    // v0.3: the model IS a sizing input, not a detail. Editing its size, context
+    // or precision moves the fleet, so each one drives the same recompute.
+    "f-sv-params", "f-sv-active", "f-sv-ctx", "f-sv-maxbatch", "f-sv-kvbytes",
     ...Object.values(MIX_FIELD).flatMap((f) => [`f-${f}-turns`, `f-${f}-in`, `f-${f}-out`, `f-${f}-cached`]),
   ];
-  for (const id of live) $(id)?.addEventListener("input", refreshDerived);
+  for (const id of live) $(id)?.addEventListener("input", onLiveInput);
+  // Selects fire `change`, not `input`. f-sh-gpu belongs here because the
+  // accelerator decides bandwidth and VRAM, which decides the whole plan.
+  for (const id of ["f-sv-wquant", "f-sv-kvquant", "f-sv-runtime", "f-sv-mode", "f-sh-gpu"]) {
+    $(id)?.addEventListener("change", onLiveInput);
+  }
   fillModels(beginSelection());
+}
+
+// The headline recomputes as you type. A calculator with a button you must
+// remember to press gets read wrong by somebody eventually — they change a
+// number, see a stale total, and quote it. The button stays, for an explicit
+// re-pull, but it is no longer what makes the answer correct.
+let liveTimer = null;
+function onLiveInput() {
+  refreshDerived();
+  if (!state.ready) return; // init is still wiring; the catalog may not be loaded
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(run, 220);
+}
+
+// Mixes that do not sum to 1 are the single most common way this screen gets
+// stuck, and the arithmetic to fix it is exactly the arithmetic the user came
+// here to avoid doing. One button, and it says where the remainder went.
+function balanceMix() {
+  const check = validateMix(readMix());
+  if (check.ok) return;
+  const others = ["rag", "graphrag", "agentic"].reduce(
+    (acc, f) => acc.add(Dec.from(decInput(`f-mix-${f}`) ?? "0")), Dec.from("0"));
+  const rest = Dec.from("1").sub(others);
+  $("f-mix-chat").value = rest.sign() < 0 ? "0" : formatHalfUp(rest, 4).replace(/0+$/, "").replace(/\.$/, "");
+  onLiveInput();
 }
 
 function readMix() {
@@ -280,12 +539,17 @@ function computeDemand(usersOverride = null) {
     tokensPerSecondPerStream: decInput("f-tps-stream"),
   });
   const gpuId = $("f-sh-gpu").value;
+  // v0.3: solve what this accelerator actually delivers for THIS model before
+  // sizing the fleet. A null plan is not a failure — it is the v0.2 fallback,
+  // and gpusForLoad keeps the per-accelerator constant path for exactly that.
+  const serving = buildServingPlan();
   const sizing = gpusForLoad({
     peakTokensPerSecond: peak.peak_tokens_s.text,
     gpuId,
     tokensPerSecondPerGpu: decInput("f-sh-tps-gpu"),
+    serving,
   });
-  return { demand, peak, sizing, gpuId };
+  return { demand, peak, sizing, gpuId, serving };
 }
 
 // The live readout under the demand inputs. It must never show a number derived
@@ -293,43 +557,61 @@ function computeDemand(usersOverride = null) {
 function refreshDerived() {
   const mixCheck = validateMix(readMix());
   const sumEl = $("mix-sum");
+  const balanceBtn = $("mix-balance");
   if (mixCheck.ok) {
     sumEl.innerHTML = `<span class="tag tag-exact">sums to 1</span>`;
+    if (balanceBtn) balanceBtn.hidden = true;
   } else if (mixCheck.code === "mix_does_not_sum_to_one") {
     sumEl.innerHTML = `<span class="tag tag-est">sums to ${escapeHtml(mixCheck.sum_text)}</span>`;
+    if (balanceBtn) balanceBtn.hidden = false;
   } else {
     sumEl.innerHTML = `<span class="tag tag-unknown">invalid</span>`;
+    if (balanceBtn) balanceBtn.hidden = true;
   }
 
+  renderServingNote();
+
   try {
-    const { demand, peak, sizing } = computeDemand();
+    const { demand, peak, sizing, serving } = computeDemand();
     state.demand = { demand, peak, sizing };
-    if (!$("f-sh-tps-gpu").value.trim()) $("f-sh-tps-gpu").placeholder = `${sizing.tokens_s_per_gpu.text} (assumed)`;
+    if (!$("f-sh-tps-gpu").value.trim()) $("f-sh-tps-gpu").placeholder = `${sizing.tokens_s_per_gpu.text} (${serving ? "from the model" : "assumed"})`;
     $("f-sh-count-hint").textContent = `— ${sizing.gpus_required.text} needed at peak`;
     if (!$("f-sh-count").value.trim()) $("f-sh-count").placeholder = `${sizing.gpus_required.text} (derived)`;
 
     const perStreamWarn = peak.below_interactive_floor
       ? ` <span class="tag tag-est">below ${peak.interactive_floor_tokens_s.text} tok/s</span> at this per-stream rate an interactive answer reads as slow`
       : "";
+    // Where tokens/s per GPU CAME FROM is the number the whole comparison turns
+    // on, so it carries its basis inline rather than only inside a popover.
+    const gpuBasis = serving
+      ? `solved from ${escapeHtml($("f-sv-model").selectedOptions[0]?.textContent ?? "the model")} at ${groupInt(serving.context_tokens.text)} tokens of context`
+      : sizing.assumed ? "a per-accelerator planning constant, not this model" : "your figure";
+    const fleet = serving
+      ? `<strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}`
+        + ` &mdash; ${sizing.replicas?.text ?? "?"} cop${sizing.replicas?.text === "1" ? "y" : "ies"} of the model, ${serving.gpus_per_replica} GPU${serving.gpus_per_replica === 1 ? "" : "s"} each`
+      : `<strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}`;
+
     $("derived").innerHTML = `
-      <div class="grid">
-        <div><label>Sessions / month</label><div class="num">${groupInt(demand.sessions_mo.text)}</div></div>
-        <div><label>Turns / month</label><div class="num">${groupInt(demand.turns_mo.text)}</div></div>
-        <div><label>Tokens / month</label><div class="num">${groupInt(demand.tokens_mo.text)}</div></div>
-        <div><label>Peak tokens / s</label><div class="num">${peak.peak_tokens_s.text}${perStreamWarn}</div></div>
+      <div class="kpi">
+        <div><label>Sessions / month</label><div class="v">${groupInt(demand.sessions_mo.text)}</div></div>
+        <div><label>Turns / month</label><div class="v">${groupInt(demand.turns_mo.text)}</div></div>
+        <div><label>Tokens / month</label><div class="v">${groupInt(demand.tokens_mo.text)}</div></div>
+        <div><label>Peak tokens / s</label><div class="v">${peak.peak_tokens_s.text}${perStreamWarn}</div></div>
       </div>
       <p class="muted" style="margin:14px 0 0">
         ${groupInt(peak.concurrent_peak.text)} concurrent sessions at peak &middot;
         in ${groupInt(demand.in_tokens_mo.text)} / out ${groupInt(demand.out_tokens_mo.text)} / cached ${groupInt(demand.cached_tokens_mo.text)} tokens per month &middot;
-        <strong>${sizing.gpus_required.text}</strong> &times; ${escapeHtml($("f-sh-gpu").selectedOptions[0]?.textContent ?? "")}
+        ${fleet}
         to hold the peak at ${sizing.tokens_s_per_gpu.text} tok/s per GPU
-        <span class="tag ${sizing.assumed ? "tag-est" : "tag-exact"}">${sizing.assumed ? "assumed" : "your figure"}</span>
+        <span class="tag ${sizing.assumed ? "tag-est" : "tag-exact"}">${escapeHtml(gpuBasis)}</span>
       </p>`;
   } catch (e) {
     state.demand = null;
     const why = e instanceof DemandRefusal ? e.message : `input problem — ${e.message}`;
     $("derived").innerHTML = `<div class="gap"><strong>Demand not computed:</strong> ${escapeHtml(why)}</div>`;
   }
+
+  renderFitPanel();
 }
 
 async function fillModels(sel) {
@@ -422,9 +704,16 @@ function buildScenario(usersOverride = null) {
   let rentGap = null;
   if (rentRow) {
     try {
-      rentSizing = gpusForLoad({ peakTokensPerSecond: peak.peak_tokens_s.text, gpuId: rentRow.gpu_id });
+      rentSizing = gpusForLoad({
+        peakTokensPerSecond: peak.peak_tokens_s.text,
+        gpuId: rentRow.gpu_id,
+        serving: solveServingFor(rentRow.gpu_id),
+      });
     } catch (e) {
-      rentGap = e instanceof DemandRefusal ? e.message : String(e);
+      // A ServingRefusal is the model not fitting on the RENTED accelerator —
+      // as legitimate an answer as a demand refusal, and its message already
+      // says which constraint bound, so it must not degrade to "[object Error]".
+      rentGap = (e instanceof DemandRefusal || e instanceof ServingRefusal) ? e.message : String(e);
     }
   }
   const rentGpus = rentSizing ? Math.max(1, Number(rentSizing.gpus_required.text)) : 0;
@@ -483,6 +772,9 @@ function run() {
       showGap(`${escapeHtml(e.message)}`);
       return;
     }
+    // The visible gap can be overwritten by a later async load, so the stack also
+    // goes to the console — a comparison that fails silently is the worst outcome.
+    console.error("comparison failed", e);
     const where = String(e.stack ?? "").split("\n").slice(1, 6).join(" | ");
     showGap(`the comparison could not run: ${escapeHtml(e.message)} <br><code>${escapeHtml(where)}</code>`);
   }
@@ -583,7 +875,14 @@ function providerCard() {
     servedTokens: inp.workload.demand_tokens_mo,
     // Sized on ITS OWN accelerator against the same peak second — never on the
     // self-hosted pick, which would price an L4 fleet as if it were H100s.
-    sizeFor: (gpuId) => gpusForLoad({ peakTokensPerSecond: d.peak.peak_tokens_s.text, gpuId }),
+    // v0.3: and on the SAME model, so a provider's rank reflects what this model
+    // actually costs to serve there. A refusal propagates — rentedGpuByProvider
+    // turns it into an explained "not priced" row rather than a silent drop.
+    sizeFor: (gpuId) => gpusForLoad({
+      peakTokensPerSecond: d.peak.peak_tokens_s.text,
+      gpuId,
+      serving: solveServingFor(gpuId),
+    }),
   });
   state.rentByProvider = cmp;
 
@@ -624,8 +923,17 @@ function providerCard() {
     ? `<div class="gap"><strong>Your selected pairing is not priced:</strong> ${escapeHtml(state.rentGap)} The comparison below still stands; the option row above is omitted rather than guessed.</div>`
     : "";
 
+  // Reason codes are engine vocabulary; on a sales-facing surface they have to
+  // read as English. Unmapped codes pass through rather than being swallowed.
+  const WHY = {
+    no_viable_configuration: "this model does not fit on that accelerator",
+    unknown_gpu: "no throughput assumption for that accelerator",
+    zero_capacity: "no GPUs required at this load",
+    zero_throughput: "the plan delivers no tokens/s",
+    sizing_failed: "could not be sized",
+  };
   const missing = cmp.unservable.length
-    ? `<p class="muted">Not priced: ${[...new Set(cmp.unservable.map((u) => `${u.provider_label} (${u.gpu_id} — ${u.reason})`))].map(escapeHtml).join(", ")}. An unpriceable provider is reported rather than dropped — vanishing from the table would read as "not offered" when the truth is "not modelled".</p>`
+    ? `<p class="muted">Not priced: ${[...new Set(cmp.unservable.map((u) => `${u.provider_label} (${u.gpu_id} — ${WHY[u.reason] ?? u.reason})`))].map(escapeHtml).join(", ")}. An unpriceable provider is reported rather than dropped — vanishing from the table would read as "not offered" when the truth is "not modelled".</p>`
     : "";
 
   return `<div class="card">
@@ -635,7 +943,7 @@ function providerCard() {
       <tbody>${body}</tbody>
     </table>
     ${pickGap}
-    <p class="muted">The cheapest SKU per provider that holds ${d.peak.peak_tokens_s.text} tok/s at peak, each sized on its own accelerator — so providers rank by delivered capacity, not by sticker rate. <span class="tag tag-exact">first-party</span> is the vendor's own published price list; <span class="tag tag-est">indicative</span> is a public aggregator, an order-of-magnitude planning figure rather than a quote.</p>
+    <p class="muted">The cheapest SKU per provider that holds ${d.peak.peak_tokens_s.text} tok/s at peak, each sized on its own accelerator${state.serving ? " running the model you selected" : ""} — so providers rank by delivered capacity, not by sticker rate. <span class="tag tag-exact">first-party</span> is the vendor's own published price list; <span class="tag tag-est">indicative</span> is a public aggregator, an order-of-magnitude planning figure rather than a quote.</p>
     ${missing}
   </div>`;
 }
@@ -694,7 +1002,7 @@ function renderResults(r) {
   }
 
   const rec = (r.routing_result.recommended_monthly_total === null || r.routing_result.recommended_monthly_total === undefined) ? "" :
-    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Recommended — ${escapeHtml(r.policy)}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ...digest])}<span class="muted" style="font-size:.85rem"> / month at the entered demand</span></div></div>`;
+    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Recommended — send ${escapeHtml(policyWords(r.policy))}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ...digest])}<span class="muted" style="font-size:.85rem"> / month at the entered demand</span></div></div>`;
 
   const adv = r.routing_result.advisory
     ? `<p class="muted">Advisory blend ${money(r.routing_result.advisory.total)} — <strong>${escapeHtml(r.routing_result.advisory.status)}</strong>${r.routing_result.advisory.delta ? ` (delta ${money(r.routing_result.advisory.delta)})` : ""}. ${escapeHtml(r.routing_result.advisory.note)}</p>`
@@ -716,7 +1024,7 @@ function renderResults(r) {
     ${paybackCard(r)}
     <div class="card">
       <table>
-        <thead><tr><th>Option · policy ${escapeHtml(r.policy)}</th><th class="n">Cost / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month total</th></tr></thead>
+        <thead><tr><th>Option · sending ${escapeHtml(policyWords(r.policy))}</th><th class="n">Cost / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month total</th></tr></thead>
         <tbody>${rows.join("")}</tbody>
       </table>
       ${r.overlay && r.overlay.itemized.length ? `<p class="muted">Overlay itemized last: ${r.overlay.itemized.map((i) => `${escapeHtml(i.name)} ${money(i.extended)} (${i.basis}, ${i.provenance})`).join(" · ")} — total ${money(r.overlay.overlay_total)} · ${escapeHtml(r.overlay.note)}</p>` : ""}
@@ -744,10 +1052,40 @@ function renderResults(r) {
 }
 
 function renderOptionTotals(r) {
-  const put = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
-  put("opt-self-total", r.lanes.A.enabled && r.lanes.A.monthly_total != null ? money(r.lanes.A.monthly_total) : "&mdash;");
-  put("opt-api-total", r.lanes.B.monthly_total != null ? money(r.lanes.B.monthly_total) : "&mdash;");
-  put("opt-rent-total", r.lanes.C.enabled && r.lanes.C.monthly_total != null ? money(r.lanes.C.monthly_total) : "&mdash;");
+  const box = $("verdict");
+  if (!box) return;
+
+  const cards = OPTION_KEYS.map((k) => {
+    const lane = r.lanes[k];
+    const on = lane.enabled && lane.monthly_total != null;
+    // Promote to Rat up front. A total can arrive as a Dec OR as a
+    // non-terminating Rat, and Dec.sub(Rat) throws outright ("a non-terminating
+    // Rational cannot become a Decimal"). Every Dec converts to a Rat losslessly
+    // but not the reverse, so normalising once here makes both the comparison
+    // and the difference below total, whatever the two lanes happen to be.
+    return { k, label: OPTION[k].label, color: OPTION[k].color, on, value: on ? Rat.from(moneyValue(lane.monthly_total)) : null };
+  });
+
+  // Cheapest is decided on the EXACT values, never on the formatted strings —
+  // "$9.90" sorts above "$10.00" as text, and that is a wrong answer in dollars.
+  let best = null;
+  for (const c of cards) {
+    if (!c.on) continue;
+    if (best === null || c.value.lt(best.value)) best = c;
+  }
+
+  box.innerHTML = cards.map((c) => {
+    const win = best && c.k === best.k;
+    const dot = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${c.color};margin-right:6px;vertical-align:1px"></span>`;
+    const sub = !c.on
+      ? `not costed &mdash; see the note above`
+      : win ? `lowest of the modelled options` : `${money(c.value.sub(best.value))} more per month`;
+    return `<div class="vcard${win ? " best" : ""}">
+      <h4>${dot}${escapeHtml(c.label)}${win ? ` <span class="tag tag-exact">lowest</span>` : ""}</h4>
+      <div class="n">${c.on ? money(c.value) : "&mdash;"}</div>
+      <div class="s">${sub}</div>
+    </div>`;
+  }).join("");
 }
 
 const coerce = (v) => {

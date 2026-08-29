@@ -294,30 +294,82 @@ function ceilRat(r) {
 }
 
 /**
- * GPUs needed to hold the peak second: ceil(peak_tokens_s / tokens_s_per_gpu).
+ * GPUs needed to hold the peak second.
+ *
+ * TWO SIZING PATHS, and the difference matters:
+ *
+ * 1. WITHOUT a serving plan (v0.2 behaviour, unchanged): ceil(peak / tokens_s_per_gpu)
+ *    against TOKENS_S_PER_GPU_ASSUMED. One constant per accelerator, pinned at an
+ *    ~8B-class model. Retained as the fallback for when no model is selected.
+ *
+ * 2. WITH a serving plan (v0.3, serving.js:servingPlan): the plan has already
+ *    solved a tensor-parallel size and a batch for THIS model at THIS context and
+ *    quantisation, so the unit that scales is the REPLICA, not the GPU:
+ *
+ *      replicas = ceil(peak_tokens_s / tokens_s_per_replica)
+ *      gpus     = gpus_per_replica x replicas
+ *
+ *    Sizing on replicas rather than dividing by a per-GPU average is not cosmetic:
+ *    a 4-GPU tensor-parallel group is indivisible, so a per-GPU division can return
+ *    6 GPUs for a configuration that only exists in multiples of 4.
  *
  * Sizing must satisfy the PEAK, not merely the monthly total: an option whose
- * aggregate throughput clears tokens_mo but misses peak_tokens_s is under-provisioned
- * at peak, and reporting it as sufficient is the failure this function exists to
- * prevent (SPEC §6.2).
+ * aggregate throughput clears tokens_mo but misses peak_tokens_s is
+ * under-provisioned at peak, and reporting it as sufficient is the failure this
+ * function exists to prevent (SPEC §6.2).
  *
- * `tokensPerSecondPerGpu` is [ASSUMED] and editable. When it is omitted it is looked
- * up from TOKENS_S_PER_GPU_ASSUMED by gpu id, and an unknown id is a LOUD FAILURE
- * rather than a silent default — a defaulted throughput would quietly mis-size every
- * deployment on that accelerator, and a provider would vanish from the comparison
- * with no indication that anything was missing.
+ * `tokensPerSecondPerGpu` is the user's own measurement and OUTRANKS both paths —
+ * a measured figure must never be overridden by a modelled one. Absent that, an
+ * unknown gpu id on the fallback path stays a LOUD FAILURE rather than a silent
+ * default, because a defaulted throughput quietly mis-sizes every deployment on
+ * that accelerator and makes a provider vanish from the comparison with no
+ * indication anything was missing.
  */
-export function gpusForLoad({ peakTokensPerSecond: peak, gpuId, tokensPerSecondPerGpu }) {
+export function gpusForLoad({ peakTokensPerSecond: peak, gpuId, tokensPerSecondPerGpu, serving = null }) {
   const peakR = q(peak, "peak tokens/s", { min: 0 });
 
+  const explicit = tokensPerSecondPerGpu !== undefined && tokensPerSecondPerGpu !== null && tokensPerSecondPerGpu !== "";
+
+  // ---- path 2: a solved serving plan, sized in whole replicas -----------------
+  if (serving && !explicit) {
+    const perReplica = q(serving.tokens_s_per_replica?.text, "tokens/s per replica", { min: 0 });
+    if (perReplica.isZero()) {
+      throw new DemandRefusal("zero_throughput", "the serving plan delivers zero tokens/s — check the model, context and quantisation", { field: "tokens_s_per_replica" });
+    }
+    const perGpu = q(serving.tokens_s_per_gpu?.text, "tokens/s per GPU", { min: 0 });
+    const gpusPerReplica = BigInt(serving.gpus_per_replica ?? 1);
+    const replicasExact = peakR.div(perReplica);
+    const replicas = ceilRat(replicasExact);
+    // A configuration that exists must run at least once: a zero-demand scenario
+    // still needs one replica standing up before it can serve anything.
+    const replicaCount = replicas < 1n ? 1n : replicas;
+    const gpuCount = gpusPerReplica * replicaCount;
+    const capacity = Rat.from(replicaCount).mul(perReplica);
+    return {
+      gpus_required: slot(Rat.from(gpuCount), "assumed"),
+      gpus_exact: slot(replicasExact.mul(Rat.from(gpusPerReplica)), "assumed", 3),
+      tokens_s_per_gpu: slot(perGpu, "assumed", 2),
+      capacity_tokens_s: slot(capacity, "assumed", 2),
+      headroom_tokens_s: slot(capacity.sub(peakR), "assumed", 2),
+      assumed: true,
+      // v0.3 additions — absent on the fallback path, so a caller can tell which
+      // sizing produced the number rather than inferring it from the value.
+      replicas: slot(Rat.from(replicaCount), "derived"),
+      gpus_per_replica: Number(gpusPerReplica),
+      tokens_s_per_replica: slot(perReplica, "assumed", 2),
+      serving_basis: "roofline",
+    };
+  }
+
+  // ---- path 1: the v0.2 per-accelerator constant ------------------------------
   let perGpu;
   let basis;
-  if (tokensPerSecondPerGpu !== undefined && tokensPerSecondPerGpu !== null && tokensPerSecondPerGpu !== "") {
+  if (explicit) {
     perGpu = q(tokensPerSecondPerGpu, "tokens/s per GPU", { min: 0 });
     basis = "user_override";
   } else {
     if (!gpuId) {
-      throw new DemandRefusal("missing_input", "gpusForLoad needs either a gpuId or an explicit tokens/s per GPU", { field: "gpuId" });
+      throw new DemandRefusal("missing_input", "gpusForLoad needs either a gpuId, an explicit tokens/s per GPU, or a serving plan", { field: "gpuId" });
     }
     const table = TOKENS_S_PER_GPU_ASSUMED[gpuId];
     if (table === undefined) {

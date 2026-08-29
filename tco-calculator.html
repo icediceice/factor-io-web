@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Inference TCO Calculator — owned cloud vs model API vs rented GPU | Factor IO</title>
-<meta name="description" content="Compare the true monthly cost of an owned inference stack, a cloud model API, and rented GPU nodes for your workload — with decimal-exact math, cited prices, provenance on every number, and honest unknowns. No rates invented, no guarantees printed.">
+<meta name="description" content="Compare the true monthly cost of an owned inference stack, a cloud model API, and rented GPU nodes for your workload — sized from the model you actually serve, with decimal-exact math, cited prices, provenance on every number, and honest unknowns. No rates invented, no guarantees printed.">
 <link rel="canonical" href="https://studio.factor-io.com/tco-calculator.html">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Factor IO">
 <meta property="og:title" content="AI Inference TCO Calculator — cost per month, and the month it pays back">
-<meta property="og:description" content="Self-hosted vs model API vs rented GPU, sized from your user count and priced from cited feeds with exact decimal math and provenance on every figure.">
+<meta property="og:description" content="Self-hosted vs model API vs rented GPU, sized from your user count and the model you serve — size, context, attention architecture and quantization — priced from cited feeds with exact decimal math.">
 <meta property="og:url" content="https://studio.factor-io.com/tco-calculator.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AI Inference TCO Calculator | Factor IO">
@@ -19,107 +19,136 @@
 
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  :root { color-scheme:dark; --accent:#B46EFF; --cyan:#22D3EE; --warn:#F59E0B; --bad:#F87171; --ok:#34D399; }
-  body { background:#0A0A0F; color:#E8E6F0; font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
-  .wrap { max-width:960px; margin:0 auto; padding:48px 28px 96px; }
-  .top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:44px; font-size:13.5px; }
-  .brand { letter-spacing:.08em; font-weight:600; }
-  .brand em { font-style:normal; color:var(--cyan); }
-  .back { color:rgba(232,230,240,.5); text-decoration:none; }
-  .back:hover { color:var(--cyan); }
-  .eyebrow { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
-  h1 { font-size:clamp(30px,5vw,44px); line-height:1.12; letter-spacing:-.025em; font-weight:650; margin-bottom:18px; text-wrap:balance; }
-  .lede { font-size:clamp(16px,2vw,18px); line-height:1.65; color:rgba(232,230,240,.72); margin-bottom:26px; text-wrap:pretty; }
-  .snav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:36px; }
-  .snav a { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; color:rgba(232,230,240,.6); text-decoration:none; border:1px solid rgba(232,230,240,.14); border-radius:999px; padding:6px 13px; }
-  .snav a:hover { color:var(--cyan); border-color:var(--cyan); }
-  .kicker { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:rgba(232,230,240,.4); margin:52px 0 14px; }
-  .kicker b { color:var(--cyan); font-weight:400; }
-  h2 { font-size:24px; letter-spacing:-.015em; font-weight:600; margin-bottom:14px; text-wrap:balance; }
-  p { color:rgba(232,230,240,.72); margin-bottom:14px; text-wrap:pretty; }
-  strong { color:#E8E6F0; font-weight:600; }
+  :root {
+    color-scheme:dark;
+    --accent:#B46EFF; --cyan:#22D3EE; --warn:#F59E0B; --bad:#F87171; --ok:#34D399;
+    --bg:#0A0A0F; --panel:rgba(27,27,32,.5); --line:rgba(232,230,240,.1);
+    --ink:#E8E6F0; --dim:rgba(232,230,240,.6); --faint:rgba(232,230,240,.42);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  html, body { height:100%; }
+  body {
+    background:var(--bg); color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
   a { color:var(--cyan); text-decoration:none; }
   a:hover { text-decoration:underline; }
-  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em; background:rgba(232,230,240,.07); padding:2px 6px; border-radius:3px; color:#E8E6F0; }
-  .card { border:1px solid rgba(232,230,240,.1); border-radius:4px; background:rgba(27,27,32,.45); padding:22px 24px; margin-bottom:16px; }
-  .card h3 { margin-top:0; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
-  label { display:block; font-size:13px; color:rgba(232,230,240,.6); margin-bottom:5px; }
-  label .req { color:var(--accent); }
-  input[type=text], input[type=number], select {
-    width:100%; background:rgba(10,10,15,.7); color:#E8E6F0; border:1px solid rgba(232,230,240,.18); border-radius:4px;
-    padding:9px 11px; font:14px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  code { font-family:var(--mono); font-size:.88em; background:rgba(232,230,240,.07); padding:1px 5px; border-radius:3px; }
+  strong { color:var(--ink); font-weight:600; }
+
+  /* ── app shell: two independently scrolling columns ───────────────── */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:11px 20px; border-bottom:1px solid var(--line);
+    font-size:13px; position:sticky; top:0; background:var(--bg); z-index:20;
+  }
+  .brand { letter-spacing:.08em; font-weight:600; font-size:13.5px; }
+  .brand em { font-style:normal; color:var(--cyan); }
+  .topbar .lede { color:var(--faint); font-size:12.5px; }
+  .topbar a { color:var(--faint); }
+  .topbar a:hover { color:var(--cyan); }
+
+  .shell { display:grid; grid-template-columns:400px minmax(0,1fr); align-items:start; }
+  .rail {
+    position:sticky; top:47px; height:calc(100vh - 47px); overflow-y:auto;
+    border-right:1px solid var(--line); padding:16px 18px 60px;
+  }
+  .out { min-width:0; padding:16px 22px 80px; }
+  @media (max-width:1100px) {
+    .shell { grid-template-columns:1fr; }
+    .rail { position:static; height:auto; border-right:none; border-bottom:1px solid var(--line); }
+  }
+
+  /* ── rail sections ────────────────────────────────────────────────── */
+  .sec { margin-bottom:18px; }
+  .sec > h2 {
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:3px; font-weight:500;
+  }
+  .sec > .hint { font-size:12px; line-height:1.45; color:var(--faint); margin-bottom:9px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+  .row.one { grid-template-columns:1fr; }
+  .row.three { grid-template-columns:1fr 1fr 1fr; }
+  .f label { display:block; font-size:11.5px; color:var(--dim); margin-bottom:3px; line-height:1.3; }
+  .f .sub { display:block; font-size:10.5px; color:var(--faint); margin-top:3px; line-height:1.35; }
+  input[type=text], select {
+    width:100%; background:rgba(10,10,15,.75); color:var(--ink);
+    border:1px solid rgba(232,230,240,.16); border-radius:4px;
+    padding:6px 8px; font:13px/1.35 var(--mono);
   }
   input:focus, select:focus { outline:none; border-color:var(--cyan); }
-  .btn { display:inline-block; padding:11px 20px; border-radius:4px; font-size:14.5px; font-weight:500; cursor:pointer; border:1px solid; background:transparent; color:#E8E6F0; text-decoration:none; }
+  select { cursor:pointer; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
+  .chip {
+    font:11.5px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
+    border:1px solid rgba(232,230,240,.16); border-radius:999px; padding:6px 10px;
+  }
+  .chip:hover { border-color:rgba(180,110,255,.55); color:var(--ink); }
+  .chip[aria-checked="true"] { border-color:var(--accent); background:rgba(180,110,255,.14); color:var(--ink); }
+  .btn {
+    display:inline-block; padding:7px 13px; border-radius:4px; font-size:12.5px; font-weight:500;
+    cursor:pointer; border:1px solid rgba(232,230,240,.2); background:transparent; color:var(--ink);
+  }
+  .btn:hover { border-color:var(--cyan); }
   .btn-p { background:var(--accent); border-color:var(--accent); color:#0A0A0F; }
-  .btn-p:hover { box-shadow:0 8px 26px rgba(180,110,255,.28); }
-  .btn-s:hover { border-color:var(--cyan); color:#fff; }
-  .banner { border:1px solid var(--warn); background:rgba(245,158,11,.08); color:#FCD34D; border-radius:4px; padding:12px 16px; margin-bottom:16px; font-size:14.5px; display:none; }
-  .banner.show { display:block; }
-  .gap { border:1px dashed var(--bad); background:rgba(248,113,113,.06); color:#FCA5A5; border-radius:4px; padding:12px 16px; margin:10px 0; font-size:14px; }
-  .num { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#E8E6F0; }
-  .src { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; cursor:pointer; border-bottom:1px dotted var(--cyan); }
-  .src:hover { color:var(--cyan); }
-  .tag { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:11px; border-radius:3px; padding:1px 6px; margin-left:6px; vertical-align:1px; }
+  /* An author `display` beats the UA sheet's [hidden] rule, so .btn elements
+     stayed visible after el.hidden = true. Global, so it cannot regress again. */
+  [hidden] { display:none !important; }
+
+  details.adv { margin-top:9px; }
+  details.adv > summary {
+    cursor:pointer; list-style:none; font:10.5px/1 var(--mono); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--faint); padding:5px 0; -webkit-user-select:none; user-select:none;
+  }
+  details.adv > summary::-webkit-details-marker { display:none; }
+  details.adv > summary::before { content:"+ "; color:var(--accent); }
+  details.adv[open] > summary::before { content:"\2212 "; }
+  details.adv > summary:hover { color:var(--ink); }
+  details.adv > *:not(summary) { margin-top:7px; }
+
+  /* ── output ───────────────────────────────────────────────────────── */
+  .card { border:1px solid var(--line); border-radius:5px; background:var(--panel); padding:15px 17px; margin-bottom:12px; }
+  .card > h3 { font-size:14px; font-weight:600; margin-bottom:9px; letter-spacing:-.005em; }
+  .card p { color:var(--dim); font-size:12.5px; line-height:1.55; }
+  .muted { color:var(--faint); font-size:12px; line-height:1.5; }
+
+  .verdict { display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:10px; margin-bottom:12px; }
+  .vcard { border:1px solid var(--line); border-radius:5px; background:var(--panel); padding:13px 15px; }
+  .vcard.best { border-color:var(--accent); background:rgba(180,110,255,.09); }
+  .vcard h4 { font-size:11.5px; font-weight:500; color:var(--dim); margin-bottom:5px; letter-spacing:.02em; }
+  .vcard .n { font:20px/1.2 var(--mono); color:var(--ink); }
+  .vcard .s { font-size:11px; color:var(--faint); margin-top:4px; line-height:1.4; }
+
+  .kpi { display:grid; grid-template-columns:repeat(auto-fit,minmax(126px,1fr)); gap:11px; }
+  .kpi > div { min-width:0; }
+  .kpi label { display:block; font-size:11px; color:var(--faint); margin-bottom:2px; }
+  .kpi .v { font:15px/1.3 var(--mono); color:var(--ink); overflow-wrap:anywhere; }
+
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  .scroll { overflow-x:auto; }
+  th, td { text-align:left; padding:6px 9px; border-bottom:1px solid rgba(232,230,240,.08); color:var(--dim); vertical-align:top; }
+  th { color:var(--ink); font-weight:600; font-size:11.5px; letter-spacing:.02em; white-space:nowrap; }
+  td.n, th.n { text-align:right; font-family:var(--mono); white-space:nowrap; }
+
+  .tag { font-family:var(--mono); font-size:10px; border-radius:3px; padding:1px 5px; margin-left:5px; vertical-align:1px; white-space:nowrap; }
   .tag-exact { color:var(--ok); border:1px solid var(--ok); }
   .tag-est { color:var(--warn); border:1px solid var(--warn); }
-  .tag-unknown { color:rgba(232,230,240,.55); border:1px solid rgba(232,230,240,.3); }
-  table { border-collapse:collapse; width:100%; font-size:14px; margin-bottom:14px; }
-  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid rgba(232,230,240,.09); vertical-align:top; color:rgba(232,230,240,.72); }
-  th { color:#E8E6F0; font-weight:600; font-size:12.5px; letter-spacing:.03em; }
-  td.n, th.n { text-align:right; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-  .pop { position:absolute; z-index:30; max-width:340px; background:#15151C; border:1px solid var(--cyan); border-radius:4px; padding:14px 16px; font-size:13px; color:rgba(232,230,240,.8); display:none; }
+  .tag-unknown { color:var(--faint); border:1px solid rgba(232,230,240,.3); }
+  .src { font-family:var(--mono); cursor:pointer; border-bottom:1px dotted var(--cyan); }
+  .src:hover { color:var(--cyan); }
+
+  .banner { border:1px solid var(--warn); background:rgba(245,158,11,.08); color:#FCD34D; border-radius:4px; padding:9px 13px; margin-bottom:11px; font-size:12.5px; display:none; }
+  .banner.show { display:block; }
+  .gap { border:1px dashed var(--bad); background:rgba(248,113,113,.06); color:#FCA5A5; border-radius:4px; padding:9px 13px; margin:8px 0; font-size:12.5px; line-height:1.5; }
+  .ok-line { color:var(--ok); }
+
+  .pop { position:absolute; z-index:40; max-width:360px; background:#15151C; border:1px solid var(--cyan); border-radius:4px; padding:12px 14px; font-size:12px; color:rgba(232,230,240,.82); display:none; }
   .pop.show { display:block; }
-  .pop h4 { font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--cyan); margin-bottom:8px; }
-  .pop dl div { display:flex; gap:8px; justify-content:space-between; margin-bottom:4px; }
-  .pop dt { color:rgba(232,230,240,.5); }
-  .pop dd { text-align:right; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-  .foot { margin-top:72px; padding-top:24px; border-top:1px solid rgba(232,230,240,.08); font-size:13px; color:rgba(232,230,240,.4); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-  .foot a { color:rgba(232,230,240,.4); }
-  .foot a:hover { color:var(--cyan); }
-  .muted { color:rgba(232,230,240,.45); font-size:13px; }
-  svg.curve { width:100%; height:220px; }
-  /* ── disclosure ────────────────────────────────────────────────── */
-  details.disclose { margin:14px 0 0; }
-  details.disclose > summary {
-    cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:9px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:11px; letter-spacing:.16em;
-    text-transform:uppercase; color:rgba(232,230,240,.45); border:1px solid rgba(232,230,240,.14);
-    border-radius:999px; padding:7px 15px; transition:color 160ms,border-color 160ms,background 160ms;
-    -webkit-user-select:none; user-select:none;
-  }
-  details.disclose > summary::-webkit-details-marker { display:none; }
-  details.disclose > summary::after { content:"+"; font-size:13px; line-height:1; color:var(--accent); }
-  details.disclose[open] > summary::after { content:"\2212"; }
-  details.disclose > summary:hover { color:#E8E6F0; border-color:rgba(180,110,255,.5); background:rgba(180,110,255,.08); }
-  details.disclose > summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
-  details.disclose > *:not(summary) { margin-top:14px; }
-  details.adv { margin:34px 0 0; }
-  details.adv > summary { font-size:12px; letter-spacing:.2em; padding:9px 18px; }
-
-  /* ── level 0: preset cards ─────────────────────────────────────── */
-  .presets { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
-  .preset {
-    text-align:left; cursor:pointer; background:rgba(27,27,32,.45); color:#E8E6F0;
-    border:1px solid rgba(232,230,240,.12); border-radius:5px; padding:18px 19px;
-    display:flex; flex-direction:column; gap:7px; font:inherit;
-    transition:border-color 160ms,background 160ms,transform 160ms;
-  }
-  .preset:hover { border-color:rgba(180,110,255,.45); background:rgba(31,31,37,.62); transform:translateY(-1px); }
-  .preset:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  .preset[aria-checked="true"] { border-color:var(--accent); background:rgba(180,110,255,.1); }
-  .preset .p-name { font-size:16px; font-weight:600; letter-spacing:-.01em; }
-  .preset .p-vol { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; color:var(--cyan); }
-  .preset .p-sum { font-size:13px; line-height:1.5; color:rgba(232,230,240,.55); }
-
-  /* ── level 1: lane cards ───────────────────────────────────────── */
-  .lanes { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
-  .lane { border:1px solid rgba(232,230,240,.1); border-radius:5px; background:rgba(27,27,32,.45); padding:20px 22px; }
-  .lane-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .lane-h h3 { font-size:15.5px; margin:0; font-weight:600; }
-  .lane-n { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:17px; color:#E8E6F0; white-space:nowrap; }
-  .lane .grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+  .pop h4 { font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--cyan); margin-bottom:7px; }
+  svg.curve { width:100%; height:190px; }
+  .foot { margin-top:26px; padding-top:14px; border-top:1px solid rgba(232,230,240,.08); font-size:11.5px; color:var(--faint); }
 </style>
 
 <script type="application/ld+json">
@@ -131,7 +160,7 @@
   "applicationCategory": "BusinessApplication",
   "applicationSubCategory": "Decision support calculator",
   "operatingSystem": "Web",
-  "description": "Decision-support calculator comparing owned inference hardware, cloud model APIs and rented GPU nodes over a stated workload. Emits TCO curves, cost per 1M tokens, breakeven utilization and evidence-gated throughput verdicts, with decimal-exact arithmetic and provenance on every number.",
+  "description": "Decision-support calculator comparing owned inference hardware, cloud model APIs and rented GPU nodes over a stated workload. Sizes the fleet from the model actually served — parameter count, context length, attention architecture and quantization — using a memory-bandwidth roofline, and emits TCO curves, cost per 1M tokens, breakeven utilization and evidence-gated throughput verdicts with decimal-exact arithmetic and provenance on every number.",
   "url": "https://studio.factor-io.com/tco-calculator.html",
   "isAccessibleForFree": true,
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -141,221 +170,315 @@
 </script>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="top">
-    <span class="brand">FACTOR&#8202;<em>I&#8202;O</em></span>
-    <a class="back" href="./">&#8592; Back to the studio</a>
-  </div>
-
-  <div class="eyebrow">Decision support &middot; pricing data cited per source</div>
-  <h1>What should this inference workload actually cost?</h1>
-  <p class="lede">Enter how many people use it. Get the monthly cost of each option, the peak rate you have to serve, and the month self-hosting pays back.</p>
-
-  <div id="banner" class="banner" role="alert"></div>
-  <div id="gapbox"></div>
-
-  <!-- ─────────────────────────── 01 PRESET ─────────────────────────── -->
-  <div class="kicker"><b>01</b> / Starting point</div>
-  <h2>Pick a shape, then change any number</h2>
-  <div id="preset-cards" class="presets" role="radiogroup" aria-label="workload preset">
-    <p class="muted">Loading presets&hellip;</p>
-  </div>
-  <p class="muted" id="preset-note" style="margin:14px 0 0"></p>
-
-  <!-- ─────────────────────────── 02 DEMAND ─────────────────────────── -->
-  <div class="kicker"><b>02</b> / Demand</div>
-  <h2>Who uses it, and how often</h2>
-
-  <div class="card">
-    <div class="grid">
-      <div><label for="f-users">Users <span class="req">*</span></label><input id="f-users" type="text" inputmode="numeric" value="500"></div>
-      <div><label for="f-sessions-day">Sessions / user / day</label><input id="f-sessions-day" type="text" inputmode="decimal" value="2"></div>
-      <div><label for="f-days">Working days / month</label><input id="f-days" type="text" inputmode="numeric" value="21"></div>
-      <div><label for="f-horizon">Horizon (months)</label><input id="f-horizon" type="text" inputmode="numeric" value="36"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="lane-h" style="margin-bottom:10px">
-      <h3 style="font-size:15.5px">Workload mix</h3>
-      <span class="lane-n" id="mix-sum">&mdash;</span>
-    </div>
-    <p class="muted" style="margin-bottom:14px">
-      Shares must add to exactly <code>1</code>. A mix that does not is <strong>refused, not rescaled</strong> &mdash;
-      silently normalising a mistyped share would change the answer with nothing on screen to show it.
-    </p>
-    <div class="grid">
-      <div><label for="f-mix-chat">Chat</label><input id="f-mix-chat" type="text" inputmode="decimal" value="0.7"></div>
-      <div><label for="f-mix-rag">RAG</label><input id="f-mix-rag" type="text" inputmode="decimal" value="0.3"></div>
-      <div><label for="f-mix-graphrag">Graph RAG</label><input id="f-mix-graphrag" type="text" inputmode="decimal" value="0"></div>
-      <div><label for="f-mix-agentic">Agentic</label><input id="f-mix-agentic" type="text" inputmode="decimal" value="0"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="font-size:15.5px; margin-bottom:10px">Serving speed</h3>
-    <p class="muted" style="margin-bottom:14px">
-      Sizing binds on the <strong>peak second</strong>, not the monthly total: the same volume is comfortable
-      spread evenly and unservable at a 9am peak.
-    </p>
-    <div class="grid">
-      <div><label for="f-peak-frac">Peak concurrency (fraction of users)</label><input id="f-peak-frac" type="text" inputmode="decimal" value="0.05"></div>
-      <div><label for="f-tps-stream">Tokens/s per stream</label><input id="f-tps-stream" type="text" inputmode="numeric" value="30"></div>
-    </div>
-  </div>
-
-  <div id="derived" class="card" aria-live="polite">
-    <p class="muted">Derived demand appears here as you type.</p>
-  </div>
-
-  <div style="margin-top:26px">
-    <button id="run" class="btn btn-p">Calculate &#8594;</button>
-    <span class="muted" style="margin-left:10px">Nothing is sent anywhere &mdash; this runs in the page.</span>
-  </div>
-
-  <!-- ─────────────────────────── 03 OPTIONS ─────────────────────────── -->
-  <div class="kicker"><b>03</b> / Options</div>
-  <h2>Three ways to serve that demand</h2>
-  <div class="lanes">
-
-    <div class="lane">
-      <div class="lane-h"><h3>Self-hosted</h3><span class="lane-n" id="opt-self-total">&mdash;</span></div>
-      <div class="grid" style="margin-top:14px">
-        <div><label for="f-sh-gpu">Accelerator</label><select id="f-sh-gpu"></select></div>
-        <div><label for="f-sh-count">GPUs <span class="muted" id="f-sh-count-hint"></span></label><input id="f-sh-count" type="text" inputmode="numeric" placeholder="derived from peak"></div>
-        <div><label for="f-sh-tps-gpu">Tokens/s per GPU <span class="tag tag-est">assumed</span></label><input id="f-sh-tps-gpu" type="text" inputmode="numeric" placeholder="from table"></div>
-        <div><label for="f-sh-capex">Capex ($ one-time)</label><input id="f-sh-capex" type="text" inputmode="decimal" value="0"></div>
-        <div><label for="f-sh-fixed">Fixed opex ($ / month)</label><input id="f-sh-fixed" type="text" inputmode="decimal" value="10000"></div>
-        <div><label for="f-sh-budget">Monthly token budget</label><input id="f-sh-budget" type="text" inputmode="numeric" placeholder="derived from capacity"></div>
-      </div>
-      <p class="muted" id="f-sh-note" style="margin:10px 0 0"></p>
-    </div>
-
-    <div class="lane">
-      <div class="lane-h"><h3>Model API</h3><span class="lane-n" id="opt-api-total">&mdash;</span></div>
-      <div class="grid" style="margin-top:14px">
-        <div><label for="fb-feed">Price feed</label><select id="fb-feed"><option value="litellm">LiteLLM cost map</option><option value="openrouter">OpenRouter</option></select></div>
-        <div><label for="fb-model">Model</label><select id="fb-model"><option value="">loading snapshot&hellip;</option></select></div>
-      </div>
-      <p class="muted" id="fb-model-note" style="margin:10px 0 0"></p>
-    </div>
-
-    <div class="lane">
-      <div class="lane-h"><h3>Rented GPU</h3><span class="lane-n" id="opt-rent-total">&mdash;</span></div>
-      <div class="grid" style="margin-top:14px">
-        <div><label for="f-rent-provider">Provider</label><select id="f-rent-provider"></select></div>
-        <div><label for="f-rent-gpu">Accelerator</label><select id="f-rent-gpu"></select></div>
-        <div><label for="f-rent-util">Utilization (0&ndash;1)</label><input id="f-rent-util" type="text" inputmode="decimal" value="0.7"></div>
-      </div>
-      <p class="muted" id="f-rent-note" style="margin:10px 0 0"></p>
-    </div>
-
-  </div>
-
-  <!-- ─────────────────────────── 04 RESULTS ─────────────────────────── -->
-  <div class="kicker"><b>04</b> / Results</div>
-  <h2>The comparison, with its receipts</h2>
-  <div id="results"><p class="muted">Set the demand above and press Calculate.</p></div>
-
-  <!-- ─────────────────────────── ADVANCED ─────────────────────────── -->
-  <details class="disclose adv" id="level2">
-    <summary>Advanced</summary>
-
-    <div class="card" style="margin-top:16px">
-      <h3 style="margin-bottom:8px">Token shape per turn</h3>
-      <p class="muted" style="margin-bottom:14px">
-        RAG and Agentic differ by roughly an order of magnitude per turn, which is why each workload
-        carries its own shape instead of one blended average. Cached input is tracked separately because
-        it is tariffed separately.
-      </p>
-      <table>
-        <thead><tr><th>Workload</th><th class="n">Turns / session</th><th class="n">Input</th><th class="n">Output</th><th class="n">Cached input</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>Chat</td>
-            <td class="n"><input id="f-chat-turns" type="text" inputmode="numeric" value="6"></td>
-            <td class="n"><input id="f-chat-in" type="text" inputmode="numeric" value="300"></td>
-            <td class="n"><input id="f-chat-out" type="text" inputmode="numeric" value="250"></td>
-            <td class="n"><input id="f-chat-cached" type="text" inputmode="numeric" value="0"></td>
-          </tr>
-          <tr>
-            <td>RAG</td>
-            <td class="n"><input id="f-rag-turns" type="text" inputmode="numeric" value="5"></td>
-            <td class="n"><input id="f-rag-in" type="text" inputmode="numeric" value="3000"></td>
-            <td class="n"><input id="f-rag-out" type="text" inputmode="numeric" value="400"></td>
-            <td class="n"><input id="f-rag-cached" type="text" inputmode="numeric" value="1000"></td>
-          </tr>
-          <tr>
-            <td>Graph RAG</td>
-            <td class="n"><input id="f-graphrag-turns" type="text" inputmode="numeric" value="4"></td>
-            <td class="n"><input id="f-graphrag-in" type="text" inputmode="numeric" value="6000"></td>
-            <td class="n"><input id="f-graphrag-out" type="text" inputmode="numeric" value="500"></td>
-            <td class="n"><input id="f-graphrag-cached" type="text" inputmode="numeric" value="2000"></td>
-          </tr>
-          <tr>
-            <td>Agentic</td>
-            <td class="n"><input id="f-agentic-turns" type="text" inputmode="numeric" value="12"></td>
-            <td class="n"><input id="f-agentic-in" type="text" inputmode="numeric" value="9000"></td>
-            <td class="n"><input id="f-agentic-out" type="text" inputmode="numeric" value="1200"></td>
-            <td class="n"><input id="f-agentic-cached" type="text" inputmode="numeric" value="4000"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:12px">Service level &amp; pricing instant</h3>
-      <div class="grid">
-        <div><label for="f-p95">Required p95 tok/s (SLO)</label><input id="f-p95" type="text" inputmode="numeric" placeholder="leave empty if none"></div>
-        <div><label for="f-utc">Price as of</label><select id="f-utc"></select></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:12px">Routing policy</h3>
-      <div class="grid">
-        <div><label for="fr-policy">Policy</label>
-          <select id="fr-policy">
-            <option value="local_first">local_first &mdash; derived split</option>
-            <option value="api_first">api_first + failover</option>
-            <option value="fixed_split">fixed_split (contractual)</option>
-          </select>
-        </div>
-        <div><label for="fr-blend">Split traffic: % self-hosted</label><input id="fr-blend" type="text" inputmode="numeric" value="70"></div>
-        <div><label for="fr-failshare">Failover share (fraction)</label><input id="fr-failshare" type="text" inputmode="decimal" value="0"></div>
-        <div><label for="fr-failrate">Failover rate multiplier</label><input id="fr-failrate" type="text" inputmode="decimal" value="2"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:10px">Commercial overlay (operator-entered)</h3>
-      <div class="grid">
-        <div><label for="fo-license">Licensing ($ / month)</label><input id="fo-license" type="text" inputmode="decimal" value="0"></div>
-        <div><label for="fo-consult">Consulting ($ / month)</label><input id="fo-consult" type="text" inputmode="decimal" value="0"></div>
-        <div><label for="fo-impl">Implementation ($ one-time)</label><input id="fo-impl" type="text" inputmode="decimal" value="0"></div>
-        <div><label for="fo-loaded">Mode</label><select id="fo-loaded"><option value="infra">infra-only per 1M</option><option value="loaded">fully-loaded per 1M</option></select></div>
-      </div>
-      <p class="muted" style="margin:10px 0 0">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices. The overlay is itemized last.</p>
-    </div>
-  </details>
-
-  <!-- ────────────────────── SENSITIVITY & PROVENANCE ────────────────────── -->
-  <div class="kicker"><b>05</b> / Sensitivity &amp; provenance</div>
-  <h2>How the numbers move, and where they came from</h2>
-  <div id="sensitivity"><p class="muted">Sensitivity over demand and price appears after a run.</p></div>
-
-  <div class="foot">
-    <span>&copy; 2026 Factor I O Co., Ltd. &mdash; prices cited per source, snapshot in <code>tco-calculator/data/</code></span>
-    <span>
-      <a href="./">Studio</a> &middot;
-      <a href="privacy.html">Privacy</a> &middot;
-      <a href="docs/tco-calculator/SPEC.md">Spec</a>
-    </span>
-  </div>
-
-  <div id="pop" class="pop" role="dialog" aria-label="provenance"></div>
-  <script type="module" src="tco-calculator/app.js"></script>
+<div class="topbar">
+  <span class="brand">FACTOR&#8202;<em>I&#8202;O</em></span>
+  <span class="lede">Everything on one screen &middot; nothing leaves the page</span>
+  <a href="./">&#8592; Studio</a>
 </div>
+
+<div class="shell">
+
+  <!-- ══════════════════════ INPUTS ══════════════════════ -->
+  <aside class="rail">
+
+    <div class="sec">
+      <h2>Start here</h2>
+      <p class="hint">Pick the closest shape, then change anything. Every field below stays editable.</p>
+      <div id="preset-cards" class="chips" role="radiogroup" aria-label="workload preset"></div>
+      <p class="muted" id="preset-note"></p>
+    </div>
+
+    <div class="sec">
+      <h2>Who uses it</h2>
+      <p class="hint">How many people, and how often they come back.</p>
+      <div class="row">
+        <div class="f"><label for="f-users">People using it</label><input id="f-users" type="text" inputmode="numeric" value="500"></div>
+        <div class="f"><label for="f-sessions-day">Sessions each, per day</label><input id="f-sessions-day" type="text" inputmode="decimal" value="2"></div>
+      </div>
+      <div class="row">
+        <div class="f"><label for="f-days">Working days / month</label><input id="f-days" type="text" inputmode="numeric" value="21"></div>
+        <div class="f"><label for="f-horizon">Compare over (months)</label><input id="f-horizon" type="text" inputmode="numeric" value="36"></div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-peak-frac">Busiest moment</label>
+          <input id="f-peak-frac" type="text" inputmode="decimal" value="0.05">
+          <span class="sub">Share of people typing at once. 0.05 = 1 in 20.</span>
+        </div>
+        <div class="f">
+          <label for="f-tps-stream">Reading speed (tok/s)</label>
+          <input id="f-tps-stream" type="text" inputmode="numeric" value="30">
+          <span class="sub">Below ~20 an answer feels slow. This also sets how many requests one GPU can take at once.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>What they do <span id="mix-sum"></span></h2>
+      <p class="hint">Shares of traffic. They must add to exactly 1 &mdash; a mix that doesn't is refused, never quietly rescaled.</p>
+      <div class="row">
+        <div class="f"><label for="f-mix-chat">Chat</label><input id="f-mix-chat" type="text" inputmode="decimal" value="0.7"></div>
+        <div class="f"><label for="f-mix-rag">RAG</label><input id="f-mix-rag" type="text" inputmode="decimal" value="0.3"></div>
+      </div>
+      <div class="row">
+        <div class="f"><label for="f-mix-graphrag">Graph RAG</label><input id="f-mix-graphrag" type="text" inputmode="decimal" value="0"></div>
+        <div class="f"><label for="f-mix-agentic">Agentic</label><input id="f-mix-agentic" type="text" inputmode="decimal" value="0"></div>
+      </div>
+      <button class="btn" id="mix-balance" type="button">Put the remainder in Chat</button>
+
+      <details class="adv">
+        <summary>Tokens per turn</summary>
+        <div class="scroll">
+        <table>
+          <thead><tr><th>Workload</th><th class="n">Turns</th><th class="n">In</th><th class="n">Out</th><th class="n">Cached</th></tr></thead>
+          <tbody>
+            <tr><td>Chat</td>
+              <td class="n"><input id="f-chat-turns" type="text" inputmode="numeric" value="6"></td>
+              <td class="n"><input id="f-chat-in" type="text" inputmode="numeric" value="300"></td>
+              <td class="n"><input id="f-chat-out" type="text" inputmode="numeric" value="250"></td>
+              <td class="n"><input id="f-chat-cached" type="text" inputmode="numeric" value="0"></td></tr>
+            <tr><td>RAG</td>
+              <td class="n"><input id="f-rag-turns" type="text" inputmode="numeric" value="5"></td>
+              <td class="n"><input id="f-rag-in" type="text" inputmode="numeric" value="3000"></td>
+              <td class="n"><input id="f-rag-out" type="text" inputmode="numeric" value="400"></td>
+              <td class="n"><input id="f-rag-cached" type="text" inputmode="numeric" value="1000"></td></tr>
+            <tr><td>Graph RAG</td>
+              <td class="n"><input id="f-graphrag-turns" type="text" inputmode="numeric" value="4"></td>
+              <td class="n"><input id="f-graphrag-in" type="text" inputmode="numeric" value="6000"></td>
+              <td class="n"><input id="f-graphrag-out" type="text" inputmode="numeric" value="500"></td>
+              <td class="n"><input id="f-graphrag-cached" type="text" inputmode="numeric" value="2000"></td></tr>
+            <tr><td>Agentic</td>
+              <td class="n"><input id="f-agentic-turns" type="text" inputmode="numeric" value="12"></td>
+              <td class="n"><input id="f-agentic-in" type="text" inputmode="numeric" value="9000"></td>
+              <td class="n"><input id="f-agentic-out" type="text" inputmode="numeric" value="1200"></td>
+              <td class="n"><input id="f-agentic-cached" type="text" inputmode="numeric" value="4000"></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </details>
+    </div>
+
+    <!-- ─────────── the model being served (v0.3) ─────────── -->
+    <div class="sec">
+      <h2>The model you'd run</h2>
+      <p class="hint">This is what decides how many GPUs you need. A big model, a long context or full attention can change the answer by more than 10&times;.</p>
+
+      <div class="row one">
+        <div class="f">
+          <label for="f-sv-model">Model</label>
+          <select id="f-sv-model"></select>
+          <span class="sub">Pick the closest match. Every field below fills in from it and stays editable.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-sv-params">Size (billion params)</label>
+          <input id="f-sv-params" type="text" inputmode="decimal">
+          <span class="sub">What must sit in memory.</span>
+        </div>
+        <div class="f">
+          <label for="f-sv-active">Active (billion)</label>
+          <input id="f-sv-active" type="text" inputmode="decimal">
+          <span class="sub">What gets read per token. Same as size unless it's a mixture-of-experts.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-sv-ctx">Context (tokens)</label>
+          <input id="f-sv-ctx" type="text" inputmode="numeric">
+          <span class="sub">How much history each request carries.</span>
+        </div>
+        <div class="f">
+          <label for="f-sv-wquant">Weight precision</label>
+          <select id="f-sv-wquant"></select>
+          <span class="sub">Smaller = less memory, more speed.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-sv-runtime">Serving stack</label>
+          <select id="f-sv-runtime"></select>
+          <span class="sub">vLLM or SGLang if you're unsure. This only sets how much of the card's bandwidth you actually get.</span>
+        </div>
+        <div class="f">
+          <label for="f-sv-mode">Serving mode</label>
+          <select id="f-sv-mode">
+            <option value="interactive">Interactive — hold the speed</option>
+            <option value="batch">Batch — maximise throughput</option>
+          </select>
+          <span class="sub">Interactive keeps every answer above your reading speed. Batch packs in more requests and accepts slower ones.</span>
+        </div>
+      </div>
+      <p class="muted" id="sv-note"></p>
+
+      <details class="adv">
+        <summary>Architecture detail</summary>
+        <div class="row">
+          <div class="f">
+            <label for="f-sv-kvquant">KV cache precision</label>
+            <select id="f-sv-kvquant"></select>
+            <span class="sub">Halving this roughly doubles how many requests fit at the same context.</span>
+          </div>
+          <div class="f">
+            <label for="f-sv-maxbatch">Max concurrent requests</label>
+            <input id="f-sv-maxbatch" type="text" inputmode="numeric" placeholder="no cap">
+            <span class="sub">Leave blank unless your runtime caps it. Memory and speed already bound this.</span>
+          </div>
+        </div>
+        <div class="row one">
+          <div class="f">
+            <label for="f-sv-kvbytes">KV bytes per token <span class="tag tag-est">override</span></label>
+            <input id="f-sv-kvbytes" type="text" inputmode="numeric" placeholder="from the model's layer structure">
+            <span class="sub">The single number that decides how context costs you. Derived from the selected model's layers; enter your own from its <code>config.json</code> if you have it.</span>
+          </div>
+        </div>
+        <p class="muted" id="sv-arch-note"></p>
+      </details>
+    </div>
+
+    <div class="sec">
+      <h2>Hardware &amp; prices</h2>
+      <p class="hint">The card you'd buy, the provider you'd rent from, and the API you'd compare against.</p>
+      <div class="row one">
+        <div class="f">
+          <label for="f-sh-gpu">Accelerator (owned &amp; self-hosted)</label>
+          <select id="f-sh-gpu"></select>
+          <span class="sub">The card you'd buy. Its memory decides what fits; its bandwidth decides how fast.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-sh-count">GPUs <span class="muted" id="f-sh-count-hint"></span></label>
+          <input id="f-sh-count" type="text" inputmode="numeric" placeholder="derived">
+        </div>
+        <div class="f">
+          <label for="f-sh-tps-gpu">Measured tok/s per GPU</label>
+          <input id="f-sh-tps-gpu" type="text" inputmode="numeric" placeholder="modelled">
+          <span class="sub">Your own benchmark. Overrides the model above.</span>
+        </div>
+      </div>
+      <p class="muted" id="f-sh-note"></p>
+
+      <div class="row one" style="margin-top:9px">
+        <div class="f"><label for="f-rent-provider">Rent from</label><select id="f-rent-provider"></select></div>
+      </div>
+      <div class="row">
+        <div class="f"><label for="f-rent-gpu">Rented accelerator</label><select id="f-rent-gpu"></select></div>
+        <div class="f">
+          <label for="f-rent-util">Utilization (0&ndash;1)</label>
+          <input id="f-rent-util" type="text" inputmode="decimal" value="0.7">
+          <span class="sub">How busy you keep a rented card. 0.7 = idle 30% of the time and still paying.</span>
+        </div>
+      </div>
+      <p class="muted" id="f-rent-note"></p>
+
+      <div class="row" style="margin-top:9px">
+        <div class="f"><label for="fb-feed">Price feed</label><select id="fb-feed"><option value="litellm">LiteLLM cost map</option><option value="openrouter">OpenRouter</option></select></div>
+        <div class="f"><label for="fb-model">API model</label><select id="fb-model"><option value="">loading&hellip;</option></select></div>
+      </div>
+      <p class="muted" id="fb-model-note"></p>
+    </div>
+
+    <div class="sec">
+      <h2>Money</h2>
+      <p class="hint">What the owned option costs you outside the tokens.</p>
+      <div class="row">
+        <div class="f"><label for="f-sh-capex">Hardware, one-time ($)</label><input id="f-sh-capex" type="text" inputmode="decimal" value="0"></div>
+        <div class="f"><label for="f-sh-fixed">Running, per month ($)</label><input id="f-sh-fixed" type="text" inputmode="decimal" value="10000"></div>
+      </div>
+
+      <details class="adv">
+        <summary>Service level, routing &amp; overlay</summary>
+        <div class="row">
+          <div class="f"><label for="f-sh-budget">Monthly token budget</label><input id="f-sh-budget" type="text" inputmode="numeric" placeholder="derived from capacity"></div>
+          <div class="f">
+            <label for="f-p95">Required p95 tok/s</label>
+            <input id="f-p95" type="text" inputmode="numeric" placeholder="none">
+            <span class="sub">A speed 95% of requests must beat. Left empty, no feasibility claim is made.</span>
+          </div>
+        </div>
+        <div class="row one">
+          <div class="f">
+            <label for="f-utc">Price as of</label>
+            <select id="f-utc"></select>
+            <span class="sub">The instant prices are read at, declared rather than taken from the clock, so the same inputs always give the same quote.</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="f"><label for="fr-policy">Routing policy</label>
+            <select id="fr-policy">
+              <option value="local_first">Send to your own GPUs first</option>
+              <option value="api_first">Send to the API first, fall back to your GPUs</option>
+              <option value="fixed_split">Split by a fixed percentage</option>
+            </select>
+            <span class="sub">Which option handles a request when both could.</span>
+          </div>
+          <div class="f">
+            <label for="fr-blend">% self-hosted</label>
+            <input id="fr-blend" type="text" inputmode="numeric" value="70">
+            <span class="sub">Used only by the fixed split.</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="f">
+            <label for="fr-failshare">Failover share</label>
+            <input id="fr-failshare" type="text" inputmode="decimal" value="0">
+            <span class="sub">Share of traffic that spills to the fallback. 0 = none.</span>
+          </div>
+          <div class="f">
+            <label for="fr-failrate">Failover rate &times;</label>
+            <input id="fr-failrate" type="text" inputmode="decimal" value="2">
+            <span class="sub">How much dearer that spilled traffic is. 2 = twice the price.</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="f"><label for="fo-license">Licensing ($/mo)</label><input id="fo-license" type="text" inputmode="decimal" value="0"></div>
+          <div class="f"><label for="fo-consult">Consulting ($/mo)</label><input id="fo-consult" type="text" inputmode="decimal" value="0"></div>
+        </div>
+        <div class="row">
+          <div class="f">
+            <label for="fo-impl">Implementation ($)</label>
+            <input id="fo-impl" type="text" inputmode="decimal" value="0">
+            <span class="sub">One-time, like the hardware.</span>
+          </div>
+          <div class="f">
+            <label for="fo-loaded">Per-1M basis</label>
+            <select id="fo-loaded">
+              <option value="infra">Infrastructure only</option>
+              <option value="loaded">Include the costs above</option>
+            </select>
+            <span class="sub">Whether the per-million figure carries licensing and consulting too.</span>
+          </div>
+        </div>
+        <p class="muted">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices.</p>
+      </details>
+    </div>
+
+    <button id="run" class="btn btn-p" type="button">Recalculate</button>
+    <span class="muted" style="margin-left:8px">Updates as you type.</span>
+  </aside>
+
+  <!-- ══════════════════════ RESULTS ══════════════════════ -->
+  <main class="out">
+    <div id="banner" class="banner" role="alert"></div>
+    <div id="gapbox"></div>
+
+    <div id="verdict" class="verdict"></div>
+
+    <div id="fit"></div>
+    <div id="derived" class="card" aria-live="polite"></div>
+    <div id="results"></div>
+    <div id="sensitivity"></div>
+
+    <div class="foot">
+      &copy; 2026 Factor I O Co., Ltd. &mdash; prices cited per source, snapshot in <code>tco-calculator/data/</code> &middot;
+      <a href="./">Studio</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="docs/tco-calculator/SPEC.md">Spec</a>
+    </div>
+  </main>
+</div>
+
+<div id="pop" class="pop" role="dialog" aria-label="provenance"></div>
+<script type="module" src="tco-calculator/app.js"></script>
 </body>
 </html>

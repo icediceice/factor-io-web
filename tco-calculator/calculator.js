@@ -181,7 +181,14 @@ export function rentedGpuByProvider({ rows, utilization, servedTokens, sizeFor }
     // Money stays exact: the registry quotes a per-GPU decimal and a float
     // multiply by the fleet count would put binary dust in a dollar figure.
     const fleetHourly = Dec.from(String(row.gpu_hourly_usd)).mul(count);
-    const tokensS = Number(sized.capacity_tokens_s.text);
+    // laneCMonthly takes tokensS through BigInt, so it consumes a WHOLE number of
+    // tokens per second. The v0.2 constant always divided evenly and hid this; the
+    // v0.3 roofline returns a genuinely fractional capacity (e.g. 813.24 tok/s),
+    // which BigInt() rejects outright. Round ONCE here, at the boundary into the
+    // engine, exactly as buildScenario does for the self-hosted fleet. A capacity
+    // that rounds to zero falls through to the out_of_domain branch below and is
+    // reported as unpriceable rather than dividing by zero.
+    const tokensS = Math.round(Number(sized.capacity_tokens_s.text));
     const c = laneCMonthly({ hourlyRate: fleetHourly.toString(), tokensS, utilization, servedTokens });
     if (c.out_of_domain) { cannot(row, c.out_of_domain, "utilization or capacity is zero"); continue; }
 

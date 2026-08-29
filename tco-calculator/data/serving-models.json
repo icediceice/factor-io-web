@@ -1,0 +1,150 @@
+{
+  "schema": "factor-io.tco-serving-models/1.0.0",
+  "note": "Inputs for the serving roofline (SPEC v0.3 §6.6). Decode is memory-bandwidth bound, so what a GPU delivers is a FUNCTION of the model being served — size, context, attention architecture and quantization — not a constant per accelerator. This file supplies the three tables that function needs. It ships NO throughput figures: every tok/s the calculator prints is derived from the formula and labelled at the point of use, so there is no unlabelled benchmark hiding in a data file.",
+  "provenance": {
+    "observed": "2026-08-29",
+    "owner": "site author",
+    "re_verify_before": "2026-12-01"
+  },
+
+  "accelerator_note": "vram_gb is deliberately NOT duplicated here. It lives in gpu-pricing.json `gpus` and that stays the single source of truth — two copies of a capacity figure drift, and the copy that drifts is the one that silently mis-sizes a fleet. This file adds ONLY memory bandwidth, keyed by the same gpu_id.",
+  "accelerators": {
+    "b200":    { "bandwidth_gb_s": "8000", "basis": "cited", "note": "Blackwell HBM3e.", "source_url": "https://getdeploying.com/gpus/nvidia-b200-vs-nvidia-h100", "observed_at": "2026-08-29" },
+    "h200":    { "bandwidth_gb_s": "4800", "basis": "cited", "note": "Same GH100 silicon as H100; HBM3e raises bandwidth.", "source_url": "https://www.spheron.network/blog/nvidia-h200-vs-b200-vs-gb200/", "observed_at": "2026-08-29" },
+    "h100":    { "bandwidth_gb_s": "3350", "basis": "cited", "note": "SXM HBM3.", "source_url": "https://www.civo.com/blog/comparing-nvidia-b200-and-h100", "observed_at": "2026-08-29" },
+    "h20":     { "bandwidth_gb_s": "4000", "basis": "cited", "note": "China-export Hopper: MORE bandwidth than H100 with far less compute, which is why it reads well on a bandwidth-bound decode model and poorly on prefill.", "source_url": "https://flopper.io/gpu/nvidia-h20-96gb", "observed_at": "2026-08-29" },
+    "a100_80": { "bandwidth_gb_s": "2039", "basis": "cited", "note": "SXM4 80GB HBM2e.", "source_url": "https://www.itcreations.com/nvidia-gpu/nvidia-a100-sxm-gpu", "observed_at": "2026-08-29" },
+    "a800":    { "bandwidth_gb_s": "2039", "basis": "inferred", "note": "NOT independently cited. A800 is the export-compliant A100 80GB: the NVLink interconnect is capped, the HBM2e stack is unchanged, so per-GPU bandwidth is taken as equal to a100_80. The cap affects multi-GPU scaling, which this model already discounts separately. Re-verify against a vendor datasheet before any figure derived from this row is quoted.", "source_url": null, "observed_at": "2026-08-29" },
+    "a100_40": { "bandwidth_gb_s": "1555", "basis": "cited", "note": "SXM4 40GB HBM2.", "source_url": "https://www.itcreations.com/nvidia-gpu/nvidia-a100-sxm-gpu", "observed_at": "2026-08-29" },
+    "l40s":    { "bandwidth_gb_s": "864",  "basis": "cited", "note": "Ada, GDDR6 — no HBM, which is why it falls behind at long context despite competitive compute.", "source_url": "https://www.spheron.network/blog/l40s-vs-a100/", "observed_at": "2026-08-29" },
+    "a10g":    { "bandwidth_gb_s": "600",  "basis": "cited", "note": "AWS G5-exclusive 300W variant.", "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4", "observed_at": "2026-08-29" },
+    "a10":     { "bandwidth_gb_s": "600",  "basis": "cited", "note": "150W PCIe part sold by Azure and Alibaba. Same 24GB and same bandwidth as A10G; the parts differ in power and clocks.", "source_url": "https://gpuperhour.com/compare/a10-vs-a100-sxm-80gb", "observed_at": "2026-08-29" },
+    "l4":      { "bandwidth_gb_s": "300",  "basis": "cited", "note": "Half the bandwidth of A10G at the same 24GB.", "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4", "observed_at": "2026-08-29" }
+  },
+
+  "weight_quantization": {
+    "bf16": { "label": "BF16 / FP16 — full precision", "bytes_per_param": "2",   "basis": "exact", "note": "The reference point. Two bytes per parameter is definitional, not an estimate." },
+    "fp8":  { "label": "FP8",                          "bytes_per_param": "1",   "basis": "exact", "note": "Hopper and newer. Halves both the weight footprint and the bytes read per decode step." },
+    "int8": { "label": "INT8 (W8A8)",                  "bytes_per_param": "1",   "basis": "exact", "note": "Same byte count as FP8; available on Ampere, which has no FP8 tensor cores." },
+    "int4": { "label": "INT4 (AWQ / GPTQ)",            "bytes_per_param": "0.5", "basis": "exact", "note": "Quantized weights only. Real INT4 checkpoints carry unquantized embeddings, norms and scales, so the true footprint sits ABOVE this figure — the model understates INT4 VRAM and overstates INT4 throughput. Stated, not corrected: the correction factor is checkpoint-specific and inventing one would be worse than naming the bias." }
+  },
+
+  "kv_quantization": {
+    "bf16": { "label": "BF16 KV cache", "bytes_per_element": "2", "basis": "exact" },
+    "fp8":  { "label": "FP8 KV cache",  "bytes_per_element": "1", "basis": "exact", "note": "Halves KV bytes per token, which is the dominant term at long context." },
+    "int8": { "label": "INT8 KV cache", "bytes_per_element": "1", "basis": "exact" }
+  },
+
+  "runtimes": {
+    "vllm":     { "label": "vLLM",            "bandwidth_efficiency": "0.80", "basis": "assumed", "evidence_key": "vllm" },
+    "sglang":   { "label": "SGLang",          "bandwidth_efficiency": "0.80", "basis": "assumed", "evidence_key": "sglang" },
+    "trtllm":   { "label": "TensorRT-LLM",    "bandwidth_efficiency": "0.85", "basis": "assumed", "evidence_key": "trtllm" },
+    "llamacpp": { "label": "llama.cpp / GGUF","bandwidth_efficiency": "0.60", "basis": "assumed", "evidence_key": "llamacpp" }
+  },
+  "runtime_note": "[ASSUMED] — bandwidth_efficiency is the fraction of theoretical peak HBM bandwidth a decode step actually achieves. These are planning placeholders set by the site author on 2026-08-29, NOT measurements, and they are the single largest source of error in the derived throughput. They carry the assumed tag at every point of use and must never back a modelled_p95_capacity verdict (SPEC §6.5). Override with your own measurement.",
+
+  "tensor_parallel": {
+    "efficiency_per_extra_gpu": "0.92",
+    "basis": "assumed",
+    "note": "[ASSUMED] — each GPU past the first contributes this fraction of a full GPU's bandwidth, compounding, to stand in for collective-communication overhead. Real scaling depends on interconnect: NVLink/NVSwitch holds up far better than PCIe, and the A800's capped NVLink is exactly the case this flat factor does not capture. A planning shape, not a measurement."
+  },
+
+  "vram_overhead_fraction": {
+    "value": "0.10",
+    "basis": "assumed",
+    "note": "[ASSUMED] — fraction of VRAM reserved for activations, CUDA graphs, allocator fragmentation and the runtime's own buffers, i.e. not available for weights or KV cache. The cited KV figures are LOGICAL cache; measured serving memory runs higher, and this fraction is the only thing standing in for that gap."
+  },
+
+  "model_note": "Every preset below reproduces a PUBLISHED per-token KV figure from the cited source, which itself verified each against the model's config.json. `kv_bytes_per_token_bf16_expected` is that published value: the test suite asserts the engine's own layer-group arithmetic lands on it exactly, so a formula error cannot ship silently. Layer groups are the general form — one flat layer count cannot express a hybrid, and the four architectures below are precisely the cases where a flat count is wrong.",
+  "models": [
+    {
+      "id": "qwen3-8b",
+      "label": "Qwen3 8B — dense, full attention",
+      "family": "qwen3",
+      "architecture": "full",
+      "params_b": "8.2",
+      "active_params_b": "8.2",
+      "context_default": 32768,
+      "context_max": 32768,
+      "kv_bytes_per_token_bf16_expected": 147456,
+      "groups": [
+        { "kind": "full", "layers": 36, "kv_heads": 8, "head_dim": 128, "tensors": 2 }
+      ],
+      "note": "The baseline case: every layer grows the cache and retains the whole context, so KV scales linearly with context length and dominates VRAM past ~8k.",
+      "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "gemma-4-31b",
+      "label": "Gemma 4 31B — sliding-window (5:1 local:global)",
+      "family": "gemma",
+      "architecture": "sliding",
+      "params_b": "31",
+      "active_params_b": "31",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": 860160,
+      "groups": [
+        { "kind": "sliding", "layers": 50, "kv_heads": 16, "head_dim": 256, "tensors": 2, "window_tokens": 1024 },
+        { "kind": "full",    "layers": 10, "kv_heads": 4,  "head_dim": 512, "tensors": 1 }
+      ],
+      "note": "Sliding layers cost the SAME per stored token as full attention — what changes is retention: once the 1024-token window is full, an old entry leaves as a new one arrives, so those 50 layers stop growing while the 10 global layers keep scaling. The global layers use unified K=V, hence tensors:1 instead of 2. Window size 1024 is the large-model value from the Gemma 3 technical report (§2, 'a smaller span of only 1024 tokens to the local layers... 1 global for every 5 local'); small models use 512. params_b is read from the model name, not from a config file.",
+      "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
+      "window_source_url": "https://arxiv.org/html/2503.19786v1",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "qwen3-next-80b-a3b",
+      "label": "Qwen3-Next 80B-A3B — GDN hybrid, MoE",
+      "family": "qwen3-next",
+      "architecture": "gdn",
+      "params_b": "80",
+      "active_params_b": "3",
+      "context_default": 32768,
+      "context_max": 262144,
+      "kv_bytes_per_token_bf16_expected": 24576,
+      "groups": [
+        { "kind": "linear", "layers": 36, "state_bytes_per_seq": null },
+        { "kind": "full",   "layers": 12, "kv_heads": 2, "head_dim": 256, "tensors": 2 }
+      ],
+      "note": "48 decoder layers with full attention every fourth, so only 12 grow a KV cache; the 36 Gated DeltaNet layers add 0 B/token. Combined with 3B active of 80B resident, this is the configuration that separates VRAM cost from bandwidth cost most sharply — and the reason a per-accelerator throughput constant cannot represent it. state_bytes_per_seq is null and therefore UNMODELLED: the DeltaNet recurrent state is fixed in sequence length but nonzero, so VRAM for this model is understated by a constant per concurrent sequence. Named rather than guessed (SPEC §6.4).",
+      "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
+      "ratio_source_url": "https://github.com/rasbt/LLMs-from-scratch/blob/main/ch04/08_deltanet/README.md",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "deepseek-v3",
+      "label": "DeepSeek V3 671B-A37B — MLA, MoE",
+      "family": "deepseek",
+      "architecture": "mla",
+      "params_b": "671",
+      "active_params_b": "37",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": 70272,
+      "groups": [
+        { "kind": "mla", "layers": 61, "kv_lora_rank": 512, "qk_rope_head_dim": 64 }
+      ],
+      "note": "Multi-head latent attention caches a compressed latent plus a rotary-key component, so the query-head count drops out of the per-token figure entirely: 61 x (512 + 64) x 2. A serving stack that expands the latent back into full K and V tensors has a different, larger footprint than this — the compact form is the architecture's claim, not every runtime's behaviour.",
+      "source_url": "https://sebastianraschka.com/llm-architecture-gallery/kv-cache-calculations/",
+      "observed_at": "2026-08-29"
+    },
+    {
+      "id": "custom",
+      "label": "Custom — enter your own configuration",
+      "family": "custom",
+      "architecture": "full",
+      "params_b": "8",
+      "active_params_b": "8",
+      "context_default": 8192,
+      "context_max": 1048576,
+      "kv_bytes_per_token_bf16_expected": null,
+      "groups": [
+        { "kind": "full", "layers": 32, "kv_heads": 8, "head_dim": 128, "tensors": 2 }
+      ],
+      "note": "Starting shape only — every field is meant to be overwritten from your model's config.json (num_hidden_layers, num_key_value_heads, head_dim). Nothing here is cited, and the calculator labels results from this preset accordingly.",
+      "source_url": null,
+      "observed_at": "2026-08-29"
+    }
+  ]
+}

@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | Status | Normative draft for implementation |
-| Spec revision | v0.2 — 2026-08-29 (supersedes v0.1 — 2026-08-27) |
-| Plan thread | 1543101965414703186 (factor-io-web); v0.1 was 1542478190939996174 |
+| Spec revision | v0.3 — 2026-08-29 (supersedes v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
+| Plan thread | 1543165562891538537 (factor-io-web); v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
 | Delivery | Static client-side calculator on GitHub Pages + an operator-run pricing refresh command |
 
 **What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token
@@ -20,6 +20,23 @@ options after engine internals rather than after the things being bought.
 | Breakeven as a token volume, in prose | **Payback in whole months**, or `does_not_converge` with its reason (§2.5) | "How many months" is the question actually asked |
 | Demand ceilings in tokens/month | **Peak tokens/second** with a per-stream speed floor (§6.2) | A monthly total cannot tell you whether serving feels slow |
 | GPU rates hand-entered, conflicting sources | Refreshed by one command; per-provider, `first_party` vs `indicative` (§5.7) | Rates were `[ASSUMED]` with an unresolved 55.04-vs-98.32 conflict |
+
+**What v0.3 changes, and why.** v0.2 sized every fleet from one throughput constant
+per accelerator. That constant is a property of the MODEL, not of the card, and the
+error it introduces is larger than the differences between the three options being
+compared — so the comparison stopped meaning anything as soon as the user's model
+was not the one the constant was calibrated on.
+
+| v0.2 | v0.3 | Reason |
+|---|---|---|
+| `tokens_s_per_gpu` a per-accelerator constant | **Derived from the model** by a decode bandwidth roofline (§6.6) | A dense 8B and a GDN-hybrid MoE differ ~5.8× on the same H100 at the same context |
+| Model size, context, architecture and quantisation not modelled at all | First-class inputs: params, active params, context, attention kind, weight and KV precision (§6.6) | These are what decide GPU count; the user was previously unable to state them |
+| Concurrency implicit | **Batch is SOLVED** against VRAM, the per-stream floor and any runtime cap, and the binding constraint is reported (§6.6.3) | "Buy a bigger card" and "accept a slower answer" are opposite remedies |
+| Rented providers sized on a flat constant | Sized on their OWN accelerator **and** the selected model (§8) | Otherwise providers rank by sticker rate, not delivered capacity |
+| Four-screen wizard S1→S2→S3⇄S4 | **One screen**, live recompute (§8) | Context and architecture drive GPU count; splitting cause from effect across screens hides the tool's whole point |
+
+The v0.2 constant path REMAINS as the documented fallback for accelerators with no
+published bandwidth figure, so no provider drops out of the comparison.
 
 Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
 and remain normative** — the tariff model, quote semantics, freshness envelope and
@@ -602,6 +619,139 @@ owner: spec author; re-verify before first public release]`. They MUST NOT ship 
 evidence rows without a real benchmark citation; they may ship only as clearly
 labelled placeholder defaults.
 
+### 6.6 The serving model — throughput is DERIVED from the model, never a per-GPU constant
+
+v0.2 sized every fleet from one number per accelerator (`TOKENS_S_PER_GPU_ASSUMED`,
+e.g. `h100: 2500`). That is wrong in kind, not in degree: tokens/s per GPU is a
+function of the MODEL — its size, its context, its attention architecture and its
+quantisation — and the spread across those is larger than the differences between
+the three options the calculator exists to compare. A dense 8B and a GDN-hybrid MoE
+on the SAME H100 at the SAME 32,768-token context differ by ~5.8x
+(423.87 vs 2,474.72 tok/s/GPU, worked below). A constant cannot express that, so a
+constant makes the comparison meaningless whenever the user's model is not the one
+the constant was calibrated on.
+
+v0.3 replaces it with a memory-bandwidth roofline for the DECODE phase. Implemented
+in `tco-calculator/serving.js`; data in `tco-calculator/data/serving-models.json`.
+
+**6.6.1 KV cache per token — one layer-group form covers all four architectures.**
+A model declares `groups[]`; each group is a run of layers sharing a shape. Per
+token, per group:
+
+```
+group_bytes_per_token = layers x tensors x kv_heads x head_dim x bytes_per_element
+```
+
+`tensors` is 2 for a normal K+V cache and 1 where K and V are a single shared
+tensor. The four architectures are then just group kinds, not four formulas:
+
+| kind | Meaning | Retention at context C |
+|---|---|---|
+| `full` | full attention | every token: `C` |
+| `sliding` | sliding-window | capped at the window: `min(C, window)` |
+| `linear` | GDN / DeltaNet | **0 bytes per token** — no growing cache |
+| `mla` | compressed latent | `layers x (kv_lora_rank + qk_rope_head_dim) x bytes` |
+
+`kv_bytes_per_sequence = Σ over groups (group_bytes_per_token x retained_tokens)`.
+A `linear` group contributes zero, which is the whole point of a GDN hybrid: only
+its few full-attention layers grow with context.
+
+The form is falsifiable and IS falsified in `tests/serving.test.mjs` against four
+independently published figures at BF16: Qwen3 8B **147,456** B/token,
+Gemma 4 31B **860,160**, Qwen3-Next 80B-A3B **24,576**, DeepSeek V3 **70,272**.
+Every preset carries `kv_bytes_per_token_bf16_expected` and a test asserts each
+model reproduces its own figure, so a bad edit to a layer table fails the suite
+rather than silently re-pricing a fleet.
+
+**6.6.2 Weights: resident vs read-per-step.** These are DIFFERENT quantities and
+conflating them mis-sizes every mixture-of-experts model:
+
+```
+resident      = total_params  x bytes_per_param   (must FIT in VRAM)
+read_per_step = active_params x bytes_per_param   (bandwidth cost per token)
+```
+
+For Qwen3-Next 80B-A3B at BF16 that is 160 GB resident but only 6 GB read per step.
+A model that is enormous in memory can still decode fast; a sizing model that knows
+only one of these numbers gets MoE wrong in one direction or the other.
+
+**6.6.3 The roofline and the batch solve.** Decode is bandwidth-bound, so:
+
+```
+t_step      = (read_per_step + batch x kv_per_sequence) / (n_gpu x bandwidth x efficiency)
+per_stream  = 1 / t_step                      tokens/s ONE user sees
+aggregate   = batch / t_step                  tokens/s the replica delivers
+per_gpu     = aggregate / n_gpu
+```
+
+`batch` is SOLVED, not entered — it is the largest batch satisfying both bounds:
+
+```
+batch_mem   = floor((n_gpu x vram_usable - resident) / kv_per_sequence)
+batch_speed = floor((aggregate_bandwidth / per_stream_floor - read_per_step) / kv_per_sequence)
+batch       = min(batch_mem, batch_speed, runtime_cap)
+```
+
+The per-stream floor the UI already collects for demand sizing (§6.2) therefore does
+double duty as a SUPPLY-side constraint. In `batch` mode there is no floor to hold,
+so only memory and the runtime cap bind — the throughput-vs-latency trade, made
+explicit rather than assumed. The bound that actually applied is reported
+(`batch_bound_by`), because "buy a bigger card" and "accept a slower answer" are
+opposite remedies and the user must be told which one is theirs. A pure-`linear`
+model has `kv_per_sequence = 0`; that is unbounded, not a division by zero, and it
+takes the cap instead.
+
+**6.6.4 Tensor parallelism.** Candidate sizes `[1,2,4,8,16]` are tried in ascending
+order and the SMALLEST that admits `batch >= 1` wins. Aggregate bandwidth is
+discounted for collective overhead as `n x bandwidth x tp_efficiency^(n-1)`. A TP
+group is indivisible, so the fleet is sized in WHOLE replicas:
+`gpus = gpus_per_replica x ceil(peak / tokens_s_per_replica)`. If no size fits, the
+result is a refusal listing WHY per attempted size — never a silent fallback.
+
+**6.6.5 Every constant, labelled.** Owner: spec author. Re-verify before
+**2026-12-01**. None of these is a benchmark:
+
+| Constant | Value | Basis |
+|---|---|---|
+| Accelerator memory bandwidth | per-GPU, `serving-models.json` | `measured` — vendor datasheet, each with `source_url` |
+| A800 bandwidth | 2039 GB/s | **`inferred`** — export-compliant A100 80GB; NVLink capped, HBM2e unchanged. No independent citation found; `source_url` is null rather than invented |
+| Runtime bandwidth efficiency | vLLM/SGLang 0.80, TRT-LLM 0.85, llama.cpp 0.60 | `assumed` |
+| Tensor-parallel efficiency | 0.92 per extra GPU | `assumed` |
+| VRAM overhead fraction | 0.10 | `assumed` |
+| Weight/KV bytes per element | BF16 2, FP8 1, INT8 1, INT4 0.5 | `assumed` — INT4 understates real VRAM (scales/zero-points not modelled) |
+
+VRAM capacity is NOT duplicated in `serving-models.json`: `gpu-pricing.json` remains
+the single source of truth for it, and the serving table adds bandwidth only.
+
+**6.6.6 What is NOT modelled — normative.** Every throughput figure derived here is
+tagged `assumed` and MUST NOT satisfy a `modelled_p95_capacity` verdict (§6.3–§6.5).
+It rests on stated efficiency constants, not measurement. Specifically excluded:
+
+- **Prefill.** This is a decode-only model; a long-prompt workload runs slower.
+- **The GDN recurrent state.** Declared `state_bytes_per_seq: null` — UNMODELLED, not zero.
+- Speculative decoding, chunked prefill, prefix-cache reuse, and PagedAttention
+  fragmentation.
+
+An entered `Measured tok/s per GPU` outranks the roofline, and the roofline outranks
+the v0.2 constant. The v0.2 path REMAINS as the fallback for an accelerator with no
+published bandwidth figure, so such a provider keeps its row in the cross-provider
+table instead of vanishing from the comparison.
+
+**6.6.7 Worked example (regression anchor).** Qwen3 8B, BF16, H100 80GB
+(3350 GB/s, 0.80 efficiency, 10% overhead), 32,768 context, 30 tok/s floor:
+
+```
+resident = read_per_step = 8.2 x 2                     = 16.4 GB
+kv_per_sequence = 147,456 x 32,768                     =  4.832 GB
+batch    = floor((80 x 0.9 - 16.4) / 4.832)            = 11        (VRAM-bound)
+per_stream = (1 x 3350 x 0.80) / (16.4 + 11 x 4.832)   = 38.53 tok/s
+per_gpu    = 38.53 x 11                                = 423.87 tok/s
+```
+
+At 4,096 context the same model yields KV 0.604 GB, batch 92, and
+**3,426.06** tok/s/GPU — an 8x swing from context alone, which the v0.2 constant
+erased entirely.
+
 ---
 
 ## 7. Commercial layer (overlay)
@@ -632,39 +782,85 @@ private quote exports.
 
 ---
 
-## 8. UX and screen flow
+## 8. UX — ONE screen, no wizard
 
 ```
-S1 Workload  →  S2 Options & routing  →  S3 Results  ⇄  S4 Sensitivity & provenance
+┌─ inputs (sticky left rail) ─┬─ answers (right column, live) ─────────────┐
+│ Start here (preset chips)   │ verdict cards · fit & speed · demand       │
+│ Who uses it                 │ recommendation · payback · per-option      │
+│ What they do (mix)          │ cross-provider table · feasibility · curve │
+│ The model you'd run         │ sensitivity · provenance · export          │
+│ Hardware & prices           │                                            │
+│ Money                       │                                            │
+└─────────────────────────────┴────────────────────────────────────────────┘
 ```
 
-**It is a calculator, not an essay.** v0.1 wrapped the numbers in explanatory prose;
-v0.2 removes it. Attribution is not narrative: every number keeps its click-through
-provenance popover, and the tags (`exact`, `estimated`, `assumed`, `first_party`,
-`indicative`, `unknown`) stay. What goes is the prose *around* the numbers.
+v0.2's four-screen wizard (S1→S2→S3⇄S4) is REMOVED. It hid the causal link the tool
+exists to show: context length and model architecture drive GPU count, and a user
+who must navigate between screens to change one and read the other cannot see that
+they are the same fact. Everything is on one screen and the right column recomputes
+as you type (debounced ~220 ms); the Recalculate button remains only for an explicit
+re-pull of live prices, never as the thing that makes the answer correct.
 
-- **S1 Workload:** preset selector; **user count**, sessions/user/day, working
-  days/month; the workload **mix** rows (RAG, Graph RAG, Agentic, Chat) with shares
-  and per-turn token shapes; peak concurrency and the per-stream speed floor (§6.2);
-  `required_p95_tok_s` SLO. Derived totals render alongside their inputs, each
-  tagged with its basis; the sizing quantities carry override controls (§2.4).
-- **S2 Options & routing:** Self-hosted capex + monthly opex + capacity; Rented GPU
-  **provider** and topology (§5.7); Model API model set; routing policy selection
-  (§2.2 — advisory blend input with `dominated` flag rendered inline). Changing the
-  selection triggers slice fetches under the §9 budget.
-- **S3 Results:** peak tok/s and whether each option holds the speed floor;
-  **payback in months** (§2.5); the **rented-GPU cross-provider table** — every
-  provider in the registry priced for this load, one row each at the cheapest SKU
-  that holds the peak, sized on its OWN accelerator so providers rank by delivered
-  capacity rather than sticker rate, and a provider that cannot be priced is listed
-  with its reason instead of dropped; TCO curve over horizon; cost-per-1M per option
-  with `exact|estimated` labels; p95 feasibility verdicts
-  (`feasible|infeasible|unknown`) — never the word "guarantee"; freshness banner
-  (§5.5).
-- **S4 Sensitivity & provenance:** sensitivity table over declared ranges; every
-  number clickable into a provenance popover (source feed, `observed_at`, digest,
-  exact/estimated reasons, evidence row if any); overlay toggle (infra-only /
-  fully-loaded); quote export for consultants.
+**It is a calculator, not an essay.** Attribution is not narrative: every number
+keeps its click-through provenance popover, and the tags (`exact`, `estimated`,
+`assumed`, `first_party`, `indicative`, `unknown`) stay. What goes is the prose
+*around* the numbers.
+
+**Usable without expertise (normative).** The audience includes people who do not
+know what a KV head is. Therefore:
+
+- The page LANDS on a complete worked example — a selected preset, a real model, a
+  real accelerator — never an empty form. A blank form asks the user to supply the
+  expertise they came to borrow.
+- Every control carries a plain-language line saying what it does in the user's
+  terms ("What must sit in memory", "How much history each request carries",
+  "Halving this roughly doubles how many requests fit"). Section-level hints cover
+  self-evident fields; jargon controls each carry their own.
+- Engine vocabulary is translated at the render boundary. Routing keys render as
+  sentences ("send your own GPUs first", not `local_first`); refusal codes render as
+  causes ("this model does not fit on that accelerator", not
+  `no_viable_configuration`). The raw keys survive in the provenance popover and the
+  exported quote, which are the technical record.
+- Expert controls stay reachable but DEMOTED into collapsed `Architecture detail`
+  and `Service level, routing & overlay` sections. Demoted, never removed: raw
+  architecture fields remain editable, including a KV-bytes-per-token override.
+- A mix that does not sum to 1 is refused (§2.4), so the refusal comes with a
+  one-click remedy that says where the remainder went, rather than leaving the user
+  to do the arithmetic they came here to avoid.
+
+**Left rail (inputs).** *Start here* preset chips → *Who uses it* (user count,
+sessions/user/day, working days, peak concurrency, per-stream speed floor §6.2) →
+*What they do* (mix shares + per-turn token shapes) → **The model you'd run**
+(§6.6: model, size, active size, context, weight precision, serving stack, serving
+mode; collapsed: KV precision, concurrency cap, KV-bytes override) → *Hardware &
+prices* (owned accelerator, GPU count, measured tok/s override, rented provider +
+accelerator + utilization, API price feed + model) → *Money* (capex, monthly opex;
+collapsed: token budget, `required_p95_tok_s`, quote instant, routing policy,
+overlay).
+
+**Right column (answers), in order of what a buyer asks:**
+
+1. **Verdict cards** — monthly total per option, cheapest marked, others showing the
+   difference. Ranking compares EXACT values, never formatted strings.
+2. **Fit & speed** (§6.6) — does it fit, and how fast: GPUs per replica, VRAM used
+   vs usable, solved batch, per-stream tok/s, tokens/s per GPU, KV per request, and
+   `batch_bound_by`. Every figure carries the roofline formula in its popover and the
+   `assumed` tag. A configuration that does not serve renders its REASON and what to
+   change, never a blank panel.
+3. **Demand** — sessions, turns, tokens per month, peak tok/s, and the sized fleet
+   stated as replicas x GPUs-per-replica with the basis it was solved from.
+4. **Recommendation and payback** (§2.5), then per-option cost/month, cost-per-1M
+   with `exact|estimated`, the **rented-GPU cross-provider table** — every provider
+   priced for this load at its cheapest holding SKU, sized on its OWN accelerator AND
+   the selected model so providers rank by delivered capacity rather than sticker
+   rate, a provider that cannot be priced listed with its reason instead of dropped —
+   p95 feasibility verdicts (`feasible|infeasible|unknown`, never "guarantee"), the
+   TCO curve, the sensitivity table, and the quote export.
+
+The freshness banner (§5.5) and any data gap sit at the top of the right column,
+above the verdict, so a stale or unverifiable input is visible before the number it
+affects is read.
 
 **Naming contract (normative).** The strings `Lane`, `Lane A`, `Lane B` and `Lane C`
 MUST NOT appear in any rendered surface or in the exported quote. The engine's

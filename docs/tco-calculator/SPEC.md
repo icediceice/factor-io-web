@@ -486,15 +486,38 @@ per lane configuration with one of three verdicts: `feasible` (evidence-backed),
 word "guarantee" — a guarantee is a contract a human signs, not a number a model
 emits.
 
-### 6.2 Lane capacity and utilization math
+### 6.2 Option capacity, per-second demand, and utilization math
 
-- Lane A: user-declared `tokens/s` ceiling and monthly token budget; utilization =
-  demand/capacity; TCO is flat up to capacity (per §2.3) so unit cost falls with
-  utilization — this is what creates the breakeven against Lane B.
-- Lane C: hourly cost amortized over `tokens/s × utilization × seconds`; unit cost
-  is hyperbolic in utilization; breakeven vs Lane B is the utilization where
+**Demand binds per second, not per month.** A monthly token total cannot tell you
+whether serving feels slow: the same 1.2B tokens/month is comfortable spread evenly
+and unservable at a 9am peak. Sizing is therefore driven by two quantities:
+
+```
+peak_tokens_s   = concurrent_sessions_peak × tokens_s_per_stream
+concurrent_peak = users × peak_concurrency_fraction
+```
+
+- **`tokens_s_per_stream`** is the per-stream speed floor — the output rate one user
+  actually sees. Below roughly 20 tok/s an interactive answer reads as slow, so the
+  floor is an input with a stated default, not a derived quantity.
+- **Sizing must satisfy the floor at peak, not merely the monthly total.** An option
+  whose aggregate throughput clears `tokens_mo` but misses `peak_tokens_s` is
+  reported as **under-provisioned at peak**, never as sufficient.
+- **`gpus_required = ceil(peak_tokens_s / tokens_s_per_gpu)`**, where
+  `tokens_s_per_gpu` is `[ASSUMED]`, editable, and carries the assumed tag at every
+  point of use (§6.5). It is a planning placeholder, never a benchmark, and never
+  backs a `modelled_p95_capacity` verdict.
+
+Per-option economics:
+
+- **Self-hosted:** user-declared `tokens/s` ceiling and monthly token budget;
+  utilization = demand/capacity; TCO is flat up to capacity (per §2.3) so unit cost
+  falls with utilization — this is what creates the payback against Model API.
+- **Rented GPU:** hourly cost amortized over `tokens/s × utilization × seconds`
+  (seconds, not hours — the ×3600 factor is dimensional, see G5); unit cost is
+  hyperbolic in utilization; breakeven vs Model API is the utilization where
   `hourly/(throughput×util)` crosses the API per-token price.
-- Lane B: no utilization economics; unit cost is the tariff itself (§3/§4).
+- **Model API:** no utilization economics; unit cost is the tariff itself (§3/§4).
 
 ### 6.3 Evidence rows and matching dimensions
 

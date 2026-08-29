@@ -121,6 +121,44 @@ const DEEPSEEK_V4 = {
   vocab_size: 129280,
 };
 
+// zai-org/GLM-5.3-Flash — the row the calculator DEFAULTS to, and the only shape
+// that mixes linear layers with a latent (MLA) cache. Captured from the repo's
+// config.json on 2026-08-29: the language model is nested under text_config
+// beside a vision tower, and its 45 layers run a 4-cycle of three
+// linear_attention layers to one deepseek_sparse_attention layer.
+const GLM_5_3_FLASH = {
+  architectures: ["Glm5NextForConditionalGeneration"],
+  model_type: "glm5_next",
+  text_config: {
+    first_k_dense_replace: 3,
+    head_dim: 0,
+    hidden_size: 4096,
+    intermediate_size: 12288,
+    kv_lora_rank: 512,
+    // Verified against the config's own linear_attn_config.full_attn_layers:
+    // [3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43] — eleven of forty-five.
+    layer_types: Array.from({ length: 45 }, (_, i) => (i % 4 === 3 ? "deepseek_sparse_attention" : "linear_attention")),
+    max_position_embeddings: 1048576,
+    mlp_layer_types: [...Array(3).fill("dense"), ...Array(42).fill("sparse")],
+    model_type: "glm5_next_text",
+    moe_intermediate_size: 2048,
+    n_routed_experts: 288,
+    n_shared_experts: 1,
+    num_attention_heads: 64,
+    num_experts_per_tok: 8,
+    num_hidden_layers: 45,
+    num_key_value_heads: 64,
+    num_nextn_predict_layers: 1,
+    q_lora_rank: 1536,
+    qk_nope_head_dim: 256,
+    qk_rope_head_dim: 0,
+    tie_word_embeddings: false,
+    v_head_dim: 256,
+    vocab_size: 154880,
+  },
+  vision_config: { depth: 24, hidden_size: 1024, num_heads: 16 },
+};
+
 // ───────────────────────────────────────────────────────── the layer mapping
 
 test("a multimodal wrapper is unwrapped: Ornith's 4:1 interleave becomes 30 linear + 10 full", () => {
@@ -167,6 +205,39 @@ test("a config with no layer_types and no head_dim falls back to a uniform full 
     // head_dim is hidden_size / num_attention_heads = 4096 / 32.
     { kind: "full", layers: 64, kv_heads: 8, head_dim: 128, tensors: 2 },
   ]);
+});
+
+test("GLM-5.3-Flash: nested text_config, and linear layers coexisting with a latent cache", () => {
+  // The shipped default row, and the only fixture exercising both at once: the
+  // language model is nested beside a VISION tower (reading the top level yields
+  // the tower's dimensions), and linear layers sit alongside MLA ones. mkGroup
+  // returns the linear group BEFORE the "mixes plain attention into an MLA
+  // config" refusal can fire — correct precisely because a linear layer holds no
+  // KV cache and so has no width to disagree about.
+  assert.deepEqual(deriveGroups(GLM_5_3_FLASH), [
+    { kind: "linear", layers: 34, state_bytes_per_seq: null },
+    { kind: "mla", layers: 11, kv_lora_rank: 512, qk_rope_head_dim: 0 },
+  ]);
+  // 11 x (512 + 0) x 2 bytes. The 34 linear layers contribute nothing, which is
+  // the entire reason this model holds a megatoken context on one node.
+  assert.equal(formatHalfUp(kvBytesPerToken(deriveGroups(GLM_5_3_FLASH), "2"), 0), "11264");
+});
+
+test("the linear exemption is NARROW: plain attention beside a latent cache still refuses", () => {
+  // Swap GLM's linear layers for full ones and the config declares two different
+  // cache widths while saying nowhere which layers use which. Skipping is the
+  // only honest answer; picking one silently misprices every fleet sized on it.
+  const mixed = {
+    ...GLM_5_3_FLASH,
+    text_config: {
+      ...GLM_5_3_FLASH.text_config,
+      layer_types: GLM_5_3_FLASH.text_config.layer_types.map((t) => (t === "linear_attention" ? "full_attention" : t)),
+    },
+  };
+  assert.throws(
+    () => deriveGroups(mixed),
+    (e) => e instanceof Skip && /per-layer cache width is undeclared/.test(e.reason),
+  );
 });
 
 // ─────────────────────────────────────────────── the refusals, one per trap
@@ -221,6 +292,27 @@ test("a vendor-declared -A<n>B suffix outranks the derivation", () => {
   assert.equal(p.active_params_b, "3");
   assert.equal(p.active_basis, "declared");
   assert.equal(p.params_b, "35.95", "params come from the safetensors index, never the name");
+});
+
+test("a vendor-declared active count does not depend on the derivation it OUTRANKS", () => {
+  // The precedence is only real if it short-circuits. geometryParams needs
+  // fields nothing but the DERIVATION uses — vocab_size here — so calling it
+  // first made a PUBLISHED figure hostage to an unpublished one and skipped a
+  // model whose active count was never in doubt.
+  const { vocab_size, ...noVocab } = ORNITH.text_config;
+  const cfg = { ...ORNITH, text_config: noVocab };
+  assert.throws(
+    () => geometryParams(cfg),
+    (e) => e instanceof Skip && /missing vocab_size/.test(e.reason),
+    "the derivation genuinely cannot run on this config — otherwise this proves nothing",
+  );
+
+  const p = deriveParams("ornith-ai/Ornith-1.5-35B-A3B", cfg, 35_952_000_000n);
+  assert.equal(p.active_params_b, "3", "the vendor's own figure, unreachable by derivation here");
+  assert.equal(p.active_basis, "declared");
+  assert.equal(p.params_b, "35.95", "still the safetensors index, never the name");
+  assert.equal(p.is_moe, true, "an expert count is a direct config read, not a geometry result");
+  assert.equal(p.fit, null, "nothing was derived, so there is no fit to report");
 });
 
 test("an MoE whose geometry cannot reproduce the published total is REFUSED, not priced as dense", () => {

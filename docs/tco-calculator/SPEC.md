@@ -659,9 +659,13 @@ its few full-attention layers grow with context.
 The form is falsifiable and IS falsified in `tests/serving.test.mjs` against four
 independently published figures at BF16: Qwen3 8B **147,456** B/token,
 Gemma 4 31B **860,160**, Qwen3-Next 80B-A3B **24,576**, DeepSeek V3 **70,272**.
-Every preset carries `kv_bytes_per_token_bf16_expected` and a test asserts each
-model reproduces its own figure, so a bad edit to a layer table fails the suite
-rather than silently re-pricing a fleet.
+Each of those four hand-curated presets carries `kv_bytes_per_token_bf16_expected`
+and a test asserts it reproduces its own figure, so a bad edit to a layer table
+fails the suite rather than silently re-pricing a fleet. They are the ONLY presets
+that do: the Hub-derived rows of §6.6.8 carry a null expectation and are not
+falsifiers, since they are generated from each repository's own config rather than
+from an independently published per-token figure. That is precisely why a refresh
+preserves these four verbatim.
 
 **6.6.2 Weights: resident vs read-per-step.** These are DIFFERENT quantities and
 conflating them mis-sizes every mixture-of-experts model:

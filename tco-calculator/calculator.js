@@ -218,6 +218,63 @@ export function breakevenDemandA({ fixedMonthly, bPerToken, aMonthlyCapacity }) 
   return { demand_tokens: demand, utilization };
 }
 
+// -------------------------------------------------------------- payback months
+// v0.1 emitted breakeven as a token VOLUME in prose. The decision question is
+// *when*, not *how many tokens*, so v0.2 emits a whole number of months (SPEC 2.5):
+//
+//   payback_months = ceil( capex / (target_monthly - monthly_opex) )
+//
+// Two refusals, each returned WITH its reason and never rendered as a big number,
+// an infinity, or a dash:
+//   opex_exceeds_target - self-hosting costs more every month; it never catches up,
+//                         and no horizon makes it converge.
+//   zero_capex          - there is no up-front cost to pay back, so the question is
+//                         malformed rather than answered "0 months".
+//
+// A payback PAST the horizon is a real answer and is returned as the true month
+// with beyond_horizon set. Truncating it to the horizon would misreport a genuine
+// 30-month payback as an impossible one, which is the more damaging error: it
+// silently converts "slow" into "never".
+export function paybackMonths({ capex, monthlyOpex, targetMonthly, horizonMonths = null }) {
+  const c = toRat(capex);
+  const opex = toRat(monthlyOpex);
+  const target = toRat(targetMonthly);
+
+  const monthlySavings = target.sub(opex);
+  const base = {
+    monthly_savings: ratStr(monthlySavings),
+    capex: ratStr(c),
+    monthly_opex: ratStr(opex),
+    target_monthly: ratStr(target),
+  };
+
+  if (c.sign() < 0) {
+    return { ...base, months: null, converges: false, reason: "negative_capex", beyond_horizon: false };
+  }
+  if (c.isZero()) {
+    return { ...base, months: null, converges: false, reason: "zero_capex", beyond_horizon: false };
+  }
+  if (monthlySavings.sign() <= 0) {
+    return { ...base, months: null, converges: false, reason: "opex_exceeds_target", beyond_horizon: false };
+  }
+
+  const exact = c.div(monthlySavings);
+  // Ceiling on the exact rational: a payback lands on a whole month boundary, and
+  // rounding down would claim the crossover happened before it actually does.
+  const months = (exact.n + exact.d - 1n) / exact.d;
+  const beyond = horizonMonths !== null && horizonMonths !== undefined && months > BigInt(horizonMonths);
+
+  return {
+    ...base,
+    months: Number(months),
+    exact_months: ratStr(exact),
+    converges: true,
+    reason: null,
+    beyond_horizon: beyond,
+    horizon_months: horizonMonths ?? null,
+  };
+}
+
 // --------------------------------------------------------- evidence matching
 // All-dimensions rule (SPEC 6.3/6.4): a row supports a configuration ONLY on
 // every dimension. No interpolation, no scaling. Partial matches are annotations

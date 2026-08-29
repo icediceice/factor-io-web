@@ -232,7 +232,7 @@ Every admitted offer resolves to exactly one member of:
 |---|---|---|
 | `TokenTariff` | per-token, per-request, per-operation meters | Chat/completion models incl. cache, reasoning, threshold, tier and uplift modifiers |
 | `CharacterTariff` | per-character in/out | Character-priced models (TTS/OCR-class, per LiteLLM character meters) |
-| `HourlyTariff` | per-hour × topology | Lane C GPU instances; provisioned/rented endpoints |
+| `HourlyTariff` | per-hour × topology | Rented-GPU instances (§5.7); provisioned/rented endpoints |
 
 An offer that resolves to none of the three is `quarantined` with the reason string
 preserved in snapshot provenance — never silently dropped, never coerced.

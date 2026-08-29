@@ -748,13 +748,17 @@ re-serves the prior digest with zero extra state.
 
 ### 12.2 Phased roadmap
 
-1. **P1 Ingestion:** Actions workflow, snapshot format, SourceStatus envelopes,
-   keepalive + staleness check (fixtures F5, F6).
-2. **P2 Engine:** offer normalization (§3), quote semantics (§4), lane math (§2)
-   (fixtures F1–F4, F7, F9, F10).
-3. **P3 Client:** manifest + slices + screens S1–S4 inside the §9 budget.
-4. **P4 Throughput:** evidence store, `modelled_p95_capacity` (fixture F8).
-5. **P5 Overlay & polish:** §7 overlay, quote export, accessibility audit.
+1. **P1 Ingestion:** ~~Actions workflow~~, snapshot format, SourceStatus envelopes,
+   keepalive + staleness check (fixtures F5, F6). **v0.2:** the scheduled workflow
+   was declined by the operator in favour of an operator-run refresh command, which
+   also sidesteps the 60-day scheduled-workflow disable trap (§5.4) entirely.
+2. **P2 Engine:** offer normalization (§3), quote semantics (§4), option math (§2)
+   (fixtures F1–F4, F7, F9, F10). — **shipped**
+3. **P3 Client:** manifest + slices + screens S1–S4 inside the §9 budget. — **shipped**
+4. **P4 Throughput:** evidence store, `modelled_p95_capacity` (fixture F8). — open (O4/O8)
+5. **P5 Overlay & polish:** §7 overlay, quote export, accessibility audit. — **shipped**
+6. **P6 v0.2 rework:** session demand model (§2.4), payback in months (§2.5),
+   per-second sizing (§6.2), GPU pricing registry (§5.7), naming contract (§8).
 
 ### 12.3 Verification rule
 

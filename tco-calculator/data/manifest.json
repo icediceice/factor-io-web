@@ -1,33 +1,33 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1787898942725",
-  "generated_at": "2026-08-28T06:35:42.725Z",
-  "snapshot_digest": "9ee58deaa11277c7",
+  "refresh_id": "refresh-1787975612012",
+  "generated_at": "2026-08-29T03:53:32.012Z",
+  "snapshot_digest": "77399765f92156ef",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-9ee58deaa11277c7.json",
-      "digest": "9ee58deaa11277c7",
-      "bytes": 2407414
+      "path": "catalog-77399765f92156ef.json",
+      "digest": "77399765f92156ef",
+      "bytes": 2420583
     }
   },
   "sources": {
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-08-28T06:35:42.725Z",
-      "last_success_at": "2026-08-28T06:35:42.725Z",
-      "expires_at": "2026-08-31T06:35:42.725Z",
-      "root_digest": "5334b0c5cc7a111a",
-      "record_count": 369,
+      "observed_at": "2026-08-29T03:53:32.012Z",
+      "last_success_at": "2026-08-29T03:53:32.012Z",
+      "expires_at": "2026-09-01T03:53:32.012Z",
+      "root_digest": "d4e291fb686383a5",
+      "record_count": 384,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-08-28T06:35:42.725Z",
-      "last_success_at": "2026-08-28T06:35:42.725Z",
-      "expires_at": "2026-08-31T06:35:42.725Z",
+      "observed_at": "2026-08-29T03:53:32.012Z",
+      "last_success_at": "2026-08-29T03:53:32.012Z",
+      "expires_at": "2026-09-01T03:53:32.012Z",
       "root_digest": "8f7916e48c728cb1",
       "record_count": 2594,
       "missing_streak": 0
@@ -27872,7 +27872,7 @@
       "id": "openrouter:allenai/olmo-3-32b-think",
       "name": "AllenAI: Olmo 3 32B Think",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28346,7 +28346,7 @@
       "id": "openrouter:arcee-ai/virtuoso-large",
       "name": "Arcee AI: Virtuoso Large",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28610,6 +28610,17 @@
       ]
     },
     {
+      "id": "openrouter:deepseek/deepseek-v4-flash-0731:batch",
+      "name": "DeepSeek: DeepSeek V4 Flash 0731 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:deepseek/deepseek-v4-flash-vision-exp",
       "name": "DeepSeek: DeepSeek V4 Flash Vision Exp",
       "tariff": "token",
@@ -28634,6 +28645,17 @@
     {
       "id": "openrouter:deepseek/deepseek-v4-pro-0813",
       "name": "DeepSeek: DeepSeek V4 Pro 0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:deepseek/deepseek-v4-pro-0813:batch",
+      "name": "DeepSeek: DeepSeek V4 Pro 0813 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -29186,6 +29208,16 @@
       ]
     },
     {
+      "id": "openrouter:google/gemma-4-31b-it:batch",
+      "name": "Google: Gemma 4 31B (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:google/gemma-4-31b-it:free",
       "name": "Google: Gemma 4 31B (free)",
       "tariff": "token",
@@ -29437,6 +29469,17 @@
       ]
     },
     {
+      "id": "openrouter:meta/muse-glimmer-30b:batch",
+      "name": "Meta: Muse Glimmer 30B (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:meta/muse-spark-1.1",
       "name": "Meta: Muse Spark 1.1",
       "tariff": "token",
@@ -29620,6 +29663,17 @@
       ]
     },
     {
+      "id": "openrouter:mistralai/codestral-2508:batch",
+      "name": "Mistral: Codestral 2508 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:mistralai/devstral-2512",
       "name": "Mistral: Devstral 2 2512",
       "tariff": "token",
@@ -29664,6 +29718,17 @@
       ]
     },
     {
+      "id": "openrouter:mistralai/ministral-8b-2512:batch",
+      "name": "Mistral: Ministral 3 8B 2512 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:mistralai/mistral-large",
       "name": "Mistral Large",
       "tariff": "token",
@@ -29697,6 +29762,17 @@
       ]
     },
     {
+      "id": "openrouter:mistralai/mistral-large-2512:batch",
+      "name": "Mistral: Mistral Large 3 2512 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:mistralai/mistral-medium-3",
       "name": "Mistral: Mistral Medium 3",
       "tariff": "token",
@@ -29718,8 +29794,29 @@
       ]
     },
     {
+      "id": "openrouter:mistralai/mistral-medium-3-5:batch",
+      "name": "Mistral: Mistral Medium 3.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:mistralai/mistral-medium-3.1",
       "name": "Mistral: Mistral Medium 3.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:mistralai/mistral-medium-3.1:batch",
+      "name": "Mistral: Mistral Medium 3.1 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -29762,6 +29859,17 @@
     {
       "id": "openrouter:mistralai/mistral-small-2603",
       "name": "Mistral: Mistral Small 4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:mistralai/mistral-small-2603:batch",
+      "name": "Mistral: Mistral Small 4 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -29880,6 +29988,17 @@
     {
       "id": "openrouter:moonshotai/kimi-k3",
       "name": "MoonshotAI: Kimi K3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:moonshotai/kimi-k3:batch",
+      "name": "MoonshotAI: Kimi K3 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30633,6 +30752,16 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-oss-120b:batch",
+      "name": "OpenAI: gpt-oss-120b (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-oss-20b",
       "name": "OpenAI: gpt-oss-20b",
       "tariff": "token",
@@ -30641,6 +30770,16 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-oss-20b:batch",
+      "name": "OpenAI: gpt-oss-20b (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -31291,6 +31430,16 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen3.5-9b:batch",
+      "name": "Qwen: Qwen3.5-9B (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen3.5-flash-02-23",
       "name": "Qwen: Qwen3.5-Flash",
       "tariff": "token",
@@ -31415,6 +31564,17 @@
     {
       "id": "openrouter:qwen/qwen3.8-2.4t-a95b",
       "name": "Qwen: Qwen3.8 2.4T A95B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:qwen/qwen3.8-2.4t-a95b:batch",
+      "name": "Qwen: Qwen3.8 2.4T A95B (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -31693,6 +31853,17 @@
     {
       "id": "openrouter:thinkingmachines/inkling-small",
       "name": "Thinking Machines: Inkling Small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:thinkingmachines/inkling-small:batch",
+      "name": "Thinking Machines: Inkling Small (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -32013,6 +32184,17 @@
     {
       "id": "openrouter:z-ai/glm-5.3-flash",
       "name": "Z.ai: GLM 5.3 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.3-flash:batch",
+      "name": "Z.ai: GLM 5.3 Flash (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [

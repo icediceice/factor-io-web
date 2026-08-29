@@ -1,13 +1,13 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1787975612012",
-  "generated_at": "2026-08-29T03:53:32.012Z",
-  "snapshot_digest": "77399765f92156ef",
+  "refresh_id": "refresh-1787975665881",
+  "generated_at": "2026-08-29T03:54:25.881Z",
+  "snapshot_digest": "cdd8b9eaffd21621",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-77399765f92156ef.json",
-      "digest": "77399765f92156ef",
+      "path": "catalog-cdd8b9eaffd21621.json",
+      "digest": "cdd8b9eaffd21621",
       "bytes": 2420583
     }
   },
@@ -15,9 +15,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-08-29T03:53:32.012Z",
-      "last_success_at": "2026-08-29T03:53:32.012Z",
-      "expires_at": "2026-09-01T03:53:32.012Z",
+      "observed_at": "2026-08-29T03:54:25.881Z",
+      "last_success_at": "2026-08-29T03:54:25.881Z",
+      "expires_at": "2026-09-01T03:54:25.881Z",
       "root_digest": "d4e291fb686383a5",
       "record_count": 384,
       "missing_streak": 0
@@ -25,9 +25,9 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-08-29T03:53:32.012Z",
-      "last_success_at": "2026-08-29T03:53:32.012Z",
-      "expires_at": "2026-09-01T03:53:32.012Z",
+      "observed_at": "2026-08-29T03:54:25.881Z",
+      "last_success_at": "2026-08-29T03:54:25.881Z",
+      "expires_at": "2026-09-01T03:54:25.881Z",
       "root_digest": "8f7916e48c728cb1",
       "record_count": 2594,
       "missing_streak": 0

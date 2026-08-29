@@ -3,9 +3,29 @@
 | | |
 |---|---|
 | Status | Normative draft for implementation |
-| Spec revision | v0.1 — 2026-08-27 |
-| Plan thread | 1542478190939996174 (factor-io-web) |
-| Delivery | Static client-side calculator on GitHub Pages + GitHub Actions pricing ingestion |
+| Spec revision | v0.2 — 2026-08-29 (supersedes v0.1 — 2026-08-27) |
+| Plan thread | 1543101965414703186 (factor-io-web); v0.1 was 1542478190939996174 |
+| Delivery | Static client-side calculator on GitHub Pages + an operator-run pricing refresh command |
+
+**What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token
+number and compared three "lanes". Both were wrong at the point of use: the token
+number is the one figure a buyer cannot supply, and the lane vocabulary named the
+options after engine internals rather than after the things being bought.
+
+| v0.1 | v0.2 | Reason |
+|---|---|---|
+| Demand entered as tokens/month | Demand **derived** from users × sessions/user/day × turns/session × per-workload token shape (§2.4) | A buyer knows their headcount, not their token count |
+| Lane A / Lane B / Lane C | **Self-hosted / Rented GPU / Model API** | Named after what is purchased; "lane" is engine vocabulary and never reaches a user |
+| Single workload shape | Workload **mix**: RAG, Graph RAG, Agentic, Chat, each with a share (§2.4) | The token shapes differ by an order of magnitude between them |
+| Breakeven as a token volume, in prose | **Payback in whole months**, or `does_not_converge` with its reason (§2.5) | "How many months" is the question actually asked |
+| Demand ceilings in tokens/month | **Peak tokens/second** with a per-stream speed floor (§6.2) | A monthly total cannot tell you whether serving feels slow |
+| GPU rates hand-entered, conflicting sources | Refreshed by one command; per-provider, `first_party` vs `indicative` (§5.7) | Rates were `[ASSUMED]` with an unresolved 55.04-vs-98.32 conflict |
+
+Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
+and remain normative** — the tariff model, quote semantics, freshness envelope and
+decimal-exact arithmetic all survive v0.2 intact. The engine keeps its internal
+`A`/`B`/`C` keys so those fixtures keep binding; the rename is a presentation-layer
+contract (§8), applied at render and export.
 
 **Provenance discipline.** Every upstream claim in this document carries one of:
 `[VERIFIED]` — checked at the named source during plan grounding; `[MEASURED]` —

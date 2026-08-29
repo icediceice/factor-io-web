@@ -633,6 +633,33 @@ export function runComparison({
     breakeven.lane_C_vs_B = { utilization: be.value === null ? null : be.value.toString(), reason: be.reason };
   }
 
+  // ---- Payback in MONTHS (SPEC 2.5). The self-hosted option carries a one-time
+  // capex; its monthly_opex is the lane total already computed above, so the two
+  // never drift apart. Absent capex the block still renders — as an honest
+  // does_not_converge/zero_capex, never as a blank or a zero.
+  const selfHostedCapex = laneA && laneA.enabled ? (laneA.capex ?? "0") : "0";
+  const payback = {};
+  if (laneAResult.enabled) {
+    payback.self_hosted_capex = ratStr(toRat(selfHostedCapex));
+    payback.self_hosted_monthly_opex = laneAResult.monthly_total;
+    if (bMonthly !== null) {
+      payback.vs_model_api = paybackMonths({
+        capex: selfHostedCapex,
+        monthlyOpex: laneAResult.monthly_total,
+        targetMonthly: bMonthly.toString(),
+        horizonMonths: horizon,
+      });
+    }
+    if (laneCStandalone.enabled) {
+      payback.vs_rented_gpu = paybackMonths({
+        capex: selfHostedCapex,
+        monthlyOpex: laneAResult.monthly_total,
+        targetMonthly: laneCStandalone.monthly_total,
+        horizonMonths: horizon,
+      });
+    }
+  }
+
   // ---- Overlay LAST (SPEC 4.5): itemized, labelled, never folded in.
   let overlayResult = null;
   if (overlay && overlay.components && overlay.components.length > 0) {

@@ -1,18 +1,20 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-08-28 14:10 (progressive-disclosure copy pass across homepage, light-tools, and the TCO calculator)
+> Last updated: 2026-08-29 04:15 (TCO calculator v0.2 — session demand model, payback in months, per-provider GPU pricing)
 
 ## Current Focus
 
-The AI inference TCO calculator (SPEC v0.1) is implemented and locally verified end to end: decimal-exact engine, frozen-feed contract tests, live pricing snapshot, zero-build client page, and browser-verified S1–S4 flows. Remaining work is operational: snapshot refresh automation, evidence ingestion for Lane C measured rates, feed TTL calibration.
+The AI inference TCO calculator is at **SPEC v0.2**: a pure calculator with no narrative. Demand is derived from a user count rather than asserted as a token total, workloads are modelled as a chat/RAG/Graph RAG/agentic mix, sizing binds on the peak second, breakeven is reported as a whole number of months, and the three options are named (Self-hosted / Model API / Rented GPU) with the "Lane" vocabulary removed from every rendered surface. Rented-GPU rates come from a per-provider registry refreshed by one command. Remaining work is operational: evidence ingestion, feed TTL calibration, and resolving the rented-vs-self-hosted billing asymmetry logged as a todo.
 
 ## Task Queue
 
 Upcoming work in priority order:
 
+- [ ] **Rented GPU is billed hours-used while self-hosted pays a full month** — renting shows ~100x cheaper ($88.04 vs $10,000 on the Support desk preset) because the rented option is only charged the ~30 GPU-hours the demand needs, and cannot serve the 750 tok/s peak the other ~700 hours. Pre-existing v0.1 lane-C semantic, bound by fixtures. See todo_1787976899690281935
 - [ ] Snapshot refresh automation (scheduled rebuild + staleness banner is already client-side; needs a cron/keepalive publisher per SPEC §5.6 — commit timestamps are never freshness evidence)
-- [ ] Evidence ingestion: replace the empty evidence store with cited measured tok/s rows (all-dimensions match rule) and re-verify Lane C presets against vendor pages
+- [ ] Evidence ingestion: replace the empty evidence store with cited measured tok/s rows (all-dimensions match rule); this is also what would let the [ASSUMED] TOKENS_S_PER_GPU table in demand.js be replaced with measurements
+- [ ] Re-verify the seeded Chinese-cloud rows (Tencent, Huawei) before 2026-12-01 — Huawei is the weakest row in the registry, positioned against a cited band rather than a published rate card
 - [ ] Calibrate feed TTLs and N_CONSECUTIVE_RETIRE against real feed update cadence (SPEC §5.1 defaults are [ASSUMED])
 - [ ] Define tech stack and scaffold project source code
 

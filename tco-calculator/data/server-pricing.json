@@ -1,0 +1,351 @@
+{
+  "schema": "factor-io.tco-server-pricing/1.0.0",
+  "generated_at": "2026-09-02T06:26:57.119Z",
+  "note": "Enterprise GPU-server acquisition prices, per SPEC 5.8. THERE IS NO first_party TIER IN THIS FILE, and unlike gpu-pricing.json there never can be one from a free endpoint: Dell, HPE and Supermicro publish no machine-readable list price for a GPU server, and Supermicro's own store is configure-to-order with no public per-config figure. Every row is therefore `indicative` — a published integrator or analyst figure, carried with the exact sentence it was taken from so scripts/build-server-pricing.mjs can re-fetch the page and prove the citation still holds.",
+  "tiers": {
+    "indicative": "A published integrator/analyst figure. Planning band, not a quote. No vendor list price exists to promote it to."
+  },
+  "disagreement_note": "Two independent sources are carried for the SAME configuration where both publish one, and they disagree by up to 22% on an 8xH100 node ($250-320K vs $310-370K). Both ship as separate rows. They are NOT averaged: the mean of two published bands is a figure neither source states, and it would read as more authoritative than either while being citable to nothing. The calculator shows the spread and lets the buyer pick a row.",
+  "coverage_note": "Only h100, h200 and b200 carry server rows. The other accelerators in gpu-pricing.json (a100_80, a100_40, l40s, l4, a10, a10g, h20, a800) have no published integrated-node figure that met the citation bar, so they derive NO capex and the UI says so. An accelerator with no server row is a stated coverage gap, never a silently borrowed price from a neighbouring card.",
+  "verification_note": "Each row's `verification` records whether its quoted sentence was still present at source_url when this file was generated. verified = the citation holds. citation_broken = the page changed; the figure is retained with its original observed_at and MUST be rendered as unverified. unreachable = the fetch failed, which is a network fact about this run, not a judgement on the figure.",
+  "by_gpu": {
+    "h100": [
+      "hgx-h100-8x-mercatus",
+      "hgx-h100-8x-gpufm",
+      "pcie-h100-4x-gpufm",
+      "dgx-h100-gpufm"
+    ],
+    "h200": [
+      "hgx-h200-8x-gpufm",
+      "hgx-h200-8x-mercatus"
+    ],
+    "b200": [
+      "hgx-b200-8x-mercatus",
+      "hgx-b200-8x-gpufm",
+      "dgx-b200-mercatus"
+    ]
+  },
+  "rows": [
+    {
+      "server_id": "hgx-h100-8x-mercatus",
+      "label": "8x H100 SXM (HGX node), OEM integrated",
+      "gpu_id": "h100",
+      "gpu_count": 8,
+      "form_factor": "8U HGX SXM",
+      "cooling": "air",
+      "usd_low": "250000",
+      "usd_typical": "285000",
+      "usd_high": "320000",
+      "includes": [
+        "8x H100 SXM5",
+        "HGX baseboard + NVSwitch",
+        "CPUs, memory, chassis",
+        "networking and storage",
+        "integration and vendor support"
+      ],
+      "excludes": [
+        "rack",
+        "PDU",
+        "switches",
+        "installation",
+        "freight"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.mercatus-ai.com/blog/h100-server-price",
+      "quoted_text": "An 8-GPU HGX H100 server costs $250,000 to $320,000 in 2026",
+      "source_verified_at": "2026-07-14",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "hgx-h100-8x-gpufm",
+      "label": "8x H100 SXM (HGX node), Supermicro SYS-421GU-TNX class",
+      "gpu_id": "h100",
+      "gpu_count": 8,
+      "form_factor": "8U HGX SXM",
+      "cooling": "liquid",
+      "usd_low": "310000",
+      "usd_typical": "340000",
+      "usd_high": "370000",
+      "includes": [
+        "8x H100 80GB SXM5",
+        "HGX H100 baseboard with NVSwitch",
+        "2x AMD EPYC 9654",
+        "2TB DDR5 ECC",
+        "8x 3.84TB NVMe"
+      ],
+      "excludes": [
+        "rack infrastructure",
+        "switches",
+        "installation"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.gpu.fm/blog/gpu-server-pricing-guide-2026",
+      "quoted_text": "$310,000 – $370,000",
+      "source_verified_at": "2026-02-13",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "pcie-h100-4x-gpufm",
+      "label": "4x H100 PCIe (inference / fine-tuning), Supermicro SYS-421GE-TNRT class",
+      "gpu_id": "h100",
+      "gpu_count": 4,
+      "form_factor": "4U PCIe",
+      "cooling": "air",
+      "usd_low": "150000",
+      "usd_typical": "165000",
+      "usd_high": "180000",
+      "includes": [
+        "4x H100 80GB PCIe Gen5",
+        "2x AMD EPYC 9354",
+        "512GB DDR5 ECC",
+        "4x 3.84TB NVMe",
+        "2x 100GbE"
+      ],
+      "excludes": [
+        "rack infrastructure",
+        "switches",
+        "installation"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.gpu.fm/blog/gpu-server-pricing-guide-2026",
+      "quoted_text": "$150,000 – $180,000",
+      "source_verified_at": "2026-02-13",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "note": "The only sub-8-GPU node in the registry. It is what makes a small fleet buyable without overprovisioning a whole HGX baseboard.",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "hgx-h200-8x-gpufm",
+      "label": "8x H200 SXM (HGX node)",
+      "gpu_id": "h200",
+      "gpu_count": 8,
+      "form_factor": "8U HGX SXM",
+      "cooling": "liquid",
+      "usd_low": "370000",
+      "usd_typical": "400000",
+      "usd_high": "430000",
+      "includes": [
+        "8x H200 141GB SXM5",
+        "HGX H200 baseboard with NVSwitch",
+        "2x AMD EPYC 9654",
+        "2TB DDR5 ECC",
+        "8x 7.68TB NVMe"
+      ],
+      "excludes": [
+        "rack infrastructure",
+        "switches",
+        "installation"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.gpu.fm/blog/gpu-server-pricing-guide-2026",
+      "quoted_text": "$370,000 – $430,000",
+      "source_verified_at": "2026-02-13",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "hgx-h200-8x-mercatus",
+      "label": "8x H200 SXM (HGX node), OEM integrated typical",
+      "gpu_id": "h200",
+      "gpu_count": 8,
+      "form_factor": "8U HGX SXM",
+      "cooling": "air",
+      "usd_low": null,
+      "usd_typical": "370000",
+      "usd_high": null,
+      "includes": [
+        "8x H200 141GB SXM5",
+        "HGX baseboard + NVSwitch",
+        "CPUs, memory, chassis",
+        "networking and storage",
+        "integration"
+      ],
+      "excludes": [
+        "rack",
+        "PDU",
+        "switches",
+        "installation",
+        "freight"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.mercatus-ai.com/blog/h100-server-price",
+      "quoted_text": "~$370,000",
+      "source_verified_at": "2026-07-14",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "note": "This source publishes a TYPICAL for the H200 node inside its H100-vs-H200 comparison table but no band, so usd_low and usd_high are null rather than widened to the H100 row's spread. A null band is the honest shape; it is not a missing value to be filled in.",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "hgx-b200-8x-mercatus",
+      "label": "8x B200 SXM (HGX node), OEM integrated",
+      "gpu_id": "b200",
+      "gpu_count": 8,
+      "form_factor": "8U HGX SXM",
+      "cooling": "liquid",
+      "usd_low": "400000",
+      "usd_typical": "450000",
+      "usd_high": "500000",
+      "includes": [
+        "8x B200 SXM",
+        "HGX baseboard + 5th-gen NVSwitch",
+        "CPUs, memory, chassis",
+        "networking and storage",
+        "integration, power and cooling engineering"
+      ],
+      "excludes": [
+        "rack",
+        "PDU",
+        "switches",
+        "installation",
+        "freight"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.mercatus-ai.com/blog/b200-server-price",
+      "quoted_text": "An 8-GPU HGX B200 server costs $400,000 to $500,000 in 2026",
+      "source_verified_at": "2026-07-14",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "note": "This source states allocation, not price, is the binding constraint on Blackwell in 2026: card list is $30-40K in 8-GPU volumes but street quotes run $45-50K. A quoted band therefore understates what a buyer without an NVIDIA partner relationship actually pays.",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "hgx-b200-8x-gpufm",
+      "label": "8x B200 (HGX node), Supermicro SYS-822GA-TNR class",
+      "gpu_id": "b200",
+      "gpu_count": 8,
+      "form_factor": "8U HGX SXM",
+      "cooling": "liquid",
+      "usd_low": "430000",
+      "usd_typical": "480000",
+      "usd_high": "520000",
+      "includes": [
+        "8x B200 192GB",
+        "HGX B200 baseboard with NVLink 5.0",
+        "2x AMD EPYC 9754",
+        "2TB DDR5 ECC",
+        "8x 7.68TB NVMe"
+      ],
+      "excludes": [
+        "rack infrastructure",
+        "switches",
+        "installation"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.gpu.fm/blog/gpu-server-pricing-guide-2026",
+      "quoted_text": "$430,000 – $520,000",
+      "source_verified_at": "2026-02-13",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "dgx-h100-gpufm",
+      "label": "NVIDIA DGX H100 appliance",
+      "gpu_id": "h100",
+      "gpu_count": 8,
+      "form_factor": "DGX appliance",
+      "cooling": "air",
+      "usd_low": null,
+      "usd_typical": "290000",
+      "usd_high": null,
+      "includes": [
+        "8x H100 SXM",
+        "NVSwitch",
+        "Intel Xeon",
+        "2TB RAM",
+        "30TB NVMe",
+        "DGX Base Command",
+        "NVIDIA AI Enterprise (Hopper DGX bundle)"
+      ],
+      "excludes": [
+        "rack infrastructure",
+        "switches",
+        "installation"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.gpu.fm/blog/gpu-server-pricing-guide-2026",
+      "quoted_text": "DGX H100~$290,000",
+      "source_verified_at": "2026-02-13",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "note": "A Hopper-architecture DGX bundles NVIDIA AI Enterprise, so pairing this row with a per-GPU NVIDIA AI Enterprise subscription DOUBLE-COUNTS the licence. subscription-pricing.json records that exemption on the nvidia-ai-enterprise row; docs.nvidia.com states Blackwell DGX systems must buy it separately.",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    },
+    {
+      "server_id": "dgx-b200-mercatus",
+      "label": "NVIDIA DGX B200 appliance (list)",
+      "gpu_id": "b200",
+      "gpu_count": 8,
+      "form_factor": "DGX appliance",
+      "cooling": "liquid",
+      "usd_low": null,
+      "usd_typical": "515000",
+      "usd_high": null,
+      "includes": [
+        "8x B200",
+        "NVSwitch",
+        "AMD EPYC",
+        "2TB RAM",
+        "30TB NVMe",
+        "DGX Base Command"
+      ],
+      "excludes": [
+        "rack infrastructure",
+        "switches",
+        "installation",
+        "NVIDIA AI Enterprise (Blackwell DGX buys it separately)"
+      ],
+      "confidence": "indicative",
+      "source_url": "https://www.mercatus-ai.com/blog/b200-server-price",
+      "quoted_text": "~$515,000 list",
+      "source_verified_at": "2026-07-14",
+      "observed_at": "2026-09-02",
+      "re_verify_before": "2026-12-01",
+      "note": "Corroborated independently at the same figure by https://www.gpu.fm/blog/gpu-server-pricing-guide-2026 (\"DGX B200~$515,000\"). Two sources AGREEING is recorded here in prose; it does not promote the row's tier, because agreement between two secondary sources is not a vendor price list.",
+      "verification": {
+        "status": "verified",
+        "checked_at": "2026-09-02T06:26:57.119Z",
+        "detail": null
+      }
+    }
+  ]
+}

@@ -3,15 +3,22 @@
 //
 //   node scripts/refresh-pricing.mjs
 //
-// Repopulates ALL THREE halves of what the calculator prices from:
+// Repopulates ALL FOUR halves of what the calculator prices from:
 //   1. rented-GPU rates       -> tco-calculator/data/gpu-pricing.json
 //   2. model names + tariffs  -> tco-calculator/data/manifest.json + catalog-*.json
 //   3. serving-model presets  -> tco-calculator/data/serving-models.json
+//   4. server acquisition     -> tco-calculator/data/server-pricing.json
 //
 // Stage 3 is what keeps the SELF-HOSTED side from going stale. Stages 1 and 2
 // price the rented and API lanes and were always refreshable; the serving presets
 // were hand-curated, so the calculator's own model list aged silently while
 // everything around it stayed current.
+//
+// Stage 4 is NOT a scraper and cannot be one: no server vendor publishes a list
+// price for a GPU node — Dell, HPE and Supermicro all quote through sales. It
+// re-fetches each cited page and asserts the quoted sentence is still there, so
+// the failure it catches is the real one: a published figure quietly changing
+// under a citation the calculator still displays.
 //
 // WHY THIS IS A COMMAND AND NOT A CRON. A scheduled GitHub Action was the v0.1
 // plan and was declined: GitHub silently disables scheduled workflows after 60
@@ -45,7 +52,7 @@ function run(script) {
 const banner = (s) => `\n${"─".repeat(72)}\n${s}\n${"─".repeat(72)}`;
 
 async function main() {
-  console.log(banner("1/3  Rented-GPU rates  (AWS + Azure first-party, aggregator indicative)"));
+  console.log(banner("1/4  Rented-GPU rates  (AWS + Azure first-party, aggregator indicative)"));
   const gpu = await run("build-gpu-pricing.mjs");
   process.stdout.write(gpu.out);
   if (gpu.code !== 0) {
@@ -54,7 +61,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(banner("2/3  Model names + tariffs  (LiteLLM + OpenRouter)"));
+  console.log(banner("2/4  Model names + tariffs  (LiteLLM + OpenRouter)"));
   const snap = await run("build-snapshot.mjs");
   process.stdout.write(snap.out);
   if (snap.code !== 0) {
@@ -63,12 +70,25 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(banner("3/3  Serving-model presets  (Hugging Face Hub, ranked by trendingScore)"));
+  console.log(banner("3/4  Serving-model presets  (Hugging Face Hub, ranked by trendingScore)"));
   const serving = await run("build-serving-models.mjs");
   process.stdout.write(serving.out);
   if (serving.code !== 0) {
     process.stderr.write(serving.err);
     console.error(`\n✗ Serving-model refresh FAILED (exit ${serving.code}) after ${serving.ms}ms — data/serving-models.json was NOT rewritten, so the previous presets and their observed_at stand.`);
+    process.exit(1);
+  }
+
+  console.log(banner("4/4  Server acquisition prices  (cited bands, citations re-verified)"));
+  const servers = await run("build-server-pricing.mjs");
+  process.stdout.write(servers.out);
+  if (servers.code !== 0) {
+    process.stderr.write(servers.err);
+    // The builder exits non-zero only when NO citation verified, which means the
+    // run itself was broken (offline, or every publisher moved at once) rather
+    // than one figure going stale. Individual broken citations are reported as
+    // coverage below and the rows survive, flagged unverified.
+    console.error(`\n✗ Server-pricing refresh FAILED (exit ${servers.code}) after ${servers.ms}ms — data/server-pricing.json was NOT rewritten, so the previous bands and their observed_at stand.`);
     process.exit(1);
   }
 
@@ -79,13 +99,14 @@ async function main() {
     const doc = JSON.parse(await readFile(`${DATA_DIR}gpu-pricing.json`, "utf8"));
     const manifest = JSON.parse(await readFile(`${DATA_DIR}manifest.json`, "utf8"));
     const servingDoc = JSON.parse(await readFile(`${DATA_DIR}serving-models.json`, "utf8"));
-    summary = { doc, manifest, servingDoc };
+    const serverDoc = JSON.parse(await readFile(`${DATA_DIR}server-pricing.json`, "utf8"));
+    summary = { doc, manifest, servingDoc, serverDoc };
   } catch (e) {
     console.error(`\n✗ refreshed, but the written files could not be re-read: ${e.message}`);
     process.exit(1);
   }
 
-  const { doc, manifest, servingDoc } = summary;
+  const { doc, manifest, servingDoc, serverDoc } = summary;
   console.log(banner("Coverage"));
   const pad = (s, n) => String(s).padEnd(n);
   console.log(`${pad("PROVIDER", 18)}${pad("TIER", 14)}${pad("ROWS", 6)}GPUS`);
@@ -114,6 +135,17 @@ async function main() {
     }
     console.log(`serving skips ${servingDoc.skipped.length} — ${[...byReason].map(([r, n]) => `${n} ${r}`).join("; ")}`);
   }
+  // Server bands: the number that matters is how many citations still hold, not
+  // how many rows exist — a row whose source page has been reworded is still
+  // rendered, but it is rendered as unverified, and the operator needs to know
+  // that count without opening the file.
+  const srvRows = serverDoc.rows ?? [];
+  const srvVerified = srvRows.filter((r) => r.verification?.status === "verified").length;
+  const srvBroken = srvRows.filter((r) => r.verification?.status === "citation_broken").length;
+  const srvUnreachable = srvRows.filter((r) => r.verification?.status === "unreachable").length;
+  console.log(`server rows   ${srvRows.length} across ${Object.keys(serverDoc.by_gpu ?? {}).length} accelerators (${Object.keys(serverDoc.by_gpu ?? {}).join(", ")})`);
+  console.log(`server cites  ${srvVerified} verified · ${srvBroken} broken · ${srvUnreachable} unreachable`);
+
   console.log(`observed_at   ${doc.generated_at}`);
 
   if (missing.length) {
@@ -121,6 +153,17 @@ async function main() {
   }
   if (!chinese.length) {
     console.warn("⚠  no Chinese cloud rates this run — the aggregator's markup may have moved for those rows specifically.");
+  }
+  if (srvBroken || srvUnreachable) {
+    console.warn(`⚠  ${srvBroken + srvUnreachable} server citation(s) did not re-verify — those rows still render, tagged unverified, at their ORIGINAL observed_at. Re-check them by hand before quoting the figure.`);
+  }
+  // An accelerator the rented registry prices but the server registry does not
+  // is the gap a user meets as "enter the hardware cost yourself". Naming it
+  // here is the difference between a known coverage hole and a silent one.
+  const srvGpus = new Set(Object.keys(serverDoc.by_gpu ?? {}));
+  const uncovered = [...new Set(doc.rows.map((r) => r.gpu_id))].filter((g) => !srvGpus.has(g));
+  if (uncovered.length) {
+    console.warn(`⚠  no server band for: ${uncovered.join(", ")} — the calculator will ask the user to enter capex for those accelerators.`);
   }
   console.log("\n✓ refresh complete.\n");
 }

@@ -218,6 +218,31 @@ payback beyond the declared horizon is returned as the true month with a
 `beyond_horizon` flag — truncating it to the horizon would misreport a real answer
 as an impossible one.
 
+**v0.5 — one-time cost belongs to EVERY option, and payback compares the net.**
+Through v0.4 only the self-hosted option could carry a one-time cost, so a rented
+option's onboarding fee and an API option's integration work read as zero whether
+or not they existed. v0.5 rolls a one-time figure up per option:
+
+```
+one_time[k] = (k == A ? laneA.capex : 0) + declared_one_time[k] + subscription_one_time_if_applies[k]
+horizon_total[k] = monthly_total[k] × horizon_months + one_time[k]
+```
+
+The `capex` term in the payback formula above becomes the **net** one-time
+difference, `one_time[A] − one_time[target]`, and both monthly figures carry the
+platform licence wherever §7.4 says it applies. The target option's own upfront
+cost delays the crossing by exactly as much as the self-hosted capex brings it
+forward, so charging only one side would systematically flatter self-hosting.
+With no subscription and no declared one-time this reduces to `capex − 0` and the
+v0.4 monthlies, which is why the F1–F10 fixtures are unmoved by the change.
+
+`monthly_total` and `horizon_total` are reported **beside** the infrastructure
+line, never folded into it: `lanes[k].monthly_total` stays the cost of serving
+the tokens, exactly as §4.5 keeps the commercial overlay separable. Any surface
+that shows a monthly next to a cumulative total must state both on the same
+basis — a licence-inclusive total beside an infra-only monthly invites the reader
+to subtract one from the other and reach a figure that is in neither.
+
 ---
 
 ## 3. OfferContract — the tariff data model
@@ -528,6 +553,57 @@ calculator with no GPU prices at all, which is worse than a loud failure.
 
 Adding GCP to `first_party` requires only a key in the §5.6 secret store; the
 registry is structured so that promotion changes the tier field and nothing else.
+
+### 5.8 Server acquisition registry — why there is no `first_party` tier here
+
+The self-hosted option needs a hardware capex, and through v0.4 the field shipped
+`value="0"`. That was not a neutral default: `paybackMonths` returned `zero_capex`
+on the default scenario, so the payback block — the one answer this calculator
+exists to produce — was dead out of the box. v0.5 derives the capex from a chosen
+server configuration and the fleet the demand model already sized.
+
+**No vendor publishes a list price for a GPU server.** Dell, HPE, Supermicro and
+NVIDIA's own DGX line all quote an 8-GPU node through sales; Supermicro's store is
+configure-to-order and returns no comparable figure. There is therefore **no
+`first_party` tier for this registry at all**, and there will not be one until a
+vendor publishes a credential-free price list. Every row is `indicative`, sourced
+from a named published integrator or analyst figure, and carries `quoted_text`,
+`source_url` and `observed_at`.
+
+**The builder verifies citations, not prices.** `scripts/build-server-pricing.mjs`
+is stage 4/4 of the refresh and is deliberately **not a scraper**. It re-fetches
+each row's `source_url` and asserts the row's `quoted_text` still appears on the
+page, writing a per-row `verification` of `verified` / `citation_broken` /
+`unreachable`. This catches the failure that actually happens — a published figure
+quietly changing under a citation the calculator still displays — rather than
+pretending to read a price out of a sales page. A broken citation does **not**
+delete the row: the figure was true when observed, so it survives at its original
+`observed_at`, rendered unverified. The stage exits non-zero only when **no** row
+verifies, because that means the run was broken, not that a number went stale.
+
+**Bands, not point estimates, and disagreement is carried not averaged.** Each row
+publishes `usd_low` / `usd_typical` / `usd_high`; the UI offers those three as a
+price basis and pre-fills the typical. Where two sources disagree — they currently
+differ by ~22% on an 8×H100 node — both ship as **separate rows** with their own
+citations. Averaging them would manufacture a figure no source states, and the
+disagreement is itself the honest signal about how firm these numbers are.
+
+**Whole nodes, and the waste is shown.** A fleet is covered in whole units of ONE
+selected configuration: `nodes = ceil(gpus_required / gpu_count)`, `capex = nodes ×
+unit_price`. A part-full node still costs a full node, and the surplus accelerators
+are reported (`gpus_overprovisioned`) rather than prorated away — §2.3's rule
+against fractionally discounting a fixed asset applies to the hardware exactly as
+it applies to a lane's fixed monthly. Mixed-configuration fleets are **not** solved:
+registry rows are citations, not SKUs, so a combination could "buy" the same node
+twice at two different published prices, and `serving.js` solves tensor-parallel
+size against a uniform accelerator anyway.
+
+The derived figure follows the §2.4 basis contract — an entered capex outranks it,
+and the quote records which of the two applied (`capex_basis`). Coverage is
+partial by construction: accelerators with no published node figure (currently
+a100_40, a100_80, a10g, a10, l4, l40s, a800) have no rows, and the refresh names
+them so the gap is known rather than silent. The UI asks the user for a figure
+instead of inventing one.
 
 ---
 
@@ -881,6 +957,57 @@ The hosted artifact of this spec and any public calculator page carry NO client
 rates, margins, or named engagements: commercial defaults shipped publicly are
 generic placeholders labelled `assumed`. Client-specific figures exist only in
 private quote exports.
+
+### 7.4 AI-platform subscription — a cost layer, and its split provenance
+
+The software you licence to run inference — Nutanix Enterprise AI, NVIDIA AI
+Enterprise, Red Hat AI Inference Server — is not one of the three options. §2.1
+fixes those three and admits no fourth. It is a **layer charged on top of the
+options it covers**, exactly as the §7.2 overlay is, and it is applied before the
+overlay so the overlay stays last.
+
+**The meter is the first-class field, not the price.** These vendors count
+fundamentally different things, and the meter is what decides the bill:
+
+| Meter | Example | Billable quantity is derived from |
+|---|---|---|
+| `per_gpu_ram_gb_year` | Nutanix Enterprise AI | GPU count × the accelerator's `vram_gb` |
+| `per_gpu_year`, `per_gpu_hour` | NVIDIA AI Enterprise (subscription / marketplace) | fleet GPU count; rented GPU-hours for the hourly meter |
+| `per_accelerator_year` | Red Hat AI Inference Server | fleet accelerator count |
+| `per_node_year` | node-metered platforms | the §5.8 capex plan's node count |
+| `per_vcpu_year`, `per_user_month`, `flat_month` | worker-node and seat licensing | entered; the calculator models no vCPU count |
+
+The quantity is **derived from the fleet this calculator already sized**, so the
+licence re-prices when the fleet moves. An unknown meter is a refusal
+(`unknown_meter`), never a guess; a meter whose input the calculator does not model
+refuses by naming the missing field (`missing_quantity_input`).
+
+**Provenance is per FIELD, not per row.** A vendor routinely documents its meter in
+public while quoting the amount only through sales. Collapsing those into one row
+tier would either present an analyst's estimate as a vendor list price or discard a
+genuinely first-party fact. So each row carries `meter_confidence` /
+`meter_source_url` **separately** from `price_confidence` / `price_source_url`, and
+the UI tags them separately: *meter: vendor-documented* beside *price: indicative*
+or *price: your quote*.
+
+**A null price refuses; it never renders as free.** Nutanix and Red Hat publish a
+meter and no list price. Those rows carry `price_usd: null` and raise
+`price_unpublished`, which asks for the user's quoted figure while still showing the
+documented meter quotation. Defaulting to zero would report the licence as free —
+the single most misleading answer this layer could give.
+
+**`applies_to` is explicit, and non-coverage is named.** A row states which options
+it is charged to. The Model API option is not excluded by silence: it is reported
+as `not_applicable` by name, because "you do not run a platform here" and "the
+platform is free here" are materially different claims and an omitted row renders
+as the second. A row's `bundled_exemptions` records where a licence is already
+included in the hardware or instance price (DGX systems, H100 PCIe) so it is not
+double-counted.
+
+Term handling is exact: `annual` divides by 12 into a monthly figure that is
+frequently non-terminating and therefore travels as a reduced rational per §3.5;
+`monthly` and `hourly` are already the month's cost and are never divided again;
+`perpetual` becomes a one-time cost and enters the §2.5 roll-up.
 
 ---
 

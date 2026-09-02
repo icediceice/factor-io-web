@@ -277,3 +277,44 @@ export function parseJSONExact(text) {
 
 export const ZERO = new Dec(CZ, CZ);
 export const ONE = new Dec(1n, CZ);
+
+// ─────────────────────────────────────────────── money serialisation (SPEC §3.5)
+// Totals travel as canonical decimal strings OR as reduced n/d strings, because
+// some are genuinely non-terminating: the rented option's hourly amortization and
+// an annual licence divided into a month both produce rationals that no finite
+// decimal represents. toRat accepts either form, ratStr emits the decimal form
+// whenever one exists exactly and the n/d form when it does not.
+//
+// These live HERE, not in calculator.js, because more than one module now needs
+// them: capex.js, subscription.js and the engine all serialise money, and once
+// calculator.js imports subscription.js an import of ratStr in the other
+// direction would be a cycle. exact.js depends on nothing, so it is the only
+// place all three can share ONE definition rather than drifting toward three.
+
+export function toRat(x) {
+  if (x instanceof Rat) return x;
+  const s = String(x);
+  const m = /^(-?\d+)\/(\d+)$/.exec(s);
+  if (m) return Rat.of(BigInt(m[1]), BigInt(m[2]));
+  return Rat.from(Dec.from(s));
+}
+
+export function ratToDecExact(r) {
+  // Exact Decimal for a terminating rational n/(2^a 5^b); null otherwise.
+  // n/(2^a 5^b) = n x 2^(e-a) x 5^(e-b) / 10^e with e = max(a, b).
+  let d = r.d;
+  let twos = 0n, fives = 0n;
+  while (d % 2n === 0n) { d /= 2n; twos++; }
+  while (d % 5n === 0n) { d /= 5n; fives++; }
+  if (d !== 1n) return null;
+  const e = twos > fives ? twos : fives;
+  const num = r.n * ipow(2n, e - twos) * ipow(5n, e - fives);
+  return new Dec(num, e);
+}
+function ipow(b, e) { let r = 1n; for (let i = 0n; i < e; i++) r *= b; return r; }
+
+export function ratStr(x) {
+  const r = toRat(x);
+  const d = ratToDecExact(r);
+  return d === null ? r.toString() : d.toString(); // decimal form when exact
+}

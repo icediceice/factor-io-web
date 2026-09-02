@@ -398,10 +398,64 @@
 
     <div class="sec">
       <h2>Money</h2>
-      <p class="hint">What the owned option costs you outside the tokens.</p>
+      <p class="hint">What the owned option costs you outside the tokens &mdash; the hardware you buy once, and the software you licence.</p>
+
+      <div class="row one">
+        <div class="f">
+          <label for="f-srv-config">Server you'd buy</label>
+          <select id="f-srv-config"></select>
+          <span class="sub">Sets the one-time hardware cost from the fleet size above. You buy whole servers, so a part-full node still costs a full node &mdash; the waste is shown rather than averaged away.</span>
+        </div>
+      </div>
       <div class="row">
-        <div class="f"><label for="f-sh-capex">Hardware, one-time ($)</label><input id="f-sh-capex" type="text" inputmode="decimal" value="0"></div>
+        <div class="f">
+          <label for="f-srv-basis">Price point</label>
+          <select id="f-srv-basis">
+            <option value="usd_low">Low end of the published band</option>
+            <option value="usd_typical" selected>Typical</option>
+            <option value="usd_high">High end of the published band</option>
+          </select>
+          <span class="sub">Sources publish a range, not a price. Some publish a typical only.</span>
+        </div>
+        <div class="f">
+          <label for="f-sh-capex">Hardware, one-time ($)</label>
+          <input id="f-sh-capex" type="text" inputmode="decimal" placeholder="derived from the server above">
+          <span class="sub">Leave blank to use the derived figure. Type your own quote to override it.</span>
+        </div>
+      </div>
+      <p class="muted" id="f-srv-note"></p>
+
+      <div class="row one">
+        <div class="f">
+          <label for="f-sub-row">Platform software subscription</label>
+          <select id="f-sub-row"></select>
+          <span class="sub">The AI platform you licence on top of the hardware. Vendors count these differently &mdash; per GPU, per GB of GPU memory, per seat &mdash; and the meter is what decides your bill.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-sub-price">Price per unit ($)</label>
+          <input id="f-sub-price" type="text" inputmode="decimal" placeholder="from the row">
+          <span class="sub">Per whatever the meter counts. Most vendors here publish no list price, so this is your quote.</span>
+        </div>
+        <div class="f">
+          <label for="f-sub-term">Term</label>
+          <select id="f-sub-term">
+            <option value="">As the row defines it</option>
+            <option value="annual">Annual (spread over 12 months)</option>
+            <option value="monthly">Monthly</option>
+            <option value="perpetual">Perpetual (all of it up front)</option>
+          </select>
+        </div>
+      </div>
+      <p class="muted" id="f-sub-note"></p>
+
+      <div class="row">
         <div class="f"><label for="f-sh-fixed">Running, per month ($)</label><input id="f-sh-fixed" type="text" inputmode="decimal" value="10000"></div>
+        <div class="f">
+          <label for="f-horizon-hint">&nbsp;</label>
+          <span class="sub" id="f-horizon-hint">Power, cooling, colocation, staff &mdash; everything recurring that is not the tokens themselves.</span>
+        </div>
       </div>
 
       <details class="adv">
@@ -454,9 +508,21 @@
         </div>
         <div class="row">
           <div class="f">
+            <label for="f-onetime-b">Model API, one-time ($)</label>
+            <input id="f-onetime-b" type="text" inputmode="decimal" value="0">
+            <span class="sub">Integration and migration work you'd pay once to go the API route. Charged to that option alone, so it shortens the payback rather than being invisible.</span>
+          </div>
+          <div class="f">
+            <label for="f-onetime-c">Rented GPU, one-time ($)</label>
+            <input id="f-onetime-c" type="text" inputmode="decimal" value="0">
+            <span class="sub">Onboarding, egress setup, reserved-capacity commitments.</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="f">
             <label for="fo-impl">Implementation ($)</label>
             <input id="fo-impl" type="text" inputmode="decimal" value="0">
-            <span class="sub">One-time, like the hardware.</span>
+            <span class="sub">One-time, like the hardware. Applies to every option, unlike the two above.</span>
           </div>
           <div class="f">
             <label for="fo-loaded">Per-1M basis</label>

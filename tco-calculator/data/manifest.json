@@ -1,35 +1,35 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1787998093464",
-  "generated_at": "2026-08-29T10:08:13.464Z",
-  "snapshot_digest": "2b56df231e5a3b29",
+  "refresh_id": "refresh-1788330405492",
+  "generated_at": "2026-09-02T06:26:45.492Z",
+  "snapshot_digest": "89e35205462f9fca",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-2b56df231e5a3b29.json",
-      "digest": "2b56df231e5a3b29",
-      "bytes": 2420546
+      "path": "catalog-89e35205462f9fca.json",
+      "digest": "89e35205462f9fca",
+      "bytes": 2543485
     }
   },
   "sources": {
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-08-29T10:08:13.464Z",
-      "last_success_at": "2026-08-29T10:08:13.464Z",
-      "expires_at": "2026-09-01T10:08:13.464Z",
-      "root_digest": "d4e291fb686383a5",
-      "record_count": 384,
+      "observed_at": "2026-09-02T06:26:45.492Z",
+      "last_success_at": "2026-09-02T06:26:45.492Z",
+      "expires_at": "2026-09-05T06:26:45.492Z",
+      "root_digest": "6c3ab64be817f082",
+      "record_count": 408,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-08-29T10:08:13.464Z",
-      "last_success_at": "2026-08-29T10:08:13.464Z",
-      "expires_at": "2026-09-01T10:08:13.464Z",
-      "root_digest": "8f7916e48c728cb1",
-      "record_count": 2594,
+      "observed_at": "2026-09-02T06:26:45.492Z",
+      "last_success_at": "2026-09-02T06:26:45.492Z",
+      "expires_at": "2026-09-05T06:26:45.492Z",
+      "root_digest": "54792ddb7903db0e",
+      "record_count": 2714,
       "missing_streak": 0
     }
   },
@@ -315,6 +315,19 @@
     {
       "id": "litellm:anthropic.claude-fable-5",
       "name": "anthropic.claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:anthropic.claude-fable-5-1",
+      "name": "anthropic.claude-fable-5-1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -3058,6 +3071,19 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/claude-fable-5-1",
+      "name": "azure_ai/claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/claude-haiku-4-5",
       "name": "azure_ai/claude-haiku-4-5",
       "tariff": "token",
@@ -3253,6 +3279,17 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/deepseek-v4-flash-0731",
+      "name": "azure_ai/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -5129,6 +5166,16 @@
       ]
     },
     {
+      "id": "litellm:cerebras/gemma-4-31b",
+      "name": "cerebras/gemma-4-31b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:cerebras/gpt-oss-120b",
       "name": "cerebras/gpt-oss-120b",
       "tariff": "token",
@@ -5299,6 +5346,19 @@
     {
       "id": "litellm:claude-fable-5",
       "name": "claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:claude-fable-5-1",
+      "name": "claude-fable-5-1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -6854,6 +6914,34 @@
     {
       "id": "litellm:databricks/databricks-claude-sonnet-5",
       "name": "databricks/databricks-claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-deepseek-v4-flash-0731",
+      "name": "databricks/databricks-deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-deepseek-v4-pro-0813",
+      "name": "databricks/databricks-deepseek-v4-pro-0813",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -9106,6 +9194,19 @@
       ]
     },
     {
+      "id": "litellm:eu.anthropic.claude-fable-5-1",
+      "name": "eu.anthropic.claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -10119,6 +10220,17 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/glm-5p2",
       "name": "fireworks_ai/accounts/fireworks/models/glm-5p2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/glm-5p3",
+      "name": "fireworks_ai/accounts/fireworks/models/glm-5p3",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -12306,6 +12418,28 @@
       ]
     },
     {
+      "id": "litellm:friendliai/zai-org/GLM-5.3",
+      "name": "friendliai/zai-org/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:friendliai/zai-org/GLM-5.3-Flash",
+      "name": "friendliai/zai-org/GLM-5.3-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:ft:babbage-002",
       "name": "ft:babbage-002",
       "tariff": "token",
@@ -13404,6 +13538,17 @@
       ]
     },
     {
+      "id": "litellm:gemini/gemini-omni-1.1-flash",
+      "name": "gemini/gemini-omni-1.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "audio_in_tok",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gemini/gemini-omni-flash-preview",
       "name": "gemini/gemini-omni-flash-preview",
       "tariff": "token",
@@ -13497,6 +13642,26 @@
       ]
     },
     {
+      "id": "litellm:gemini/gemma-4-26b-a4b-it",
+      "name": "gemini/gemma-4-26b-a4b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gemini/gemma-4-31b-it",
+      "name": "gemini/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gemini/learnlm-1.5-pro-experimental",
       "name": "gemini/learnlm-1.5-pro-experimental",
       "tariff": "token",
@@ -13540,10 +13705,20 @@
       ]
     },
     {
+      "id": "litellm:gigachat/GigaChat-2",
+      "name": "gigachat/GigaChat-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gigachat/GigaChat-2-Lite",
       "name": "gigachat/GigaChat-2-Lite",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -13615,6 +13790,19 @@
     {
       "id": "litellm:global.anthropic.claude-fable-5",
       "name": "global.anthropic.claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:global.anthropic.claude-fable-5-1",
+      "name": "global.anthropic.claude-fable-5-1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -15319,6 +15507,16 @@
       ]
     },
     {
+      "id": "litellm:groq/qwen/qwen3.8-27b",
+      "name": "groq/qwen/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:hyperbolic/NousResearch/Hermes-3-Llama-3.1-70B",
       "name": "hyperbolic/NousResearch/Hermes-3-Llama-3.1-70B",
       "tariff": "token",
@@ -16665,6 +16863,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16675,6 +16874,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16791,6 +16991,16 @@
       ]
     },
     {
+      "id": "litellm:mistral/labs-leanstral-1-5-1",
+      "name": "mistral/labs-leanstral-1-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:mistral/magistral-medium-1-2-2509",
       "name": "mistral/magistral-medium-1-2-2509",
       "tariff": "token",
@@ -16886,6 +17096,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16896,6 +17107,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16906,6 +17118,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16936,6 +17149,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16946,6 +17160,39 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-code-agent-latest",
+      "name": "mistral/mistral-code-agent-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-code-fim-latest",
+      "name": "mistral/mistral-code-fim-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-code-latest",
+      "name": "mistral/mistral-code-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16986,6 +17233,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16996,6 +17244,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17006,6 +17255,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17056,6 +17306,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17086,6 +17337,18 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-medium-3.5",
+      "name": "mistral/mistral-medium-3.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17096,6 +17359,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17116,6 +17380,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17136,6 +17401,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17146,6 +17412,39 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-vibe-cli-fast",
+      "name": "mistral/mistral-vibe-cli-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-vibe-cli-latest",
+      "name": "mistral/mistral-vibe-cli-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:mistral/mistral-vibe-cli-with-tools",
+      "name": "mistral/mistral-vibe-cli-with-tools",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -17352,6 +17651,17 @@
     {
       "id": "litellm:moonshot/kimi-k2.6",
       "name": "moonshot/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:moonshot/kimi-k2.7-code",
+      "name": "moonshot/kimi-k2.7-code",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -21879,6 +22189,938 @@
       ]
     },
     {
+      "id": "litellm:qwen_ai_platform/deepseek-v4-flash",
+      "name": "qwen_ai_platform/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/deepseek-v4-flash-0731",
+      "name": "qwen_ai_platform/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/deepseek-v4-pro",
+      "name": "qwen_ai_platform/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/glm-5.1",
+      "name": "qwen_ai_platform/glm-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/glm-5.2",
+      "name": "qwen_ai_platform/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/kimi-k2.7-code",
+      "name": "qwen_ai_platform/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-coder",
+      "name": "qwen_ai_platform/qwen-coder",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-flash",
+      "name": "qwen_ai_platform/qwen-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-flash-2025-07-28",
+      "name": "qwen_ai_platform/qwen-flash-2025-07-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-max",
+      "name": "qwen_ai_platform/qwen-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus",
+      "name": "qwen_ai_platform/qwen-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus-2025-01-25",
+      "name": "qwen_ai_platform/qwen-plus-2025-01-25",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus-2025-04-28",
+      "name": "qwen_ai_platform/qwen-plus-2025-04-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus-2025-07-14",
+      "name": "qwen_ai_platform/qwen-plus-2025-07-14",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus-2025-07-28",
+      "name": "qwen_ai_platform/qwen-plus-2025-07-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "input|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus-2025-09-11",
+      "name": "qwen_ai_platform/qwen-plus-2025-09-11",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "input|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-plus-latest",
+      "name": "qwen_ai_platform/qwen-plus-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "input|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-turbo",
+      "name": "qwen_ai_platform/qwen-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-turbo-2024-11-01",
+      "name": "qwen_ai_platform/qwen-turbo-2024-11-01",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-turbo-2025-04-28",
+      "name": "qwen_ai_platform/qwen-turbo-2025-04-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen-turbo-latest",
+      "name": "qwen_ai_platform/qwen-turbo-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-coder-flash",
+      "name": "qwen_ai_platform/qwen3-coder-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read|tier=range0",
+        "input|tier=range0",
+        "output|tier=range0",
+        "cache_read|>32000|tier=range1",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "cache_read|>128000|tier=range2",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "cache_read|>256000|tier=range3",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-coder-flash-2025-07-28",
+      "name": "qwen_ai_platform/qwen3-coder-flash-2025-07-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-coder-plus",
+      "name": "qwen_ai_platform/qwen3-coder-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read|tier=range0",
+        "input|tier=range0",
+        "output|tier=range0",
+        "cache_read|>32000|tier=range1",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "cache_read|>128000|tier=range2",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "cache_read|>256000|tier=range3",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-coder-plus-2025-07-22",
+      "name": "qwen_ai_platform/qwen3-coder-plus-2025-07-22",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-max",
+      "name": "qwen_ai_platform/qwen3-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-max-2026-01-23",
+      "name": "qwen_ai_platform/qwen3-max-2026-01-23",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-max-preview",
+      "name": "qwen_ai_platform/qwen3-max-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-next-80b-a3b-instruct",
+      "name": "qwen_ai_platform/qwen3-next-80b-a3b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-next-80b-a3b-thinking",
+      "name": "qwen_ai_platform/qwen3-next-80b-a3b-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-vl-235b-a22b-instruct",
+      "name": "qwen_ai_platform/qwen3-vl-235b-a22b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-vl-235b-a22b-thinking",
+      "name": "qwen_ai_platform/qwen3-vl-235b-a22b-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-vl-32b-instruct",
+      "name": "qwen_ai_platform/qwen3-vl-32b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-vl-32b-thinking",
+      "name": "qwen_ai_platform/qwen3-vl-32b-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3-vl-plus",
+      "name": "qwen_ai_platform/qwen3-vl-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3.5-plus",
+      "name": "qwen_ai_platform/qwen3.5-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3.7-max",
+      "name": "qwen_ai_platform/qwen3.7-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3.7-plus",
+      "name": "qwen_ai_platform/qwen3.7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read|tier=range0",
+        "input|tier=range0",
+        "output|tier=range0",
+        "cache_read|>256000|tier=range1",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3.8-max",
+      "name": "qwen_ai_platform/qwen3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwq-plus",
+      "name": "qwen_ai_platform/qwq-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/deepseek-v4-flash",
+      "name": "qwencloud/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/deepseek-v4-flash-0731",
+      "name": "qwencloud/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/deepseek-v4-pro",
+      "name": "qwencloud/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/glm-5.1",
+      "name": "qwencloud/glm-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/glm-5.2",
+      "name": "qwencloud/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/kimi-k2.7-code",
+      "name": "qwencloud/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-coder",
+      "name": "qwencloud/qwen-coder",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-flash",
+      "name": "qwencloud/qwen-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-flash-2025-07-28",
+      "name": "qwencloud/qwen-flash-2025-07-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-max",
+      "name": "qwencloud/qwen-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus",
+      "name": "qwencloud/qwen-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus-2025-01-25",
+      "name": "qwencloud/qwen-plus-2025-01-25",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus-2025-04-28",
+      "name": "qwencloud/qwen-plus-2025-04-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus-2025-07-14",
+      "name": "qwencloud/qwen-plus-2025-07-14",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus-2025-07-28",
+      "name": "qwencloud/qwen-plus-2025-07-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "input|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus-2025-09-11",
+      "name": "qwencloud/qwen-plus-2025-09-11",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "input|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-plus-latest",
+      "name": "qwencloud/qwen-plus-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "input|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-turbo",
+      "name": "qwencloud/qwen-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-turbo-2024-11-01",
+      "name": "qwencloud/qwen-turbo-2024-11-01",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-turbo-2025-04-28",
+      "name": "qwencloud/qwen-turbo-2025-04-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen-turbo-latest",
+      "name": "qwencloud/qwen-turbo-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-coder-flash",
+      "name": "qwencloud/qwen3-coder-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read|tier=range0",
+        "input|tier=range0",
+        "output|tier=range0",
+        "cache_read|>32000|tier=range1",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "cache_read|>128000|tier=range2",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "cache_read|>256000|tier=range3",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-coder-flash-2025-07-28",
+      "name": "qwencloud/qwen3-coder-flash-2025-07-28",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-coder-plus",
+      "name": "qwencloud/qwen3-coder-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read|tier=range0",
+        "input|tier=range0",
+        "output|tier=range0",
+        "cache_read|>32000|tier=range1",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "cache_read|>128000|tier=range2",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "cache_read|>256000|tier=range3",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-coder-plus-2025-07-22",
+      "name": "qwencloud/qwen3-coder-plus-2025-07-22",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2",
+        "input|>256000|tier=range3",
+        "output|>256000|tier=range3"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-max",
+      "name": "qwencloud/qwen3-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-max-2026-01-23",
+      "name": "qwencloud/qwen3-max-2026-01-23",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-max-preview",
+      "name": "qwencloud/qwen3-max-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-next-80b-a3b-instruct",
+      "name": "qwencloud/qwen3-next-80b-a3b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-next-80b-a3b-thinking",
+      "name": "qwencloud/qwen3-next-80b-a3b-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-vl-235b-a22b-instruct",
+      "name": "qwencloud/qwen3-vl-235b-a22b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-vl-235b-a22b-thinking",
+      "name": "qwencloud/qwen3-vl-235b-a22b-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-vl-32b-instruct",
+      "name": "qwencloud/qwen3-vl-32b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-vl-32b-thinking",
+      "name": "qwencloud/qwen3-vl-32b-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3-vl-plus",
+      "name": "qwencloud/qwen3-vl-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>32000|tier=range1",
+        "output|>32000|tier=range1",
+        "input|>128000|tier=range2",
+        "output|>128000|tier=range2"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3.5-plus",
+      "name": "qwencloud/qwen3.5-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|tier=range0",
+        "output|tier=range0",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3.7-max",
+      "name": "qwencloud/qwen3.7-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3.7-plus",
+      "name": "qwencloud/qwen3.7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read|tier=range0",
+        "input|tier=range0",
+        "output|tier=range0",
+        "cache_read|>256000|tier=range1",
+        "input|>256000|tier=range1",
+        "output|>256000|tier=range1"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwen3.8-max",
+      "name": "qwencloud/qwen3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwencloud/qwq-plus",
+      "name": "qwencloud/qwq-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/anthropic/claude-3.5-haiku",
       "name": "replicate/anthropic/claude-3.5-haiku",
       "tariff": "token",
@@ -23305,6 +24547,16 @@
       ]
     },
     {
+      "id": "litellm:together_ai/Qwen/Qwen3.8-Flash",
+      "name": "together_ai/Qwen/Qwen3.8-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/arize-ai/qwen-2-1.5b-instruct",
       "name": "together_ai/arize-ai/qwen-2-1.5b-instruct",
       "tariff": "token",
@@ -23665,6 +24917,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/zai-org/GLM-5.3",
+      "name": "together_ai/zai-org/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/zai-org/GLM-5.3-Flash",
       "name": "together_ai/zai-org/GLM-5.3-Flash",
       "tariff": "token",
@@ -23854,6 +25117,19 @@
     {
       "id": "litellm:us.anthropic.claude-fable-5",
       "name": "us.anthropic.claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us.anthropic.claude-fable-5-1",
+      "name": "us.anthropic.claude-fable-5-1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -25402,6 +26678,32 @@
     {
       "id": "litellm:vertex_ai/claude-fable-5",
       "name": "vertex_ai/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-fable-5-1",
+      "name": "vertex_ai/claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-fable-5-1@default",
+      "name": "vertex_ai/claude-fable-5-1@default",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27221,7 +28523,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27232,7 +28537,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27243,7 +28551,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27254,7 +28565,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27265,7 +28579,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27276,7 +28593,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27287,7 +28607,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27298,7 +28621,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27309,7 +28635,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27320,7 +28649,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27331,7 +28663,10 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27341,7 +28676,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27351,9 +28690,11 @@
       "state": "active",
       "meters": [
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "cache_read",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27364,9 +28705,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27377,9 +28719,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27390,9 +28733,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27403,9 +28747,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27416,9 +28761,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27429,9 +28775,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27442,9 +28789,10 @@
       "meters": [
         "cache_read",
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27454,9 +28802,25 @@
       "state": "active",
       "meters": [
         "input",
-        "input|>128000",
         "output",
-        "output|>128000"
+        "cache_read",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20",
+      "name": "xai/grok-4.20",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
       ]
     },
     {
@@ -27504,6 +28868,62 @@
     {
       "id": "litellm:xai/grok-4.20-beta-0309-reasoning",
       "name": "xai/grok-4.20-beta-0309-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-non-reasoning",
+      "name": "xai/grok-4.20-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-non-reasoning-latest",
+      "name": "xai/grok-4.20-non-reasoning-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-reasoning",
+      "name": "xai/grok-4.20-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-reasoning-latest",
+      "name": "xai/grok-4.20-reasoning-latest",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27814,8 +29234,32 @@
       ]
     },
     {
+      "id": "litellm:zai/glm-5.2",
+      "name": "zai/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:zai/glm-5.3",
       "name": "zai/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zai/glm-5.3-flash",
+      "name": "zai/glm-5.3-flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27946,6 +29390,34 @@
     {
       "id": "openrouter:anthropic/claude-fable-5",
       "name": "Anthropic: Claude Fable 5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-fable-5.1",
+      "name": "Anthropic: Claude Fable 5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-fable-5.1:batch",
+      "name": "Anthropic: Claude Fable 5.1 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28115,7 +29587,7 @@
       "id": "openrouter:anthropic/claude-opus-4.7-fast",
       "name": "Anthropic: Claude Opus 4.7 (Fast)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28157,7 +29629,7 @@
       "id": "openrouter:anthropic/claude-opus-4.8-fast",
       "name": "Anthropic: Claude Opus 4.8 (Fast)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28199,7 +29671,7 @@
       "id": "openrouter:anthropic/claude-opus-5-fast",
       "name": "Claude Opus 5 (Fast)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29259,8 +30731,30 @@
       ]
     },
     {
+      "id": "openrouter:ibm-granite/granite-4.2-8b",
+      "name": "IBM: Granite 4.2 8B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:inception/mercury-2",
       "name": "Inception: Mercury 2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:inception/mercury-2.5-preview",
+      "name": "Inception: Mercury 2.5 Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -29294,7 +30788,7 @@
       "id": "openrouter:kwaipilot/kat-coder-air-v2.5",
       "name": "Kwaipilot: KAT-Coder-Air V2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29423,8 +30917,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -29646,7 +31139,7 @@
       "id": "openrouter:mistralai/codestral-2508:batch",
       "name": "Mistral: Codestral 2508 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29701,7 +31194,7 @@
       "id": "openrouter:mistralai/ministral-8b-2512:batch",
       "name": "Mistral: Ministral 3 8B 2512 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29745,7 +31238,7 @@
       "id": "openrouter:mistralai/mistral-large-2512:batch",
       "name": "Mistral: Mistral Large 3 2512 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29798,7 +31291,7 @@
       "id": "openrouter:mistralai/mistral-medium-3.1:batch",
       "name": "Mistral: Mistral Medium 3.1 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29851,7 +31344,7 @@
       "id": "openrouter:mistralai/mistral-small-2603:batch",
       "name": "Mistral: Mistral Small 4 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30214,6 +31707,17 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-3.5-turbo:batch",
+      "name": "OpenAI: GPT-3.5 Turbo (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-4",
       "name": "OpenAI: GPT-4",
       "tariff": "token",
@@ -30244,6 +31748,17 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-4-turbo:batch",
+      "name": "OpenAI: GPT-4 Turbo (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-4.1",
       "name": "OpenAI: GPT-4.1",
       "tariff": "token",
@@ -30268,8 +31783,44 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-4.1-mini:batch",
+      "name": "OpenAI: GPT-4.1 Mini (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-4.1-nano",
       "name": "OpenAI: GPT-4.1 Nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-4.1-nano:batch",
+      "name": "OpenAI: GPT-4.1 Nano (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-4.1:batch",
+      "name": "OpenAI: GPT-4.1 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30345,6 +31896,30 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-4o-mini:batch",
+      "name": "OpenAI: GPT-4o-mini (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-4o:batch",
+      "name": "OpenAI: GPT-4o (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-5",
       "name": "OpenAI: GPT-5",
       "tariff": "token",
@@ -30395,6 +31970,18 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-5-mini:batch",
+      "name": "OpenAI: GPT-5 Mini (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-5-nano",
       "name": "OpenAI: GPT-5 Nano",
       "tariff": "token",
@@ -30407,8 +31994,31 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-5-nano:batch",
+      "name": "OpenAI: GPT-5 Nano (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-5-pro",
       "name": "OpenAI: GPT-5 Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5-pro:batch",
+      "name": "OpenAI: GPT-5 Pro (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30466,6 +32076,18 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-5.1:batch",
+      "name": "OpenAI: GPT-5.1 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-5.2",
       "name": "OpenAI: GPT-5.2",
       "tariff": "token",
@@ -30510,6 +32132,29 @@
         "input",
         "output",
         "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.2-pro:batch",
+      "name": "OpenAI: GPT-5.2 Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.2:batch",
+      "name": "OpenAI: GPT-5.2 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
       ]
     },
     {
@@ -30562,8 +32207,32 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-5.4-mini:batch",
+      "name": "OpenAI: GPT-5.4 Mini (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-5.4-nano",
       "name": "OpenAI: GPT-5.4 Nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.4-nano:batch",
+      "name": "OpenAI: GPT-5.4 Nano (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30582,6 +32251,29 @@
         "input",
         "output",
         "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.4-pro:batch",
+      "name": "OpenAI: GPT-5.4 Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.4:batch",
+      "name": "OpenAI: GPT-5.4 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
       ]
     },
     {
@@ -30605,6 +32297,29 @@
         "input",
         "output",
         "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.5-pro:batch",
+      "name": "OpenAI: GPT-5.5 Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.5:batch",
+      "name": "OpenAI: GPT-5.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
       ]
     },
     {
@@ -30634,6 +32349,30 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-5.6-luna-pro:batch",
+      "name": "OpenAI: GPT-5.6 Luna Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.6-luna:batch",
+      "name": "OpenAI: GPT-5.6 Luna (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-5.6-sol",
       "name": "OpenAI: GPT-5.6 Sol",
       "tariff": "token",
@@ -30649,6 +32388,32 @@
     {
       "id": "openrouter:openai/gpt-5.6-sol-pro",
       "name": "OpenAI: GPT-5.6 Sol Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.6-sol-pro:batch",
+      "name": "OpenAI: GPT-5.6 Sol Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.6-sol:batch",
+      "name": "OpenAI: GPT-5.6 Sol (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30683,6 +32448,42 @@
         "web_search",
         "cache_read",
         "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.6-terra-pro:batch",
+      "name": "OpenAI: GPT-5.6 Terra Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5.6-terra:batch",
+      "name": "OpenAI: GPT-5.6 Terra (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-5:batch",
+      "name": "OpenAI: GPT-5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
       ]
     },
     {
@@ -30833,6 +32634,18 @@
       ]
     },
     {
+      "id": "openrouter:openai/o3-mini:batch",
+      "name": "OpenAI: o3 Mini (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:openai/o3-pro",
       "name": "OpenAI: o3 Pro",
       "tariff": "token",
@@ -30841,6 +32654,18 @@
         "input",
         "output",
         "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:openai/o3:batch",
+      "name": "OpenAI: o3 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
       ]
     },
     {
@@ -30858,6 +32683,18 @@
     {
       "id": "openrouter:openai/o4-mini-high",
       "name": "OpenAI: o4 Mini High",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:openai/o4-mini:batch",
+      "name": "OpenAI: o4 Mini (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -32198,6 +34035,11 @@
   "provenance": {
     "logs": [
       {
+        "offer": "openrouter:~z-ai/glm-flash-latest",
+        "rule": "alias_skipped",
+        "target": "z-ai/glm-5.3-flash"
+      },
+      {
         "offer": "openrouter:~z-ai/glm-latest",
         "rule": "alias_skipped",
         "target": "z-ai/glm-5.3"
@@ -32215,7 +34057,7 @@
       {
         "offer": "openrouter:~anthropic/claude-fable-latest",
         "rule": "alias_skipped",
-        "target": "anthropic/claude-fable-5"
+        "target": "anthropic/claude-fable-5.1"
       },
       {
         "offer": "openrouter:~anthropic/claude-haiku-latest",
@@ -32453,6 +34295,16 @@
         "offer": "litellm:amazon.nova-2-multimodal-embeddings-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:amazon.nova-sonic-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:amazon.nova-2-sonic-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
       },
       {
         "offer": "litellm:amazon.rerank-v1:0",
@@ -33207,6 +35059,118 @@
       },
       {
         "offer": "litellm:dashscope/qwen-image-3.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-plus-2025-07-28",
+        "rule": "tier_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-plus-2025-07-28",
+        "rule": "tier_entry_skipped",
+        "index": 1,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-plus-2025-09-11",
+        "rule": "tier_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-plus-2025-09-11",
+        "rule": "tier_entry_skipped",
+        "index": 1,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-plus-latest",
+        "rule": "tier_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-plus-latest",
+        "rule": "tier_entry_skipped",
+        "index": 1,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-image-2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-image-2.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-image-3.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/qwen-image-3.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-plus-2025-07-28",
+        "rule": "tier_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-plus-2025-07-28",
+        "rule": "tier_entry_skipped",
+        "index": 1,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-plus-2025-09-11",
+        "rule": "tier_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-plus-2025-09-11",
+        "rule": "tier_entry_skipped",
+        "index": 1,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-plus-latest",
+        "rule": "tier_entry_skipped",
+        "index": 0,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-plus-latest",
+        "rule": "tier_entry_skipped",
+        "index": 1,
+        "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-image-2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-image-2.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-image-3.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/qwen-image-3.0-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
       },
@@ -34076,6 +36040,11 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:gemini/nano-banana-pro-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
         "offer": "litellm:gemini/gemini-3.1-flash-image",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -34247,6 +36216,11 @@
       },
       {
         "offer": "litellm:gigachat/EmbeddingsGigaR",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:gigachat/GigaEmbeddings-3B-2025-09",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
       },
@@ -35631,6 +37605,11 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:vertex_ai/veo-3.1-lite-generate-001",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:voyage/rerank-2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -36181,6 +38160,16 @@
         "mode": "audio_transcription"
       },
       {
+        "offer": "litellm:vertex_ai/gemini-3.5-transcribe-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:vertex_ai/gemini-3.5-transcribe-live-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
         "offer": "litellm:perplexity/pplx-embed-context-v1-0.6b",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -36219,6 +38208,96 @@
         "offer": "litellm:voyage/voyage-multimodal-3.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image-2026-03-02",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image-quality",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image-quality-20260403",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image-quality-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-image-2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:low/1024-x-1024/grok-imagine-image-2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-4.20-multi-agent",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:xai/grok-4.20-multi-agent-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:mistral/mistral-ocr-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:mistral/mistral-ocr-3-0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:mistral/mistral-ocr-4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-realtime-2602",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-realtime-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:fireworks_ai/accounts/fireworks/models/qwen3-embedding-8b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:elevenlabs/scribe_v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
       }
     ],
     "source_errors": {

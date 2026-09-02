@@ -12,26 +12,16 @@
 //   per-bucket capacity = min(period tokens remaining, rate x bucket duration)
 // Absent temporal data the rate ceiling cannot be evaluated — the result says
 // capacity_temporal_unknown, it never silently substitutes the monthly scalar.
-import { Dec, Rat, ZERO, cmpMoney } from "./exact.js";
+import { Dec, Rat, ZERO, cmpMoney, toRat, ratStr, ratToDecExact } from "./exact.js";
 import { quoteOffer } from "./pricing.js";
 
-const HOURS_MONTH = 730; // [ASSUMED — spec author] 8760/12, stated in provenance
+// Money coercion (toRat/ratStr/ratToDecExact) moved to exact.js so capex.js and
+// subscription.js can share the single definition; re-exported here because
+// app.js and the fixtures import them from this module by their original names.
+export { ratStr, ratToDecExact };
 
-// Money coercion: totals travel as canonical decimal strings OR reduced n/d
-// strings (Lane C amortization is genuinely non-terminating). Everything
-// internal funnels through here before arithmetic.
-function toRat(x) {
-  if (x instanceof Rat) return x;
-  const s = String(x);
-  const m = /^(-?\d+)\/(\d+)$/.exec(s);
-  if (m) return Rat.of(BigInt(m[1]), BigInt(m[2]));
-  return Rat.from(Dec.from(s));
-}
-export function ratStr(x) {
-  const r = toRat(x);
-  const d = ratToDecExact(r);
-  return d === null ? r.toString() : d.toString(); // decimal form when exact
-}
+const HOURS_MONTH = 730; // [ASSUMED — spec author] 8760/12, stated in provenance
+const ZERO_RAT = Rat.of(0n, 1n); // ZERO from exact.js is a Dec; the v0.5 roll-ups accumulate on Rat
 
 // --------------------------------------------------------------- bucket math
 // Distribute monthly demand over time buckets and route under BOTH ceilings.
@@ -262,19 +252,8 @@ export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fa
   return { total, lines };
 }
 
-export function ratToDecExact(r) {
-  // Exact Decimal for a terminating rational n/(2^a 5^b); null otherwise.
-  // n/(2^a 5^b) = n x 2^(e-a) x 5^(e-b) / 10^e with e = max(a, b).
-  let d = r.d;
-  let twos = 0n, fives = 0n;
-  while (d % 2n === 0n) { d /= 2n; twos++; }
-  while (d % 5n === 0n) { d /= 5n; fives++; }
-  if (d !== 1n) return null;
-  const e = twos > fives ? twos : fives;
-  const num = r.n * pow(2n, e - twos) * pow(5n, e - fives);
-  return new Dec(num, e);
-}
-function pow(b, e) { let r = 1n; for (let i = 0n; i < e; i++) r *= b; return r; }
+// ratToDecExact and its integer-power helper now live in exact.js (re-exported
+// at the top of this file) — capex.js and subscription.js need the same rule.
 
 // ------------------------------------------------------------------ breakeven
 // Lane C vs B: the utilization where hourly/(tok_s x util x 3600) crosses the
@@ -464,6 +443,19 @@ export function runComparison({
   routing,
   overlay = null,
   evidenceRows = [],
+  // v0.5 additions. Both default to the shape that makes this function's output
+  // byte-identical to v0.4, because 14 fixture call sites bind the F1–F10
+  // acceptance anchors and none of them passes either one.
+  //
+  // subscription: one priced row from subscription.js:subscriptionCost, or null.
+  //   It is a cost LAYER, not a fourth option (SPEC §2.1 admits no fourth) — it
+  //   is charged only to the options named in its own applies_to.
+  // oneTime: { A?, B?, C? } one-time cost per option. laneA.capex remains the
+  //   self-hosted default so existing callers keep working; an entry here is
+  //   ADDED to it rather than replacing it, since server capex and a separate
+  //   implementation fee are both genuinely one-time and both belong.
+  subscription = null,
+  oneTime = null,
 }) {
   const reasons = [];
   const demand = workload.demand_tokens_mo;
@@ -718,23 +710,102 @@ export function runComparison({
   // never drift apart. Absent capex the block still renders — as an honest
   // does_not_converge/zero_capex, never as a blank or a zero.
   const selfHostedCapex = laneA && laneA.enabled ? (laneA.capex ?? "0") : "0";
+
+  // ---- v0.5: the subscription LAYER and the one-time roll-up.
+  //
+  // Infrastructure monthly totals stay exactly what they were — lanes.X.monthly_total
+  // is still infra-only, which is what the fixtures assert and what "the cost of
+  // serving the tokens" means. The licence and the one-time costs are reported
+  // ALONGSIDE in `totals`, the same separation applyOverlay already makes between
+  // infra_total and fully_loaded_total (SPEC §4.5). Folding a licence into the
+  // infra line would make a self-hosted GPU-hour look more expensive than it is.
+  const OPT = ["A", "B", "C"];
+  const infraMonthly = {
+    A: laneAResult.enabled ? laneAResult.monthly_total : null,
+    B: bMonthly === null ? null : bMonthly.toString(),
+    C: laneCStandalone.enabled ? laneCStandalone.monthly_total : null,
+  };
+
+  // A subscription is charged to an option only if the row itself says it applies.
+  // The options it does NOT cover are reported by name: an omitted option would
+  // render as $0, and "free here" is a materially different claim from "you do
+  // not run a platform here" (the Model API case).
+  const subApplies = new Set(Array.isArray(subscription?.applies_to) ? subscription.applies_to : []);
+  const subscriptionResult = subscription
+    ? {
+        ...subscription,
+        applied_to: OPT.filter((k) => subApplies.has(k)),
+        not_applicable: OPT.filter((k) => !subApplies.has(k)),
+      }
+    : null;
+
+  const subMonthlyFor = (k) => (subscription && subApplies.has(k) ? toRat(subscription.monthly ?? "0") : ZERO_RAT);
+  const subOneTimeFor = (k) => (subscription && subApplies.has(k) ? toRat(subscription.one_time ?? "0") : ZERO_RAT);
+
+  // One-time per option: the self-hosted capex, plus anything the caller declared
+  // for that option, plus the licence's one-time share where it applies. Every
+  // option can carry one — the rented option has onboarding and egress setup, the
+  // API option has integration work — and before v0.5 only A's capex reached the
+  // curve, so those read as zero whether or not they existed.
+  const oneTimeByOption = {};
+  for (const k of OPT) {
+    let t = k === "A" ? toRat(selfHostedCapex) : ZERO_RAT;
+    const declared = oneTime && oneTime[k] !== undefined && oneTime[k] !== null ? toRat(oneTime[k]) : null;
+    if (declared !== null) t = t.add(declared);
+    t = t.add(subOneTimeFor(k));
+    oneTimeByOption[k] = ratStr(t);
+  }
+
+  const totals = {};
+  for (const k of OPT) {
+    if (infraMonthly[k] === null) {
+      totals[k] = { priced: false, infra_monthly: null, subscription_monthly: null, monthly_total: null, one_time: oneTimeByOption[k], horizon_total: null };
+      continue;
+    }
+    const infra = toRat(infraMonthly[k]);
+    const sub = subMonthlyFor(k);
+    const monthly = infra.add(sub);
+    const once = toRat(oneTimeByOption[k]);
+    totals[k] = {
+      priced: true,
+      infra_monthly: ratStr(infra),
+      subscription_monthly: ratStr(sub),
+      subscription_applies: subApplies.has(k),
+      monthly_total: ratStr(monthly),
+      one_time: ratStr(once),
+      // The figure the buyer actually signs for: everything recurring across the
+      // horizon plus everything paid once. A monthly-only comparison hides a
+      // six-figure capex behind a cheaper-looking monthly, which is the whole
+      // reason one-time costs had to reach the totals.
+      horizon_total: ratStr(monthly.mul(Rat.of(BigInt(horizon), 1n)).add(once)),
+    };
+  }
+
   const payback = {};
   if (laneAResult.enabled) {
     payback.self_hosted_capex = ratStr(toRat(selfHostedCapex));
     payback.self_hosted_monthly_opex = laneAResult.monthly_total;
+    payback.self_hosted_one_time_total = oneTimeByOption.A;
+    // Payback compares like with like: the monthly figures carry the licence
+    // where it applies, and the capex is the NET one-time difference, because
+    // the crossover is between two cumulative lines and the target option's own
+    // upfront cost delays that crossing exactly as much as A's brings it forward.
+    // With no subscription and no declared oneTime this reduces to capex - 0 and
+    // the v0.4 monthly figures, so the fixtures are unmoved.
+    const netCapexVs = (k) => ratStr(toRat(oneTimeByOption.A).sub(toRat(oneTimeByOption[k])));
     if (bMonthly !== null) {
       payback.vs_model_api = paybackMonths({
-        capex: selfHostedCapex,
-        monthlyOpex: laneAResult.monthly_total,
-        targetMonthly: bMonthly.toString(),
+        capex: netCapexVs("B"),
+        monthlyOpex: totals.A.monthly_total,
+        targetMonthly: totals.B.monthly_total,
         horizonMonths: horizon,
       });
     }
     if (laneCStandalone.enabled) {
       payback.vs_rented_gpu = paybackMonths({
-        capex: selfHostedCapex,
-        monthlyOpex: laneAResult.monthly_total,
-        targetMonthly: laneCStandalone.monthly_total,
+        capex: netCapexVs("C"),
+        monthlyOpex: totals.A.monthly_total,
+        targetMonthly: totals.C.monthly_total,
         horizonMonths: horizon,
       });
     }
@@ -755,11 +826,15 @@ export function runComparison({
     });
   }
 
+  // The curve carries the licence and EVERY option's one-time cost, not just A's
+  // capex. That is the point of the chart: the month the cumulative lines cross
+  // moves when a licence is charged monthly to two of the three options, and it
+  // moves again when an option carries an upfront the others do not.
   const curve = tcoCurve({
-    A: laneAResult.enabled ? laneAResult.monthly_total : "0",
-    B: bMonthly === null ? "0" : bMonthly.toString(),
-    C: laneCStandalone.enabled ? laneCStandalone.monthly_total : "0",
-  }, horizon, { A: selfHostedCapex });
+    A: totals.A.priced ? totals.A.monthly_total : "0",
+    B: totals.B.priced ? totals.B.monthly_total : "0",
+    C: totals.C.priced ? totals.C.monthly_total : "0",
+  }, horizon, oneTimeByOption);
 
   return {
     policy,
@@ -769,6 +844,11 @@ export function runComparison({
     payback,
     throughput,
     overlay: overlayResult,
+    // v0.5: the licence layer, the per-option one-time roll-up, and the combined
+    // view. `lanes` stays infrastructure-only so nothing that reads it moves.
+    subscription: subscriptionResult,
+    one_time: oneTimeByOption,
+    totals,
     curve,
     horizon_months: horizon,
     reasons: [...new Set(reasons)],

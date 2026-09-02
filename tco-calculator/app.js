@@ -16,6 +16,8 @@ import { runComparison, matchEvidence, ratToDecExact, rentedGpuByProvider } from
 import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
 import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
 import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
+import { nodesForFleet, cheapestConfigFor, serversForGpu, CapexRefusal } from "./capex.js";
+import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -53,6 +55,16 @@ const state = {
   servingData: null,
   serving: null,
   servingGap: null,
+  // v0.5: the server-acquisition registry and the platform-licence registry, plus
+  // the derived capex/licence for the current selection. capexGap and subGap hold
+  // the REASON one could not be derived, so the note says what to change rather
+  // than going blank — the same contract servingGap follows.
+  serverPricing: null,
+  subscriptions: null,
+  capexPlan: null,
+  capexGap: null,
+  subPlan: null,
+  subGap: null,
   // Live recompute must not fire mid-init: the catalog is not loaded yet and a
   // comparison over an empty catalog renders a gap the user never caused.
   ready: false,
@@ -128,6 +140,8 @@ async function init() {
     renderBanner(freshnessView(state.manifest, Date.now()));
     await loadGpuPricing();
     await loadServingModels();
+    await loadServerPricing();
+    await loadSubscriptions();
     wireInputs();
     await loadWorkloadPresets();
     // Land on an answer, not an empty column. The default preset is a complete,
@@ -169,6 +183,196 @@ async function loadGpuPricing() {
   $("f-rent-gpu").addEventListener("change", renderRentNote);
   $("f-sh-gpu").addEventListener("change", refreshDerived);
   fillRentGpus();
+}
+
+// ─────────────────────────────────────────── v0.5 server capex + licence layer
+
+// Server configurations are keyed to the SAME gpu ids as gpu-pricing.json, so the
+// picker re-fills whenever the accelerator changes. An accelerator with no
+// published node price yields an empty list and a stated gap — never a borrowed
+// price from a neighbouring card.
+async function loadServerPricing() {
+  const res = await fetch("./tco-calculator/data/server-pricing.json");
+  if (!res.ok) throw new Error(`server-pricing.json ${res.status}`);
+  state.serverPricing = await res.json();
+  $("f-srv-config").addEventListener("change", onLiveInput);
+  $("f-srv-basis").addEventListener("change", onLiveInput);
+  // The server list is keyed to the accelerator, so it must re-fill when the
+  // accelerator changes — otherwise an H100 node stays selected against a B200
+  // fleet and prices the wrong hardware.
+  $("f-sh-gpu").addEventListener("change", () => { fillServerConfigs(); });
+  fillServerConfigs();
+}
+
+function fillServerConfigs() {
+  const gpuId = $("f-sh-gpu").value;
+  const rows = serversForGpu(gpuId, state.serverPricing?.rows ?? []);
+  const sel = $("f-srv-config");
+  const previous = sel.value;
+  sel.innerHTML = [`<option value="">— none (enter the hardware cost yourself) —</option>`]
+    .concat(rows.map((r) => {
+      const n = `${r.gpu_count}&times;`;
+      const flag = r.verification?.status === "verified" ? "" : " ⚠";
+      return `<option value="${escapeHtml(r.server_id)}">${n} ${escapeHtml(r.form_factor)} — $${groupInt(r.usd_typical)}${flag}</option>`;
+    }))
+    .join("");
+  // Keep the user's pick across an accelerator change when it still exists;
+  // otherwise default to the cheapest config that holds the CURRENT fleet.
+  if (previous && rows.some((r) => r.server_id === previous)) {
+    sel.value = previous;
+  } else if (rows.length) {
+    const gpus = state.demand ? Number(state.demand.sizing.gpus_required.text) : rows[0].gpu_count;
+    let pick = rows[0].server_id;
+    try {
+      const c = cheapestConfigFor({ gpuId, servers: state.serverPricing.rows, gpusRequired: Math.max(1, gpus), priceBasis: $("f-srv-basis").value });
+      if (c.best) pick = c.best.server_id;
+    } catch { /* fall through to the first row */ }
+    sel.value = pick;
+  } else {
+    sel.value = "";
+  }
+}
+
+const currentServerRow = () => (state.serverPricing?.rows ?? []).find((r) => r.server_id === $("f-srv-config").value) ?? null;
+
+// The derived hardware capex for the sized fleet. An entered value in f-sh-capex
+// OUTRANKS it — same basis contract as every other derived quantity (SPEC §2.4) —
+// and the note says which of the two produced the number on screen.
+// `publish` is FALSE for the sensitivity sweep. That grid reruns the whole
+// pipeline at five other headcounts, so before this flag the LAST sweep row
+// (x2 users) left ITS fleet in state — and the capex and licence notes then
+// described a scenario the buyer never asked for while the totals directly
+// below them priced the base one. The shared state belongs to the base
+// scenario by definition; a sweep row only ever answers for itself.
+function buildCapexPlan(gpusRequired, publish = true) {
+  let plan = null;
+  let gap = null;
+  const server = currentServerRow();
+  if (!server) {
+    gap = serversForGpu($("f-sh-gpu").value, state.serverPricing?.rows ?? []).length === 0
+      ? `no published integrated-node price for "${$("f-sh-gpu").value}" — enter the hardware cost yourself.`
+      : `no server selected — enter the hardware cost yourself.`;
+  } else {
+    try {
+      plan = nodesForFleet({ gpusRequired, server, priceBasis: $("f-srv-basis").value });
+    } catch (e) {
+      gap = e instanceof CapexRefusal ? e.message : String(e);
+    }
+  }
+  if (publish) {
+    state.capexPlan = plan;
+    state.capexGap = gap;
+  }
+  return plan;
+}
+
+async function loadSubscriptions() {
+  const res = await fetch("./tco-calculator/data/subscription-pricing.json");
+  if (!res.ok) throw new Error(`subscription-pricing.json ${res.status}`);
+  state.subscriptions = await res.json();
+  $("f-sub-row").innerHTML = state.subscriptions.rows
+    .map((r) => `<option value="${escapeHtml(r.id)}">${escapeHtml(r.label)}</option>`)
+    .join("");
+  $("f-sub-row").value = "none";
+  for (const id of ["f-sub-row", "f-sub-term"]) $(id).addEventListener("change", onLiveInput);
+  $("f-sub-price").addEventListener("input", onLiveInput);
+}
+
+const currentSubRow = () => (state.subscriptions?.rows ?? []).find((r) => r.id === $("f-sub-row").value) ?? null;
+
+// Both notes render the SAME two-part honesty the data files encode: what the
+// number is, and how much authority it carries. A server price is never a vendor
+// quote here, and a licence's meter is documented where its amount is not.
+function renderServerNote() {
+  const el = $("f-srv-note");
+  if (!el) return;
+  if (state.capexGap) { el.innerHTML = escapeHtml(state.capexGap); return; }
+  const p = state.capexPlan;
+  if (!p) { el.textContent = ""; return; }
+  const entered = decInput("f-sh-capex") !== null;
+  const waste = p.gpus_overprovisioned > 0
+    ? ` You need ${p.gpus_required} GPU${p.gpus_required === 1 ? "" : "s"} and this buys ${p.gpus_provisioned}, so <strong>${p.gpus_overprovisioned}</strong> ${p.gpus_overprovisioned === 1 ? "is" : "are"} spare &mdash; a smaller node may fit better.`
+    : "";
+  const cite = p.verification?.status === "verified"
+    ? `<span class="tag tag-est">indicative</span> published integrator figure, citation re-checked at source`
+    : `<span class="tag tag-est">unverified</span> the quoted figure is no longer at its source &mdash; treat with care`;
+  const src = p.source_url ? ` &middot; <a href="${escapeHtml(p.source_url)}" target="_blank" rel="noopener">source</a>` : "";
+  const basis = entered
+    ? `Your entered figure is in use; the derived one below is shown for comparison.`
+    : `Derived, and overridable &mdash; type a figure to use your own quote.`;
+  el.innerHTML = `${basis} <strong>${p.nodes} &times; ${escapeHtml(p.label)}</strong> at ${money(p.unit_price)} each = <strong>${money(p.capex)}</strong>.${waste} ${cite}${src}. No vendor publishes a list price for GPU servers, so this is a planning band, never a quote.`;
+}
+
+function renderSubNote() {
+  const el = $("f-sub-note");
+  if (!el) return;
+  const row = currentSubRow();
+  if (!row || row.id === "none") { el.textContent = ""; return; }
+  if (state.subGap) {
+    const meterCite = row.meter_source_url
+      ? ` The meter itself IS documented: <a href="${escapeHtml(row.meter_source_url)}" target="_blank" rel="noopener">${escapeHtml(row.vendor ?? "vendor")} states</a> &ldquo;${escapeHtml(String(row.meter_quote ?? "").slice(0, 180))}&rdquo;`
+      : "";
+    el.innerHTML = `${escapeHtml(state.subGap)}${meterCite}`;
+    return;
+  }
+  const p = state.subPlan;
+  if (!p) { el.textContent = ""; return; }
+  const unitWord = {
+    per_gpu_ram_gb_year: "GB of GPU memory across the fleet",
+    per_gpu_year: "GPU", per_accelerator_year: "accelerator", per_gpu_hour: "GPU-hour",
+    per_user_month: "user", per_vcpu_year: "vCPU", per_node_year: "node", flat_month: "month",
+  }[p.meter] ?? p.meter;
+  const meterTag = p.meter_confidence === "first_party"
+    ? `<span class="tag tag-exact">meter: vendor-documented</span>`
+    : `<span class="tag tag-est">meter: by definition</span>`;
+  const priceTag = p.price_basis === "user_override"
+    ? `<span class="tag tag-exact">price: your quote</span>`
+    : `<span class="tag tag-est">price: indicative, not a vendor list price</span>`;
+  const link = p.meter_source_url ? ` <a href="${escapeHtml(p.meter_source_url)}" target="_blank" rel="noopener">meter source</a>` : "";
+  const applies = (p.applies_to ?? []).map((k) => OPTION[k]?.label ?? k).join(" and ");
+  const once = moneyValue(p.one_time).sign() > 0 ? ` plus ${money(p.one_time)} once` : "";
+  el.innerHTML = `<strong>${groupInt(p.quantity)}</strong> &times; ${escapeHtml(unitWord)} at ${money(p.unit_price)} &rarr; <strong>${money(p.monthly)}/mo</strong>${once}, charged to ${escapeHtml(applies || "no option")}. ${meterTag} ${priceTag}${link}`;
+}
+
+// Price the selected licence against the fleet. The quantity is DERIVED wherever
+// the meter allows it — aggregate GPU RAM and per-GPU counts both come from the
+// fleet this calculator already sized, so the licence re-prices when the fleet
+// moves. Meters the calculator cannot model (vCPU, node, seat) take what they can
+// from the demand model and are labelled as entered.
+// `publish` follows the same rule as buildCapexPlan: only the base scenario
+// owns the state the on-screen note is drawn from.
+function buildSubPlan({ gpusRequired, gpuId, users, gpuHours, nodes }, publish = true) {
+  let plan = null;
+  let gap = null;
+  const row = currentSubRow();
+  if (row && row.id !== "none") {
+    const vramGb = state.gpuPricing?.gpus?.[gpuId]?.vram_gb ?? null;
+    try {
+      plan = subscriptionCost({
+        row,
+        priceOverride: decInput("f-sub-price"),
+        term: $("f-sub-term").value || null,
+        quantityInputs: {
+          gpus: gpusRequired,
+          gpuVramGb: vramGb,
+          gpuHours: gpuHours === null || gpuHours === undefined ? null : String(gpuHours),
+          users,
+          // The calculator models neither vCPUs nor node counts for licensing, so
+          // these are the honest best available: the node count comes from the
+          // capex plan when a server is selected, and vCPU has no source at all.
+          nodes: nodes ?? null,
+          vcpus: null,
+        },
+      });
+    } catch (e) {
+      gap = e instanceof SubscriptionRefusal ? e.message : String(e);
+    }
+  }
+  if (publish) {
+    state.subPlan = plan;
+    state.subGap = gap;
+  }
+  return plan;
 }
 
 // Option values are the registry ROW INDEX, never the gpu id. A provider
@@ -890,10 +1094,21 @@ function buildScenario(usersOverride = null) {
   const gpuCount = intInput("f-sh-count") ?? Number(sizing.gpus_required.text);
   const fleetTokensS = gpuCount * Number(sizing.tokens_s_per_gpu.text);
   const derivedBudget = Math.round(fleetTokensS * 3600 * 730);
+
+  // v0.5: hardware capex is DERIVED from the sized fleet and the chosen server,
+  // and an entered figure outranks it. Before this the field shipped value="0",
+  // so paybackMonths returned zero_capex on the DEFAULT scenario and the payback
+  // block — the one this calculator exists to produce — was dead out of the box.
+  // Only the base scenario publishes to state — the sensitivity grid's reruns
+  // must not repaint the notes that describe THIS one.
+  const capexPlan = buildCapexPlan(gpuCount, usersOverride === null);
+  const capexEntered = decInput("f-sh-capex");
+  const capex = capexEntered ?? (capexPlan ? capexPlan.capex : "0");
+
   const laneA = {
     enabled: true,
     fixed_monthly: decInput("f-sh-fixed") ?? "0",
-    capex: decInput("f-sh-capex") ?? "0",
+    capex,
     monthly_token_budget: intInput("f-sh-budget") ?? derivedBudget,
     tokens_s_ceiling: Math.round(fleetTokensS),
     hardware_topology: `${gpuCount}x ${gpuId}`,
@@ -950,9 +1165,35 @@ function buildScenario(usersOverride = null) {
     ].filter((c) => Dec.from(c.amount).sign() > 0),
   };
 
+  // The licence is priced against the fleet that was just sized. GPU-hours come
+  // from the RENTED option's own utilization, because the only hourly meter here
+  // is a cloud-marketplace one that applies to that option alone.
+  const rentedHours = rentSizing ? rentGpus * 730 * Number(decInput("f-rent-util") ?? "0.7") : null;
+  const subPlan = buildSubPlan({
+    gpusRequired: gpuCount,
+    gpuId,
+    users: Math.round(Number(demand.users.text)),
+    gpuHours: rentedHours === null ? null : Math.round(rentedHours),
+    nodes: capexPlan ? capexPlan.nodes : null,
+  }, usersOverride === null);
+
+  // One-time per option. A is the hardware capex (already on laneA.capex, so it
+  // is NOT repeated here — the engine adds it). B and C carry their own upfronts,
+  // which before v0.5 had nowhere to go and silently read as zero.
+  const oneTime = {
+    B: decInput("f-onetime-b") ?? "0",
+    C: decInput("f-onetime-c") ?? "0",
+  };
+
   return {
-    demand, peak, sizing, gpuId, rentRow, rentGap,
-    inputs: { workload, catalog: state.catalog ?? { offers: {} }, laneA, laneB, laneC, routing, overlay },
+    demand, peak, sizing, gpuId, rentRow, rentGap, capexPlan, subPlan,
+    inputs: {
+      workload,
+      catalog: state.catalog ?? { offers: {} },
+      laneA, laneB, laneC, routing, overlay,
+      subscription: subPlan,
+      oneTime,
+    },
   };
 }
 
@@ -974,6 +1215,8 @@ function run() {
     state.rentGap = s.rentGap;
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
+    renderServerNote();
+    renderSubNote();
   } catch (e) {
     if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
       // Clear both output surfaces. Leaving the previous run's totals and verdict
@@ -1166,8 +1409,27 @@ function renderResults(r) {
   const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
   const digest = [["snapshot digest", state.manifest.snapshot_digest]];
 
+  // v0.5: the monthly column carries the licence wherever it applies, because
+  // the cumulative column beside it does. An infra-only monthly sitting next to
+  // a licence-inclusive total invites the reader to subtract one from the other
+  // and arrive at a figure that is in neither — so both columns are stated on
+  // the same basis, and the hover decomposes it into infrastructure + licence.
+  const monthlyCell = (k, fallback) => {
+    const row = r.totals?.[k];
+    return row && row.priced ? row.monthly_total : fallback;
+  };
+  const monthlyProv = (k) => {
+    const row = r.totals?.[k];
+    if (!row || !row.priced) return [];
+    const licAmount = row.subscription_applies ? moneyValue(row.subscription_monthly) : null;
+    const lic = licAmount !== null && licAmount !== undefined && licAmount.sign() > 0
+      ? [["platform licence", `${money(row.subscription_monthly)} / month`]]
+      : (r.subscription ? [["platform licence", "not applicable to this option"]] : []);
+    return [["infrastructure", `${money(row.infra_monthly)} / month`], ...lic];
+  };
+
   const rows = [`<tr><td>${OPTION.B.label} — <code>${escapeHtml(B.primary_offer ?? "none")}</code>${srcTag(q)}</td>` +
-    `<td class="n">${B.monthly_total === null ? "—" : numProv(money(B.monthly_total), quoteRows(B.primary_offer, q))}</td>` +
+    `<td class="n">${B.monthly_total === null ? "—" : numProv(money(monthlyCell("B", B.monthly_total)), [...quoteRows(B.primary_offer, q), ...monthlyProv("B")])}</td>` +
     `<td class="n">${B.per_1m.value === null ? `— (${B.per_1m.reason})` : numProv(fmtPer1M(B.per_1m.value), quoteRows(B.primary_offer, q))}</td>` +
     `<td class="n">${numProv(money(r.curve[0].B), quoteRows(B.primary_offer, q))}</td></tr>`];
 
@@ -1183,7 +1445,7 @@ function renderResults(r) {
     ];
     const per1mA = A.per_1m && A.per_1m.value !== null ? numProv(fmtPer1M(A.per_1m.value), aRows) : `— (${A.per_1m?.reason ?? "n/a"})`;
     rows.push(`<tr><td>${OPTION.A.label}</td>`
-      + `<td class="n">${numProv(money(A.monthly_total), aRows)}</td>`
+      + `<td class="n">${numProv(money(monthlyCell("A", A.monthly_total)), [...aRows, ...monthlyProv("A")])}</td>`
       + `<td class="n">${per1mA}</td>`
       + `<td class="n">${numProv(money(r.curve[0].A), aRows)}</td></tr>`);
   }
@@ -1209,7 +1471,7 @@ function renderResults(r) {
       ? `— (${cPer1m.reason ?? "unknown"})`
       : numProv(fmtPer1M(cPer1m.value), cRows);
     rows.push(`<tr><td>${OPTION.C.label}${row ? ` — ${escapeHtml(row.provider_label)}` : ""} <span class="tag ${tier}">${tierWord}</span></td>`
-      + `<td class="n">${numProv(money(C.monthly_total), cRows)}</td>`
+      + `<td class="n">${numProv(money(monthlyCell("C", C.monthly_total)), [...cRows, ...monthlyProv("C")])}</td>`
       + `<td class="n">${per1mC}</td>`
       + `<td class="n">${numProv(money(r.curve[0].C), cRows)}</td></tr>`);
   }
@@ -1276,7 +1538,13 @@ function renderOptionTotals(r) {
     // Rational cannot become a Decimal"). Every Dec converts to a Rat losslessly
     // but not the reverse, so normalising once here makes both the comparison
     // and the difference below total, whatever the two lanes happen to be.
-    return { k, label: OPTION[k].label, color: OPTION[k].color, on, value: on ? Rat.from(moneyValue(lane.monthly_total)) : null };
+    // Rank on the v0.5 combined monthly (infra + licence where it applies), not
+    // on the infra line: with a licence charged to two of the three options, an
+    // infra-only ranking would print "lowest" on a card whose own displayed
+    // monthly is higher than a rival's. The engine's totals block is the same
+    // number the card renders, so the badge and the figure cannot disagree.
+    const combined = r.totals?.[k]?.priced ? r.totals[k].monthly_total : lane.monthly_total;
+    return { k, label: OPTION[k].label, color: OPTION[k].color, on, value: on ? Rat.from(moneyValue(combined)) : null };
   });
 
   // Cheapest is decided on the EXACT values, never on the formatted strings —
@@ -1287,16 +1555,34 @@ function renderOptionTotals(r) {
     if (best === null || c.value.lt(best.value)) best = c;
   }
 
+  // The horizon total is the figure a buyer actually signs for: everything
+  // recurring across the horizon PLUS everything paid once. Ranking on monthly
+  // alone hides a six-figure capex behind a cheaper-looking monthly, which is
+  // precisely why one-time costs had to reach the totals in v0.5. Both are shown;
+  // "lowest" still refers to the monthly, and the card says so.
+  const t = r.totals ?? {};
+  const months = r.horizon_months ?? 1;
   box.innerHTML = cards.map((c) => {
     const win = best && c.k === best.k;
     const dot = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${c.color};margin-right:6px;vertical-align:1px"></span>`;
     const sub = !c.on
       ? `not costed &mdash; see the note above`
-      : win ? `lowest of the modelled options` : `${money(c.value.sub(best.value))} more per month`;
+      : win ? `lowest monthly of the modelled options` : `${money(c.value.sub(best.value))} more per month`;
+    const row = t[c.k];
+    const once = row && row.one_time !== null && moneyValue(row.one_time) !== null && moneyValue(row.one_time).sign() > 0
+      ? `<div class="s">+ ${money(row.one_time)} one-time</div>` : "";
+    const lic = row && row.priced && row.subscription_applies && moneyValue(row.subscription_monthly).sign() > 0
+      ? `<div class="s">includes ${money(row.subscription_monthly)}/mo licence</div>`
+      : (r.subscription && row && row.priced && !row.subscription_applies
+        ? `<div class="s" style="opacity:.6">no platform licence &mdash; not applicable here</div>` : "");
+    const horizon = row && row.horizon_total !== null && row.horizon_total !== undefined
+      ? `<div class="s" style="margin-top:4px;border-top:1px solid rgba(232,230,240,.12);padding-top:4px">${money(row.horizon_total)} over ${months} month${months === 1 ? "" : "s"}</div>`
+      : "";
     return `<div class="vcard${win ? " best" : ""}">
       <h4>${dot}${escapeHtml(c.label)}${win ? ` <span class="tag tag-exact">lowest</span>` : ""}</h4>
-      <div class="n">${c.on ? money(c.value) : "&mdash;"}</div>
+      <div class="n">${c.on ? money(row && row.priced ? row.monthly_total : c.value) : "&mdash;"}</div>
       <div class="s">${sub}</div>
+      ${lic}${once}${horizon}
     </div>`;
   }).join("");
 }
@@ -1452,6 +1738,35 @@ function exportQuote(r) {
     rented_gpu_by_provider: state.rentByProvider
       ? { priced: state.rentByProvider.priced, unservable: state.rentByProvider.unservable }
       : null,
+    // v0.5: the hardware the capex was derived from travels with the quote. A
+    // price band with no citation is not reviewable, so the row's source and
+    // its verification status ship beside the number.
+    server_config: state.capexPlan
+      ? {
+          server_id: state.capexPlan.server_id,
+          label: state.capexPlan.label,
+          gpu_id: state.capexPlan.gpu_id,
+          price_basis: state.capexPlan.price_basis,
+          unit_price: state.capexPlan.unit_price,
+          nodes: state.capexPlan.nodes,
+          gpus_required: state.capexPlan.gpus_required,
+          gpus_provisioned: state.capexPlan.gpus_provisioned,
+          gpus_overprovisioned: state.capexPlan.gpus_overprovisioned,
+          capex: state.capexPlan.capex,
+          confidence: state.capexPlan.confidence,
+          source_url: state.capexPlan.source_url,
+          observed_at: state.capexPlan.observed_at,
+          verification: state.capexPlan.verification,
+        }
+      : { unavailable: state.capexGap },
+    // Which of the two the engine actually charged. An entered figure outranks
+    // the derived one, and a quote that does not say which was used cannot be
+    // audited against the registry it cites.
+    capex_basis: $("f-sh-capex").value.trim() === "" ? "derived" : "user_override",
+    // The licence's meter and its amount have different authorities, so both
+    // provenance fields travel — collapsing them would present an aggregator's
+    // estimate as a vendor list price.
+    subscription_source: state.subPlan ? { ...state.subPlan } : { unavailable: state.subGap },
     result: {
       policy: r.policy,
       options: named,
@@ -1460,6 +1775,13 @@ function exportQuote(r) {
       breakeven: r.breakeven,
       throughput: r.throughput,
       overlay: r.overlay,
+      // The three v0.5 additions: the licence as applied (with the options it
+      // was and was NOT charged to), the one-time roll-up per option, and the
+      // combined totals the verdict cards rank on. lanes[] stays infra-only, so
+      // without these a reader of the quote could not reproduce the ranking.
+      subscription: r.subscription,
+      one_time: r.one_time,
+      totals: r.totals,
       curve: r.curve.map((p) => ({
         month: p.month,
         [OPTION.A.key]: p.A,

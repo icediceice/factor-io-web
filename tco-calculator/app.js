@@ -142,7 +142,7 @@ async function init() {
     await loadServingModels();
     await loadServerPricing();
     await loadSubscriptions();
-    wireInputs();
+    await wireInputs();
     await loadWorkloadPresets();
     // Land on an answer, not an empty column. The default preset is a complete,
     // labelled scenario, so the first thing the screen shows is a worked example
@@ -451,7 +451,49 @@ async function loadServingModels() {
   $("f-sv-runtime").value = "vllm";
 
   $("f-sv-model").addEventListener("change", () => { applyModelPreset($("f-sv-model").value); });
-  applyModelPreset(d.models[0].id);
+  const chosen = firstServableModelId(d);
+  $("f-sv-model").value = chosen;
+  applyModelPreset(chosen);
+}
+
+// The default selection must be a model that actually SERVES on the default
+// accelerator. Derived rows sort by trendingScore, so `models[0]` tracks whatever
+// is trending — and a frontier model is precisely the one that will not fit a
+// single node. The 2026-09-02 refresh replaced glm-5-3-flash with the full
+// glm-5-3 (1,506.7 GB of weights against 72.0 GB usable, refusing at every
+// tensor-parallel size up to 16) and the calculator then opened on a refusal card
+// with no numbers in the right-hand column at all — breaking init()'s own "land
+// on an answer, not an empty column" contract. Nothing in the suite caught it,
+// because every test picks its own model. Reverting the data would only hide it
+// until the next refresh: the selection RULE is the defect.
+//
+// The fit is not re-derived here. Each candidate is applied and put through the
+// SAME servingPlan the comparison uses, so this cannot drift from the engine's
+// own answer. Registry order is preserved, so the default is still the newest
+// preset — just the newest one that fits.
+function firstServableModelId(d) {
+  const gpuId = $("f-sh-gpu").value;
+  for (const m of d.models) {
+    if (m.id === "custom") continue;
+    // The SELECT must move with the fields. currentModelSpec() resolves the model
+    // by `f-sv-model`, while applyModelPreset only fills the numeric inputs — so
+    // setting one without the other probes a chimera: this candidate's parameter
+    // counts against the previously selected model's identity and layer groups.
+    // That is not a hypothetical; it is what the first version of this function
+    // did, and it made the full GLM-5.3 appear to fit in 144 GB.
+    $("f-sv-model").value = m.id;
+    applyModelPreset(m.id);
+    try {
+      // null means the DATA is missing (no accelerator entry, no published VRAM),
+      // which is not evidence that the model fits — only a plan is.
+      if (solveServingFor(gpuId) !== null) return m.id;
+    } catch (e) {
+      if (!(e instanceof ServingRefusal)) throw e;
+    }
+  }
+  // Nothing serves. Fall back to the first row and let the refusal card say why —
+  // an invented fit would be far worse than an honest empty answer.
+  return d.models[0].id;
 }
 
 // The four architectures the buyer named are a per-LAYER-GROUP property, and a real
@@ -841,7 +883,13 @@ function applyWorkloadPreset(id) {
 }
 
 // ------------------------------------------------------------ input plumbing
-function wireInputs() {
+// Returns the catalog load so init() can AWAIT it. Firing it un-awaited raced the
+// first run(): the 2.4 MB catalog resolved after the initial paint, and nothing
+// re-runs when it lands, so the screen sat on "Model API — not costed" until the
+// user happened to touch an input. That is not a slow load, it is a WRONG first
+// answer — the option is priced, and the landing state said it could not be. It
+// only became visible once v0.5 made the landing state worth reading.
+async function wireInputs() {
   $("fb-feed").addEventListener("change", () => fillModels(beginSelection()));
   $("run").addEventListener("click", run);
   $("mix-balance").addEventListener("click", balanceMix);
@@ -860,7 +908,7 @@ function wireInputs() {
   for (const id of ["f-sv-wquant", "f-sv-kvquant", "f-sv-runtime", "f-sv-mode", "f-sh-gpu"]) {
     $(id)?.addEventListener("change", onLiveInput);
   }
-  fillModels(beginSelection());
+  await fillModels(beginSelection());
 }
 
 // The headline recomputes as you type. A calculator with a button you must

@@ -360,6 +360,101 @@ test("an unpriced option reports its one-time without inventing a horizon total"
   assert.equal(r.totals.B.horizon_total, null, "an unpriced option must not report a horizon total it cannot compute");
 });
 
+// A rented option dear enough for payback to CONVERGE against it, so the tests
+// below can assert which way a one-time moves the crossover instead of comparing
+// null to null.
+const LANE_C = { enabled: true, tokens_s: 100, hourly_rate: "60", utilization: "0.7" };
+
+test("a declared one-time on the SELF-HOSTED option adds to the hardware capex and lengthens payback", () => {
+  const bare = base({ laneA: { ...LANE_A, capex: "285000" } });
+  const r = base({ laneA: { ...LANE_A, capex: "285000" }, oneTime: { A: "60000" } });
+  // The declared figure is ADDED to the capex, never a replacement for it: server
+  // hardware and an implementation fee are both genuinely one-time and both belong.
+  assert.equal(r.one_time.A, "345000");
+  assert.equal(money(r.totals.A.horizon_total), "465000.00"); // 12 x 10,000 + 345,000
+  assert.equal(money(r.curve[0].A), "355000.00");
+  assert.equal(money(r.curve[11].A), "465000.00");
+  // ceil(285000/30000) = 10 becomes ceil(345000/30000) = 12: more to earn back.
+  assert.equal(bare.payback.vs_model_api.months, 10);
+  assert.equal(r.payback.vs_model_api.months, 12);
+});
+
+test("a declared one-time on the RENTED option reaches its curve, its horizon total and the payback", () => {
+  const withOut = base({ laneA: { ...LANE_A, capex: "285000" }, laneC: LANE_C });
+  const withIt = base({ laneA: { ...LANE_A, capex: "285000" }, laneC: LANE_C, oneTime: { C: "45000" } });
+  assert.equal(withOut.one_time.C, "0");
+  assert.equal(withIt.one_time.C, "45000");
+  assert.ok(withOut.totals.C.priced, "the rented option must be priced for this assertion to mean anything");
+  // Exact rationals throughout: the rented lane's monthly is frequently a
+  // non-terminating quotient, so a float delta here would drift by design.
+  const d = (a, b) => formatHalfUp(toRat(a).sub(toRat(b)), 2);
+  assert.equal(d(withIt.totals.C.horizon_total, withOut.totals.C.horizon_total), "45000.00");
+  // A one-time is paid at month 1 and still sits in the last month's cumulative.
+  assert.equal(d(withIt.curve[0].C, withOut.curve[0].C), "45000.00");
+  assert.equal(d(withIt.curve[11].C, withOut.curve[11].C), "45000.00");
+  // Payback nets the two one-times: the rented option's own upfront is not
+  // something self-hosting has to earn back, so it SHORTENS the payback.
+  assert.equal(withOut.payback.vs_rented_gpu.capex, "285000");
+  assert.equal(withIt.payback.vs_rented_gpu.capex, "240000");
+  assert.ok(withIt.payback.vs_rented_gpu.months < withOut.payback.vs_rented_gpu.months,
+    "an upfront the rented option also pays must bring the crossover forward");
+});
+
+test("a licence is metered PER OPTION, so the rented option is not charged the owned fleet's quantity", () => {
+  const row = subById("nvidia-ai-enterprise-subscription"); // per_gpu_year, applies to A and C
+  const owned = subscriptionCost({ row, quantityInputs: { gpus: 8 } });  // 8 GPUs installed in the nodes bought
+  const rented = subscriptionCost({ row, quantityInputs: { gpus: 2 } }); // 2 GPUs actually rented
+  const r = base({
+    laneC: LANE_C,
+    subscription: {
+      ...owned,
+      by_option: {
+        A: { quantity: owned.quantity, monthly: owned.monthly, one_time: owned.one_time },
+        C: { quantity: rented.quantity, monthly: rented.monthly, one_time: rented.one_time },
+      },
+    },
+  });
+  assert.equal(money(r.totals.A.subscription_monthly), "3000.00"); // 8 x 4500 / 12
+  assert.equal(money(r.totals.C.subscription_monthly), "750.00");  // 2 x 4500 / 12
+  assert.notEqual(r.totals.A.subscription_monthly, r.totals.C.subscription_monthly,
+    "two fleets of different sizes must not produce one licence figure");
+});
+
+test("an option absent from by_option is charged NOTHING rather than borrowing another option's figure", () => {
+  const row = subById("nvidia-ai-enterprise-subscription");
+  const owned = subscriptionCost({ row, quantityInputs: { gpus: 8 } });
+  // The rented option could not be sized this run — no rented row, or the model
+  // does not fit that accelerator. Falling back to the flat figure would charge it
+  // the owned fleet's bill, which is exactly the silent borrowing this guards.
+  const r = base({
+    laneC: LANE_C,
+    subscription: { ...owned, by_option: { A: { monthly: owned.monthly, one_time: owned.one_time } } },
+  });
+  assert.equal(money(r.totals.A.subscription_monthly), "3000.00");
+  assert.equal(money(r.totals.C.subscription_monthly), "0.00");
+  // applies_to is unchanged — C is still an option this licence covers, it just
+  // has no fleet to meter, and that is reported rather than priced.
+  assert.deepEqual(r.subscription.applied_to, ["A", "C"]);
+});
+
+test("a flat subscription with no by_option keeps the pre-v0.5 behaviour exactly", () => {
+  const row = subById("nvidia-ai-enterprise-subscription");
+  const flat = subscriptionCost({ row, quantityInputs: { gpus: 8 } });
+  assert.equal(flat.by_option, undefined);
+  const r = base({ laneC: LANE_C, subscription: flat });
+  assert.equal(money(r.totals.A.subscription_monthly), "3000.00");
+  assert.equal(money(r.totals.C.subscription_monthly), "3000.00");
+});
+
+test("every bundled exemption names a server_id that exists in the registry", () => {
+  for (const r of subs.rows) {
+    for (const [serverId, reason] of Object.entries(r.bundled_server_ids ?? {})) {
+      assert.ok(rowById(serverId), `${r.id} claims a bundled exemption for ${serverId}, which is not a server row`);
+      assert.ok(typeof reason === "string" && reason.length > 0, `${r.id}: ${serverId} must carry the vendor's stated reason`);
+    }
+  }
+});
+
 test("determinism holds with the v0.5 layer attached", () => {
   const mk = () => base({
     laneA: { ...LANE_A, capex: "285000" },

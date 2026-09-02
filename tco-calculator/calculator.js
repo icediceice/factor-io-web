@@ -739,8 +739,30 @@ export function runComparison({
       }
     : null;
 
-  const subMonthlyFor = (k) => (subscription && subApplies.has(k) ? toRat(subscription.monthly ?? "0") : ZERO_RAT);
-  const subOneTimeFor = (k) => (subscription && subApplies.has(k) ? toRat(subscription.one_time ?? "0") : ZERO_RAT);
+  // Per-option amounts, when the caller derived them. A licence is metered on the
+  // fleet the option ACTUALLY runs, and those fleets are not the same one: the
+  // owned option pays for every GPU installed in the nodes it bought, while the
+  // rented option runs a different accelerator, in a different count, for metered
+  // hours. Charging one option's quantity to another is a wrong number that looks
+  // right — the rented column would quietly inherit the owned fleet's bill.
+  //
+  // When by_option is present it is AUTHORITATIVE: an option missing from it is
+  // charged nothing rather than falling back to the flat figure, because that
+  // fallback IS the borrowing this map exists to prevent. Callers that pass a
+  // single flat amount (every pre-v0.5 fixture) keep the old behaviour exactly.
+  const subByOption = subscription && subscription.by_option && typeof subscription.by_option === "object"
+    ? subscription.by_option
+    : null;
+  const subPart = (k, field) => {
+    if (!subscription || !subApplies.has(k)) return ZERO_RAT;
+    if (subByOption) {
+      const e = subByOption[k];
+      return e && e[field] !== undefined && e[field] !== null ? toRat(e[field]) : ZERO_RAT;
+    }
+    return toRat(subscription[field] ?? "0");
+  };
+  const subMonthlyFor = (k) => subPart(k, "monthly");
+  const subOneTimeFor = (k) => subPart(k, "one_time");
 
   // One-time per option: the self-hosted capex, plus anything the caller declared
   // for that option, plus the licence's one-time share where it applies. Every

@@ -236,6 +236,14 @@ forward, so charging only one side would systematically flatter self-hosting.
 With no subscription and no declared one-time this reduces to `capex − 0` and the
 v0.4 monthlies, which is why the F1–F10 fixtures are unmoved by the change.
 
+A cost the UI describes as applying to *every* option must reach `one_time[k]` for
+every option, not the §7.2 commercial overlay. The overlay annotates the per-1M
+basis and never enters the curve, the horizon total or payback, so a one-time
+amount parked there is invisible in exactly the three places a one-time cost is
+read. Implementation cost is therefore a declared one-time on A, B and C — where,
+being equal across the options, it cancels out of the net payback difference while
+still showing in each option's own total.
+
 `monthly_total` and `horizon_total` are reported **beside** the infrastructure
 line, never folded into it: `lanes[k].monthly_total` stays the cost of serving
 the tokens, exactly as §4.5 keeps the commercial overlay separable. Any surface
@@ -580,6 +588,13 @@ pretending to read a price out of a sales page. A broken citation does **not**
 delete the row: the figure was true when observed, so it survives at its original
 `observed_at`, rendered unverified. The stage exits non-zero only when **no** row
 verifies, because that means the run was broken, not that a number went stale.
+
+**The three statuses are three different claims, and the UI must keep them apart.**
+`verified` says the quoted sentence is still at the source; `citation_broken` says
+it is not; `unreachable` says the fetch failed on that run and makes **no** claim
+about the figure at all. Collapsing unreachable into the broken branch turns a
+failure on our side into an accusation about the source — the one thing a provenance
+tier must never invent.
 
 **Bands, not point estimates, and disagreement is carried not averaged.** Each row
 publishes `usd_low` / `usd_typical` / `usd_high`; the UI offers those three as a
@@ -982,6 +997,25 @@ licence re-prices when the fleet moves. An unknown meter is a refusal
 (`unknown_meter`), never a guess; a meter whose input the calculator does not model
 refuses by naming the missing field (`missing_quantity_input`).
 
+**The quantity is derived PER OPTION, because the options do not run the same
+fleet.** A row that applies to both the owned and the rented option is metered twice
+over: the owned option against the GPUs its nodes carry, the rented option against
+the accelerator it actually rents, in the count that accelerator needs, for its own
+metered hours. Charging one option's quantity to the other is a wrong number that
+looks right — the rented column silently inherits the owned fleet's bill — so the
+per-option amounts travel in `by_option`, and **where that map is present it is
+authoritative: an option missing from it is charged nothing rather than falling back
+to a flat figure.** An option this run does not price at all has no fleet to meter
+and is skipped, not guessed.
+
+**GPU meters count the GPUs INSTALLED, not the ones the model needs.** Both
+first-party meter quotations in the registry say so verbatim — "a software license
+is required for every GPU installed on the server", "quantified across all GPUs in a
+cluster". You buy whole nodes (§5.8), so a 9-GPU requirement bought as three 4-GPU
+nodes is licensed for 12. Metering the required count instead understates the
+licence by exactly the overprovision the hardware line already reports, and the UI
+states the installed basis at the point the figure is read.
+
 **Provenance is per FIELD, not per row.** A vendor routinely documents its meter in
 public while quoting the amount only through sales. Collapsing those into one row
 tier would either present an analyst's estimate as a vendor list price or discard a
@@ -1002,7 +1036,13 @@ as `not_applicable` by name, because "you do not run a platform here" and "the
 platform is free here" are materially different claims and an omitted row renders
 as the second. A row's `bundled_exemptions` records where a licence is already
 included in the hardware or instance price (DGX systems, H100 PCIe) so it is not
-double-counted.
+double-counted, and `bundled_server_ids` is that fact in machine-actionable form:
+selecting an exempt server raises a visible warning on the licence line. The warning
+does **not** silently zero the charge — the bundle is a fixed multi-year entitlement
+while the row is an annual subscription, so the honest act is to show the overlap and
+let the buyer price it. Matching is by `server_id` and never by `gpu_id`: the H100
+PCIe card carries the entitlement and the H100 SXM in an HGX node does not, and both
+are `gpu_id: "h100"`.
 
 Term handling is exact: `annual` divides by 12 into a monthly figure that is
 frequently non-terminating and therefore travels as a reduced rational per §3.5;

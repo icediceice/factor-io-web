@@ -293,14 +293,40 @@ function renderServerNote() {
   const waste = p.gpus_overprovisioned > 0
     ? ` You need ${p.gpus_required} GPU${p.gpus_required === 1 ? "" : "s"} and this buys ${p.gpus_provisioned}, so <strong>${p.gpus_overprovisioned}</strong> ${p.gpus_overprovisioned === 1 ? "is" : "are"} spare &mdash; a smaller node may fit better.`
     : "";
-  const cite = p.verification?.status === "verified"
-    ? `<span class="tag tag-est">indicative</span> published integrator figure, citation re-checked at source`
-    : `<span class="tag tag-est">unverified</span> the quoted figure is no longer at its source &mdash; treat with care`;
+  // Three statuses, three different claims. Collapsing unreachable into "the
+  // figure moved" turns a failed fetch on OUR side into an accusation about the
+  // source — the one thing a provenance tier must never invent.
+  const vstatus = p.verification?.status ?? null;
+  const checked = vstatus === "verified"
+    ? `citation re-checked at source`
+    : vstatus === "citation_broken"
+    ? `the quoted figure is no longer at its source &mdash; treat with care`
+    : vstatus === "unreachable"
+    ? `the source could not be reached on the last check &mdash; a fact about that fetch, not about this figure`
+    : `not re-checked at source`;
+  const cite = `<span class="tag tag-est">indicative</span> published integrator figure, ${checked}`;
   const src = p.source_url ? ` &middot; <a href="${escapeHtml(p.source_url)}" target="_blank" rel="noopener">source</a>` : "";
   const basis = entered
     ? `Your entered figure is in use; the derived one below is shown for comparison.`
     : `Derived, and overridable &mdash; type a figure to use your own quote.`;
   el.innerHTML = `${basis} <strong>${p.nodes} &times; ${escapeHtml(p.label)}</strong> at ${money(p.unit_price)} each = <strong>${money(p.capex)}</strong>.${waste} ${cite}${src}. No vendor publishes a list price for GPU servers, so this is a planning band, never a quote.`;
+}
+
+// The meters whose quantity comes from the GPU fleet itself. Only these are
+// affected by buying whole nodes; a seat or flat meter is not.
+const GPU_FLEET_METERS = new Set(["per_gpu_ram_gb_year", "per_gpu_year", "per_accelerator_year", "per_gpu_hour"]);
+
+// Several accelerators and appliances ship with a vendor licence already included,
+// and the registry rows say which. Matching is by server_id and never by gpu_id:
+// the H100 PCIe card carries a five-year NVIDIA AI Enterprise entitlement while the
+// H100 SXM in an HGX node does not, and both are gpu_id "h100" — a gpu-level match
+// would exempt the node that actually owes the licence.
+function bundledExemptionFor(row) {
+  const map = row?.bundled_server_ids;
+  if (!map) return null;
+  const server = currentServerRow();
+  if (!server) return null;
+  return map[server.server_id] ?? null;
 }
 
 function renderSubNote() {
@@ -330,8 +356,32 @@ function renderSubNote() {
     : `<span class="tag tag-est">price: indicative, not a vendor list price</span>`;
   const link = p.meter_source_url ? ` <a href="${escapeHtml(p.meter_source_url)}" target="_blank" rel="noopener">meter source</a>` : "";
   const applies = (p.applies_to ?? []).map((k) => OPTION[k]?.label ?? k).join(" and ");
-  const once = moneyValue(p.one_time).sign() > 0 ? ` plus ${money(p.one_time)} once` : "";
-  el.innerHTML = `<strong>${groupInt(p.quantity)}</strong> &times; ${escapeHtml(unitWord)} at ${money(p.unit_price)} &rarr; <strong>${money(p.monthly)}/mo</strong>${once}, charged to ${escapeHtml(applies || "no option")}. ${meterTag} ${priceTag}${link}`;
+  // Each option is metered on ITS OWN fleet, so each gets its own line. One
+  // blended figure would read as the licence costing the same wherever you run
+  // it, which is the claim the per-option quantity exists to disprove.
+  const amountLine = (qty, monthly, oneTime) => {
+    const once = moneyValue(oneTime).sign() > 0 ? ` plus ${money(oneTime)} once` : "";
+    return `<strong>${groupInt(qty)}</strong> &times; ${escapeHtml(unitWord)} &rarr; <strong>${money(monthly)}/mo</strong>${once}`;
+  };
+  const per = p.by_option ?? {};
+  const keys = Object.keys(per);
+  const body = keys.length
+    ? keys.map((k) => `${escapeHtml(OPTION[k]?.label ?? k)} &mdash; ${amountLine(per[k].quantity, per[k].monthly, per[k].one_time)}`).join("<br>")
+    : `${amountLine(p.quantity, p.monthly, p.one_time)}, charged to ${escapeHtml(applies || "no option")}`;
+  // The owned option is licensed on the GPUs the nodes physically carry. Where
+  // that exceeds what the model needs, say so at the point the number is read —
+  // it is the single most surprising figure on this line.
+  const cp = state.capexPlan;
+  const installedNote = cp && cp.gpus_overprovisioned > 0 && GPU_FLEET_METERS.has(p.meter)
+    ? ` The owned figure counts all <strong>${cp.gpus_provisioned}</strong> GPUs installed in the ${cp.nodes} node${cp.nodes === 1 ? "" : "s"} you buy, not the ${cp.gpus_required} the model needs &mdash; both vendors meter installed GPUs, not used ones.`
+    : "";
+  // A licence some hardware already includes must not be charged twice. The row
+  // documents its own exemptions; this is where the buyer actually sees them.
+  const bundled = bundledExemptionFor(row);
+  const bundledWarn = bundled
+    ? ` <span class="tag tag-unknown">already bundled</span> ${escapeHtml(bundled)} Charging this row on top of that server double-counts the licence on the owned option &mdash; zero the price, or pick the row that matches what you are really buying.`
+    : "";
+  el.innerHTML = `${body} at ${money(p.unit_price)} per ${escapeHtml(unitWord)}.${installedNote} ${meterTag} ${priceTag}${link}${bundledWarn}`;
 }
 
 // Price the selected licence against the fleet. The quantity is DERIVED wherever
@@ -341,29 +391,55 @@ function renderSubNote() {
 // from the demand model and are labelled as entered.
 // `publish` follows the same rule as buildCapexPlan: only the base scenario
 // owns the state the on-screen note is drawn from.
-function buildSubPlan({ gpusRequired, gpuId, users, gpuHours, nodes }, publish = true) {
+//
+// The licence is priced against the fleet EACH OPTION actually runs, because those
+// fleets are not the same one. Both vendor meters in the registry are explicit that
+// they count GPUs INSTALLED — "every GPU installed on the server", "quantified
+// across all GPUs in a cluster" — so the owned option is metered on the whole nodes
+// it buys, while the rented option runs a different accelerator in a different count
+// for metered hours. Charging one option's quantity to the other is a wrong number
+// that looks right: the rented column would silently inherit the owned fleet's bill.
+function buildSubPlan({ owned, rented, users }, publish = true) {
   let plan = null;
   let gap = null;
   const row = currentSubRow();
   if (row && row.id !== "none") {
-    const vramGb = state.gpuPricing?.gpus?.[gpuId]?.vram_gb ?? null;
+    const perOption = { A: owned, B: {}, C: rented };
+    const applies = Array.isArray(row.applies_to) ? row.applies_to : [];
+    const priceOverride = decInput("f-sub-price");
+    const term = $("f-sub-term").value || null;
     try {
-      plan = subscriptionCost({
-        row,
-        priceOverride: decInput("f-sub-price"),
-        term: $("f-sub-term").value || null,
-        quantityInputs: {
-          gpus: gpusRequired,
-          gpuVramGb: vramGb,
-          gpuHours: gpuHours === null || gpuHours === undefined ? null : String(gpuHours),
-          users,
-          // The calculator models neither vCPUs nor node counts for licensing, so
-          // these are the honest best available: the node count comes from the
-          // capex plan when a server is selected, and vCPU has no source at all.
-          nodes: nodes ?? null,
-          vcpus: null,
-        },
-      });
+      const byOption = {};
+      let primary = null;
+      for (const k of applies) {
+        const inputs = perOption[k];
+        // An option this run does not price at all — no rented row, or the model
+        // does not fit the rented accelerator — has no fleet to meter. It is
+        // skipped rather than guessed; its totals already report as unpriced.
+        if (!inputs) continue;
+        const c = subscriptionCost({
+          row,
+          priceOverride,
+          term,
+          // The calculator models no vCPU count for licensing, so per_vcpu_year has
+          // no source at all and refuses by naming the field it is missing.
+          quantityInputs: { gpuHours: null, nodes: null, vcpus: null, ...inputs, users },
+        });
+        byOption[k] = {
+          quantity: c.quantity,
+          quantity_exact: c.quantity_exact,
+          monthly: c.monthly,
+          one_time: c.one_time,
+        };
+        if (primary === null) primary = c;
+      }
+      if (primary === null) {
+        gap = `${row.label ?? row.id} applies to no option this comparison prices, so there is no fleet to meter it against.`;
+      } else {
+        // The top-level figures stay the FIRST applicable option's, for every
+        // reader that wants one number; by_option is what the engine charges.
+        plan = { ...primary, by_option: byOption };
+      }
     } catch (e) {
       gap = e instanceof SubscriptionRefusal ? e.message : String(e);
     }
@@ -897,6 +973,11 @@ async function wireInputs() {
     "f-users", "f-sessions-day", "f-days",
     "f-mix-chat", "f-mix-rag", "f-mix-graphrag", "f-mix-agentic",
     "f-peak-frac", "f-tps-stream", "f-sh-tps-gpu", "f-sh-count",
+    // v0.5 money fields. The subscription price already recomputed as you typed;
+    // leaving the capex override and the one-time fields off this list meant the
+    // totals beside them kept showing the PREVIOUS figure until something else
+    // moved — the same field live, its neighbour stale.
+    "f-sh-capex", "f-onetime-b", "f-onetime-c", "fo-impl",
     // v0.3: the model IS a sizing input, not a detail. Editing its size, context
     // or precision moves the fleet, so each one drives the same recompute.
     "f-sv-params", "f-sv-active", "f-sv-ctx", "f-sv-maxbatch", "f-sv-kvbytes",
@@ -1204,33 +1285,56 @@ function buildScenario(usersOverride = null) {
     failover: { fallback: "A", share: decInput("fr-failshare") ?? "0", rate: decInput("fr-failrate") ?? "2" },
     pinned: { a_pct: 50, b_pct: 50 },
   };
+  // Implementation has LEFT this overlay — see the one-time roll-up below. It is a
+  // one-time cost paid once whichever way you serve the tokens, and the overlay
+  // only ever annotated the per-1M basis: an amount left here would never reach
+  // one_time, the curve, the horizon total or payback, which is precisely where a
+  // one-time cost has to land now that those exist.
   const overlay = {
     fully_loaded: $("fo-loaded").value === "loaded",
     components: [
       { name: "enterprise-licensing", basis: "monthly", amount: decInput("fo-license") ?? "0" },
       { name: "ai-consulting", basis: "monthly", amount: decInput("fo-consult") ?? "0" },
-      { name: "implementation", basis: "one_time", amount: decInput("fo-impl") ?? "0" },
     ].filter((c) => Dec.from(c.amount).sign() > 0),
   };
 
-  // The licence is priced against the fleet that was just sized. GPU-hours come
-  // from the RENTED option's own utilization, because the only hourly meter here
-  // is a cloud-marketplace one that applies to that option alone.
-  const rentedHours = rentSizing ? rentGpus * 730 * Number(decInput("f-rent-util") ?? "0.7") : null;
+  // GPU-hours are the RENTED option's own: its fleet, its utilization, computed
+  // exactly rather than rounded to a whole hour — at 0.65 utilization the month
+  // lands on a half-hour, and rounding it here would put the error inside a
+  // figure the exact-rational meter is about to multiply by a price.
+  const rentedHours = rentSizing
+    ? Dec.from(String(decInput("f-rent-util") ?? "0.7")).mul(BigInt(rentGpus * 730)).toString()
+    : null;
+  const vramOf = (id) => state.gpuPricing?.gpus?.[id]?.vram_gb ?? null;
   const subPlan = buildSubPlan({
-    gpusRequired: gpuCount,
-    gpuId,
+    owned: {
+      // Vendor meters count the GPUs INSTALLED, not the ones the model needs. You
+      // buy whole nodes, so a 3-GPU requirement bought as one 8-GPU node is
+      // licensed for 8 — the same surplus renderServerNote already reports on the
+      // hardware line. With no server selected there is no installed count to
+      // know, and the required fleet is the honest floor.
+      gpus: capexPlan ? capexPlan.gpus_provisioned : gpuCount,
+      gpuVramGb: vramOf(gpuId),
+      nodes: capexPlan ? capexPlan.nodes : null,
+    },
+    rented: rentSizing
+      ? { gpus: rentGpus, gpuVramGb: vramOf(rentRow.gpu_id), gpuHours: rentedHours }
+      : null,
     users: Math.round(Number(demand.users.text)),
-    gpuHours: rentedHours === null ? null : Math.round(rentedHours),
-    nodes: capexPlan ? capexPlan.nodes : null,
   }, usersOverride === null);
 
   // One-time per option. A is the hardware capex (already on laneA.capex, so it
   // is NOT repeated here — the engine adds it). B and C carry their own upfronts,
-  // which before v0.5 had nowhere to go and silently read as zero.
+  // which before v0.5 had nowhere to go and silently read as zero. Implementation
+  // is charged ONCE TO EVERY OPTION, which is what the field has always claimed:
+  // it is the same project whichever way the tokens are served, so it cancels out
+  // of the payback difference while still showing in each option's own total.
+  const implOnce = decInput("fo-impl") ?? "0";
+  const withImpl = (v) => Dec.from(v).add(Dec.from(implOnce)).toString();
   const oneTime = {
-    B: decInput("f-onetime-b") ?? "0",
-    C: decInput("f-onetime-c") ?? "0",
+    A: implOnce,
+    B: withImpl(decInput("f-onetime-b") ?? "0"),
+    C: withImpl(decInput("f-onetime-c") ?? "0"),
   };
 
   return {

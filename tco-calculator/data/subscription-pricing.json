@@ -65,7 +65,12 @@
         "Each NVIDIA A800 40GB Active GPU includes a three-year NVIDIA AI Enterprise subscription.",
         "NVIDIA AI Enterprise is included in the NVIDIA DGX software bundle for DGX systems using the Hopper architecture; Blackwell DGX systems must purchase it separately."
       ],
-      "note": "DOUBLE-COUNTING HAZARD, documented by the vendor: several SKUs already include this subscription. Pairing this row with the dgx-h100-gpufm server config charges a licence the Hopper DGX bundle already carries. The exemptions are listed so the UI can warn instead of silently overcharging."
+      "bundled_server_ids": {
+        "dgx-h100-gpufm": "NVIDIA AI Enterprise is included in the DGX software bundle for Hopper-architecture DGX systems.",
+        "pcie-h100-4x-gpufm": "Each NVIDIA H100 PCIe Tensor Core GPU includes a five-year NVIDIA AI Enterprise subscription."
+      },
+      "bundled_match_note": "Matched by server_id, never by gpu_id. The exemption is a property of the SKU, not the accelerator family: an H100 PCIe card carries the entitlement and an H100 SXM in an HGX node does not, and both are gpu_id h100. The HGX and DGX-Blackwell rows are deliberately absent — the vendor states Blackwell DGX systems must purchase it separately.",
+      "note": "DOUBLE-COUNTING HAZARD, documented by the vendor: several SKUs already include this subscription. Pairing this row with the dgx-h100-gpufm server config charges a licence the Hopper DGX bundle already carries. The exemptions are listed so the UI can warn instead of silently overcharging, and bundled_server_ids is the machine-actionable form app.js:bundledExemptionFor reads. The warning does NOT zero the charge: the bundle is a fixed five- or three-year entitlement while this row is an annual subscription, so the honest act is to tell the buyer the overlap exists and let them price it."
     },
     {
       "id": "nvidia-ai-enterprise-marketplace",

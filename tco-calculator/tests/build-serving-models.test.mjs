@@ -15,6 +15,8 @@ import {
   geometryParams,
   deriveParams,
   screen,
+  derivativeBase,
+  resolveBase,
   Skip,
 } from "../../scripts/build-serving-models.mjs";
 import { kvBytesPerToken, kvBytesPerSequence, ServingRefusal } from "../serving.js";
@@ -355,6 +357,48 @@ test("the screen keeps instruct tunes and drops containers", () => {
     screen({ pipeline_tag: "text-to-speech", tags: ["text-generation"] }) ?? "",
     /not text-generation/,
   );
+});
+
+test("same-lab finetunes stay first-party while cross-lab finetunes resolve", () => {
+  const same = {
+    id: "Qwen/Qwen3.8-27B-Instruct",
+    pipeline_tag: "text-generation",
+    tags: ["base_model:finetune:Qwen/Qwen3.8-27B-Base"],
+  };
+  const cross = {
+    id: "SomeBuilder/Qwen3.8-27B-s1-mini",
+    pipeline_tag: "text-generation",
+    tags: ["base_model:finetune:Qwen/Qwen3.8-27B"],
+  };
+  assert.equal(screen(same), null);
+  assert.match(screen(cross) ?? "", /derivative repo/);
+  assert.deepEqual(derivativeBase(cross), {
+    kind: "finetune",
+    base: "Qwen/Qwen3.8-27B",
+    tag: "base_model:finetune:Qwen/Qwen3.8-27B",
+  });
+});
+
+test("base resolution follows a frozen two-hop chain to the main lab", async () => {
+  const rows = new Map([
+    ["Middle/Quantized", {
+      id: "Middle/Quantized",
+      tags: ["base_model:adapter:MainLab/Base"],
+    }],
+    ["MainLab/Base", {
+      id: "MainLab/Base",
+      tags: [],
+    }],
+  ]);
+  const resolved = await resolveBase({
+    id: "ThirdParty/Upload",
+    tags: ["base_model:quantized:Middle/Quantized"],
+  }, {
+    fetchModel: async (id) => rows.get(id),
+  });
+  assert.equal(resolved.id, "MainLab/Base");
+  assert.equal(resolved.hops, 2);
+  assert.deepEqual(resolved.path, ["ThirdParty/Upload", "Middle/Quantized", "MainLab/Base"]);
 });
 
 // ─────────────────────────────────────── the engine refuses what we refuse

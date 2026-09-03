@@ -105,9 +105,18 @@ export class Skip extends Error {
 }
 
 // ---------------------------------------------------------------- fetch layer
+class HubHttpError extends Error {
+  constructor(url, status) {
+    super(`${url} -> HTTP ${status}`);
+    this.name = "HubHttpError";
+    this.url = url;
+    this.status = status;
+  }
+}
+
 async function fetchText(url) {
   const res = await fetch(url, { headers: { "user-agent": UA, accept: "application/json" } });
-  if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
+  if (!res.ok) throw new HubHttpError(url, res.status);
   return res.text();
 }
 
@@ -131,8 +140,21 @@ async function fetchConfig(url) {
 // A ranked Hub list is not a list of models; it is a list of REPOSITORIES, and
 // several of the top entries are the same model re-uploaded in another container.
 // Pricing those separately would show a buyer four rows that are one decision.
-const DERIVATIVE_TAG = /^base_model:(quantized|adapter|merge):/;
+const BASE_MODEL_TAG = /^base_model:(quantized|adapter|merge|finetune):(.+)$/;
 const CONVERSION_LIB = new Set(["llama.cpp", "mlx", "Model Optimizer", "peft", "gguf"]);
+
+const repoOrg = (id) => String(id ?? "").split("/")[0].toLowerCase();
+export function derivativeBase(m) {
+  const tags = Array.isArray(m?.tags) ? m.tags : [];
+  for (const tag of tags) {
+    const hit = BASE_MODEL_TAG.exec(tag);
+    if (!hit) continue;
+    const [, kind, base] = hit;
+    if (kind === "finetune" && (repoOrg(m.id) === "" || repoOrg(base) === repoOrg(m.id))) continue;
+    return { kind, base, tag };
+  }
+  return null;
+}
 
 export function screen(m) {
   // pipeline_tag is the Hub's OWN classification and outranks the tag list: a
@@ -142,15 +164,43 @@ export function screen(m) {
   }
   const tags = Array.isArray(m.tags) ? m.tags : [];
   if (tags.includes("gguf")) return "GGUF container — a re-upload of another repo's weights";
-  const derived = tags.find((t) => DERIVATIVE_TAG.test(t));
-  if (derived) return `derivative repo (${derived})`;
+  const derived = derivativeBase(m);
+  if (derived) return `derivative repo (${derived.tag})`;
   if (m.library_name && CONVERSION_LIB.has(m.library_name)) {
     return `library_name ${m.library_name} marks a conversion, not an original`;
   }
-  // base_model:finetune: is deliberately NOT screened. An instruct tune IS the
-  // thing people serve — Qwen/Qwen3-8B and Qwen/Qwen2.5-7B-Instruct both carry
-  // that tag, and dropping it would drop nearly every model worth pricing.
+  // A same-organisation finetune is the lab's own served checkpoint and remains a
+  // first-party row. A different organisation's finetune is a derivative build
+  // and resolves back to the tagged lab repo instead of impersonating an original.
   return null;
+}
+
+export async function resolveBase(entry, { fetchModel = null, maxHops = 3 } = {}) {
+  if (!entry?.id) throw new Skip("base resolution needs a repository id");
+  const getModel = fetchModel ?? ((id) => fetchHubJSON(`${HUB}/api/models/${id}`));
+  const seen = new Set([entry.id]);
+  const path = [entry.id];
+  let current = entry;
+
+  for (let hop = 0; hop < maxHops; hop++) {
+    const ref = derivativeBase(current);
+    if (!ref) {
+      return path.length === 1 ? null : { entry: current, id: current.id, hops: path.length - 1, path };
+    }
+    if (seen.has(ref.base)) {
+      throw new Skip("base_model tags form a cycle", [...path, ref.base].join(" -> "));
+    }
+    seen.add(ref.base);
+    path.push(ref.base);
+    current = await getModel(ref.base);
+    if (!current || typeof current.id !== "string") {
+      throw new Skip(`base repo ${ref.base} returned no model record`);
+    }
+  }
+
+  // Three hops is the trust boundary. Compile the last named repository rather
+  // than chasing an unbounded chain controlled by third-party metadata.
+  return { entry: current, id: current.id, hops: path.length - 1, path, truncated: derivativeBase(current) !== null };
 }
 
 // ------------------------------------------------------------- config accessors
@@ -472,7 +522,15 @@ async function compileModel(entry, observedAt) {
   }
 
   const configUrl = `${HUB}/${repoId}/resolve/main/config.json`;
-  const cfg = await fetchConfig(configUrl);
+  let cfg;
+  try {
+    cfg = await fetchConfig(configUrl);
+  } catch (e) {
+    if (e instanceof HubHttpError && (e.status === 401 || e.status === 403)) {
+      throw new Skip(`gated repo — config.json returned HTTP ${e.status}`, configUrl);
+    }
+    throw e;
+  }
 
   // A speculative-decoding draft head is a real repository holding real weights,
   // but it never serves traffic on its own — it proposes tokens a larger model
@@ -524,21 +582,65 @@ export async function buildServingModels({ observedAt, previous }) {
 
   const kept = [];
   const skipped = [];
+  const derivatives = [];
+  const candidates = new Map();
+  const scoreOf = (entry) => Number(entry?.trendingScore ?? Number.NEGATIVE_INFINITY);
+  const addCandidate = (entry, resolution = null) => {
+    const score = resolution?.creditedScore ?? scoreOf(entry);
+    const prior = candidates.get(entry.id);
+    if (!prior) {
+      candidates.set(entry.id, { entry: { ...entry, trendingScore: score }, creditedScore: score, resolutions: resolution ? [resolution] : [] });
+      return;
+    }
+    if (score > prior.creditedScore) {
+      prior.creditedScore = score;
+      prior.entry = { ...entry, trendingScore: score };
+    }
+    if (resolution) prior.resolutions.push(resolution);
+  };
+
+  // Screen the whole ranked pool first. A derivative contributes its ranking to
+  // the base it names; it never becomes a selectable row under the derivative's
+  // org. Originals and resolved bases are then compiled in one credited order.
   for (const entry of list) {
-    if (kept.length >= KEEP) break;
     const screened = screen(entry);
-    if (screened) {
-      skipped.push({ id: entry.id, reason: screened, detail: null });
+    if (!screened) {
+      addCandidate(entry);
       continue;
     }
+    skipped.push({ id: entry.id, reason: screened, detail: null });
+    if (derivativeBase(entry)) derivatives.push(entry);
+  }
+
+  for (const derivative of derivatives) {
+    try {
+      const resolved = await resolveBase(derivative);
+      if (!resolved) continue;
+      addCandidate(resolved.entry, {
+        derivative_id: derivative.id,
+        creditedScore: scoreOf(derivative),
+        hops: resolved.hops,
+        path: resolved.path,
+        truncated: !!resolved.truncated,
+      });
+    } catch (e) {
+      if (e instanceof Skip) {
+        skipped.push({ id: derivative.id, reason: `base resolution failed — ${e.reason}`, detail: e.detail });
+        continue;
+      }
+      skipped.push({ id: derivative.id, reason: `base resolution failed — ${e.message}`, detail: e.name });
+    }
+  }
+
+  const ordered = [...candidates.values()]
+    .sort((a, b) => b.creditedScore - a.creditedScore || a.entry.id.localeCompare(b.entry.id));
+  const resolvedBases = [];
+  for (const candidate of ordered) {
+    if (kept.length >= KEEP) break;
+    const entry = candidate.entry;
     try {
       const model = await compileModel(entry, observedAt);
-      // A dtype sibling carries no base_model:quantized: tag — zai-org publishes
-      // GLM-5.3-Flash (FP8) and GLM-5.3-Flash-BF16 as separate repos — so the tag
-      // screen cannot catch it. The shape can: two rows with the same parameter
-      // counts and the same layer groups produce byte-identical VRAM, throughput
-      // and cost, which makes them one row in a calculator and two rows of noise
-      // in a dropdown. The higher-ranked repo wins and the twin is recorded.
+      // Two repositories with the same priced shape are one calculator decision.
       const twin = kept.find((k) => shapeSignature(k) === shapeSignature(model));
       if (twin) {
         skipped.push({
@@ -547,6 +649,17 @@ export async function buildServingModels({ observedAt, previous }) {
           detail: "duplicate serving shape",
         });
         continue;
+      }
+      if (candidate.resolutions.length) {
+        model.resolved_from = candidate.resolutions.map((r) => r.derivative_id);
+        model.base_resolution = candidate.resolutions.map(({ derivative_id, hops, path, truncated }) => ({
+          derivative_id, hops, path, truncated,
+        }));
+        resolvedBases.push({
+          base_id: entry.id,
+          derivative_ids: model.resolved_from,
+          credited_trending_score: candidate.creditedScore,
+        });
       }
       kept.push(model);
     } catch (e) {
@@ -562,18 +675,9 @@ export async function buildServingModels({ observedAt, previous }) {
   }
 
   // Everything the previous file held that this builder did NOT generate is
-  // preserved verbatim, identified by the ABSENCE of basis:"derived" rather than
-  // by a hardcoded id list that would drift out of step with the data. Those rows
-  // are the engine's falsifiers (each carries a published kv_bytes_per_token
-  // figure the test suite asserts against) plus the custom starting shape.
+  // preserved verbatim, identified by the ABSENCE of basis:"derived".
   const curated = (previous.models ?? []).filter((m) => m.basis !== "derived" && m.id !== "custom");
   const custom = (previous.models ?? []).filter((m) => m.id === "custom");
-  // Every id must be unique across the WHOLE list: it is the <option> value and
-  // the key tests/serving.test.mjs looks a falsifier up by. Two derived repos can
-  // slug alike — Qwen3.8-27B-DFlash2 is published by more than one org, and the
-  // first dry run emitted that row twice — and a derived slug can also shadow a
-  // curated id. Both cases resolve here, org first and then a numeric suffix, so
-  // an id is never silently doubled and a row is never dropped for a name clash.
   const taken = new Set([...curated, ...custom].map((m) => m.id));
   for (const m of kept) {
     if (!taken.has(m.id)) { taken.add(m.id); continue; }
@@ -583,19 +687,21 @@ export async function buildServingModels({ observedAt, previous }) {
     taken.add(next);
   }
 
+  const gatedRepoCount = skipped.filter((s) => s.reason.startsWith("gated repo")).length;
   return {
     ...previous,
     provenance: { ...previous.provenance, observed: observedAt },
-    // The pre-v0.4 note claimed "every preset below reproduces a PUBLISHED
-    // per-token KV figure". That was true of a file holding four hand-verified
-    // rows and is FALSE the moment a derived row is prepended — and `...previous`
-    // would carry the stale claim into every future refresh, so the note is
-    // rewritten here rather than inherited from whatever the last file said.
     model_note: `This file holds TWO classes of row and they carry different warranties. A row tagged basis:"derived" was generated from the Hugging Face Hub by scripts/build-serving-models.mjs: its layer groups and parameter counts come from that repository's own config.json and safetensors index, and its kv_bytes_per_token_bf16_expected is null because no independently published per-token figure exists for it. A row carrying NO basis key is hand-curated, and its numeric kv_bytes_per_token_bf16_expected is a figure published by the cited source — tests/serving.test.mjs asserts the engine's own layer-group arithmetic lands on each one exactly. Those curated rows are therefore the ONLY independent falsifiers of the engine's arithmetic: a formula error cannot ship silently while they stand, which is why a refresh preserves them verbatim. Layer groups are the general form — one flat layer count cannot express a hybrid, and the curated architectures are precisely the cases where a flat count is wrong.`,
     models: [...kept, ...curated, ...custom],
-    derived_note: `The rows tagged basis:"derived" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on ${observedAt}, ranked by ${SORT}. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.`,
+    derived_note: `The rows tagged basis:"derived" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on ${observedAt}, ranked by ${SORT}. Third-party derivatives resolve to their named main-lab base for up to three hops, and the best derivative trendingScore credits that base's ordering. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.`,
+    coverage: {
+      ...(previous.coverage ?? {}),
+      resolved_base_count: resolvedBases.length,
+      gated_repo_count: gatedRepoCount,
+    },
+    resolved_bases: resolvedBases,
     skipped,
-    skipped_note: `Candidates the mapper could not express, listed rather than dropped silently. A skip is a REFUSAL, not an absence: serving.js throws on an attention kind outside {full, sliding, linear, mla}, and it silently prices an MoE as dense when active parameters are unknown, so a row that cannot be derived must not be written. Hand-curate any row here that matters.`,
+    skipped_note: `Candidates the mapper could not express, listed rather than dropped silently. A skip is a REFUSAL, not an absence: serving.js throws on an attention kind outside {full, sliding, linear, mla}, and it silently prices an MoE as dense when active parameters are unknown, so a row that cannot be derived must not be written. Gated config repositories are named separately from transient fetch failures. Hand-curate any row here that matters.`,
   };
 }
 

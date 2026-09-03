@@ -280,6 +280,7 @@
           <span class="sub">Pick the closest match. Every field below fills in from it and stays editable.</span>
         </div>
       </div>
+      <p class="muted" id="f-sv-selection-note"></p>
       <div class="row">
         <div class="f">
           <label for="f-sv-params">Size (billion params)</label>
@@ -451,12 +452,30 @@
       <p class="muted" id="f-sub-note"></p>
 
       <div class="row">
-        <div class="f"><label for="f-sh-fixed">Running, per month ($)</label><input id="f-sh-fixed" type="text" inputmode="decimal" value="10000"></div>
         <div class="f">
-          <label for="f-horizon-hint">&nbsp;</label>
-          <span class="sub" id="f-horizon-hint">Power, cooling, colocation, staff &mdash; everything recurring that is not the tokens themselves.</span>
+          <label for="f-sh-fixed">Running, per month ($)</label>
+          <input id="f-sh-fixed" type="text" inputmode="decimal" placeholder="derived from the fleet">
+          <span class="sub">Leave blank to derive electricity from every GPU installed in the selected nodes. A value here overrides the derivation.</span>
+        </div>
+        <div class="f">
+          <label for="f-power-pue">Facility PUE</label>
+          <input id="f-power-pue" type="text" inputmode="decimal" value="1.4">
+          <span class="sub">Assumption. 1.0 is IT equipment alone; cooling and delivery losses raise it.</span>
         </div>
       </div>
+      <div class="row">
+        <div class="f">
+          <label for="f-power-rate">Electricity ($/kWh)</label>
+          <input id="f-power-rate" type="text" inputmode="decimal" value="0.12">
+          <span class="sub">Assumption. Use your blended facility tariff.</span>
+        </div>
+        <div class="f">
+          <label for="f-power-overhead">Non-GPU node overhead</label>
+          <input id="f-power-overhead" type="text" inputmode="decimal" value="0.2">
+          <span class="sub">Assumption as a fraction of GPU draw for CPUs, memory, storage and fans.</span>
+        </div>
+      </div>
+      <p class="muted" id="f-power-note"></p>
 
       <details class="adv">
         <summary>Service level, routing &amp; overlay</summary>

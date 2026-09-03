@@ -124,7 +124,7 @@ async function main() {
 
   const derived = (servingDoc.models ?? []).filter((m) => m.basis === "derived");
   const curatedCount = (servingDoc.models ?? []).length - derived.length;
-  console.log(`serving       ${derived.length} derived from the Hub + ${curatedCount} hand-curated · newest preset ${derived[0]?.id ?? "NONE"}`);
+  console.log(`serving       ${derived.length} derived from the Hub + ${curatedCount} hand-curated · ${servingDoc.coverage?.resolved_base_count ?? 0} resolved bases · ${servingDoc.coverage?.gated_repo_count ?? 0} gated repos · newest preset ${derived[0]?.id ?? "NONE"}`);
   if (servingDoc.skipped?.length) {
     // Skips are the honest half of this stage: a model the mapper cannot express
     // must be VISIBLE, or its absence reads as "the Hub had nothing newer".

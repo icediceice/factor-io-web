@@ -18,6 +18,7 @@ import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefus
 import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, serversForGpu, CapexRefusal } from "./capex.js";
 import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
+import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -65,6 +66,9 @@ const state = {
   capexGap: null,
   subPlan: null,
   subGap: null,
+  powerSeed: null,
+  powerPlan: null,
+  powerGap: null,
   // Live recompute must not fire mid-init: the catalog is not loaded yet and a
   // comparison over an empty catalog renders a gap the user never caused.
   ready: false,
@@ -139,6 +143,7 @@ async function init() {
     state.manifest = await loadManifest();
     renderBanner(freshnessView(state.manifest, Date.now()));
     await loadGpuPricing();
+    await loadPowerData();
     await loadServingModels();
     await loadServerPricing();
     await loadSubscriptions();
@@ -183,6 +188,13 @@ async function loadGpuPricing() {
   $("f-rent-gpu").addEventListener("change", renderRentNote);
   $("f-sh-gpu").addEventListener("change", refreshDerived);
   fillRentGpus();
+}
+
+async function loadPowerData() {
+  const res = await fetch("./tco-calculator/data/power-seed.json");
+  if (!res.ok) throw new Error(`power-seed.json ${res.status}`);
+  state.powerSeed = await res.json();
+  configurePowerSeed(state.powerSeed);
 }
 
 // ─────────────────────────────────────────── v0.5 server capex + licence layer
@@ -264,6 +276,53 @@ function buildCapexPlan(gpusRequired, publish = true) {
     state.capexGap = gap;
   }
   return plan;
+}
+
+function buildPowerPlan(gpuId, capexPlan, gpuCount, publish = true) {
+  let plan = null;
+  let gap = null;
+  try {
+    const gpusProvisioned = capexPlan?.gpus_provisioned ?? gpuCount;
+    plan = {
+      ...runningCost({
+        gpuId,
+        gpusProvisioned,
+        pue: decInput("f-power-pue") ?? "1.4",
+        usdPerKwh: decInput("f-power-rate") ?? "0.12",
+        nodeOverheadFraction: decInput("f-power-overhead") ?? "0.2",
+      }),
+      fleet_basis: capexPlan ? "whole_node_provisioned" : "selected_gpu_count",
+    };
+  } catch (e) {
+    if (!(e instanceof PowerRefusal)) throw e;
+    gap = e.message;
+  }
+  if (publish) {
+    state.powerPlan = plan;
+    state.powerGap = gap;
+  }
+  return plan;
+}
+
+function renderPowerNote() {
+  const el = $("f-power-note");
+  if (!el) return;
+  const entered = decInput("f-sh-fixed");
+  const p = state.powerPlan;
+  if (!p) {
+    el.innerHTML = entered === null
+      ? `${escapeHtml(state.powerGap ?? "running cost cannot be derived")} The self-hosted option is not costed until you enter a monthly figure.`
+      : `Your entered running cost is in use. ${escapeHtml(state.powerGap ?? "The derived figure is unavailable.")}`;
+    return;
+  }
+  const t = p.terms;
+  const source = t.board_tdp_w.source_url
+    ? `<a href="${escapeHtml(t.board_tdp_w.source_url)}" target="_blank" rel="noopener">source</a>`
+    : "source unavailable";
+  const derived = `${money(p.monthly_usd)} / month from ${p.gpus_provisioned} installed GPU${p.gpus_provisioned === 1 ? "" : "s"} × ${escapeHtml(t.board_tdp_w.value)}W <span class="tag tag-exact">published</span> (${source}), PUE ${escapeHtml(t.pue.value)} <span class="tag tag-est">assumed</span>, electricity $${escapeHtml(t.usd_per_kwh.value)}/kWh <span class="tag tag-est">assumed</span>, and ${escapeHtml(t.node_overhead_fraction.value)} non-GPU overhead <span class="tag tag-est">assumed</span>.`;
+  el.innerHTML = entered === null
+    ? `Derived running cost: ${derived}`
+    : `Your entered running cost is in use; derived comparison: ${derived}`;
 }
 
 async function loadSubscriptions() {
@@ -527,9 +586,22 @@ async function loadServingModels() {
   $("f-sv-runtime").value = "vllm";
 
   $("f-sv-model").addEventListener("change", () => { applyModelPreset($("f-sv-model").value); });
-  const chosen = firstServableModelId(d);
-  $("f-sv-model").value = chosen;
-  applyModelPreset(chosen);
+  const selection = firstServableModelId(d);
+  $("f-sv-model").value = selection.chosenId;
+  applyModelPreset(selection.chosenId);
+  const note = $("f-sv-selection-note");
+  if (note && selection.passedOver) {
+    const top = d.models.find((m) => m.id === selection.passedOver.id);
+    note.innerHTML = `Opened on the first model that fits this accelerator. Top-ranked ${escapeHtml(top?.label ?? selection.passedOver.id)} was passed over because ${escapeHtml(selection.passedOver.reason)} <button class="btn btn-s" type="button" id="load-top-model">Load it anyway</button>`;
+    $("load-top-model").addEventListener("click", () => {
+      $("f-sv-model").value = selection.topRankedId;
+      applyModelPreset(selection.topRankedId);
+      note.textContent = "Top-ranked model loaded; any fit refusal is shown in the sizing result.";
+      if (state.ready) onLiveInput();
+    });
+  } else if (note) {
+    note.textContent = "Opened on the top-ranked model.";
+  }
 }
 
 // The default selection must be a model that actually SERVES on the default
@@ -549,27 +621,33 @@ async function loadServingModels() {
 // preset — just the newest one that fits.
 function firstServableModelId(d) {
   const gpuId = $("f-sh-gpu").value;
+  const top = d.models.find((m) => m.id !== "custom") ?? d.models[0];
+  let topReason = null;
   for (const m of d.models) {
     if (m.id === "custom") continue;
     // The SELECT must move with the fields. currentModelSpec() resolves the model
-    // by `f-sv-model`, while applyModelPreset only fills the numeric inputs — so
-    // setting one without the other probes a chimera: this candidate's parameter
-    // counts against the previously selected model's identity and layer groups.
-    // That is not a hypothetical; it is what the first version of this function
-    // did, and it made the full GLM-5.3 appear to fit in 144 GB.
+    // by f-sv-model, while applyModelPreset fills the numeric inputs.
     $("f-sv-model").value = m.id;
     applyModelPreset(m.id);
+    let refusal = null;
     try {
-      // null means the DATA is missing (no accelerator entry, no published VRAM),
-      // which is not evidence that the model fits — only a plan is.
-      if (solveServingFor(gpuId) !== null) return m.id;
+      const plan = solveServingFor(gpuId);
+      if (plan !== null) {
+        return {
+          chosenId: m.id,
+          topRankedId: top.id,
+          passedOver: m.id === top.id ? null : { id: top.id, reason: topReason ?? "no complete serving plan" },
+        };
+      }
+      refusal = "the serving data is incomplete for this accelerator";
     } catch (e) {
       if (!(e instanceof ServingRefusal)) throw e;
+      refusal = e.message;
     }
+    if (m.id === top.id) topReason = refusal;
   }
-  // Nothing serves. Fall back to the first row and let the refusal card say why —
-  // an invented fit would be far worse than an honest empty answer.
-  return d.models[0].id;
+  // Nothing serves. Fall back to the top row and let the refusal card say why.
+  return { chosenId: top.id, topRankedId: top.id, passedOver: null };
 }
 
 // The four architectures the buyer named are a per-LAYER-GROUP property, and a real
@@ -977,7 +1055,8 @@ async function wireInputs() {
     // leaving the capex override and the one-time fields off this list meant the
     // totals beside them kept showing the PREVIOUS figure until something else
     // moved — the same field live, its neighbour stale.
-    "f-sh-capex", "f-onetime-b", "f-onetime-c", "fo-impl",
+    "f-sh-capex", "f-sh-fixed", "f-power-pue", "f-power-rate", "f-power-overhead",
+    "f-rent-util", "fo-license", "fo-consult", "f-onetime-b", "f-onetime-c", "fo-impl",
     // v0.3: the model IS a sizing input, not a detail. Editing its size, context
     // or precision moves the fleet, so each one drives the same recompute.
     "f-sv-params", "f-sv-active", "f-sv-ctx", "f-sv-maxbatch", "f-sv-kvbytes",
@@ -986,7 +1065,7 @@ async function wireInputs() {
   for (const id of live) $(id)?.addEventListener("input", onLiveInput);
   // Selects fire `change`, not `input`. f-sh-gpu belongs here because the
   // accelerator decides bandwidth and VRAM, which decides the whole plan.
-  for (const id of ["f-sv-wquant", "f-sv-kvquant", "f-sv-runtime", "f-sv-mode", "f-sh-gpu"]) {
+  for (const id of ["f-sv-wquant", "f-sv-kvquant", "f-sv-runtime", "f-sv-mode", "f-sh-gpu", "f-rent-gpu"]) {
     $(id)?.addEventListener("change", onLiveInput);
   }
   await fillModels(beginSelection());
@@ -1230,13 +1309,16 @@ function buildScenario(usersOverride = null) {
   // block — the one this calculator exists to produce — was dead out of the box.
   // Only the base scenario publishes to state — the sensitivity grid's reruns
   // must not repaint the notes that describe THIS one.
-  const capexPlan = buildCapexPlan(gpuCount, usersOverride === null);
+  const publish = usersOverride === null;
+  const capexPlan = buildCapexPlan(gpuCount, publish);
   const capexEntered = decInput("f-sh-capex");
   const capex = capexEntered ?? (capexPlan ? capexPlan.capex : "0");
+  const powerPlan = buildPowerPlan(gpuId, capexPlan, gpuCount, publish);
+  const runningMonthly = decInput("f-sh-fixed") ?? powerPlan?.monthly_usd ?? null;
 
   const laneA = {
-    enabled: true,
-    fixed_monthly: decInput("f-sh-fixed") ?? "0",
+    enabled: runningMonthly !== null,
+    fixed_monthly: runningMonthly ?? "0",
     capex,
     monthly_token_budget: intInput("f-sh-budget") ?? derivedBudget,
     tokens_s_ceiling: Math.round(fleetTokensS),
@@ -1338,7 +1420,7 @@ function buildScenario(usersOverride = null) {
   };
 
   return {
-    demand, peak, sizing, gpuId, rentRow, rentGap, capexPlan, subPlan,
+    demand, peak, sizing, gpuId, rentRow, rentGap, capexPlan, powerPlan, subPlan,
     inputs: {
       workload,
       catalog: state.catalog ?? { offers: {} },
@@ -1368,6 +1450,7 @@ function run() {
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
     renderServerNote();
+    renderPowerNote();
     renderSubNote();
   } catch (e) {
     if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
@@ -1579,11 +1662,14 @@ function renderResults(r) {
       : (r.subscription ? [["platform licence", "not applicable to this option"]] : []);
     return [["infrastructure", `${money(row.infra_monthly)} / month`], ...lic];
   };
+  const curveCell = (k, rows) => r.curve[0]?.[k] === null || r.curve[0]?.[k] === undefined
+    ? "— (not costed)"
+    : numProv(money(r.curve[0][k]), rows);
 
   const rows = [`<tr><td>${OPTION.B.label} — <code>${escapeHtml(B.primary_offer ?? "none")}</code>${srcTag(q)}</td>` +
     `<td class="n">${B.monthly_total === null ? "—" : numProv(money(monthlyCell("B", B.monthly_total)), [...quoteRows(B.primary_offer, q), ...monthlyProv("B")])}</td>` +
     `<td class="n">${B.per_1m.value === null ? `— (${B.per_1m.reason})` : numProv(fmtPer1M(B.per_1m.value), quoteRows(B.primary_offer, q))}</td>` +
-    `<td class="n">${numProv(money(r.curve[0].B), quoteRows(B.primary_offer, q))}</td></tr>`];
+    `<td class="n">${curveCell("B", quoteRows(B.primary_offer, q))}</td></tr>`];
 
   if (r.lanes.A.enabled) {
     const A = r.lanes.A;
@@ -1599,7 +1685,7 @@ function renderResults(r) {
     rows.push(`<tr><td>${OPTION.A.label}</td>`
       + `<td class="n">${numProv(money(monthlyCell("A", A.monthly_total)), [...aRows, ...monthlyProv("A")])}</td>`
       + `<td class="n">${per1mA}</td>`
-      + `<td class="n">${numProv(money(r.curve[0].A), aRows)}</td></tr>`);
+      + `<td class="n">${curveCell("A", aRows)}</td></tr>`);
   }
 
   if (r.lanes.C.enabled) {
@@ -1625,7 +1711,7 @@ function renderResults(r) {
     rows.push(`<tr><td>${OPTION.C.label}${row ? ` — ${escapeHtml(row.provider_label)}` : ""} <span class="tag ${tier}">${tierWord}</span></td>`
       + `<td class="n">${numProv(money(monthlyCell("C", C.monthly_total)), [...cRows, ...monthlyProv("C")])}</td>`
       + `<td class="n">${per1mC}</td>`
-      + `<td class="n">${numProv(money(r.curve[0].C), cRows)}</td></tr>`);
+      + `<td class="n">${curveCell("C", cRows)}</td></tr>`);
   }
 
   const rec = (r.routing_result.recommended_monthly_total === null || r.routing_result.recommended_monthly_total === undefined) ? "" :
@@ -1668,7 +1754,7 @@ function renderResults(r) {
     </div>
     <div class="card">
       <h3>Cumulative cost over ${r.horizon_months} months</h3>
-      ${renderCurve(r.curve)}
+      ${renderCurve(r.curve, r.payback)}
       <p class="muted">Self-hosted starts at its capex and grows by its monthly cost; where its line crosses another is the payback month above.</p>
     </div>
     <p><button class="btn btn-s" id="export">Export quote (JSON)</button> <span class="muted">every input, the snapshot digest, and per-meter provenance.</span></p>
@@ -1756,18 +1842,69 @@ const fmtPer1M = (v) => {
   return formatHalfUp(Dec.from(s), 6);
 };
 
-function renderCurve(curve) {
-  const w = 900, h = 220, pad = 34;
-  const maxV = Math.max(...curve.flatMap((p) => OPTION_KEYS.map((l) => Number(p[l]) || 0)), 1);
-  const x = (m) => pad + ((m - 1) / Math.max(1, curve.length - 1)) * (w - pad * 2);
-  const y = (v) => h - pad - (v / maxV) * (h - pad * 2);
-  const paths = OPTION_KEYS.map((l) => {
-    const pts = curve.map((p) => `${x(p.month).toFixed(1)},${y(Number(p[l]) || 0).toFixed(1)}`).join(" ");
-    return `<polyline points="${pts}" fill="none" stroke="${OPTION[l].color}" stroke-width="2" />`;
+function renderCurve(curve, payback = {}) {
+  const w = 900, h = 260;
+  const pad = { left: 78, right: 128, top: 42, bottom: 34 };
+  const chartNumber = (raw) => {
+    const value = moneyValue(raw);
+    return value instanceof Rat ? Number(value.n) / Number(value.d) : Number(value.toString());
+  };
+  const series = OPTION_KEYS.map((key) => ({
+    key,
+    points: curve
+      .filter((p) => p[key] !== null && p[key] !== undefined)
+      .map((p) => ({ month: p.month, raw: p[key], value: chartNumber(p[key]) })),
+  }));
+  const numeric = series.flatMap((s) => s.points.map((p) => p.value)).filter(Number.isFinite);
+  const maxV = Math.max(...numeric, 1);
+  const x = (m) => pad.left + ((m - 1) / Math.max(1, curve.length - 1)) * (w - pad.left - pad.right);
+  const y = (v) => h - pad.bottom - (v / maxV) * (h - pad.top - pad.bottom);
+  const tickMoney = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: maxV >= 1_000_000 ? "compact" : "standard",
+    maximumFractionDigits: 0,
+  });
+
+  const grid = Array.from({ length: 4 }, (_, i) => {
+    const value = maxV * (i / 3);
+    const yy = y(value);
+    return `<line x1="${pad.left}" y1="${yy.toFixed(1)}" x2="${w - pad.right}" y2="${yy.toFixed(1)}" stroke="rgba(232,230,240,.12)" />`
+      + `<text x="${pad.left - 8}" y="${(yy + 4).toFixed(1)}" text-anchor="end" fill="rgba(232,230,240,.5)" font-size="10" font-family="monospace">${escapeHtml(tickMoney.format(value))}</text>`;
   }).join("");
-  const labels = OPTION_KEYS.map((l, i) => `<text x="${pad + i * 150}" y="18" fill="${OPTION[l].color}" font-size="12" font-family="monospace">${OPTION[l].label}</text>`).join("");
-  const axis = `<text x="${pad}" y="${h - 8}" fill="rgba(232,230,240,.4)" font-size="11" font-family="monospace">mo 1</text><text x="${w - pad - 30}" y="${h - 8}" fill="rgba(232,230,240,.4)" font-size="11" font-family="monospace">mo ${curve.length}</text>`;
-  return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="cumulative cost over the horizon">${labels}${paths}${axis}</svg>`;
+
+  const paths = series.map((s) => {
+    if (!s.points.length) return "";
+    const pts = s.points.map((p) => `${x(p.month).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
+    return `<polyline points="${pts}" fill="none" stroke="${OPTION[s.key].color}" stroke-width="2" />`;
+  }).join("");
+
+  const legend = series.map((s, i) => {
+    const suffix = s.points.length ? "" : " — not costed";
+    const color = s.points.length ? OPTION[s.key].color : "rgba(232,230,240,.45)";
+    return `<text x="${pad.left + i * 225}" y="18" fill="${color}" font-size="11" font-family="monospace">${escapeHtml(OPTION[s.key].label + suffix)}</text>`;
+  }).join("");
+
+  const endLabels = series.map((s) => {
+    const last = s.points.at(-1);
+    if (!last) return "";
+    return `<text x="${(x(last.month) + 7).toFixed(1)}" y="${(y(last.value) + 4).toFixed(1)}" fill="${OPTION[s.key].color}" font-size="10" font-family="monospace">${escapeHtml(money(last.raw))}</text>`;
+  }).join("");
+
+  const paybackRules = [
+    { value: payback.vs_model_api, target: "B" },
+    { value: payback.vs_rented_gpu, target: "C" },
+  ].filter(({ value }) => value?.converges && value.months >= 1 && value.months <= curve.length)
+    .map(({ value, target }, i) => {
+      const xx = x(value.months);
+      return `<line x1="${xx.toFixed(1)}" y1="${pad.top}" x2="${xx.toFixed(1)}" y2="${h - pad.bottom}" stroke="${OPTION[target].color}" stroke-width="1" stroke-dasharray="4 4" opacity=".8" />`
+        + `<text x="${(xx + 4).toFixed(1)}" y="${pad.top + 11 + i * 12}" fill="${OPTION[target].color}" font-size="9" font-family="monospace">payback vs ${escapeHtml(OPTION[target].label)} · mo ${value.months}</text>`;
+    }).join("");
+
+  const axis = `<line x1="${pad.left}" y1="${h - pad.bottom}" x2="${w - pad.right}" y2="${h - pad.bottom}" stroke="rgba(232,230,240,.3)" />`
+    + `<text x="${pad.left}" y="${h - 9}" fill="rgba(232,230,240,.5)" font-size="10" font-family="monospace">mo 1</text>`
+    + `<text x="${w - pad.right - 34}" y="${h - 9}" fill="rgba(232,230,240,.5)" font-size="10" font-family="monospace">mo ${curve.length}</text>`;
+  return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="cumulative cost over the horizon">${legend}${grid}${paybackRules}${paths}${endLabels}${axis}</svg>`;
 }
 
 // Scale one offer's prices by an exact rational factor — the sensitivity's
@@ -1936,9 +2073,9 @@ function exportQuote(r) {
       totals: r.totals,
       curve: r.curve.map((p) => ({
         month: p.month,
-        [OPTION.A.key]: p.A,
-        [OPTION.B.key]: p.B,
-        [OPTION.C.key]: p.C,
+        [OPTION.A.key]: p.A === null ? null : p.A,
+        [OPTION.B.key]: p.B === null ? null : p.B,
+        [OPTION.C.key]: p.C === null ? null : p.C,
       })),
       horizon_months: r.horizon_months,
       reasons: r.reasons,

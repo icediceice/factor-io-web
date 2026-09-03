@@ -1,0 +1,79 @@
+{
+  "schema": "factor-io.tco-power-seed/1.0.0",
+  "observed_at": "2026-09-03",
+  "note": "Rated maximum board power for the nine standard accelerators in gpu-pricing.json. The calculator uses the cited envelope as a conservative planning input; it never infers a missing wattage or treats measured utilization as a power meter.",
+  "rows": [
+    {
+      "gpu_id": "h100",
+      "label": "NVIDIA H100 80GB",
+      "tdp_w": 700,
+      "quoted_text": "Max Thermal Design Power (TDP) Up to 700W (configurable)",
+      "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "h200",
+      "label": "NVIDIA H200 141GB",
+      "tdp_w": 700,
+      "quoted_text": "Max Thermal Design Power (TDP) Up to 700W (configurable)",
+      "source_url": "https://www.nvidia.com/en-us/data-center/h200/",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "b200",
+      "label": "NVIDIA B200 180GB",
+      "tdp_w": 1000,
+      "quoted_text": "Pwr:Usage/Cap 168W / 1000W",
+      "source_url": "https://docs.nvidia.com/dgx-basepod/deployment-guides/dgx-basepod-b200/latest/b200-nmc-2-0.html",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "a100_80",
+      "label": "NVIDIA A100 80GB",
+      "tdp_w": 400,
+      "quoted_text": "Max Thermal Design Power (TDP) 300W 400W",
+      "source_url": "https://www.nvidia.com/en-us/data-center/a100/",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "a100_40",
+      "label": "NVIDIA A100 40GB",
+      "tdp_w": 400,
+      "quoted_text": "SXM4: 400 W; PCIe: 250 W",
+      "source_url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "l40s",
+      "label": "NVIDIA L40S 48GB",
+      "tdp_w": 350,
+      "quoted_text": "Max Power Consumption 350W",
+      "source_url": "https://www.nvidia.com/en-us/data-center/l40s/",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "l4",
+      "label": "NVIDIA L4 24GB",
+      "tdp_w": 72,
+      "quoted_text": "operating in a 72W low-power envelope",
+      "source_url": "https://www.nvidia.com/en-us/data-center/l4/",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "a10g",
+      "label": "NVIDIA A10G 24GB",
+      "tdp_w": 300,
+      "quoted_text": "24 gigabytes (GB) of GDDR6 memory in a 300W power envelope",
+      "source_url": "https://d1.awsstatic.com/product-marketing/ec2/NVIDIA_AWS_A10G_DataSheet_FINAL_02_17_2022.pdf",
+      "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "a10",
+      "label": "NVIDIA A10 24GB",
+      "tdp_w": 150,
+      "quoted_text": "Total board power 150 W",
+      "source_url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a10/pdf/A10-Product-Brief.pdf",
+      "observed_at": "2026-09-03"
+    }
+  ]
+}

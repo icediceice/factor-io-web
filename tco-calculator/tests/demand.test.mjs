@@ -301,6 +301,16 @@ test("curve: capex is added ONCE, at every month, not per month", () => {
   assert.deepEqual(pts.map((p) => p.A), ["6000", "7000", "8000"]);
 });
 
+test("curve: an unpriced option stays null instead of drawing a zero-cost line", () => {
+  const pts = tcoCurve({ A: "1000", B: null }, 2, { A: "5000", B: "9000" });
+  assert.deepEqual(pts.map((p) => p.B), [null, null]);
+});
+
+test("curve: a priced lane keeps the exact cumulative values", () => {
+  const pts = tcoCurve({ A: "1000.5" }, 3, { A: "5000" });
+  assert.deepEqual(pts.map((p) => p.A), ["6000.5", "7001", "8001.5"]);
+});
+
 test("curve: omitting the one-time map is byte-identical to the old two-arg call", () => {
   assert.deepEqual(tcoCurve({ A: "1000", B: "2500.5" }, 3), tcoCurve({ A: "1000", B: "2500.5" }, 3, {}));
 });

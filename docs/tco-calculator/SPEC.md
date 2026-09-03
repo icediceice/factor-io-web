@@ -251,6 +251,13 @@ that shows a monthly next to a cumulative total must state both on the same
 basis — a licence-inclusive total beside an infra-only monthly invites the reader
 to subtract one from the other and reach a figure that is in neither.
 
+**An unpriced option is absent, never free — normative.** If an option's monthly
+total is `null`, every point for that option in `tcoCurve` is also `null`.
+Results cells and quote exports preserve that value; they MUST NOT coerce it to
+`"0"` or `$0.00`. The chart omits the series and labels it `not costed`
+instead of drawing a zero baseline. Payback markers are drawn only for a real
+crossing within the selected horizon.
+
 ---
 
 ## 3. OfferContract — the tariff data model
@@ -620,6 +627,32 @@ a100_40, a100_80, a10g, a10, l4, l40s, a800) have no rows, and the refresh names
 them so the gap is known rather than silent. The UI asks the user for a figure
 instead of inventing one.
 
+### 5.9 Self-hosted running cost — power is derived from the installed fleet
+
+A blank monthly running-cost override means **derive**, not zero. The calculator
+uses the whole-node fleet from §5.8 when available, so surplus GPUs that were
+purchased and installed are powered too:
+
+```
+gpu_load_kw     = published_board_tdp_w × gpus_provisioned × 0.001
+it_load_kw      = gpu_load_kw × (1 + node_overhead_fraction)
+facility_load_kw = it_load_kw × PUE
+monthly_usd     = facility_load_kw × 730 hours × usd_per_kwh
+```
+
+The arithmetic is decimal-exact. Board TDP comes from
+`data/power-seed.json` and carries its quoted text, source URL and observation
+date as **published** evidence. PUE, electricity tariff and non-GPU node overhead
+remain separate **assumed** scenario terms; the UI MUST NOT present those
+facility assumptions as vendor claims. A non-empty monthly override outranks the
+derived result and stays live as the user types.
+
+Coverage is refusal-based. If the selected accelerator has no cited TDP row,
+`runningCost` raises `PowerRefusal("missing_tdp")`; the self-hosted option
+remains not costed until the user enters a monthly figure. A default wattage is
+forbidden because it would invent the dominant recurring term while still
+looking authoritative.
+
 ---
 
 ## 6. Throughput and utilization
@@ -876,7 +909,7 @@ erased entirely.
 
 **6.6.8 Where the presets come from — DERIVED rows, normative (v0.4).** The v0.3
 preset list was hand-curated and therefore aged silently: it kept rendering, and
-kept answering, while its newest entry fell a model generation behind. Stage 3/3 of
+kept answering, while its newest entry fell a model generation behind. Stage 3/4 of
 the refresh command (`scripts/build-serving-models.mjs`, run by
 `node scripts/refresh-pricing.mjs`) regenerates it from the Hugging Face Hub.
 
@@ -885,6 +918,16 @@ integral and therefore ranks by repository age: the live downloads top-10 is `gp
 (2022), `facebook/opt-125m` (2022), three Qwen2.5 checkpoints (2024) and a
 `trl-internal-testing` CI fixture. Sorting a "latest models" refresh by downloads
 would make the list OLDER, which is the failure it exists to fix. `--sort` overrides.
+
+**Repositories are resolved to the originating lab before compilation — normative.**
+A `base_model:finetune` whose repository organisation matches its base
+organisation remains a first-party served checkpoint. Quantized, adapter and merge
+repositories, plus cross-organisation finetunes, are derivatives: the builder follows
+their `base_model` tags for at most three hops, refuses cycles by name, and compiles
+the resolved base instead of the derivative. Original repositories and resolved
+bases share one candidate order. A base receives the best `trendingScore` among
+the derivatives that resolved to it, because derivative attention is evidence of
+the underlying model's trend; it does not create duplicate selectable rows.
 
 Each surviving repository's serving shape is read from its OWN files — never from
 its name, and never from a benchmark:
@@ -917,7 +960,9 @@ failures below are invisible downstream, which is why neither may fall through:
 
 Every skip is written to `skipped[]` in the data file WITH its reason. A silent drop
 would read as "the Hub had nothing newer", which is precisely the misreading that
-made this stage necessary.
+made this stage necessary. A `config.json` response of 401 or 403 is recorded as a
+named `gated repo` skip and counted separately in coverage; it is not collapsed
+into the transient `fetch or parse failed` bucket.
 
 **The derived active-parameter count carries its own falsifier — normative.** Where
 no vendor figure is declared, the geometry model must reproduce the PUBLISHED

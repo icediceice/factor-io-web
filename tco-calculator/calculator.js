@@ -420,6 +420,10 @@ export function tcoCurve(laneMonthlyTotals, horizonMonths, laneOneTime = {}) {
   for (let m = 1; m <= horizonMonths; m++) {
     const row = { month: m };
     for (const [lane, t] of Object.entries(laneMonthlyTotals)) {
+      if (t === null || t === undefined) {
+        row[lane] = null;
+        continue;
+      }
       const monthly = toRat(t).mul(Rat.of(BigInt(m), 1n));
       const once = laneOneTime[lane] === undefined || laneOneTime[lane] === null ? null : toRat(laneOneTime[lane]);
       row[lane] = ratStr(once === null ? monthly : monthly.add(once));
@@ -853,9 +857,9 @@ export function runComparison({
   // moves when a licence is charged monthly to two of the three options, and it
   // moves again when an option carries an upfront the others do not.
   const curve = tcoCurve({
-    A: totals.A.priced ? totals.A.monthly_total : "0",
-    B: totals.B.priced ? totals.B.monthly_total : "0",
-    C: totals.C.priced ? totals.C.monthly_total : "0",
+    A: totals.A.priced ? totals.A.monthly_total : null,
+    B: totals.B.priced ? totals.B.monthly_total : null,
+    C: totals.C.priced ? totals.C.monthly_total : null,
   }, horizon, oneTimeByOption);
 
   return {

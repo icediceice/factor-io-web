@@ -32,10 +32,10 @@ test("running cost meters GPUs installed, not only GPUs required by the workload
   assert.equal(installed.terms.gpu_load_kw.basis, "8 installed GPUs × rated board power");
 });
 
-test("an accelerator without a cited TDP refuses instead of borrowing a default", () => {
+test("a selectable accelerator without a cited TDP refuses instead of borrowing a default", () => {
   assert.throws(
     () => runningCost({
-      gpuId: "h20",
+      gpuId: "a800",
       gpusProvisioned: 8,
       pue: "1.4",
       usdPerKwh: "0.12",

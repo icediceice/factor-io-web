@@ -319,7 +319,7 @@ function renderPowerNote() {
   const source = t.board_tdp_w.source_url
     ? `<a href="${escapeHtml(t.board_tdp_w.source_url)}" target="_blank" rel="noopener">source</a>`
     : "source unavailable";
-  const derived = `${money(p.monthly_usd)} / month from ${p.gpus_provisioned} installed GPU${p.gpus_provisioned === 1 ? "" : "s"} × ${escapeHtml(t.board_tdp_w.value)}W <span class="tag tag-exact">published</span> (${source}), PUE ${escapeHtml(t.pue.value)} <span class="tag tag-est">assumed</span>, electricity $${escapeHtml(t.usd_per_kwh.value)}/kWh <span class="tag tag-est">assumed</span>, and ${escapeHtml(t.node_overhead_fraction.value)} non-GPU overhead <span class="tag tag-est">assumed</span>.`;
+  const derived = `${money(p.monthly_usd)} / month from ${p.gpus_provisioned} installed GPU${p.gpus_provisioned === 1 ? "" : "s"} × ${escapeHtml(t.board_tdp_w.value)}W <span class="tag tag-exact">published</span> (${source}), PUE ${escapeHtml(t.pue.value)} <span class="tag tag-est">assumed</span>, electricity $${escapeHtml(t.usd_per_kwh.value)}/kWh <span class="tag tag-est">assumed</span>, and ${escapeHtml(t.node_overhead_fraction.value)} non-GPU overhead <span class="tag tag-est">assumed</span>. Electricity only: rack/colocation, network/egress, staff, and support/maintenance are not included; add them to the monthly override.`;
   el.innerHTML = entered === null
     ? `Derived running cost: ${derived}`
     : `Your entered running cost is in use; derived comparison: ${derived}`;
@@ -1686,6 +1686,12 @@ function renderResults(r) {
       + `<td class="n">${numProv(money(monthlyCell("A", A.monthly_total)), [...aRows, ...monthlyProv("A")])}</td>`
       + `<td class="n">${per1mA}</td>`
       + `<td class="n">${curveCell("A", aRows)}</td></tr>`);
+  } else {
+    const gap = escapeHtml(state.powerGap ?? "self-hosted running cost is unavailable");
+    rows.push(`<tr><td>${OPTION.A.label}<div class="muted">${gap}</div></td>`
+      + `<td class="n">— (not costed)</td>`
+      + `<td class="n">— (not costed)</td>`
+      + `<td class="n">${curveCell("A", [])}</td></tr>`);
   }
 
   if (r.lanes.C.enabled) {

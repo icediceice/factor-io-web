@@ -647,10 +647,16 @@ remain separate **assumed** scenario terms; the UI MUST NOT present those
 facility assumptions as vendor claims. A non-empty monthly override outranks the
 derived result and stays live as the user types.
 
+The derived figure covers **electricity only**. It excludes rack/colocation,
+network/egress, staff, and support/maintenance; those terms remain unknown until
+the user includes them in the monthly override. The UI MUST name those exclusions
+at the point of use so a partial derivation is never presented as the complete
+self-hosted recurring cost.
+
 Coverage is refusal-based. If the selected accelerator has no cited TDP row,
 `runningCost` raises `PowerRefusal("missing_tdp")`; the self-hosted option
-remains not costed until the user enters a monthly figure. A default wattage is
-forbidden because it would invent the dominant recurring term while still
+remains visible but not costed until the user enters a monthly figure. A default
+wattage is forbidden because it would invent a recurring term while still
 looking authoritative.
 
 ---

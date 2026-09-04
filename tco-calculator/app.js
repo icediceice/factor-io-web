@@ -19,6 +19,10 @@ import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, serversForGpu, CapexRefusal } from "./capex.js";
 import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
+// Progressive disclosure for the rail. It MOVES the authored .f blocks between a
+// hidden vault and an overlay sheet, so every id below still resolves to the one
+// real node this file reads and writes.
+import { enhanceRail, syncChips, releaseFields } from "./fields.js";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -176,6 +180,11 @@ async function init() {
     await loadSubscriptions();
     await wireInputs();
     await loadWorkloadPresets();
+    // Collapse the rail LAST: every dynamic control (the model list, the server
+    // configs, the rented accelerators, the attention-layer groups) exists by
+    // now, so one pass enhances all of them. Running it earlier would leave
+    // whatever loaded afterwards as a raw input beside the collapsed lines.
+    enhanceRail();
     // Land on an answer, not an empty column. The default preset is a complete,
     // labelled scenario, so the first thing the screen shows is a worked example
     // the user edits — not a form they must fill before anything happens.
@@ -768,6 +777,11 @@ function renderArchGroups(groups) {
   state.archGroups = groups ?? [];
   const box = $("sv-groups");
   if (!box) return;
+  // This innerHTML write destroys the group controls. If the sheet were holding
+  // one, the node being edited would go with it; and the vaulted blocks sit
+  // OUTSIDE this container, so they would survive the rewrite and leave two
+  // elements sharing one id. Release both before the write, never after.
+  releaseFields(box);
   box.innerHTML = state.archGroups.map((g, i) => `
     <div class="grp">
       <div class="glabel">Group ${i + 1}${state.archGroups.length > 1 ? ` of ${state.archGroups.length}` : ""}</div>
@@ -793,6 +807,9 @@ function renderArchGroups(groups) {
       $(gf(i, k))?.addEventListener("input", onLiveInput);
     }
   }
+  // Collapse the freshly built group fields. Skipped on the init pass, where
+  // #field-vault does not exist yet; init's own enhanceRail() covers that.
+  enhanceRail();
 }
 
 /**
@@ -1148,6 +1165,11 @@ async function wireInputs() {
 let liveTimer = null;
 function onLiveInput() {
   refreshDerived();
+  // AFTER refreshDerived, never before: it rewrites the derived placeholders
+  // (`2 (derived)`, `3390.71 (from the model)`) that the collapsed lines read to
+  // show a field sitting on its derived state. Repainting first would show the
+  // previous derivation beside the new one.
+  syncChips();
   if (!state.ready) return; // init is still wiring; the catalog may not be loaded
   clearTimeout(liveTimer);
   liveTimer = setTimeout(run, 220);

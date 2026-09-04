@@ -62,7 +62,11 @@
 
   /* ── rail sections ────────────────────────────────────────────────── */
   .sec { margin-bottom:18px; }
-  .sec > h2 {
+  /* The second selector is load-bearing: enhanceSections wraps the h2 in a
+     .sechead button, which makes it a GRANDCHILD of .sec and drops it out of a
+     `>` rule. Without it the heading falls back to the UA's 2em bold serif-ish
+     h2 and the section spine of the whole rail disappears. */
+  .sec > h2, .sec > .sechead > h2 {
     font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
     color:var(--accent); margin-bottom:3px; font-weight:500;
   }
@@ -158,6 +162,125 @@
   .pop h4 { font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--cyan); margin-bottom:7px; }
   svg.curve { width:100%; height:190px; }
   .foot { margin-top:26px; padding-top:14px; border-top:1px solid rgba(232,230,240,.08); font-size:11.5px; color:var(--faint); }
+
+  /* ══ progressive disclosure: the rail reads, the sheet edits ═══════════
+     The rail used to be ~50 label-above-input blocks, most carrying two
+     lines of help prose. That prose is good writing in the wrong place: it
+     is what made a 400px column unreadable. It is NOT deleted here, it is
+     relocated into the sheet, where one field at a time has room for it.
+     fields.js builds all of this from the .f blocks already in the markup,
+     so the HTML below stays the authoring surface and no field can be
+     silently dropped by a hand rewrite. */
+
+  /* One field, collapsed to one line. Label wraps rather than truncating —
+     a clipped label makes the reader guess what they are editing. */
+  .spec {
+    display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:baseline;
+    width:calc(100% + 14px); margin:0 -7px; padding:5px 7px; text-align:left;
+    background:transparent; border:1px solid transparent; border-radius:4px;
+    font:inherit; color:inherit; cursor:pointer;
+  }
+  .spec + .spec { margin-top:1px; }
+  .spec:hover { border-color:rgba(180,110,255,.55); background:rgba(180,110,255,.06); }
+  .spec:focus-visible { outline:none; border-color:var(--cyan); }
+  .spec .k { font-size:11.5px; line-height:1.35; color:var(--dim); }
+  .spec:hover .k { color:var(--ink); }
+  /* The value is the affordance. A solid faint underline says "editable";
+     the DOTTED cyan underline is already spoken for by .src (provenance),
+     so it is deliberately not reused here. */
+  .spec .v {
+    font:12.5px/1.35 var(--mono); color:var(--ink); text-align:right;
+    border-bottom:1px solid rgba(232,230,240,.18); padding-bottom:1px;
+  }
+  .spec:hover .v, .spec:focus-visible .v { border-bottom-color:var(--cyan); }
+  /* --dim (6.09:1 on this ground), NOT --faint (3.50:1, under the 4.5:1 AA
+     floor for normal text). The unit and the derived figure are INFORMATION —
+     "5 %" and "7 (derived)" are the reading — so they take the accessible
+     step. --faint stays correct for the genuinely secondary summary line. */
+  .spec .u { color:var(--dim); margin-left:4px; }
+  /* A long select label (a model name, "Interactive - hold the speed") must not
+     push the label column to nothing. It truncates here and reads in full in
+     the sheet, which is the one place it has room. */
+  .spec .v { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* .row is a 2-up/3-up grid. One field per line reads as a spec sheet; two per
+     line is the density being removed. */
+  .row.speclist, .row.speclist.one, .row.speclist.three { display:block; }
+  /* Never let the right column render empty — a blank slot reads as broken.
+     A field sitting on its derived/placeholder state says so. */
+  .spec .v.is-derived { color:var(--dim); font-style:italic; border-bottom-style:dashed; }
+
+  /* Section-level disclosure. Who-uses-it and What-they-do stay open; the
+     three heavy sections collapse to a summary of their own current values. */
+  .sec > .sechead {
+    display:flex; align-items:baseline; gap:8px; width:calc(100% + 14px); margin:0 -7px 3px;
+    padding:4px 7px; background:transparent; border:1px solid transparent; border-radius:4px;
+    text-align:left; cursor:pointer; color:inherit; font:inherit;
+  }
+  .sec > .sechead:hover { border-color:rgba(180,110,255,.4); }
+  .sec > .sechead:focus-visible { outline:none; border-color:var(--cyan); }
+  .sec > .sechead > h2 { margin-bottom:0; }
+  .sec > .sechead .caret { color:var(--accent); font:10px/1 var(--mono); margin-left:auto; }
+  .sec > .sechead .caret::before { content:"\2212"; }
+  .sec.folded > .sechead .caret::before { content:"+"; }
+  /* The summary is what makes a folded section honest: it states the values
+     you are choosing not to look at, rather than hiding that they exist. */
+  .secsum {
+    font:11.5px/1.5 var(--mono); color:var(--faint); padding:1px 0 4px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .secsum b { color:var(--dim); font-weight:400; }
+  .sec.folded > *:not(.sechead):not(.secsum) { display:none; }
+  .sec:not(.folded) > .secsum { display:none; }
+
+  /* Inputs park here while collapsed. Kept in the DOM and kept focusable-free
+     rather than destroyed: app.js reads every field as $(id).value and binds
+     its listeners to these exact nodes. */
+  #field-vault { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  /* ── the sheet: one value, with the room its explanation needs ──────── */
+  .scrim {
+    position:fixed; inset:0; z-index:60; background:rgba(10,10,15,.74);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .sheet {
+    width:min(440px,100%); max-height:calc(100vh - 40px); overflow-y:auto;
+    background:#15151C; border:1px solid var(--cyan); border-radius:4px;
+    padding:17px 19px 15px;
+  }
+  @media (prefers-reduced-motion:no-preference) {
+    .scrim { animation:sheet-in .12s ease-out; }
+    .sheet { animation:sheet-rise .14s cubic-bezier(.16,1,.3,1); }
+  }
+  @keyframes sheet-in { from { opacity:0 } to { opacity:1 } }
+  @keyframes sheet-rise { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:none } }
+
+  .sheet .s-eyebrow { font:10.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+  /* The sheet hosts the AUTHORED .f block, moved in whole. It restyles the
+     label, help prose and control; it never rebuilds them. That is why the
+     live hint span inside the f-sh-count label keeps updating in here. */
+  .sheet .s-body .f label {
+    display:block; font-size:15px; font-weight:600; line-height:1.35;
+    color:var(--ink); margin:7px 0 0; letter-spacing:-.005em;
+  }
+  /* The relocated help prose: 12.5px here against 10.5px in the old rail, and
+     read one at a time instead of fifty at once. This is the whole point. */
+  .sheet .s-body .f .sub {
+    display:block; font-size:12.5px; line-height:1.55; color:var(--dim); margin-top:7px;
+  }
+  .sheet .s-body .f input[type=text], .sheet .s-body .f select {
+    font:16px/1.35 var(--mono); padding:9px 10px; margin-top:13px;
+  }
+  /* Order matters: the explanation is read BEFORE the box is typed in. */
+  .sheet .s-body .f { display:flex; flex-direction:column; }
+  .sheet .s-body .f label { order:1 }
+  .sheet .s-body .f .sub { order:2 }
+  .sheet .s-body .f input[type=text], .sheet .s-body .f select { order:3 }
+  .sheet .s-body .f .muted, .sheet .s-body .f .tag { font-size:11.5px; }
+  .sheet .s-foot {
+    display:flex; align-items:center; gap:8px; margin-top:15px;
+    padding-top:12px; border-top:1px solid var(--line);
+  }
+  .sheet .s-foot .hintkey { margin-left:auto; font:10.5px/1 var(--mono); color:var(--faint); }
 </style>
 
 <script type="application/ld+json">
@@ -580,6 +703,14 @@
 </div>
 
 <div id="pop" class="pop" role="dialog" aria-label="provenance"></div>
+
+<!-- Every rail control is parked here while its section is collapsed. The nodes
+     are MOVED, never copied: app.js reads each field as $(id).value and binds its
+     listeners to these exact elements, so a duplicate would be a second value
+     claiming to be the same number. -->
+<div id="field-vault" aria-hidden="true"></div>
+<!-- The sheet mounts here. Empty until a value is opened. -->
+<div id="sheet-root"></div>
 <script type="module" src="tco-calculator/app.js"></script>
 </body>
 </html>

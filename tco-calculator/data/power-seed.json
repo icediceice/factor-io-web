@@ -79,10 +79,10 @@
       "gpu_id": "rtx_pro_6000_ws",
       "label": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition 96GB",
       "tdp_w": 600,
-      "quoted_text": "rated at 600W for the standard Workstation Edition",
-      "source_url": "https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing",
+      "quoted_text": "Max Power Consumption 600 W",
+      "source_url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000/",
       "observed_at": "2026-09-04",
-      "note": "600W is the FULL-POWER workstation card. The Max-Q variant of the same silicon runs a 300W envelope; it is not modelled here and must not be costed from this row."
+      "note": "First-party: NVIDIA's own Workstation Edition spec table. The same table states `Memory Bandwidth 1792 GB/sec`, which independently corroborates the bandwidth this id carries in serving-models.json. SECONDARY, and deliberately not the citation above: https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing reports a Max-Q variant of the same silicon running a 300W envelope. That variant is not modelled here and must not be costed from this row; the claim is attributed rather than folded into the quoted_text, because NVIDIA's page does not state it."
     },
     {
       "gpu_id": "rtx_pro_6000_se",

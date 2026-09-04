@@ -183,7 +183,18 @@
   .spec + .spec { margin-top:1px; }
   .spec:hover { border-color:rgba(180,110,255,.55); background:rgba(180,110,255,.06); }
   .spec:focus-visible { outline:none; border-color:var(--cyan); }
-  .spec .k { font-size:11.5px; line-height:1.35; color:var(--dim); }
+  /* Leader dots. A pseudo-element, never a DOM node: there is nothing here for
+     a screen reader to read, and a real element would leak into the button's
+     accessible name. It shrinks to nothing when the label is long, so the rule
+     at the top of this block — labels wrap, they never truncate — still holds. */
+  .spec .k {
+    display:flex; align-items:baseline; gap:6px;
+    font-size:11.5px; line-height:1.35; color:var(--dim);
+  }
+  .spec .k::after {
+    content:""; flex:1 1 8px; min-width:0;
+    border-bottom:1px dotted var(--line);
+  }
   .spec:hover .k { color:var(--ink); }
   /* The value is the affordance. A solid faint underline says "editable";
      the DOTTED cyan underline is already spoken for by .src (provenance),
@@ -196,7 +207,10 @@
   /* --dim (6.09:1 on this ground), NOT --faint (3.50:1, under the 4.5:1 AA
      floor for normal text). The unit and the derived figure are INFORMATION —
      "5 %" and "7 (derived)" are the reading — so they take the accessible
-     step. --faint stays correct for the genuinely secondary summary line. */
+     step. The same test retires --faint from the folded summary and from the
+     sheet's eyebrow and key hint further down: each of those states a value, a
+     context or a keystroke, so each is information too. --faint survives on
+     this page only where the text carries none. */
   .spec .u { color:var(--dim); margin-left:4px; }
   /* A long select label (a model name, "Interactive - hold the speed") must not
      push the label column to nothing. It truncates here and reads in full in
@@ -223,19 +237,30 @@
   .sec > .sechead .caret::before { content:"\2212"; }
   .sec.folded > .sechead .caret::before { content:"+"; }
   /* The summary is what makes a folded section honest: it states the values
-     you are choosing not to look at, rather than hiding that they exist. */
+     you are choosing not to look at, rather than hiding that they exist. That
+     is current-value information, so it reads at --dim, not --faint. */
   .secsum {
-    font:11.5px/1.5 var(--mono); color:var(--faint); padding:1px 0 4px;
+    font:11.5px/1.5 var(--mono); color:var(--dim); padding:1px 0 4px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .secsum b { color:var(--dim); font-weight:400; }
+  .secsum b { color:var(--ink); font-weight:400; }
   .sec.folded > *:not(.sechead):not(.secsum) { display:none; }
   .sec:not(.folded) > .secsum { display:none; }
 
-  /* Inputs park here while collapsed. Kept in the DOM and kept focusable-free
-     rather than destroyed: app.js reads every field as $(id).value and binds
-     its listeners to these exact nodes. */
-  #field-vault { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  /* Inputs park here while collapsed. Kept in the DOM rather than destroyed:
+     app.js reads every field as $(id).value and binds its listeners to these
+     exact nodes.
+     visibility:hidden is the load-bearing declaration, not the clip. It is what
+     takes the ~50 parked controls out of the tab order AND out of the
+     accessibility tree. Clipping alone left them focusable, so Tab walked into
+     an invisible input inside an aria-hidden subtree — focus with no visible
+     target, which is worse than the uncollapsed rail was. Visibility does not
+     follow the node: openSheet appends the .f block into #sheet-root, which is
+     visible, so the one field being edited is focusable and the rest are not. */
+  #field-vault {
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0 0 0 0); white-space:nowrap; visibility:hidden;
+  }
 
   /* ── the sheet: one value, with the room its explanation needs ──────── */
   .scrim {
@@ -254,7 +279,9 @@
   @keyframes sheet-in { from { opacity:0 } to { opacity:1 } }
   @keyframes sheet-rise { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:none } }
 
-  .sheet .s-eyebrow { font:10.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+  /* --dim, not --faint: at 10.5px this is normal-size text under WCAG, and it
+     names which section you are editing — context, not decoration. */
+  .sheet .s-eyebrow { font:10.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--dim); }
   /* The sheet hosts the AUTHORED .f block, moved in whole. It restyles the
      label, help prose and control; it never rebuilds them. That is why the
      live hint span inside the f-sh-count label keeps updating in here. */
@@ -280,7 +307,8 @@
     display:flex; align-items:center; gap:8px; margin-top:15px;
     padding-top:12px; border-top:1px solid var(--line);
   }
-  .sheet .s-foot .hintkey { margin-left:auto; font:10.5px/1 var(--mono); color:var(--faint); }
+  /* A keystroke the reader is expected to act on has to be legible: --dim. */
+  .sheet .s-foot .hintkey { margin-left:auto; font:10.5px/1 var(--mono); color:var(--dim); }
 </style>
 
 <script type="application/ld+json">

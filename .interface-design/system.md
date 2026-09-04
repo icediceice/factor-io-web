@@ -57,6 +57,14 @@ never gradients, and never appears as a button fill outside `.btn-p`.
 the exact/estimated/unknown contract the calculator is built to communicate.
 Never reuse them for aesthetic emphasis.
 
+**`--faint` does not clear AA and is not a text token.** Computed against this
+ground it is 3.50:1, and 3.88:1 on the sheet's `#15151C` — under the 4.5:1 floor
+for normal-size text. `--dim` is 6.09:1 and 5.93:1 respectively. Anything that
+states a value, a unit, a context or a keystroke is information and takes
+`--dim`; `--faint` is only for text that carries none. It remains on the
+page-wide `.sub` help prose, which predates this work and is logged as a defect
+rather than endorsed here.
+
 ## Depth
 
 **Borders only.** One hairline, `1px solid var(--line)`, plus `--panel` as a
@@ -125,9 +133,12 @@ People using it ·····················  500
 - A real `<button>`, full-width, transparent, no border until hover.
 - Label left in `--dim` at 11.5px sans; leader dots in `--line`; value right in
   mono at 12.5px `--ink`.
-- Unit suffix in `--faint`, never in the value's own color — the number and its
-  unit are different information.
-- A field left at its derived/placeholder state shows that word in `--faint`
+- The leader is a `::after` pseudo-element on the label, not a DOM node — it must
+  never enter the button's accessible name. It is `flex:1 1 8px; min-width:0`, so
+  a long label eats it and wraps rather than truncating.
+- Unit suffix in `--dim`, never in the value's own color — the number and its
+  unit are different information, but both are information, so both clear AA.
+- A field left at its derived/placeholder state shows that word in `--dim`
   italic rather than an empty slot. An empty right-hand column reads as broken.
 - Hover: border-color `--accent` at .55 alpha, matching `.chip:hover`.
 - Focus: `--cyan` outline, matching every other focusable thing on the page.

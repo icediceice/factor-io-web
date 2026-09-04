@@ -90,6 +90,33 @@ const money = (x) => {
 };
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
+// formatHalfUp always emits the full scale, so a percent readout reads "90.0000"
+// without this. The decimal point is therefore always present, which is what
+// makes stripping the trailing zeros and then the bare point safe.
+const trimDecimals = (s) => s.replace(/0+$/, "").replace(/\.$/, "");
+
+// The screen speaks PERCENT; every engine below speaks fractions, and the
+// contract that a share sums to exactly 1 (demand.js:validateMix) is unchanged.
+// This is the single conversion point between the two, and it is exact.
+//
+// MULTIPLY BY 0.01 — do NOT "simplify" this to .div(Dec.from("100")). Dec.div
+// truncates in BigInt (`q = n / d.c`, exact.js:79) BEFORE rescaling, so it only
+// succeeds when the numerator already divides the denominator: 70/100 computes
+// q = 0, fails its own exactness check and THROWS. Multiplication is pure scale
+// arithmetic (coefficient unchanged, scale += 2), so it is exact for every
+// input and cannot throw — 12.5% is 0.125, never 0.1250000000000001.
+//
+// A malformed entry is returned AS TYPED rather than thrown on: the engines
+// raise a readable DemandRefusal for it, and converting here would replace that
+// refusal with a bare Error the UI has no path to render. That fallback must
+// stay unreachable for well-formed numbers — under div() it fired on nearly
+// every one of them and handed a percent to the engine as if it were a
+// fraction, silently multiplying the modelled load by 100.
+const pctInput = (id) => {
+  const v = decInput(id);
+  if (v === null) return null;
+  try { return Dec.from(v).mul(Dec.from("0.01")).toString(); } catch { return v; }
+};
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const groupInt = (s) => { const n = Number(s); return Number.isFinite(n) ? n.toLocaleString("en-US") : String(s); };
 
@@ -207,6 +234,26 @@ async function loadServerPricing() {
   const res = await fetch("./tco-calculator/data/server-pricing.json");
   if (!res.ok) throw new Error(`server-pricing.json ${res.status}`);
   state.serverPricing = await res.json();
+  // loadGpuPricing builds the accelerator picker from the RENT rows, so an
+  // accelerator with no rental market anywhere never appears in it — and its
+  // capex rows, board power and bandwidth become unreachable data. The
+  // workstation-class RTX PRO 6000 is exactly that: a card you buy, never one
+  // you rent. Anything the capex registry can PRICE is self-hostable by
+  // definition, so the two sets are unioned here.
+  // This lives in loadServerPricing because init() loads gpu pricing BEFORE
+  // server pricing — the server rows do not exist yet when the picker is first
+  // built. Moving it into loadGpuPricing requires reordering init.
+  const shSel = $("f-sh-gpu");
+  const gpuLabels = state.gpuPricing?.gpus ?? {};
+  const keepSelected = shSel.value;
+  const offerable = [...new Set([
+    ...[...shSel.options].map((o) => o.value),
+    ...state.serverPricing.rows.map((r) => r.gpu_id),
+  ])].sort();
+  shSel.innerHTML = offerable
+    .map((id) => `<option value="${escapeHtml(id)}">${escapeHtml(gpuLabels[id]?.label ?? id)}</option>`)
+    .join("");
+  shSel.value = keepSelected;
   $("f-srv-config").addEventListener("change", onLiveInput);
   $("f-srv-basis").addEventListener("change", onLiveInput);
   // The server list is keyed to the accelerator, so it must re-fill when the
@@ -289,7 +336,7 @@ function buildPowerPlan(gpuId, capexPlan, gpuCount, publish = true) {
         gpusProvisioned,
         pue: decInput("f-power-pue") ?? "1.4",
         usdPerKwh: decInput("f-power-rate") ?? "0.12",
-        nodeOverheadFraction: decInput("f-power-overhead") ?? "0.2",
+        nodeOverheadFraction: pctInput("f-power-overhead") ?? "0.2",
       }),
       fleet_basis: capexPlan ? "whole_node_provisioned" : "selected_gpu_count",
     };
@@ -352,23 +399,46 @@ function renderServerNote() {
   const waste = p.gpus_overprovisioned > 0
     ? ` You need ${p.gpus_required} GPU${p.gpus_required === 1 ? "" : "s"} and this buys ${p.gpus_provisioned}, so <strong>${p.gpus_overprovisioned}</strong> ${p.gpus_overprovisioned === 1 ? "is" : "are"} spare &mdash; a smaller node may fit better.`
     : "";
+  // Two confidence tiers making DIFFERENT claims, so neither may borrow the
+  // other's sentence. An `indicative` row reproduces a figure an integrator
+  // actually published. A `derived_component` row has no published figure
+  // behind it at all — it is CONSTRUCTED from a cited card price and a cited
+  // GPU cost-share band — so it must name both inputs and must never claim a
+  // published one. Rendering the constructed row through the indicative text
+  // would assert a source that does not exist.
+  const constructed = p.confidence === "derived_component" && p.derivation;
+  const cited = Array.isArray(p.derived_from) ? p.derived_from : [];
+  const link = (url, text) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(text)}</a>`;
   // Three statuses, three different claims. Collapsing unreachable into "the
   // figure moved" turns a failed fetch on OUR side into an accusation about the
   // source — the one thing a provenance tier must never invent.
   const vstatus = p.verification?.status ?? null;
+  const nCites = constructed && cited.length > 1 ? cited.length : 1;
   const checked = vstatus === "verified"
-    ? `citation re-checked at source`
+    ? `${nCites === 1 ? "citation" : "both citations"} re-checked at source`
     : vstatus === "citation_broken"
-    ? `the quoted figure is no longer at its source &mdash; treat with care`
+    ? `${nCites === 1 ? "the quoted figure is" : "a quoted figure is"} no longer at its source &mdash; treat with care`
     : vstatus === "unreachable"
     ? `the source could not be reached on the last check &mdash; a fact about that fetch, not about this figure`
     : `not re-checked at source`;
-  const cite = `<span class="tag tag-est">indicative</span> published integrator figure, ${checked}`;
-  const src = p.source_url ? ` &middot; <a href="${escapeHtml(p.source_url)}" target="_blank" rel="noopener">source</a>` : "";
+  // "constructed", not "derived": the basis sentence below already uses
+  // "Derived" for the unrelated derived-vs-entered distinction.
+  const cite = constructed
+    ? `<span class="tag tag-est">constructed</span> not published &mdash; ${p.derivation.gpu_count} &times; ${money(p.derivation.card_usd)} of cards at a cited ${p.derivation.gpu_share_low_pct}&ndash;${p.derivation.gpu_share_high_pct}% GPU share of the build, ${checked}`
+    : `<span class="tag tag-est">indicative</span> published integrator figure, ${checked}`;
+  // A constructed figure links the inputs it was BUILT from, by role. Linking
+  // only p.source_url would show one of the two and imply it published the node.
+  const ROLE_LABEL = { card_price: "card price", gpu_cost_share: "GPU cost share" };
+  const src = constructed && cited.length
+    ? ` &middot; ${cited.map((c) => link(c.source_url, ROLE_LABEL[c.role] ?? c.role)).join(" &middot; ")}`
+    : p.source_url ? ` &middot; ${link(p.source_url, "source")}` : "";
+  const closing = constructed
+    ? `No integrator publishes a price for this configuration, so this figure is built from its two cited inputs rather than quoted &mdash; the arithmetic is stated so you can falsify it.`
+    : `No vendor publishes a list price for GPU servers, so this is a planning band, never a quote.`;
   const basis = entered
     ? `Your entered figure is in use; the derived one below is shown for comparison.`
     : `Derived, and overridable &mdash; type a figure to use your own quote.`;
-  el.innerHTML = `${basis} <strong>${p.nodes} &times; ${escapeHtml(p.label)}</strong> at ${money(p.unit_price)} each = <strong>${money(p.capex)}</strong>.${waste} ${cite}${src}. No vendor publishes a list price for GPU servers, so this is a planning band, never a quote.`;
+  el.innerHTML = `${basis} <strong>${p.nodes} &times; ${escapeHtml(p.label)}</strong> at ${money(p.unit_price)} each = <strong>${money(p.capex)}</strong>.${waste} ${cite}${src}. ${closing}`;
 }
 
 // The meters whose quantity comes from the GPU fleet itself. Only these are
@@ -1083,22 +1153,25 @@ function onLiveInput() {
   liveTimer = setTimeout(run, 220);
 }
 
-// Mixes that do not sum to 1 are the single most common way this screen gets
+// Mixes that do not sum to 100% are the single most common way this screen gets
 // stuck, and the arithmetic to fix it is exactly the arithmetic the user came
 // here to avoid doing. One button, and it says where the remainder went.
+// The balance runs in the units ON SCREEN — percent — because it writes back
+// into the fields the user is reading. validateMix above still judges the
+// FRACTIONS readMix hands the engine; the two never mix in one expression.
 function balanceMix() {
   const check = validateMix(readMix());
   if (check.ok) return;
   const others = ["rag", "graphrag", "agentic"].reduce(
     (acc, f) => acc.add(Dec.from(decInput(`f-mix-${f}`) ?? "0")), Dec.from("0"));
-  const rest = Dec.from("1").sub(others);
-  $("f-mix-chat").value = rest.sign() < 0 ? "0" : formatHalfUp(rest, 4).replace(/0+$/, "").replace(/\.$/, "");
+  const rest = Dec.from("100").sub(others);
+  $("f-mix-chat").value = rest.sign() < 0 ? "0" : trimDecimals(formatHalfUp(rest, 4));
   onLiveInput();
 }
 
 function readMix() {
   const mix = {};
-  for (const [type, field] of Object.entries(MIX_FIELD)) mix[type] = decInput(`f-mix-${field}`) ?? "0";
+  for (const [type, field] of Object.entries(MIX_FIELD)) mix[type] = pctInput(`f-mix-${field}`) ?? "0";
   return mix;
 }
 
@@ -1131,7 +1204,7 @@ function computeDemand(usersOverride = null) {
   });
   const peak = peakTokensPerSecond({
     users,
-    peakConcurrencyFraction: decInput("f-peak-frac"),
+    peakConcurrencyFraction: pctInput("f-peak-frac"),
     tokensPerSecondPerStream: decInput("f-tps-stream"),
   });
   const gpuId = $("f-sh-gpu").value;
@@ -1169,10 +1242,14 @@ function refreshDerived() {
   const sumEl = $("mix-sum");
   const balanceBtn = $("mix-balance");
   if (mixCheck.ok) {
-    sumEl.innerHTML = `<span class="tag tag-exact">sums to 1</span>`;
+    sumEl.innerHTML = `<span class="tag tag-exact">sums to 100%</span>`;
     if (balanceBtn) balanceBtn.hidden = true;
   } else if (mixCheck.code === "mix_does_not_sum_to_one") {
-    sumEl.innerHTML = `<span class="tag tag-est">sums to ${escapeHtml(mixCheck.sum_text)}</span>`;
+    // validateMix reports the sum of the FRACTIONS it was given ("0.900000").
+    // Echoing that verbatim under percent inputs would answer a question the
+    // user did not ask, so it is restated in the units on screen.
+    const sumPct = trimDecimals(formatHalfUp(Dec.from(mixCheck.sum_text).mul(100n), 4));
+    sumEl.innerHTML = `<span class="tag tag-est">sums to ${escapeHtml(sumPct)}%</span>`;
     if (balanceBtn) balanceBtn.hidden = false;
   } else {
     sumEl.innerHTML = `<span class="tag tag-unknown">invalid</span>`;
@@ -1358,7 +1435,7 @@ function buildScenario(usersOverride = null) {
     // count — exactly, because a float multiply would put binary dust in a
     // dollar figure.
     hourly_rate: rentSizing ? Dec.from(String(rentRow.gpu_hourly_usd)).mul(BigInt(rentGpus)).toString() : "0",
-    utilization: decInput("f-rent-util") ?? "0.7",
+    utilization: pctInput("f-rent-util") ?? "0.7",
     hardware_topology: rentSizing ? `${rentGpus}x ${rentRow.gpu_label} @ ${rentRow.provider_label}` : null,
   };
   const routing = {
@@ -1385,7 +1462,7 @@ function buildScenario(usersOverride = null) {
   // lands on a half-hour, and rounding it here would put the error inside a
   // figure the exact-rational meter is about to multiply by a price.
   const rentedHours = rentSizing
-    ? Dec.from(String(decInput("f-rent-util") ?? "0.7")).mul(BigInt(rentGpus * 730)).toString()
+    ? Dec.from(String(pctInput("f-rent-util") ?? "0.7")).mul(BigInt(rentGpus * 730)).toString()
     : null;
   const vramOf = (id) => state.gpuPricing?.gpus?.[id]?.vram_gb ?? null;
   const subPlan = buildSubPlan({
@@ -2052,6 +2129,13 @@ function exportQuote(r) {
           source_url: state.capexPlan.source_url,
           observed_at: state.capexPlan.observed_at,
           verification: state.capexPlan.verification,
+          // A derived_component figure is only reviewable if the quote carries
+          // the arithmetic that built it — the card price, the GPU cost-share
+          // band, the formula and both cited inputs. Shipping the number with
+          // just a confidence tag would ask the reader to trust a construction
+          // they cannot re-run. Null on an indicative row, which cites instead.
+          derivation: state.capexPlan.derivation,
+          derived_from: state.capexPlan.derived_from,
         }
       : { unavailable: state.capexGap },
     // Which of the two the engine actually charged. An entered figure outranks

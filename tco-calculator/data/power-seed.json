@@ -1,7 +1,7 @@
 {
   "schema": "factor-io.tco-power-seed/1.0.0",
   "observed_at": "2026-09-03",
-  "note": "Rated maximum board power for the nine standard accelerators in gpu-pricing.json. The calculator uses the cited envelope as a conservative planning input; it never infers a missing wattage or treats measured utilization as a power meter.",
+  "note": "Rated maximum board power for the eleven standard accelerators in gpu-pricing.json. The calculator uses the cited envelope as a conservative planning input; it never infers a missing wattage or treats measured utilization as a power meter.",
   "rows": [
     {
       "gpu_id": "h100",
@@ -74,6 +74,24 @@
       "quoted_text": "Total board power 150 W",
       "source_url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a10/pdf/A10-Product-Brief.pdf",
       "observed_at": "2026-09-03"
+    },
+    {
+      "gpu_id": "rtx_pro_6000_ws",
+      "label": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition 96GB",
+      "tdp_w": 600,
+      "quoted_text": "rated at 600W for the standard Workstation Edition",
+      "source_url": "https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing",
+      "observed_at": "2026-09-04",
+      "note": "600W is the FULL-POWER workstation card. The Max-Q variant of the same silicon runs a 300W envelope; it is not modelled here and must not be costed from this row."
+    },
+    {
+      "gpu_id": "rtx_pro_6000_se",
+      "label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "tdp_w": 600,
+      "quoted_text": "capable of 600 W maximum board power",
+      "source_url": "https://lenovopress.lenovo.com/lp2263-thinksystem-nvidia-rtx-pro-6000-blackwell-server-edition-pcie-gen5-gpu",
+      "observed_at": "2026-09-04",
+      "note": "The vendor guide states this part can be power-capped to 450W to support increased density. 600W is the rated maximum and the conservative planning input, consistent with how every other row here uses the rated envelope rather than a configured one."
     }
   ]
 }

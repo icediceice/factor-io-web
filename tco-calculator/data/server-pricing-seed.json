@@ -1,10 +1,12 @@
 {
   "schema": "factor-io.tco-server-pricing-seed/1.0.0",
   "seeded_at": "2026-09-02",
-  "note": "Enterprise GPU-server acquisition prices, per SPEC 5.8. THERE IS NO first_party TIER IN THIS FILE, and unlike gpu-pricing.json there never can be one from a free endpoint: Dell, HPE and Supermicro publish no machine-readable list price for a GPU server, and Supermicro's own store is configure-to-order with no public per-config figure. Every row is therefore `indicative` — a published integrator or analyst figure, carried with the exact sentence it was taken from so scripts/build-server-pricing.mjs can re-fetch the page and prove the citation still holds.",
+  "note": "Enterprise GPU-server acquisition prices, per SPEC 5.8. THERE IS NO first_party TIER IN THIS FILE, and unlike gpu-pricing.json there never can be one from a free endpoint: Dell, HPE and Supermicro publish no machine-readable list price for a GPU server, and Supermicro's own store is configure-to-order with no public per-config figure. Rows are therefore one of TWO tiers, both defined in `tiers` and neither a quote: `indicative` — a published integrator or analyst figure, carried with the exact sentence it was taken from; or `derived_component` — a band CONSTRUCTED from a cited card price and a cited GPU cost-share, for accelerators where no integrator publishes a system price at all. scripts/build-server-pricing.mjs re-fetches every cited page and proves each citation still holds, and additionally recomputes each derived band from its own stated inputs.",
   "tiers": {
-    "indicative": "A published integrator/analyst figure. Planning band, not a quote. No vendor list price exists to promote it to."
+    "indicative": "A published integrator/analyst figure. Planning band, not a quote. No vendor list price exists to promote it to.",
+    "derived_component": "NOT a published system price — no integrator publishes one for this configuration. Constructed from two cited figures: a published price for the ACCELERATOR, and a published statement of what share of a build's cost the GPUs represent. It is a planning band with an auditable derivation, and it is strictly WEAKER than `indicative`: the share figure was stated about builds in general, not about this exact configuration. Every such row carries `derivation` (inputs + formula, so the band can be recomputed and falsified) and `derived_from` (one citation per input). The UI MUST NOT present these rows as published integrator figures."
   },
+  "derived_component_note": "This tier exists because the alternative was worse. RTX PRO 6000 Blackwell has no published integrated-node price at ANY multi-GPU tier: the one integrator publishing a tier table (VRLA Tech) prices only its entry and single-card tiers and marks dual, quad and 8-GPU as `Configured to workload`. Its single published RTX PRO 6000 figure, `Starting at $5,999`, is BELOW the $16,000 the same card lists for on NVIDIA's own marketplace — on a page that itself states the GPU is 50-70% of the build. Seeding that would have put a system in this registry priced under its own GPU. So the choice was an auditable construction or no rows at all, and a construction that says exactly what it is beats a published figure that is provably wrong.",
   "disagreement_note": "Two independent sources are carried for the SAME configuration where both publish one, and they disagree by up to 22% on an 8xH100 node ($250-320K vs $310-370K). Both ship as separate rows. They are NOT averaged: the mean of two published bands is a figure neither source states, and it would read as more authoritative than either while being citable to nothing. The calculator shows the spread and lets the buyer pick a row.",
   "rows": [
     {
@@ -182,7 +184,151 @@
       "observed_at": "2026-09-02",
       "re_verify_before": "2026-12-01",
       "note": "Corroborated independently at the same figure by https://www.gpu.fm/blog/gpu-server-pricing-guide-2026 (\"DGX B200~$515,000\"). Two sources AGREEING is recorded here in prose; it does not promote the row's tier, because agreement between two secondary sources is not a vendor price list."
+    },
+    {
+      "server_id": "ws-rtx-pro-6000-1x-derived",
+      "label": "1x RTX PRO 6000 Blackwell Workstation Edition (tower workstation)",
+      "gpu_id": "rtx_pro_6000_ws",
+      "gpu_count": 1,
+      "form_factor": "tower workstation",
+      "cooling": "air",
+      "usd_low": "22857",
+      "usd_typical": "26667",
+      "usd_high": "32000",
+      "includes": ["1x RTX PRO 6000 Blackwell Workstation Edition 96GB", "workstation CPU, memory, chassis", "NVMe storage", "PSU and cooling rated for a 600W card", "assembly and burn-in"],
+      "excludes": ["rack infrastructure", "switches", "installation", "the dedicated 20A 208-240V circuit this card's 600W envelope needs"],
+      "confidence": "derived_component",
+      "derivation": {
+        "method": "card_price_over_gpu_cost_share",
+        "card_usd": "16000",
+        "gpu_count": 1,
+        "cards_usd": "16000",
+        "gpu_share_low_pct": 50,
+        "gpu_share_typical_pct": 60,
+        "gpu_share_high_pct": 70,
+        "rounding": "half_up_whole_usd",
+        "formula": "cards_usd = card_usd * gpu_count; usd_low = round(cards_usd * 100 / gpu_share_high_pct); usd_typical = round(cards_usd * 100 / gpu_share_typical_pct); usd_high = round(cards_usd * 100 / gpu_share_low_pct). The HIGH share yields the LOW system price: if the GPUs are 70% of the build, the rest of the build is small.",
+        "typical_basis": "The 60% share is the midpoint of the cited 50-70% range. Same treatment the Chinese-cloud rows in gpu-pricing-seed.json already give a cited band, and it is stated here rather than presented as a published figure."
+      },
+      "source_url": "https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing",
+      "quoted_text": "lists the card at $16,000",
+      "derived_from": [
+        {
+          "role": "card_price",
+          "source_url": "https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing",
+          "quoted_text": "lists the card at $16,000",
+          "observed_at": "2026-09-04",
+          "note": "Reports NVIDIA's own marketplace listing for the Workstation Edition, September 2026. The card launched at an $8,565 MSRP in March 2025; the rise is attributed to the GDDR7 shortage, so this input is volatile and is the first thing to re-check."
+        },
+        {
+          "role": "gpu_cost_share",
+          "source_url": "https://vrlatech.com/how-much-does-a-custom-ai-workstation-cost/",
+          "quoted_text": "typically 50-70% of the total build",
+          "observed_at": "2026-09-04",
+          "note": "Stated by the integrator about its AI workstation builds in general, NOT about this configuration specifically. This is the weaker of the two inputs and the reason the tier is not `indicative`."
+        }
+      ],
+      "source_verified_at": "2026-09-04",
+      "observed_at": "2026-09-04",
+      "re_verify_before": "2026-12-01",
+      "note": "The single-card workstation is the entry buy for this accelerator: 96GB on one card runs a 70B model at FP8 without tensor-parallel at all, which is the whole reason it is interesting against an H100. The band is wide by construction because the cost share it divides by is wide."
+    },
+    {
+      "server_id": "ws-rtx-pro-6000-2x-derived",
+      "label": "2x RTX PRO 6000 Blackwell Workstation Edition (Threadripper PRO tower)",
+      "gpu_id": "rtx_pro_6000_ws",
+      "gpu_count": 2,
+      "form_factor": "full tower workstation",
+      "cooling": "air",
+      "usd_low": "45714",
+      "usd_typical": "53333",
+      "usd_high": "64000",
+      "includes": ["2x RTX PRO 6000 Blackwell Workstation Edition 96GB (192GB total)", "Threadripper PRO class CPU", "DDR5 ECC RDIMM", "NVMe storage", "PSU and cooling rated for roughly 1,800W sustained", "assembly and burn-in"],
+      "excludes": ["rack infrastructure", "switches", "installation", "facility power upgrades"],
+      "confidence": "derived_component",
+      "derivation": {
+        "method": "card_price_over_gpu_cost_share",
+        "card_usd": "16000",
+        "gpu_count": 2,
+        "cards_usd": "32000",
+        "gpu_share_low_pct": 50,
+        "gpu_share_typical_pct": 60,
+        "gpu_share_high_pct": 70,
+        "rounding": "half_up_whole_usd",
+        "formula": "cards_usd = card_usd * gpu_count; usd_low = round(cards_usd * 100 / gpu_share_high_pct); usd_typical = round(cards_usd * 100 / gpu_share_typical_pct); usd_high = round(cards_usd * 100 / gpu_share_low_pct). The HIGH share yields the LOW system price: if the GPUs are 70% of the build, the rest of the build is small.",
+        "typical_basis": "The 60% share is the midpoint of the cited 50-70% range. Same treatment the Chinese-cloud rows in gpu-pricing-seed.json already give a cited band, and it is stated here rather than presented as a published figure."
+      },
+      "source_url": "https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing",
+      "quoted_text": "lists the card at $16,000",
+      "derived_from": [
+        {
+          "role": "card_price",
+          "source_url": "https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing",
+          "quoted_text": "lists the card at $16,000",
+          "observed_at": "2026-09-04",
+          "note": "NVIDIA marketplace listing for the Workstation Edition, September 2026."
+        },
+        {
+          "role": "gpu_cost_share",
+          "source_url": "https://vrlatech.com/how-much-does-a-custom-ai-workstation-cost/",
+          "quoted_text": "typically 50-70% of the total build",
+          "observed_at": "2026-09-04",
+          "note": "The same integrator names 2x RTX PRO 6000 Blackwell as a real tier it builds, so the CONFIGURATION is cited even though its price is not — that page marks this tier `Configured to workload`."
+        }
+      ],
+      "source_verified_at": "2026-09-04",
+      "observed_at": "2026-09-04",
+      "re_verify_before": "2026-12-01",
+      "note": "This card has NO NVLink — the vendor product guide states `NVLink support No`, so both cards talk over PCIe Gen 5 and a two-card tensor-parallel split pays a penalty the decode roofline in serving.js does not model. Treat two cards as 192GB of capacity first and as 2x throughput second."
+    },
+    {
+      "server_id": "srv-rtx-pro-6000-4x-derived",
+      "label": "4x RTX PRO 6000 Blackwell Server Edition (4U rackmount)",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_count": 4,
+      "form_factor": "4U rackmount",
+      "cooling": "air",
+      "usd_low": "75029",
+      "usd_typical": "87533",
+      "usd_high": "105040",
+      "includes": ["4x RTX PRO 6000 Blackwell Server Edition 96GB (384GB total)", "server CPU, memory, chassis", "NVMe storage", "redundant hot-swap PSU", "IPMI remote management"],
+      "excludes": ["rack infrastructure", "switches", "installation", "freight", "the roughly 2,400W of sustained draw this configuration needs provisioned for"],
+      "confidence": "derived_component",
+      "derivation": {
+        "method": "card_price_over_gpu_cost_share",
+        "card_usd": "13130",
+        "gpu_count": 4,
+        "cards_usd": "52520",
+        "gpu_share_low_pct": 50,
+        "gpu_share_typical_pct": 60,
+        "gpu_share_high_pct": 70,
+        "rounding": "half_up_whole_usd",
+        "formula": "cards_usd = card_usd * gpu_count; usd_low = round(cards_usd * 100 / gpu_share_high_pct); usd_typical = round(cards_usd * 100 / gpu_share_typical_pct); usd_high = round(cards_usd * 100 / gpu_share_low_pct). The HIGH share yields the LOW system price: if the GPUs are 70% of the build, the rest of the build is small.",
+        "typical_basis": "The 60% share is the midpoint of the cited 50-70% range. Same treatment the Chinese-cloud rows in gpu-pricing-seed.json already give a cited band, and it is stated here rather than presented as a published figure."
+      },
+      "source_url": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-rtx-pro-6000-blackwell-server",
+      "quoted_text": "lowest average price of $13,130",
+      "derived_from": [
+        {
+          "role": "card_price",
+          "source_url": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-rtx-pro-6000-blackwell-server",
+          "quoted_text": "lowest average price of $13,130",
+          "observed_at": "2026-09-04",
+          "note": "A JUNE 2026 average for the Server Edition, deliberately three months older than the September figure used on the Workstation rows, because no September Server Edition price met the citation bar. GDDR7 prices rose across that window, so this band probably UNDERSTATES a September buy. Carried as-is rather than adjusted upward — an adjustment would be a figure no source states, the same rule that keeps the two disagreeing 8xH100 sources unaveraged."
+        },
+        {
+          "role": "gpu_cost_share",
+          "source_url": "https://vrlatech.com/how-much-does-a-custom-ai-workstation-cost/",
+          "quoted_text": "typically 50-70% of the total build",
+          "observed_at": "2026-09-04",
+          "note": "WEAKEST link in this row. The share is stated about workstation-class builds; a rackmount server with redundant PSUs and IPMI plausibly carries proportionally more non-GPU cost, which would push the true price toward or past the high bound. An 8-GPU row was deliberately NOT seeded for exactly this reason."
+        }
+      ],
+      "source_verified_at": "2026-09-04",
+      "observed_at": "2026-09-04",
+      "re_verify_before": "2026-12-01",
+      "note": "The smaller serving stack: 384GB across four cards, which is the point where this accelerator competes with a 4x H100 PCIe node at roughly half the capex. Server Edition is the passive-cooled part and the one every cloud provider rents, so its rented and owned rows describe the same silicon."
     }
   ],
-  "coverage_note": "Only h100, h200 and b200 carry server rows. The other accelerators in gpu-pricing.json (a100_80, a100_40, l40s, l4, a10, a10g, h20, a800) have no published integrated-node figure that met the citation bar, so they derive NO capex and the UI says so. An accelerator with no server row is a stated coverage gap, never a silently borrowed price from a neighbouring card."
+  "coverage_note": "h100, h200 and b200 carry `indicative` rows read off published integrator figures. rtx_pro_6000_ws and rtx_pro_6000_se carry `derived_component` rows instead, because no integrator publishes a system price for this card at any multi-GPU tier. The remaining accelerators in gpu-pricing.json (a100_80, a100_40, l40s, l4, a10, a10g, h20, a800) have no server row at all, so they derive NO capex and the UI says so. An accelerator with no server row is a stated coverage gap, never a silently borrowed price from a neighbouring card — and a `derived_component` row is a stated CONSTRUCTION, never a discovered quote."
 }

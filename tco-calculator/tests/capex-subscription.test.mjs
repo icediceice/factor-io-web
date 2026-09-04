@@ -90,12 +90,63 @@ test("a config whose price bound is unpublished is SKIPPED with a reason, never 
   assert.equal(money(r.best.capex), "370000.00");
 });
 
-test("every shipped server row carries a verification verdict and an indicative tier", () => {
+test("every shipped server row carries a verification verdict and a known tier", () => {
   assert.ok(servers.rows.length > 0);
   for (const r of servers.rows) {
-    assert.equal(r.confidence, "indicative", `${r.server_id} must be indicative — no vendor list price exists for server hardware`);
+    assert.ok(
+      ["indicative", "derived_component"].includes(r.confidence),
+      `${r.server_id} must be indicative or derived_component — there is no vendor list price for server hardware, so no row may claim a stronger tier`,
+    );
     assert.ok(["verified", "citation_broken", "unreachable"].includes(r.verification.status), `${r.server_id} verification`);
   }
+});
+
+test("a derived_component row carries its inputs and REPRODUCES its own band", () => {
+  const derived = servers.rows.filter((r) => r.confidence === "derived_component");
+  assert.ok(derived.length > 0, "the registry ships at least one derived row");
+
+  // Half-up to whole dollars on exact integers — the same rule the builder
+  // states on the row. A float here would reintroduce the binary dust that
+  // makes 5252000/70 unrepresentable, which is why this is BigInt.
+  const half = (num, den) => (2n * num + den) / (2n * den);
+
+  for (const r of derived) {
+    const d = r.derivation;
+    assert.ok(d, `${r.server_id} carries a derivation block`);
+    const cards = BigInt(d.card_usd) * BigInt(d.gpu_count);
+    assert.equal(String(cards), String(d.cards_usd), `${r.server_id} cards_usd`);
+    assert.equal(d.gpu_count, r.gpu_count, `${r.server_id} derivation counts the row's own GPUs`);
+
+    // The INVERSION is the part that is easy to get backwards: a HIGH GPU cost
+    // share means the rest of the build is small, so it produces the LOW price.
+    assert.equal(String(half(cards * 100n, BigInt(d.gpu_share_high_pct))), r.usd_low, `${r.server_id} usd_low`);
+    assert.equal(String(half(cards * 100n, BigInt(d.gpu_share_typical_pct))), r.usd_typical, `${r.server_id} usd_typical`);
+    assert.equal(String(half(cards * 100n, BigInt(d.gpu_share_low_pct))), r.usd_high, `${r.server_id} usd_high`);
+    assert.ok(BigInt(r.usd_low) < BigInt(r.usd_high), `${r.server_id} band is not inverted`);
+
+    // Both inputs must be citable, or the row is arithmetic wearing a citation.
+    const roles = r.derived_from.map((c) => c.role);
+    assert.ok(roles.includes("card_price"), `${r.server_id} cites its card price`);
+    assert.ok(roles.includes("gpu_cost_share"), `${r.server_id} cites its cost share`);
+    for (const c of r.derived_from) {
+      assert.ok(c.source_url && c.quoted_text && c.observed_at, `${r.server_id} citation ${c.role} is complete`);
+    }
+  }
+});
+
+test("the RTX PRO 6000 editions are separate accelerators with separate server rows", () => {
+  // The whole reason the ids are split: same 96GB, different bandwidth, and only
+  // the Server Edition is ever rented. A single id would price one edition's
+  // throughput on the other's hardware.
+  const ws = serversForGpu("rtx_pro_6000_ws", servers.rows);
+  const se = serversForGpu("rtx_pro_6000_se", servers.rows);
+  assert.ok(ws.length > 0 && se.length > 0, "both editions carry at least one row");
+  assert.ok(ws.every((r) => r.gpu_id === "rtx_pro_6000_ws"));
+  assert.ok(se.every((r) => r.gpu_id === "rtx_pro_6000_se"));
+
+  // A workstation row must never be offered as a serving node and vice versa.
+  assert.equal(ws.filter((r) => r.gpu_id === "rtx_pro_6000_se").length, 0);
+  assert.equal(se.filter((r) => r.gpu_id === "rtx_pro_6000_ws").length, 0);
 });
 
 // ──────────────────────────────────────────────── subscription: meters and cost

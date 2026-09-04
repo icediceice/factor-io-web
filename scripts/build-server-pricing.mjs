@@ -129,6 +129,84 @@ function checkBand(row) {
   if (hi !== null) mustShape(ty <= hi, `${row.server_id}`, `usd_typical <= usd_high`, `${ty} > ${hi}`);
 }
 
+// --------------------------------------------------------------- derived rows
+// A `derived_component` row is not read off a page — it is CONSTRUCTED from a
+// cited card price and a cited GPU cost-share. That makes it the only row shape
+// in this registry whose number can be checked by arithmetic rather than by
+// reading, so it IS checked: the seeded band must reproduce from the row's own
+// stated inputs. A derived band that no longer reproduces is worse than a
+// missing one, because its `derivation` block reads as an audit trail while
+// pointing at a figure it does not actually produce.
+const TIERS = ["indicative", "derived_component"];
+
+// Half-up rounding to whole dollars on exact integers. Money never touches a JS
+// float here (SPEC §3.5) — 5252000/70 is non-terminating in decimal, so the
+// rounding rule has to be stated and applied identically on both sides of the
+// assertion, not left to whatever the seeder happened to type.
+const divRoundHalfUp = (num, den) => (2n * num + den) / (2n * den);
+
+const SHARES = [
+  ["usd_low", "gpu_share_high_pct"],   // a HIGH GPU share means a SMALL rest-of-build
+  ["usd_typical", "gpu_share_typical_pct"],
+  ["usd_high", "gpu_share_low_pct"],
+];
+
+function checkDerivation(row) {
+  const d = row.derivation;
+  mustShape(d && typeof d === "object", `${row.server_id}.derivation`, "a derivation block on every derived_component row", d);
+  mustShape(d.method === "card_price_over_gpu_cost_share", `${row.server_id}.derivation.method`, "\"card_price_over_gpu_cost_share\" — the only method this builder can re-derive", d.method);
+  mustShape(d.rounding === "half_up_whole_usd", `${row.server_id}.derivation.rounding`, "\"half_up_whole_usd\"", d.rounding);
+  mustShape(MONEY_RE.test(String(d.card_usd)), `${row.server_id}.derivation.card_usd`, "a decimal money STRING", d.card_usd);
+  mustShape(Number.isInteger(d.gpu_count) && d.gpu_count > 0, `${row.server_id}.derivation.gpu_count`, "a positive integer", d.gpu_count);
+  mustShape(d.gpu_count === row.gpu_count, `${row.server_id}.derivation.gpu_count`, `the row's own gpu_count (${row.gpu_count})`, d.gpu_count);
+
+  // Whole dollars only: a fractional card price would make the BigInt path below
+  // silently wrong, and every card price this tier has seen is a whole figure.
+  mustShape(/^\d+$/.test(String(d.card_usd)), `${row.server_id}.derivation.card_usd`, "whole dollars (no cents)", d.card_usd);
+  const cards = BigInt(d.card_usd) * BigInt(d.gpu_count);
+  mustShape(String(cards) === String(d.cards_usd), `${row.server_id}.derivation.cards_usd`, `card_usd × gpu_count = ${cards}`, d.cards_usd);
+
+  for (const [field, shareKey] of SHARES) {
+    const pct = d[shareKey];
+    mustShape(Number.isInteger(pct) && pct > 0 && pct <= 100, `${row.server_id}.derivation.${shareKey}`, "an integer percentage in 1..100", pct);
+    const expected = divRoundHalfUp(cards * 100n, BigInt(pct));
+    mustShape(
+      String(expected) === String(row[field]),
+      `${row.server_id}.${field}`,
+      `${cards} × 100 / ${pct} rounded half-up = ${expected}`,
+      row[field],
+    );
+  }
+
+  mustShape(
+    d.gpu_share_low_pct <= d.gpu_share_typical_pct && d.gpu_share_typical_pct <= d.gpu_share_high_pct,
+    `${row.server_id}.derivation`,
+    "gpu_share_low_pct <= gpu_share_typical_pct <= gpu_share_high_pct",
+    `${d.gpu_share_low_pct}/${d.gpu_share_typical_pct}/${d.gpu_share_high_pct}`,
+  );
+
+  // Every input the arithmetic above consumed must be citable, or the row is a
+  // calculation wearing a citation. Two roles are mandatory because two figures
+  // went in; a row citing only its card price hides the weaker of its inputs.
+  const from = row.derived_from;
+  mustShape(Array.isArray(from) && from.length >= 2, `${row.server_id}.derived_from`, "one citation per derivation input (>= 2)", from);
+  for (const [i, c] of from.entries()) {
+    for (const f of ["role", "source_url", "quoted_text", "observed_at"]) {
+      mustShape(typeof c[f] === "string" && c[f].length > 0, `${row.server_id}.derived_from[${i}].${f}`, "a non-empty string", c[f]);
+    }
+  }
+  const roles = from.map((c) => c.role);
+  for (const required of ["card_price", "gpu_cost_share"]) {
+    mustShape(roles.includes(required), `${row.server_id}.derived_from`, `a citation with role "${required}"`, roles.join(", "));
+  }
+}
+
+/** Every URL a row's citations depend on — one for a published row, several for a derived one. */
+const citationsOf = (row) => [
+  { source_url: row.source_url, quoted_text: row.quoted_text, role: "primary" },
+  ...(Array.isArray(row.derived_from) ? row.derived_from : []),
+];
+
 async function main() {
   const seed = JSON.parse(await readFile(SEED_PATH, "utf8"));
   mustShape(Array.isArray(seed.rows) && seed.rows.length > 0, "server-pricing-seed.json", "a non-empty rows[]", seed.rows);
@@ -138,9 +216,10 @@ async function main() {
       mustShape(typeof row[f] === "string" && row[f].length > 0, `${row.server_id ?? "<row>"}.${f}`, "a non-empty string", row[f]);
     }
     mustShape(Number.isInteger(row.gpu_count) && row.gpu_count > 0, `${row.server_id}.gpu_count`, "a positive integer GPU count", row.gpu_count);
-    mustShape(row.confidence === "indicative", `${row.server_id}.confidence`, "\"indicative\" — no first_party tier exists for server hardware", row.confidence);
+    mustShape(TIERS.includes(row.confidence), `${row.server_id}.confidence`, `one of ${TIERS.join(" | ")} — there is no first_party tier for server hardware`, row.confidence);
     for (const f of ["usd_low", "usd_typical", "usd_high"]) checkMoney(row, f);
     checkBand(row);
+    if (row.confidence === "derived_component") checkDerivation(row);
   }
 
   const ids = seed.rows.map((r) => r.server_id);
@@ -149,7 +228,11 @@ async function main() {
 
   // One fetch per distinct URL, not per row: several rows cite the same guide,
   // and re-fetching it per row would be four hits on one publisher for no gain.
-  const urls = [...new Set(seed.rows.map((r) => r.source_url))];
+  // A derived row depends on SEVERAL urls, so the sweep walks every citation a
+  // row carries rather than its primary source_url alone — miss that and the
+  // cost-share page is never fetched, and the weaker half of a derived band
+  // silently never gets checked at all.
+  const urls = [...new Set(seed.rows.flatMap((r) => citationsOf(r).map((c) => c.source_url)))];
   const pages = new Map();
   for (const url of urls) {
     try {
@@ -162,21 +245,41 @@ async function main() {
     }
   }
 
+  // Check ONE citation against the page it names.
+  const checkCitation = (c, observedAt) => {
+    const page = pages.get(c.source_url);
+    if (!page.ok) return { role: c.role, source_url: c.source_url, status: "unreachable", detail: page.error };
+    if (despace(page.text).includes(despace(c.quoted_text))) {
+      return { role: c.role, source_url: c.source_url, status: "verified", detail: null };
+    }
+    return {
+      role: c.role,
+      source_url: c.source_url,
+      status: "citation_broken",
+      detail: `the quoted text is no longer present at ${c.source_url}; the figure was true when observed at ${observedAt} but its source has changed`,
+    };
+  };
+
+  // A row is only as good as its WEAKEST citation. A derived band whose card
+  // price still verifies but whose cost-share page has been rewritten is not a
+  // verified row — half its arithmetic now rests on a sentence nobody can find.
+  // citation_broken outranks unreachable because it is a claim about the SOURCE,
+  // while unreachable is only a fact about this run.
+  const RANK = { verified: 0, unreachable: 1, citation_broken: 2 };
+  const weakest = (a, b) => (RANK[b.status] > RANK[a.status] ? b : a);
+
   const checked_at = new Date().toISOString();
   const rows = seed.rows.map((row) => {
-    const page = pages.get(row.source_url);
-    let verification;
-    if (!page.ok) {
-      verification = { status: "unreachable", checked_at, detail: page.error };
-    } else if (despace(page.text).includes(despace(row.quoted_text))) {
-      verification = { status: "verified", checked_at, detail: null };
-    } else {
-      verification = {
-        status: "citation_broken",
-        checked_at,
-        detail: `the quoted text is no longer present at ${row.source_url}; the figure was true when observed at ${row.observed_at} but its source has changed`,
-      };
-    }
+    const citations = citationsOf(row).map((c) => checkCitation(c, row.observed_at));
+    const worst = citations.reduce(weakest);
+    const verification = {
+      status: worst.status,
+      checked_at,
+      detail: worst.detail,
+      // Per-citation results ship for derived rows so a reader can see WHICH
+      // input broke. A single-citation row keeps the original flat shape.
+      ...(citations.length > 1 ? { citations } : {}),
+    };
     return { ...row, verification };
   });
 
@@ -195,8 +298,9 @@ async function main() {
     note: seed.note,
     tiers: seed.tiers,
     disagreement_note: seed.disagreement_note,
+    derived_component_note: seed.derived_component_note,
     coverage_note: seed.coverage_note,
-    verification_note: "Each row's `verification` records whether its quoted sentence was still present at source_url when this file was generated. verified = the citation holds. citation_broken = the page changed; the figure is retained with its original observed_at and MUST be rendered as unverified. unreachable = the fetch failed, which is a network fact about this run, not a judgement on the figure.",
+    verification_note: "Each row's `verification` records whether its quoted sentence was still present at source_url when this file was generated. verified = the citation holds. citation_broken = the page changed; the figure is retained with its original observed_at and MUST be rendered as unverified. unreachable = the fetch failed, which is a network fact about this run, not a judgement on the figure. A `derived_component` row is checked against EVERY citation it carries and takes the WEAKEST result, with the per-input outcomes in `verification.citations` — so a row whose card price still verifies but whose cost-share sentence has moved reports broken, not verified. Those rows are ALSO re-derived at build time: the seeded band must reproduce from the row's own `derivation` inputs or the build fails outright, which is a stronger check than any citation test and the reason the tier is admissible at all.",
     by_gpu,
     rows,
   };
@@ -204,9 +308,14 @@ async function main() {
   await writeFile(OUT_PATH, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
 
   const pad = (s, n) => String(s).padEnd(n);
-  console.log(`\n${pad("SERVER", 26)}${pad("GPU", 8)}${pad("N", 4)}${pad("TYPICAL", 12)}CITATION`);
+  // Widths sized to the longest id actually in the registry — a derived row's
+  // server_id and gpu_id are both far longer than an HGX row's, and the fixed
+  // 26/8 columns ran them together into an unreadable table.
+  const w = (f, min) => Math.max(min, ...rows.map((r) => String(r[f]).length)) + 2;
+  const [wId, wGpu] = [w("server_id", 6), w("gpu_id", 3)];
+  console.log(`\n${pad("SERVER", wId)}${pad("GPU", wGpu)}${pad("N", 4)}${pad("TYPICAL", 12)}CITATION`);
   for (const r of rows) {
-    console.log(`${pad(r.server_id, 26)}${pad(r.gpu_id, 8)}${pad(r.gpu_count, 4)}${pad(`$${r.usd_typical}`, 12)}${r.verification.status}`);
+    console.log(`${pad(r.server_id, wId)}${pad(r.gpu_id, wGpu)}${pad(r.gpu_count, 4)}${pad(`$${r.usd_typical}`, 12)}${r.verification.status}`);
   }
   console.log(`\nserver rows   ${rows.length} across ${Object.keys(by_gpu).length} accelerators (${Object.keys(by_gpu).join(", ")})`);
   console.log(`citations     ${verified.length} verified · ${broken.length} broken · ${unreachable.length} unreachable`);

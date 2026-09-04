@@ -84,6 +84,20 @@
       "note": "Half the bandwidth of A10G at the same 24GB.",
       "source_url": "https://getdeploying.com/gpus/nvidia-a10g-vs-nvidia-l4",
       "observed_at": "2026-08-29"
+    },
+    "rtx_pro_6000_ws": {
+      "bandwidth_gb_s": "1792",
+      "basis": "cited",
+      "note": "Blackwell, GDDR7 on a 512-bit bus. This is the WORKSTATION Edition data rate and it is the reason the two editions carry separate gpu_ids: the Server Edition is 1597 GB/s off the same silicon, and this roofline is what sizes the fleet. No NVLink on any edition, so a multi-GPU split runs over PCIe Gen 5 — a penalty this model does not represent.",
+      "source_url": "https://www.pugetsystems.com/labs/articles/nvidia-rtx-pro-6000-blackwell-workstation-content-creation-review/",
+      "observed_at": "2026-09-04"
+    },
+    "rtx_pro_6000_se": {
+      "bandwidth_gb_s": "1597",
+      "basis": "cited",
+      "note": "SERVER Edition: same 96GB GDDR7 and same 512-bit bus as the Workstation Edition, but a lower GDDR7 data rate. Taken from an OEM product guide's specification table rather than a comparison site, because the 1597-vs-1792 split is exactly the figure a secondary source is most likely to flatten into '1.8 TB/s' for both.",
+      "source_url": "https://lenovopress.lenovo.com/lp2263-thinksystem-nvidia-rtx-pro-6000-blackwell-server-edition-pcie-gen5-gpu",
+      "observed_at": "2026-09-04"
     }
   },
   "weight_quantization": {

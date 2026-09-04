@@ -211,9 +211,9 @@
       </div>
       <div class="row">
         <div class="f">
-          <label for="f-peak-frac">Busiest moment</label>
-          <input id="f-peak-frac" type="text" inputmode="decimal" value="0.05">
-          <span class="sub">Share of people typing at once. 0.05 = 1 in 20.</span>
+          <label for="f-peak-frac">Busiest moment (%)</label>
+          <input id="f-peak-frac" type="text" inputmode="decimal" value="5">
+          <span class="sub">Percentage of people typing at once. 5 = 1 in 20.</span>
         </div>
         <div class="f">
           <label for="f-tps-stream">Reading speed (tok/s)</label>
@@ -225,14 +225,14 @@
 
     <div class="sec">
       <h2>What they do <span id="mix-sum"></span></h2>
-      <p class="hint">Shares of traffic. They must add to exactly 1 &mdash; a mix that doesn't is refused, never quietly rescaled.</p>
+      <p class="hint">Percentages of traffic. They must add to exactly 100 &mdash; a mix that doesn't is refused, never quietly rescaled.</p>
       <div class="row">
-        <div class="f"><label for="f-mix-chat">Chat</label><input id="f-mix-chat" type="text" inputmode="decimal" value="0.7"></div>
-        <div class="f"><label for="f-mix-rag">RAG</label><input id="f-mix-rag" type="text" inputmode="decimal" value="0.3"></div>
+        <div class="f"><label for="f-mix-chat">Chat (%)</label><input id="f-mix-chat" type="text" inputmode="decimal" value="70"></div>
+        <div class="f"><label for="f-mix-rag">RAG (%)</label><input id="f-mix-rag" type="text" inputmode="decimal" value="30"></div>
       </div>
       <div class="row">
-        <div class="f"><label for="f-mix-graphrag">Graph RAG</label><input id="f-mix-graphrag" type="text" inputmode="decimal" value="0"></div>
-        <div class="f"><label for="f-mix-agentic">Agentic</label><input id="f-mix-agentic" type="text" inputmode="decimal" value="0"></div>
+        <div class="f"><label for="f-mix-graphrag">Graph RAG (%)</label><input id="f-mix-graphrag" type="text" inputmode="decimal" value="0"></div>
+        <div class="f"><label for="f-mix-agentic">Agentic (%)</label><input id="f-mix-agentic" type="text" inputmode="decimal" value="0"></div>
       </div>
       <button class="btn" id="mix-balance" type="button">Put the remainder in Chat</button>
 
@@ -383,9 +383,9 @@
       <div class="row">
         <div class="f"><label for="f-rent-gpu">Rented accelerator</label><select id="f-rent-gpu"></select></div>
         <div class="f">
-          <label for="f-rent-util">Utilization (0&ndash;1)</label>
-          <input id="f-rent-util" type="text" inputmode="decimal" value="0.7">
-          <span class="sub">How busy you keep a rented card. 0.7 = idle 30% of the time and still paying.</span>
+          <label for="f-rent-util">Utilization (%)</label>
+          <input id="f-rent-util" type="text" inputmode="decimal" value="70">
+          <span class="sub">How busy you keep a rented card. 70 = idle 30% of the time and still paying.</span>
         </div>
       </div>
       <p class="muted" id="f-rent-note"></p>
@@ -470,9 +470,9 @@
           <span class="sub">Assumption. Use your blended facility tariff.</span>
         </div>
         <div class="f">
-          <label for="f-power-overhead">Non-GPU node overhead</label>
-          <input id="f-power-overhead" type="text" inputmode="decimal" value="0.2">
-          <span class="sub">Assumption as a fraction of GPU draw for CPUs, memory, storage and fans.</span>
+          <label for="f-power-overhead">Non-GPU node overhead (%)</label>
+          <input id="f-power-overhead" type="text" inputmode="decimal" value="20">
+          <span class="sub">Assumption as a percentage of GPU draw for CPUs, memory, storage and fans.</span>
         </div>
       </div>
       <p class="muted" id="f-power-note"></p>

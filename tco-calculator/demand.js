@@ -57,10 +57,20 @@ const ZERO = Rat.from(0n);
 //
 // a10 and a10g are deliberately separate: A10G is the AWS G5-exclusive 300W variant,
 // A10 the 150W PCIe part Azure and Alibaba sell. Same 24GB, different throughput.
+// rtx_pro_6000_ws and rtx_pro_6000_se are separate for the same reason: same 96GB,
+// but 1792 vs 1597 GB/s of memory bandwidth, and only the Server Edition is rented.
 export const TOKENS_S_PER_GPU_ASSUMED = {
   b200: "4500",
   h200: "3000",
   h100: "2500",
+  // Ordered between h100 and a100_80 on published memory bandwidth (1792/1597
+  // GB/s against H100's 3350 and A100 80GB's 2039), which is the only ordering
+  // this table can defend. The two editions differ here by the same ~11% their
+  // bandwidth does rather than by any measured throughput gap — this constant is
+  // the [ASSUMED] fallback for a model the roofline cannot solve, so inventing a
+  // more precise split would be worse than keeping a consistent one.
+  rtx_pro_6000_ws: "1800",
+  rtx_pro_6000_se: "1600",
   a100_80: "1400",
   a800: "1200",
   a100_40: "1100",

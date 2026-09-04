@@ -69,6 +69,22 @@ const GPU = {
   h100: { id: "h100", label: "NVIDIA H100 80GB", vram_gb: 80 },
   h200: { id: "h200", label: "NVIDIA H200 141GB", vram_gb: 141 },
   b200: { id: "b200", label: "NVIDIA B200 180GB", vram_gb: 180 },
+  // RTX PRO 6000 Blackwell ships in three editions on ONE piece of silicon, and
+  // two of them are NOT interchangeable for this calculator's purposes. The
+  // Workstation Edition runs its GDDR7 at a higher data rate — 1792 GB/s against
+  // the Server Edition's 1597 GB/s (Lenovo ThinkSystem product guide lp2263,
+  // "Memory Bandwidth Up to 1597 GB/s"). serving.js sizes a fleet from a DECODE
+  // BANDWIDTH ROOFLINE, so a shared id would price one edition's throughput on
+  // the other's hardware — and the error would be systematic, because every
+  // cloud instance carrying this card (AWS G7e, Azure NC…BSE v6, GCP G4) is the
+  // Server Edition while the workstation buy is not. Same reasoning as a10/a10g
+  // below, and the same consequence if ignored.
+  //
+  // The Max-Q workstation variant (300W, same 1792 GB/s) is deliberately absent:
+  // no row prices it and nothing rents it, so an id for it would be a key with
+  // no data behind it.
+  rtx_pro_6000_ws: { id: "rtx_pro_6000_ws", label: "NVIDIA RTX PRO 6000 Blackwell Workstation Edition 96GB", vram_gb: 96 },
+  rtx_pro_6000_se: { id: "rtx_pro_6000_se", label: "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB", vram_gb: 96 },
   a100_80: { id: "a100_80", label: "NVIDIA A100 80GB", vram_gb: 80 },
   a100_40: { id: "a100_40", label: "NVIDIA A100 40GB", vram_gb: 40 },
   l40s: { id: "l40s", label: "NVIDIA L40S 48GB", vram_gb: 48 },
@@ -100,6 +116,16 @@ const AWS_SKUS = {
   "g6.xlarge": { gpu: GPU.l4, count: 1 },
   "g5.48xlarge": { gpu: GPU.a10g, count: 8 },
   "g5.xlarge": { gpu: GPU.a10g, count: 1 },
+  // G7e — RTX PRO 6000 Blackwell SERVER Edition, launched January 2026. The
+  // three single-GPU shapes differ only in vCPU/RAM, so they legitimately price
+  // the same accelerator at three different node rates; gpu_hourly_usd divides
+  // each by its own count, which is why they do not collide.
+  "g7e.2xlarge": { gpu: GPU.rtx_pro_6000_se, count: 1 },
+  "g7e.4xlarge": { gpu: GPU.rtx_pro_6000_se, count: 1 },
+  "g7e.8xlarge": { gpu: GPU.rtx_pro_6000_se, count: 1 },
+  "g7e.12xlarge": { gpu: GPU.rtx_pro_6000_se, count: 2 },
+  "g7e.24xlarge": { gpu: GPU.rtx_pro_6000_se, count: 4 },
+  "g7e.48xlarge": { gpu: GPU.rtx_pro_6000_se, count: 8 },
 };
 
 const AZURE_SKUS = {
@@ -111,6 +137,13 @@ const AZURE_SKUS = {
   NC24ads_A100_v4: { gpu: GPU.a100_80, count: 1 },
   NC96ads_A100_v4: { gpu: GPU.a100_80, count: 4 },
   NV36ads_A10_v5: { gpu: GPU.a10, count: 1 },
+  // NC RTX PRO 6000 BSE v6 — Azure names the Server Edition in the SKU itself
+  // ("BSE"), which is the clearest confirmation any provider gives that the
+  // rented part is the 1597 GB/s card and not the workstation one.
+  NC36ds_xl_RTXPRO6000BSE_v6: { gpu: GPU.rtx_pro_6000_se, count: 1 },
+  NC72ds_xl_RTXPRO6000BSE_v6: { gpu: GPU.rtx_pro_6000_se, count: 1 },
+  NC144ds_xl_RTXPRO6000BSE_v6: { gpu: GPU.rtx_pro_6000_se, count: 1 },
+  NC288ds_xl_RTXPRO6000BSE_v6: { gpu: GPU.rtx_pro_6000_se, count: 2 },
 };
 
 // ------------------------------------------------------- AWS (first_party)
@@ -284,6 +317,14 @@ const AGGREGATOR_GPU_PAGES = [
   { slug: "nvidia-a100", gpu: GPU.a100_80 },
   { slug: "nvidia-l40s", gpu: GPU.l40s },
   { slug: "nvidia-b200", gpu: GPU.b200 },
+  // RTX PRO 6000 reaches us through THIS lane only, never the provider-page lane
+  // above: AGG_ROW caps a model name at two words and this one is three ("RTX PRO
+  // 6000"), so its label never matches an alias. Widening that regex was declined
+  // — its 140-char bound is deliberate and a looser window walks into the next
+  // accelerator's block. A per-GPU page names the card in the URL instead, so no
+  // label parsing is involved. Every cloud instance carrying this card is the
+  // SERVER Edition, so the page maps to _se and never to _ws.
+  { slug: "nvidia-rtx-pro-6000", gpu: GPU.rtx_pro_6000_se },
 ];
 
 function escapeRe(s) {
@@ -300,6 +341,9 @@ const MIN_PLAUSIBLE_USD = {
   b200: 2.0, h200: 1.5, h100: 1.0, h20: 0.5,
   a100_80: 0.4, a100_40: 0.3, a800: 0.4,
   l40s: 0.3, l4: 0.1, a10g: 0.1, a10: 0.1,
+  // Observed on-demand rates for this card span $1.44 (Azure NCv6) to $4.50
+  // (GCP/Oracle), with neocloud outliers near $0.66. 0.3 sits below all of them.
+  rtx_pro_6000_ws: 0.3, rtx_pro_6000_se: 0.3,
 };
 
 function acceptRate(perGpu, gpu) {

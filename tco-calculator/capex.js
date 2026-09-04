@@ -112,6 +112,14 @@ export function nodesForFleet({ gpusRequired, server, priceBasis = "usd_typical"
     source_url: server.source_url ?? null,
     observed_at: server.observed_at ?? null,
     verification: server.verification ?? null,
+    // A derived_component row's provenance is not a URL — it is the ARITHMETIC:
+    // the cited card price, the cited GPU cost-share band, and the formula that
+    // turned them into this figure. Travelling it here follows the same rule as
+    // the comment above — a render site that had to re-look it up could describe
+    // one row's construction while displaying another row's number.
+    // Null on an `indicative` row, which cites a published figure instead.
+    derivation: server.derivation ?? null,
+    derived_from: server.derived_from ?? null,
   };
 }
 

@@ -1,5 +1,5 @@
 {
-  "note": "Selectable presets for the v0.2 session demand model (SPEC 2.4). Every field here is a PLANNING ASSUMPTION, not a measurement. A preset fills the same inputs a user would type by hand: headcount, session rate, the workload mix, and the per-turn token shape for each workload type. Every number stays editable, and an edited value is labelled user_override rather than silently recomputed. No preset is evidence and none backs a modelled_p95_capacity verdict (SPEC 6.5).",
+  "note": "Selectable presets for the v0.2 session demand model (SPEC 2.4). Every field here is a PLANNING ASSUMPTION, not a measurement. A preset fills the same inputs a user would type by hand: headcount, session rate, the workload mix, and the per-turn token shape for each workload type. Every number stays editable, and an edited value is labelled user_override rather than silently recomputed. No preset is evidence and none backs a modelled_p95_capacity verdict (SPEC 6.5). UNITS: every `fields` entry is written verbatim into the input of the same id by app.js:applyWorkloadPreset, so f-mix-* and f-peak-frac are PERCENTAGES here (70, not 0.7) and must stay in the units the screen shows. `defaults.peak_concurrency_fraction` below is the separate engine-side name and stays a FRACTION, because app.js:pctInput divides the on-screen percent by 100 before demand.js ever sees it.",
   "version": "0.2",
   "provenance": {
     "observed": "2026-08-29",
@@ -32,11 +32,11 @@
         "f-users": "500",
         "f-sessions-day": "2",
         "f-days": "21",
-        "f-mix-chat": "0.7",
-        "f-mix-rag": "0.3",
+        "f-mix-chat": "70",
+        "f-mix-rag": "30",
         "f-mix-graphrag": "0",
         "f-mix-agentic": "0",
-        "f-peak-frac": "0.05",
+        "f-peak-frac": "5",
         "f-tps-stream": "30",
         "f-horizon": "36"
       }
@@ -51,11 +51,11 @@
         "f-users": "2000",
         "f-sessions-day": "1.5",
         "f-days": "21",
-        "f-mix-chat": "0.2",
-        "f-mix-rag": "0.7",
-        "f-mix-graphrag": "0.1",
+        "f-mix-chat": "20",
+        "f-mix-rag": "70",
+        "f-mix-graphrag": "10",
         "f-mix-agentic": "0",
-        "f-peak-frac": "0.04",
+        "f-peak-frac": "4",
         "f-tps-stream": "30",
         "f-horizon": "36"
       }
@@ -70,11 +70,11 @@
         "f-users": "300",
         "f-sessions-day": "3",
         "f-days": "21",
-        "f-mix-chat": "0.1",
-        "f-mix-rag": "0.2",
-        "f-mix-graphrag": "0.7",
+        "f-mix-chat": "10",
+        "f-mix-rag": "20",
+        "f-mix-graphrag": "70",
         "f-mix-agentic": "0",
-        "f-peak-frac": "0.08",
+        "f-peak-frac": "8",
         "f-tps-stream": "25",
         "f-horizon": "36"
       }
@@ -90,10 +90,10 @@
         "f-sessions-day": "4",
         "f-days": "21",
         "f-mix-chat": "0",
-        "f-mix-rag": "0.2",
-        "f-mix-graphrag": "0.1",
-        "f-mix-agentic": "0.7",
-        "f-peak-frac": "0.1",
+        "f-mix-rag": "20",
+        "f-mix-graphrag": "10",
+        "f-mix-agentic": "70",
+        "f-peak-frac": "10",
         "f-tps-stream": "40",
         "f-horizon": "36"
       }
@@ -108,11 +108,11 @@
         "f-users": "5000",
         "f-sessions-day": "2",
         "f-days": "21",
-        "f-mix-chat": "0.4",
-        "f-mix-rag": "0.3",
-        "f-mix-graphrag": "0.15",
-        "f-mix-agentic": "0.15",
-        "f-peak-frac": "0.05",
+        "f-mix-chat": "40",
+        "f-mix-rag": "30",
+        "f-mix-graphrag": "15",
+        "f-mix-agentic": "15",
+        "f-peak-frac": "5",
         "f-tps-stream": "30",
         "f-horizon": "36"
       }

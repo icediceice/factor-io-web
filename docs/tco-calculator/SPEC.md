@@ -581,9 +581,46 @@ server configuration and the fleet the demand model already sized.
 NVIDIA's own DGX line all quote an 8-GPU node through sales; Supermicro's store is
 configure-to-order and returns no comparable figure. There is therefore **no
 `first_party` tier for this registry at all**, and there will not be one until a
-vendor publishes a credential-free price list. Every row is `indicative`, sourced
-from a named published integrator or analyst figure, and carries `quoted_text`,
-`source_url` and `observed_at`.
+vendor publishes a credential-free price list. Rows carry one of **two** tiers,
+neither of which is a quote, and both carrying `quoted_text`, `source_url` and
+`observed_at`:
+
+- **`indicative`** — a named published integrator or analyst figure, read off a
+  page. This is the preferred tier and the only one that reports a price somebody
+  actually published for a whole system.
+- **`derived_component`** — for an accelerator where **nobody publishes a system
+  price at any configuration**. The band is CONSTRUCTED from two cited figures: a
+  published price for the card, and a published statement of what share of a
+  build's cost the GPUs represent. It is strictly weaker than `indicative` and the
+  UI must never present it as a published integrator figure.
+
+**Why a constructed tier is admissible at all, when averaging two published bands
+is not.** §5.8's rule against averaging exists because the mean of two published
+figures is a number *neither source states* while reading as more authoritative
+than either. A `derived_component` row is the opposite shape: it states its own
+inputs, its formula and its rounding, so the number is **falsifiable by
+arithmetic** — the builder recomputes it every run and **fails the build** if the
+seeded band does not reproduce. The alternative for RTX PRO 6000 Blackwell was
+not a better figure, it was no rows at all: the one integrator publishing a tier
+table prices only its entry and single-card tiers, and its single published
+RTX PRO 6000 figure sits *below* that card's own list price. A construction that
+declares itself beats a published figure that is provably wrong.
+
+```
+cards_usd   = card_usd × gpu_count
+usd_low     = round_half_up(cards_usd × 100 / gpu_share_high_pct)
+usd_typical = round_half_up(cards_usd × 100 / gpu_share_typical_pct)
+usd_high    = round_half_up(cards_usd × 100 / gpu_share_low_pct)
+```
+
+The **high** GPU share yields the **low** system price: if the cards are 70% of
+the build, the rest of the build is small. Rounding is half-up to whole dollars
+and is stated on the row, because `5252000 / 70` does not terminate in decimal and
+an unstated rounding rule cannot be re-derived. Each derived row also carries
+`derived_from[]` — one citation per input, with a `role` — and the builder checks
+**every** one, taking the **weakest** result as the row's status: a band whose card
+price still verifies but whose cost-share sentence has been rewritten is not a
+verified row, because half its arithmetic now rests on a sentence nobody can find.
 
 **The builder verifies citations, not prices.** `scripts/build-server-pricing.mjs`
 is stage 4/4 of the refresh and is deliberately **not a scraper**. It re-fetches
@@ -622,10 +659,15 @@ size against a uniform accelerator anyway.
 
 The derived figure follows the §2.4 basis contract — an entered capex outranks it,
 and the quote records which of the two applied (`capex_basis`). Coverage is
-partial by construction: accelerators with no published node figure (currently
-a100_40, a100_80, a10g, a10, l4, l40s, a800) have no rows, and the refresh names
-them so the gap is known rather than silent. The UI asks the user for a figure
-instead of inventing one.
+partial by construction and now has three states rather than two. `h100`, `h200`
+and `b200` carry `indicative` rows. `rtx_pro_6000_ws` and `rtx_pro_6000_se` carry
+`derived_component` rows, because no integrator publishes a system price for that
+card at any tier. The remaining accelerators (`a100_40`, `a100_80`, `a10g`, `a10`,
+`l4`, `l40s`, `a800`, `h20`) have no rows at all, and the refresh names them so the
+gap is known rather than silent — the UI asks the user for a figure instead of
+inventing one. **A missing row and a derived row are different claims:** the first
+says nothing is known, the second says something was constructed and shows its
+working. Neither may be rendered as a published price.
 
 ### 5.9 Self-hosted running cost — power is derived from the installed fleet
 

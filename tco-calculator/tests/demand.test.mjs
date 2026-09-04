@@ -10,6 +10,8 @@ import {
   TOKENS_S_PER_GPU_ASSUMED,
 } from "../demand.js";
 import { paybackMonths, tcoCurve, rentedGpuByProvider } from "../calculator.js";
+import { Dec } from "../exact.js";
+import { readFile } from "node:fs/promises";
 
 // SPEC 2.4 — demand is DERIVED from users, never asserted as a token count.
 
@@ -415,4 +417,53 @@ test("providers: zero demand is refused with a reason, never priced as free", ()
   const res = rentedGpuByProvider({ rows: REGISTRY, utilization: "0.7", servedTokens: 0, sizeFor: sizeAt3000 });
   assert.deepEqual(res.priced, []);
   assert.equal(res.reason, "zero_demand");
+});
+
+// ----------------------------------------------- the percent/fraction boundary
+//
+// The screen collects shares as PERCENTAGES; this engine still requires a mix
+// summing to exactly 1 and refuses anything else (validateMix, SPEC 2.4). That
+// contract is deliberately unchanged — app.js:pctInput is the single conversion
+// point between the two, and these tests pin the boundary it sits on, because
+// nothing in the browser layer is reachable from a unit test.
+const toFraction = (pct) => Dec.from(pct).mul(Dec.from("0.01")).toString();
+
+test("a percent share converts to its exact fraction, with no float dust", () => {
+  assert.equal(toFraction("70"), "0.7");
+  assert.equal(toFraction("30"), "0.3");
+  assert.equal(toFraction("5"), "0.05");
+  assert.equal(toFraction("12.5"), "0.125");
+  assert.equal(toFraction("0"), "0");
+  assert.equal(toFraction("100"), "1");
+});
+
+// Guards the reason pctInput multiplies instead of dividing. Dec.div truncates
+// in BigInt (`q = n / d.c`) BEFORE rescaling, so it succeeds only when the
+// numerator already divides the denominator — 70/100 computes q = 0, fails its
+// own exactness check and throws. Anyone "simplifying" the conversion back to
+// .div(Dec.from("100")) silently converts nothing and hands the engine a
+// percentage as if it were a fraction, multiplying the modelled load by 100.
+test("dividing a percent by 100 throws, which is why the conversion multiplies", () => {
+  assert.throws(() => Dec.from("70").div(Dec.from("100")), RangeError);
+  assert.throws(() => Dec.from("5").div(Dec.from("100")), RangeError);
+});
+
+// The preset store writes its values straight into the inputs by field id
+// (app.js:applyWorkloadPreset), so it must be stored in the units the SCREEN
+// uses. If a preset is ever re-entered as a fraction it will still look
+// plausible in the JSON — and quietly model a hundredth of the intended load.
+test("every workload preset is stored in percent and converts to a mix the engine accepts", async () => {
+  const store = JSON.parse(await readFile(new URL("../data/workload-presets.json", import.meta.url), "utf8"));
+  const FIELD = { chat: "chat", rag: "rag", graph_rag: "graphrag", agentic: "agentic" };
+  assert.ok(store.presets.length > 0);
+  for (const p of store.presets) {
+    const pct = WORKLOAD_TYPES.reduce(
+      (acc, w) => acc.add(Dec.from(p.fields[`f-mix-${FIELD[w]}`])), Dec.from("0"));
+    assert.equal(pct.toString(), "100", `${p.id} mix must be stored in percent and add to 100`);
+    const mix = Object.fromEntries(
+      WORKLOAD_TYPES.map((w) => [w, toFraction(p.fields[`f-mix-${FIELD[w]}`])]));
+    assert.equal(validateMix(mix).ok, true, `${p.id} must convert to a mix summing to exactly 1`);
+    // A busiest-moment share below 1 is the signature of a fraction left behind.
+    assert.ok(Dec.from(p.fields["f-peak-frac"]).ge(Dec.from("1")), `${p.id} f-peak-frac must be a percent`);
+  }
 });

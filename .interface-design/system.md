@@ -38,8 +38,8 @@ One ground, two accents, three semantic states. No gradients anywhere.
 --panel   rgba(27,27,32,.5)      raised surface
 --line    rgba(232,230,240,.1)   hairline
 --ink     #E8E6F0   primary text
---dim     rgba(232,230,240,.6)   secondary text
---faint   rgba(232,230,240,.42)  tertiary / help prose
+--dim     rgba(232,230,240,.7)   secondary text
+--faint   rgba(232,230,240,.6)   tertiary / help prose
 
 --accent  #B46EFF   violet   section headings, selected state, the best option
 --cyan    #22D3EE   cyan     links, focus, provenance affordances
@@ -57,13 +57,11 @@ never gradients, and never appears as a button fill outside `.btn-p`.
 the exact/estimated/unknown contract the calculator is built to communicate.
 Never reuse them for aesthetic emphasis.
 
-**`--faint` does not clear AA and is not a text token.** Computed against this
-ground it is 3.50:1, and 3.88:1 on the sheet's `#15151C` — under the 4.5:1 floor
-for normal-size text. `--dim` is 6.09:1 and 5.93:1 respectively. Anything that
-states a value, a unit, a context or a keystroke is information and takes
-`--dim`; `--faint` is only for text that carries none. It remains on the
-page-wide `.sub` help prose, which predates this work and is logged as a defect
-rather than endorsed here.
+**Help text is information.** The 2026-09-06 UX pass raises `--faint` from .42
+to .6 alpha (the previous secondary-text level) and `--dim` to .7. Do not restore
+the old low-contrast help token. The previous .6 calculation was 6.09:1 on the
+ground and 5.93:1 on the sheet; these are calculated token ratios, not a new
+browser measurement. Inspect composite surfaces when introducing another fill.
 
 ## Depth
 
@@ -124,7 +122,7 @@ runs tighter than the results column by design.
 
 ### Spec line (added by this work)
 
-The rail's atomic unit. Replaces the label-above-input block.
+The detailed rail's atomic unit. Primary exploration fields remain inline.
 
 ```
 People using it ·····················  500
@@ -157,7 +155,26 @@ One value at a time, centered, over a scrim.
 - Border `--cyan`, background `#15151C` — matching the existing `.pop` provenance
   popover, which is the same idea at a smaller scale.
 
-### Existing components (unchanged)
+### Primary exploration and comparison (2026-09-06)
+
+- Users, sessions/day, horizon and peak concurrency keep their real text input
+  visible beside a native labelled range. Rental utilization uses the same pair
+  in its sheet. Sliders offer exploration bounds, not recommended values.
+- Exact text entry is authoritative, including off-step and off-scale values.
+  Off-scale ranges are hidden/disabled with an explicit note; syncing a range
+  never writes its clamped value back. No pointer-only scrub gestures.
+- `data-inline` excludes primary fields from vaulting. A shared range-blind
+  selector identifies authoritative controls in harvesting, summaries and close.
+- Pending edits remove stale results/export immediately; expensive derivation
+  and comparison run after a 220ms pause, with chip sync after derivation.
+- Headline cards rank the selected horizon's infrastructure + platform licence
+  + upfront cost, using exact arithmetic and joint-tie labels. Additional
+  commercial fees are stated alongside, never silently called inclusive TCO.
+- Native focus outlines, 44px mobile actions, local table scrolling, a results
+  jump and print stylesheet support use beyond a desktop. Narrow-viewport and
+  PDF rendering still require browser measurement (not proved by unit tests).
+
+### Other components
 
 `.chip` preset pills, `.card`, `.vcard` verdict cards, `.kpi` grid, `.tag`
 provenance tags, `.pop` provenance popover, `.banner` / `.gap` alerts.
@@ -176,5 +193,5 @@ mode is a separate elevation system, not an inversion.
   / unknown, and nothing else.
 - Never let a value slot render empty. Show the derived word.
 - Never proxy an input. Relocate the real node.
-- Never re-add per-field help prose to the rail. That is the defect this system
-  exists to have fixed.
+- Keep detailed help in the sheet. Inline primary fields may show concise units,
+  slider bounds and essential context; do not expand every advanced field.

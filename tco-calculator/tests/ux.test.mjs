@@ -218,6 +218,12 @@ test("mix refusals describe percentages and the corrective action", () => {
   assert.match(h.node("gapbox").innerHTML, /Put the remainder in Chat/);
 });
 
+test("changed UI modules use matching versioned URLs across HTML and module import", () => {
+  const version = html.match(/app\.js\?v=([^\"]+)/)?.[1];
+  assert.ok(version);
+  assert.ok(app.includes(`./fields.js?v=${version}`));
+});
+
 test("field harvesting and close use a shared range-blind control selector", () => {
   assert.match(fields, /const CONTROL = "input:not\(\[type=range\]\), select"/);
   assert.doesNotMatch(fields, /querySelector(?:All)?\("input, select"\)/);

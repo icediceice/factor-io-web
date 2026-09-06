@@ -22,7 +22,7 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
-import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ux1";
+import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ux2";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -193,8 +193,15 @@ async function init() {
     await loadWorkloadPresets();
     // Server defaults need the completed example's fleet, not the first price
     // row's GPU count. Live-input batching must not decide initialization order.
-    const { demand, peak, sizing } = computeDemand();
-    state.demand = { demand, peak, sizing };
+    try {
+      const { demand, peak, sizing } = computeDemand();
+      state.demand = { demand, peak, sizing };
+    } catch (e) {
+      // A loaded example can be unsizable. Let run() explain the refusal after
+      // readiness, so changing model, hardware or demand can still recover.
+      state.demand = null;
+      console.warn("initial sizing unavailable; using the default server fallback", e);
+    }
     $("f-srv-config").value = "";
     fillServerConfigs();
     // Collapse the rail LAST: every dynamic control (the model list, the server
@@ -1959,6 +1966,7 @@ function renderResults(r) {
       ${renderCurve(r.curve, r.payback)}
       <p class="muted">Infrastructure, applicable platform subscriptions and entered one-time costs. Consulting and enterprise-licensing fees are excluded from both this curve and payback. Self-hosted starts at its capex; a crossing marks payback, not guaranteed savings.</p>
     </div>
+    ${printInputsAppendix()}
     <p><button class="btn btn-s" id="export">Export estimate (JSON)</button> <button class="btn btn-s" id="print-summary">Print / save PDF</button> <span class="muted">Inputs, cost scope and cited prices. A planning estimate, not a binding quote.</span></p>
   `;
   $("export").addEventListener("click", () => exportQuote(r));
@@ -1979,6 +1987,25 @@ function horizonComparison(r) {
   return { cards, best, tied: cards.filter((c) => c.win).length > 1 };
 }
 
+const COMPARISON_EXCLUSIONS = "Owned running cost defaults to electricity only; include rack space, staffing, maintenance and network costs in its monthly override. Rental infrastructure is billed on modelled usage-hours, not an always-on reserved fleet. Unentered implementation, integration and other fees default to zero. Taxes, financing, depreciation/resale and model-quality differences are not modelled. Validate capacity, availability and prices before a client decision.";
+
+// Read the same real controls for JSON and print, including vaulted/dynamic
+// fields but never their range companions. Render alongside the result so
+// invalidation clears the appendix too; printing cannot pair old/new inputs.
+function enteredControls() {
+  return [...document.querySelectorAll("input, select")].filter(isCostControl);
+}
+
+function printInputsAppendix() {
+  const rows = enteredControls().map((el) => {
+    const label = el.labels?.[0]?.textContent?.trim() || el.id;
+    const selected = el.tagName === "SELECT" ? el.selectedOptions?.[0]?.textContent?.trim() : "";
+    const value = el.value === "" ? `Not entered${el.placeholder ? ` — ${el.placeholder}` : " (automatic where available)"}` : el.value;
+    return `<div><dt>${escapeHtml(label)} <code>${escapeHtml(el.id)}</code></dt><dd>${escapeHtml(value)}${selected && selected !== el.value ? ` — ${escapeHtml(selected)}` : ""}</dd></div>`;
+  }).join("");
+  return `<section class="print-only print-inputs"><h2>Scenario inputs</h2><p>Exact entries used for this estimate. Blank overrides use the displayed derived/default basis where available; blank commercial fees default to zero. Slider positions are not separate inputs. Snapshot: ${escapeHtml(state.manifest.snapshot_digest)}.</p><dl>${rows}</dl></section>`;
+}
+
 function renderOptionTotals(r) {
   const { cards, best, tied } = horizonComparison(r);
   const months = r.horizon_months;
@@ -1986,7 +2013,8 @@ function renderOptionTotals(r) {
   $("comparison-scope").innerHTML = `<h2>Modelled cost over ${months} month${months === 1 ? "" : "s"}</h2>
     <p>Infrastructure + platform licence + one-time costs · USD · lowest among priced options, not a like-for-like quality recommendation.</p>
     <p><strong>Additional commercial fees: ${money(overlay?.overlay_total ?? "0")} over ${months} months.</strong> Consulting and enterprise licensing are excluded from the comparison, curve and payback below.${overlay?.itemized.length ? ` ${overlay.itemized.map((i) => `${escapeHtml(i.name)}: ${money(i.amount)}/${i.basis === "monthly" ? "month" : "one-time"} (${money(i.extended)} across the period)`).join("; ")}.` : " No commercial fees entered; zero does not mean none will be required."}</p>
-    <details><summary>Review assumptions &amp; exclusions</summary><p>Owned running cost defaults to electricity only; include rack space, staffing, maintenance and network costs in its monthly override. Rental infrastructure is billed on modelled usage-hours, not an always-on reserved fleet. Unentered implementation, integration and other fees default to zero. Taxes, financing, depreciation/resale and model-quality differences are not modelled. Validate capacity, availability and prices before a client decision.</p></details>`;
+    <details class="screen-only"><summary>Review assumptions &amp; exclusions</summary><p>${COMPARISON_EXCLUSIONS}</p></details>
+    <div class="print-only"><h3>Assumptions &amp; exclusions</h3><p>${COMPARISON_EXCLUSIONS}</p></div>`;
   $("verdict").innerHTML = cards.map((c) => {
     const row = r.totals?.[c.k];
     const delta = c.on && best ? c.value.sub(best.value) : null;
@@ -2166,7 +2194,7 @@ function exportQuote(r) {
   const d = state.demand;
   const payload = {
     cost_scope: "Horizon totals include modelled infrastructure, applicable platform subscription and one-time costs. Consulting and enterprise-licensing overlay is additional, excluded from totals, curve and payback. Per-token figures and routing sensitivity are infrastructure-only. Planning estimate, not a binding quote.",
-    entered_inputs: Object.fromEntries([...document.querySelectorAll("input, select")].filter(isCostControl).map((el) => [el.id, el.value])),
+    entered_inputs: Object.fromEntries(enteredControls().map((el) => [el.id, el.value])),
     generated_at: new Date().toISOString(),
     snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
     demand: d ? {

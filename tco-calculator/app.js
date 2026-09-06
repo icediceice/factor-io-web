@@ -1636,7 +1636,7 @@ function run() {
     renderSubNote();
     $("calculation-status").textContent = `Comparison updated · ${state.result.horizon_months} months · USD`;
   } catch (e) {
-    invalidateResults("Comparison unavailable — check the inputs below.");
+    invalidateResults("Comparison unavailable — check your inputs.");
     if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
       // Clear both output surfaces. Leaving the previous run's totals and verdict
       // standing under a refusal is how an impossible configuration keeps a price
@@ -1644,7 +1644,10 @@ function run() {
       state.result = null;
       $("results").innerHTML = "";
       $("verdict").innerHTML = "";
-      showGap(escapeHtml(e.message));
+      const message = e.code === "mix_does_not_sum_to_one" && e.detail?.sum
+        ? `Traffic shares add up to ${trimDecimals(formatHalfUp(Dec.from(e.detail.sum).mul(100n), 4))}%. They must total 100%. Adjust a share or use “Put the remainder in Chat”.`
+        : e.message;
+      showGap(escapeHtml(message));
       return;
     }
     // The visible gap can be overwritten by a later async load, so the stack also

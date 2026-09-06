@@ -191,6 +191,12 @@ async function init() {
     await loadSubscriptions();
     await wireInputs();
     await loadWorkloadPresets();
+    // Server defaults need the completed example's fleet, not the first price
+    // row's GPU count. Live-input batching must not decide initialization order.
+    const { demand, peak, sizing } = computeDemand();
+    state.demand = { demand, peak, sizing };
+    $("f-srv-config").value = "";
+    fillServerConfigs();
     // Collapse the rail LAST: every dynamic control (the model list, the server
     // configs, the rented accelerators, the attention-layer groups) exists by
     // now, so one pass enhances all of them. Running it earlier would leave

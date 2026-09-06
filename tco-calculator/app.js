@@ -601,6 +601,12 @@ function buildSubPlan({ owned, rented, users }, publish = true) {
   return plan;
 }
 
+function requireSubscriptionPrice(row, plan, reason) {
+  if (row && row.id !== "none" && !plan) {
+    throw new Error(`Platform licence is not priced: ${reason ?? "enter a valid price and term, or choose no platform subscription"}.`);
+  }
+}
+
 // Option values are the registry ROW INDEX, never the gpu id. A provider
 // routinely lists the same accelerator at several rates — different regions or
 // instance families — and keying the option on gpu_id alone made every one of
@@ -1579,6 +1585,8 @@ function buildScenario(usersOverride = null) {
       : null,
     users: Math.round(Number(demand.users.text)),
   }, usersOverride === null);
+
+  requireSubscriptionPrice(currentSubRow(), subPlan, publish ? state.subGap : null);
 
   // One-time per option. A is the hardware capex (already on laneA.capex, so it
   // is NOT repeated here — the engine adds it). B and C carry their own upfronts,

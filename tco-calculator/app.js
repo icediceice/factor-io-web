@@ -22,7 +22,7 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
-import { enhanceRail, syncChips, releaseFields } from "./fields.js";
+import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ux1";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {

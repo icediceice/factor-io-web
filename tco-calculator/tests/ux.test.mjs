@@ -26,7 +26,7 @@ function harness() {
     return nodes.get(id);
   }
   const context = vm.createContext({
-    Dec, Rat, formatHalfUp, console: { error() {} }, Event,
+    Dec, Rat, formatHalfUp, console: { error() {}, warn() {} }, Event,
     DemandRefusal: class DemandRefusal extends Error {},
     ServingRefusal: class ServingRefusal extends Error {},
     document: {
@@ -200,6 +200,63 @@ test("stale export closures cannot write a quote", () => {
   const h = harness();
   assert.doesNotThrow(() => h.get("exportQuote")({}));
   assert.doesNotThrow(() => h.get("exportQuote")(null));
+});
+
+test("default sizing refusals remain editable and recover without reloading snapshots", async () => {
+  for (const kind of ["DemandRefusal", "ServingRefusal"]) {
+    const h = harness();
+    h.get(`setupSliders = () => {}; loadManifest = async () => ({}); renderBanner = () => {};
+      freshnessView = () => ({}); loadGpuPricing = async () => {}; loadPowerData = async () => {};
+      loadServingModels = async () => {}; loadServerPricing = async () => {};
+      loadSubscriptions = async () => {}; wireInputs = async () => {}; loadWorkloadPresets = async () => {};
+      computeDemand = () => { throw new ${kind}('example does not fit'); };
+      refreshDerived = () => computeDemand();
+      fillServerConfigs = () => { if (state.demand !== null) throw new Error('expected fallback'); };`);
+    await h.get("init()");
+    assert.equal(h.state.ready, true, kind);
+    assert.equal(h.node("rail").inert, false);
+    assert.match(h.node("gapbox").innerHTML, /example does not fit/);
+    assert.doesNotMatch(h.node("calculation-status").textContent, /reload/);
+    h.get(`refreshDerived = () => {}; syncSliders = () => {};
+      buildScenario = () => ({ inputs: {} }); runComparison = () => ({ horizon_months: 36 });
+      renderResults = () => {}; renderServerNote = () => {}; renderPowerNote = () => {}; renderSubNote = () => {};`);
+    h.get("handleControlEdit")({ type: "input", target: h.node("f-users") });
+    assert.equal(h.timers.size, 1);
+    h.tick();
+    assert.equal(h.state.result.horizon_months, 36);
+  }
+});
+
+test("print appendix snapshots all authoritative inputs with labels, exact values and escaped text", () => {
+  const h = harness(); h.state.manifest = { snapshot_digest: "digest-123" };
+  const users = h.node("f-users"); users.value = "250000"; users.labels = [{ textContent: "Users" }];
+  const horizon = h.node("f-horizon"); horizon.value = "36";
+  const model = h.node("fb-model"); model.tagName = "SELECT"; model.value = "model-id";
+  model.selectedOptions = [{ textContent: "Model <name>" }];
+  const dynamic = h.node("f-g2-heads"); dynamic.value = "17";
+  const blank = h.node("f-sh-capex"); blank.placeholder = "165000 (derived)";
+  const range = h.node("slider-f-users"); range.type = "range";
+  h.context.document.querySelectorAll = () => [users, horizon, model, dynamic, blank, range];
+  const printed = h.get("printInputsAppendix()");
+  for (const text of ["Users", "250000", "f-horizon", "36", "f-g2-heads", "17", "165000 (derived)", "digest-123", "Model &lt;name&gt;"]) assert.ok(printed.includes(text), text);
+  assert.doesNotMatch(printed, /slider-f-users|Model <name>/);
+  users.value = "1";
+  assert.ok(printed.includes("250000"), "appendix is a result-time snapshot, not a print-time reread");
+  assert.match(app, /\$\{printInputsAppendix\(\)\}/);
+  assert.match(app, /entered_inputs: Object\.fromEntries\(enteredControls\(\)/);
+});
+
+test("print exclusions are outside closed details and use the same prose as the screen", () => {
+  const h = harness(); h.get("renderOptionTotals")(result({ A: "1", B: "2", C: "3" }));
+  const scope = h.node("comparison-scope").innerHTML;
+  const prose = h.get("COMPARISON_EXCLUSIONS");
+  assert.equal(scope.split(prose).length - 1, 2);
+  assert.ok(scope.indexOf('<div class="print-only">') > scope.indexOf("</details>"));
+  assert.match(prose, /electricity only/);
+  assert.match(prose, /Taxes, financing/);
+  assert.match(html, /\.print-only \{ display:none; \}/);
+  assert.match(html.slice(html.indexOf("@media print")), /\.print-only \{ display:block; \}/);
+  assert.match(html, /\.screen-only \{ display:none !important; \}/);
 });
 
 test("a selected but unavailable platform price is never treated as zero", () => {

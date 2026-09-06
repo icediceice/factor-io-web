@@ -28,6 +28,7 @@
  */
 
 const $ = (id) => document.getElementById(id);
+const CONTROL = "input:not([type=range]), select";
 
 // Sections that open on arrival. Everything else folds to a summary of its own
 // values: these two answer "who is this for", which is where a reader starts.
@@ -50,7 +51,7 @@ let sheetOpen = null; // { field, host, spec, lastFocus }
  */
 function isField(f) {
   if (f.querySelector(".f")) return false;
-  return f.querySelectorAll("input, select").length === 1;
+  return f.querySelectorAll(CONTROL).length === 1;
 }
 
 /** The label's own words, without the live spans app.js rewrites inside it. */
@@ -146,8 +147,8 @@ export function enhanceRail() {
   if (!vault) return;
 
   for (const f of [...document.querySelectorAll(".rail .f")]) {
-    if (f.dataset.enhanced || !isField(f)) continue;
-    const ctrl = f.querySelector("input, select");
+    if (f.dataset.enhanced || f.dataset.inline || !isField(f)) continue;
+    const ctrl = f.querySelector(CONTROL);
     if (!ctrl.id) continue; // nothing to address it by; leave it visible
 
     f.dataset.enhanced = "1";
@@ -168,12 +169,12 @@ export function enhanceRail() {
 function paintSummary(sec) {
   const sum = sec.querySelector(".secsum");
   if (!sum) return;
-  const specs = [...sec.querySelectorAll(".spec")];
+  const specs = [...sec.querySelectorAll(".spec, .f[data-inline]")];
   // A summary is a glance, not a readout. A full model id ("NVIDIA-Nemotron-
   // 3-Nano-30B-A3B-BF16 — full attention, MoE") wraps the line and buries the
   // two values beside it, so each entry is clipped to a recognisable head.
   const parts = specs.slice(0, 3).map((s) => {
-    const { text } = readValue($(s.dataset.for));
+    const { text } = readValue(s.dataset.for ? $(s.dataset.for) : s.querySelector(CONTROL));
     const short = text.length > 18 ? text.slice(0, 17).trimEnd() + "…" : text;
     return `${short}${s.dataset.unit ? " " + s.dataset.unit : ""}`;
   });
@@ -191,7 +192,7 @@ function enhanceSections() {
   for (const sec of document.querySelectorAll(".rail .sec")) {
     if (sec.dataset.folding) continue;
     const h2 = sec.querySelector("h2");
-    if (!h2 || !sec.querySelector(".spec")) continue;
+    if (!h2 || !sec.querySelector(".spec, .f[data-inline]")) continue;
     sec.dataset.folding = "1";
 
     const head = document.createElement("button");
@@ -207,7 +208,9 @@ function enhanceSections() {
     sum.className = "secsum";
     head.after(sum);
 
-    const title = h2.textContent.trim();
+    const titleNode = h2.cloneNode(true);
+    for (const live of titleNode.querySelectorAll("[id], .tag")) live.remove();
+    const title = titleNode.textContent.trim();
     // The summary states the values you are choosing not to look at. Folding a
     // section that then shows nothing would be hiding, not disclosing.
     const setFolded = (folded) => {
@@ -287,7 +290,7 @@ export function closeSheet() {
   const { field, spec, lastFocus } = sheetOpen;
   sheetOpen = null;
 
-  const ctrl = field.querySelector("input, select");
+  const ctrl = field.querySelector(CONTROL);
   ctrl?.removeEventListener("input", onSheetEdit);
   $("field-vault").append(field);
   document.querySelector("#sheet-root .scrim")?.remove();

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { Dec, Rat, formatHalfUp } from "../exact.js";
+import { Dec, Rat, formatHalfUp, toRat } from "../exact.js";
 import { compileLiteLLMEntry } from "../pricing.js";
 import {
   runComparison,
@@ -11,6 +11,7 @@ import {
   matchEvidence,
   applyOverlay,
   advisoryBlendCost,
+  breakevenHorizonDemand,
   ratStr,
 } from "../calculator.js";
 
@@ -321,4 +322,90 @@ test("Lane C monthly amortization is exact: 80M served at 3400 tok/s x 50% util"
   const beUtil = new Rat(BigInt(bn), BigInt(bd));
   // util* = hourly / (tok_s x 3600 x bPerToken) = 3 / (3400 x 3600 x 0.00001) = 5/204 (0.0245, honest)
   assert.equal(formatHalfUp(beUtil, 4), "0.0245");
+});
+
+// ──────────────────────────────── capex-aware horizon breakeven (owning vs rent)
+
+test("the horizon breakeven includes the capex the monthly-only answer ignores", () => {
+  // $60,000 up front, $200/mo running, 30-month horizon, target at $10 per 1M.
+  //   numer = 60000 + 200 x 30 = 66000
+  //   D*    = 66000 / (0.00001 x 30) = 220,000,000 tokens/mo
+  const be = breakevenHorizonDemand({
+    oneTimeA: "60000",
+    monthlyA: "200",
+    oneTimeTarget: "0",
+    perTokenTarget: "0.00001",
+    horizonMonths: 30,
+  });
+  assert.equal(be.reason, null);
+  assert.equal(formatHalfUp(be.value, 0), "220000000");
+  // The capex-BLIND answer to the same inputs is 200/0.00001 = 20,000,000 — an
+  // order of magnitude lower. Both are kept; they answer different questions.
+  assert.notEqual(formatHalfUp(be.value, 0), "20000000");
+});
+
+test("the target's own upfront delays the crossing exactly as much as A's brings it forward", () => {
+  const base = { oneTimeA: "60000", monthlyA: "200", perTokenTarget: "0.00001", horizonMonths: 30 };
+  const noUpfront = breakevenHorizonDemand({ ...base, oneTimeTarget: "0" });
+  const withUpfront = breakevenHorizonDemand({ ...base, oneTimeTarget: "6000" });
+  // numer drops by exactly 6000, so D* drops by 6000 / (0.00001 x 30) = 20,000,000.
+  const delta = Rat.from(noUpfront.value).sub(Rat.from(withUpfront.value));
+  assert.equal(formatHalfUp(delta, 0), "20000000");
+});
+
+test("a crossing beyond the fleet's own capacity is REFUSED, never printed as a saving", () => {
+  const be = breakevenHorizonDemand({
+    oneTimeA: "60000",
+    monthlyA: "200",
+    oneTimeTarget: "0",
+    perTokenTarget: "0.00001",
+    horizonMonths: 30,
+    aMonthlyCapacity: 100_000_000, // fleet serves 100M; the crossing needs 220M
+  });
+  assert.equal(be.value, null);
+  assert.equal(be.reason, "out_of_capacity");
+  // The unreachable figure is still REPORTED so the UI can say how far away it is.
+  assert.equal(formatHalfUp(toRat(be.demand_tokens), 0), "220000000");
+  assert.equal(be.capacity_tokens, "100000000");
+});
+
+test("owning already cheaper at any demand is an ANSWER, not a breakeven number", () => {
+  // The target's upfront alone exceeds everything owning costs across the horizon.
+  const be = breakevenHorizonDemand({
+    oneTimeA: "1000",
+    monthlyA: "10",
+    oneTimeTarget: "500000",
+    perTokenTarget: "0.00001",
+    horizonMonths: 30,
+  });
+  assert.equal(be.value, null);
+  assert.equal(be.reason, "already_cheaper");
+});
+
+test("a zero-priced target refuses rather than dividing by zero", () => {
+  const be = breakevenHorizonDemand({
+    oneTimeA: "60000", monthlyA: "200", oneTimeTarget: "0", perTokenTarget: "0", horizonMonths: 30,
+  });
+  assert.equal(be.value, null);
+  assert.equal(be.reason, "zero_price");
+});
+
+test("runComparison emits the horizon breakeven alongside the monthly one, without disturbing it", () => {
+  // F7_LANE_A deliberately carries NO capex, and with a zero capex the two
+  // answers coincide — which would make this test assert nothing. So this one
+  // declares an explicit capex, and a capacity wide enough that the crossing is
+  // a number rather than an out_of_capacity refusal.
+  const laneA = { ...F7_LANE_A, capex: "240000", monthly_token_budget: 10_000_000_000 };
+  const r = runComparison({
+    workload: { ...F7_WORKLOAD, horizon_months: 24 },
+    catalog: f7Catalog(),
+    laneA,
+    laneB: F7_LANE_B,
+    routing: { policy: "local_first" },
+  });
+  // The v0.4 monthly-only answer is untouched: fixed_monthly / bPerToken.
+  assert.equal(formatHalfUp(toRat(r.breakeven.lane_A_vs_B.demand_tokens), 0), "1000000000");
+  // The horizon answer must ALSO earn back the capex, so it sits strictly above:
+  //   numer = 240000 + 10000 x 24 = 480000 ; D* = 480000 / (0.00001 x 24) = 2e9
+  assert.equal(formatHalfUp(toRat(r.breakeven.horizon_vs_B.demand_tokens), 0), "2000000000");
 });

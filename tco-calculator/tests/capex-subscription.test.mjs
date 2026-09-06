@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 import { Rat, formatHalfUp, toRat } from "../exact.js";
-import { nodesForFleet, cheapestConfigFor, serversForGpu, CapexRefusal } from "../capex.js";
+import { nodesForFleet, cheapestConfigFor, cheapestBoxForLoad, serversForGpu, CapexRefusal } from "../capex.js";
 import { billableQuantity, subscriptionCost, appliesTo, METERS, SubscriptionRefusal } from "../subscription.js";
 import { runComparison } from "../calculator.js";
 import { compileLiteLLMEntry } from "../pricing.js";
@@ -80,6 +80,50 @@ test("cheapest config is decided on TOTAL capex, so node size beats unit price",
   const big = cheapestConfigFor({ gpuId: "h100", servers: servers.rows, gpusRequired: 8 });
   assert.equal(big.best.server_id, "hgx-h100-8x-mercatus");
   assert.equal(money(big.best.capex), "285000.00");
+});
+
+test("the cheapest BOX is ranked across accelerators, not within the selected one", () => {
+  // The load that ships as the default: one h100 holds it, two RTX PRO 6000 do.
+  // Ranking within h100 alone reaches no cheaper row than the 4x PCIe node at
+  // $165,000; ranking across accelerators finds the 2x workstation at $53,333.
+  const sizeFor = (gpuId) => ({ h100: 1, rtx_pro_6000_ws: 2 })[gpuId] ?? null;
+  const r = cheapestBoxForLoad({
+    gpuIds: ["h100", "rtx_pro_6000_ws"],
+    servers: servers.rows,
+    sizeFor,
+  });
+  assert.equal(r.best.gpu_id, "rtx_pro_6000_ws");
+  assert.equal(r.best.plan.server_id, "ws-rtx-pro-6000-2x-derived");
+  assert.equal(money(r.best.plan.capex), "53333.00");
+  // Zero spare: the node holds exactly the fleet the load needs.
+  assert.equal(r.best.plan.gpus_overprovisioned, 0);
+  // The h100 branch is still PRICED and still available — this ranks, it does not
+  // hide the alternative.
+  assert.equal(money(r.priced.find((p) => p.gpu_id === "h100").plan.capex), "165000.00");
+});
+
+test("an accelerator that cannot serve the model is SKIPPED with its reason, never given a neighbour's throughput", () => {
+  const boom = Object.assign(new RangeError("model does not fit on h100"), { code: "kv_cache_exceeds_vram" });
+  const r = cheapestBoxForLoad({
+    gpuIds: ["h100", "rtx_pro_6000_ws"],
+    servers: servers.rows,
+    sizeFor: (gpuId) => { if (gpuId === "h100") throw boom; return 2; },
+  });
+  assert.equal(r.best.gpu_id, "rtx_pro_6000_ws");
+  const skipped = r.skipped.find((s) => s.gpu_id === "h100");
+  assert.equal(skipped.reason, "kv_cache_exceeds_vram");
+  assert.ok(!r.priced.some((p) => p.gpu_id === "h100"));
+});
+
+test("an accelerator with no server row is a stated coverage gap, not a borrowed price", () => {
+  // a100_80 is in gpu-pricing.json and deliberately has NO server row (coverage_note).
+  const r = cheapestBoxForLoad({
+    gpuIds: ["a100_80", "rtx_pro_6000_ws"],
+    servers: servers.rows,
+    sizeFor: () => 2,
+  });
+  assert.equal(r.best.gpu_id, "rtx_pro_6000_ws");
+  assert.equal(r.skipped.find((s) => s.gpu_id === "a100_80").reason, "no_server_row");
 });
 
 test("a config whose price bound is unpublished is SKIPPED with a reason, never treated as free", () => {

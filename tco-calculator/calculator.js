@@ -277,6 +277,49 @@ export function breakevenDemandA({ fixedMonthly, bPerToken, aMonthlyCapacity }) 
   return { demand_tokens: demand, utilization };
 }
 
+/**
+ * The demand at which OWNING crosses a per-token option across the whole horizon.
+ *
+ * breakevenDemandA above answers a weaker question — the demand at which A's
+ * MONTHLY equals B's — which ignores the capex entirely and so reports a crossing
+ * the buyer never actually experiences. It is kept untouched: its value is bound
+ * by fixtures and by SPEC 1.4 Q3. This is the figure a purchase decision turns on.
+ *
+ *   oneTimeA + monthlyA x H  =  oneTimeTarget + perTokenTarget x D x H
+ *   D* = (oneTimeA + monthlyA x H - oneTimeTarget) / (perTokenTarget x H)
+ *
+ * The target's own upfront is SUBTRACTED for the same reason paybackMonths uses a
+ * net capex: the crossing is between two cumulative lines, and the target's
+ * upfront delays that crossing exactly as much as A's brings it forward.
+ *
+ * monthlyA is fixed only while the fleet can actually serve D. A crossing ABOVE
+ * the lane's own monthly capacity is not a saving the hardware can deliver, so it
+ * is reported as out_of_capacity rather than printed — the same
+ * refuse-rather-than-fabricate rule the throughput verdicts follow.
+ */
+export function breakevenHorizonDemand({ oneTimeA, monthlyA, oneTimeTarget, perTokenTarget, horizonMonths, aMonthlyCapacity = null }) {
+  if (!Number.isInteger(horizonMonths) || horizonMonths <= 0) return { value: null, reason: "zero_horizon" };
+  const H = Rat.of(BigInt(horizonMonths), 1n);
+  // toRat, never Rat.from: money crosses this boundary in EITHER form — a decimal
+  // string when it terminates and a reduced n/d when it does not. Rat.from routes
+  // through Dec.from, which REFUSES "9000017/900", so a non-terminating lane total
+  // would throw here rather than price. Same rule the fixtures state at their top.
+  const p = toRat(perTokenTarget);
+  if (p.isZero()) return { value: null, reason: "zero_price" };
+  const numer = toRat(oneTimeA).add(toRat(monthlyA).mul(H)).sub(toRat(oneTimeTarget));
+  // A non-positive numerator means owning is already cheaper at every demand above
+  // zero: the target's own upfront covers everything owning costs across the
+  // horizon. That is a real answer, and it is NOT a breakeven demand.
+  if (numer.cmp(ZERO_RAT) <= 0) return { value: null, reason: "already_cheaper" };
+  const demand = numer.div(p.mul(H));
+  if (aMonthlyCapacity !== null && aMonthlyCapacity > 0 && demand.cmp(Rat.of(BigInt(aMonthlyCapacity), 1n)) > 0) {
+    // ratStr, not toString: a Rat stringifies as n/d even when it is a whole
+    // number, and every consumer of this field parses it as a decimal.
+    return { value: null, reason: "out_of_capacity", capacity_tokens: String(aMonthlyCapacity), demand_tokens: ratStr(demand) };
+  }
+  return { value: demand, reason: null };
+}
+
 // -------------------------------------------------------------- payback months
 // v0.1 emitted breakeven as a token VOLUME in prose. The decision question is
 // *when*, not *how many tokens*, so v0.2 emits a whole number of months (SPEC 2.5):
@@ -805,6 +848,43 @@ export function runComparison({
       // reason one-time costs had to reach the totals.
       horizon_total: ratStr(monthly.mul(Rat.of(BigInt(horizon), 1n)).add(once)),
     };
+  }
+
+  // The horizon crossing, in DEMAND. It lives HERE rather than beside the other
+  // breakeven answers above because it needs the fully-loaded totals — every
+  // option's one-time cost and licence-inclusive monthly — and those do not exist
+  // until this point. The block above is monthly-only and capex-blind; this is the
+  // figure a purchase decision actually turns on.
+  if (laneAResult.enabled && totals.A.priced) {
+    const capacity = laneA && laneA.monthly_token_budget ? laneA.monthly_token_budget : null;
+    const horizonBE = (target, perTokenTarget) => {
+      const be = breakevenHorizonDemand({
+        oneTimeA: totals.A.one_time,
+        monthlyA: totals.A.monthly_total,
+        oneTimeTarget: totals[target].one_time,
+        perTokenTarget,
+        horizonMonths: horizon,
+        aMonthlyCapacity: capacity,
+      });
+      return {
+        // ratStr keeps a terminating crossing as a plain decimal — the UI and the
+        // fixtures both read this as a number, and a bare Rat.toString() would
+        // hand them "2000000000/1".
+        demand_tokens: be.value === null ? null : ratStr(be.value),
+        reason: be.reason,
+        // Present only on out_of_capacity, where the honest answer is "the fleet
+        // cannot serve the demand that would justify it" rather than a number.
+        capacity_tokens: be.capacity_tokens ?? null,
+        uncapped_demand_tokens: be.demand_tokens ?? null,
+      };
+    };
+    if (bPerToken !== null && totals.B.priced) breakeven.horizon_vs_B = horizonBE("B", bPerToken);
+    if (laneCStandalone.enabled && totals.C.priced) {
+      // Recomputed as a Rat rather than reparsed from laneCStandalone.per_token:
+      // that field is a serialized string and may be a non-terminating quotient.
+      const cPerTok = laneCPerToken({ hourlyRate: laneC.hourly_rate, tokensS: laneC.tokens_s, utilization: laneC.utilization });
+      if (cPerTok.value !== null) breakeven.horizon_vs_C = horizonBE("C", cPerTok.value);
+    }
   }
 
   const payback = {};

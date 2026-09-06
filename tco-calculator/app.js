@@ -11,18 +11,18 @@
 // the F1–F10 acceptance anchors — so the rename happens HERE, at the render and
 // export boundary, through OPTION. Renaming the engine instead would rewrite
 // those fixtures, and they are the regression net for the ×3600 dimensional bug.
-import { Dec, Rat, formatHalfUp } from "./exact.js";
-import { runComparison, matchEvidence, ratToDecExact, rentedGpuByProvider } from "./calculator.js";
+import { Dec, Rat, formatHalfUp, toRat } from "./exact.js";
+import { runComparison, matchEvidence, ratToDecExact, rentedGpuByProvider } from "./calculator.js?v=20260906-ux3";
 import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
 import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
 import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
-import { nodesForFleet, cheapestConfigFor, serversForGpu, CapexRefusal } from "./capex.js";
+import { nodesForFleet, cheapestConfigFor, cheapestBoxForLoad, serversForGpu, CapexRefusal } from "./capex.js?v=20260906-ux3";
 import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
-import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ux2";
+import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ux3";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -201,6 +201,49 @@ async function init() {
       // readiness, so changing model, hardware or demand can still recover.
       state.demand = null;
       console.warn("initial sizing unavailable; using the default server fallback", e);
+    }
+    // Choose the accelerator the way a buyer would: the cheapest box that
+    // actually HOLDS this load, ranked across every accelerator rather than
+    // within whichever one loadGpuPricing defaulted to. Without this the owned
+    // option is priced on the cheapest h100 NODE — $165,000 for 4 GPUs — even
+    // when the load needs one GPU and fits a $53,333 2x workstation, which made
+    // owning look like a rack purchase in every scenario.
+    //
+    // It runs HERE for two reasons: this is the only point where the peak
+    // already exists (state.demand, just above) and the node has not been
+    // chosen yet (fillServerConfigs, just below); and init is still
+    // pre-state.ready, so the pick can never overwrite a user's own selection.
+    if (state.demand) {
+      try {
+        const box = cheapestBoxForLoad({
+          gpuIds: [...$("f-sh-gpu").options].map((o) => o.value),
+          servers: state.serverPricing?.rows ?? [],
+          priceBasis: $("f-srv-basis").value,
+          // Each candidate is sized on ITS OWN accelerator — the same rule
+          // buildScenario applies to the rented lane. Sizing every candidate on
+          // the selected card would rank them by price at one card's throughput.
+          sizeFor: (gpuId) => Math.max(1, Number(gpusForLoad({
+            peakTokensPerSecond: state.demand.peak.peak_tokens_s.text,
+            gpuId,
+            serving: solveServingFor(gpuId),
+          }).gpus_required.text)),
+        });
+        state.boxPick = box;
+        if (box.best && box.best.gpu_id !== $("f-sh-gpu").value) {
+          $("f-sh-gpu").value = box.best.gpu_id;
+          // Re-derive against the accelerator just chosen. fillServerConfigs
+          // picks the node from state.demand.sizing, and that count was solved
+          // for the PREVIOUS card — a 1-GPU h100 answer would buy a 1x
+          // workstation for a load that needs two of those cards.
+          const { demand, peak, sizing } = computeDemand();
+          state.demand = { demand, peak, sizing };
+        }
+      } catch (e) {
+        // A pick that cannot be made is not a reason to show no numbers — the
+        // previous default still prices a real, cited box.
+        state.boxPick = null;
+        console.warn("cheapest-box pick unavailable; keeping the default accelerator", e);
+      }
     }
     $("f-srv-config").value = "";
     fillServerConfigs();
@@ -1842,6 +1885,56 @@ function providerCard() {
   </div>`;
 }
 
+// The question the calculator exists to answer, and until now the only one it
+// computed and then discarded: runComparison has always returned a breakeven
+// block and no render site ever read it. Stated as DEMAND first, because that is
+// what the engine derives, with an approximate headcount beside it because that
+// is what the reader actually entered.
+function breakevenCard(r) {
+  const be = r.breakeven ?? {};
+  const rows = [];
+  const usersNow = state.demand ? Number(state.demand.demand.users.text) : null;
+  const tokensNow = Number(state.inputs?.workload?.demand_tokens_mo ?? 0);
+  // An exact figure crosses this boundary as EITHER a decimal string or a reduced
+  // n/d, and Number("2000000000/1") is NaN. Round through toRat before it ever
+  // becomes a JS number — the same rule the curve geometry already follows.
+  const tokNum = (v) => (v === null || v === undefined) ? null : Number(formatHalfUp(toRat(v), 0));
+  const usersAt = (tokens) => {
+    const t = tokNum(tokens);
+    return (!usersNow || tokensNow <= 0 || t === null) ? null : Math.ceil(usersNow * (t / tokensNow));
+  };
+  const line = (label, b) => {
+    if (!b) return;
+    if (b.demand_tokens !== null && b.demand_tokens !== undefined) {
+      const t = tokNum(b.demand_tokens);
+      const u = usersAt(b.demand_tokens);
+      // A ratio label, deliberately approximate and never money — the exact-money
+      // rule governs dollars, and rendering "6.4x" to 20 places would be noise.
+      const mult = tokensNow > 0 && t !== null ? (t / tokensNow).toFixed(1) : null;
+      rows.push(`<tr><td>${escapeHtml(label)}</td>`
+        + `<td class="n">${t === null ? "&mdash;" : groupInt(t)}</td>`
+        + `<td class="n">${u === null ? "&mdash;" : `~${groupInt(u)}`}</td>`
+        + `<td class="n">${mult === null ? "&mdash;" : `${mult}&times;`}</td></tr>`);
+      return;
+    }
+    const why = b.reason === "already_cheaper"
+      ? "already cheaper at any demand — that option's own upfront exceeds owning across the horizon"
+      : b.reason === "out_of_capacity"
+      ? `not reachable on this fleet — the crossing needs ${groupInt(tokNum(b.uncapped_demand_tokens) ?? 0)} tokens/mo but the fleet serves ${groupInt(tokNum(b.capacity_tokens) ?? 0)}`
+      : b.reason === "zero_price" ? "the compared option carries no per-token price"
+      : b.reason === "zero_horizon" ? "no planning horizon entered"
+      : (b.reason ?? "unavailable");
+    rows.push(`<tr><td>${escapeHtml(label)}</td><td class="n" colspan="3">${escapeHtml(why)}</td></tr>`);
+  };
+  line(`vs ${OPTION.B.label}`, be.horizon_vs_B);
+  line(`vs ${OPTION.C.label}`, be.horizon_vs_C);
+  if (rows.length === 0) return "";
+  return `<div class="card"><h3>Where owning starts to win</h3>
+      <table><thead><tr><th>Crossover</th><th class="n">Tokens / month</th><th class="n">Approx. users</th><th class="n">vs today</th></tr></thead>
+      <tbody>${rows.join("")}</tbody></table>
+      <p class="muted">The demand at which ${escapeHtml(OPTION.A.label)}'s one-time cost plus running cost equals the other option across the full ${r.horizon_months}-month horizon. Headcount is scaled from the entered workload shape, so it moves whenever usage per user does. The capex is paid once at any demand, so it is higher demand that earns it back — not a longer wait.</p></div>`;
+}
+
 function renderResults(r) {
   const B = r.lanes.B;
   const q = B.primary_offer ? B.quotes[B.primary_offer] : null;
@@ -1885,7 +1978,19 @@ function renderResults(r) {
       ["fleet", state.inputs.laneA.hardware_topology],
     ];
     const per1mA = A.per_1m && A.per_1m.value !== null ? numProv(fmtPer1M(A.per_1m.value), aRows) : `— (${A.per_1m?.reason ?? "n/a"})`;
-    rows.push(`<tr><td>${OPTION.A.label}</td>`
+    // The over-provisioning belongs BESIDE the number it explains. renderServerNote
+    // already states it, but that sentence lives under the server picker in the
+    // rail, so a reader comparing horizon totals never learns why the owned column
+    // carries the capex it does. Silent when the node fits the fleet exactly —
+    // a zero-spare buy has nothing to disclose and saying so would be noise.
+    const cp = state.capexPlan;
+    const spare = cp && cp.gpus_overprovisioned > 0
+      ? `<div class="muted">Buys ${cp.gpus_provisioned} GPUs to use ${cp.gpus_required} &mdash; ${cp.gpus_overprovisioned} spare, charged in full because a node is not divisible. A smaller node may fit better.</div>`
+      : "";
+    if (cp && cp.gpus_overprovisioned > 0) {
+      aRows.push(["GPUs bought / needed", `${cp.gpus_provisioned} / ${cp.gpus_required} — ${cp.gpus_overprovisioned} spare`]);
+    }
+    rows.push(`<tr><td>${OPTION.A.label}${spare}</td>`
       + `<td class="n">${numProv(money(monthlyCell("A", A.monthly_total)), [...aRows, ...monthlyProv("A")])}</td>`
       + `<td class="n">${per1mA}</td>`
       + `<td class="n">${curveCell("A", aRows)}</td></tr>`);
@@ -1944,6 +2049,7 @@ function renderResults(r) {
   $("results").innerHTML = `
     ${rec}
     ${paybackCard(r)}
+    ${breakevenCard(r)}
     <div class="card">
       <table>
         <thead><tr><th>Option</th><th class="n">Cost / month</th><th class="n">Infrastructure / 1M tokens</th><th class="n">${r.horizon_months}-month modelled cost</th></tr></thead>
@@ -2170,19 +2276,36 @@ function renderSensitivity() {
         catalog = { offers: { [primary]: scaled } };
       }
       const res = runComparison({ ...scen.inputs, catalog, evidenceRows: [] });
-      const tco = res.routing_result.recommended_monthly_total;
+      // The winning OPTION and its horizon total — not the routing monthly. Under
+      // local_first the routing monthly is ALWAYS lane A's, and lane A's monthly
+      // excludes the capex that decides the answer, so every cell in this grid
+      // read the same figure and the panel built to expose the crossover could
+      // not expose one. Ranking on horizon_total is what makes a cell flip.
       const cls = um === 1 && pm === 1 ? `style="color:#E8E6F0"` : "";
-      return `<td class="n" ${cls}>${tco === null || tco === undefined ? "—" : numProv(money(tco), [
+      const ranked = ["A", "B", "C"]
+        .filter((k) => res.totals?.[k]?.priced && res.totals[k].horizon_total !== null)
+        .sort((a, b) => toRat(res.totals[a].horizon_total).cmp(toRat(res.totals[b].horizon_total)));
+      if (ranked.length === 0) return `<td class="n muted">n/d</td>`;
+      const win = ranked[0];
+      const runnerUp = ranked[1] ?? null;
+      // Exact difference, and omitted rather than approximated when the quotient
+      // does not terminate — the same rule every other money figure here follows.
+      const marginStr = runnerUp
+        ? ratToDecExact(toRat(res.totals[runnerUp].horizon_total).sub(toRat(res.totals[win].horizon_total)))
+        : null;
+      return `<td class="n" ${cls}>${numProv(`${escapeHtml(OPTION[win].label)} ${money(res.totals[win].horizon_total)}`, [
         ["scenario", `${groupInt(users)} users, API price x${pm}`],
         ["peak", `${scen.peak.peak_tokens_s.text} tok/s`],
         ["fleet at this scale", `${scen.sizing.gpus_required.text} x ${scen.gpuId}`],
-        ["basis", "full engine rerun — demand, peak second and fleet all re-derived"],
+        ...ranked.map((k) => [OPTION[k].label, `${money(res.totals[k].horizon_total)} over ${res.horizon_months} months`]),
+        ...(marginStr ? [["margin over runner-up", money(marginStr)]] : []),
+        ["basis", "full engine rerun — demand, peak second, fleet, capex and every one-time cost re-derived"],
         ["snapshot digest", state.manifest.snapshot_digest],
       ])}</td>`;
     }).join("");
     return `<tr><td>${groupInt(users)} <span class="muted">&times;${um} &middot; ${fleet}</span></td>${cells}</tr>`;
   }).join("");
-  $("sensitivity").innerHTML = `<div class="card"><h3>Monthly routing sensitivity — infrastructure only</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Operational routing estimate, not horizon cost: excludes one-time costs, platform subscriptions and commercial fees. Each cell reruns demand, peak load and GPU sizing; entered GPU counts or budgets stay fixed. The API-price axis re-quotes a tariff scaled exactly.</p></div>`;
+  $("sensitivity").innerHTML = `<div class="card"><h3>Which option wins, and where that flips</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell names the lowest ${r.horizon_months}-month modelled cost at that scenario — infrastructure, applicable platform subscriptions and one-time costs, the same basis as the comparison table. Each cell reruns demand, peak load, GPU sizing and capex; entered GPU counts or budgets stay fixed. Consulting and enterprise-licensing fees remain excluded. The API-price axis re-quotes a tariff scaled exactly. A row where the named option changes is the crossover.</p></div>`;
 }
 
 // The exported quote carries the OPTION names, never the engine's internal

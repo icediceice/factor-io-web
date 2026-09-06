@@ -158,5 +158,66 @@ export function cheapestConfigFor({ gpuId, servers, gpusRequired, priceBasis = "
   return { best, priced, skipped };
 }
 
+/**
+ * The cheapest BOX that holds this load, ranked across EVERY accelerator.
+ *
+ * cheapestConfigFor answers "which node, for this accelerator". The buyer's actual
+ * question is "which box at all", and the two diverge whenever the selected
+ * accelerator is not the cheapest way to hold the peak: a 1-GPU h100 requirement
+ * can reach no cheaper row than the 4x PCIe node at $165,000, while the same load
+ * sits inside a 2x RTX PRO 6000 workstation at $53,333. Ranking only within one
+ * accelerator makes the expensive answer look like the only answer.
+ *
+ * This does NOT reopen the cheapest-COMBINATION search the module header rules
+ * out. Every candidate here is still ONE config of ONE accelerator, so serving.js
+ * keeps solving tensor-parallel size against a single uniform accelerator exactly
+ * as before. Only the ranking widens; the thing ranked is unchanged.
+ *
+ * `sizeFor(gpuId)` is INJECTED rather than imported. capex.js prices hardware and
+ * must not acquire a dependency on demand.js/serving.js to do it. It returns the
+ * whole number of GPUs of that accelerator needed to hold the peak, or refuses.
+ * A refusal is RECORDED and the accelerator is dropped — never resolved by
+ * borrowing a neighbouring card's throughput, which is the same rule
+ * coverage_note applies to a missing server row.
+ */
+export function cheapestBoxForLoad({ gpuIds, servers, sizeFor, priceBasis = "usd_typical" }) {
+  const priced = [];
+  const skipped = [];
+  for (const gpuId of gpuIds ?? []) {
+    // No published node price for this accelerator is a stated coverage gap
+    // (see coverage_note), not a reason to price it from a neighbouring row.
+    if (serversForGpu(gpuId, servers).length === 0) {
+      skipped.push({ gpu_id: gpuId, reason: "no_server_row", message: `no published integrated-node price for ${gpuId}` });
+      continue;
+    }
+    let gpusRequired = null;
+    try {
+      gpusRequired = sizeFor(gpuId);
+    } catch (e) {
+      // A ServingRefusal here is the model not fitting on THIS accelerator — a
+      // legitimate answer about this candidate, so it is reported by its own code
+      // rather than collapsing every cause into one word.
+      skipped.push({ gpu_id: gpuId, reason: e?.code ?? "sizing_failed", message: e?.message ?? String(e) });
+      continue;
+    }
+    if (!Number.isInteger(gpusRequired) || gpusRequired <= 0) {
+      skipped.push({ gpu_id: gpuId, reason: "unsizable", message: `${gpuId} yielded no whole GPU count for this load` });
+      continue;
+    }
+    const c = cheapestConfigFor({ gpuId, servers, gpusRequired, priceBasis });
+    if (c.best) priced.push({ gpu_id: gpuId, plan: c.best });
+    else skipped.push({ gpu_id: gpuId, reason: "no_priced_config", message: `every ${gpuId} config was skipped at ${priceBasis}`, configs_skipped: c.skipped });
+  }
+  if (priced.length === 0) return { best: null, priced, skipped };
+  let best = priced[0];
+  for (const p of priced.slice(1)) {
+    // Exact Rat comparison, never formatted strings — the same rule
+    // cheapestConfigFor applies one level down. Ties keep the EARLIER accelerator
+    // so the pick is deterministic across runs rather than iteration-order luck.
+    if (Rat.from(p.plan.capex).cmp(Rat.from(best.plan.capex)) < 0) best = p;
+  }
+  return { best, priced, skipped };
+}
+
 /** Display helper: whole dollars, half-up, exact. */
 export const formatCapex = (v) => formatHalfUp(Rat.from(v), 0);

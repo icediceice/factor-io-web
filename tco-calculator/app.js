@@ -50,6 +50,8 @@ const state = {
   manifest: null,
   catalog: null,
   catalogGeneration: -1,
+  catalogError: null,
+  selecting: false,
   gpuPricing: null,
   workloadPresets: null,
   result: null,
@@ -156,6 +158,15 @@ function renderBanner(fresh) {
 
 // ---------------------------------------------------------- snapshot loading
 async function init() {
+  // Reload/reset must not inherit browser-restored form values. Dynamic fields
+  // are subsequently derived by their own loaders, never replayed by id.
+  for (const el of document.querySelectorAll(".rail input, .rail select")) {
+    if (el.tagName === "INPUT") el.value = el.defaultValue;
+    else el.selectedIndex = [...el.options].findIndex((o) => o.defaultSelected);
+    if (el.tagName === "SELECT" && el.selectedIndex < 0) el.selectedIndex = 0;
+  }
+  setupSliders();
+  document.querySelector(".rail").inert = true;
   // UTC hour selector: the quote instant is a DECLARED input (determinism),
   // never silently wall-clock.
   const sel = $("f-utc");
@@ -189,10 +200,13 @@ async function init() {
     // labelled scenario, so the first thing the screen shows is a worked example
     // the user edits — not a form they must fill before anything happens.
     state.ready = true;
-    run();
+    flushLiveInput();
   } catch (e) {
+    invalidateResults("Example unavailable — reload to retry.");
     showGap(`the pricing snapshot could not be loaded (${escapeHtml(e.message)}). The calculator shows no numbers without its cited data.`);
-    throw e;
+    console.error("calculator initialization failed", e);
+  } finally {
+    document.querySelector(".rail").inert = false;
   }
 }
 
@@ -220,9 +234,6 @@ async function loadGpuPricing() {
     .join("");
   $("f-rent-provider").value = provs.find(([, v]) => v.confidence === "first_party")?.[0] ?? provs[0]?.[0];
 
-  $("f-rent-provider").addEventListener("change", fillRentGpus);
-  $("f-rent-gpu").addEventListener("change", renderRentNote);
-  $("f-sh-gpu").addEventListener("change", refreshDerived);
   fillRentGpus();
 }
 
@@ -263,12 +274,9 @@ async function loadServerPricing() {
     .map((id) => `<option value="${escapeHtml(id)}">${escapeHtml(gpuLabels[id]?.label ?? id)}</option>`)
     .join("");
   shSel.value = keepSelected;
-  $("f-srv-config").addEventListener("change", onLiveInput);
-  $("f-srv-basis").addEventListener("change", onLiveInput);
   // The server list is keyed to the accelerator, so it must re-fill when the
   // accelerator changes — otherwise an H100 node stays selected against a B200
   // fleet and prices the wrong hardware.
-  $("f-sh-gpu").addEventListener("change", () => { fillServerConfigs(); });
   fillServerConfigs();
 }
 
@@ -389,8 +397,6 @@ async function loadSubscriptions() {
     .map((r) => `<option value="${escapeHtml(r.id)}">${escapeHtml(r.label)}</option>`)
     .join("");
   $("f-sub-row").value = "none";
-  for (const id of ["f-sub-row", "f-sub-term"]) $(id).addEventListener("change", onLiveInput);
-  $("f-sub-price").addEventListener("input", onLiveInput);
 }
 
 const currentSubRow = () => (state.subscriptions?.rows ?? []).find((r) => r.id === $("f-sub-row").value) ?? null;
@@ -664,7 +670,6 @@ async function loadServingModels() {
   $("f-sv-kvquant").value = "bf16";
   $("f-sv-runtime").value = "vllm";
 
-  $("f-sv-model").addEventListener("change", () => { applyModelPreset($("f-sv-model").value); });
   const selection = firstServableModelId(d);
   $("f-sv-model").value = selection.chosenId;
   applyModelPreset(selection.chosenId);
@@ -676,7 +681,6 @@ async function loadServingModels() {
       $("f-sv-model").value = selection.topRankedId;
       applyModelPreset(selection.topRankedId);
       note.textContent = "Top-ranked model loaded; any fit refusal is shown in the sizing result.";
-      if (state.ready) onLiveInput();
     });
   } else if (note) {
     note.textContent = "Opened on the top-ranked model.";
@@ -795,18 +799,7 @@ function renderArchGroups(groups) {
       ${groupFieldsHtml(i, g)}
     </div>`).join("");
 
-  // Changing the KIND changes WHICH fields exist, so that one re-renders the block
-  // from the edited values before recomputing; everything else just recomputes.
-  for (let i = 0; i < state.archGroups.length; i++) {
-    $(gf(i, "kind"))?.addEventListener("change", () => {
-      const next = readArchGroups() ?? state.archGroups;
-      renderArchGroups(next);
-      onLiveInput();
-    });
-    for (const k of ["layers", "heads", "dim", "tensors", "window", "lora", "rope"]) {
-      $(gf(i, k))?.addEventListener("input", onLiveInput);
-    }
-  }
+  // Delegated input handling also covers newly minted group controls.
   // Collapse the freshly built group fields. Skipped on the init pass, where
   // #field-vault does not exist yet; init's own enhanceRail() covers that.
   enhanceRail();
@@ -1131,31 +1124,90 @@ function applyWorkloadPreset(id) {
 // answer — the option is priced, and the landing state said it could not be. It
 // only became visible once v0.5 made the landing state worth reading.
 async function wireInputs() {
-  $("fb-feed").addEventListener("change", () => fillModels(beginSelection()));
-  $("run").addEventListener("click", run);
+  document.addEventListener("input", handleControlEdit);
+  document.addEventListener("change", handleControlEdit);
+  $("run").addEventListener("click", async () => {
+    if (state.catalogError) await fillModels(beginSelection());
+    flushLiveInput();
+  });
+  $("reset-example").addEventListener("click", () => location.reload());
   $("mix-balance").addEventListener("click", balanceMix);
-  const live = [
-    "f-users", "f-sessions-day", "f-days",
-    "f-mix-chat", "f-mix-rag", "f-mix-graphrag", "f-mix-agentic",
-    "f-peak-frac", "f-tps-stream", "f-sh-tps-gpu", "f-sh-count",
-    // v0.5 money fields. The subscription price already recomputed as you typed;
-    // leaving the capex override and the one-time fields off this list meant the
-    // totals beside them kept showing the PREVIOUS figure until something else
-    // moved — the same field live, its neighbour stale.
-    "f-sh-capex", "f-sh-fixed", "f-power-pue", "f-power-rate", "f-power-overhead",
-    "f-rent-util", "fo-license", "fo-consult", "f-onetime-b", "f-onetime-c", "fo-impl",
-    // v0.3: the model IS a sizing input, not a detail. Editing its size, context
-    // or precision moves the fleet, so each one drives the same recompute.
-    "f-sv-params", "f-sv-active", "f-sv-ctx", "f-sv-maxbatch", "f-sv-kvbytes",
-    ...Object.values(MIX_FIELD).flatMap((f) => [`f-${f}-turns`, `f-${f}-in`, `f-${f}-out`, `f-${f}-cached`]),
-  ];
-  for (const id of live) $(id)?.addEventListener("input", onLiveInput);
-  // Selects fire `change`, not `input`. f-sh-gpu belongs here because the
-  // accelerator decides bandwidth and VRAM, which decides the whole plan.
-  for (const id of ["f-sv-wquant", "f-sv-kvquant", "f-sv-runtime", "f-sv-mode", "f-sh-gpu", "f-rent-gpu"]) {
-    $(id)?.addEventListener("change", onLiveInput);
-  }
   await fillModels(beginSelection());
+}
+
+function isCostControl(el) {
+  return !!el && /^(f-|fb-|fo-|fr-)/.test(el.id)
+    && (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type !== "range"));
+}
+
+function handleControlEdit(event) {
+  const el = event.target;
+  if (!isCostControl(el) || !state.ready) return;
+  // Selects emit both events in modern browsers. Handle exactly one.
+  if (event.type !== (el.tagName === "SELECT" ? "change" : "input")) return;
+  if (el.id === "fb-feed") { void fillModels(beginSelection()); return; }
+  if (el.id === "f-rent-provider") fillRentGpus();
+  if (el.id === "f-rent-gpu") renderRentNote();
+  if (el.id === "f-sh-gpu") fillServerConfigs();
+  if (el.id === "f-sv-model") { applyModelPreset(el.value); return; }
+  if (/^f-g\d+-kind$/.test(el.id)) renderArchGroups(readArchGroups() ?? state.archGroups);
+  onLiveInput();
+}
+
+const SLIDERS = [
+  { id: "f-users", min: 1, max: 5000, step: 1, unit: "people", inline: true },
+  { id: "f-sessions-day", min: 0.5, max: 20, step: 0.5, unit: "sessions/day", inline: true },
+  { id: "f-horizon", min: 1, max: 60, step: 1, unit: "months", inline: true },
+  { id: "f-peak-frac", min: 1, max: 100, step: 1, unit: "% at once", inline: true },
+  { id: "f-rent-util", min: 1, max: 100, step: 1, unit: "% utilization" },
+];
+
+function setupSliders() {
+  for (const spec of SLIDERS) {
+    const ctrl = $(spec.id);
+    const field = ctrl.closest(".f");
+    if (spec.inline) field.dataset.inline = "true";
+    const range = document.createElement("input");
+    range.type = "range";
+    range.id = `slider-${spec.id}`;
+    range.min = spec.min; range.max = spec.max; range.step = spec.step;
+    range.setAttribute("aria-label", `${field.querySelector("label").textContent} — slider`);
+    range.setAttribute("aria-describedby", `${range.id}-note`);
+    const note = document.createElement("span");
+    note.className = "slider-note"; note.id = `${range.id}-note`;
+    field.append(range, note);
+    range.addEventListener("input", () => {
+      ctrl.value = range.value;
+      ctrl.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+  syncSliders();
+}
+
+function syncSliders() {
+  for (const spec of SLIDERS) {
+    const range = $(`slider-${spec.id}`);
+    if (!range) continue;
+    const text = $(spec.id).value.trim().replace(/[ _,]/g, "");
+    const value = Number(text);
+    const offScale = !text || !Number.isFinite(value) || value < spec.min || value > spec.max;
+    range.disabled = offScale;
+    range.hidden = offScale;
+    // Setting a range value may clamp/round it. Never write that back to text.
+    if (!offScale) range.value = text;
+    $(`${range.id}-note`).textContent = offScale
+      ? `Outside slider range (${spec.min}–${spec.max}); exact entry is in use.`
+      : `${spec.min}–${spec.max} ${spec.unit} · or type an exact value`;
+  }
+}
+
+function invalidateResults(message) {
+  state.result = null;
+  for (const id of ["verdict", "results", "sensitivity", "comparison-scope", "derived", "fit"]) {
+    if ($(id)) $(id).innerHTML = "";
+  }
+  $("calculation-status").textContent = message;
+  $("comparison").setAttribute("aria-busy", "true");
 }
 
 // The headline recomputes as you type. A calculator with a button you must
@@ -1164,15 +1216,20 @@ async function wireInputs() {
 // re-pull, but it is no longer what makes the answer correct.
 let liveTimer = null;
 function onLiveInput() {
-  refreshDerived();
-  // AFTER refreshDerived, never before: it rewrites the derived placeholders
-  // (`2 (derived)`, `3390.71 (from the model)`) that the collapsed lines read to
-  // show a field sitting on its derived state. Repainting first would show the
-  // previous derivation beside the new one.
-  syncChips();
-  if (!state.ready) return; // init is still wiring; the catalog may not be loaded
+  syncSliders();
+  if (!state.ready) return;
+  $("example-state").textContent = "Customized scenario · assumptions remain editable";
+  invalidateResults("Updating comparison…");
   clearTimeout(liveTimer);
-  liveTimer = setTimeout(run, 220);
+  liveTimer = setTimeout(flushLiveInput, 220);
+}
+
+function flushLiveInput() {
+  clearTimeout(liveTimer);
+  if (!state.ready || state.selecting) return;
+  // One expensive pass per settled edit, in this order: derived placeholders
+  // must exist before the spec lines read them. Run performs error cleanup.
+  run();
 }
 
 // Mixes that do not sum to 100% are the single most common way this screen gets
@@ -1334,6 +1391,13 @@ function refreshDerived() {
 
 async function fillModels(sel) {
   const g = sel.generation;
+  state.selecting = true;
+  state.catalogError = null;
+  if (state.ready) {
+    clearTimeout(liveTimer);
+    invalidateResults("Loading model prices…");
+    $("example-state").textContent = "Customized scenario · assumptions remain editable";
+  }
   $("fb-model").innerHTML = `<option value="">loading snapshot…</option>`;
   try {
     if (!state.catalog) {
@@ -1344,8 +1408,12 @@ async function fillModels(sel) {
     }
   } catch (e) {
     if (g !== currentGeneration()) return;
+    state.selecting = false;
+    state.catalogError = `Model pricing could not be loaded. Recalculate to retry. ${e.message}`;
     $("fb-model").innerHTML = `<option value="">unavailable</option>`;
-    showGap(`model pricing could not be loaded after a bounded retry (${escapeHtml(e.message)}). Showing a gap, never stale prices.`);
+    invalidateResults("Model prices unavailable — no comparison to export.");
+    $("comparison").setAttribute("aria-busy", "false");
+    showGap(escapeHtml(state.catalogError));
     return;
   }
   const feed = $("fb-feed").value;
@@ -1355,6 +1423,8 @@ async function fillModels(sel) {
   const cur = byName.find((m) => /gpt-4o/.test(m.id)) ?? byName.find((m) => /claude/.test(m.id)) ?? byName[0];
   if (cur) $("fb-model").value = cur.id;
   $("fb-model-note").textContent = `${models.length} models · snapshot ${state.manifest.snapshot_digest} · generated ${state.manifest.generated_at}`;
+  state.selecting = false;
+  if (state.ready) onLiveInput();
 }
 
 // --------------------------------------------------------------------- run()
@@ -1416,7 +1486,7 @@ function buildScenario(usersOverride = null) {
   const runningMonthly = decInput("f-sh-fixed") ?? powerPlan?.monthly_usd ?? null;
 
   const laneA = {
-    enabled: runningMonthly !== null,
+    enabled: runningMonthly !== null && (capexEntered !== null || capexPlan !== null),
     fixed_monthly: runningMonthly ?? "0",
     capex,
     monthly_token_budget: intInput("f-sh-budget") ?? derivedBudget,
@@ -1472,7 +1542,7 @@ function buildScenario(usersOverride = null) {
   // one_time, the curve, the horizon total or payback, which is precisely where a
   // one-time cost has to land now that those exist.
   const overlay = {
-    fully_loaded: $("fo-loaded").value === "loaded",
+    fully_loaded: false, // commercial fees are itemized, never per-token prices
     components: [
       { name: "enterprise-licensing", basis: "monthly", amount: decInput("fo-license") ?? "0" },
       { name: "ai-consulting", basis: "monthly", amount: decInput("fo-consult") ?? "0" },
@@ -1539,8 +1609,15 @@ function scaleUsers(baseUsers, multiplier) {
 }
 
 function run() {
+  clearTimeout(liveTimer);
+  if (!state.ready || state.selecting) return;
+  invalidateResults("Calculating comparison…");
   clearGap();
   try {
+    if (state.catalogError) throw new Error(state.catalogError);
+    refreshDerived();
+    syncChips();
+    syncSliders();
     const s = buildScenario();
     state.demand = { demand: s.demand, peak: s.peak, sizing: s.sizing };
     state.inputs = s.inputs;
@@ -1551,7 +1628,9 @@ function run() {
     renderServerNote();
     renderPowerNote();
     renderSubNote();
+    $("calculation-status").textContent = `Comparison updated · ${state.result.horizon_months} months · USD`;
   } catch (e) {
+    invalidateResults("Comparison unavailable — check the inputs below.");
     if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
       // Clear both output surfaces. Leaving the previous run's totals and verdict
       // standing under a refusal is how an impossible configuration keeps a price
@@ -1565,8 +1644,9 @@ function run() {
     // The visible gap can be overwritten by a later async load, so the stack also
     // goes to the console — a comparison that fails silently is the worst outcome.
     console.error("comparison failed", e);
-    const where = String(e.stack ?? "").split("\n").slice(1, 6).join(" | ");
-    showGap(`the comparison could not run: ${escapeHtml(e.message)} <br><code>${escapeHtml(where)}</code>`);
+    showGap(`The comparison could not run: ${escapeHtml(e.message)}`);
+  } finally {
+    $("comparison").setAttribute("aria-busy", "false");
   }
 }
 

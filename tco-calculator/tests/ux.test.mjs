@@ -202,6 +202,22 @@ test("stale export closures cannot write a quote", () => {
   assert.doesNotThrow(() => h.get("exportQuote")(null));
 });
 
+test("a selected but unavailable platform price is never treated as zero", () => {
+  const check = harness().get("requireSubscriptionPrice");
+  assert.throws(() => check({ id: "enterprise" }, null, "price required"), /price required/);
+  assert.doesNotThrow(() => check({ id: "none" }, null));
+  assert.doesNotThrow(() => check({ id: "enterprise" }, { monthly: "0" }));
+});
+
+test("mix refusals describe percentages and the corrective action", () => {
+  const h = harness(); h.state.ready = true;
+  h.get(`refreshDerived = () => { const e = new DemandRefusal('bad mix');
+    e.code = 'mix_does_not_sum_to_one'; e.detail = {sum:'1.100000'}; throw e; };`);
+  h.get("run()");
+  assert.match(h.node("gapbox").innerHTML, /110%/);
+  assert.match(h.node("gapbox").innerHTML, /Put the remainder in Chat/);
+});
+
 test("field harvesting and close use a shared range-blind control selector", () => {
   assert.match(fields, /const CONTROL = "input:not\(\[type=range\]\), select"/);
   assert.doesNotMatch(fields, /querySelector(?:All)?\("input, select"\)/);

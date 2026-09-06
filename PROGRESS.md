@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-04 (input rail collapsed to a spec sheet with an overlay value editor)
+> Last updated: 2026-09-06 (worked-example UX, linked sliders and horizon cost comparison)
 
 ## Current Focus
 
@@ -24,6 +24,17 @@ Upcoming work in priority order:
 *(Populated by escalation events. Survives compaction — do not remove.)*
 
 ## Work Log
+
+### 2026-09-06
+
+#### TCO consulting UX: live worked example, linked sliders and explicit cost scope
+
+- **Diagnosis:** Fresh public load calculated all three options with no page errors; the reported blank initial calculation did not reproduce. Editing horizon 36→12 left all cards at 36 months. Source traced missing input listeners and programmatic provider/feed refill paths, plus swallowed catalog errors and generic-error stale results. Monthly ranking marked self-hosting lowest despite $179,834.53 over 36 months versus API $27,237.91 and rented $20,396.41. No engine/data semantics were changed.
+- **Implemented:** Delegated authoritative-control events cover rail, vault, sheet and regenerated architecture fields; specialized refills finish before recompute. Immediate pending invalidation removes results/sensitivity/export; expensive work is debounced, with derived placeholders before chip sync. Reset reloads authored defaults and the cited workload/model example; initial fleet sizing explicitly precedes default server selection (removing the earlier implicit live-input side effect). Users/sessions/horizon/peak have visible native sliders plus exact input; rental utilization has a paired slider in its sheet. Off-scale exact entries are never clamped. Stable section identity keeps traffic mix open. Invalid mixes explain percentages and the remainder action.
+- **Presentation:** Exact horizon ranking, joint ties, monthly/upfront breakdowns, unknown hardware cost excluded from priced options, unavailable selected platform pricing refused instead of zeroed. Consulting/enterprise-licensing overlay remains additional and explicitly excluded beside the headline and in curve/payback/export scope. Removed the nonfunctional fully-loaded per-token selector. Operational routing/sensitivity are labelled infrastructure-only rather than investment recommendations. Added example/reset context, readable help tokens/focus, mobile results jump, table containment and print/save-PDF styling.
+- **Research applied:** [NN/g slider controls](https://www.nngroup.com/articles/gui-slider-controls/) and [sliders/knobs](https://www.nngroup.com/articles/sliders-knobs/) informed paired coarse/fine entry; [GOV.UK question patterns](https://design-system.service.gov.uk/patterns/question-pages/) reinforced avoiding slider-only answers. Transparent assumptions/exclusions follow the [Reshoring Initiative TCO estimator](https://reshorenow.org/tco-estimator/). No consulting rates were invented.
+- **Verification:** Baseline 213 tests passed; new zero-dependency VM/DOM-boundary behavioral tests cover input discovery, refill ordering, batching, slider sync, exact ranking, fee scope, generic failure/recovery, catalog failure/races, initialization order and stale exports. Browser preview at `127.0.0.1:8787` visibly rendered the worked comparison and sliders. Horizon 36→12 recomputed API to $9,079.30 and rental to $6,798.80; native ArrowRight then recomputed 13 months. Exact 250,000 users produced 10,500,000 sessions/mo rather than the slider maximum. Reset restored 36 months; invalid 80/30 mix cleared results/export and remainder-in-Chat recovered. All five presets reached updated comparison status. Desktop screenshot inspected at approximately 1920px.
+- **Limitations / scope:** Browser viewport resizing is unavailable in this client, so 375px/1280px overflow and PDF rendering are not measured; CSS/VM tests are not browser proof. Catalog failure/races are controlled unit-test evidence, not a network fault injected into the public page. Existing September 2 API data is stale and visibly labelled; no data refresh was authorized. Rental usage-hours versus always-on owned billing remains a separate engine concern. The unused engine overlay `fully_loaded_total` still mixes monthly infrastructure with horizon fees; this UI deliberately does not display it. Independent post-push verification follows this implementation record.
 
 ### 2026-09-04
 

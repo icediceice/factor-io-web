@@ -1841,9 +1841,9 @@ function renderResults(r) {
       : (r.subscription ? [["platform licence", "not applicable to this option"]] : []);
     return [["infrastructure", `${money(row.infra_monthly)} / month`], ...lic];
   };
-  const curveCell = (k, rows) => r.curve[0]?.[k] === null || r.curve[0]?.[k] === undefined
+  const curveCell = (k, rows) => r.totals?.[k]?.horizon_total === null || r.totals?.[k]?.horizon_total === undefined
     ? "— (not costed)"
-    : numProv(money(r.curve[0][k]), rows);
+    : numProv(money(r.totals[k].horizon_total), rows);
 
   const rows = [`<tr><td>${OPTION.B.label} — <code>${escapeHtml(B.primary_offer ?? "none")}</code>${srcTag(q)}</td>` +
     `<td class="n">${B.monthly_total === null ? "—" : numProv(money(monthlyCell("B", B.monthly_total)), [...quoteRows(B.primary_offer, q), ...monthlyProv("B")])}</td>` +
@@ -1866,7 +1866,7 @@ function renderResults(r) {
       + `<td class="n">${per1mA}</td>`
       + `<td class="n">${curveCell("A", aRows)}</td></tr>`);
   } else {
-    const gap = escapeHtml(state.powerGap ?? "self-hosted running cost is unavailable");
+    const gap = escapeHtml(state.capexGap ?? state.powerGap ?? "self-hosted cost is unavailable");
     rows.push(`<tr><td>${OPTION.A.label}<div class="muted">${gap}</div></td>`
       + `<td class="n">— (not costed)</td>`
       + `<td class="n">— (not costed)</td>`
@@ -1900,7 +1900,7 @@ function renderResults(r) {
   }
 
   const rec = (r.routing_result.recommended_monthly_total === null || r.routing_result.recommended_monthly_total === undefined) ? "" :
-    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Recommended — send ${escapeHtml(policyWords(r.policy))}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ...digest])}<span class="muted" style="font-size:.85rem"> / month at the entered demand</span></div></div>`;
+    `<div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 6px">Operational routing estimate — send ${escapeHtml(policyWords(r.policy))}</h3><div style="font-size:1.6rem;font-weight:700">${numProv(money(r.routing_result.recommended_monthly_total), [["policy", r.policy], ["basis", "engine-derived result under the declared routing policy"], ...digest])}<span class="muted" style="font-size:.85rem"> / month at the entered demand</span></div><p>Infrastructure routing only. Excludes acquisition, platform subscriptions and commercial fees; not an investment recommendation.</p></div>`;
 
   const adv = r.routing_result.advisory
     ? `<p class="muted">Advisory blend ${money(r.routing_result.advisory.total)} — <strong>${escapeHtml(r.routing_result.advisory.status)}</strong>${r.routing_result.advisory.delta ? ` (delta ${money(r.routing_result.advisory.delta)})` : ""}. ${escapeHtml(r.routing_result.advisory.note)}</p>`
@@ -1922,10 +1922,10 @@ function renderResults(r) {
     ${paybackCard(r)}
     <div class="card">
       <table>
-        <thead><tr><th>Option · sending ${escapeHtml(policyWords(r.policy))}</th><th class="n">Cost / month</th><th class="n">${r.overlay ? r.overlay.label.replaceAll("_", " ") : "infra per 1M"}</th><th class="n">1 month total</th></tr></thead>
+        <thead><tr><th>Option</th><th class="n">Cost / month</th><th class="n">Infrastructure / 1M tokens</th><th class="n">${r.horizon_months}-month modelled cost</th></tr></thead>
         <tbody>${rows.join("")}</tbody>
       </table>
-      ${r.overlay && r.overlay.itemized.length ? `<p class="muted">Overlay itemized last: ${r.overlay.itemized.map((i) => `${escapeHtml(i.name)} ${money(i.extended)} (${i.basis}, ${i.provenance})`).join(" · ")} — total ${money(r.overlay.overlay_total)} · ${escapeHtml(r.overlay.note)}</p>` : ""}
+      <p class="muted">Monthly and horizon columns include applicable platform subscriptions; per-token prices are infrastructure only. Consulting and enterprise-licensing fees are additional, itemized above.</p>
       ${adv}${don}${failover}${pinned}
       ${r.reasons.length ? `<div class="gap"><strong>Honest caveats:</strong> ${r.reasons.map(escapeHtml).join("; ")}</div>` : ""}
       ${B.gaps.map((g) => `<div class="gap"><strong>${escapeHtml(g.offer_id)}</strong>: ${escapeHtml(g.gap_reason ?? "unservable")} — the option falls back or reports the gap.</div>`).join("")}
@@ -1938,74 +1938,50 @@ function renderResults(r) {
       <p class="muted">Feasibility verdicts are evidence-gated: unknown beats invented. The shipped evidence store is empty by mandate (SPEC 6.5).</p>
     </div>
     <div class="card">
-      <h3>Cumulative cost over ${r.horizon_months} months</h3>
+      <h3>Cumulative modelled cost over ${r.horizon_months} months</h3>
       ${renderCurve(r.curve, r.payback)}
-      <p class="muted">Self-hosted starts at its capex and grows by its monthly cost; where its line crosses another is the payback month above.</p>
+      <p class="muted">Infrastructure, applicable platform subscriptions and entered one-time costs. Consulting and enterprise-licensing fees are excluded from both this curve and payback. Self-hosted starts at its capex; a crossing marks payback, not guaranteed savings.</p>
     </div>
-    <p><button class="btn btn-s" id="export">Export quote (JSON)</button> <span class="muted">every input, the snapshot digest, and per-meter provenance.</span></p>
+    <p><button class="btn btn-s" id="export">Export estimate (JSON)</button> <button class="btn btn-s" id="print-summary">Print / save PDF</button> <span class="muted">Inputs, cost scope and cited prices. A planning estimate, not a binding quote.</span></p>
   `;
   $("export").addEventListener("click", () => exportQuote(r));
+  $("print-summary").addEventListener("click", () => { if (state.result === r) window.print(); });
   renderOptionTotals(r);
   renderSensitivity();
 }
 
-function renderOptionTotals(r) {
-  const box = $("verdict");
-  if (!box) return;
-
+function horizonComparison(r) {
   const cards = OPTION_KEYS.map((k) => {
-    const lane = r.lanes[k];
-    const on = lane.enabled && lane.monthly_total != null;
-    // Promote to Rat up front. A total can arrive as a Dec OR as a
-    // non-terminating Rat, and Dec.sub(Rat) throws outright ("a non-terminating
-    // Rational cannot become a Decimal"). Every Dec converts to a Rat losslessly
-    // but not the reverse, so normalising once here makes both the comparison
-    // and the difference below total, whatever the two lanes happen to be.
-    // Rank on the v0.5 combined monthly (infra + licence where it applies), not
-    // on the infra line: with a licence charged to two of the three options, an
-    // infra-only ranking would print "lowest" on a card whose own displayed
-    // monthly is higher than a rival's. The engine's totals block is the same
-    // number the card renders, so the badge and the figure cannot disagree.
-    const combined = r.totals?.[k]?.priced ? r.totals[k].monthly_total : lane.monthly_total;
-    return { k, label: OPTION[k].label, color: OPTION[k].color, on, value: on ? Rat.from(moneyValue(combined)) : null };
+    const row = r.totals?.[k];
+    const on = !!r.lanes[k]?.enabled && !!row?.priced && row.horizon_total != null;
+    return { k, on, value: on ? Rat.from(moneyValue(row.horizon_total)) : null };
   });
+  const priced = cards.filter((c) => c.on);
+  const best = priced.reduce((a, b) => !a || b.value.lt(a.value) ? b : a, null);
+  for (const c of cards) c.win = !!best && c.on && c.value.sub(best.value).sign() === 0;
+  return { cards, best, tied: cards.filter((c) => c.win).length > 1 };
+}
 
-  // Cheapest is decided on the EXACT values, never on the formatted strings —
-  // "$9.90" sorts above "$10.00" as text, and that is a wrong answer in dollars.
-  let best = null;
-  for (const c of cards) {
-    if (!c.on) continue;
-    if (best === null || c.value.lt(best.value)) best = c;
-  }
-
-  // The horizon total is the figure a buyer actually signs for: everything
-  // recurring across the horizon PLUS everything paid once. Ranking on monthly
-  // alone hides a six-figure capex behind a cheaper-looking monthly, which is
-  // precisely why one-time costs had to reach the totals in v0.5. Both are shown;
-  // "lowest" still refers to the monthly, and the card says so.
-  const t = r.totals ?? {};
-  const months = r.horizon_months ?? 1;
-  box.innerHTML = cards.map((c) => {
-    const win = best && c.k === best.k;
-    const dot = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${c.color};margin-right:6px;vertical-align:1px"></span>`;
-    const sub = !c.on
-      ? `not costed &mdash; see the note above`
-      : win ? `lowest monthly of the modelled options` : `${money(c.value.sub(best.value))} more per month`;
-    const row = t[c.k];
-    const once = row && row.one_time !== null && moneyValue(row.one_time) !== null && moneyValue(row.one_time).sign() > 0
-      ? `<div class="s">+ ${money(row.one_time)} one-time</div>` : "";
-    const lic = row && row.priced && row.subscription_applies && moneyValue(row.subscription_monthly).sign() > 0
-      ? `<div class="s">includes ${money(row.subscription_monthly)}/mo licence</div>`
-      : (r.subscription && row && row.priced && !row.subscription_applies
-        ? `<div class="s" style="opacity:.6">no platform licence &mdash; not applicable here</div>` : "");
-    const horizon = row && row.horizon_total !== null && row.horizon_total !== undefined
-      ? `<div class="s" style="margin-top:4px;border-top:1px solid rgba(232,230,240,.12);padding-top:4px">${money(row.horizon_total)} over ${months} month${months === 1 ? "" : "s"}</div>`
-      : "";
-    return `<div class="vcard${win ? " best" : ""}">
-      <h4>${dot}${escapeHtml(c.label)}${win ? ` <span class="tag tag-exact">lowest</span>` : ""}</h4>
-      <div class="n">${c.on ? money(row && row.priced ? row.monthly_total : c.value) : "&mdash;"}</div>
+function renderOptionTotals(r) {
+  const { cards, best, tied } = horizonComparison(r);
+  const months = r.horizon_months;
+  const overlay = r.overlay;
+  $("comparison-scope").innerHTML = `<h2>Modelled cost over ${months} month${months === 1 ? "" : "s"}</h2>
+    <p>Infrastructure + platform licence + one-time costs · USD · lowest among priced options, not a like-for-like quality recommendation.</p>
+    <p><strong>Additional commercial fees: ${money(overlay?.overlay_total ?? "0")} over ${months} months.</strong> Consulting and enterprise licensing are excluded from the comparison, curve and payback below.${overlay?.itemized.length ? ` ${overlay.itemized.map((i) => `${escapeHtml(i.name)}: ${money(i.amount)}/${i.basis === "monthly" ? "month" : "one-time"} (${money(i.extended)} across the period)`).join("; ")}.` : " No commercial fees entered; zero does not mean none will be required."}</p>
+    <details><summary>Review assumptions &amp; exclusions</summary><p>Owned running cost defaults to electricity only; include rack space, staffing, maintenance and network costs in its monthly override. Rental infrastructure is billed on modelled usage-hours, not an always-on reserved fleet. Unentered implementation, integration and other fees default to zero. Taxes, financing, depreciation/resale and model-quality differences are not modelled. Validate capacity, availability and prices before a client decision.</p></details>`;
+  $("verdict").innerHTML = cards.map((c) => {
+    const row = r.totals?.[c.k];
+    const delta = c.on && best ? c.value.sub(best.value) : null;
+    const more = delta && delta.sign() > 0
+      ? (money(delta) === "$0.00" ? "Less than $0.01 more across the period" : `${money(delta)} more across the period`) : "";
+    const sub = !c.on ? "Not fully costed — check pricing and configuration" : c.win
+      ? `${tied ? "Joint lowest" : "Lowest"} modelled cost across the period` : more;
+    return `<div class="vcard${c.win ? " best" : ""}">
+      <h4>${escapeHtml(OPTION[c.k].label)}${c.win ? ` <span class="tag tag-est">${tied ? "joint lowest" : "lowest"}</span>` : ""}</h4>
+      <div class="n">${c.on ? money(row.horizon_total) : "&mdash;"}</div>
       <div class="s">${sub}</div>
-      ${lic}${once}${horizon}
+      ${c.on ? `<div class="s">${money(row.monthly_total)} / month + ${money(row.one_time)} one-time</div><div class="s">${row.subscription_applies ? `${money(row.subscription_monthly)} / month platform licence included` : "No platform licence applied"}</div>` : ""}
     </div>`;
   }).join("");
 }
@@ -2161,16 +2137,19 @@ function renderSensitivity() {
     }).join("");
     return `<tr><td>${groupInt(users)} <span class="muted">&times;${um} &middot; ${fleet}</span></td>${cells}</tr>`;
   }).join("");
-  $("sensitivity").innerHTML = `<div class="card"><h3>Recommended cost sensitivity — full engine rerun per cell</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell is a fresh comparison at that headcount: the user axis re-derives sessions, tokens, the peak second and the GPU count together, so the fleet grows with the load instead of staying pinned to the base scenario. An explicitly entered GPU count or token budget is your declared fleet and stays fixed. The price axis re-quotes a tariff scaled exactly. ${OPTION.A.label} per-unit cost FALLS with utilization; ${OPTION.C.label} is hyperbolic — those nonlinearities are the decision-relevant sensitivities.</p></div>`;
+  $("sensitivity").innerHTML = `<div class="card"><h3>Monthly routing sensitivity — infrastructure only</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Operational routing estimate, not horizon cost: excludes one-time costs, platform subscriptions and commercial fees. Each cell reruns demand, peak load and GPU sizing; entered GPU counts or budgets stay fixed. The API-price axis re-quotes a tariff scaled exactly.</p></div>`;
 }
 
 // The exported quote carries the OPTION names, never the engine's internal
 // A/B/C keys — the naming contract binds the export surface too (SPEC 8).
 function exportQuote(r) {
+  if (!r || state.result !== r || state.selecting) return;
   const named = {};
   for (const k of OPTION_KEYS) named[OPTION[k].key] = r.lanes[k];
   const d = state.demand;
   const payload = {
+    cost_scope: "Horizon totals include modelled infrastructure, applicable platform subscription and one-time costs. Consulting and enterprise-licensing overlay is additional, excluded from totals, curve and payback. Per-token figures and routing sensitivity are infrastructure-only. Planning estimate, not a binding quote.",
+    entered_inputs: Object.fromEntries([...document.querySelectorAll("input, select")].filter(isCostControl).map((el) => [el.id, el.value])),
     generated_at: new Date().toISOString(),
     snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
     demand: d ? {

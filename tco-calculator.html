@@ -23,7 +23,7 @@
     color-scheme:dark;
     --accent:#B46EFF; --cyan:#22D3EE; --warn:#F59E0B; --bad:#F87171; --ok:#34D399;
     --bg:#0A0A0F; --panel:rgba(27,27,32,.5); --line:rgba(232,230,240,.1);
-    --ink:#E8E6F0; --dim:rgba(232,230,240,.6); --faint:rgba(232,230,240,.42);
+    --ink:#E8E6F0; --dim:rgba(232,230,240,.7); --faint:rgba(232,230,240,.6);
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   html, body { height:100%; }
@@ -309,6 +309,52 @@
   }
   /* A keystroke the reader is expected to act on has to be legible: --dim. */
   .sheet .s-foot .hintkey { margin-left:auto; font:10.5px/1 var(--mono); color:var(--dim); }
+
+  /* Primary inputs stay visible; detailed inputs retain their one-field sheet. */
+  .f[data-inline] { min-width:0; padding:9px 0; }
+  .f[data-inline] label { font-size:12px; color:var(--ink); }
+  .f[data-inline] input[type=text] { font-size:16px; min-height:42px; }
+  input[type=range] { width:100%; min-height:36px; margin:5px 0 0; accent-color:var(--accent); cursor:pointer; order:4; }
+  .slider-note { display:block; font-size:11px; color:var(--dim); line-height:1.4; order:5; }
+  :focus-visible { outline:2px solid var(--cyan); outline-offset:3px; }
+  input:focus-visible, select:focus-visible, .spec:focus-visible { outline:2px solid var(--cyan); }
+  .example-actions { display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+  .intro { margin-bottom:16px; }
+  .intro h1 { font-size:22px; font-weight:600; letter-spacing:-.025em; }
+  .intro p { font-size:12.5px; color:var(--dim); margin-top:5px; }
+  .comparison-scope { margin-bottom:12px; }
+  .comparison-scope h2 { font-size:16px; font-weight:600; }
+  .comparison-scope p { font-size:12px; color:var(--dim); margin-top:5px; }
+  .vcard .n { overflow-wrap:anywhere; }
+  .card { min-width:0; overflow-x:auto; }
+  .card code, .gap { overflow-wrap:anywhere; }
+  #comparison { scroll-margin-top:65px; }
+  #calculation-status { min-height:24px; }
+  .mobile-results { display:none; }
+  @media (max-width:1100px) {
+    .mobile-results { display:inline-block; }
+    .out { padding:18px 16px 65px; }
+    .rail { padding-bottom:22px; }
+  }
+  @media (max-width:480px) {
+    .topbar .lede { display:none; }
+    .spec, .chip, .sechead, .btn { min-height:44px; }
+    .sheet { max-width:calc(100vw - 24px); }
+    .verdict { grid-template-columns:1fr; }
+    .vcard { display:block; }
+  }
+  @media print {
+    :root { color-scheme:light; --bg:#fff; --ink:#111; --dim:#333; --faint:#444; --panel:#fff; --line:#bbb; }
+    body { background:white; color:#111; }
+    .shell { display:block; }
+    .rail, .topbar, .pop, #sheet-root, #field-vault, button, .mobile-results { display:none !important; }
+    .out { padding:0; }
+    .card, .vcard { break-inside:avoid; overflow:visible; background:white; }
+    .verdict { grid-template-columns:repeat(3,1fr); }
+    .vcard.best { background:white; border:2px solid #555; }
+    .card p, .muted, th, td { color:#333; }
+    #sensitivity { display:none; }
+  }
 </style>
 
 <script type="application/ld+json">
@@ -344,9 +390,11 @@
 
     <div class="sec">
       <h2>Start here</h2>
-      <p class="hint">Pick the closest shape, then change anything. Every field below stays editable.</p>
+      <p class="hint">A worked example is already filled in. Choose a workload, then adjust the assumptions for your client.</p>
       <div id="preset-cards" class="chips" role="radiogroup" aria-label="workload preset"></div>
       <p class="muted" id="preset-note"></p>
+      <p class="muted" id="example-state">Worked example · not a client quote</p>
+      <div class="example-actions"><button class="btn" id="reset-example" type="button">Reset example</button><a class="btn mobile-results" href="#comparison">View results ↓</a></div>
     </div>
 
     <div class="sec">
@@ -694,14 +742,6 @@
             <input id="fo-impl" type="text" inputmode="decimal" value="0">
             <span class="sub">One-time, like the hardware. Charged once to <em>every</em> option, unlike the two above, so it lands in each option's one-time and horizon total and cancels out of the payback difference.</span>
           </div>
-          <div class="f">
-            <label for="fo-loaded">Per-1M basis</label>
-            <select id="fo-loaded">
-              <option value="infra">Infrastructure only</option>
-              <option value="loaded">Include the costs above</option>
-            </select>
-            <span class="sub">Whether the per-million figure carries licensing and consulting too.</span>
-          </div>
         </div>
         <p class="muted">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices.</p>
       </details>
@@ -712,14 +752,17 @@
   </aside>
 
   <!-- ══════════════════════ RESULTS ══════════════════════ -->
-  <main class="out">
+  <main class="out" id="comparison" tabindex="-1" aria-busy="true">
+    <div class="intro"><h1>AI inference cost comparison</h1><p>Explore a worked example. Compare the modelled costs over your planning period, then review the assumptions before sharing.</p></div>
+    <p id="calculation-status" class="muted" role="status">Loading the worked example and cited prices…</p>
     <div id="banner" class="banner" role="alert"></div>
-    <div id="gapbox"></div>
+    <div id="gapbox" role="alert"></div>
 
+    <div id="comparison-scope" class="comparison-scope"></div>
     <div id="verdict" class="verdict"></div>
 
     <div id="fit"></div>
-    <div id="derived" class="card" aria-live="polite"></div>
+    <div id="derived" class="card"></div>
     <div id="results"></div>
     <div id="sensitivity"></div>
 

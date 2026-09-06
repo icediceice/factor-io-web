@@ -331,6 +331,7 @@
   #comparison { scroll-margin-top:65px; }
   #calculation-status { min-height:24px; }
   .mobile-results { display:none; }
+  .print-only { display:none; }
   @media (max-width:1100px) {
     .mobile-results { display:inline-block; }
     .out { padding:18px 16px 65px; }
@@ -354,6 +355,12 @@
     .vcard.best { background:white; border:2px solid #555; }
     .card p, .muted, th, td { color:#333; }
     #sensitivity { display:none; }
+    .screen-only { display:none !important; }
+    .print-only { display:block; }
+    .print-inputs { margin-top:24px; }
+    .print-inputs dl > div { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:5px 0; border-bottom:1px solid #bbb; break-inside:avoid; }
+    .print-inputs dt, .print-inputs dd { margin:0; overflow-wrap:anywhere; }
+    .print-inputs code { display:block; font-size:10px; }
   }
 </style>
 
@@ -782,6 +789,6 @@
 <div id="field-vault" aria-hidden="true"></div>
 <!-- The sheet mounts here. Empty until a value is opened. -->
 <div id="sheet-root"></div>
-<script type="module" src="tco-calculator/app.js?v=20260906-ux1"></script>
+<script type="module" src="tco-calculator/app.js?v=20260906-ux2"></script>
 </body>
 </html>

@@ -1310,8 +1310,12 @@ assistant/tool half. The four structured output classes are disjoint:
 - `ask_user` asks exactly one next question and may provide non-sending suggestions.
 - `answer_question` advises on ONE named guided question. It carries the question id,
   an answer, a `why`, up to four caveats, and `recommended_option` — which MUST be an
-  option id belonging to **that** question, or the literal `none`. It renders as a
-  marked suggestion; it **never selects an answer**.
+  option id belonging to **that** question, or the literal `none`. On an `assist` turn
+  the named question MUST also be the question the visitor asked about: the validator
+  is handed that question alone, so a well-formed answer to a *different* guided
+  question is refused before it is rendered or retained, and can never mark an option
+  on a screen the visitor did not ask for help on. It renders as a marked suggestion;
+  it **never selects an answer**.
 - `propose_calculator_changes` returns a complete planner profile plus allowlisted
   control changes and a reason for each change.
 - `present_local_llm_spec` is accepted only for an explicit post-Apply specification

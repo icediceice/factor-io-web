@@ -887,6 +887,7 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       history: chatState.history,
       systemPrompt,
       userMessage: text,
+      assist: intent === "assist",
       pageUrl: location.href,
     });
     $("ai-copy-request").disabled = false;

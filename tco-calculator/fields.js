@@ -209,9 +209,6 @@ function enhanceSections() {
     sum.className = "secsum";
     head.after(sum);
 
-    const titleNode = h2.cloneNode(true);
-    for (const live of titleNode.querySelectorAll("[id], .tag")) live.remove();
-    const title = titleNode.textContent.trim();
     // The summary states the values you are choosing not to look at. Folding a
     // section that then shows nothing would be hiding, not disclosing.
     const setFolded = (folded) => {
@@ -220,7 +217,7 @@ function enhanceSections() {
       if (folded) paintSummary(sec);
     };
     head.addEventListener("click", () => setFolded(!sec.classList.contains("folded")));
-    setFolded(!OPEN_SECTIONS.has(title));
+    setFolded(!("open" in sec.dataset));
   }
 }
 

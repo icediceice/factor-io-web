@@ -63,7 +63,17 @@ function harness() {
   const fetchCalls = [];
   const fetchSpy = async (...args) => {
     fetchCalls.push(args);
-    return { ok: true, status: 200, json: async () => ({ model: "stub", choices: [{ message: { content: "stub response" } }] }) };
+    return { ok: true, status: 200, json: async () => ({
+      model: "MiniMax-M3",
+      choices: [{ message: {
+        role: "assistant",
+        content: null,
+        tool_calls: [{ id: `call-${fetchCalls.length}`, type: "function", function: {
+          name: "ask_user",
+          arguments: JSON.stringify({ question: "Where must the data stay?", suggested_replies: ["Inside Nutanix"] }),
+        } }],
+      } }],
+    }) };
   };
   const context = vm.createContext({
     Dec, Rat, formatHalfUp, ratStr, toRat, fxProvenance, normalizeFxDocument, toTHB, toUSD,

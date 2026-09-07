@@ -213,7 +213,13 @@ function setChatBusy(busy) {
   chatState.busy = busy;
   $("ai-cancel").hidden = !busy;
   $("ai-message").disabled = busy;
-  $("ai-progress").textContent = busy ? "CONTACTING MINIMAX" : chatState.pendingProposal ? "REVIEW PROPOSAL" : plannerState.applied ? "APPLIED" : "LOCAL FIRST";
+  $("ai-progress").textContent = busy
+    ? "CONTACTING MINIMAX"
+    : chatState.pendingProposal
+      ? "REVIEW PROPOSAL"
+      : chatState.pendingSpec && !plannerState.refinement?.stale
+        ? "SPEC READY"
+        : plannerState.applied ? "APPLIED" : "LOCAL FIRST";
   setPlannerReady(state.ready);
 }
 

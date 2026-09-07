@@ -337,6 +337,7 @@ function renderInterview() {
   // than rebuilt — that is what keeps a half-typed follow-up alive.
   renderAssistThread();
   renderInterviewSummary();
+  renderRevision();
   setPlannerReady(state.ready);
 }
 

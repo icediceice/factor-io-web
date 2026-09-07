@@ -342,13 +342,45 @@
   .ai-proposal td:first-child, .ai-proposal td:nth-child(2), .ai-proposal td:nth-child(3) { font-family:var(--mono); }
   .ai-nav, .ai-artifacts { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:11px; }
   .btn:disabled, .ai-suggestion:disabled { opacity:.45; cursor:not-allowed; }
-  .ai-connection { border-top:1px solid var(--line); margin-top:12px; padding-top:9px; }
-  .ai-connection > summary { cursor:pointer; color:var(--ink); font-size:12px; }
-  .ai-provider-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:9px; margin-top:10px; }
-  .ai-provider-grid label { display:block; color:var(--dim); font-size:11.5px; }
-  .ai-provider-grid label:last-child { grid-column:1 / -1; }
-  .ai-provider-grid input { width:100%; margin-top:3px; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.16); border-radius:4px; padding:7px 8px; font:13px/1.35 var(--mono); }
-  .ai-provider-grid input:focus { border-color:var(--cyan); }
+  /* Guided interview. Borders-only depth, one accent for the chosen answer and
+     cyan for the machine's suggestion — the same contract the rest of the page
+     uses, so "selected" and "recommended" can never read as the same state. */
+  .ai-interview { margin-top:11px; }
+  .ai-steps { display:flex; gap:4px; margin-bottom:12px; }
+  .ai-step { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; background:transparent; border:0; border-top:2px solid rgba(232,230,240,.16); padding:7px 2px 0; cursor:pointer; color:var(--faint); }
+  .ai-step .n { font:10px/1 var(--mono); }
+  .ai-step .t { font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+  .ai-step[data-state="done"] { border-top-color:var(--accent); color:var(--dim); }
+  .ai-step[data-state="current"] { border-top-color:var(--ink); color:var(--ink); }
+  .ai-step:hover, .ai-step:focus-visible { color:var(--ink); border-top-color:var(--cyan); }
+  .ai-question h3 { font-size:16px; line-height:1.3; margin:4px 0 5px; }
+  .ai-options { display:flex; flex-direction:column; gap:6px; margin-top:11px; }
+  .ai-option { display:flex; align-items:stretch; gap:0; border:1px solid rgba(232,230,240,.16); border-radius:4px; }
+  .ai-option:hover { border-color:rgba(232,230,240,.3); }
+  .ai-option.is-selected { border-color:var(--accent); background:rgba(180,110,255,.06); }
+  .ai-option.is-recommended { border-color:var(--cyan); }
+  .ai-option.is-recommended.is-selected { border-color:var(--accent); }
+  .ai-option-pick { flex:1 1 auto; min-width:0; display:block; text-align:left; background:transparent; border:0; color:var(--ink); cursor:pointer; padding:10px 11px; min-height:44px; }
+  .ai-option-pick:focus-visible { outline:2px solid var(--cyan); outline-offset:-2px; }
+  .ai-option-pick .lab { display:block; font-size:13.5px; }
+  .ai-option-pick .note { display:block; margin-top:2px; color:var(--faint); font-size:11.5px; }
+  .ai-option-pick .rec { display:inline-block; margin-top:5px; color:var(--cyan); font:9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+  .ai-option-input { display:flex; align-items:center; gap:6px; padding:0 10px; border-left:1px solid rgba(232,230,240,.16); }
+  .ai-option-input input { width:104px; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.16); border-radius:4px; padding:7px 8px; font:13px/1.35 var(--mono); }
+  .ai-option-input input:focus { border-color:var(--cyan); outline:2px solid var(--cyan); outline-offset:2px; }
+  .ai-option-input .unit { color:var(--faint); font-size:11px; white-space:nowrap; }
+  .ai-help { border-left:2px solid var(--cyan); background:rgba(34,211,238,.04); padding:9px 11px; margin-top:11px; }
+  .ai-help p { font-size:12.5px; }
+  .ai-help .why { color:var(--dim); margin-top:5px; }
+  .ai-help ul { margin:6px 0 0 15px; color:var(--faint); font-size:11.5px; }
+  .ai-applybar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid var(--line); margin-top:13px; padding-top:11px; }
+  .ai-answerbar { margin-top:11px; }
+  .ai-answers { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .ai-chip { display:flex; align-items:baseline; gap:6px; background:transparent; border:1px solid rgba(232,230,240,.16); border-radius:4px; color:var(--ink); cursor:pointer; padding:5px 8px; min-height:28px; font-size:11.5px; }
+  .ai-chip:hover, .ai-chip:focus-visible { border-color:var(--cyan); }
+  .ai-chip .k { color:var(--faint); font:9.5px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+  .ai-assist { border-top:1px solid var(--line); margin-top:13px; padding-top:9px; }
+  .ai-assist > summary { cursor:pointer; color:var(--ink); font-size:12px; }
   .ai-workspace > header { display:flex; justify-content:space-between; gap:16px; align-items:start; margin-bottom:11px; }
   .ai-workspace h3 { margin-bottom:2px; }
   .ai-boundary { border-left:2px solid var(--cyan); padding:7px 9px; margin:7px 0; background:rgba(34,211,238,.04); }
@@ -384,9 +416,14 @@
     .sheet { max-width:calc(100vw - 24px); }
     .verdict { grid-template-columns:1fr; }
     .vcard { display:block; }
-    .ai-spec-grid, .ai-provider-grid { grid-template-columns:1fr; }
+    .ai-spec-grid { grid-template-columns:1fr; }
     .ai-spec-grid section:nth-child(even) { padding-left:0; border-left:0; }
-    .ai-provider-grid label:last-child { grid-column:auto; }
+    /* The eight step markers cannot hold their labels at phone widths, so they
+       become a plain progress strip and the question text carries the position. */
+    .ai-step .t { display:none; }
+    .ai-option { flex-direction:column; align-items:stretch; }
+    .ai-option-input { border-left:0; border-top:1px solid rgba(232,230,240,.16); padding:9px 11px; }
+    .ai-option-input input { width:100%; }
   }
   @media print {
     :root { color-scheme:light; --bg:#fff; --ink:#111; --dim:#333; --faint:#444; --panel:#fff; --line:#bbb; }
@@ -440,35 +477,43 @@
   <aside class="rail">
 
     <section class="ai-canvas" aria-labelledby="ai-canvas-title">
-      <div class="ai-chat-head"><span class="ai-kicker">AI planning conversation</span><span id="ai-progress" class="ai-progress">LOCAL FIRST</span></div>
-      <h2 id="ai-canvas-title">How do you want to use AI?</h2>
-      <p class="muted">Talk through users, data boundaries and workflow. MiniMax may prepare changes, but nothing enters the calculator until you review and Apply.</p>
-      <div id="ai-transcript" class="ai-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
-      <div id="ai-suggestions" class="ai-suggestions" aria-label="suggested replies"></div>
+      <div class="ai-chat-head"><span class="ai-kicker">Guided planning</span><span id="ai-progress" class="ai-progress">0 OF 8</span></div>
+      <h2 id="ai-canvas-title">Answer eight questions. Get a costed plan.</h2>
+      <p class="muted">Every answer maps to a real calculator control, and nothing is written until you press Apply. Unsure about a question? Ask MiniMax about that one — it advises, it never answers for you.</p>
+
+      <div id="ai-interview" class="ai-interview"></div>
+
+      <div class="ai-applybar">
+        <button id="ai-apply-guided" class="btn btn-p" type="button" disabled>Apply answers to the calculator</button>
+        <span id="ai-state" class="muted">Not applied · calculator example is unchanged</span>
+      </div>
+
+      <div class="ai-answerbar">
+        <span class="ai-kicker">Your answers</span>
+        <div id="ai-answers" class="ai-answers"></div>
+      </div>
+
+      <details class="ai-assist screen-only">
+        <summary>Ask MiniMax about this question, or read what it said</summary>
+        <div id="ai-transcript" class="ai-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
+        <div id="ai-suggestions" class="ai-suggestions" aria-label="suggested replies"></div>
+        <form id="ai-composer" class="ai-composer">
+          <label for="ai-message">Ask about the question on screen</label>
+          <textarea id="ai-message" maxlength="4000" placeholder="Example: most of our documents are HR records — does that count as regulated?"></textarea>
+          <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Ask about this question</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
+        </form>
+        <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>
+        <p class="muted">MiniMax runs on Factor IO's own endpoint — there is no key to enter and nothing is stored. Your answers and the calculator's ledger are sent only when you ask.</p>
+        <div class="ai-nav"><button id="ai-copy-request" class="btn" type="button" disabled>Copy request for your own gateway or local LLM</button></div>
+        <p id="ai-model-status" class="muted" role="status">No model request has been made.</p>
+      </details>
+
       <section id="ai-proposal" class="ai-proposal" aria-labelledby="ai-proposal-title" tabindex="-1" hidden>
         <h3 id="ai-proposal-title">Review proposed calculator changes</h3>
         <p id="ai-proposal-summary" class="muted"></p>
         <div class="scroll"><table><thead><tr><th>Input</th><th>Current</th><th>Proposed</th><th>Why</th></tr></thead><tbody id="ai-proposal-rows"></tbody></table></div>
         <div class="ai-nav"><button id="ai-apply" class="btn btn-p" type="button" disabled>Apply proposal</button><button id="ai-dismiss" class="btn" type="button">Dismiss</button></div>
       </section>
-      <form id="ai-composer" class="ai-composer">
-        <label for="ai-message">Your message</label>
-        <textarea id="ai-message" maxlength="4000" required aria-describedby="ai-ready-note" placeholder="Example: I need an internal support assistant for 2,000 staff, with sensitive documents kept on Nutanix."></textarea>
-        <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Send</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
-      </form>
-      <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>
-      <p id="ai-state" class="muted">Not applied · calculator example is unchanged</p>
-      <details class="ai-connection screen-only">
-        <summary>Connect MiniMax or a local gateway</summary>
-        <p class="muted" style="margin-top:7px">Credentials stay in this tab only. Factor IO does not proxy or store them. A same-origin gateway may inject its credential server-side. On this HTTPS page, browsers block direct calls to <code>http://localhost</code>; use an approved HTTPS gateway or copy the prepared request into Ollama or LM Studio.</p>
-        <div class="ai-provider-grid">
-          <label for="ai-endpoint">OpenAI-compatible base URL<input id="ai-endpoint" type="url" value="https://api.minimax.io/v1" autocomplete="off" spellcheck="false"></label>
-          <label for="ai-model">Model<input id="ai-model" type="text" value="MiniMax-M3" autocomplete="off" spellcheck="false"></label>
-          <label for="ai-token">Session-only token<input id="ai-token" type="password" value="" autocomplete="off" spellcheck="false"></label>
-        </div>
-        <div class="ai-nav"><button id="ai-copy-request" class="btn" type="button" disabled>Copy request for gateway or local LLM</button></div>
-        <p id="ai-model-status" class="muted" role="status">No model request has been made.</p>
-      </details>
     </section>
 
     <div class="sec">
@@ -477,7 +522,7 @@
       <div id="preset-cards" class="chips" role="radiogroup" aria-label="workload preset"></div>
       <p class="muted" id="preset-note"></p>
       <p class="muted" id="example-state">Worked example · not a client quote</p>
-      <div class="example-actions"><button class="btn" id="reset-example" type="button" title="Reloads the calculator and clears AI answers, generated text and the in-memory token">Reset whole page</button><a class="btn mobile-results" href="#comparison">View results ↓</a></div>
+      <div class="example-actions"><button class="btn" id="reset-example" type="button" title="Reloads the calculator and clears your answers and any generated text">Reset whole page</button><a class="btn mobile-results" href="#comparison">View results ↓</a></div>
     </div>
 
     <div class="sec">
@@ -878,6 +923,6 @@
 <div id="field-vault" aria-hidden="true"></div>
 <!-- The sheet mounts here. Empty until a value is opened. -->
 <div id="sheet-root"></div>
-<script type="module" src="tco-calculator/app.js?v=20260907-thb-chat"></script>
+<script type="module" src="tco-calculator/app.js?v=20260907-guided"></script>
 </body>
 </html>

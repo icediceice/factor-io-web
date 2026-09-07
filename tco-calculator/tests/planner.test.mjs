@@ -4,12 +4,14 @@ import {
   INTERVIEW_QUESTIONS,
   MINIMAX_DEFAULTS,
   PlannerRequestError,
+  answerFields,
   buildBlueprint,
   buildPlannerPlan,
   buildPrompt,
   chatCompletionsUrl,
   createRequestFence,
   isInterviewComplete,
+  isProfileComplete,
   requestRefinement,
 } from "../planner.js";
 
@@ -30,14 +32,43 @@ test("the interview maps every use case to an existing calculator preset", () =>
     automation: "agent_platform",
     mixed: "mixed_enterprise",
   };
-  assert.equal(INTERVIEW_QUESTIONS.length, 5);
+  assert.equal(INTERVIEW_QUESTIONS.length, 8);
   assert.equal(isInterviewComplete({}), false);
+  // The five-key architecture profile is what a MiniMax proposal supplies, and
+  // it must remain enough to build a plan on its own.
+  assert.equal(isProfileComplete(complete()), true);
+  assert.equal(isInterviewComplete(complete()), false);
   for (const [useCase, presetId] of Object.entries(expected)) {
     const plan = buildPlannerPlan(complete({ use_case: useCase }));
     assert.equal(plan.presetId, presetId);
     assert.equal(plan.controlledFields["fr-policy"], "local_first");
   }
   assert.throws(() => buildPlannerPlan({ use_case: "support" }), /Complete every/);
+});
+
+test("the guided interview drives real calculator controls and refuses a blank custom value", () => {
+  const guided = { ...complete(), scale: "company", intensity: "routine", horizon: "y5" };
+  assert.equal(isInterviewComplete(guided), true);
+  const plan = buildPlannerPlan(guided);
+  assert.equal(plan.controlledFields["f-users"], "1000");
+  assert.equal(plan.controlledFields["f-sessions-day"], "6");
+  assert.equal(plan.controlledFields["f-horizon"], "60");
+
+  // A typed option commits the visitor's own number.
+  const typed = buildPlannerPlan({ ...guided, scale: { id: "custom", value: "750" }, horizon: { id: "custom", value: "48" } });
+  assert.equal(typed.controlledFields["f-users"], "750");
+  assert.equal(typed.controlledFields["f-horizon"], "48");
+
+  // An empty custom box is not an answer, and commits nothing.
+  assert.equal(isInterviewComplete({ ...guided, scale: { id: "custom", value: "  " } }), false);
+  assert.equal(answerFields("scale", { id: "custom", value: "" })["f-users"], undefined);
+
+  // The model path carries only the five profile keys, so it must not acquire
+  // quantitative fields it never supplied.
+  const modelPath = buildPlannerPlan(complete());
+  for (const field of ["f-users", "f-sessions-day", "f-horizon"]) {
+    assert.equal(field in modelPath.controlledFields, false);
+  }
 });
 
 test("apply mappings are total and do not retain a prior fallback", () => {
@@ -77,10 +108,13 @@ test("the refinement prompt preserves provenance and forbids invented costs", ()
   assert.doesNotMatch(prompt, /api[_ -]?key|Bearer /i);
 });
 
-test("MiniMax defaults use the documented OpenAI-compatible contract", () => {
-  assert.equal(MINIMAX_DEFAULTS.endpoint, "https://api.minimax.io/v1");
+test("MiniMax defaults point at the Factor IO proxy, which holds the credential", () => {
+  // The page must never default to api.minimax.io directly: that path needs a
+  // visitor-supplied token, which is exactly what this release removed.
+  assert.equal(MINIMAX_DEFAULTS.endpoint, "https://ai.factor-io.com/v1");
   assert.equal(MINIMAX_DEFAULTS.model, "MiniMax-M3");
-  assert.equal(chatCompletionsUrl(MINIMAX_DEFAULTS.endpoint), "https://api.minimax.io/v1/chat/completions");
+  assert.equal(chatCompletionsUrl(MINIMAX_DEFAULTS.endpoint), "https://ai.factor-io.com/v1/chat/completions");
+  assert.equal(chatCompletionsUrl("https://api.minimax.io/v1"), "https://api.minimax.io/v1/chat/completions");
   assert.equal(chatCompletionsUrl("https://gateway.example/v1/chat/completions"), "https://gateway.example/v1/chat/completions");
   assert.throws(
     () => chatCompletionsUrl("api.minimax.io/v1", "https://studio.factor-io.com/tco-calculator.html"),
@@ -124,10 +158,24 @@ test("refinement performs one explicit request and normalizes safe response text
   assert.equal(calls.length, 1);
   assert.equal(result.text, "A\nB");
   const [url, init] = calls[0];
-  assert.equal(url, "https://api.minimax.io/v1/chat/completions");
+  assert.equal(url, "https://ai.factor-io.com/v1/chat/completions");
   assert.equal(init.method, "POST");
   assert.equal(init.headers.Authorization, "Bearer secret-value");
   assert.match(init.body, /Never invent prices/);
+});
+
+test("a token-free request carries no Authorization header at all", async () => {
+  // This is the contract the proxy depends on: the page holds no credential, so
+  // it must send no header rather than an empty or "Bearer undefined" one.
+  const calls = [];
+  const fetchImpl = async (...args) => {
+    calls.push(args);
+    return { ok: true, status: 200, json: async () => ({ model: "MiniMax-M3", choices: [{ message: { content: "ok" } }] }) };
+  };
+  await requestRefinement({ endpoint: MINIMAX_DEFAULTS.endpoint, model: MINIMAX_DEFAULTS.model, prompt: "Refine this plan", fetchImpl });
+  const [, init] = calls[0];
+  assert.equal("Authorization" in init.headers, false);
+  assert.doesNotMatch(JSON.stringify(init.headers), /Bearer/);
 });
 
 test("HTTP, malformed and oversized responses are normalized", async () => {

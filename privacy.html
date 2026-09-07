@@ -80,21 +80,22 @@
 
   <div class="kicker"><b>04</b> / Network activity and actions you choose</div>
   <h2>Public refreshes are separate from your AI conversation</h2>
-  <p>The calculator makes automatic public GET requests at startup for OpenRouter model pricing and a USD-to-THB rate from Frankfurter, an ECB-data mirror. These requests carry standard browser network metadata such as your IP address and user agent to those services, but include <strong>no calculator inputs, transcript, AI token, or result</strong>. A failed or incomplete refresh leaves the dated local fallback unchanged.</p>
+  <p>The calculator makes automatic public GET requests at startup for OpenRouter model pricing and a USD-to-THB rate from Frankfurter, an ECB-data mirror. These requests carry standard browser network metadata such as your IP address and user agent to those services, but include <strong>no calculator inputs, transcript, or result</strong>. A failed or incomplete refresh leaves the dated local fallback unchanged.</p>
   <p>Other data can leave only when you explicitly choose one of these actions:</p>
   <ul>
     <li><strong>Android backup</strong> — upload app data to your Google Drive.</li>
     <li><strong>iPhone backup</strong> — upload app data to your iCloud.</li>
-    <li><strong>AI Inference TCO Calculator Send or Ask</strong> — POST a typed message and bounded planning context directly from your browser to the AI endpoint you configured (MiniMax by default).</li>
+    <li><strong>AI Inference TCO Calculator Ask</strong> — POST your question and bounded planning context to Factor IO's AI endpoint at <code>ai.factor-io.com</code>, which forwards it to MiniMax.</li>
   </ul>
   <p>The backup lives inside your personal account with that provider and is governed by their
-  privacy policy. For calculator AI requests, the payload contains your message, bounded current controls, current model candidates and source-status envelopes, the deterministic blueprint and component ledger when available, bounded complete exchange history, and structured tool definitions. The configured endpoint returns its response directly to your browser.</p>
-  <p>Your AI token is used only as a transient Authorization header and, with the conversation history, remains in memory for the current tab. Factor IO does not receive, store, or proxy the backup, AI request, token, or model response. The calculator first creates a copyable offline request artifact that excludes the real token; you can use it with Ollama, LM Studio, or a visitor-owned same-origin gateway that injects credentials server-side.</p>
-  <p>If you never press Send or Ask, <strong>no conversation or calculator context is sent to an AI endpoint</strong>. The automatic public pricing and FX GETs still occur.</p>
+  privacy policy. <strong>Factor IO does not receive, store, or proxy the backup.</strong> For calculator AI requests, the payload contains your message, bounded current controls, current model candidates and source-status envelopes, the deterministic blueprint and component ledger when available, bounded complete exchange history, and structured tool definitions.</p>
+  <p><strong>Factor IO now proxies calculator AI requests.</strong> This changed in v0.7 and is a deliberate reversal of the previous arrangement. There is no longer any API-key field in the calculator, because the MiniMax credential is held on a Factor IO server and added to your request there — it never exists in your browser. In exchange, your request passes through infrastructure we operate: <code>ai.factor-io.com</code> receives your message and planning context, adds the credential, forwards the request to MiniMax and returns MiniMax's reply to you unchanged. We do not store your message, the planning context or the response; the service logs only the request route, status, model name, byte counts and duration. Your conversation history stays in memory for the current tab and is never written to disk by us.</p>
+  <p>Before each request the calculator still builds a copyable, credential-free version of it, so you can run the same planning turn against Ollama, LM Studio or your own OpenAI-compatible gateway instead, and never involve Factor IO's endpoint at all.</p>
+  <p>If you never ask a question, <strong>no conversation or calculator context is sent to an AI endpoint</strong>. The automatic public pricing and FX GETs still occur.</p>
 
   <div class="kicker"><b>05</b> / Third-party services</div>
   <h2>Only the ones you choose</h2>
-  <p>The third parties involved are the cloud providers you opt into for backup, the public OpenRouter and Frankfurter services used for calculator pricing/FX refreshes, and any AI endpoint you configure yourself in the TCO calculator.
+  <p>The third parties involved are the cloud providers you opt into for backup, the public OpenRouter and Frankfurter services used for calculator pricing/FX refreshes, and MiniMax, which receives calculator AI requests forwarded by Factor IO's own endpoint.
   We have no arrangement with them that gives us access to your data. Their policies:
   <a href="https://policies.google.com/privacy" rel="noopener">Google</a> &middot;
   <a href="https://www.apple.com/legal/privacy/" rel="noopener">Apple</a>.</p>

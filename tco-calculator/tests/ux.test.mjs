@@ -7,6 +7,7 @@ import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js"
 import {
   INTERVIEW_QUESTIONS,
   MINIMAX_DEFAULTS,
+  answerFields,
   buildBlueprint,
   buildPlannerPlan,
   buildPrompt,
@@ -19,6 +20,7 @@ import {
   requestChatTurn as realRequestChatTurn,
   toolResultMessage,
   validateCalculatorProposal,
+  validateFieldValue,
 } from "../chat.js";
 
 // Execute the real UI functions with a deliberately small DOM boundary and
@@ -98,9 +100,9 @@ function harness() {
     location: { href: "https://studio.factor-io.com/tco-calculator.html", reload() {} },
     fetch: fetchSpy, AbortController, URL, Blob,
     navigator: { clipboard: { writeText: async () => {} } },
-    INTERVIEW_QUESTIONS, MINIMAX_DEFAULTS, buildBlueprint, buildPlannerPlan, buildPrompt,
+    INTERVIEW_QUESTIONS, MINIMAX_DEFAULTS, answerFields, buildBlueprint, buildPlannerPlan, buildPrompt,
     createRequestFence, isInterviewComplete, buildOfflineRequest, createChatHistory,
-    toolResultMessage, validateCalculatorProposal,
+    toolResultMessage, validateCalculatorProposal, validateFieldValue,
     requestChatTurn: (args) => realRequestChatTurn({ ...args, fetchImpl: fetchSpy, timeoutMs: 1000 }),
     resolveResource: async () => ({ offers: {} }),
     loadFx: async () => TEST_FX_DOCUMENT,
@@ -469,28 +471,91 @@ test("field harvesting and close use a shared range-blind control selector", () 
   assert.match(fields, /releaseFields/);
 });
 
-test("typed planner setup and suggestions never send implicitly; explicit Send retains complete tool history", async () => {
+test("the guided interview renders without contacting MiniMax, and an assist turn refuses a non-assist tool", async () => {
   const h = harness();
   h.get("setupPlanner()");
-  assert.equal(h.fetchCalls.length, 0);
-  assert.match(h.node("ai-transcript").innerHTML, /What should AI help/);
-  h.node("ai-suggestions").events.click({ target: { closest: () => ({ dataset: { aiSuggestion: "0" } }) } });
-  assert.equal(h.fetchCalls.length, 0, "choosing suggested text must not send it");
-  assert.match(h.node("ai-message").value, /internal knowledge assistant/);
+  assert.equal(h.fetchCalls.length, 0, "rendering the interview must not contact the model");
+  assert.match(h.node("ai-interview").innerHTML, /What should AI help people do\?/);
+  assert.match(h.node("ai-interview").innerHTML, /Question 1 of 8/);
+  assert.match(h.node("ai-answers").innerHTML, /No answers yet/);
+  assert.equal(h.node("ai-progress").textContent, "0 OF 8");
 
   h.state.ready = true;
-  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
-  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
-  h.node("ai-token").value = "memory-only-secret";
-  await h.get("sendChatMessage() ");
-  assert.equal(h.fetchCalls.length, 1);
+  h.node("ai-message").value = "most of our documents are HR records";
+  h.get("requestQuestionHelp()");
+  // The question the visitor is on is what gets asked about — nothing else.
+  assert.equal(h.get("plannerState.helpQuestionId"), "use_case");
+  assert.match(h.get("chatState.offlineArtifact.copyText"), /What should AI help people do/);
+  assert.match(h.get("chatState.offlineArtifact.copyText"), /most of our documents are HR records/);
   assert.equal(h.node("ai-copy-request").disabled, false);
-  assert.doesNotMatch(h.get("chatState.offlineArtifact.copyText"), /memory-only-secret/);
-  const history = JSON.parse(JSON.stringify(h.get("chatState.history.snapshot()")));
-  assert.equal(history.length, 1);
-  assert.equal(history[0].assistant.tool_calls[0].function.name, "ask_user");
-  assert.equal(history[0].tools[0].role, "tool");
-  assert.match(h.node("ai-transcript").innerHTML, /Where must the data stay/);
+
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(h.fetchCalls.length, 1, "asking for help sends exactly one request");
+  const [, init] = h.fetchCalls[0];
+  // The page holds no credential, so it has none to send.
+  assert.equal(Object.keys(init.headers).some((k) => k.toLowerCase() === "authorization"), false);
+  assert.doesNotMatch(h.get("chatState.offlineArtifact.copyText"), /Bearer\s+\S/);
+  // The fixture answers with ask_user, which an assist turn does not allow.
+  assert.equal(h.get("plannerState.help"), null);
+  assert.match(h.node("ai-model-status").textContent, /returned ask_user for a assist turn/);
+  assert.equal(h.get("chatState.history.snapshot().length"), 0, "a refused tool call is never kept as history");
+});
+
+test("an answer reaches the calculator only through Apply, and MiniMax advice never selects one", () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.workloadPresets = {
+    defaults: { shapes: {} },
+    presets: [{ id: "internal_kb", label: "Knowledge", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "500", "f-horizon": "36" } }],
+  };
+  // fr-policy is an enum contract, so the real page's option list is the fixture.
+  h.node("fr-policy").tagName = "SELECT";
+  h.node("fr-policy").options = [{ value: "local_first" }, { value: "api_first" }, { value: "fixed_split" }];
+  h.context.recomputes = 0;
+  h.get("onLiveInput = () => { recomputes++; }");
+
+  // Answering every question changes no control.
+  h.get("plannerState.answers = { use_case:'knowledge', scale:'company', intensity:'routine', substrate:'nutanix', data_boundary:'internal', interaction:'assistant', overflow:'local_only', horizon:'y5' }");
+  h.get("renderInterview()");
+  assert.equal(h.node("f-users").value, "", "answers must not write a control before Apply");
+  assert.match(h.node("ai-answers").innerHTML, /The whole company/);
+  assert.equal(h.node("ai-progress").textContent, "8 OF 8");
+  assert.equal(h.node("ai-apply-guided").disabled, true, "Apply stays locked until the calculator data is ready");
+
+  // Advice marks an option and nothing more.
+  h.state.ready = true;
+  h.get("plannerState.help = { question_id:'substrate', recommended_option:'kubernetes', answer:'Either works.', why:'You already run clusters.', caveats:[] }");
+  h.get("plannerState.questionIndex = 3");
+  h.get("renderInterview()");
+  assert.match(h.node("ai-interview").innerHTML, /MiniMax suggests this/);
+  assert.match(h.node("ai-interview").innerHTML, /is-recommended/);
+  assert.equal(h.get("plannerState.answers.substrate"), "nutanix", "advice must never change the answer");
+  assert.equal(h.node("ai-apply-guided").disabled, false);
+
+  // Apply is the only path into the controls.
+  h.get("applyGuidedAnswers()");
+  assert.equal(h.node("f-users").value, "1000", "the answer overrides the preset it sits on");
+  assert.equal(h.node("f-sessions-day").value, "6");
+  assert.equal(h.node("f-horizon").value, "60");
+  assert.equal(h.node("fr-policy").value, "local_first");
+  assert.equal(h.node("fr-failshare").value, "0");
+  assert.equal(h.get("plannerState.applied"), true);
+  assert.equal(h.context.recomputes, 1, "Apply recomputes exactly once");
+});
+
+test("a typed answer is bounds-checked against the real control contract before Apply", () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.state.workloadPresets = { defaults: { shapes: {} }, presets: [{ id: "internal_kb", label: "K", assumption_label: "assumed", assumption_note: "t", fields: {} }] };
+  h.node("fr-policy").tagName = "SELECT";
+  h.node("fr-policy").options = [{ value: "local_first" }];
+  h.get("onLiveInput = () => {}");
+  h.get("plannerState.answers = { use_case:'knowledge', scale:{id:'custom',value:'99999999999'}, intensity:'routine', substrate:'nutanix', data_boundary:'internal', interaction:'assistant', overflow:'local_only', horizon:'y5' }");
+  h.get("applyGuidedAnswers()");
+  assert.equal(h.node("f-users").value, "", "an out-of-range headcount never reaches the control");
+  assert.equal(h.get("plannerState.applied"), false);
+  assert.match(h.node("ai-ready-note").textContent, /f-users/);
 });
 
 test("chat modes reject crossed tool responses and a specification cannot send before Apply", async () => {
@@ -570,15 +635,20 @@ test("manual calculator edits retain the structured specification and mark it st
   assert.match(h.node("ai-workspace-status").textContent, /stale/);
 });
 
-test("provider secrets and model prose are screen-only and absent from cost collection", () => {
+test("no credential field exists on the page and model prose stays out of cost collection", () => {
   const rail = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
-  assert.match(rail, /<details class="ai-connection screen-only">[\s\S]*id="ai-token"[\s\S]*<\/details>/);
+  // The whole point of v0.7: there is nothing on the page to paste a key into.
+  assert.doesNotMatch(rail, /id="ai-token"/);
+  assert.doesNotMatch(html, /id="ai-token"|id="ai-endpoint"|type="password"/);
+  assert.doesNotMatch(app, /ai-token|ai-endpoint/);
+  // And no credential is baked into the shipped source either.
+  assert.doesNotMatch(app, /Bearer\s+[A-Za-z0-9._-]{16,}/);
+  assert.match(rail, /<details class="ai-assist screen-only">/);
   assert.match(html, /id="ai-refinement" class="ai-refinement screen-only"/);
   assert.match(html.slice(html.indexOf("@media print")), /\.screen-only \{ display:none !important; \}/);
   const h = harness();
-  h.node("ai-token").value = "never-export-me";
   h.node("f-users").value = "500";
-  h.context.document.querySelectorAll = () => [h.node("ai-token"), h.node("f-users")];
+  h.context.document.querySelectorAll = () => [h.node("ai-message"), h.node("f-users")];
   assert.equal(h.get("enteredControls().map((el) => el.id).join(',')"), "f-users");
 });
 
@@ -589,21 +659,22 @@ test("copy falls back when the async clipboard is unavailable", async () => {
   await assert.doesNotReject(h.get("copyText('portable prompt')"));
 });
 
-test("the page explains HTTPS localhost limits and Nutanix price boundaries", () => {
-  assert.match(html, /browsers block direct calls to <code>http:\/\/localhost<\/code>/);
+test("the page states the Nutanix price boundary and the surfaces agree that Factor IO now proxies", () => {
   assert.match(app, /Nutanix Enterprise AI has no public list price|blueprint\.warnings/);
   assert.match(html, /Reset whole page/);
-  assert.match(html, /AI sends only after your explicit Send or Ask action/);
   assert.match(html, /id="ai-transcript"[^>]*role="log"[^>]*aria-live="polite"/);
-  for (const publishedPrivacySurface of [privacy, llms]) {
-    if (/data leaves (?:your|the) device only/i.test(publishedPrivacySurface)) {
-      assert.match(publishedPrivacySurface, /Send|Ask/i);
-    }
+  // No surface may still promise that Factor IO does not proxy: v0.7 reversed
+  // that, and a stale claim here is a false privacy statement, not a typo.
+  for (const surface of [privacy, llms]) {
+    assert.doesNotMatch(surface, /never receives, stores or proxies|does not receive, store, or proxy the backup, AI request/i);
   }
   assert.match(privacy, /automatic public GET requests at startup/i);
-  assert.match(privacy, /no calculator inputs, transcript, AI token, or result/i);
-  assert.match(privacy, /only when you explicitly choose[\s\S]*Send or Ask/i);
-  assert.match(privacy, /does not receive, store, or proxy the backup, AI request, token, or model response/i);
-  assert.match(privacy, /offline request artifact that excludes the real token/i);
+  assert.match(privacy, /Factor IO now proxies calculator AI requests/i);
+  assert.match(privacy, /ai\.factor-io\.com/);
+  assert.match(privacy, /credential is held on a Factor IO server/i);
+  assert.match(privacy, /Factor IO does not receive, store, or proxy the backup/i);
+  assert.match(privacy, /credential-free version of it/i);
   assert.match(llms, /automatically GETs public OpenRouter pricing and Frankfurter FX/i);
+  assert.match(llms, /Factor I O DOES proxy calculator AI requests/i);
+  assert.match(llms, /no API-key field/i);
 });

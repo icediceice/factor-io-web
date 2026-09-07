@@ -35,6 +35,28 @@ export const CHAT_TOOLS = Object.freeze([
   {
     type: "function",
     function: {
+      name: "answer_question",
+      description: "Help a visitor who is unsure about ONE guided planning question. Explain the trade-off in plain language and name the option you would pick and why. This is advice only: the application shows it beside the question and the visitor still chooses. Never assert prices, savings or capacity — the calculator owns every number.",
+      parameters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          question_id: {
+            type: "string",
+            enum: ["use_case", "scale", "intensity", "substrate", "data_boundary", "interaction", "overflow", "horizon"],
+          },
+          answer: { type: "string" },
+          recommended_option: { type: "string" },
+          why: { type: "string" },
+          caveats: { type: "array", maxItems: 4, items: { type: "string" } },
+        },
+        required: ["question_id", "answer", "recommended_option", "why"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "propose_calculator_changes",
       description: "Return an inert, reviewable proposal using only allowed current calculator controls. The application previews it; the user must Apply it.",
       parameters: {
@@ -194,7 +216,39 @@ export function validateAskUser(input) {
   };
 }
 
-function validateFieldValue(field, value, spec) {
+// The guided-flow assist. It answers ONE question and may name one of that
+// question's own option ids, so a recommendation can never point at an option
+// the visitor cannot see. It is inert by construction: app.js renders it beside
+// the question and never selects from it.
+export function validateQuestionAnswer(input, context = {}) {
+  const value = strictObject(
+    input,
+    ["question_id", "answer", "recommended_option", "why", "caveats"],
+    ["question_id", "answer", "recommended_option", "why"],
+    "answer_question",
+  );
+  const questions = context.questions ?? {};
+  const questionId = safeText(value.question_id, "question_id", { max: 64, rejectClaims: false });
+  const options = questions[questionId];
+  if (!options) throw new ChatContractError("question_id", `${questionId} is not one of the guided planning questions.`);
+  const allowed = options instanceof Set ? options : new Set(options ?? []);
+  const recommended = safeText(value.recommended_option, "recommended_option", { max: 64, rejectClaims: false });
+  // "none" is a legitimate answer: some questions genuinely depend on facts the
+  // model has not been told, and inventing a pick there would be worse than
+  // saying so.
+  if (recommended !== "none" && !allowed.has(recommended)) {
+    throw new ChatContractError("recommended_option", `${recommended} is not an option offered for ${questionId}.`);
+  }
+  return {
+    question_id: questionId,
+    answer: safeText(value.answer, "answer", { max: 900 }),
+    recommended_option: recommended,
+    why: safeText(value.why, "why", { max: 500 }),
+    caveats: value.caveats === undefined ? [] : safeTextArray(value.caveats, "caveats", { maxItems: 4 }),
+  };
+}
+
+export function validateFieldValue(field, value, spec) {
   if (typeof value !== "string" || value.length > 256) throw new ChatContractError("field_value", `${field} must be a short string value.`);
   if (spec.kind === "enum") {
     if (!Array.isArray(spec.values) || !spec.values.includes(value)) throw new ChatContractError("enum", `${field} is not one of the current control values.`);
@@ -307,9 +361,11 @@ export function validateAssistantToolCall(message, context = {}) {
   try { args = JSON.parse(call.function.arguments); } catch { throw new ChatContractError("tool_json", "Tool arguments are not valid JSON."); }
   const validated = name === "ask_user"
     ? validateAskUser(args)
-    : name === "propose_calculator_changes"
-      ? validateCalculatorProposal(args, context)
-      : validateLocalLlmSpec(args);
+    : name === "answer_question"
+      ? validateQuestionAnswer(args, context)
+      : name === "propose_calculator_changes"
+        ? validateCalculatorProposal(args, context)
+        : validateLocalLlmSpec(args);
   return { id: call.id, type: "function", name, arguments: validated };
 }
 
@@ -416,7 +472,7 @@ export async function requestChatTurn({
   }
   if (!response?.ok) {
     const status = Number(response?.status) || null;
-    throw new ChatRequestError("http", `The model endpoint rejected the request${status ? ` (${status})` : ""}. Check the session token, model and endpoint.`, status);
+    throw new ChatRequestError("http", `The model endpoint rejected the request${status ? ` (${status})` : ""}. Check the model name, the endpoint and whether the proxy is reachable.`, status);
   }
   let body;
   try { body = await response.json(); }
@@ -449,7 +505,10 @@ export function buildOfflineRequest({ endpoint, model, history, systemPrompt, us
   const copyText = [
     `POST ${url}`,
     "Content-Type: application/json",
-    "Authorization: Bearer <session-only token, if required>",
+    // Factor IO's own proxy injects the credential, so the copied request needs
+    // no Authorization line. A visitor pointing this at their own gateway adds
+    // whatever that gateway requires.
+    "# No Authorization header: ai.factor-io.com adds the credential server-side.",
     "",
     JSON.stringify(payload, null, 2),
   ].join("\n");

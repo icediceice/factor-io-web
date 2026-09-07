@@ -10,6 +10,7 @@ import {
   validateAssistantToolCall,
   validateCalculatorProposal,
   validateLocalLlmSpec,
+  validateQuestionAnswer,
 } from "../chat.js";
 
 const fields = {
@@ -105,6 +106,48 @@ test("calculator proposals accept only current allowlisted values and remain ine
   assert.equal(accepted.planning_profile.substrate, "nutanix");
   assert.equal(accepted.changes[0].value, "2500");
   assert.equal(Object.prototype.hasOwnProperty.call(accepted, "apply"), false);
+});
+
+const questions = {
+  substrate: ["nutanix", "kubernetes", "vm", "workstation"],
+  scale: new Set(["pilot", "department", "company", "enterprise", "custom"]),
+};
+
+const advice = (over = {}) => ({
+  question_id: "substrate",
+  answer: "Nutanix is the guided path when you already run AHV.",
+  recommended_option: "nutanix",
+  why: "You said the platform team already operates the cluster.",
+  ...over,
+});
+
+test("answer_question advises on one guided question and can only mark an option that question offers", () => {
+  const accepted = validateQuestionAnswer(advice({ caveats: ["Confirm GPU passthrough is licensed."] }), { questions });
+  assert.equal(accepted.question_id, "substrate");
+  assert.equal(accepted.recommended_option, "nutanix");
+  assert.deepEqual(accepted.caveats, ["Confirm GPU passthrough is licensed."]);
+  // Absent caveats normalize to an empty list rather than undefined.
+  assert.deepEqual(validateQuestionAnswer(advice(), { questions }).caveats, []);
+  // Declining to pick is a legitimate answer, and a Set of options is accepted.
+  assert.equal(validateQuestionAnswer(advice({ question_id: "scale", recommended_option: "none" }), { questions }).recommended_option, "none");
+  // The advice is data: nothing in it can select an answer or apply a change.
+  assert.deepEqual(Object.keys(accepted).sort(), ["answer", "caveats", "question_id", "recommended_option", "why"]);
+});
+
+test("answer_question rejects unknown questions, cross-question options, HTML and arithmetic claims", () => {
+  const rejected = [
+    [advice({ question_id: "budget" }), "question_id"],
+    [advice({ recommended_option: "company" }), "recommended_option"],
+    [advice({ recommended_option: "invented" }), "recommended_option"],
+    [advice({ why: "<b>trust me</b>" }), "html"],
+    [advice({ answer: "That works out to ฿1,200 a month." }), "arithmetic_claim"],
+    [advice({ apply: true }), "schema"],
+  ];
+  for (const [input, code] of rejected) {
+    assert.throws(() => validateQuestionAnswer(input, { questions }), (error) => error.code === code, code);
+  }
+  // With no question context at all, nothing is advisable.
+  assert.throws(() => validateQuestionAnswer(advice(), {}), (error) => error.code === "question_id");
 });
 
 test("proposal validation rejects credentials, prices, unknown models, bounds, duplicates, HTML and arithmetic claims", () => {
@@ -218,8 +261,11 @@ test("offline request is copyable, complete and never contains a real credential
   });
   assert.equal(artifact.url, "https://studio.factor-io.com/minimax/v1/chat/completions");
   assert.deepEqual(artifact.payload.thinking, { type: "disabled" });
-  assert.match(artifact.copyText, /<session-only token, if required>/);
+  // v0.7: the page holds no credential, so the copyable artifact carries no
+  // Authorization line to fill in — and never a Bearer value of any kind.
+  assert.doesNotMatch(artifact.copyText, /Bearer\s+\S/);
   assert.doesNotMatch(artifact.copyText, /session-secret/);
+  assert.match(artifact.copyText, /adds the credential server-side/);
   assert.match(artifact.instructions.same_origin_gateway, /server-side/);
   assert.match(artifact.instructions.local_llm, /Ollama|LM Studio/);
 });

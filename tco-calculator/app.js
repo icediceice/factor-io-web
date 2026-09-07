@@ -24,21 +24,25 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
-import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260907-thb-chat";
+import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260907-guided";
 import {
+  INTERVIEW_QUESTIONS,
   MINIMAX_DEFAULTS,
+  answerFields,
   buildBlueprint,
   buildPlannerPlan,
   buildPrompt,
   createRequestFence,
-} from "./planner.js?v=20260907-thb-chat";
+  isInterviewComplete,
+} from "./planner.js?v=20260907-guided";
 import {
   buildOfflineRequest,
   createChatHistory,
   requestChatTurn,
   toolResultMessage,
   validateCalculatorProposal,
-} from "./chat.js?v=20260907-thb-chat";
+  validateFieldValue,
+} from "./chat.js?v=20260907-guided";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -101,6 +105,10 @@ const state = {
 const plannerState = {
   answers: {},
   questionIndex: 0,
+  // The question the visitor last asked for help on, and MiniMax's inert reply
+  // to it. `help` is rendered beside the question; it never selects an option.
+  helpQuestionId: null,
+  help: null,
   plan: null,
   blueprint: null,
   prompt: "",
@@ -164,7 +172,13 @@ function chatValidationContext() {
     if (spec.kind === "enum") spec.values = controlValues(id);
     return [id, spec];
   }));
-  return { fields };
+  // answer_question may only recommend an option the visitor can actually see,
+  // so the validator is handed this question's own option ids.
+  const questions = Object.fromEntries(INTERVIEW_QUESTIONS.map((question) => [
+    question.id,
+    new Set(question.options.map((option) => option.id)),
+  ]));
+  return { fields, questions };
 }
 
 function controlLabel(id) {
@@ -200,13 +214,145 @@ function renderChatSuggestions(suggestions = []) {
   $("ai-suggestions").innerHTML = chatState.suggestions.map((suggestion, index) => `<button type="button" class="ai-suggestion" data-ai-suggestion="${index}">${escapeHtml(suggestion)}</button>`).join("");
 }
 
+// ── guided interview ───────────────────────────────────────────────────────
+// The visitor answers INTERVIEW_QUESTIONS one at a time. Nothing reaches the
+// calculator until Apply; MiniMax is reachable per-question but only advises.
+
+const answeredCount = () => INTERVIEW_QUESTIONS.filter((question) => plannerState.answers[question.id] !== undefined).length;
+
+const currentQuestion = () => INTERVIEW_QUESTIONS[Math.min(plannerState.questionIndex, INTERVIEW_QUESTIONS.length - 1)];
+
+function answerFor(questionId) {
+  const answer = plannerState.answers[questionId];
+  return typeof answer === "string" ? { id: answer, value: null } : { id: answer?.id ?? null, value: answer?.value ?? null };
+}
+
+function answerSummary(question) {
+  const { id, value } = answerFor(question.id);
+  const option = question.options.find((candidate) => candidate.id === id);
+  if (!option) return null;
+  return option.input && value ? `${value} ${option.input.unit}` : option.label;
+}
+
+function renderInterview() {
+  const container = $("ai-interview");
+  if (!container) return;
+  const question = currentQuestion();
+  const index = INTERVIEW_QUESTIONS.indexOf(question);
+  const { id: selectedId, value: selectedValue } = answerFor(question.id);
+  const help = plannerState.help?.question_id === question.id ? plannerState.help : null;
+  const recommended = help?.recommended_option ?? null;
+
+  const steps = INTERVIEW_QUESTIONS.map((candidate, i) => {
+    const done = plannerState.answers[candidate.id] !== undefined;
+    const state = i === index ? "current" : done ? "done" : "todo";
+    return `<button type="button" class="ai-step" data-ai-step="${i}" data-state="${state}" aria-current="${i === index ? "step" : "false"}" title="${escapeHtml(candidate.prompt)}"><span class="n">${i + 1}</span><span class="t">${escapeHtml(candidate.eyebrow)}</span></button>`;
+  }).join("");
+
+  const options = question.options.map((option) => {
+    const isSelected = option.id === selectedId;
+    const isRecommended = option.id === recommended;
+    const input = option.input
+      ? `<span class="ai-option-input"><input type="number" id="ai-option-value" value="${escapeHtml(isSelected && selectedValue ? String(selectedValue) : "")}" min="${option.input.min}" max="${option.input.max}" step="${option.input.step}" placeholder="${escapeHtml(option.input.placeholder)}" aria-label="${escapeHtml(option.label)}"><span class="unit">${escapeHtml(option.input.unit)}</span></span>`
+      : "";
+    return `<div class="ai-option${isSelected ? " is-selected" : ""}${isRecommended ? " is-recommended" : ""}">
+      <button type="button" class="ai-option-pick" data-ai-option="${escapeHtml(option.id)}" aria-pressed="${isSelected}">
+        <span class="lab">${escapeHtml(option.label)}</span>
+        ${option.note ? `<span class="note">${escapeHtml(option.note)}</span>` : ""}
+        ${isRecommended ? `<span class="rec">MiniMax suggests this</span>` : ""}
+      </button>${input}
+    </div>`;
+  }).join("");
+
+  container.innerHTML = `
+    <div class="ai-steps" role="group" aria-label="planning questions">${steps}</div>
+    <div class="ai-question">
+      <span class="ai-kicker">Question ${index + 1} of ${INTERVIEW_QUESTIONS.length} · ${escapeHtml(question.eyebrow)}</span>
+      <h3 id="ai-question-prompt">${escapeHtml(question.prompt)}</h3>
+      <p class="muted">${escapeHtml(question.help)}</p>
+      <div class="ai-options">${options}</div>
+      ${help ? `<div class="ai-help" role="note"><span class="ai-kicker">MiniMax on this question</span><p>${escapeHtml(help.answer)}</p><p class="why">${escapeHtml(help.why)}</p>${(help.caveats ?? []).length ? `<ul>${help.caveats.map((caveat) => `<li>${escapeHtml(caveat)}</li>`).join("")}</ul>` : ""}</div>` : ""}
+      <div class="ai-nav">
+        <button type="button" class="btn" id="ai-back"${index === 0 ? " disabled" : ""}>Back</button>
+        <button type="button" class="btn" id="ai-next"${plannerState.answers[question.id] === undefined ? " disabled" : ""}>${index === INTERVIEW_QUESTIONS.length - 1 ? "Review" : "Next"}</button>
+        <button type="button" class="btn" id="ai-unsure">Not sure — help me decide</button>
+      </div>
+    </div>`;
+
+  $("ai-progress").textContent = chatState.busy ? "ASKING MINIMAX" : `${answeredCount()} OF ${INTERVIEW_QUESTIONS.length}`;
+  renderInterviewSummary();
+  setPlannerReady(state.ready);
+}
+
+function renderInterviewSummary() {
+  const summary = $("ai-answers");
+  if (!summary) return;
+  const rows = INTERVIEW_QUESTIONS
+    .map((question, i) => ({ question, i, text: answerSummary(question) }))
+    .filter((row) => row.text);
+  summary.innerHTML = rows.length
+    ? rows.map((row) => `<button type="button" class="ai-chip" data-ai-step="${row.i}"><span class="k">${escapeHtml(row.question.eyebrow)}</span><span class="v">${escapeHtml(row.text)}</span></button>`).join("")
+    : `<span class="muted">No answers yet. Nothing has changed in the calculator.</span>`;
+}
+
+function selectAnswer(optionId) {
+  const question = currentQuestion();
+  const option = question.options.find((candidate) => candidate.id === optionId);
+  if (!option) return;
+  if (option.input) {
+    const raw = $("ai-option-value")?.value ?? "";
+    plannerState.answers[question.id] = { id: option.id, value: String(raw).trim() };
+  } else {
+    plannerState.answers[question.id] = option.id;
+  }
+  renderInterview();
+  if (!option.input) advanceQuestion(1);
+  else $("ai-option-value")?.focus();
+}
+
+function advanceQuestion(delta) {
+  const next = plannerState.questionIndex + delta;
+  if (next < 0 || next >= INTERVIEW_QUESTIONS.length) {
+    if (next >= INTERVIEW_QUESTIONS.length) plannerState.questionIndex = INTERVIEW_QUESTIONS.length - 1;
+    renderInterview();
+    return;
+  }
+  plannerState.questionIndex = next;
+  renderInterview();
+}
+
+function goToQuestion(index) {
+  if (!Number.isInteger(index) || index < 0 || index >= INTERVIEW_QUESTIONS.length) return;
+  plannerState.questionIndex = index;
+  renderInterview();
+}
+
+// "Not sure" sends only this question plus the answers already given. The reply
+// is advice; renderInterview marks the suggested option but never picks it.
+function requestQuestionHelp() {
+  const question = currentQuestion();
+  plannerState.helpQuestionId = question.id;
+  const typed = String($("ai-message")?.value ?? "").trim();
+  const message = typed
+    ? `About "${question.prompt}" — ${typed}`
+    : `I am not sure how to answer "${question.prompt}". Which option fits, and why?`;
+  void sendChatMessage(message, { intent: "assist", clearComposer: true });
+}
+
 function setPlannerReady(ready) {
   if ($("ai-apply")) $("ai-apply").disabled = !ready || chatState.busy || !chatState.pendingProposal;
   if ($("ai-send")) $("ai-send").disabled = !ready || chatState.busy;
   if ($("ai-request-spec")) $("ai-request-spec").disabled = !ready || !plannerState.blueprint || chatState.busy;
+  const complete = isInterviewComplete(plannerState.answers);
+  if ($("ai-apply-guided")) $("ai-apply-guided").disabled = !ready || chatState.busy || !complete;
+  if ($("ai-unsure")) $("ai-unsure").disabled = !ready || chatState.busy;
   $("ai-ready-note").textContent = ready
-    ? (chatState.busy ? "Waiting for MiniMax. You can cancel this request." : "Ready. Send is explicit; proposals change nothing until you press Apply.")
-    : "Loading calculator data. Send and Apply stay locked until the cited inputs are ready.";
+    ? (chatState.busy
+      ? "Asking MiniMax. You can cancel this request."
+      : complete
+        ? "All eight answered. Apply writes them into the real controls, where you can still change anything."
+        : "Answer the questions, or ask MiniMax about any one of them. Nothing changes in the calculator until you Apply.")
+    : "Loading calculator data. Apply and the MiniMax assist stay locked until the cited inputs are ready.";
 }
 
 function setChatBusy(busy) {
@@ -277,8 +423,25 @@ function chatSystemPrompt(intent = "interview") {
     value: $(id)?.value ?? "",
     allowed_values: CHAT_FIELD_CONTRACTS[id].kind === "enum" || CHAT_FIELD_CONTRACTS[id].kind === "model" ? controlValues(id) : undefined,
   }));
+  const question = intent === "assist" ? INTERVIEW_QUESTIONS.find((q) => q.id === plannerState.helpQuestionId) : null;
   const context = {
     request_mode: intent,
+    // In assist mode the model is answering ONE question, so it is given that
+    // question and its options verbatim rather than the whole interview.
+    guided_question: question
+      ? {
+        id: question.id,
+        prompt: question.prompt,
+        help: question.help,
+        options: question.options.map((option) => ({
+          id: option.id,
+          label: option.label,
+          note: option.note ?? null,
+          commits_fields: option.fields ?? (option.input ? { [option.input.field]: "<typed by the visitor>" } : null),
+        })),
+      }
+      : null,
+    answers_so_far: intent === "assist" ? plannerState.answers : undefined,
     current_controls: fields,
     model_candidates: (state.servingData?.models ?? []).slice(0, 32).map((model) => ({
       id: model.id,
@@ -315,14 +478,17 @@ function chatSystemPrompt(intent = "interview") {
     "Return exactly one structured tool call and no free-form answer.",
     intent === "spec"
       ? "The user explicitly requested the post-Apply specification. Call present_local_llm_spec, grounded in the deterministic blueprint and component ledger."
-      : "Interview naturally one concise question at a time with ask_user. When enough is known, call propose_calculator_changes with a complete planning_profile and only allowed current controls.",
+      : intent === "assist"
+        ? "The user is unsure about the single guided question in GUIDED_QUESTION and asked for help. Call answer_question for exactly that question_id. Answer their actual wording in plain language, recommend one option id from that question's own options, and say why in one or two sentences. Recommend \"none\" if their message genuinely does not settle it, and say what you would need to know. Do not interview them further and do not propose calculator changes."
+        : "Interview naturally one concise question at a time with ask_user. When enough is known, call propose_calculator_changes with a complete planning_profile and only allowed current controls.",
     "Prefer a local-first Nutanix design. For every Nutanix-specific component, name a portable Kubernetes or Linux-VM equivalent.",
     "Treat model selection as an evaluation candidate, never a guarantee. Use only model IDs and enum values present in CURRENT_CONTEXT.",
     "Never invent or calculate prices, savings, licences, benchmarks or capacity. Explain costs only by citing deterministic ledger paths and their supplied values/formulas.",
     "Never request or propose credentials, endpoints, HTML, direct control mutation or unsupported fields. The user must preview and explicitly Apply every proposal.",
+    intent === "assist" ? "GUIDED_QUESTION is the only question you may answer this turn." : "",
     "CURRENT_CONTEXT",
     encoded,
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }
 
 function localLlmSpecText(spec) {
@@ -398,6 +564,50 @@ function clearPlannerOutput(message = "Apply a reviewed AI proposal to build a d
   $("ai-copy-prompt").disabled = true;
   $("ai-download").disabled = true;
   $("ai-request-spec").disabled = true;
+}
+
+// The guided path's Apply. It goes through the SAME allowlist as a model
+// proposal: every field buildPlannerPlan emits is checked against
+// CHAT_FIELD_CONTRACTS before it touches a control, so a bad option definition
+// is refused rather than written.
+function applyGuidedAnswers() {
+  if (!state.ready || chatState.busy) return;
+  if (!isInterviewComplete(plannerState.answers)) {
+    $("ai-ready-note").textContent = "Answer every question before applying.";
+    return;
+  }
+  let plan;
+  try {
+    plan = buildPlannerPlan(plannerState.answers);
+  } catch (error) {
+    $("ai-ready-note").textContent = error.message;
+    return;
+  }
+  const contracts = chatValidationContext().fields;
+  const rejected = [];
+  for (const [field, value] of Object.entries(plan.controlledFields)) {
+    const spec = contracts[field];
+    if (!spec) { rejected.push(field); continue; }
+    try { validateFieldValue(field, value, spec); }
+    catch { rejected.push(field); }
+  }
+  if (rejected.length) {
+    $("ai-ready-note").textContent = `These answers do not fit the current controls and were not applied: ${rejected.join(", ")}.`;
+    return;
+  }
+  applyWorkloadPreset(plan.presetId, { recompute: false });
+  for (const [field, value] of Object.entries(plan.controlledFields)) {
+    const control = $(field);
+    if (control) control.value = value;
+  }
+  plannerState.plan = plan;
+  plannerState.applied = true;
+  plannerState.refinement = null;
+  chatState.pendingSpec = null;
+  $("ai-state").textContent = "Applied · your eight answers · every assumption remains editable";
+  appendChat("assistant", "Applied your answers to the calculator. It is recomputing now — open any control to override an assumption.");
+  renderInterview();
+  onLiveInput();
 }
 
 function applyPlannerAnswers() {
@@ -546,6 +756,23 @@ function handleChatTool(result) {
     renderChatSuggestions(ask.suggested_replies);
     return { status: "displayed", calculator_mutated: false };
   }
+  if (toolCall.name === "answer_question") {
+    const advice = toolCall.arguments;
+    // Inert by construction: the advice is rendered beside the question and the
+    // visitor still clicks. Nothing here selects an option or touches a control.
+    plannerState.help = { ...advice, at: Date.now() };
+    renderInterview();
+    const option = INTERVIEW_QUESTIONS
+      .find((question) => question.id === advice.question_id)?.options
+      .find((candidate) => candidate.id === advice.recommended_option);
+    appendChat("assistant", [
+      advice.answer,
+      option ? `Suggested answer: ${option.label} — ${advice.why}` : `No single option follows from that yet. ${advice.why}`,
+      ...(advice.caveats ?? []),
+    ].filter(Boolean).join("\n\n"));
+    renderChatSuggestions([]);
+    return { status: "displayed", calculator_mutated: false, option_selected: false };
+  }
   if (toolCall.name === "propose_calculator_changes") {
     const proposal = toolCall.arguments;
     renderProposal(proposal);
@@ -575,8 +802,8 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
   const systemPrompt = chatSystemPrompt(intent);
   try {
     chatState.offlineArtifact = buildOfflineRequest({
-      endpoint: $("ai-endpoint").value,
-      model: $("ai-model").value,
+      endpoint: MINIMAX_DEFAULTS.endpoint,
+      model: MINIMAX_DEFAULTS.model,
       history: chatState.history,
       systemPrompt,
       userMessage: text,
@@ -594,12 +821,13 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
   const controller = new AbortController();
   chatState.abortController = controller;
   setChatBusy(true);
-  $("ai-model-status").textContent = "Sending only after your explicit action. The token remains in this tab's memory.";
+  $("ai-model-status").textContent = "Sending only after your explicit action. This page holds no credential; Factor IO's proxy adds it server-side.";
   try {
     const result = await requestChatTurn({
-      endpoint: $("ai-endpoint").value,
-      model: $("ai-model").value,
-      token: $("ai-token").value,
+      // No token: ai.factor-io.com injects the MiniMax credential server-side,
+      // so nothing secret exists in this page to send.
+      endpoint: MINIMAX_DEFAULTS.endpoint,
+      model: MINIMAX_DEFAULTS.model,
       history: chatState.history,
       systemPrompt,
       userMessage: text,
@@ -610,7 +838,9 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
     if (!chatFence.isCurrent(generation)) return;
     const allowedTools = intent === "spec"
       ? ["present_local_llm_spec"]
-      : ["ask_user", "propose_calculator_changes"];
+      : intent === "assist"
+        ? ["answer_question"]
+        : ["ask_user", "answer_question", "propose_calculator_changes"];
     if (!allowedTools.includes(result.toolCall.name)) {
       const error = new Error(`MiniMax returned ${result.toolCall.name} for a ${intent} turn; no output was applied.`);
       error.code = "unexpected_tool";
@@ -632,11 +862,11 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
 }
 
 function setupPlanner() {
-  $("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
-  $("ai-model").value = MINIMAX_DEFAULTS.model;
+  // No endpoint/model/token controls exist any more: MINIMAX_DEFAULTS points at
+  // ai.factor-io.com, which holds the credential server-side.
   $("ai-composer").addEventListener("submit", (event) => {
     event.preventDefault();
-    void sendChatMessage();
+    void requestQuestionHelp();
   });
   $("ai-message").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
@@ -650,7 +880,39 @@ function setupPlanner() {
     $("ai-message").value = chatState.suggestions[Number(suggestion.dataset.aiSuggestion)] ?? "";
     $("ai-message").focus();
   });
+
+  // One delegated listener for the whole interview: it is re-rendered wholesale
+  // on every answer, so per-node listeners would leak.
+  $("ai-interview").addEventListener("click", (event) => {
+    const option = event.target.closest("[data-ai-option]");
+    if (option) { selectAnswer(option.dataset.aiOption); return; }
+    const step = event.target.closest("[data-ai-step]");
+    if (step) { goToQuestion(Number(step.dataset.aiStep)); return; }
+    if (event.target.closest("#ai-back")) { advanceQuestion(-1); return; }
+    if (event.target.closest("#ai-next")) { advanceQuestion(1); return; }
+    if (event.target.closest("#ai-unsure")) void requestQuestionHelp();
+  });
+  $("ai-interview").addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    const input = event.target.closest("#ai-option-value");
+    if (!input) return;
+    event.preventDefault();
+    const option = input.closest(".ai-option")?.querySelector("[data-ai-option]");
+    if (option) selectAnswer(option.dataset.aiOption);
+  });
+  $("ai-interview").addEventListener("change", (event) => {
+    const input = event.target.closest("#ai-option-value");
+    if (!input) return;
+    const option = input.closest(".ai-option")?.querySelector("[data-ai-option]");
+    if (option) selectAnswer(option.dataset.aiOption);
+  });
+  $("ai-answers").addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-ai-step]");
+    if (chip) goToQuestion(Number(chip.dataset.aiStep));
+  });
+
   $("ai-cancel").addEventListener("click", () => cancelChatRequest());
+  $("ai-apply-guided").addEventListener("click", applyGuidedAnswers);
   $("ai-apply").addEventListener("click", applyPlannerAnswers);
   $("ai-dismiss").addEventListener("click", dismissProposal);
   $("ai-copy-request").addEventListener("click", () => void copyOfflineRequest());
@@ -659,19 +921,8 @@ function setupPlanner() {
   $("ai-copy-prompt").addEventListener("click", () => void copyPlannerArtifact("prompt"));
   $("ai-download").addEventListener("click", downloadPlannerBlueprint);
   $("ai-request-spec").addEventListener("click", () => void sendChatMessage("Create the grounded local-LLM implementation specification now. Explain how each deterministic ledger component contributes to the THB result, without doing new arithmetic.", { intent: "spec", clearComposer: false }));
-  for (const id of ["ai-endpoint", "ai-model"]) {
-    $(id).addEventListener("input", () => {
-      chatState.offlineArtifact = null;
-      $("ai-copy-request").disabled = true;
-    });
-  }
-  appendChat("assistant", "What should AI help your users do, and what data must stay inside your environment?");
-  renderChatSuggestions([
-    "An internal knowledge assistant for sensitive documents",
-    "A customer-support copilot with human handoff",
-    "A governed automation agent that can call tools",
-    "Several teams need a shared local AI service",
-  ]);
+
+  renderInterview();
   clearPlannerOutput();
   setPlannerReady(false);
 }

@@ -2,11 +2,19 @@
 // opt-in OpenAI-compatible request contract. It never reads the DOM and never
 // writes calculator inputs; app.js is the only bridge to the existing controls.
 
+// The calculator now talks to Factor IO's own proxy, which injects the MiniMax
+// credential server-side (ai-proxy/server.mjs). The page ships no token and has
+// no key field. A visitor-owned OpenAI-compatible gateway remains possible by
+// overriding the endpoint, but nothing on the page asks for one.
 export const MINIMAX_DEFAULTS = Object.freeze({
-  endpoint: "https://api.minimax.io/v1",
+  endpoint: "https://ai.factor-io.com/v1",
   model: "MiniMax-M3",
 });
 
+// The guided interview. Questions 1, 4, 5, 6 and 7 shape the authored
+// architecture blueprint; questions 2, 3 and 8 carry `fields`/`input` and drive
+// real calculator controls that already exist in app.js:CHAT_FIELD_CONTRACTS.
+// An option is either a fixed answer (`fields`) or a typed one (`input`).
 export const INTERVIEW_QUESTIONS = Object.freeze([
   {
     id: "use_case",
@@ -19,6 +27,31 @@ export const INTERVIEW_QUESTIONS = Object.freeze([
       { id: "analytics", label: "Investigate linked data", note: "Multi-hop and Graph RAG", presetId: "graph_analyst" },
       { id: "automation", label: "Run tools and workflows", note: "Agents with approval gates", presetId: "agent_platform" },
       { id: "mixed", label: "Serve several teams", note: "A mixed enterprise starting point", presetId: "mixed_enterprise" },
+    ],
+  },
+  {
+    id: "scale",
+    eyebrow: "Scale",
+    prompt: "How many people will use it?",
+    help: "This sets the calculator's user count, which is what demand and peak-second sizing are derived from.",
+    options: [
+      { id: "pilot", label: "A pilot team", note: "About 50 people", fields: { "f-users": "50" } },
+      { id: "department", label: "One department", note: "About 200 people", fields: { "f-users": "200" } },
+      { id: "company", label: "The whole company", note: "About 1,000 people", fields: { "f-users": "1000" } },
+      { id: "enterprise", label: "A large enterprise", note: "About 5,000 people", fields: { "f-users": "5000" } },
+      { id: "custom", label: "A specific number", note: "Enter your own headcount", input: { field: "f-users", min: 1, max: 10000000, step: 1, unit: "people", placeholder: "e.g. 750" } },
+    ],
+  },
+  {
+    id: "intensity",
+    eyebrow: "Usage",
+    prompt: "How often will each person use it on a working day?",
+    help: "Sessions per user per day. Together with the user count this is what sets the peak the hardware must serve.",
+    options: [
+      { id: "occasional", label: "Occasionally", note: "About 2 sessions a day", fields: { "f-sessions-day": "2" } },
+      { id: "routine", label: "As part of their routine", note: "About 6 sessions a day", fields: { "f-sessions-day": "6" } },
+      { id: "constant", label: "Constantly — it is their main tool", note: "About 20 sessions a day", fields: { "f-sessions-day": "20" } },
+      { id: "custom", label: "A specific rate", note: "Enter sessions per person per day", input: { field: "f-sessions-day", min: 0, max: 100000, step: 0.5, unit: "sessions per day", placeholder: "e.g. 12" } },
     ],
   },
   {
@@ -67,9 +100,32 @@ export const INTERVIEW_QUESTIONS = Object.freeze([
       { id: "burst", label: "Burst during demand peaks", note: "Start with a 15% planning allowance", failshare: "0.15" },
     ],
   },
+  {
+    id: "horizon",
+    eyebrow: "Horizon",
+    prompt: "Over what period should the comparison run?",
+    help: "Owned hardware pays back over time, so the horizon can change which option wins.",
+    options: [
+      { id: "y3", label: "Three years", note: "36 months — a typical refresh cycle", fields: { "f-horizon": "36" } },
+      { id: "y5", label: "Five years", note: "60 months — the calculator default", fields: { "f-horizon": "60" } },
+      { id: "custom", label: "A specific period", note: "Enter the number of months", input: { field: "f-horizon", min: 1, max: 600, step: 1, unit: "months", placeholder: "e.g. 48" } },
+    ],
+  },
 ]);
 
+// The subset that forms the architecture profile. The MiniMax
+// `propose_calculator_changes` tool supplies exactly these five and sets the
+// quantitative fields through its own `changes[]`, so buildPlannerPlan must
+// stay satisfiable from the profile alone.
+export const PROFILE_QUESTION_IDS = Object.freeze(["use_case", "substrate", "data_boundary", "interaction", "overflow"]);
+
 const QUESTION_BY_ID = new Map(INTERVIEW_QUESTIONS.map((question) => [question.id, question]));
+
+// An answer is either a bare option id ("pilot") or, for a typed option,
+// { id, value }. Accepting both keeps the model-supplied profile — which is
+// always bare strings — working unchanged.
+const answerId = (answer) => (typeof answer === "string" ? answer : answer?.id ?? null);
+const answerValue = (answer) => (typeof answer === "string" ? null : answer?.value ?? null);
 
 const USE_CASE = Object.freeze({
   support: { presetId: "support_desk", title: "Local support assistant", pattern: "retrieval-augmented answers with confidence thresholds and human handoff" },
@@ -115,28 +171,65 @@ const WORKFLOW = Object.freeze({
   agent: "User or event → agent orchestrator → policy and tool broker → approval checkpoint → local model runtime → tool execution → immutable audit event.",
 });
 
-function answerOption(questionId, optionId) {
+function answerOption(questionId, answer) {
   const question = QUESTION_BY_ID.get(questionId);
-  return question?.options.find((option) => option.id === optionId) ?? null;
+  const id = answerId(answer);
+  return question?.options.find((option) => option.id === id) ?? null;
 }
 
+// The calculator fields one answer commits. A typed option contributes only when
+// the visitor actually entered a value; a blank custom box commits nothing
+// rather than writing an empty string into a real control.
+export function answerFields(questionId, answer) {
+  const option = answerOption(questionId, answer);
+  if (!option) return {};
+  if (option.input) {
+    const value = answerValue(answer);
+    const text = value === null || value === undefined ? "" : String(value).trim();
+    return text === "" ? {} : { [option.input.field]: text };
+  }
+  return option.fields ? { ...option.fields } : {};
+}
+
+// Every question answered — the gate for the guided flow's Apply.
 export function isInterviewComplete(answers = {}) {
-  return INTERVIEW_QUESTIONS.every((question) => !!answerOption(question.id, answers[question.id]));
+  return INTERVIEW_QUESTIONS.every((question) => {
+    const option = answerOption(question.id, answers[question.id]);
+    if (!option) return false;
+    if (!option.input) return true;
+    const value = answerValue(answers[question.id]);
+    return value !== null && value !== undefined && String(value).trim() !== "";
+  });
+}
+
+// Only the architecture profile — the five keys MiniMax supplies in
+// planning_profile. Kept separate so a model proposal, which never carries the
+// quantitative answers, can still build a plan.
+export function isProfileComplete(answers = {}) {
+  return PROFILE_QUESTION_IDS.every((id) => !!answerOption(id, answers[id]));
 }
 
 export function buildPlannerPlan(answers = {}) {
-  if (!isInterviewComplete(answers)) throw new TypeError("Complete every planning question before applying the plan.");
-  const useCase = USE_CASE[answers.use_case];
-  const substrate = SUBSTRATE[answers.substrate];
+  if (!isProfileComplete(answers)) throw new TypeError("Complete every planning question before applying the plan.");
+  const useCase = USE_CASE[answerId(answers.use_case)];
+  const substrate = SUBSTRATE[answerId(answers.substrate)];
   const overflow = answerOption("overflow", answers.overflow);
+  // Quantitative answers are folded in only when present, so the model path
+  // (five keys, no scale/intensity/horizon) yields exactly the routing set it
+  // always did and sets those fields through its own reviewed changes[].
+  const quantitative = Object.assign({}, ...INTERVIEW_QUESTIONS
+    .filter((question) => !PROFILE_QUESTION_IDS.includes(question.id))
+    .map((question) => answerFields(question.id, answers[question.id])));
   return {
-    answers: Object.fromEntries(INTERVIEW_QUESTIONS.map((question) => [question.id, answers[question.id]])),
+    answers: Object.fromEntries(INTERVIEW_QUESTIONS
+      .filter((question) => answers[question.id] !== undefined)
+      .map((question) => [question.id, answers[question.id]])),
     title: useCase.title,
     presetId: useCase.presetId,
     pattern: useCase.pattern,
     substrate,
-    dataControls: DATA_CONTROLS[answers.data_boundary],
-    workflow: WORKFLOW[answers.interaction],
+    dataControls: DATA_CONTROLS[answerId(answers.data_boundary)],
+    workflow: WORKFLOW[answerId(answers.interaction)],
     overflow: {
       label: overflow.label,
       note: overflow.note,
@@ -147,6 +240,7 @@ export function buildPlannerPlan(answers = {}) {
       "fr-blend": "100",
       "fr-failshare": overflow.failshare,
       "fr-failrate": "2",
+      ...quantitative,
     },
   };
 }

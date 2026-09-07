@@ -1,0 +1,15 @@
+[Unit]
+Description=Factor IO MiniMax proxy — server-side credential injection for the TCO calculator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ice/factor-ai-proxy
+EnvironmentFile=/home/ice/factor-ai-proxy/.env
+ExecStart=/usr/bin/env node /home/ice/factor-ai-proxy/server.mjs
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

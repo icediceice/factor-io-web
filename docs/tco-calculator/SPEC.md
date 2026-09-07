@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | Status | Normative implementation contract |
-| Spec revision | v0.6 — 2026-09-07 (supersedes v0.5/v0.4 — 2026-09-06, v0.3/v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
-| Plan thread | 1546330542415282260 (factor-io-web); v0.4 was 1546296134455005337, v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
-| Delivery | Static client-side calculator on GitHub Pages + an operator-run pricing refresh command |
+| Spec revision | v0.7 — 2026-09-07 (supersedes v0.6 — 2026-09-07, v0.5/v0.4 — 2026-09-06, v0.3/v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
+| Plan thread | 1546371070259494945 (factor-io-web); v0.6 was 1546330542415282260, v0.4 was 1546296134455005337, v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
+| Delivery | Static client-side calculator on GitHub Pages + a Factor IO AI proxy (`ai.factor-io.com`) + an operator-run pricing refresh command |
 
 **What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token
 number and compared three "lanes". Both were wrong at the point of use: the token
@@ -60,6 +60,35 @@ passed through an approved same-origin gateway or into Ollama/LM Studio. Factor 
 provides no proxy and never receives the token, prompt or response. AI output is
 validated as inert data, never mutates controls directly, never enters calculator
 math/provenance/export/print, and is marked stale after a manual calculator edit.
+
+**What v0.7 changes, and why.** v0.6 asked the visitor to bring their own MiniMax
+key and to type free-form intent. Both were the wrong ask. A key field is a barrier
+no evaluating buyer will clear, and a blank composer gives an untrained visitor no
+idea what the tool needs to know. v0.7 removes the key from the product and replaces
+the blank composer with a guided interview the AI assists rather than drives.
+
+| v0.6 | v0.7 | Reason |
+|---|---|---|
+| An `ai-token` password field; the visitor supplies a MiniMax key | **No credential UI exists.** The page posts to `https://ai.factor-io.com/v1`, a Factor IO Node proxy that injects the key server-side (§8.1) | A static page cannot hold a secret, and requiring the visitor to hold one meant nobody used the AI at all |
+| Free-form typed conversation as the only entry | An **eight-question guided interview**: workload, scale, usage intensity, placement, data boundary, workflow, fallback, horizon (§8.2) | The visitor is asked exactly what the calculator needs, in the order it needs it |
+| Five authored questions, none of which touched a number | Questions 2, 3 and 8 carry `fields`/`input` and drive the real `f-users`, `f-sessions-day` and `f-horizon` controls; the other five build the architecture profile as before | The old interview could not change a single quantitative input, so it could not change the answer |
+| AI answers a turn | A fourth tool, **`answer_question`**, advises on ONE named question and may mark at most one of THAT question's own options — or `none` (§8.3) | Advice scoped to a question cannot smuggle a change to anything else |
+| Apply writes the proposal's allowlisted changes | **Apply guided answers** revalidates every derived field against the live control contract before writing, then schedules one recompute | The interview now produces numbers, so it is subject to the same allowlist as model output |
+
+The proxy holds the only credential. It is origin-allowlisted, model-allowlisted
+(`MiniMax-M3`), body-capped at 256 KB, and logs neither the key nor request or
+response bodies. **This supersedes v0.6's statement that Factor I O provides no
+proxy and never receives the prompt:** Factor IO now relays the prompt and the
+response, and `privacy.html` §04 and `llms.txt` state so. It stores neither, and
+the exchange history still lives only in the current tab's memory. Every other
+inert-data guarantee is unchanged: AI output never mutates a control directly,
+never enters calculator math, provenance, export or print, and is marked stale
+after a manual calculator edit.
+
+The visitor-owned-gateway path is NOT removed. The copyable token-free request
+artifact remains, and `MINIMAX_DEFAULTS.endpoint` remains overridable in source for
+a same-origin gateway, Ollama or LM Studio — but nothing on the page asks a visitor
+to configure one.
 
 Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
 and remain normative** — the tariff model, quote semantics, freshness envelope and
@@ -1191,59 +1220,120 @@ frequently non-terminating and therefore travels as a reduced rational per §3.5
 
 ---
 
-## 8. UX — Conversation-led Cost Ledger
+## 8. UX — Guided Interview beside the Cost Ledger
 
 ```
-┌─ conversation (progressive) ──────┬─ deterministic cost ledger (live) ────┐
-│ transcript · one question at time │ source freshness · THB verdicts        │
-│ suggested text (fills only)       │ demand · sizing · recurring/one-time   │
-│ typed composer · Send / Cancel    │ subscription · routing · exclusions    │
-│ inert old/new/reason proposal     │ formulas · 60-month curve · provenance │
-│ explicit Apply proposal           │ Nutanix pattern + portable equivalents │
-│ Inspect or override assumptions ▾ │ copy/export · post-Apply AI spec        │
-└───────────────────────────────────┴─────────────────────────────────────────┘
+┌─ guided interview (8 steps) ──────┬─ deterministic cost ledger (live) ─────┐
+│ progress rail 1..8 · one question │ source freshness · THB verdicts        │
+│ option cards · typed custom value │ demand · sizing · recurring/one-time   │
+│ "Not sure — help me decide"       │ subscription · routing · exclusions    │
+│ revisable answer chips            │ formulas · 60-month curve · provenance │
+│ explicit Apply guided answers     │ Nutanix pattern + portable equivalents │
+│ Ask MiniMax ▾ · assumptions ▾     │ copy/export · post-Apply AI spec       │
+└───────────────────────────────────┴────────────────────────────────────────┘
 ```
 
-v0.2's four-page wizard remains REMOVED. The v0.6 macrostructure is a typed
-conversation beside the exact calculator result: conversation helps the visitor
-state intent, while deterministic controls, formulas, pricing and FX remain the
-authority. Borders provide depth; numerals are monospaced; violet and cyan are the
-only accents; no shadow or gradient may imply that AI prose outranks calculator
-evidence.
+v0.2's four-page wizard remains REMOVED, and so does v0.6's blank composer as the
+primary entry. The v0.7 macrostructure is an eight-step guided interview beside the
+exact calculator result: the interview asks what the calculator needs, while
+deterministic controls, formulas, pricing and FX remain the authority. Borders
+provide depth; numerals are monospaced; violet and cyan are the only accents; no
+shadow or gradient may imply that AI prose outranks calculator evidence.
 
-**Progressive conversation (normative).** The page lands on a complete worked
-60-month example and one deterministic welcome question. Suggested replies place
-text in the composer and NEVER submit. A visitor may type any answer, sends only by
-pressing **Send** or the documented keyboard equivalent, and may cancel an active
-request. Only one request may own the transcript at a time; a generation fence and
-abort signal prevent an older response from replacing newer state.
+### 8.1 Credential boundary (normative)
+
+The page contains **no credential control of any kind** — no `ai-token`, no
+`ai-endpoint`, no `ai-model`, no `type="password"` input. `MINIMAX_DEFAULTS`
+(`planner.js`) points at `https://ai.factor-io.com/v1`, and the browser sends **no
+`Authorization` header**: it has nothing to send.
+
+`ai.factor-io.com` is a zero-dependency Node service (`ai-proxy/server.mjs`) reached
+through Cloudflare Tunnel → nginx → `127.0.0.1:8790`. It MUST:
+
+- read the MiniMax key from `MINIMAX_API_KEY` only, and never log it;
+- accept `POST /v1/chat/completions` and `GET /healthz` only, and answer CORS
+  preflight for the allowlisted origins;
+- reject an origin outside `ALLOWED_ORIGINS`, a model outside
+  `MINIMAX_ALLOWED_MODELS` (`MiniMax-M3`), and a body above `MAX_BODY_BYTES`
+  (256 KB) with a JSON error rather than a torn-down socket;
+- clamp `max_completion_tokens`, apply `UPSTREAM_TIMEOUT_MS`, and log neither
+  request nor response bodies;
+- report `credential:false` on `/healthz` and answer `503` rather than exit when the
+  key is absent, so a missing secret cannot crash-loop the unit.
+
+The endpoint is **unauthenticated and unrated-limited by deliberate decision** for
+the prototype. See §11 R13 and the Known issues in `PROGRESS.md`.
+
+### 8.2 Guided interview (normative)
+
+The page lands on a complete worked 60-month example and question 1 of 8. The eight
+questions, in order, are `use_case`, `scale`, `intensity`, `substrate`,
+`data_boundary`, `interaction`, `overflow`, `horizon` (`planner.js:INTERVIEW_QUESTIONS`).
+
+- **Nothing is sent by rendering the interview.** Selecting, revising or reviewing an
+  answer performs no network request.
+- **Nothing reaches a control by answering.** Answers live in `plannerState.answers`
+  until the visitor presses **Apply guided answers**.
+- Each question offers fixed option cards; `scale`, `intensity` and `horizon` also
+  offer a typed custom value bounded by the same `min`/`max`/`step` as the control it
+  drives (`f-users`, `f-sessions-day`, `f-horizon`).
+- The progress rail and the answer chips both jump to any question, so answers are
+  revisable in any order.
+- `PROFILE_QUESTION_IDS` — the five architecture questions — is what
+  `buildPlannerPlan` requires. The three quantitative answers are folded in only when
+  present, so the model's own `propose_calculator_changes` path yields exactly the
+  routing set it always did.
+
+**Not sure — help me decide.** This is the only implicit-looking action, and it is
+still explicit: it sends one `assist` turn about the question currently on screen,
+optionally carrying whatever the visitor typed. It is the only path from the
+interview to MiniMax.
+
+### 8.3 Structured output classes (normative)
 
 MiniMax exchanges are bounded but structurally complete. Each retained assistant
 message keeps its full content and tool calls; each tool-result message stays with
 the exchange that produced it. Pruning removes whole exchanges, never a single
-assistant/tool half. The three structured output classes are disjoint:
+assistant/tool half. The four structured output classes are disjoint:
 
 - `ask_user` asks exactly one next question and may provide non-sending suggestions.
+- `answer_question` advises on ONE named guided question. It carries the question id,
+  an answer, a `why`, up to four caveats, and `recommended_option` — which MUST be an
+  option id belonging to **that** question, or the literal `none`. It renders as a
+  marked suggestion; it **never selects an answer**.
 - `propose_calculator_changes` returns a complete planner profile plus allowlisted
   control changes and a reason for each change.
 - `present_local_llm_spec` is accepted only for an explicit post-Apply specification
   request and contains the deployment pattern, component mappings and ledger-backed
   explanations.
 
-An interview turn accepts only the first two classes; a specification turn accepts
-only the third. Empty tool-call IDs, unknown tools, unknown fields, unsupported
-enums, out-of-bounds values and model IDs absent from the current loaded catalog are
-refused. MiniMax runs with `thinking.type = disabled` and `tool_choice = required`.
+An `assist` turn accepts **only** `answer_question`; an interview turn accepts
+`ask_user`, `answer_question` and `propose_calculator_changes`; a specification turn
+accepts only `present_local_llm_spec`. A tool outside the turn's set is refused, the
+exchange is discarded rather than retained, and nothing is applied. Empty tool-call
+IDs, unknown tools, unknown fields, unsupported enums, out-of-bounds values and model
+IDs absent from the current loaded catalog are refused. MiniMax runs with
+`thinking.type = disabled` and `tool_choice = required`.
 
-**Exact outbound payload classes (normative).** Every explicit **Send** or **Ask
-MiniMax to explain this plan** POST contains only: (1) the system contract and turn
-intent; (2) the visitor's current message; (3) bounded current calculator controls,
-current-session model candidates, and per-source freshness envelopes; (4) the
+**Exact outbound payload classes (normative).** Every explicit **Not sure**, **Send**
+or **Ask MiniMax to explain this plan** POST contains only: (1) the system contract
+and turn intent; (2) the visitor's current message; (3) on an `assist` turn, the
+current question and the answers so far; (4) bounded current calculator controls,
+current-session model candidates, and per-source freshness envelopes; (5) the
 deterministic blueprint and compact component ledger when a valid result exists;
-(5) bounded complete exchange history; and (6) the three structured tool schemas.
-The real token is an in-memory Authorization value, not message content. Before each
-POST the browser builds a copyable token-free request artifact with the same
-messages and tools so CORS, network or model failure cannot erase the workflow.
+(6) bounded complete exchange history; and (7) the four structured tool schemas.
+No credential is present in the headers or in message content. Before each POST the
+browser builds a copyable request artifact with the same messages and tools so CORS,
+network or model failure cannot erase the workflow; that artifact carries no
+`Authorization` line, because the proxy supplies the credential.
+
+**Apply guided answers (normative).** Apply is disabled until all eight questions are
+answered and the calculator's cited data has loaded. On Apply, every field
+`buildPlannerPlan` derived is revalidated against the **live** control contract
+(`validateFieldValue`, the same validator model output passes through). A single
+failing field aborts the whole Apply, names itself in the ready note, and leaves every
+control untouched. On success it applies the workload preset, writes the allowlisted
+controls and schedules exactly one normal recomputation.
 
 **Preview before mutation (normative).** AI output is inert data. A proposal renders
 current value, proposed value and reason rows; it does not change calculator state.
@@ -1283,14 +1373,17 @@ disappearing. AI explanations cite ledger paths but never become price, capacity
 benchmark, licence or provenance evidence.
 
 **Fallback and accessibility (normative).** Deterministic calculation, blueprint,
-ledger and copy remain usable without MiniMax. The offline artifact documents a
-visitor-owned same-origin gateway that may inject a credential server-side and the
+ledger and copy remain usable without MiniMax — and the eight-question interview is
+answerable and appliable with the proxy entirely unreachable, because only the
+"Not sure" action needs it. The offline artifact documents a visitor-owned
+same-origin gateway that may inject its own credential server-side and the
 Ollama/LM Studio copy path. An HTTPS page explains that browsers normally block
-direct `http://localhost` mixed-content calls. The transcript, composer, suggestions,
-cancel, proposal rows and Apply action are keyboard reachable and announced; mobile
-actions are at least 44 CSS pixels. AI credentials, transcript and response are
+direct `http://localhost` mixed-content calls. The progress rail, option cards,
+custom-value inputs, answer chips, transcript, composer, suggestions, cancel,
+proposal rows and both Apply actions are keyboard reachable and announced; mobile
+actions are at least 44 CSS pixels. The transcript and every AI response are
 screen-only, memory-only for the current tab, rendered with text-safe DOM APIs, and
-never printed or exported.
+never printed or exported. No credential exists in the page to protect.
 
 **Naming contract (normative).** The strings `Lane`, `Lane A`, `Lane B` and `Lane C`
 MUST NOT appear in any rendered surface or in the exported quote. The engine's
@@ -1380,6 +1473,8 @@ re-serves the prior digest with zero extra state.
 | R10 | GCP API key exposure | Actions-secrets-only §5.6; absence of credentials in all artifacts |
 | R11 | Planner credential or generated prose leaks into a quote/print | `ai-*` controls outside the cost selector; provider panel and response screen-only; text-only rendering §8 |
 | R12 | HTTPS deployment cannot reach an HTTP local runtime | Explain mixed-content/CORS boundary; deterministic blueprint + Copy prompt always work §8 |
+| R13 | **`ai.factor-io.com` is unauthenticated and unrated-limited, so a third party can spend Factor IO's MiniMax balance** | ACCEPTED for the prototype by explicit operator decision. Bounded by origin allowlist, `MiniMax-M3`-only, 256 KB bodies and clamped `max_completion_tokens` (§8.1) — none of which stops a scripted caller that forges `Origin`. Closing it needs the login the operator is building; until then the residual exposure is the MiniMax account balance |
+| R14 | Factor IO now relays prompts and responses it previously never saw | Bodies are never logged; nothing is stored; `privacy.html` §04 and `llms.txt` state the relay explicitly rather than retaining v0.6's "no proxy" claim (§8.1) |
 
 ---
 

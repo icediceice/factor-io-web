@@ -164,7 +164,20 @@ export const CHAT_TOOLS = Object.freeze([
 const TOOL_NAMES = new Set(CHAT_TOOLS.map((tool) => tool.function.name));
 const LEDGER_ROOTS = new Set(["demand", "sizing", "recurring", "capex", "power", "subscription", "routing", "commercial_overlay", "exclusions", "freshness", "formulas"]);
 const HTML = /<\/?[a-z][^>]*>/i;
-const ARITHMETIC_CLAIM = /(?:[$฿€£]\s*\d|\b\d+(?:\.\d+)?\s*(?:\+|-|\*|×|\/|÷|=)\s*\d+)/;
+// Two clauses, and the split between them is deliberate.
+//
+// A PRICE is a currency mark next to a digit — that is the claim the model may
+// never make in its own voice, and it stays absolute.
+//
+// ARITHMETIC is a digit, an operator, a digit. The minus sign is the trap: it is
+// also how anyone writes a RANGE. The tight form ("2-3 nodes", "24-48 GB",
+// "2026-09") is a range and must pass; the spaced form ("1500 - 300") is a sum
+// and must not. Observed on the deployed page: a placement answer that mentioned
+// a node range was discarded whole and the visitor got a sanitizer message
+// instead of an answer — the guard was rejecting the register a colleague
+// actually writes in. Every other operator keeps the loose spacing, and a
+// subtraction that states its result still trips on the "=".
+const ARITHMETIC_CLAIM = /(?:[$฿€£]\s*\d|\b\d+(?:\.\d+)?\s*(?:\+|\*|×|\/|÷|=)\s*\d+|\b\d+(?:\.\d+)?\s+-\s+\d+)/;
 const FORBIDDEN_FIELD = /(?:token|secret|password|endpoint|api[-_]?key|credential)/i;
 const DECIMAL = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
 const INTEGER = /^-?(?:0|[1-9]\d*)$/;

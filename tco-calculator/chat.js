@@ -301,6 +301,7 @@ export function validateAssistantToolCall(message, context = {}) {
   if (!isObject(call) || call.type !== "function" || !isObject(call.function)) throw new ChatContractError("tool_schema", "The assistant tool call is malformed.");
   const name = call.function.name;
   if (!TOOL_NAMES.has(name)) throw new ChatContractError("tool_name", `Unsupported assistant tool ${JSON.stringify(name)}.`);
+  if (typeof call.id !== "string" || !call.id.trim()) throw new ChatContractError("tool_call_id", "The assistant tool call must include a non-empty ID for the retained tool result.");
   if (typeof call.function.arguments !== "string") throw new ChatContractError("tool_arguments", "Tool arguments must be a JSON string.");
   let args;
   try { args = JSON.parse(call.function.arguments); } catch { throw new ChatContractError("tool_json", "Tool arguments are not valid JSON."); }

@@ -855,6 +855,7 @@ test("a follow-up continues the same question and ends when the visitor moves on
   // made the exchange read like repeated form submissions.
   assert.equal(asked[1].userMessage, "what if half of them are contractors?");
   assert.deepEqual(Object.keys(asked[1].validationContext.questions), [h.get("plannerState.helpQuestionId")]);
+  assert.equal(asked[1].sentHistory.length, 1, "a follow-up carries the exchange it is following up on");
 
   // Moving to another question ends that conversation rather than carrying it
   // over: a follow-up about options that are no longer on screen means nothing.

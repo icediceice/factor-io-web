@@ -846,6 +846,7 @@ test("a follow-up continues the same question and ends when the visitor moves on
   assert.equal(opened[0].role, "you");
   assert.match(asked[0].userMessage, /^About "/, "the opening turn names the question");
   assert.equal(asked[0].assist, true);
+  assert.deepEqual(asked[0].sentHistory, [], "an opening turn carries no prior exchange");
 
   h.node("ai-message").value = "what if half of them are contractors?";
   await h.get("requestQuestionHelp()");

@@ -3,6 +3,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { Dec, Rat, formatHalfUp } from "../exact.js";
+import {
+  INTERVIEW_QUESTIONS,
+  MINIMAX_DEFAULTS,
+  buildBlueprint,
+  buildPlannerPlan,
+  buildPrompt,
+  createRequestFence,
+  isInterviewComplete,
+  requestRefinement as realRequestRefinement,
+} from "../planner.js";
 
 // Execute the real UI functions with a deliberately small DOM boundary and
 // controlled timers/fetches. These are behavioral unit tests, not browser tests.
@@ -18,13 +28,23 @@ function harness() {
     if (!nodes.has(id)) nodes.set(id, {
       id, value: "", defaultValue: "", innerHTML: "", textContent: "", dataset: {},
       tagName: "INPUT", type: "text", options: [], hidden: false, disabled: false,
-      attrs: {}, classList: { add() {}, remove() {}, toggle() {} },
+      attrs: {}, style: {}, classList: { add() {}, remove() {}, toggle() {} },
       setAttribute(k, v) { this.attrs[k] = v; },
       addEventListener(k, f) { this.events ??= {}; this.events[k] = f; },
       appendChild(o) { this.options.push(o); },
+      append(...items) { this.options.push(...items); },
+      querySelectorAll() { return []; },
+      select() { this.selected = true; },
+      remove() { this.removed = true; },
+      click() { this.clicked = true; },
     });
     return nodes.get(id);
   }
+  const fetchCalls = [];
+  const fetchSpy = async (...args) => {
+    fetchCalls.push(args);
+    return { ok: true, status: 200, json: async () => ({ model: "stub", choices: [{ message: { content: "stub response" } }] }) };
+  };
   const context = vm.createContext({
     Dec, Rat, formatHalfUp, console: { error() {}, warn() {} }, Event,
     DemandRefusal: class DemandRefusal extends Error {},
@@ -33,16 +53,30 @@ function harness() {
       getElementById: node,
       addEventListener: (type, f) => listeners.set(type, f),
       querySelectorAll: () => [], querySelector: () => node("rail"),
-      createElement: () => ({ value: "", textContent: "" }),
+      createElement: (tag) => ({
+        tagName: String(tag).toUpperCase(), value: "", textContent: "", style: {}, options: [], attrs: {},
+        setAttribute(k, v) { this.attrs[k] = v; }, appendChild(o) { this.options.push(o); },
+        addEventListener() {}, select() { this.selected = true; }, remove() { this.removed = true; }, click() { this.clicked = true; },
+      }),
+      body: { appendChild(el) { el.appended = true; } },
+      execCommand: () => true,
     },
     setTimeout: (fn) => { const id = ++nextTimer; timers.set(id, fn); return id; },
     clearTimeout: (id) => timers.delete(id),
-    location: { reload() {} },
+    location: { href: "https://studio.factor-io.com/tco-calculator.html", reload() {} },
+    fetch: fetchSpy, AbortController, URL, Blob,
+    navigator: { clipboard: { writeText: async () => {} } },
+    INTERVIEW_QUESTIONS, MINIMAX_DEFAULTS, buildBlueprint, buildPlannerPlan, buildPrompt,
+    createRequestFence, isInterviewComplete,
+    requestRefinement: (args) => realRequestRefinement({ ...args, fetchImpl: fetchSpy }),
     syncChips() {}, enhanceRail() {}, releaseFields() {},
   });
-  vm.runInContext(app.replace(/^import .*;\n/gm, "").replace(/\ninit\(\);\s*$/, ""), context);
+  const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");
+  assert.doesNotMatch(executable, /^\s*import\b/m, "the VM harness must strip multiline module imports");
+  vm.runInContext(executable, context);
   const get = (expression) => vm.runInContext(expression, context);
   return { context, node, nodes, get, listeners, timers, state: get("state"),
+    fetchCalls,
     tick() { const work = [...timers.values()]; timers.clear(); work.forEach((f) => f()); } };
 }
 
@@ -58,6 +92,9 @@ test("all authored cost inputs and newly created architecture inputs are live wi
   }
   assert.equal(h.get("isCostControl")({ id: "f-users", tagName: "INPUT", type: "range" }), false);
   assert.equal(h.get("isCostControl")({ id: "unrelated", tagName: "INPUT", type: "text" }), false);
+  for (const id of [...html.matchAll(/\bid="(ai-[^"]+)"/g)].map((match) => match[1])) {
+    assert.equal(h.get("isCostControl")({ id, tagName: "INPUT", type: id === "ai-token" ? "password" : "text" }), false, id);
+  }
 });
 
 test("provider, server and architecture transforms finish before the one recompute", () => {
@@ -279,6 +316,7 @@ test("changed UI modules use matching versioned URLs across HTML and module impo
   const version = html.match(/app\.js\?v=([^\"]+)/)?.[1];
   assert.ok(version);
   assert.ok(app.includes(`./fields.js?v=${version}`));
+  assert.ok(app.includes(`./planner.js?v=${version}`));
 });
 
 test("field harvesting and close use a shared range-blind control selector", () => {
@@ -287,4 +325,101 @@ test("field harvesting and close use a shared range-blind control selector", () 
   assert.match(fields, /f\.dataset\.inline/);
   assert.match(fields, /h2\.cloneNode\(true\)/);
   assert.match(fields, /releaseFields/);
+});
+
+test("the AI interview cannot mutate calculator fields before readiness and Apply is total", () => {
+  const h = harness();
+  h.state.workloadPresets = {
+    defaults: { shapes: {} },
+    provenance: {},
+    presets: [
+      { id: "support_desk", label: "Support", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "500" } },
+      { id: "agent_platform", label: "Agents", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "200" } },
+    ],
+  };
+  h.node("f-users").value = "77";
+  h.context.recomputes = 0;
+  h.get(`onLiveInput = () => { recomputes++; };
+    plannerState.answers = {use_case:'support',substrate:'nutanix',data_boundary:'internal',interaction:'assistant',overflow:'burst'};`);
+  h.get("applyPlannerAnswers()");
+  assert.equal(h.node("f-users").value, "77");
+  assert.equal(h.context.recomputes, 0);
+
+  h.state.ready = true;
+  h.get("applyPlannerAnswers()");
+  assert.equal(h.node("f-users").value, "500");
+  assert.equal(h.node("fr-policy").value, "local_first");
+  assert.equal(h.node("fr-blend").value, "100");
+  assert.equal(h.node("fr-failshare").value, "0.15");
+  assert.equal(h.node("fr-failrate").value, "2");
+  assert.equal(h.context.recomputes, 1);
+
+  h.get("plannerState.answers = {...plannerState.answers,use_case:'automation',overflow:'local_only'}; applyPlannerAnswers()");
+  assert.equal(h.node("f-users").value, "200");
+  assert.equal(h.node("fr-policy").value, "local_first");
+  assert.equal(h.node("fr-blend").value, "100");
+  assert.equal(h.node("fr-failshare").value, "0");
+  assert.equal(h.node("fr-failrate").value, "2");
+  assert.equal(h.context.recomputes, 2);
+});
+
+test("planner setup makes no request; Generate is the only fetch trigger", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  assert.equal(h.fetchCalls.length, 0);
+  h.state.ready = true;
+  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
+  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
+  h.node("ai-token").value = "memory-only";
+  h.get("plannerState.prompt = 'safe prompt'; plannerState.blueprint = {text:'local blueprint'}");
+  await h.get("generatePlannerRefinement()");
+  assert.equal(h.fetchCalls.length, 1);
+  assert.equal(h.node("ai-refinement-text").textContent, "stub response");
+  assert.equal(h.node("ai-refinement").hidden, false);
+});
+
+test("an older model completion cannot overwrite newer untrusted text", async () => {
+  const h = harness();
+  const pending = [];
+  h.context.requestRefinement = () => new Promise((resolve) => pending.push(resolve));
+  h.state.ready = true;
+  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
+  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
+  h.get("plannerState.prompt = 'prompt'; plannerState.blueprint = {text:'blueprint'}");
+  const older = h.get("generatePlannerRefinement()");
+  const newer = h.get("generatePlannerRefinement()");
+  pending[1]({ text: "<script>alert(1)</script> $12,400 invented", model: "newer", truncated: false });
+  await newer;
+  pending[0]({ text: "stale response", model: "older", truncated: false });
+  await older;
+  assert.equal(h.node("ai-refinement-text").textContent, "<script>alert(1)</script> $12,400 invented");
+  assert.equal(h.node("ai-refinement-text").innerHTML, "", "model output is assigned as text, never HTML");
+  assert.match(h.node("ai-model-status").textContent, /Unverified prose/);
+  assert.doesNotMatch(h.node("ai-model-status").textContent, /older/);
+});
+
+test("provider secrets and model prose are screen-only and absent from cost collection", () => {
+  const rail = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
+  assert.doesNotMatch(rail, /id="ai-token"/);
+  assert.match(html, /<details class="ai-refine screen-only">[\s\S]*id="ai-token"[\s\S]*id="ai-refinement-text"[\s\S]*<\/details>/);
+  assert.match(html.slice(html.indexOf("@media print")), /\.screen-only \{ display:none !important; \}/);
+  const h = harness();
+  h.node("ai-token").value = "never-export-me";
+  h.node("f-users").value = "500";
+  h.context.document.querySelectorAll = () => [h.node("ai-token"), h.node("f-users")];
+  assert.equal(h.get("enteredControls().map((el) => el.id).join(',')"), "f-users");
+});
+
+test("copy falls back when the async clipboard is unavailable", async () => {
+  const h = harness();
+  h.context.navigator.clipboard.writeText = async () => { throw new Error("denied"); };
+  h.context.document.execCommand = (command) => command === "copy";
+  await assert.doesNotReject(h.get("copyText('portable prompt')"));
+});
+
+test("the page explains HTTPS localhost limits and Nutanix price boundaries", () => {
+  assert.match(html, /browsers block direct calls to <code>http:\/\/localhost<\/code>/);
+  assert.match(app, /Nutanix Enterprise AI has no public list price|blueprint\.warnings/);
+  assert.match(html, /Reset whole page/);
+  assert.match(html, /AI sends only after your explicit Generate/);
 });

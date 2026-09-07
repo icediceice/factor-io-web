@@ -22,7 +22,17 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
-import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ux3";
+import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ai1";
+import {
+  INTERVIEW_QUESTIONS,
+  MINIMAX_DEFAULTS,
+  buildBlueprint,
+  buildPlannerPlan,
+  buildPrompt,
+  createRequestFence,
+  isInterviewComplete,
+  requestRefinement,
+} from "./planner.js?v=20260906-ai1";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -79,6 +89,240 @@ const state = {
   // comparison over an empty catalog renders a gap the user never caused.
   ready: false,
 };
+
+const plannerState = {
+  answers: {},
+  questionIndex: 0,
+  plan: null,
+  blueprint: null,
+  prompt: "",
+  applied: false,
+  abortController: null,
+};
+const plannerFence = createRequestFence();
+
+function plannerOption(question, optionId) {
+  return question.options.find((option) => option.id === optionId) ?? null;
+}
+
+function setPlannerReady(ready) {
+  const complete = isInterviewComplete(plannerState.answers);
+  $("ai-apply").disabled = !ready || !complete;
+  $("ai-generate").disabled = !ready || !plannerState.blueprint;
+  $("ai-ready-note").textContent = ready
+    ? (complete ? "Ready to apply. Calculator values change only after you press Apply." : "Answer each question to prepare a calculator setup.")
+    : "Loading calculator data. You can review the questions; Apply and Generate stay locked until the cited inputs are ready.";
+}
+
+function renderPlannerSummary() {
+  const rows = INTERVIEW_QUESTIONS.flatMap((question, index) => {
+    const option = plannerOption(question, plannerState.answers[question.id]);
+    return option ? [`<button type="button" class="ai-summary-row" data-ai-edit="${index}"><span>${escapeHtml(question.eyebrow)}</span><strong>${escapeHtml(option.label)}</strong></button>`] : [];
+  });
+  $("ai-summary").innerHTML = rows.length ? rows.join("") : '<p class="muted">Your answers will collect here.</p>';
+}
+
+function renderPlannerInterview() {
+  const complete = isInterviewComplete(plannerState.answers);
+  const atReview = complete && plannerState.questionIndex >= INTERVIEW_QUESTIONS.length;
+  $("ai-progress").textContent = atReview
+    ? "READY TO APPLY"
+    : `${String(Math.min(plannerState.questionIndex + 1, INTERVIEW_QUESTIONS.length)).padStart(2, "0")} / ${String(INTERVIEW_QUESTIONS.length).padStart(2, "0")}`;
+  if (atReview) {
+    $("ai-question").textContent = "Review the local-first setup";
+    $("ai-help").textContent = "Choose any answer below to revise it. Apply writes the mapped workload preset and routing controls, then the normal calculator recomputes.";
+    $("ai-options").innerHTML = "";
+  } else {
+    const question = INTERVIEW_QUESTIONS[plannerState.questionIndex] ?? INTERVIEW_QUESTIONS[0];
+    plannerState.questionIndex = Math.max(0, INTERVIEW_QUESTIONS.indexOf(question));
+    $("ai-question").textContent = question.prompt;
+    $("ai-help").textContent = question.help;
+    $("ai-options").innerHTML = question.options.map((option) => {
+      const selected = plannerState.answers[question.id] === option.id;
+      return `<button type="button" class="ai-option" data-ai-option="${escapeHtml(option.id)}" aria-pressed="${selected}"><strong>${escapeHtml(option.label)}</strong><span>${escapeHtml(option.note)}</span></button>`;
+    }).join("");
+  }
+  $("ai-back").disabled = plannerState.questionIndex === 0;
+  renderPlannerSummary();
+  setPlannerReady(state.ready);
+}
+
+function cancelPlannerRequest() {
+  plannerFence.cancel();
+  if (plannerState.abortController) plannerState.abortController.abort();
+  plannerState.abortController = null;
+}
+
+function clearPlannerOutput(message = "Apply the guided setup to build a deployment blueprint.") {
+  cancelPlannerRequest();
+  plannerState.blueprint = null;
+  plannerState.prompt = "";
+  $("ai-blueprint").innerHTML = `<p class="muted">${escapeHtml(message)}</p>`;
+  $("ai-refinement").hidden = true;
+  $("ai-refinement-text").textContent = "";
+  $("ai-copy-blueprint").disabled = true;
+  $("ai-copy-prompt").disabled = true;
+  $("ai-download").disabled = true;
+  $("ai-generate").disabled = true;
+}
+
+function markPlannerAnswersChanged() {
+  if (!plannerState.applied) return;
+  plannerState.plan = null;
+  plannerState.applied = false;
+  $("ai-state").textContent = "Answers changed · review and Apply again to update the calculator";
+  clearPlannerOutput("Answers changed. The previous calculator setup remains in place until you explicitly Apply this revision.");
+}
+
+function choosePlannerAnswer(optionId) {
+  const question = INTERVIEW_QUESTIONS[plannerState.questionIndex];
+  if (!question || !plannerOption(question, optionId)) return;
+  markPlannerAnswersChanged();
+  plannerState.answers = { ...plannerState.answers, [question.id]: optionId };
+  plannerState.questionIndex = Math.min(plannerState.questionIndex + 1, INTERVIEW_QUESTIONS.length);
+  renderPlannerInterview();
+}
+
+function applyPlannerAnswers() {
+  if (!state.ready || !isInterviewComplete(plannerState.answers)) return;
+  const plan = buildPlannerPlan(plannerState.answers);
+  applyWorkloadPreset(plan.presetId, { recompute: false });
+  for (const [field, value] of Object.entries(plan.controlledFields)) {
+    const control = $(field);
+    if (control) control.value = value;
+  }
+  plannerState.plan = plan;
+  plannerState.applied = true;
+  plannerState.questionIndex = INTERVIEW_QUESTIONS.length;
+  $("ai-state").textContent = "Applied · existing workload preset + local-first routing · assumptions remain editable";
+  renderPlannerInterview();
+  onLiveInput();
+}
+
+function currentPlannerContext() {
+  const preset = state.workloadPresets?.presets?.find((row) => row.id === plannerState.plan?.presetId);
+  const model = $("f-sv-model");
+  return {
+    presetLabel: preset?.label ?? "current",
+    modelLabel: model?.selectedOptions?.[0]?.textContent?.trim() || model?.value || "",
+  };
+}
+
+function renderPlannerBlueprint() {
+  if (!plannerState.plan || !plannerState.applied) return;
+  const context = currentPlannerContext();
+  const blueprint = buildBlueprint(plannerState.plan, context);
+  plannerState.blueprint = blueprint;
+  plannerState.prompt = buildPrompt({ plan: plannerState.plan, blueprint, context });
+  $("ai-blueprint").innerHTML = `${blueprint.warnings.map((warning) => `<p class="ai-boundary"><strong>Boundary</strong> ${escapeHtml(warning)}</p>`).join("")}
+    <div class="ai-spec-grid">${blueprint.sections.map((section) => `<section><h4>${escapeHtml(section.heading)}</h4>${section.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</section>`).join("")}</div>`;
+  $("ai-copy-blueprint").disabled = false;
+  $("ai-copy-prompt").disabled = false;
+  $("ai-download").disabled = false;
+  $("ai-generate").disabled = !state.ready;
+  $("ai-refinement").hidden = true;
+  $("ai-refinement-text").textContent = "";
+  $("ai-model-status").textContent = "Blueprint ready locally. No model request has been made.";
+}
+
+async function copyText(text) {
+  if (!text) throw new Error("Nothing is ready to copy.");
+  if (globalThis.navigator?.clipboard?.writeText) {
+    try { await globalThis.navigator.clipboard.writeText(text); return; } catch { /* use the static-file fallback */ }
+  }
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.appendChild(area);
+  area.select();
+  const copied = document.execCommand?.("copy");
+  area.remove();
+  if (!copied) throw new Error("Clipboard access is unavailable. Select the displayed text and copy it manually.");
+}
+
+async function copyPlannerArtifact(kind) {
+  const text = kind === "prompt" ? plannerState.prompt : plannerState.blueprint?.text;
+  const status = $("ai-model-status");
+  try {
+    await copyText(text);
+    status.textContent = kind === "prompt" ? "Prompt copied. Paste it into Ollama, LM Studio or another local model client." : "Blueprint copied.";
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+function downloadPlannerBlueprint() {
+  if (!plannerState.blueprint?.text) return;
+  const blob = new Blob([plannerState.blueprint.text], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "local-llm-blueprint.txt";
+  link.click();
+  URL.revokeObjectURL(link.href);
+  $("ai-model-status").textContent = "Blueprint downloaded as plain text.";
+}
+
+async function generatePlannerRefinement() {
+  if (!state.ready || !plannerState.prompt) return;
+  if (plannerState.abortController) plannerState.abortController.abort();
+  const generation = plannerFence.begin();
+  const controller = new AbortController();
+  plannerState.abortController = controller;
+  const button = $("ai-generate");
+  button.disabled = true;
+  $("ai-model-status").textContent = "Sending the displayed prompt to your configured endpoint…";
+  $("ai-refinement").hidden = true;
+  try {
+    const result = await requestRefinement({
+      endpoint: $("ai-endpoint").value,
+      model: $("ai-model").value,
+      token: $("ai-token").value,
+      prompt: plannerState.prompt,
+      pageUrl: location.href,
+      signal: controller.signal,
+    });
+    if (!plannerFence.isCurrent(generation)) return;
+    $("ai-refinement-text").textContent = result.text;
+    $("ai-refinement").hidden = false;
+    $("ai-model-status").textContent = `Refined by ${result.model}${result.truncated ? " · response clipped to the browser limit" : ""}. Unverified prose; not included in calculator totals or print.`;
+  } catch (error) {
+    if (!plannerFence.isCurrent(generation) || error?.code === "aborted") return;
+    $("ai-model-status").textContent = `${error.message} The local blueprint and copy/download actions still work.`;
+  } finally {
+    if (plannerFence.isCurrent(generation)) {
+      plannerState.abortController = null;
+      button.disabled = !state.ready || !plannerState.blueprint;
+    }
+  }
+}
+
+function setupPlanner() {
+  $("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
+  $("ai-model").value = MINIMAX_DEFAULTS.model;
+  $("ai-options").addEventListener("click", (event) => {
+    const option = event.target.closest("[data-ai-option]");
+    if (option) choosePlannerAnswer(option.dataset.aiOption);
+  });
+  $("ai-summary").addEventListener("click", (event) => {
+    const edit = event.target.closest("[data-ai-edit]");
+    if (!edit) return;
+    plannerState.questionIndex = Number(edit.dataset.aiEdit);
+    renderPlannerInterview();
+  });
+  $("ai-back").addEventListener("click", () => {
+    plannerState.questionIndex = Math.max(0, plannerState.questionIndex - 1);
+    renderPlannerInterview();
+  });
+  $("ai-apply").addEventListener("click", applyPlannerAnswers);
+  $("ai-copy-blueprint").addEventListener("click", () => void copyPlannerArtifact("blueprint"));
+  $("ai-copy-prompt").addEventListener("click", () => void copyPlannerArtifact("prompt"));
+  $("ai-download").addEventListener("click", downloadPlannerBlueprint);
+  $("ai-generate").addEventListener("click", () => void generatePlannerRefinement());
+  clearPlannerOutput();
+  renderPlannerInterview();
+}
 
 // A total travels as a Dec, a Rat, or a reduced "n/d" string — a non-terminating
 // division keeps full precision instead of collapsing to a float. ONE parser, so
@@ -165,6 +409,7 @@ async function init() {
     else el.selectedIndex = [...el.options].findIndex((o) => o.defaultSelected);
     if (el.tagName === "SELECT" && el.selectedIndex < 0) el.selectedIndex = 0;
   }
+  setupPlanner();
   setupSliders();
   document.querySelector(".rail").inert = true;
   // UTC hour selector: the quote instant is a DECLARED input (determinism),
@@ -256,6 +501,7 @@ async function init() {
     // labelled scenario, so the first thing the screen shows is a worked example
     // the user edits — not a form they must fill before anything happens.
     state.ready = true;
+    setPlannerReady(true);
     flushLiveInput();
   } catch (e) {
     invalidateResults("Example unavailable — reload to retry.");
@@ -1147,7 +1393,7 @@ async function loadWorkloadPresets() {
   applyWorkloadPreset(state.workloadPresets.presets[0].id);
 }
 
-function applyWorkloadPreset(id) {
+function applyWorkloadPreset(id, { recompute = true } = {}) {
   const p = state.workloadPresets.presets.find((x) => x.id === id);
   if (!p) return;
   for (const btn of $("preset-cards").querySelectorAll(".chip")) {
@@ -1175,7 +1421,7 @@ function applyWorkloadPreset(id) {
   $("preset-note").innerHTML = `<strong>${escapeHtml(p.label)}</strong> &mdash; every field is `
     + `<span class="tag ${p.assumption_label === "assumed" ? "tag-est" : "tag-unknown"}">${escapeHtml(p.assumption_label)}</span> `
     + `${escapeHtml(p.assumption_note)}${dated}. Change any number below.`;
-  onLiveInput();
+  if (recompute) onLiveInput();
 }
 
 // ------------------------------------------------------------ input plumbing
@@ -1270,6 +1516,7 @@ function invalidateResults(message) {
   }
   $("calculation-status").textContent = message;
   $("comparison").setAttribute("aria-busy", "true");
+  if (plannerState.applied) clearPlannerOutput("Calculator inputs changed. Rebuilding this applied blueprint from the next exact result…");
 }
 
 // The headline recomputes as you type. A calculator with a button you must
@@ -1689,6 +1936,7 @@ function run() {
     state.rentGap = s.rentGap;
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
+    renderPlannerBlueprint();
     renderServerNote();
     renderPowerNote();
     renderSubNote();

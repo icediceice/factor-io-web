@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | Status | Normative draft for implementation |
-| Spec revision | v0.3 — 2026-08-29 (supersedes v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
-| Plan thread | 1543165562891538537 (factor-io-web); v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
+| Spec revision | v0.4 — 2026-09-06 (supersedes v0.3 — 2026-08-29, v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
+| Plan thread | 1546296134455005337 (factor-io-web); v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
 | Delivery | Static client-side calculator on GitHub Pages + an operator-run pricing refresh command |
 
 **What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token
@@ -37,6 +37,15 @@ was not the one the constant was calibrated on.
 
 The v0.2 constant path REMAINS as the documented fallback for accelerators with no
 published bandwidth figure, so no provider drops out of the comparison.
+
+**What v0.4 changes, and why.** The exact calculator remains intact. A guided
+local-LLM planner now asks one question at a time, maps the completed interview to
+an existing workload preset plus a complete local-first routing field set, and
+builds an authored Nutanix-or-portable deployment blueprint. Applying that setup is
+explicit; generated model prose never writes calculator inputs or enters price
+provenance. Optional refinement uses a visitor-configured OpenAI-compatible HTTPS
+endpoint (MiniMax by default) only after the visitor presses Generate. The token is
+held in the page's memory only, is not stored, and is never proxied by Factor I O.
 
 Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
 and remain normative** — the tariff model, quote semantics, freshness envelope and
@@ -1144,11 +1153,12 @@ frequently non-terminating and therefore travels as a reduced rational per §3.5
 
 ---
 
-## 8. UX — ONE screen, no wizard
+## 8. UX — one calculator screen with a guided systems canvas
 
 ```
 ┌─ inputs (sticky left rail) ─┬─ answers (right column, live) ─────────────┐
-│ Start here (preset chips)   │ verdict cards · fit & speed · demand       │
+│ AI setup guide (one prompt) │ verdict cards · fit & speed · demand       │
+│ Start here (preset chips)   │ local-LLM deployment blueprint             │
 │ Who uses it                 │ recommendation · payback · per-option      │
 │ What they do (mix)          │ cross-provider table · feasibility · curve │
 │ The model you'd run         │ sensitivity · provenance · export          │
@@ -1157,7 +1167,7 @@ frequently non-terminating and therefore travels as a reduced rational per §3.5
 └─────────────────────────────┴────────────────────────────────────────────┘
 ```
 
-v0.2's four-screen wizard (S1→S2→S3⇄S4) is REMOVED. It hid the causal link the tool
+v0.2's four-page calculator wizard (S1→S2→S3⇄S4) remains REMOVED. It hid the causal link the tool
 exists to show: context length and model architecture drive GPU count, and a user
 who must navigate between screens to change one and read the other cannot see that
 they are the same fact. Everything is on one screen and the right column recomputes
@@ -1239,6 +1249,36 @@ The freshness banner (§5.5) and any data gap sit at the top of the right column
 above the verdict, so a stale or unverifiable input is visible before the number it
 affects is read.
 
+**Guided Systems Canvas (normative).** A short planning interview sits at the top
+of the existing rail, one question at a time; it does not replace or proxy any
+calculator control. Its identifiers use the `ai-*` prefix and MUST remain outside
+the `f-*|fb-*|fo-*|fr-*` cost-control contract. Therefore planner questions,
+endpoint details, tokens and generated prose cannot enter live cost recomputation,
+the print input appendix, or quote JSON.
+
+- Apply is disabled until calculator initialization completes and every planning
+  question has a valid answer. Pressing it calls the existing workload preset path,
+  then unconditionally writes the planner's complete routing field set
+  (`local_first`, blend, failover share and failover multiplier) before scheduling
+  one normal recomputation. Revising and applying twice cannot retain a field from
+  the first answer set.
+- The deterministic blueprint is authored client-side guidance and works without
+  any model or network. It names a Nutanix primary pattern when selected and a
+  portable Kubernetes/Linux-VM equivalent. It MUST state that Nutanix Enterprise
+  AI licence pricing is not included until the user enters a vendor quote.
+- Copy and download remain available if remote refinement fails. Copy MUST include
+  a static-file/older-browser fallback. A deployed HTTPS page MUST explain that a
+  browser cannot call an `http://localhost` Ollama/LM Studio endpoint; Copy prompt
+  is the local-runtime path unless the user provides an approved HTTPS gateway with
+  CORS configured.
+- Generate is the sole planner network trigger. It sends the displayed prompt only
+  to the entered OpenAI-compatible endpoint. Credentials stay in memory, outside
+  `.rail .f`, and every provider field plus remote response is screen-only. Model
+  output is bounded and assigned with `textContent`, never HTML. A generation fence
+  prevents an older response from replacing a newer plan.
+- Generated prose is explicitly unverified, never printed, never exported and never
+  treated as price, capacity, benchmark, licence or provenance evidence.
+
 **Naming contract (normative).** The strings `Lane`, `Lane A`, `Lane B` and `Lane C`
 MUST NOT appear in any rendered surface or in the exported quote. The engine's
 internal `A`/`B`/`C` keys are mapped to `self_hosted` / `model_api` / `rented_gpu`
@@ -1290,7 +1330,10 @@ re-serves the prior digest with zero extra state.
 2. **Offline-capable:** once slices load, recomputation needs no network.
 3. **Static delivery:** GitHub Pages only; no server-side computation; no third-party
    runtime CDN dependencies (repo convention: self-contained assets).
-4. **Privacy:** no analytics, no tracking; nothing leaves the page.
+4. **Privacy:** no analytics and no tracking. Calculator inputs and results remain
+   local. Nothing leaves the page unless the visitor explicitly presses Generate;
+   that action sends the displayed planning prompt to the endpoint the visitor
+   configured. Factor I O does not receive, store or proxy the token or response.
 5. **Performance:** first interactive ≤ 2 s on a mid-range device within the §9
    budget; recomputation ≤ 100 ms.
 6. **Accessibility:** WCAG 2.1 AA baseline; keyboard-navigable; provenance popovers
@@ -1314,6 +1357,8 @@ re-serves the prior digest with zero extra state.
 | R8 | Dominated blend misleads the user | `dominated` flag with delta §2.2; never emitted as optimum |
 | R9 | Tokenizer conversion drift silently corrupts estimates | `no_conversion` instead of 1:1 §4.1; factor provenance displayed |
 | R10 | GCP API key exposure | Actions-secrets-only §5.6; absence of credentials in all artifacts |
+| R11 | Planner credential or generated prose leaks into a quote/print | `ai-*` controls outside the cost selector; provider panel and response screen-only; text-only rendering §8 |
+| R12 | HTTPS deployment cannot reach an HTTP local runtime | Explain mixed-content/CORS boundary; deterministic blueprint + Copy prompt always work §8 |
 
 ---
 

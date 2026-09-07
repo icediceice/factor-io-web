@@ -11,9 +11,11 @@
 // the F1–F10 acceptance anchors — so the rename happens HERE, at the render and
 // export boundary, through OPTION. Renaming the engine instead would rewrite
 // those fixtures, and they are the regression net for the ×3600 dimensional bug.
-import { Dec, Rat, formatHalfUp, toRat } from "./exact.js";
+import { Dec, Rat, formatHalfUp, toRat, ratStr } from "./exact.js";
 import { runComparison, matchEvidence, ratToDecExact, rentedGpuByProvider } from "./calculator.js?v=20260906-ux3";
-import { loadManifest, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
+import { loadManifest, loadFx, resolveResource, beginSelection, currentGeneration, freshnessView } from "./data.js";
+import { normalizeFxDocument, toTHB, toUSD, fxProvenance } from "./currency.js";
+import { fetchOpenRouterModels, compileLiveOpenRouter, replaceCatalogSource, fetchLiveFx } from "./live-pricing.js";
 import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
 import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, cheapestBoxForLoad, serversForGpu, CapexRefusal } from "./capex.js?v=20260906-ux3";
@@ -78,6 +80,8 @@ const state = {
   // than going blank — the same contract servingGap follows.
   serverPricing: null,
   subscriptions: null,
+  fx: null,
+  liveFailures: {},
   capexPlan: null,
   capexGap: null,
   subPlan: null,
@@ -402,12 +406,23 @@ const moneyValue = (x) => {
   const m = /^(-?\d+)\/(\d+)$/.exec(s);
   return m ? new Rat(BigInt(m[1]), BigInt(m[2])) : Dec.from(s);
 };
+const groupDecimal = (value) => {
+  const [whole, fraction] = String(value).split(".");
+  const sign = whole.startsWith("-") ? "-" : "";
+  const digits = sign ? whole.slice(1) : whole;
+  const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${sign}${grouped}${fraction === undefined ? "" : `.${fraction}`}`;
+};
 const money = (x) => {
   const v = moneyValue(x);
-  return v === null ? "—" : "$" + formatHalfUp(v, 2);
+  return v === null || !state.fx ? "—" : `฿${groupDecimal(formatHalfUp(toTHB(v, state.fx), 2))}`;
 };
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
+const engineMoneyInput = (id) => {
+  const value = decInput(id);
+  return value === null ? null : ratStr(toUSD(value, state.fx));
+};
 // formatHalfUp always emits the full scale, so a percent readout reads "90.0000"
 // without this. The decimal point is therefore always present, which is what
 // makes stripping the trailing zeros and then the bare point safe.
@@ -496,6 +511,46 @@ async function init() {
 
   try {
     state.manifest = await loadManifest();
+    const localManifest = state.manifest;
+    const [catalogResult, fallbackFxResult, openRouterResult, liveFxResult] = await Promise.allSettled([
+      resolveResource(localManifest, "catalog"),
+      loadFx(localManifest),
+      fetchOpenRouterModels(),
+      fetchLiveFx(),
+    ]);
+    if (catalogResult.status !== "fulfilled") throw catalogResult.reason;
+    if (fallbackFxResult.status !== "fulfilled") throw fallbackFxResult.reason;
+    state.catalog = catalogResult.value;
+    state.fx = normalizeFxDocument(fallbackFxResult.value, { integrity: "digest-pinned" });
+    if (openRouterResult.status === "fulfilled") {
+      const live = compileLiveOpenRouter(openRouterResult.value);
+      const replacement = replaceCatalogSource(state.manifest, state.catalog, live);
+      state.manifest = replacement.manifest;
+      state.catalog = replacement.catalog;
+    } else {
+      state.liveFailures.openrouter = String(openRouterResult.reason?.message ?? openRouterResult.reason ?? "live fetch failed");
+    }
+    if (liveFxResult.status === "fulfilled") {
+      state.fx = liveFxResult.value;
+      state.manifest = {
+        ...state.manifest,
+        sources: {
+          ...state.manifest.sources,
+          fx: {
+            source_id: "fx",
+            status: "fresh",
+            observed_at: `${state.fx.observed_at}T00:00:00.000Z`,
+            last_success_at: new Date().toISOString(),
+            expires_at: state.fx.expires_at,
+            record_count: 1,
+            origin: "live",
+            integrity: state.fx.integrity,
+          },
+        },
+      };
+    } else {
+      state.liveFailures.fx = String(liveFxResult.reason?.message ?? liveFxResult.reason ?? "live fetch failed");
+    }
     renderBanner(freshnessView(state.manifest, Date.now()));
     await loadGpuPricing();
     await loadPowerData();
@@ -1799,7 +1854,9 @@ async function fillModels(sel) {
   $("fb-model").innerHTML = byName.map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`).join("");
   const cur = byName.find((m) => /gpt-4o/.test(m.id)) ?? byName.find((m) => /claude/.test(m.id)) ?? byName[0];
   if (cur) $("fb-model").value = cur.id;
-  $("fb-model-note").textContent = `${models.length} models · snapshot ${state.manifest.snapshot_digest} · generated ${state.manifest.generated_at}`;
+  const source = state.manifest.sources?.[feed] ?? {};
+  const fallback = state.liveFailures[feed] ? ` · live unavailable, using dated fallback (${state.liveFailures[feed]})` : "";
+  $("fb-model-note").textContent = `${models.length} models · ${source.origin ?? "snapshot"} ${String(source.observed_at ?? state.manifest.generated_at).slice(0, 10)} · ${source.integrity ?? "declared"}${fallback}`;
   state.selecting = false;
   if (state.ready) onLiveInput();
 }

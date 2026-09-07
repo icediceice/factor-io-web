@@ -426,7 +426,7 @@ function setChatBusy(busy) {
   $("ai-cancel").hidden = !busy;
   $("ai-message").disabled = busy;
   $("ai-progress").textContent = busy
-    ? "CONTACTING MINIMAX"
+    ? "CONTACTING ASSISTANT"
     : chatState.pendingProposal
       ? "REVIEW PROPOSAL"
       : chatState.pendingSpec && !plannerState.refinement?.stale

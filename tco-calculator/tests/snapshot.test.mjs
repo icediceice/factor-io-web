@@ -203,3 +203,13 @@ test("real-feeds snapshot fits the payload budget: manifest <= 64KB compressed",
   const chatOffers = Object.values(r.catalog.offers).filter((o) => o.tariff === "token").length;
   assert.ok(chatOffers > 300, `expected a real catalog, got ${chatOffers}`);
 });
+
+test("model refresh preserves the independently refreshed FX resource and envelope", () => {
+  const previousManifest = {
+    resources: { fx: { kind: "external", path: "fx.json", digest: "abc123", bytes: 99 } },
+    sources: { fx: { source_id: "fx", status: "fresh", observed_at: "2026-09-01T00:00:00.000Z", expires_at: "2026-09-08T00:00:00.000Z" } },
+  };
+  const result = buildSnapshot({ previousManifest, refreshId: "with-fx", fetchedAt: T0, feeds: okFeeds() });
+  assert.deepEqual(result.manifest.resources.fx, previousManifest.resources.fx);
+  assert.deepEqual(result.manifest.sources.fx, previousManifest.sources.fx);
+});

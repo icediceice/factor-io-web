@@ -726,6 +726,28 @@ remains visible but not costed until the user enters a monthly figure. A default
 wattage is forbidden because it would invent a recurring term while still
 looking authoritative.
 
+### 5.10 Live source replacement and the exact THB boundary
+
+The digest-pinned snapshot loads first. The browser then fetches the public
+OpenRouter Models API and a direct USD→THB rate from the Frankfurter ECB mirror in
+parallel. Each live source compiles into a temporary namespace and replaces only its
+matching snapshot source after pagination completeness, record count, schema, numeric
+bounds and timeout checks all pass. Partial, truncated or failed live data changes no
+prices: the entire last-good source remains, with its actual observed date, age,
+origin and integrity mode visible. Mixed source vintages are reported per source;
+there is no invented global freshness date.
+
+The operator refresh command builds the fallback FX document from official ECB daily
+reference-rate decimal legs and pins its digest. Runtime Frankfurter data is labelled
+as an ECB mirror and retains its dated direct decimal. Both normalize into an exact
+`Rat`; no binary float enters conversion. Source prices and the deterministic engine
+remain USD. THB-authored electricity, capex, subscription and overlay inputs convert
+exactly once to engine USD at their input seam. Engine monetary results convert
+exactly once to THB at display/export. Export envelopes retain exact engine USD,
+exact THB, rounded THB, FX source/date/legs and formula; rounding is half-up to two
+places at presentation only. No monetary result may render until validated FX exists.
+The authored comparison horizon is 60 months in HTML and every workload preset.
+
 ---
 
 ## 6. Throughput and utilization

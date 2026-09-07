@@ -865,6 +865,11 @@ test("a follow-up continues the same question and ends when the visitor moves on
   h.node("ai-message").value = "and this one?";
   await h.get("requestQuestionHelp()");
   assert.equal(h.get("plannerState.helpThread").length, 2, "a different question starts a new thread");
+  // The falsifier. A reset visible thread is not the model forgetting: the
+  // payload used to still open with the first question's exchanges, so the
+  // answer on screen could be about a question the visitor had already left.
+  assert.deepEqual(asked[2].sentHistory, [], "moving on clears the model's history, not just the visible one");
+  assert.equal(h.get("chatState.assistHistory.snapshot().length"), 1, "only the new question's exchange is retained");
   assert.notEqual(h.get("plannerState.helpQuestionId"), asked[0].validationContext.questions && Object.keys(asked[0].validationContext.questions)[0]);
 });
 

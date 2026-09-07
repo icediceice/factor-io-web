@@ -40,9 +40,16 @@ if [ "$current" != "$BRANCH" ]; then
   exit 2
 fi
 
-if ! git diff --quiet || ! git diff --cached --quiet; then
+# UNTRACKED COUNTS AS DIRTY. `git diff` and `git diff --cached` do not see an
+# untracked file, and `git add -A -- "$DATA"` below would then have staged,
+# committed and PUSHED a stray file that no refresh in this run produced — the
+# outside-surface check at the bottom deliberately excludes $DATA, so nothing
+# further down would have caught it either. A crashed earlier run leaving a
+# half-written catalog behind is exactly how that happens unattended.
+dirty="$(git status --porcelain)"
+if [ -n "$dirty" ]; then
   log "refuse: working tree is dirty — a previous run or a human left changes here"
-  git status --short
+  printf '%s\n' "$dirty"
   exit 3
 fi
 

@@ -355,6 +355,7 @@
   .ai-provider-grid input { width:100%; margin-top:3px; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.16); border-radius:4px; padding:7px 8px; font:13px/1.35 var(--mono); }
   .ai-provider-grid input:focus { border-color:var(--cyan); }
   .ai-refinement { max-height:430px; overflow:auto; border:1px solid var(--line); margin-top:10px; padding:11px; }
+  .ai-refinement[data-stale="true"] { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent); }
   .ai-refinement pre { color:var(--dim); font:12px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; }
   .intro { margin-bottom:16px; }
   .intro h1 { font-size:22px; font-weight:600; letter-spacing:-.025em; }
@@ -438,8 +439,10 @@
     <section class="ai-canvas" aria-labelledby="ai-canvas-title">
       <div style="display:flex;justify-content:space-between;gap:10px"><span class="ai-kicker">AI setup guide</span><span id="ai-progress" class="ai-progress">01 / 05</span></div>
       <h2 id="ai-canvas-title">How do you want to use AI?</h2>
-      <h3 id="ai-question" style="font-size:14px;margin-top:12px"></h3>
-      <p id="ai-help" class="muted"></p>
+      <div role="status" aria-live="polite" aria-atomic="true">
+        <h3 id="ai-question" tabindex="-1" style="font-size:14px;margin-top:12px"></h3>
+        <p id="ai-help" class="muted"></p>
+      </div>
       <div id="ai-options" class="ai-options"></div>
       <div id="ai-summary" class="ai-summary" aria-label="planning answers"></div>
       <div class="ai-nav">
@@ -832,6 +835,7 @@
         <button id="ai-copy-blueprint" class="btn" type="button" disabled>Copy blueprint</button>
         <button id="ai-download" class="btn" type="button" disabled>Download blueprint</button>
         <button id="ai-copy-prompt" class="btn" type="button" disabled>Copy prompt for a local LLM</button>
+        <button id="ai-copy-refinement" class="btn" type="button" disabled>Copy model refinement</button>
       </div>
       <details class="ai-refine screen-only">
         <summary>Optional MiniMax or compatible endpoint refinement</summary>
@@ -865,6 +869,6 @@
 <div id="field-vault" aria-hidden="true"></div>
 <!-- The sheet mounts here. Empty until a value is opened. -->
 <div id="sheet-root"></div>
-<script type="module" src="tco-calculator/app.js?v=20260906-ai1"></script>
+<script type="module" src="tco-calculator/app.js?v=20260906-ai2"></script>
 </body>
 </html>

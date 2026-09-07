@@ -810,6 +810,10 @@ function applyPlannerAnswers() {
   plannerState.answers = { ...proposal.planning_profile };
   plannerState.plan = plan;
   plannerState.applied = true;
+  // A proposal writes the answers too, so it is just as much a baseline for a
+  // later revision as a guided Apply is. Without this the revision preview
+  // would stay silent for anyone who arrived through the proposal path.
+  plannerState.appliedAnswers = JSON.stringify(plannerState.answers);
   plannerState.refinement = null;
   chatState.pendingSpec = null;
   $("ai-state").textContent = "Applied · reviewed proposal + local-first routing · assumptions remain editable";

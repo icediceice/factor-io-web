@@ -172,6 +172,9 @@ test("assistant tool validation rejects missing, multiple, unknown and malformed
   assert.throws(() => validateAssistantToolCall(assistantCall("delete_everything", {}), { fields }), (error) => error.code === "tool_name");
   const malformed = assistantCall("ask_user", {}); malformed.tool_calls[0].function.arguments = "{";
   assert.throws(() => validateAssistantToolCall(malformed, { fields }), (error) => error.code === "tool_json");
+  const missingId = assistantCall("ask_user", { question: "Continue?", suggested_replies: [] });
+  missingId.tool_calls[0].id = "";
+  assert.throws(() => validateAssistantToolCall(missingId, { fields }), (error) => error.code === "tool_call_id");
 });
 
 test("HTTP, invalid JSON and schema failures are normalized without response leakage", async () => {

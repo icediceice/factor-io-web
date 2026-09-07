@@ -1,11 +1,11 @@
 {
   "schema": "factor-io.fx/1.0.0",
   "source_id": "ecb",
-  "source_url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/",
-  "retrieved_via": "https://api.frankfurter.dev",
+  "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+  "retrieved_via": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
   "observed_at": "2026-09-04",
   "expires_at": "2026-09-11T23:59:59.999Z",
   "eur_usd": "1.1622",
-  "eur_thb": "38.26",
+  "eur_thb": "38.260",
   "integrity": "digest-pinned"
 }

@@ -32,7 +32,7 @@
 //
 // Exit code is non-zero if either half fails, so a wrapper can trust it.
 import { spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, unlink } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -177,6 +177,20 @@ async function main() {
   if (uncovered.length) {
     console.warn(`⚠  no server band for: ${uncovered.join(", ")} — the calculator will ask the user to enter capex for those accelerators.`);
   }
+  // Each run writes a NEW content-addressed catalog, and nothing used to remove
+  // the one it replaced — five superseded 2.4-2.7MB files had accumulated in a
+  // repo that GitHub Pages serves wholesale. They cannot simply be gitignored:
+  // the live catalog is named by manifest.resources.catalog.path and MUST stay
+  // tracked, so pruning is the only correct fix. Only the catalog this run just
+  // pinned survives.
+  const live = manifest.resources?.catalog?.path;
+  if (live) {
+    const stale = (await readdir(DATA_DIR))
+      .filter((f) => /^catalog-[0-9a-f]+\.json$/.test(f) && f !== live);
+    for (const file of stale) await unlink(`${DATA_DIR}${file}`);
+    if (stale.length) console.log(`pruned        ${stale.length} superseded catalog(s), kept ${live}`);
+  }
+
   console.log("\n✓ refresh complete.\n");
 }
 

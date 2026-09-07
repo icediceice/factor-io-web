@@ -338,6 +338,53 @@ test("changed UI modules use matching versioned URLs across HTML and module impo
   assert.ok(app.includes(`./planner.js?v=${version}`));
 });
 
+test("authored horizons default to 60 months in HTML and every workload preset", () => {
+  const presets = JSON.parse(readFileSync(new URL("../data/workload-presets.json", import.meta.url), "utf8"));
+  assert.match(html, /id="f-horizon"[^>]*value="60"/);
+  assert.equal(presets.defaults.horizon_months, "60");
+  assert.ok(presets.presets.length > 0);
+  assert.ok(presets.presets.every((preset) => preset.fields["f-horizon"] === "60"));
+});
+
+test("exported money preserves exact engine USD and converts once to exact THB", () => {
+  const h = harness();
+  const record = JSON.parse(JSON.stringify(h.get("exportMoneyRecord")("1/3")));
+  assert.deepEqual(record, {
+    engine_currency: "USD",
+    engine_exact: "1/3",
+    presentation_currency: "THB",
+    presentation_exact: "11",
+    presentation_rounded: "11.00",
+  });
+  const tree = JSON.parse(JSON.stringify(h.get("exportMoneyTree")({
+    monthly_total: "10",
+    curve: [{ month: 1, A: "20" }],
+    per_1m: { value: "2", reason: null },
+    utilization: "0.5",
+  })));
+  assert.equal(tree.monthly_total.presentation_exact, "330");
+  assert.equal(tree.curve[0].A.presentation_exact, "660");
+  assert.equal(tree.per_1m.value.presentation_exact, "66");
+  assert.equal(tree.utilization, "0.5", "dimensionless fields must not be currency-converted");
+});
+
+test("deterministic component ledger covers cost components, formulas and source freshness", () => {
+  const h = harness();
+  h.state.manifest = { sources: { openrouter: { origin: "live", status: "fresh", observed_at: "2026-09-04T00:00:00Z", integrity: "transport-live", record_count: 100 } } };
+  const totals = {
+    A: { priced: true, infra_monthly: "10", subscription_monthly: "2", monthly_total: "12", one_time: "100", horizon_total: "820" },
+    B: { priced: false, infra_monthly: null, subscription_monthly: null, monthly_total: null, one_time: "0", horizon_total: null },
+    C: { priced: false, infra_monthly: null, subscription_monthly: null, monthly_total: null, one_time: "0", horizon_total: null },
+  };
+  const ledger = JSON.parse(JSON.stringify(h.get("buildComponentLedger")({ totals, routing_result: { recommended_monthly_total: "12" }, overlay: null })));
+  assert.equal(ledger.schema, "factor-io.tco-component-ledger/1.0.0");
+  assert.equal(ledger.recurring.self_hosted.horizon_total.presentation_exact, "27060");
+  assert.equal(ledger.routing.recommended_monthly_total.presentation_exact, "396");
+  assert.equal(ledger.freshness.sources.openrouter.origin, "live");
+  assert.ok(ledger.formulas.some((formula) => formula.includes("Horizon total")));
+  for (const key of ["demand", "sizing", "recurring", "capex", "power", "subscription", "routing", "exclusions", "freshness", "formulas"]) assert.ok(key in ledger, key);
+});
+
 test("field harvesting and close use a shared range-blind control selector", () => {
   assert.match(fields, /const CONTROL = "input:not\(\[type=range\]\), select"/);
   assert.doesNotMatch(fields, /querySelector(?:All)?\("input, select"\)/);

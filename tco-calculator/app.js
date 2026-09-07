@@ -2817,7 +2817,14 @@ function exportQuote(r) {
   const d = state.demand;
   const payload = {
     cost_scope: "Horizon totals include modelled infrastructure, applicable platform subscription and one-time costs. Consulting and enterprise-licensing overlay is additional, excluded from totals, curve and payback. Per-token figures and routing sensitivity are infrastructure-only. Planning estimate, not a binding quote.",
+    currency_contract: {
+      authored_inputs: "THB",
+      engine_and_source_prices: "USD",
+      presentation_and_export: "THB",
+      fx: fxProvenance(state.fx),
+    },
     entered_inputs: Object.fromEntries(enteredControls().map((el) => [el.id, el.value])),
+    entered_input_units: Object.fromEntries(enteredControls().map((el) => [el.id, THB_MONEY_INPUT_IDS.has(el.id) ? "THB" : null])),
     generated_at: new Date().toISOString(),
     snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
     demand: d ? {
@@ -2846,24 +2853,24 @@ function exportQuote(r) {
         assumed: d.sizing.assumed,
       },
     } : null,
-    rented_gpu_source: state.rentRow ? {
+    rented_gpu_source: state.rentRow ? exportMoneyTree({
       provider: state.rentRow.provider_label,
       sku: state.rentRow.sku,
       gpu_hourly_usd: state.rentRow.gpu_hourly_usd,
       confidence: state.rentRow.confidence,
       source_url: state.rentRow.source_url,
       observed_at: state.rentRow.observed_at,
-    } : null,
+    }, ["rented_gpu_source"]) : null,
     // The cross-provider comparison travels with the quote: whoever receives this
     // file needs the alternatives that were rejected, not only the one selected.
     rented_gpu_by_provider: state.rentByProvider
-      ? { priced: state.rentByProvider.priced, unservable: state.rentByProvider.unservable }
+      ? exportMoneyTree({ priced: state.rentByProvider.priced, unservable: state.rentByProvider.unservable }, ["rented_gpu_by_provider"])
       : null,
     // v0.5: the hardware the capex was derived from travels with the quote. A
     // price band with no citation is not reviewable, so the row's source and
     // its verification status ship beside the number.
     server_config: state.capexPlan
-      ? {
+      ? exportMoneyTree({
           server_id: state.capexPlan.server_id,
           label: state.capexPlan.label,
           gpu_id: state.capexPlan.gpu_id,
@@ -2885,7 +2892,7 @@ function exportQuote(r) {
           // they cannot re-run. Null on an indicative row, which cites instead.
           derivation: state.capexPlan.derivation,
           derived_from: state.capexPlan.derived_from,
-        }
+        }, ["server_config"])
       : { unavailable: state.capexGap },
     // Which of the two the engine actually charged. An entered figure outranks
     // the derived one, and a quote that does not say which was used cannot be
@@ -2894,8 +2901,9 @@ function exportQuote(r) {
     // The licence's meter and its amount have different authorities, so both
     // provenance fields travel — collapsing them would present an aggregator's
     // estimate as a vendor list price.
-    subscription_source: state.subPlan ? { ...state.subPlan } : { unavailable: state.subGap },
-    result: {
+    subscription_source: state.subPlan ? exportMoneyTree({ ...state.subPlan }, ["subscription_source"]) : { unavailable: state.subGap },
+    component_ledger: buildComponentLedger(r),
+    result: exportMoneyTree({
       policy: r.policy,
       options: named,
       routing_result: r.routing_result,
@@ -2918,7 +2926,7 @@ function exportQuote(r) {
       })),
       horizon_months: r.horizon_months,
       reasons: r.reasons,
-    },
+    }, ["result"]),
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const a = document.createElement("a");

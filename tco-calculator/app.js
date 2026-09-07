@@ -568,6 +568,10 @@ function handleChatTool(result) {
 async function sendChatMessage(message = $("ai-message").value, { intent = "interview", clearComposer = true } = {}) {
   const text = String(message ?? "").trim();
   if (!state.ready || chatState.busy || !text) return;
+  if (intent === "spec" && (!plannerState.applied || !plannerState.blueprint || !state.result)) {
+    $("ai-workspace-status").textContent = "Apply a reviewed proposal and wait for a valid exact result before asking for the specification.";
+    return;
+  }
   const systemPrompt = chatSystemPrompt(intent);
   try {
     chatState.offlineArtifact = buildOfflineRequest({

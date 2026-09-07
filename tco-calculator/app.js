@@ -421,6 +421,11 @@ function renderRevision() {
       <button type="button" class="btn" id="ai-revert-answer">Undo my change</button>
     </div>`;
   box.hidden = false;
+  // Only on FIRST appearance. Seen at 1920: changing an answer puts the visitor
+  // at the top of a tall rail while this sits near the bottom, so the preview
+  // they never scroll to is the same as no preview at all. Re-renders must not
+  // fight their scrolling, hence the transition guard rather than every pass.
+  if (wasHidden) box.scrollIntoView?.({ block: "nearest" });
 }
 
 // Undo throws away the visitor's edit, not the applied state: the answers go

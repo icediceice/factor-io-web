@@ -90,6 +90,30 @@ artifact remains, and `MINIMAX_DEFAULTS.endpoint` remains overridable in source 
 a same-origin gateway, Ollama or LM Studio — but nothing on the page asks a visitor
 to configure one.
 
+**What v0.8 changes, and why.** v0.7 shipped the guided interview, but the operator
+found the result "so rigid it's not like an LLM at all" — and the customization UX
+around it still bad. Both were mechanical rather than stylistic faults.
+
+| v0.7 | v0.8 | Reason |
+|---|---|---|
+| Every turn sent `tool_choice:"required"` at `temperature:0.2`, and the validator required exactly one tool call while discarding `content` | An **assist** turn sends `tool_choice:"auto"` at `temperature:0.7`; the validator accepts prose with no tool call, or prose plus one `answer_question` (§8.3) | The model was structurally forbidden from writing a sentence. That is why it read as a form, not an assistant |
+| The reply rendered into a fixed answer / why / caveats template | Free prose in the model's own voice, rendered as a **per-question thread** keyed to `helpQuestionId`, with follow-ups that continue that one conversation | A follow-up like "what about the second option?" is meaningless once a different question is on screen, so the thread resets when the visitor moves |
+| Asking happened in a collapsed disclosure below the interview | An **ask box on the interview step itself** (`#ai-ask`), deliberately outside `#ai-interview` so a half-typed follow-up survives a re-render | Nobody opens a disclosure to ask about the question already in front of them |
+| Prose was discarded, so nothing sanitized it | Prose runs through `safeText` with `rejectClaims:true`, capped at `CHAT_LIMITS.maxProseChars`, and reaches the DOM only through escaping renderers | With the template gone, HTML rejection and price/arithmetic rejection are the ONLY things keeping free prose safe to render |
+| Revising meant re-answering and re-Applying wholesale | **A single answer is revisable after Apply**: an inert preview names each control the change would rewrite, from what to what, with Re-apply routed back through `applyGuidedAnswers` and an Undo that restores the applied answers (§8.2) | All-or-nothing re-answering was the second half of the customization complaint; routing Re-apply anywhere else would bypass the field validation a first Apply must pass |
+| The rail was grouped by field, with fold defaults keyed to heading strings | Seven sections named for the **decision** they settle, fold state declared as `data-open` in the markup | Fold defaults coupled to display copy meant renaming a heading silently folded a section, with no test and no error |
+| UI copy named the vendor | UI copy says **"LLM assistance"** and never names it; `privacy.html` and `llms.txt` still do | Naming the downstream processor is a disclosure obligation, not branding — so it belongs in the disclosure surfaces and nowhere else |
+| The pricing snapshot was refreshed by an operator-run command | `scripts/refresh-and-publish.sh` under the `factor-tco-refresh` systemd user timer, publishing from a dedicated clone; it refuses unless that clone is on `main` and clean, and commits only `tco-calculator/data/` | A snapshot only a human remembers to refresh is a stale snapshot. Commit timestamps remain no evidence of freshness — the banner reads observed feed dates |
+
+Two v0.8 defects were found only by walking the deployed page, and both are now
+normative constraints. **(1)** The assembled system prompt must be budgeted as a
+WHOLE against `CHAT_LIMITS.maxSystemChars`, which is the single source of that cap:
+budgeting only the JSON context, or checking once, lets a loaded page exceed it and
+`requestChatTurn` then refuses the entire turn. **(2)** The claim guard rejects a
+currency figure absolutely, but a bare `-` between digits is a RANGE, not
+arithmetic; requiring whitespace on both sides of the minus keeps `2-3 nodes` and
+`2026-09` renderable while a spaced subtraction still trips.
+
 Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
 and remain normative** — the tariff model, quote semantics, freshness envelope and
 decimal-exact arithmetic all survive v0.2 intact. The engine keeps its internal

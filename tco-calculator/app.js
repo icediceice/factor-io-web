@@ -1904,7 +1904,6 @@ function invalidateResults(message) {
   }
   $("calculation-status").textContent = message;
   $("comparison").setAttribute("aria-busy", "true");
-  if (plannerState.applied) clearPlannerOutput("Calculator inputs changed. Rebuilding this applied blueprint from the next exact result…", { keepRefinement: true });
 }
 
 // The headline recomputes as you type. A calculator with a button you must

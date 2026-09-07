@@ -597,7 +597,7 @@ function renderLocalLlmSpec(refinement) {
   $("ai-refinement-text").innerHTML = `<h3>${escapeHtml(spec.title)}</h3><p>${escapeHtml(spec.summary)}</p><div class="ai-spec-grid">${spec.components.map((component) => `<section><h4>${escapeHtml(component.name)}</h4><p><strong>Nutanix:</strong> ${escapeHtml(component.nutanix)}</p><p><strong>Portable:</strong> ${escapeHtml(component.portable)}</p><p>${escapeHtml(component.why)}</p></section>`).join("")}${list("Workflow", spec.workflow)}${list("Security", spec.security)}${list("Operations", spec.operations)}${list("Evaluation", spec.evaluation)}${list("Rollout", spec.rollout)}${list("Cost components", spec.component_explanations.map((row) => `${row.ledger_path}: ${row.explanation}`))}${list("Assumptions", spec.assumptions)}${list("Open decisions", spec.open_decisions)}</div>`;
 }
 
-function cancelChatRequest(message = "MiniMax request cancelled. The deterministic calculator and copyable request remain available.") {
+function cancelChatRequest(message = "Request cancelled. The deterministic calculator and copyable request remain available.") {
   const cancelled = Boolean(chatState.abortController);
   chatFence.cancel();
   chatState.abortController?.abort();

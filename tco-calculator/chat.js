@@ -351,10 +351,20 @@ export function validateLocalLlmSpec(input) {
   };
 }
 
-export function validateAssistantToolCall(message, context = {}) {
+// An assist turn may answer in prose with NO tool call at all — that is the
+// whole point of tool_choice "auto". So the exactly-one rule becomes at-most-one
+// there, and only there: on every other turn the tool call IS the deliverable,
+// so a reply without one is still a failed turn.
+export function validateAssistantToolCall(message, context = {}, { assist = false } = {}) {
   if (!isObject(message) || message.role !== "assistant") throw new ChatContractError("assistant_message", "The endpoint did not return an assistant message object.");
   const calls = message.tool_calls;
-  if (!Array.isArray(calls) || calls.length !== 1) throw new ChatContractError("tool_count", "The assistant must return exactly one structured tool call.");
+  const empty = calls === undefined || calls === null || (Array.isArray(calls) && calls.length === 0);
+  if (assist && empty) return null;
+  if (!Array.isArray(calls) || calls.length !== 1) {
+    throw new ChatContractError("tool_count", assist
+      ? "The assistant must return at most one suggestion alongside its answer."
+      : "The assistant must return exactly one structured tool call.");
+  }
   const call = calls[0];
   if (!isObject(call) || call.type !== "function" || !isObject(call.function)) throw new ChatContractError("tool_schema", "The assistant tool call is malformed.");
   const name = call.function.name;
@@ -371,6 +381,19 @@ export function validateAssistantToolCall(message, context = {}) {
         ? validateCalculatorProposal(args, context)
         : validateLocalLlmSpec(args);
   return { id: call.id, type: "function", name, arguments: validated };
+}
+
+// The prose is the part the four-slot template used to suppress, and it is also
+// the part nothing else validates — the tool schema no longer stands between the
+// model and the screen. rejectClaims stays ON: the model may explain a trade-off
+// in its own words, but a price or a sum in its own voice is refused outright,
+// because only the deterministic ledger is allowed to state a number.
+// Required when there is no tool call (a turn that says nothing is a failed
+// turn); optional beside one, whose answer/why fields already carry text.
+export function validateAssistantProse(message, { optional = false } = {}) {
+  const content = isObject(message) ? message.content : null;
+  if (optional && (content === undefined || content === null || String(content).trim() === "")) return null;
+  return safeText(content, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: true });
 }
 
 const exchangeSize = (exchange) => JSON.stringify(exchange).length;

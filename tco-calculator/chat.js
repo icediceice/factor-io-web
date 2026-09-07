@@ -167,14 +167,14 @@ function strictObject(value, allowed, required, label) {
   return value;
 }
 
-function safeText(value, label, { max = 1200, optional = false } = {}) {
+function safeText(value, label, { max = 1200, optional = false, rejectClaims = true } = {}) {
   if (optional && (value === undefined || value === null || value === "")) return null;
   if (typeof value !== "string") throw new ChatContractError("schema", `${label} must be text.`);
   const text = value.trim();
   if (!text) throw new ChatContractError("schema", `${label} must not be empty.`);
   if (text.length > max) throw new ChatContractError("too_large", `${label} is longer than ${max} characters.`);
   if (HTML.test(text)) throw new ChatContractError("html", `${label} must be plain text, not HTML.`);
-  if (ARITHMETIC_CLAIM.test(text)) throw new ChatContractError("arithmetic_claim", `${label} must cite the deterministic ledger instead of asserting prices or arithmetic.`);
+  if (rejectClaims && ARITHMETIC_CLAIM.test(text)) throw new ChatContractError("arithmetic_claim", `${label} must cite the deterministic ledger instead of asserting prices or arithmetic.`);
   return text;
 }
 
@@ -377,8 +377,8 @@ export async function requestChatTurn({
   maxAssistantChars = CHAT_LIMITS.maxAssistantChars,
 }) {
   if (typeof fetchImpl !== "function") throw new ChatRequestError("fetch_unavailable", "This browser cannot send the request. Copy the request into a model client instead.");
-  const userText = safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars });
-  const systemText = safeText(systemPrompt, "system prompt", { max: 12000 });
+  const userText = safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars, rejectClaims: false });
+  const systemText = safeText(systemPrompt, "system prompt", { max: 12000, rejectClaims: false });
   const user = { role: "user", content: userText };
   const system = { role: "system", content: systemText };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
@@ -427,8 +427,8 @@ export async function requestChatTurn({
 }
 
 export function buildOfflineRequest({ endpoint, model, history, systemPrompt, userMessage, pageUrl }) {
-  const user = { role: "user", content: safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars }) };
-  const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: 12000 }) };
+  const user = { role: "user", content: safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars, rejectClaims: false }) };
+  const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: 12000, rejectClaims: false }) };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
   const url = chatCompletionsUrl(endpoint, pageUrl);
   const payload = buildChatPayload({ model, messages });

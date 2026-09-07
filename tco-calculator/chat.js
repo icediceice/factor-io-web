@@ -11,6 +11,10 @@ export const CHAT_LIMITS = Object.freeze({
   maxHistoryChars: 32000,
   maxUserChars: 4000,
   maxAssistantChars: 16000,
+  // Free prose on an assist turn. Generous enough to explain a trade-off in the
+  // model's own words, short enough that it cannot bury a page of unreviewed
+  // text under one interview question.
+  maxProseChars: 2000,
   timeoutMs: 30000,
 });
 

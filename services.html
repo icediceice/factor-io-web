@@ -9,7 +9,9 @@
 <style>
 /* light-design · macrostructure: Spec-Sheet Ledger · density: reading-first · depth: borders-only
  * gates: 47 pass · 7 argued · 0 unresolved   critique: H4 D4 S3 O5 R4 P4
- * data: every figure traceable to llms.txt / index.html or a cited public source — none invented
+ * data: every figure traceable to llms.txt / index.html or a cited public source — none invented.
+ *   The Thai AI market figures on slides 2 and 7 are Deloitte Thailand Digital Transformation
+ *   Survey 2026 (6 Aug 2026) and Ecosystm, both cited on the slides that use them.
  * stage type scale: 96 82 68 58 44 32 31 29 26 23 21 19 17 15 14 13 12 11.5
  * stage spacing:    6 12 18 26 38 54 76 104 (--sp-1..8)
  * reading tier (<=1100px) declares its own fluid scale: clamp() bounded by stage-scale
@@ -41,7 +43,7 @@
  *   S9  same macrostructure as the previous log entry because this IS that screen
  *       revised, not a new one.
  *
- * Measured in headless Chrome, EN and TH, 11 slides x 2 = 22 combinations at 1920x1080:
+ * Measured in headless Chrome, EN and TH, 12 slides x 2 = 24 combinations at 1920x1080:
  * 0 overflow, 0 contrast failures, 0 collisions, hierarchy ratio 2.83-2.91.
  * Swept at 7 viewports from 390 to 3440: below 1100px reading mode leaves the fixed
  * stage and scrolls - scale 1, eyebrow 11px, zero horizontal overflow at every width.
@@ -385,8 +387,8 @@ html[lang="th"] .cmp-col li{font-size:20px;line-height:1.7}
   border:1px solid var(--line);border-radius:var(--r-card);background:var(--panel);
   padding:var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-2);position:relative;
 }
-/* Not three equal cards: weight decreases left to right by how much COMMITMENT each
-   shape asks for — a day rate, then a scoped project, then a standing retainer. They
+/* Not three equal cards: card 1 is the shape being led with — turnkey, the whole job
+   end to end — then the drop-in day rate, then a standing retainer. They
    are alternatives you pick between, so there is no connecting arrow: an arrow would
    claim a sequence, and claiming you must assess before I can drop in is false. */
 .step:nth-child(1){border-color:var(--hover-soft);background:var(--panel)}
@@ -633,7 +635,7 @@ body.idle .ui{opacity:0;pointer-events:none}
 </head>
 <body>
 
-<div id="bar" role="progressbar" aria-label="Deck progress" aria-valuemin="1" aria-valuemax="11" aria-valuenow="1"></div>
+<div id="bar" role="progressbar" aria-label="Deck progress" aria-valuemin="1" aria-valuemax="12" aria-valuenow="1"></div>
 
 <div id="viewport">
   <main id="stage" aria-live="polite">
@@ -642,7 +644,7 @@ body.idle .ui{opacity:0;pointer-events:none}
   <section class="slide s-title" data-t-en="Title" data-t-th="หน้าปก">
     <div class="eyebrow anim" data-en="Factor I O Co., Ltd. · Bangkok, Thailand" data-th="บริษัท แฟกเตอร์ ไอ โอ จำกัด · กรุงเทพฯ ประเทศไทย"></div>
     <h1 class="anim" style="margin-top:var(--sp-4)" data-en="Any job on your infrastructure. I&nbsp;have done it before." data-th="ทุกงานบนโครงสร้างพื้นฐานของคุณ ผมเคยทำมาแล้ว"></h1>
-    <p class="hook anim" data-en="A drop-in specialist for the part that is hard. Twenty years running enterprise infrastructure — five of them as the engineer Red&nbsp;Hat and Nutanix sent in when a partner's deal got technical." data-th="ผู้เชี่ยวชาญที่พร้อมเข้าไปเสริมทีมคุณในงานส่วนที่ยากที่สุด — ยี่สิบปีกับโครงสร้างพื้นฐานระดับองค์กร ห้าปีในฐานะวิศวกรที่ Red&nbsp;Hat และ Nutanix ส่งเข้าไปช่วยเมื่อดีลของพาร์ตเนอร์เริ่มยากทางเทคนิค"></p>
+    <p class="hook anim" data-en="Turnkey when you want the whole thing handled. Drop-in when you only need one part fixed. Twenty years running enterprise infrastructure — five of them as the engineer Red&nbsp;Hat and Nutanix sent in when a partner's deal got technical." data-th="แบบเบ็ดเสร็จเมื่อคุณอยากให้ดูแลทั้งงานตั้งแต่ต้นจนจบ หรือเข้าไปเสริมเฉพาะส่วนที่ต้องแก้ — ยี่สิบปีกับโครงสร้างพื้นฐานระดับองค์กร ห้าปีในฐานะวิศวกรที่ Red&nbsp;Hat และ Nutanix ส่งเข้าไปช่วยเมื่อดีลของพาร์ตเนอร์เริ่มยากทางเทคนิค"></p>
     <div class="who anim">
       <span class="nm">Thanat Manasakool</span>
       <span class="sep" aria-hidden="true"></span>
@@ -669,6 +671,7 @@ body.idle .ui{opacity:0;pointer-events:none}
       <div class="clock b">
         <h3><span class="dot"></span><span data-en="AI that cannot leave the country" data-th="AI ที่ออกนอกประเทศไม่ได้"></span></h3>
         <ul>
+          <li data-en="<em>61%</em> of Thai organisations are already implementing AI — up from 47% a year ago" data-th="<em>61%</em> ขององค์กรไทยเริ่มใช้ AI แล้ว เพิ่มจาก 47% เมื่อปีก่อน"></li>
           <li data-en="Thailand's PDPA restricts cross-border transfer of personal data" data-th="PDPA ของไทยจำกัดการส่งข้อมูลส่วนบุคคลข้ามพรมแดน"></li>
           <li data-en="Finance, healthcare and telecom regulators add rules of their own" data-th="หน่วยงานกำกับดูแลด้านการเงิน สาธารณสุข และโทรคมนาคม มีกฎเพิ่มเติมของตนเอง"></li>
           <li data-en="Public model APIs move your data somewhere you cannot audit" data-th="การเรียกใช้โมเดลผ่าน API สาธารณะทำให้ข้อมูลไปอยู่ในที่ที่คุณตรวจสอบไม่ได้"></li>
@@ -676,7 +679,7 @@ body.idle .ui{opacity:0;pointer-events:none}
         <p class="then" data-en="The model has to run where the data already is." data-th="โมเดลต้องรันในที่ที่ข้อมูลอยู่แล้ว"></p>
       </div>
     </div>
-    <p class="src anim" style="margin-top:var(--sp-4)" data-en="Sources: Broadcom VMware licensing restructure (VCF / VVF, perpetual discontinued); CISPE antitrust complaint to the European Commission, reported by Reuters, 19 Mar 2026; Thailand PDPA B.E. 2562 cross-border transfer provisions." data-th="แหล่งอ้างอิง: การปรับโครงสร้างไลเซนส์ VMware โดย Broadcom (VCF / VVF และการยกเลิกไลเซนส์ถาวร); คำร้องด้านการแข่งขันทางการค้าของ CISPE ต่อคณะกรรมาธิการยุโรป รายงานโดย Reuters 19 มี.ค. 2026; พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 หมวดการส่งข้อมูลข้ามพรมแดน"></p>
+    <p class="src anim" style="margin-top:var(--sp-4)" data-en="Sources: Broadcom VMware licensing restructure (VCF / VVF, perpetual discontinued); CISPE antitrust complaint to the European Commission, reported by Reuters, 19 Mar 2026; Thailand PDPA B.E. 2562 cross-border transfer provisions; Deloitte Thailand Digital Transformation Survey 2026 — Enterprise AI Focus, 6 Aug 2026." data-th="แหล่งอ้างอิง: การปรับโครงสร้างไลเซนส์ VMware โดย Broadcom (VCF / VVF และการยกเลิกไลเซนส์ถาวร); คำร้องด้านการแข่งขันทางการค้าของ CISPE ต่อคณะกรรมาธิการยุโรป รายงานโดย Reuters 19 มี.ค. 2026; พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 หมวดการส่งข้อมูลข้ามพรมแดน; Deloitte Thailand Digital Transformation Survey 2026 — Enterprise AI Focus 6 ส.ค. 2026"></p>
   </section>
 
   <!-- 3 · CONVERGENCE -->
@@ -784,7 +787,7 @@ body.idle .ui{opacity:0;pointer-events:none}
   <section class="slide" data-t-en="Service 03 — Put AI on top" data-t-th="บริการ 03 — วาง AI ไว้ข้างบน">
     <div class="eyebrow anim"><span data-en="Service 03" data-th="บริการ 03"></span></div>
     <h2 class="anim" style="margin-top:var(--sp-3)" data-en="Put AI on top of it." data-th="วาง AI ไว้ข้างบน"></h2>
-    <p class="lead anim" style="margin-top:var(--sp-3)" data-en="Private AI running on the platform you just built. The data never leaves your building." data-th="AI ส่วนตัวที่รันบนแพลตฟอร์มที่คุณเพิ่งสร้าง ข้อมูลไม่ออกจากอาคารของคุณ"></p>
+    <p class="lead anim" style="margin-top:var(--sp-3)" data-en="Private AI running in production on the platform you just built — past the pilot, and the data never leaves your building." data-th="AI ส่วนตัวที่รันจริงในโปรดักชันบนแพลตฟอร์มที่คุณเพิ่งสร้าง ผ่านขั้นไพลอตไปแล้ว และข้อมูลไม่ออกจากอาคารของคุณ"></p>
     <div class="svc">
       <div class="svc-l anim">
         <div class="rows">
@@ -820,7 +823,30 @@ body.idle .ui{opacity:0;pointer-events:none}
     </div>
   </section>
 
-  <!-- 7 · PROOF -->
+  <!-- 7 · THE DELIVERY GAP -->
+  <section class="slide" data-t-en="The delivery gap" data-t-th="ช่องว่างของการส่งมอบ">
+    <div class="eyebrow anim"><span data-en="The delivery gap" data-th="ช่องว่างของการส่งมอบ"></span></div>
+    <h2 class="anim" style="margin-top:var(--sp-3)" data-en="The gap is not the model." data-th="ช่องว่างไม่ได้อยู่ที่โมเดล"></h2>
+    <div class="stats anim">
+      <div class="stat">
+        <div class="f">81<span style="font-size:44px">%</span></div>
+        <p class="l" data-en="of Thai organisations are still in AI experiments and pilots. Only 19% have scaled it." data-th="ขององค์กรไทยยังอยู่ในขั้นทดลองและไพลอต มีเพียง 19% ที่ขยายผลได้จริง"></p>
+      </div>
+      <div class="stat">
+        <div class="f">71<span style="font-size:44px">%</span></div>
+        <p class="l" data-en="name a lack of technical talent as their top barrier to AI" data-th="ระบุว่าการขาดบุคลากรด้านเทคนิคคืออุปสรรคอันดับหนึ่ง"></p>
+      </div>
+      <div class="stat">
+        <div class="f">38<span style="font-size:44px">%</span></div>
+        <p class="l" data-en="say the security of their AI infrastructure still needs to be addressed" data-th="ระบุว่าความปลอดภัยของโครงสร้างพื้นฐาน AI ยังต้องแก้ไข"></p>
+      </div>
+    </div>
+    <p class="lead anim" style="margin-top:var(--sp-5)" data-en="The constraint is integration, not models. Pilots work in a controlled environment, then break on fragmented legacy systems and regulatory limits — and Thailand is short an estimated 80,000 AI-capable professionals." data-th="ข้อจำกัดอยู่ที่การเชื่อมระบบ ไม่ใช่ตัวโมเดล ไพลอตทำงานได้ในสภาพแวดล้อมที่ควบคุมไว้ แล้วพังเมื่อเจอระบบเดิมที่กระจัดกระจายและข้อจำกัดด้านกฎระเบียบ — และประเทศไทยยังขาดบุคลากรด้าน AI ราว 80,000 คน"></p>
+    <p class="punch anim" style="margin-top:var(--sp-4)" data-en="Anyone can get a model running in a notebook. The hard part is the infrastructure underneath it, and that is the twenty&nbsp;years." data-th="ใครก็รันโมเดลใน notebook ได้ ส่วนที่ยากคือโครงสร้างพื้นฐานที่อยู่ข้างใต้ และนั่นคือยี่สิบปีที่ผ่านมาของผม"></p>
+    <p class="src anim" style="margin-top:var(--sp-4)" data-en="Sources: Deloitte Thailand Digital Transformation Survey 2026 — Enterprise AI Focus, 6 Aug 2026 (business leaders across six industries, surveyed Jan–May 2026); Ecosystm, AI in Thailand: Enterprise Adoption &amp; Readiness Enablers." data-th="แหล่งอ้างอิง: Deloitte Thailand Digital Transformation Survey 2026 — Enterprise AI Focus 6 ส.ค. 2026 (สำรวจผู้บริหารใน 6 อุตสาหกรรม ระหว่าง ม.ค.–พ.ค. 2026); Ecosystm, AI in Thailand: Enterprise Adoption &amp; Readiness Enablers"></p>
+  </section>
+
+  <!-- 8 · PROOF -->
   <section class="slide" data-t-en="Proof — shipped, in public" data-t-th="หลักฐาน — ของจริงที่ส่งมอบแล้ว">
     <div class="eyebrow anim"><span data-en="Proof" data-th="หลักฐาน"></span></div>
     <h2 class="anim" style="margin-top:var(--sp-3)" data-en="Everybody says &ldquo;AI automation&rdquo;. Here is mine, in public." data-th="ใครๆ ก็พูดว่าทำ &ldquo;AI automation&rdquo; — นี่คือของผม เปิดให้ตรวจสอบได้"></h2>
@@ -863,7 +889,7 @@ body.idle .ui{opacity:0;pointer-events:none}
     <p class="punch anim" style="margin-top:var(--sp-4)" data-en="You can install one of these before our first meeting is over." data-th="คุณติดตั้งหนึ่งในนี้ได้ก่อนที่การประชุมครั้งแรกของเราจะจบด้วยซ้ำ"></p>
   </section>
 
-  <!-- 8 · TRACK RECORD -->
+  <!-- 9 · TRACK RECORD -->
   <section class="slide" data-t-en="Track record" data-t-th="ประสบการณ์">
     <div class="eyebrow anim"><span data-en="Track record" data-th="ประสบการณ์"></span></div>
     <h2 class="anim" style="margin-top:var(--sp-3)" data-en="Twenty years of other people's production systems." data-th="ยี่สิบปีกับระบบโปรดักชันของคนอื่น"></h2>
@@ -882,10 +908,10 @@ body.idle .ui{opacity:0;pointer-events:none}
       </div>
     </div>
     <p class="lead anim" style="margin-top:var(--sp-5)" data-en="In that role I delivered architecture guidance and technical enablement to Thailand's leading channel partners." data-th="ในบทบาทนั้น ผมให้คำแนะนำด้านสถาปัตยกรรมและอบรมเชิงเทคนิคแก่พาร์ตเนอร์ชั้นนำของประเทศไทย"></p>
-    <p class="punch anim" style="margin-top:var(--sp-4)" data-en="A lot of those partners still call. The difference now is that I join the delivery team instead of training it." data-th="พาร์ตเนอร์หลายรายยังโทรหาผมอยู่ ต่างกันตรงที่ตอนนี้ผมเข้าไปช่วยทีมส่งมอบ แทนที่จะเป็นคนอบรม"></p>
+    <p class="punch anim" style="margin-top:var(--sp-4)" data-en="A lot of those partners still call. The difference now is that I deliver the work myself instead of training someone else to." data-th="พาร์ตเนอร์หลายรายยังโทรหาผมอยู่ ต่างกันตรงที่ตอนนี้ผมลงมือส่งมอบงานเอง แทนที่จะเป็นคนอบรมให้คนอื่นทำ"></p>
   </section>
 
-  <!-- 9 · WHO I WORK WITH -->
+  <!-- 10 · WHO I WORK WITH -->
   <section class="slide" data-t-en="Who I work with" data-t-th="ผมทำงานกับใคร">
     <div class="eyebrow anim"><span data-en="Who I work with" data-th="ผมทำงานกับใคร"></span></div>
     <h2 class="anim" style="margin-top:var(--sp-3)" data-en="The specialist you bring in — not the vendor you switch&nbsp;to." data-th="ผู้เชี่ยวชาญที่คุณเรียกเข้ามาเสริม ไม่ใช่เวนเดอร์ที่ต้องเปลี่ยนไปใช้"></h2>
@@ -893,7 +919,7 @@ body.idle .ui{opacity:0;pointer-events:none}
       <div class="cmp-col a">
         <div class="cmp-h" data-en="If you run the infrastructure" data-th="ถ้าคุณเป็นเจ้าของโครงสร้างพื้นฐาน"></div>
         <ul>
-          <li data-en="I join your team for the hard part, then hand it back" data-th="ผมเข้าไปช่วยทีมคุณในงานส่วนที่ยาก แล้วส่งมอบคืน"></li>
+          <li data-en="I take the whole build end to end, or one part of it — your call" data-th="ผมรับงานทั้งหมดตั้งแต่ต้นจนจบ หรือเฉพาะบางส่วน แล้วแต่คุณเลือก"></li>
           <li data-en="The person in the meeting is the person doing the work" data-th="คนที่นั่งอยู่ในห้องประชุม คือคนที่ลงมือทำเอง"></li>
           <li data-en="No reseller agreement, so no reason to size the licence up" data-th="ไม่มีสัญญาตัวแทนจำหน่าย จึงไม่มีเหตุผลต้องเสนอไลเซนส์ที่ใหญ่เกินจำเป็น"></li>
           <li data-en="You keep the platform, the documentation and the decisions" data-th="แพลตฟอร์ม เอกสาร และการตัดสินใจทั้งหมด ยังเป็นของคุณ"></li>
@@ -912,22 +938,22 @@ body.idle .ui{opacity:0;pointer-events:none}
     <p class="src anim" style="margin-top:var(--sp-4)" data-en="Independent studio, no vendor quota. For an integrator that is the point: I can stand in front of your client without competing for the account." data-th="สตูดิโออิสระ ไม่มีเป้ายอดขายของเวนเดอร์ สำหรับผู้รับเหมาระบบ นี่คือข้อดี เพราะผมยืนต่อหน้าลูกค้าของคุณได้ โดยไม่แย่งบัญชีลูกค้าจากคุณ"></p>
   </section>
 
-  <!-- 10 · ENGAGEMENT -->
+  <!-- 11 · ENGAGEMENT -->
   <section class="slide" data-t-en="How we work together" data-t-th="รูปแบบการทำงานร่วมกัน">
     <div class="eyebrow anim"><span data-en="How we work together" data-th="รูปแบบการทำงานร่วมกัน"></span></div>
-    <h2 class="anim" style="margin-top:var(--sp-3)" data-en="Three shapes. The contract is a conversation." data-th="สามรูปแบบ ส่วนสัญญาคุยกันได้"></h2>
+    <h2 class="anim" style="margin-top:var(--sp-3)" data-en="The whole job, or one part of it. The contract is a conversation." data-th="ทั้งงาน หรือเฉพาะบางส่วน ส่วนสัญญาคุยกันได้"></h2>
     <div class="steps anim">
       <div class="step">
-        <div class="i"><span class="n">1</span><span data-en="By the day" data-th="รายวัน"></span></div>
-        <h3 data-en="Drop-in specialist" data-th="ผู้เชี่ยวชาญเสริมทีม"></h3>
-        <p class="d" data-en="I join your team — or your client's — for the part that is hard, and leave when it is done." data-th="ผมเข้าไปอยู่ในทีมของคุณ หรือทีมของลูกค้าคุณ เพื่อทำงานส่วนที่ยาก แล้วออกเมื่องานเสร็จ"></p>
-        <p class="out" data-en="→ no scope document required to start" data-th="→ เริ่มได้เลย ไม่ต้องรอเอกสารกำหนดขอบเขต"></p>
+        <div class="i"><span class="n">1</span><span data-en="End to end" data-th="ครบวงจร"></span></div>
+        <h3 data-en="Turnkey" data-th="แบบเบ็ดเสร็จ"></h3>
+        <p class="d" data-en="I assess it, build it, move the workloads and hand it over running. One person accountable for the outcome." data-th="ผมประเมิน สร้าง ย้ายระบบงาน แล้วส่งมอบให้ใช้งานได้จริง มีคนรับผิดชอบผลลัพธ์คนเดียว"></p>
+        <p class="out" data-en="→ a working platform, not a recommendation" data-th="→ ได้แพลตฟอร์มที่ใช้งานได้ ไม่ใช่แค่ข้อเสนอแนะ"></p>
       </div>
       <div class="step">
-        <div class="i"><span class="n">2</span><span data-en="Scoped" data-th="กำหนดขอบเขต"></span></div>
-        <h3 data-en="Assess, then build" data-th="ประเมิน แล้วสร้าง"></h3>
-        <p class="d" data-en="Where you are and what it costs today, then the platform stood up and the workloads moved." data-th="ดูว่าตอนนี้คุณอยู่ตรงไหนและมีต้นทุนเท่าไร จากนั้นติดตั้งแพลตฟอร์มและย้ายระบบงาน"></p>
-        <p class="out" data-en="→ a written plan with numbers, then a platform in production" data-th="→ แผนพร้อมตัวเลข ตามด้วยแพลตฟอร์มที่ใช้งานจริง"></p>
+        <div class="i"><span class="n">2</span><span data-en="By the day" data-th="รายวัน"></span></div>
+        <h3 data-en="Drop-in specialist" data-th="ผู้เชี่ยวชาญเสริมทีม"></h3>
+        <p class="d" data-en="I join your team — or your client's — for the part you need, and leave when it is done." data-th="ผมเข้าไปอยู่ในทีมของคุณ หรือทีมของลูกค้าคุณ เพื่อทำงานเฉพาะส่วนที่ต้องการ แล้วออกเมื่องานเสร็จ"></p>
+        <p class="out" data-en="→ no scope document required to start" data-th="→ เริ่มได้เลย ไม่ต้องรอเอกสารกำหนดขอบเขต"></p>
       </div>
       <div class="step">
         <div class="i"><span class="n">3</span><span data-en="Ongoing" data-th="ต่อเนื่อง"></span></div>
@@ -939,10 +965,11 @@ body.idle .ui{opacity:0;pointer-events:none}
     <p class="punch anim" style="margin-top:var(--sp-5)" data-en="Training your team is a line in the contract, not an assumption. Say whether you want it and the plan and the price both change." data-th="การอบรมทีมของคุณเป็นข้อตกลงในสัญญา ไม่ใช่สิ่งที่ถือว่ามีอยู่แล้ว บอกมาว่าต้องการหรือไม่ แล้วแผนงานและราคาจะเปลี่ยนตาม"></p>
   </section>
 
-  <!-- 11 · CONTACT -->
+  <!-- 12 · CONTACT -->
   <section class="slide s-contact" data-t-en="Contact" data-t-th="ติดต่อ">
     <div class="eyebrow anim"><span data-en="Let's talk" data-th="คุยกันได้เลย"></span></div>
-    <h1 class="anim" style="margin-top:var(--sp-4)" data-en="Send me the part that is hard." data-th="ส่งงานส่วนที่ยากที่สุดมาให้ผม"></h1>
+    <h1 class="anim" style="margin-top:var(--sp-4)" data-en="Let me take care of the work." data-th="ให้ผมดูแลงานให้คุณ"></h1>
+    <p class="lead anim" style="margin-top:var(--sp-3)" data-en="In any shape or form — the whole platform end to end, one part that needs fixing, or a standing hand on the estate." data-th="ในรูปแบบไหนก็ได้ — ทั้งแพลตฟอร์มตั้งแต่ต้นจนจบ เฉพาะส่วนที่ต้องแก้ หรือดูแลระบบต่อเนื่องระยะยาว"></p>
     <div class="cts anim">
       <div class="ct"><span class="k" data-en="Name" data-th="ชื่อ"></span><span class="v">Thanat Manasakool</span></div>
       <div class="ct"><span class="k" data-en="Email" data-th="อีเมล"></span><span class="v"><a href="mailto:admin@factor-io.com">admin@factor-io.com</a></span></div>

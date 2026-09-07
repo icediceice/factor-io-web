@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-07 (TCO calculator v0.6: conversation-led THB planning workbench)
+> Last updated: 2026-09-07 (services deck v3: turnkey thesis + AI delivery-gap evidence slide; TCO calculator v0.6: conversation-led THB planning workbench)
 
 ## Current Focus
 
@@ -27,6 +27,24 @@ Upcoming work in priority order:
 *(Populated by escalation events. Survives compaction — do not remove.)*
 
 ## Work Log
+
+### 2026-09-07 (later)
+
+#### Services deck v3 — turnkey thesis + AI delivery-gap evidence slide (`services.html`)
+
+- **What:** Client is pitching today and asked for two things. **(1)** Reframe away from "send me the part that is hard" — what buyers expect is a **turnkey solution**, with drop-in as the smaller shape of the same offer, not the headline. **(2)** Add **AI emphasis**, because AI is the live conversation for Thai companies right now and, in his words, he doesn't see anyone with the capability to deliver it properly.
+- **Positioning research (this is what the copy is built on, not invention):** Three implementation consultancies were read to ground the turnkey language. **Turnkey Consulting** (turnkeyconsulting.com, 20+ yrs, specialist SAP security/GRC/IAM) sells a *spectrum* — *"Whether you need expert guidance, hands-on implementation, or ongoing optimization, we deliver with quality, **independence**, and care"* across Advisory / Implementation / Managed Service, and leads with a client quote about being *"upskilled and self-sufficient post-implementation"*. **Turnkey Consulting Group**: *"Traditional consulting often ends with a recommendation. Turnkey means we take care of the entire process."* **Turnkey Management Consulting**: *"We don't sell advice — we install systems."* Two findings carried into the deck: independence is sold as a *delivery value*, not as an attack on competitors; and knowledge transfer is a **stated deliverable**, which corroborates the existing "training is a contract line" punch rather than contradicting it.
+- **Turnkey reframe:** Slide 1 hook → *"Turnkey when you want the whole thing handled. Drop-in when you only need one part fixed."* Engagement slide rebuilt: card 1 is now **Turnkey / end to end** (*"I assess it, build it, move the workloads and hand it over running. One person accountable for the outcome."* → *"a working platform, not a recommendation"*), card 2 **Drop-in specialist / by the day**, card 3 **On retainer**. The existing `.step:nth-child` weighting already emphasised card 1, so turnkey took the accent position with no CSS change. Close → *"Let me take care of the work."* with *"In any shape or form — the whole platform end to end, one part that needs fixing, or a standing hand on the estate."* Coherence fixes: the audience-column bullet *"I join your team for the hard part"* → *"I take the whole build end to end, or one part of it — your call"*, and the track-record punch → *"I deliver the work myself instead of training someone else to."*
+- **New slide 7 — "The gap is not the model."** The AI emphasis, argued **entirely from cited third-party evidence** rather than from a claim that competitors cannot deliver. Deliberate: that claim is unprovable in the room, invites a counter-example, and would undo the SI-inclusive reframe shipped in v2 — integrators are in the audience. **81%** of Thai organisations still in AI experiments and pilots (only 19% scaled) · **71%** name lack of technical talent as the top barrier · **38%** say the security of their AI infrastructure still needs addressing, with the lead carrying Ecosystm's finding that the constraint is **integration, not models** — pilots work in a controlled environment then break on fragmented legacy systems and regulatory limits — plus Thailand's estimated **80,000**-professional AI skills shortfall. Punch: *"Anyone can get a model running in a notebook. The hard part is the infrastructure underneath it, and that is the twenty years."* Placed immediately before the proof ledger, whose existing headline (*"Everybody says AI automation. Here is mine, in public."*) is the direct answer. Slide 2's AI clock also gained **61% of Thai organisations are already implementing AI, up from 47%**.
+- **Sources:** Deloitte Thailand Digital Transformation Survey 2026 — Enterprise AI Focus, published 6 Aug 2026, business leaders across six industries surveyed Jan–May 2026; Ecosystm, *AI in Thailand: Enterprise Adoption & Readiness Enablers*. Both cited on the slides that use them.
+- **Files:** `services.html`, `PROGRESS.md`.
+- **Verification:** Deck went 11 → 12 slides. Confirmed before building that `total = slides.length` (`services.html:997-999`) and that the progress bar, jumplist (`buildJump`, :1056), nav bounds and per-slide footers are all DOM-derived, so only the hardcoded `aria-valuemax` needed updating. Re-measured: **24 combinations (12 slides × EN/TH) — 0 overflow, 0 contrast failures, 0 collisions.** 7-viewport sweep 390→3440 in **both** languages: reading mode holds at scale 1, eyebrow 11px, `bodyOverflowX` false everywhere. Gate probe re-run: 12 headings present (new slide carries its h2), no unnamed controls, no standalone tap target under 44×44, motion props and durations unchanged. Every changed slide was screenshotted and **looked at** in both languages. Gates hold at **47 pass / 7 argued / 0 unresolved**.
+- **Known issues:**
+  - **The Thai copy is still machine-authored and unreviewed by a native speaker**, and v3 added a whole new slide of it plus five reworked lines. **Still the blocking item before this goes to a client** — and it now carries cited statistics, so a mistranslation would misstate a Deloitte figure.
+  - The two clocks on slide 2 now have 4 and 3 bullets. Measured clean and the closing lines still align, but it is no longer symmetric.
+  - Slide 7 and slide 9 both use the `.stats` three-figure component. Consistent rather than repetitive at 12 slides, but a third use would start to look like a template.
+  - `services.html` is still in the repo root, so this push republishes it at `studio.factor-io.com/services.html` — `noindex`, unlinked, not private.
+  - Phone reading view is now a ~11,000px scroll with the extra slide, still with no jump list at reading widths.
 
 ### 2026-09-07
 

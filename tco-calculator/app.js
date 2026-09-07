@@ -1015,14 +1015,38 @@ function numProv(valueHtml, rows) { return `<span ${prov(rows)}>${valueHtml}</sp
 function showGap(msg) { $("gapbox").innerHTML = `<div class="gap"><strong>Data gap:</strong> ${msg}</div>`; }
 function clearGap() { $("gapbox").innerHTML = ""; }
 
+// The banner is the ONLY thing that tells a visitor the numbers are old. The
+// refresh timer is deliberately NOT a freshness signal (see the note at the top
+// of scripts/refresh-pricing.mjs), so this line carries the whole job: how old,
+// in what, and whether the comparison still stands. It used to say "data past
+// its freshness envelope", which is precise and tells a reader nothing they can
+// act on.
 function renderBanner(fresh) {
   const b = $("banner");
-  if (fresh.banner) {
-    b.innerHTML = `<strong>${escapeHtml(fresh.banner.level)}</strong> — data past its freshness envelope from: ${fresh.banner.sources.map((s) => `${escapeHtml(s.source_id)} (observed ${s.observed_at.slice(0, 10)})`).join(", ")}. Numbers below cite the stale feed.`;
-    b.classList.add("show");
-  } else {
+  if (!fresh.banner) {
     b.classList.remove("show");
+    return;
   }
+  const LABEL = {
+    openrouter: "model API prices",
+    litellm: "model API prices",
+    fx: "the USD→THB rate",
+  };
+  const sources = fresh.banner.sources ?? [];
+  const observed = sources.map((s) => Date.parse(s.observed_at)).filter((t) => Number.isFinite(t));
+  const days = observed.length ? Math.floor((Date.now() - Math.min(...observed)) / 86400000) : null;
+  const age = days === null ? "out of date" : days < 1 ? "less than a day old" : days === 1 ? "a day old" : `${days} days old`;
+  const what = [...new Set(sources.map((s) => LABEL[s.source_id] ?? s.source_id))].map(escapeHtml);
+  const phrase = what.length > 1 ? `${what.slice(0, -1).join(", ")} and ${what[what.length - 1]}` : (what[0] ?? "Some sources");
+  // Naming the dated feed keeps the old line's precision for anyone who needs
+  // it, without making that the headline.
+  const dated = sources
+    .map((s) => `${escapeHtml(s.source_id)} ${escapeHtml(String(s.observed_at).slice(0, 10))}`)
+    .join(", ");
+  b.innerHTML = `<strong>These prices are ${escapeHtml(age)}.</strong> ${phrase} may have moved since. `
+    + `The comparison between self-hosting, an API and rented GPUs still holds — treat the totals as indicative rather than quotable. `
+    + `<span class="sub">Last checked: ${dated}.</span>`;
+  b.classList.add("show");
 }
 
 // ---------------------------------------------------------- snapshot loading

@@ -21,14 +21,27 @@
 // the failure it catches is the real one: a published figure quietly changing
 // under a citation the calculator still displays.
 //
-// WHY THIS IS A COMMAND AND NOT A CRON. A scheduled GitHub Action was the v0.1
-// plan and was declined: GitHub silently disables scheduled workflows after 60
-// days of default-branch inactivity (this repo has already sat 137 days once),
-// and schedule runs are dropped under load. That makes a green Actions tab an
-// unreliable freshness signal — and a freshness signal you cannot trust is worse
-// than none, because it is believed. The client's own SourceStatus envelope
-// (SPEC §5.2/§5.5) remains the ONLY authority on staleness: it reads observed_at
-// out of the data and banners when it expires, regardless of what any CI said.
+// WHY THIS IS NOT A SCHEDULED GITHUB ACTION. That was the v0.1 plan and it was
+// declined, on two grounds that still hold and were re-confirmed in v0.8: GitHub
+// silently disables scheduled workflows after 60 days of default-branch
+// inactivity (this repo has already sat 137 days once), and schedule runs are
+// dropped or delayed under load. Do not revive it.
+//
+// THE CONSTRAINT THAT OUTLIVED THAT DECISION, and the one that actually matters:
+// a green CI tab is an unreliable freshness signal, and a freshness signal you
+// cannot trust is worse than none, because it is believed. The client's own
+// SourceStatus envelope (SPEC §5.2/§5.5) remains the ONLY authority on staleness:
+// it reads observed_at out of the data it actually loaded and banners when that
+// expires, regardless of what any scheduler did or claims to have done. No page
+// may ever display "last refreshed by <the scheduler>".
+//
+// SINCE v0.8 this command is ALSO run unattended, by the factor-tco-refresh
+// systemd user timer on light-worker (scripts/refresh-and-publish.sh, units in
+// scripts/deploy/). That is not a reversal of the above: a systemd timer sidesteps
+// both premises rather than rebutting them — it cannot disable itself for
+// inactivity, and Persistent=true catches up a run missed while the host was off.
+// It is still not evidence of anything. If it dies, the envelope banners, exactly
+// as it does when nobody runs this by hand.
 //
 // Exit code is non-zero if either half fails, so a wrapper can trust it.
 import { spawn } from "node:child_process";

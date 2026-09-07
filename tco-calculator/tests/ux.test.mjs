@@ -738,3 +738,31 @@ test("the page states the Nutanix price boundary and the surfaces agree that Fac
   assert.match(llms, /Factor I O DOES receive and proxy calculator AI requests/i);
   assert.doesNotMatch(llms, /directly to the endpoint they configured/i);
 });
+
+test("the staleness banner says how old the prices are, not which envelope lapsed", () => {
+  const h = harness();
+  const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString();
+
+  h.get("renderBanner")({ banner: { level: "STALE PRICING", sources: [
+    { source_id: "openrouter", observed_at: daysAgo(3) },
+    { source_id: "litellm", observed_at: daysAgo(5) },
+  ] } });
+  const html = h.node("banner").innerHTML;
+  // Age comes from the OLDEST stale source, so the line never understates it.
+  assert.match(html, /These prices are 5 days old/);
+  assert.match(html, /model API prices may have moved since/);
+  assert.match(html, /still holds/);
+  // The precise feed dates survive, just not as the headline.
+  assert.match(html, /Last checked: openrouter \d{4}-\d{2}-\d{2}, litellm \d{4}-\d{2}-\d{2}/);
+  assert.doesNotMatch(html, /freshness envelope/);
+
+  // Duplicate sources collapse to one human label rather than repeating it.
+  h.get("renderBanner")({ banner: { level: "STALE PRICING", sources: [
+    { source_id: "openrouter", observed_at: daysAgo(1) },
+    { source_id: "litellm", observed_at: daysAgo(1) },
+  ] } });
+  assert.match(h.node("banner").innerHTML, /These prices are a day old/);
+  assert.equal(h.node("banner").innerHTML.match(/model API prices/g).length, 1);
+
+  h.get("renderBanner")({ banner: null });
+});

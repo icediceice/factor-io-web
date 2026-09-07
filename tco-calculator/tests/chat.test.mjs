@@ -128,6 +128,17 @@ test("proposal validation rejects credentials, prices, unknown models, bounds, d
   );
 });
 
+test("user-authored budget arithmetic may be discussed even though assistant claims are refused", async () => {
+  const message = assistantCall("ask_user", { question: "Which costs are fixed by a vendor quote?", suggested_replies: ["Hardware quote", "Subscription quote"] });
+  await assert.doesNotReject(requestChatTurn({
+    endpoint: "https://api.minimax.io/v1", model: "MiniMax-M3",
+    systemPrompt: "Treat entered currency as user context; do not calculate it yourself.",
+    userMessage: "My budget is ฿100000 and I compare 2 + 2 scenarios.",
+    validationContext: { fields },
+    fetchImpl: async () => ({ ok: true, json: async () => ({ choices: [{ message }] }) }),
+  }));
+});
+
 test("local-LLM specifications require Nutanix and portable mappings plus deterministic ledger references", () => {
   const spec = validateLocalLlmSpec({
     title: "Nutanix local support assistant",

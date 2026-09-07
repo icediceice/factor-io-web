@@ -483,6 +483,21 @@
 
       <div id="ai-interview" class="ai-interview"></div>
 
+      <!-- The ask box lives WITH the question, not behind a disclosure. It sits
+           outside #ai-interview on purpose: that element is re-rendered
+           wholesale on every answer, which would wipe a half-typed follow-up and
+           steal focus mid-sentence. Keeping the field and the answer thread
+           static means the conversation survives every re-render. -->
+      <div id="ai-ask" class="ai-ask screen-only">
+        <div id="ai-thread" class="ai-thread" role="log" aria-live="polite" aria-label="assistant answers about this question" hidden></div>
+        <form id="ai-composer" class="ai-composer">
+          <label for="ai-message">Ask about this question</label>
+          <textarea id="ai-message" maxlength="4000" placeholder="Example: most of our documents are HR records — does that count as regulated?"></textarea>
+          <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Ask</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
+        </form>
+        <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>
+      </div>
+
       <div class="ai-applybar">
         <button id="ai-apply-guided" class="btn btn-p" type="button" disabled>Apply answers to the calculator</button>
         <span id="ai-state" class="muted">Not applied · calculator example is unchanged</span>

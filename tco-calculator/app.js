@@ -216,6 +216,40 @@ function renderChatTranscript() {
   transcript.scrollTop = transcript.scrollHeight;
 }
 
+// Model prose reaches the DOM only through here and renderChatTranscript, and
+// both escape every character before it is written. escapeHtml runs first, so
+// the \n → <br> substitution below can only ever act on newlines the escaper
+// left behind — it can never resurrect a tag. chat.js refuses HTML upstream as
+// well; this is the second of the two, not the only one.
+const proseHtml = (text) => String(text)
+  .split(/\n{2,}/)
+  .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`)
+  .join("");
+
+// The per-question conversation, rendered beneath the options it is about. It
+// shows nothing at all once the visitor moves on: the thread is bound to
+// helpQuestionId, so it must not linger over a question it never discussed.
+function renderAssistThread() {
+  const box = $("ai-thread");
+  if (!box) return;
+  const onThisQuestion = plannerState.helpQuestionId === currentQuestion().id;
+  const turns = onThisQuestion ? plannerState.helpThread : [];
+  box.innerHTML = turns.map((turn) => `<div class="ai-turn" data-role="${escapeHtml(turn.role)}"><span class="who">${turn.role === "you" ? "You" : "Assistant"}</span>${proseHtml(turn.text)}</div>`).join("");
+  box.hidden = turns.length === 0;
+  box.scrollTop = box.scrollHeight;
+}
+
+// One reply, into the inline thread and the full transcript both. The transcript
+// stays the complete record; the thread is what the visitor actually reads.
+function pushAssistReply(text) {
+  const message = String(text ?? "").trim();
+  if (!message) return;
+  plannerState.helpThread.push({ role: "assistant", text: message });
+  if (plannerState.helpThread.length > 16) plannerState.helpThread.splice(0, plannerState.helpThread.length - 16);
+  appendChat("assistant", message);
+  renderAssistThread();
+}
+
 function appendChat(role, text) {
   const message = String(text ?? "").trim();
   if (!message) return;

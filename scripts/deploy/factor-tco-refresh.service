@@ -1,0 +1,25 @@
+# Factor IO — TCO calculator pricing refresh (light-worker, systemd --user).
+#
+# Installed at ~/.config/systemd/user/factor-tco-refresh.service.
+# Driven by factor-tco-refresh.timer; run it by hand with:
+#   systemctl --user start factor-tco-refresh.service
+#
+# Why a timer on this host and not a scheduled GitHub Action: a scheduled
+# workflow disables itself after 60 days of default-branch inactivity (this
+# repo has sat 137 days once) and its runs are dropped under load. See the
+# note at the top of scripts/refresh-pricing.mjs.
+[Unit]
+Description=Refresh and publish the Factor IO TCO calculator pricing snapshot
+Documentation=https://github.com/icediceice/factor-io-web/blob/main/scripts/refresh-and-publish.sh
+
+[Service]
+Type=oneshot
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=FACTOR_TCO_CLONE=/home/ice/factor-tco-refresh
+Environment=FACTOR_TCO_BRANCH=main
+WorkingDirectory=/home/ice/factor-tco-refresh
+ExecStart=/home/ice/factor-tco-refresh/scripts/refresh-and-publish.sh
+# The refresh reaches OpenRouter, LiteLLM, Hugging Face, several vendor pages
+# and the ECB mirror. A slow upstream is ordinary; a hung one must not wedge
+# the timer until someone notices.
+TimeoutStartSec=900

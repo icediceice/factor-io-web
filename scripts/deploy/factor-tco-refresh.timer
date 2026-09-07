@@ -1,0 +1,24 @@
+# Installed at ~/.config/systemd/user/factor-tco-refresh.timer, then:
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now factor-tco-refresh.timer
+#
+# Requires lingering for this user (loginctl enable-linger) or the timer only
+# runs while a session is open.
+[Unit]
+Description=Daily refresh of the Factor IO TCO calculator pricing snapshot
+
+[Timer]
+# The model feeds carry a 3-day freshness envelope, so a daily run leaves two
+# whole days of slack for a failed or skipped one before a visitor ever sees
+# the staleness banner.
+OnCalendar=*-*-* 06:00:00
+# Nothing downstream cares about the exact minute, and the upstreams are public
+# services we do not own.
+RandomizedDelaySec=1800
+# The property that decided this host over a scheduled GitHub Action: a run
+# missed because the machine was off is caught up at the next boot instead of
+# silently skipped.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -838,15 +838,18 @@ function handleChatTool(result) {
     // Inert by construction: the advice is rendered beside the question and the
     // visitor still clicks. Nothing here selects an option or touches a control.
     plannerState.help = { ...advice, at: Date.now() };
-    renderInterview();
     const option = INTERVIEW_QUESTIONS
       .find((question) => question.id === advice.question_id)?.options
       .find((candidate) => candidate.id === advice.recommended_option);
-    appendChat("assistant", [
-      advice.answer,
+    // The prose is the answer the visitor reads; the tool call is now only how
+    // an option gets badged. Fall back to the structured fields when the model
+    // sent the suggestion with nothing said around it.
+    pushAssistReply([
+      result.prose ?? advice.answer,
       option ? `Suggested answer: ${option.label} — ${advice.why}` : `No single option follows from that yet. ${advice.why}`,
       ...(advice.caveats ?? []),
     ].filter(Boolean).join("\n\n"));
+    renderInterview();
     renderChatSuggestions([]);
     return { status: "displayed", calculator_mutated: false, option_selected: false };
   }

@@ -126,72 +126,252 @@ const chatState = {
 };
 const chatFence = createRequestFence();
 
-function plannerOption(question, optionId) {
-  return question.options.find((option) => option.id === optionId) ?? null;
+const CHAT_FIELD_CONTRACTS = Object.freeze({
+  "f-users": { kind: "integer", min: 1, max: 10000000 },
+  "f-sessions-day": { kind: "number", min: 0, max: 100000 },
+  "f-days": { kind: "integer", min: 1, max: 31 },
+  "f-horizon": { kind: "integer", min: 1, max: 600 },
+  "f-peak-frac": { kind: "number", min: 0, max: 100 },
+  "f-tps-stream": { kind: "number", min: 1, max: 10000 },
+  "f-mix-chat": { kind: "number", min: 0, max: 100 },
+  "f-mix-rag": { kind: "number", min: 0, max: 100 },
+  "f-mix-graphrag": { kind: "number", min: 0, max: 100 },
+  "f-mix-agentic": { kind: "number", min: 0, max: 100 },
+  "f-sv-model": { kind: "model" },
+  "f-sv-ctx": { kind: "integer", min: 128, max: 10000000 },
+  "f-sv-wquant": { kind: "enum" },
+  "f-sv-runtime": { kind: "enum" },
+  "f-sv-mode": { kind: "enum" },
+  "f-sv-kvquant": { kind: "enum" },
+  "f-sv-maxbatch": { kind: "integer", min: 1, max: 1000000 },
+  "f-sh-gpu": { kind: "enum" },
+  "f-rent-provider": { kind: "enum" },
+  "f-rent-gpu": { kind: "enum" },
+  "f-rent-util": { kind: "number", min: 1, max: 100 },
+  "fb-feed": { kind: "enum" },
+  "fb-model": { kind: "enum" },
+  "fr-policy": { kind: "enum" },
+  "fr-blend": { kind: "number", min: 0, max: 100 },
+  "fr-failshare": { kind: "number", min: 0, max: 1 },
+  "fr-failrate": { kind: "number", min: 0, max: 100 },
+});
+
+function controlValues(id) {
+  return [...($(id)?.options ?? [])].map((option) => option.value).filter((value) => value !== "");
+}
+
+function chatValidationContext() {
+  const fields = Object.fromEntries(Object.entries(CHAT_FIELD_CONTRACTS).map(([id, contract]) => {
+    const spec = { ...contract };
+    if (spec.kind === "model") spec.values = new Set((state.servingData?.models ?? []).map((model) => model.id));
+    if (spec.kind === "enum") spec.values = controlValues(id);
+    return [id, spec];
+  }));
+  return { fields };
+}
+
+function controlLabel(id) {
+  const control = $(id);
+  return control?.labels?.[0]?.textContent?.trim() || id;
+}
+
+function controlDisplay(id, value = $(id)?.value ?? "") {
+  const control = $(id);
+  if (control?.tagName === "SELECT") {
+    const option = [...control.options].find((row) => row.value === value);
+    if (option) return `${option.textContent.trim()} [${value}]`;
+  }
+  return String(value);
+}
+
+function renderChatTranscript() {
+  const transcript = $("ai-transcript");
+  transcript.innerHTML = chatState.transcript.map((message) => `<div class="ai-message" data-role="${escapeHtml(message.role)}"><span class="who">${message.role === "user" ? "You" : "Planning assistant"}</span>${escapeHtml(message.text)}</div>`).join("");
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
+function appendChat(role, text) {
+  const message = String(text ?? "").trim();
+  if (!message) return;
+  chatState.transcript.push({ role, text: message });
+  if (chatState.transcript.length > 40) chatState.transcript.splice(0, chatState.transcript.length - 40);
+  renderChatTranscript();
+}
+
+function renderChatSuggestions(suggestions = []) {
+  chatState.suggestions = suggestions.slice(0, 4);
+  $("ai-suggestions").innerHTML = chatState.suggestions.map((suggestion, index) => `<button type="button" class="ai-suggestion" data-ai-suggestion="${index}">${escapeHtml(suggestion)}</button>`).join("");
 }
 
 function setPlannerReady(ready) {
-  const complete = isInterviewComplete(plannerState.answers);
-  if ($("ai-apply")) $("ai-apply").disabled = !ready || !(chatState.pendingProposal || complete);
+  if ($("ai-apply")) $("ai-apply").disabled = !ready || chatState.busy || !chatState.pendingProposal;
   if ($("ai-send")) $("ai-send").disabled = !ready || chatState.busy;
   if ($("ai-request-spec")) $("ai-request-spec").disabled = !ready || !plannerState.blueprint || chatState.busy;
-  if ($("ai-generate")) $("ai-generate").disabled = !ready || !plannerState.blueprint;
   $("ai-ready-note").textContent = ready
     ? (chatState.busy ? "Waiting for MiniMax. You can cancel this request." : "Ready. Send is explicit; proposals change nothing until you press Apply.")
     : "Loading calculator data. Send and Apply stay locked until the cited inputs are ready.";
 }
 
-function renderPlannerSummary() {
-  const rows = INTERVIEW_QUESTIONS.flatMap((question, index) => {
-    const option = plannerOption(question, plannerState.answers[question.id]);
-    return option ? [`<button type="button" class="ai-summary-row" data-ai-edit="${index}"><span>${escapeHtml(question.eyebrow)}</span><strong>${escapeHtml(option.label)}</strong></button>`] : [];
-  });
-  $("ai-summary").innerHTML = rows.length ? rows.join("") : '<p class="muted">Your answers will collect here.</p>';
-}
-
-function renderPlannerInterview() {
-  const complete = isInterviewComplete(plannerState.answers);
-  const atReview = complete && plannerState.questionIndex >= INTERVIEW_QUESTIONS.length;
-  $("ai-progress").textContent = atReview
-    ? "READY TO APPLY"
-    : `${String(Math.min(plannerState.questionIndex + 1, INTERVIEW_QUESTIONS.length)).padStart(2, "0")} / ${String(INTERVIEW_QUESTIONS.length).padStart(2, "0")}`;
-  if (atReview) {
-    $("ai-question").textContent = "Review the local-first setup";
-    $("ai-help").textContent = "Choose any answer below to revise it. Apply writes the mapped workload preset and routing controls, then the normal calculator recomputes.";
-    $("ai-options").innerHTML = "";
-  } else {
-    const question = INTERVIEW_QUESTIONS[plannerState.questionIndex] ?? INTERVIEW_QUESTIONS[0];
-    plannerState.questionIndex = Math.max(0, INTERVIEW_QUESTIONS.indexOf(question));
-    $("ai-question").textContent = question.prompt;
-    $("ai-help").textContent = question.help;
-    $("ai-options").innerHTML = question.options.map((option) => {
-      const selected = plannerState.answers[question.id] === option.id;
-      return `<button type="button" class="ai-option" data-ai-option="${escapeHtml(option.id)}" aria-pressed="${selected}"><strong>${escapeHtml(option.label)}</strong><span>${escapeHtml(option.note)}</span></button>`;
-    }).join("");
-  }
-  $("ai-back").disabled = plannerState.questionIndex === 0;
-  renderPlannerSummary();
+function setChatBusy(busy) {
+  chatState.busy = busy;
+  $("ai-cancel").hidden = !busy;
+  $("ai-message").disabled = busy;
+  $("ai-progress").textContent = busy ? "CONTACTING MINIMAX" : chatState.pendingProposal ? "REVIEW PROPOSAL" : plannerState.applied ? "APPLIED" : "LOCAL FIRST";
   setPlannerReady(state.ready);
-  if (plannerState.focusAfterRender) {
-    plannerState.focusAfterRender = false;
-    const apply = $("ai-apply");
-    const target = atReview
-      ? (apply.disabled ? $("ai-question") : apply)
-      : $("ai-options").querySelector(".ai-option");
-    target?.focus();
-  }
 }
 
-function cancelPlannerRequest() {
-  const cancelled = Boolean(plannerState.abortController);
-  plannerFence.cancel();
-  if (plannerState.abortController) plannerState.abortController.abort();
-  plannerState.abortController = null;
+function dismissProposal() {
+  chatState.pendingProposal = null;
+  $("ai-proposal").hidden = true;
+  $("ai-proposal-summary").textContent = "";
+  $("ai-proposal-rows").innerHTML = "";
+  $("ai-progress").textContent = plannerState.applied ? "APPLIED" : "LOCAL FIRST";
+  setPlannerReady(state.ready);
+}
+
+function renderProposal(proposal) {
+  chatState.pendingProposal = proposal;
+  $("ai-proposal-summary").textContent = proposal.summary;
+  $("ai-proposal-rows").innerHTML = proposal.changes.map((change) => `<tr><td>${escapeHtml(controlLabel(change.field))}</td><td>${escapeHtml(controlDisplay(change.field))}</td><td>${escapeHtml(controlDisplay(change.field, change.value))}</td><td>${escapeHtml(change.reason)}</td></tr>`).join("");
+  $("ai-proposal").hidden = false;
+  $("ai-progress").textContent = "REVIEW PROPOSAL";
+  setPlannerReady(state.ready);
+  $("ai-proposal").focus?.();
+}
+
+function compactLedger(result) {
+  if (!result) return null;
+  const ledger = buildComponentLedger(result);
+  const recurring = Object.fromEntries(Object.entries(ledger.recurring ?? {}).map(([key, row]) => [key, {
+    label: row.label,
+    priced: row.priced,
+    recurring_total: row.recurring_total,
+    one_time: row.one_time,
+    horizon_total: row.horizon_total,
+    formula: row.formula,
+  }]));
+  return {
+    schema: ledger.schema,
+    currency_contract: ledger.currency_contract,
+    demand: ledger.demand,
+    sizing: ledger.sizing,
+    recurring,
+    capex: ledger.capex,
+    power: ledger.power,
+    subscription: ledger.subscription,
+    routing: ledger.routing,
+    commercial_overlay: ledger.commercial_overlay,
+    exclusions: ledger.exclusions,
+    freshness: ledger.freshness,
+    formulas: ledger.formulas,
+  };
+}
+
+function chatSystemPrompt(intent = "interview") {
+  const fields = Object.keys(CHAT_FIELD_CONTRACTS).map((id) => ({
+    id,
+    label: controlLabel(id),
+    value: $(id)?.value ?? "",
+    allowed_values: CHAT_FIELD_CONTRACTS[id].kind === "enum" || CHAT_FIELD_CONTRACTS[id].kind === "model" ? controlValues(id) : undefined,
+  }));
+  const context = {
+    request_mode: intent,
+    current_controls: fields,
+    model_candidates: (state.servingData?.models ?? []).slice(0, 32).map((model) => ({
+      id: model.id,
+      label: model.label ?? model.name ?? model.id,
+      params_b: model.params_b,
+      active_params_b: model.active_params_b,
+      context_default: model.context_default,
+      architecture: model.architecture,
+    })),
+    source_envelopes: state.manifest?.sources ?? {},
+    deterministic_blueprint: plannerState.blueprint?.text ?? null,
+    deterministic_component_ledger: compactLedger(state.result),
+  };
+  let encoded = JSON.stringify(context);
+  if (encoded.length > 9500) {
+    context.model_candidates = context.model_candidates.slice(0, 12);
+    if (context.deterministic_component_ledger) {
+      const ledger = context.deterministic_component_ledger;
+      context.deterministic_component_ledger = {
+        schema: ledger.schema,
+        currency_contract: ledger.currency_contract,
+        demand: ledger.demand,
+        sizing: ledger.sizing,
+        recurring: ledger.recurring,
+        exclusions: ledger.exclusions,
+        freshness: ledger.freshness,
+        formulas: ledger.formulas,
+      };
+    }
+    encoded = JSON.stringify(context);
+  }
+  return [
+    "You are the specialized Factor IO local-LLM planning assistant.",
+    "Return exactly one structured tool call and no free-form answer.",
+    intent === "spec"
+      ? "The user explicitly requested the post-Apply specification. Call present_local_llm_spec, grounded in the deterministic blueprint and component ledger."
+      : "Interview naturally one concise question at a time with ask_user. When enough is known, call propose_calculator_changes with a complete planning_profile and only allowed current controls.",
+    "Prefer a local-first Nutanix design. For every Nutanix-specific component, name a portable Kubernetes or Linux-VM equivalent.",
+    "Treat model selection as an evaluation candidate, never a guarantee. Use only model IDs and enum values present in CURRENT_CONTEXT.",
+    "Never invent or calculate prices, savings, licences, benchmarks or capacity. Explain costs only by citing deterministic ledger paths and their supplied values/formulas.",
+    "Never request or propose credentials, endpoints, HTML, direct control mutation or unsupported fields. The user must preview and explicitly Apply every proposal.",
+    "CURRENT_CONTEXT",
+    encoded,
+  ].join("\n");
+}
+
+function localLlmSpecText(spec) {
+  const section = (heading, rows) => [heading.toUpperCase(), ...(rows ?? []).map((row) => `- ${row}`), ""];
+  return [
+    spec.title,
+    "",
+    spec.summary,
+    "",
+    "COMPONENTS",
+    ...spec.components.flatMap((component) => [
+      `- ${component.name}`,
+      `  Nutanix: ${component.nutanix}`,
+      `  Portable: ${component.portable}`,
+      `  Why: ${component.why}`,
+    ]),
+    "",
+    ...section("Workflow", spec.workflow),
+    ...section("Security", spec.security),
+    ...section("Operations", spec.operations),
+    ...section("Evaluation", spec.evaluation),
+    ...section("Rollout", spec.rollout),
+    ...section("Cost components", spec.component_explanations.map((row) => `${row.ledger_path}: ${row.explanation}`)),
+    ...section("Assumptions", spec.assumptions),
+    ...section("Open decisions", spec.open_decisions),
+  ].join("\n").trim();
+}
+
+function renderLocalLlmSpec(refinement) {
+  const spec = refinement?.spec;
+  if (!spec) {
+    $("ai-refinement-text").textContent = refinement?.text ?? "";
+    return;
+  }
+  const list = (heading, rows) => rows.length ? `<section><h4>${escapeHtml(heading)}</h4>${rows.map((row) => `<p>${escapeHtml(row)}</p>`).join("")}</section>` : "";
+  $("ai-refinement-text").innerHTML = `<h3>${escapeHtml(spec.title)}</h3><p>${escapeHtml(spec.summary)}</p><div class="ai-spec-grid">${spec.components.map((component) => `<section><h4>${escapeHtml(component.name)}</h4><p><strong>Nutanix:</strong> ${escapeHtml(component.nutanix)}</p><p><strong>Portable:</strong> ${escapeHtml(component.portable)}</p><p>${escapeHtml(component.why)}</p></section>`).join("")}${list("Workflow", spec.workflow)}${list("Security", spec.security)}${list("Operations", spec.operations)}${list("Evaluation", spec.evaluation)}${list("Rollout", spec.rollout)}${list("Cost components", spec.component_explanations.map((row) => `${row.ledger_path}: ${row.explanation}`))}${list("Assumptions", spec.assumptions)}${list("Open decisions", spec.open_decisions)}</div>`;
+}
+
+function cancelChatRequest(message = "MiniMax request cancelled. The deterministic calculator and copyable request remain available.") {
+  const cancelled = Boolean(chatState.abortController);
+  chatFence.cancel();
+  chatState.abortController?.abort();
+  chatState.abortController = null;
+  if (cancelled) {
+    setChatBusy(false);
+    if (message) appendChat("assistant", message);
+    $("ai-model-status").textContent = message || "MiniMax request cancelled.";
+  }
   return cancelled;
 }
 
-function clearPlannerOutput(message = "Apply the guided setup to build a deployment blueprint.", { keepRefinement = false } = {}) {
-  const cancelled = cancelPlannerRequest();
+function clearPlannerOutput(message = "Apply a reviewed AI proposal to build a deployment blueprint.", { keepRefinement = false } = {}) {
   const refinement = keepRefinement ? plannerState.refinement : null;
   plannerState.refinement = refinement;
   plannerState.blueprint = null;
@@ -201,59 +381,59 @@ function clearPlannerOutput(message = "Apply the guided setup to build a deploym
     refinement.stale = true;
     $("ai-refinement").hidden = false;
     $("ai-refinement").dataset.stale = "true";
-    $("ai-refinement-text").textContent = refinement.text;
+    renderLocalLlmSpec(refinement);
     $("ai-copy-refinement").disabled = false;
+    $("ai-workspace-status").textContent = "Calculator inputs changed. This MiniMax specification is stale; request a new explanation after the exact result rebuilds.";
   } else {
     $("ai-refinement").hidden = true;
     delete $("ai-refinement").dataset.stale;
     $("ai-refinement-text").textContent = "";
     $("ai-copy-refinement").disabled = true;
+    $("ai-workspace-status").textContent = "The calculator remains authoritative for every number.";
   }
   $("ai-copy-blueprint").disabled = true;
   $("ai-copy-prompt").disabled = true;
   $("ai-download").disabled = true;
-  if ($("ai-generate")) $("ai-generate").disabled = true;
-  if ($("ai-request-spec")) $("ai-request-spec").disabled = true;
-  $("ai-model-status").textContent = cancelled
-    ? "Generation cancelled because the calculator scenario changed."
-    : refinement
-      ? "Calculator inputs changed. The specification below was generated against the previous scenario — press Generate to refresh it."
-      : plannerState.modelAttempted
-        ? "The prior refinement was cleared. Generate was used earlier in this tab."
-        : "No model request has been made.";
-}
-
-function markPlannerAnswersChanged() {
-  if (!plannerState.applied) return;
-  plannerState.plan = null;
-  plannerState.applied = false;
-  $("ai-state").textContent = "Answers changed · review and Apply again to update the calculator";
-  clearPlannerOutput("Answers changed. The previous calculator setup remains in place until you explicitly Apply this revision.");
-}
-
-function choosePlannerAnswer(optionId) {
-  const question = INTERVIEW_QUESTIONS[plannerState.questionIndex];
-  if (!question || !plannerOption(question, optionId)) return;
-  markPlannerAnswersChanged();
-  plannerState.answers = { ...plannerState.answers, [question.id]: optionId };
-  plannerState.questionIndex = Math.min(plannerState.questionIndex + 1, INTERVIEW_QUESTIONS.length);
-  plannerState.focusAfterRender = true;
-  renderPlannerInterview();
+  $("ai-request-spec").disabled = true;
 }
 
 function applyPlannerAnswers() {
-  if (!state.ready || !isInterviewComplete(plannerState.answers)) return;
-  const plan = buildPlannerPlan(plannerState.answers);
+  if (!state.ready || chatState.busy || !chatState.pendingProposal) return;
+  let proposal;
+  try {
+    proposal = validateCalculatorProposal(chatState.pendingProposal, chatValidationContext());
+  } catch (error) {
+    $("ai-model-status").textContent = `The proposal is no longer valid against the current controls: ${error.message}`;
+    appendChat("assistant", "That proposal became stale after the calculator data changed. Please ask me to prepare it again.");
+    dismissProposal();
+    return;
+  }
+  const plan = buildPlannerPlan(proposal.planning_profile);
   applyWorkloadPreset(plan.presetId, { recompute: false });
   for (const [field, value] of Object.entries(plan.controlledFields)) {
     const control = $(field);
     if (control) control.value = value;
   }
+  const modelChange = proposal.changes.find((change) => change.field === "f-sv-model");
+  if (modelChange) {
+    $("f-sv-model").value = modelChange.value;
+    applyModelPreset(modelChange.value, { recompute: false });
+  }
+  for (const change of proposal.changes) {
+    if (change.field !== "f-sv-model" && $(change.field)) $(change.field).value = change.value;
+  }
+  if (proposal.changes.some((change) => change.field === "f-rent-provider")) fillRentGpus();
+  const rentGpu = proposal.changes.find((change) => change.field === "f-rent-gpu");
+  if (rentGpu && controlValues("f-rent-gpu").includes(rentGpu.value)) $("f-rent-gpu").value = rentGpu.value;
+  if (proposal.changes.some((change) => change.field === "f-rent-provider" || change.field === "f-rent-gpu")) renderRentNote();
+  if (proposal.changes.some((change) => change.field === "f-sh-gpu")) fillServerConfigs();
+  plannerState.answers = { ...proposal.planning_profile };
   plannerState.plan = plan;
   plannerState.applied = true;
-  plannerState.questionIndex = INTERVIEW_QUESTIONS.length;
-  $("ai-state").textContent = "Applied · existing workload preset + local-first routing · assumptions remain editable";
-  renderPlannerInterview();
+  plannerState.refinement = null;
+  $("ai-state").textContent = "Applied · reviewed proposal + local-first routing · assumptions remain editable";
+  appendChat("assistant", "Applied the reviewed proposal once. The calculator is recomputing; inspect or override any assumption in the real controls.");
+  dismissProposal();
   onLiveInput();
 }
 
@@ -277,26 +457,24 @@ function renderPlannerBlueprint() {
   $("ai-copy-blueprint").disabled = false;
   $("ai-copy-prompt").disabled = false;
   $("ai-download").disabled = false;
-  $("ai-generate").disabled = !state.ready;
+  $("ai-request-spec").disabled = !state.ready || chatState.busy;
   if (plannerState.refinement) {
     $("ai-refinement").hidden = false;
-    $("ai-refinement-text").textContent = plannerState.refinement.text;
+    renderLocalLlmSpec(plannerState.refinement);
     $("ai-copy-refinement").disabled = false;
     if (plannerState.refinement.stale) {
       $("ai-refinement").dataset.stale = "true";
-      $("ai-model-status").textContent = "Calculator inputs changed. The specification below was generated against the previous scenario — press Generate to refresh it.";
+      $("ai-workspace-status").textContent = "Calculator inputs changed. The specification below was generated against the previous scenario — ask MiniMax again after reviewing the rebuilt ledger.";
     } else {
       delete $("ai-refinement").dataset.stale;
-      $("ai-model-status").textContent = `Refined by ${plannerState.refinement.model}${plannerState.refinement.truncated ? " · response clipped to the browser limit" : ""}. Unverified prose; not included in calculator totals or print.`;
+      $("ai-workspace-status").textContent = `Structured specification from ${plannerState.refinement.model}. It explains cited deterministic components but never changes calculator arithmetic.`;
     }
   } else {
     $("ai-refinement").hidden = true;
     delete $("ai-refinement").dataset.stale;
     $("ai-refinement-text").textContent = "";
     $("ai-copy-refinement").disabled = true;
-    $("ai-model-status").textContent = plannerState.modelAttempted
-      ? "Blueprint ready locally. No current refinement; Generate was used earlier in this tab."
-      : "Blueprint ready locally. No model request has been made.";
+    $("ai-workspace-status").textContent = "Blueprint ready locally. Ask MiniMax only when you want a grounded implementation specification and cost-component explanation.";
   }
 }
 
@@ -329,10 +507,19 @@ async function copyPlannerArtifact(kind) {
     status.textContent = kind === "prompt"
       ? "Prompt copied. Paste it into Ollama, LM Studio or another local model client."
       : kind === "refinement"
-        ? `Refinement copied.${plannerState.refinement?.stale ? " It was generated against the previous scenario." : ""}`
+        ? `Specification copied.${plannerState.refinement?.stale ? " It was generated against the previous scenario." : ""}`
         : "Blueprint copied.";
   } catch (error) {
     status.textContent = error.message;
+  }
+}
+
+async function copyOfflineRequest() {
+  try {
+    await copyText(chatState.offlineArtifact?.copyText);
+    $("ai-model-status").textContent = "Token-free request copied. Use an approved same-origin gateway, or transfer the system and user messages into Ollama or LM Studio.";
+  } catch (error) {
+    $("ai-model-status").textContent = error.message;
   }
 }
 
@@ -347,43 +534,83 @@ function downloadPlannerBlueprint() {
   $("ai-model-status").textContent = "Blueprint downloaded as plain text.";
 }
 
-async function generatePlannerRefinement() {
-  if (!state.ready || !plannerState.prompt) return;
-  if (plannerState.abortController) plannerState.abortController.abort();
-  const generation = plannerFence.begin();
-  const controller = new AbortController();
-  plannerState.abortController = controller;
-  plannerState.modelAttempted = true;
-  const button = $("ai-generate");
-  button.disabled = true;
-  $("ai-model-status").textContent = "Sending the displayed prompt to your configured endpoint…";
-  if (plannerState.refinement) {
-    plannerState.refinement.stale = true;
-    $("ai-refinement").dataset.stale = "true";
+function handleChatTool(result) {
+  const { toolCall } = result;
+  if (toolCall.name === "ask_user") {
+    const ask = toolCall.arguments;
+    appendChat("assistant", [ask.question, ask.rationale].filter(Boolean).join("\n\n"));
+    renderChatSuggestions(ask.suggested_replies);
+    return { status: "displayed", calculator_mutated: false };
   }
+  if (toolCall.name === "propose_calculator_changes") {
+    const proposal = toolCall.arguments;
+    renderProposal(proposal);
+    appendChat("assistant", [proposal.summary, proposal.question].filter(Boolean).join("\n\n"));
+    renderChatSuggestions(proposal.suggested_replies);
+    return { status: "previewed", calculator_mutated: false, awaiting_explicit_apply: true };
+  }
+  const spec = toolCall.arguments;
+  const text = localLlmSpecText(spec);
+  chatState.pendingSpec = spec;
+  plannerState.modelAttempted = true;
+  plannerState.refinement = { spec, text, model: result.model, stale: false };
+  renderPlannerBlueprint();
+  appendChat("assistant", `${spec.title}\n\n${spec.summary}\n\nThe structured specification and deterministic cost-component explanations are ready in the workspace.`);
+  renderChatSuggestions([]);
+  $("ai-progress").textContent = "SPEC READY";
+  return { status: "displayed", calculator_mutated: false, deterministic_ledger_authoritative: true };
+}
+
+async function sendChatMessage(message = $("ai-message").value, { intent = "interview", clearComposer = true } = {}) {
+  const text = String(message ?? "").trim();
+  if (!state.ready || chatState.busy || !text) return;
+  const systemPrompt = chatSystemPrompt(intent);
   try {
-    const result = await requestRefinement({
+    chatState.offlineArtifact = buildOfflineRequest({
+      endpoint: $("ai-endpoint").value,
+      model: $("ai-model").value,
+      history: chatState.history,
+      systemPrompt,
+      userMessage: text,
+      pageUrl: location.href,
+    });
+    $("ai-copy-request").disabled = false;
+  } catch (error) {
+    $("ai-model-status").textContent = error.message;
+    return;
+  }
+  if (clearComposer) $("ai-message").value = "";
+  appendChat("user", text);
+  renderChatSuggestions([]);
+  const generation = chatFence.begin();
+  const controller = new AbortController();
+  chatState.abortController = controller;
+  setChatBusy(true);
+  $("ai-model-status").textContent = "Sending only after your explicit action. The token remains in this tab's memory.";
+  try {
+    const result = await requestChatTurn({
       endpoint: $("ai-endpoint").value,
       model: $("ai-model").value,
       token: $("ai-token").value,
-      prompt: plannerState.prompt,
+      history: chatState.history,
+      systemPrompt,
+      userMessage: text,
+      validationContext: chatValidationContext(),
       pageUrl: location.href,
       signal: controller.signal,
     });
-    if (!plannerFence.isCurrent(generation)) return;
-    plannerState.refinement = { ...result, stale: false };
-    $("ai-refinement-text").textContent = result.text;
-    $("ai-refinement").hidden = false;
-    delete $("ai-refinement").dataset.stale;
-    $("ai-copy-refinement").disabled = false;
-    $("ai-model-status").textContent = `Refined by ${result.model}${result.truncated ? " · response clipped to the browser limit" : ""}. Unverified prose; not included in calculator totals or print.`;
+    if (!chatFence.isCurrent(generation)) return;
+    const toolResult = toolResultMessage(result.toolCall, handleChatTool(result));
+    chatState.history.append({ user: result.user, assistant: result.assistantMessage, tools: [toolResult] });
+    $("ai-model-status").textContent = `Structured ${result.toolCall.name} response received from ${result.model}. Review before any Apply.`;
   } catch (error) {
-    if (!plannerFence.isCurrent(generation) || error?.code === "aborted") return;
-    $("ai-model-status").textContent = `${error.message} ${plannerState.refinement ? "The previous refinement remains available." : "The local blueprint and copy/download actions still work."}`;
+    if (!chatFence.isCurrent(generation) || error?.code === "aborted") return;
+    appendChat("assistant", `${error.message}\n\nThe deterministic calculator is unchanged. You can copy the prepared token-free request for a same-origin gateway or local model client.`);
+    $("ai-model-status").textContent = error.message;
   } finally {
-    if (plannerFence.isCurrent(generation)) {
-      plannerState.abortController = null;
-      button.disabled = !state.ready || !plannerState.blueprint;
+    if (chatFence.isCurrent(generation)) {
+      chatState.abortController = null;
+      setChatBusy(false);
     }
   }
 }
@@ -391,30 +618,46 @@ async function generatePlannerRefinement() {
 function setupPlanner() {
   $("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
   $("ai-model").value = MINIMAX_DEFAULTS.model;
-  $("ai-options").addEventListener("click", (event) => {
-    const option = event.target.closest("[data-ai-option]");
-    if (option) choosePlannerAnswer(option.dataset.aiOption);
+  $("ai-composer").addEventListener("submit", (event) => {
+    event.preventDefault();
+    void sendChatMessage();
   });
-  $("ai-summary").addEventListener("click", (event) => {
-    const edit = event.target.closest("[data-ai-edit]");
-    if (!edit) return;
-    plannerState.questionIndex = Number(edit.dataset.aiEdit);
-    plannerState.focusAfterRender = true;
-    renderPlannerInterview();
+  $("ai-message").addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      $("ai-composer").requestSubmit();
+    }
   });
-  $("ai-back").addEventListener("click", () => {
-    plannerState.questionIndex = Math.max(0, plannerState.questionIndex - 1);
-    plannerState.focusAfterRender = true;
-    renderPlannerInterview();
+  $("ai-suggestions").addEventListener("click", (event) => {
+    const suggestion = event.target.closest("[data-ai-suggestion]");
+    if (!suggestion) return;
+    $("ai-message").value = chatState.suggestions[Number(suggestion.dataset.aiSuggestion)] ?? "";
+    $("ai-message").focus();
   });
+  $("ai-cancel").addEventListener("click", () => cancelChatRequest());
   $("ai-apply").addEventListener("click", applyPlannerAnswers);
+  $("ai-dismiss").addEventListener("click", dismissProposal);
+  $("ai-copy-request").addEventListener("click", () => void copyOfflineRequest());
   $("ai-copy-blueprint").addEventListener("click", () => void copyPlannerArtifact("blueprint"));
   $("ai-copy-refinement").addEventListener("click", () => void copyPlannerArtifact("refinement"));
   $("ai-copy-prompt").addEventListener("click", () => void copyPlannerArtifact("prompt"));
   $("ai-download").addEventListener("click", downloadPlannerBlueprint);
-  $("ai-generate").addEventListener("click", () => void generatePlannerRefinement());
+  $("ai-request-spec").addEventListener("click", () => void sendChatMessage("Create the grounded local-LLM implementation specification now. Explain how each deterministic ledger component contributes to the THB result, without doing new arithmetic.", { intent: "spec", clearComposer: false }));
+  for (const id of ["ai-endpoint", "ai-model"]) {
+    $(id).addEventListener("input", () => {
+      chatState.offlineArtifact = null;
+      $("ai-copy-request").disabled = true;
+    });
+  }
+  appendChat("assistant", "What should AI help your users do, and what data must stay inside your environment?");
+  renderChatSuggestions([
+    "An internal knowledge assistant for sensitive documents",
+    "A customer-support copilot with human handoff",
+    "A governed automation agent that can call tools",
+    "Several teams need a shared local AI service",
+  ]);
   clearPlannerOutput();
-  renderPlannerInterview();
+  setPlannerReady(false);
 }
 
 // A total travels as a Dec, a Rat, or a reduced "n/d" string — a non-terminating

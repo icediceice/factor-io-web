@@ -436,6 +436,27 @@ test("typed planner setup and suggestions never send implicitly; explicit Send r
   assert.match(h.node("ai-transcript").innerHTML, /Where must the data stay/);
 });
 
+test("chat modes reject crossed tool responses and a specification cannot send before Apply", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
+  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
+  await h.get("sendChatMessage('Explain the plan now', {intent:'spec'})");
+  assert.equal(h.fetchCalls.length, 0, "post-Apply specification is locked until an exact applied result exists");
+
+  h.context.requestChatTurn = async () => ({
+    user: { role: "user", content: "Help me plan" },
+    assistantMessage: { role: "assistant", tool_calls: [{ id: "call-x", type: "function", function: { name: "present_local_llm_spec", arguments: "{}" } }] },
+    toolCall: { id: "call-x", name: "present_local_llm_spec", arguments: {} },
+    model: "MiniMax-M3",
+  });
+  await h.get("sendChatMessage('Help me plan')");
+  assert.equal(h.get("chatState.history.snapshot().length"), 0);
+  assert.equal(h.get("plannerState.refinement"), null);
+  assert.match(h.node("ai-transcript").innerHTML, /no output was applied/);
+});
+
 test("validated proposal is previewed before Apply and reaches real controls with one recompute", () => {
   const h = harness();
   h.state.workloadPresets = {

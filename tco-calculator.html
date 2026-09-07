@@ -369,10 +369,18 @@
   .ai-option-input input { width:104px; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.16); border-radius:4px; padding:7px 8px; font:13px/1.35 var(--mono); }
   .ai-option-input input:focus { border-color:var(--cyan); outline:2px solid var(--cyan); outline-offset:2px; }
   .ai-option-input .unit { color:var(--faint); font-size:11px; white-space:nowrap; }
-  .ai-help { border-left:2px solid var(--cyan); background:rgba(34,211,238,.04); padding:9px 11px; margin-top:11px; }
-  .ai-help p { font-size:12.5px; }
-  .ai-help .why { color:var(--dim); margin-top:5px; }
-  .ai-help ul { margin:6px 0 0 15px; color:var(--faint); font-size:11.5px; }
+  /* The answer thread. It replaces the old fixed answer/why/caveats panel: the
+     assistant now writes prose, so the container is a conversation, not a form
+     with three slots. Cyan marks the machine's voice throughout the page. */
+  .ai-ask { margin-top:12px; }
+  .ai-thread { max-height:300px; overflow-y:auto; margin-top:11px; }
+  .ai-turn { border-left:2px solid var(--cyan); background:rgba(34,211,238,.04); padding:9px 11px; }
+  .ai-turn + .ai-turn { margin-top:6px; }
+  .ai-turn[data-role="you"] { border-left-color:var(--accent); background:rgba(180,110,255,.05); }
+  .ai-turn .who { display:block; margin-bottom:3px; color:var(--dim); font:10px/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+  .ai-turn p { font-size:12.5px; line-height:1.55; overflow-wrap:anywhere; }
+  .ai-turn p + p { margin-top:6px; }
+  .ai-composer textarea { min-height:56px; }
   .ai-applybar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid var(--line); margin-top:13px; padding-top:11px; }
   .ai-answerbar { margin-top:11px; }
   .ai-answers { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }

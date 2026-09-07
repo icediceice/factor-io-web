@@ -26,14 +26,11 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // real node this file reads and writes.
 import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260907-thb-chat";
 import {
-  INTERVIEW_QUESTIONS,
   MINIMAX_DEFAULTS,
   buildBlueprint,
   buildPlannerPlan,
   buildPrompt,
   createRequestFence,
-  isInterviewComplete,
-  requestRefinement,
 } from "./planner.js?v=20260907-thb-chat";
 import {
   buildOfflineRequest,

@@ -493,8 +493,8 @@ test("manual calculator edits retain the structured specification and mark it st
 
 test("provider secrets and model prose are screen-only and absent from cost collection", () => {
   const rail = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
-  assert.doesNotMatch(rail, /id="ai-token"/);
-  assert.match(html, /<details class="ai-refine screen-only">[\s\S]*id="ai-token"[\s\S]*id="ai-refinement-text"[\s\S]*<\/details>/);
+  assert.match(rail, /<details class="ai-connection screen-only">[\s\S]*id="ai-token"[\s\S]*<\/details>/);
+  assert.match(html, /id="ai-refinement" class="ai-refinement screen-only"/);
   assert.match(html.slice(html.indexOf("@media print")), /\.screen-only \{ display:none !important; \}/);
   const h = harness();
   h.node("ai-token").value = "never-export-me";

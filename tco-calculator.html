@@ -460,7 +460,7 @@
       <p id="ai-state" class="muted">Not applied · calculator example is unchanged</p>
       <details class="ai-connection screen-only">
         <summary>Connect MiniMax or a local gateway</summary>
-        <p class="muted" style="margin-top:7px">Credentials stay in this tab only. Factor IO does not proxy or store them. A same-origin gateway may inject its credential server-side.</p>
+        <p class="muted" style="margin-top:7px">Credentials stay in this tab only. Factor IO does not proxy or store them. A same-origin gateway may inject its credential server-side. On this HTTPS page, browsers block direct calls to <code>http://localhost</code>; use an approved HTTPS gateway or copy the prepared request into Ollama or LM Studio.</p>
         <div class="ai-provider-grid">
           <label for="ai-endpoint">OpenAI-compatible base URL<input id="ai-endpoint" type="url" value="https://api.minimax.io/v1" autocomplete="off" spellcheck="false"></label>
           <label for="ai-model">Model<input id="ai-model" type="text" value="MiniMax-M3" autocomplete="off" spellcheck="false"></label>

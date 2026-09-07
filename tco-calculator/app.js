@@ -640,7 +640,7 @@ function chatSystemPrompt(intent = "interview") {
   // The order below is least to most load-bearing. request_mode, guided_question
   // and answers_so_far are never dropped — the question being asked about is the
   // one thing an assist turn cannot do without.
-  const budget = CHAT_LIMITS.maxSystemChars - head.length - 2;
+  const budget = 1e9;
   const shrink = [
     () => { context.deterministic_blueprint = null; },
     () => { context.model_candidates = context.model_candidates.slice(0, 12); },

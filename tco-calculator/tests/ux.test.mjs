@@ -739,6 +739,24 @@ test("only an assist turn may answer without a tool call", async () => {
   assert.equal(h.get("plannerState.helpThread").length, 0, "an interview refusal never enters the question thread");
 });
 
+test("the calculator UI offers LLM assistance without naming the vendor behind it", () => {
+  // Two different obligations, deliberately kept apart. privacy.html and
+  // llms.txt MUST name the downstream processor — that is a disclosure, and
+  // removing it would be a false privacy statement. The product surface is
+  // where the brand does not belong: a visitor is offered LLM assistance.
+  const stripLineComments = (source) => source.replace(/^\s*\/\/.*$/gm, "");
+  const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, "");
+  assert.doesNotMatch(visibleHtml, /MiniMax/i, "no visitor-visible markup names the vendor");
+  // MINIMAX_DEFAULTS is the imported endpoint/model config, not copy.
+  assert.doesNotMatch(stripLineComments(app).replace(/MINIMAX_DEFAULTS/g, ""), /MiniMax/i);
+  const chatSource = readFileSync(new URL("../chat.js", import.meta.url), "utf8");
+  assert.doesNotMatch(stripLineComments(chatSource), /MiniMax/i, "no error string shown to a visitor names the vendor");
+  assert.match(visibleHtml, /LLM assistance/);
+  // The disclosure surfaces still name it, and must keep doing so.
+  assert.match(privacy, /MiniMax/i);
+  assert.match(llms, /MiniMax/i);
+});
+
 test("chat modes reject crossed tool responses and a specification cannot send before Apply", async () => {
   const h = harness();
   h.get("setupPlanner()");

@@ -1107,7 +1107,7 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
     }
     const outcome = handleChatTool(result);
     const tools = result.toolCall ? [toolResultMessage(result.toolCall, outcome)] : [];
-    chatState.history.append({ user: result.user, assistant: result.assistantMessage, tools });
+    history.append({ user: result.user, assistant: result.assistantMessage, tools });
     $("ai-model-status").textContent = result.toolCall
       ? `Structured ${result.toolCall.name} response received from ${result.model}. Review before any Apply.`
       : `Answered in prose by ${result.model}. No calculator control was touched.`;

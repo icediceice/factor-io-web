@@ -105,10 +105,15 @@ const state = {
 const plannerState = {
   answers: {},
   questionIndex: 0,
-  // The question the visitor last asked for help on, and MiniMax's inert reply
-  // to it. `help` is rendered beside the question; it never selects an option.
+  // The question the visitor last asked about, the inert structured suggestion
+  // that came back, and the running conversation about that one question.
+  // `help` badges an option; it never selects one. `helpThread` belongs to
+  // helpQuestionId alone — asking about a different question starts a new one,
+  // because a follow-up like "what about the second option?" is meaningless
+  // once a different question is on screen.
   helpQuestionId: null,
   help: null,
+  helpThread: [],
   plan: null,
   blueprint: null,
   prompt: "",

@@ -18,6 +18,8 @@ import {
 // controlled timers/fetches. These are behavioral unit tests, not browser tests.
 const app = readFileSync(new URL("../app.js", import.meta.url), "utf8");
 const html = readFileSync(new URL("../../tco-calculator.html", import.meta.url), "utf8");
+const privacy = readFileSync(new URL("../../privacy.html", import.meta.url), "utf8");
+const llms = readFileSync(new URL("../../llms.txt", import.meta.url), "utf8");
 const fields = readFileSync(new URL("../fields.js", import.meta.url), "utf8");
 function harness() {
   const nodes = new Map();
@@ -33,7 +35,9 @@ function harness() {
       addEventListener(k, f) { this.events ??= {}; this.events[k] = f; },
       appendChild(o) { this.options.push(o); },
       append(...items) { this.options.push(...items); },
+      querySelector(selector) { return selector === ".ai-option" ? node(`${this.id}-first-option`) : null; },
       querySelectorAll() { return []; },
+      focus() { this.focused = true; },
       select() { this.selected = true; },
       remove() { this.removed = true; },
       click() { this.clicked = true; },
@@ -376,6 +380,44 @@ test("planner setup makes no request; Generate is the only fetch trigger", async
   assert.equal(h.fetchCalls.length, 1);
   assert.equal(h.node("ai-refinement-text").textContent, "stub response");
   assert.equal(h.node("ai-refinement").hidden, false);
+  assert.equal(h.get("plannerState.refinement.text"), "stub response");
+  assert.equal(h.node("ai-copy-refinement").disabled, false);
+});
+
+test("calculator recompute retains a prior model refinement and marks it stale", () => {
+  const h = harness(); h.state.ready = true;
+  h.get(`plannerState.plan = buildPlannerPlan({use_case:'support',substrate:'nutanix',data_boundary:'internal',interaction:'assistant',overflow:'local_only'});
+    plannerState.applied = true; plannerState.modelAttempted = true;
+    plannerState.refinement = {text:'retain this specification',model:'MiniMax-M3',truncated:false,stale:false};`);
+  h.node("ai-refinement-text").textContent = "retain this specification";
+  h.get("invalidateResults('Updating comparison…'); renderPlannerBlueprint()");
+  assert.equal(h.node("ai-refinement-text").textContent, "retain this specification");
+  assert.equal(h.node("ai-refinement").hidden, false);
+  assert.equal(h.node("ai-refinement").dataset.stale, "true");
+  assert.equal(h.node("ai-copy-refinement").disabled, false);
+  assert.match(h.node("ai-model-status").textContent, /previous scenario/);
+  assert.doesNotMatch(h.node("ai-model-status").textContent, /No model request has been made/);
+});
+
+test("user-driven interview rerenders move focus to the next action", () => {
+  const h = harness(); h.state.ready = true;
+  h.get("setupPlanner()");
+  assert.notEqual(h.node("ai-options-first-option").focused, true, "initial render must not steal focus");
+  h.get("choosePlannerAnswer('support')");
+  assert.equal(h.node("ai-options-first-option").focused, true);
+
+  h.node("ai-options-first-option").focused = false;
+  h.get(`plannerState.answers = {use_case:'support',substrate:'nutanix',data_boundary:'internal',interaction:'assistant'};
+    plannerState.questionIndex = 4; choosePlannerAnswer('local_only')`);
+  assert.equal(h.node("ai-apply").focused, true);
+
+  h.node("ai-options-first-option").focused = false;
+  h.node("ai-back").events.click();
+  assert.equal(h.node("ai-options-first-option").focused, true);
+
+  h.node("ai-options-first-option").focused = false;
+  h.node("ai-summary").events.click({ target: { closest: () => ({ dataset: { aiEdit: "2" } }) } });
+  assert.equal(h.node("ai-options-first-option").focused, true);
 });
 
 test("an older model completion cannot overwrite newer untrusted text", async () => {
@@ -422,4 +464,11 @@ test("the page explains HTTPS localhost limits and Nutanix price boundaries", ()
   assert.match(app, /Nutanix Enterprise AI has no public list price|blueprint\.warnings/);
   assert.match(html, /Reset whole page/);
   assert.match(html, /AI sends only after your explicit Generate/);
+  assert.match(html, /role="status" aria-live="polite" aria-atomic="true"/);
+  for (const publishedPrivacySurface of [privacy, llms]) {
+    if (/data leaves (?:your|the) device only/i.test(publishedPrivacySurface)) {
+      assert.match(publishedPrivacySurface, /Generate/i);
+    }
+  }
+  assert.match(privacy, /does not receive, store, or proxy the backup, prompt, token, or model response/i);
 });

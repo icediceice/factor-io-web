@@ -1340,19 +1340,27 @@ re-serves the prior digest with zero extra state.
 
 1. **Determinism:** identical workload + identical snapshot digest → byte-identical
    result JSON (canonical key order, decimal-string money math §3.5).
-2. **Offline-capable:** once slices load, recomputation needs no network.
+2. **Offline-capable:** the digest-pinned catalog and dated FX fallback support
+   recomputation without network; live source refresh and MiniMax enhancement degrade
+   to those deterministic assets and the copyable request artifact.
 3. **Static delivery:** GitHub Pages only; no server-side computation; no third-party
    runtime CDN dependencies (repo convention: self-contained assets).
-4. **Privacy:** no analytics and no tracking. Calculator inputs and results remain
-   local. Nothing leaves the page unless the visitor explicitly presses Generate;
-   that action sends the displayed planning prompt to the endpoint the visitor
-   configured. Factor I O does not receive, store or proxy the token or response.
+4. **Privacy and network boundary:** no analytics and no tracking. Startup performs
+   public GETs for OpenRouter model pricing and Frankfurter's ECB-mirror USD→THB rate;
+   those requests carry ordinary browser network metadata but no calculator input,
+   transcript or token. Only explicit **Send** or **Ask MiniMax to explain this plan**
+   performs an AI POST with the bounded §8 payload. Token and history remain in the
+   current tab's memory. Factor I O does not receive, store or proxy the request,
+   token or response, and the offline artifact contains no real token.
 5. **Performance:** first interactive ≤ 2 s on a mid-range device within the §9
    budget; recomputation ≤ 100 ms.
-6. **Accessibility:** WCAG 2.1 AA baseline; keyboard-navigable; provenance popovers
-   reachable and announced.
-7. **Currency:** USD only in v0.1; non-USD feeds normalized at ingestion with the
-   rate recorded in provenance.
+6. **Accessibility:** WCAG 2.1 AA baseline; transcript, typed composer, suggestions,
+   cancel, proposal preview and Apply are keyboard-navigable and announced;
+   provenance popovers remain reachable and announced.
+7. **Currency:** source and engine arithmetic remain exact USD. User-authored money,
+   every calculator money surface and quote-export presentation are THB through one
+   dated exact rational USD→THB boundary; rounding is display-only. Schema.org Offer
+   metadata remains USD.
 
 ---
 

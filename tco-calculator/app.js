@@ -816,8 +816,17 @@ function downloadPlannerBlueprint() {
   $("ai-model-status").textContent = "Blueprint downloaded as plain text.";
 }
 
+// Returns the tool result to retain, or null when there is nothing to retain —
+// a prose-only assist reply is a conversation turn, not a tool invocation.
 function handleChatTool(result) {
   const { toolCall } = result;
+  if (!toolCall) {
+    // The model answered and had no option to recommend. Nothing is badged and
+    // nothing is selected; the visitor still decides, exactly as before.
+    pushAssistReply(result.prose);
+    renderChatSuggestions([]);
+    return null;
+  }
   if (toolCall.name === "ask_user") {
     const ask = toolCall.arguments;
     appendChat("assistant", [ask.question, ask.rationale].filter(Boolean).join("\n\n"));

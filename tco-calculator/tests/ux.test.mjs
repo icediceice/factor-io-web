@@ -514,11 +514,11 @@ test("the page explains HTTPS localhost limits and Nutanix price boundaries", ()
   assert.match(html, /browsers block direct calls to <code>http:\/\/localhost<\/code>/);
   assert.match(app, /Nutanix Enterprise AI has no public list price|blueprint\.warnings/);
   assert.match(html, /Reset whole page/);
-  assert.match(html, /AI sends only after your explicit Generate/);
-  assert.match(html, /role="status" aria-live="polite" aria-atomic="true"/);
+  assert.match(html, /AI sends only after your explicit Send or Ask action/);
+  assert.match(html, /id="ai-transcript"[^>]*role="log"[^>]*aria-live="polite"/);
   for (const publishedPrivacySurface of [privacy, llms]) {
     if (/data leaves (?:your|the) device only/i.test(publishedPrivacySurface)) {
-      assert.match(publishedPrivacySurface, /Generate/i);
+      assert.match(publishedPrivacySurface, /Send|Ask/i);
     }
   }
   assert.match(privacy, /does not receive, store, or proxy the backup, prompt, token, or model response/i);

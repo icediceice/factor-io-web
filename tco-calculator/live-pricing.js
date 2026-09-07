@@ -9,6 +9,13 @@ import { normalizeFxDocument } from "./currency.js";
 export const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
 export const FRANKFURTER_FX_URL = "https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD%2CTHB";
 
+function fxExpiry(date, days = 7) {
+  const expires = new Date(`${date}T23:59:59.999Z`);
+  if (!Number.isFinite(expires.getTime())) return "";
+  expires.setUTCDate(expires.getUTCDate() + days);
+  return expires.toISOString();
+}
+
 function safeCount(value) {
   const candidate = typeof value === "string" && /^\d+$/.test(value) ? Number(value) : value;
   return Number.isSafeInteger(candidate) && candidate >= 0 ? candidate : null;
@@ -135,7 +142,7 @@ export async function fetchLiveFx({ fetchImpl = globalThis.fetch, signal = null,
     source_url: "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/",
     retrieved_via: new URL(url).origin,
     observed_at: date,
-    expires_at: `${date}T23:59:59.999Z`,
+    expires_at: fxExpiry(date),
     eur_usd: String(payload.rates.USD),
     eur_thb: String(payload.rates.THB),
     integrity: "complete-transport",

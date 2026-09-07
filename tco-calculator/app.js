@@ -626,8 +626,72 @@ function chatSystemPrompt(intent = "interview") {
     "Never request or propose credentials, endpoints, HTML, direct control mutation or unsupported fields. The user must preview and explicitly Apply every proposal.",
     intent === "assist" ? "GUIDED_QUESTION is the only question you may answer this turn." : "",
     "CURRENT_CONTEXT",
-    encoded,
   ].filter(Boolean).join("\n");
+
+  // Budget the WHOLE prompt, not just the JSON. chat.js refuses a system prompt
+  // over CHAT_LIMITS.maxSystemChars, and that refusal kills the entire turn with
+  // a message the visitor can do nothing about — which is exactly what happened
+  // on a fully loaded page: the old code checked `encoded.length > 9500` ONCE,
+  // ignored these ~1.5k of instructions entirely, and let an oversized ledger
+  // sail past its own budget. So: measure the head first, then shrink the
+  // context until the total fits.
+  //
+  // The order below is least to most load-bearing. request_mode, guided_question
+  // and answers_so_far are never dropped — the question being asked about is the
+  // one thing an assist turn cannot do without.
+  const budget = CHAT_LIMITS.maxSystemChars - head.length - 2;
+  const shrink = [
+    () => { context.deterministic_blueprint = null; },
+    () => { context.model_candidates = context.model_candidates.slice(0, 12); },
+    () => {
+      const ledger = context.deterministic_component_ledger;
+      if (ledger) context.deterministic_component_ledger = {
+        schema: ledger.schema,
+        currency_contract: ledger.currency_contract,
+        demand: ledger.demand,
+        sizing: ledger.sizing,
+        recurring: ledger.recurring,
+        exclusions: ledger.exclusions,
+        freshness: ledger.freshness,
+        formulas: ledger.formulas,
+      };
+    },
+    () => {
+      const ledger = context.deterministic_component_ledger;
+      if (ledger) context.deterministic_component_ledger = {
+        schema: ledger.schema,
+        currency_contract: ledger.currency_contract,
+        demand: ledger.demand,
+        sizing: ledger.sizing,
+        freshness: ledger.freshness,
+      };
+    },
+    () => { context.source_envelopes = {}; },
+    () => { context.model_candidates = context.model_candidates.slice(0, 6); },
+    () => { context.deterministic_component_ledger = null; },
+    // Dropping the enum lists is safe in the fail-closed direction: a value the
+    // model cannot see is a value it cannot cite, and every proposal is
+    // revalidated against the real controls before it may touch anything.
+    () => { context.current_controls = fields.map(({ id, label, value }) => ({ id, label, value })); },
+    () => { context.current_controls = context.current_controls.slice(0, 12); },
+  ];
+  let encoded = JSON.stringify(context);
+  for (const drop of shrink) {
+    if (encoded.length <= budget) break;
+    drop();
+    encoded = JSON.stringify(context);
+  }
+  // Last resort, and bounded by construction: one interview question authored in
+  // planner.js can never approach the cap. Sending a stripped context beats
+  // sending nothing, because sending nothing is the bug this replaced.
+  if (encoded.length > budget) {
+    encoded = JSON.stringify({
+      request_mode: context.request_mode,
+      guided_question: context.guided_question,
+      note: "Context omitted: it exceeded this request's system-prompt budget.",
+    });
+  }
+  return `${head}\n${encoded}`;
 }
 
 function localLlmSpecText(spec) {

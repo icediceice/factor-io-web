@@ -48,6 +48,7 @@ function harness() {
       attrs: {}, style: {}, classList: { add() {}, remove() {}, toggle() {} },
       setAttribute(k, v) { this.attrs[k] = v; },
       addEventListener(k, f) { this.events ??= {}; this.events[k] = f; },
+      requestSubmit() { this.events?.submit?.({ preventDefault() {} }); },
       appendChild(o) { this.options.push(o); },
       append(...items) { this.options.push(...items); },
       querySelector(selector) { return selector === ".ai-option" ? node(`${this.id}-first-option`) : null; },

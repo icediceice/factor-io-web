@@ -1049,11 +1049,14 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
     return;
   }
   const systemPrompt = chatSystemPrompt(intent);
+  // One question, one conversation. An assist turn never carries another
+  // question's exchanges, and never leaks its own into the free-form thread.
+  const history = intent === "assist" ? chatState.assistHistory : chatState.history;
   try {
     chatState.offlineArtifact = buildOfflineRequest({
       endpoint: MINIMAX_DEFAULTS.endpoint,
       model: MINIMAX_DEFAULTS.model,
-      history: chatState.history,
+      history,
       systemPrompt,
       userMessage: text,
       assist: intent === "assist",

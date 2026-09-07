@@ -634,7 +634,10 @@ test("the claim guard rejects a price without rejecting the way a colleague writ
   const h = harness();
   h.get("setupPlanner()");
   h.state.ready = true;
+  // The thread renders only on the question it belongs to, so the visitor must
+  // actually be standing on that question for a reply to appear.
   h.get("plannerState.helpQuestionId = 'substrate'");
+  h.get(`plannerState.questionIndex = ${INTERVIEW_QUESTIONS.findIndex((q) => q.id === "substrate")}`);
 
   const prose = (text) => async () => ({
     user: { role: "user", content: "q" },

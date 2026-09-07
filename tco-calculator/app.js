@@ -165,7 +165,7 @@ function controlValues(id) {
   return [...($(id)?.options ?? [])].map((option) => option.value).filter((value) => value !== "");
 }
 
-function chatValidationContext() {
+function chatValidationContext({ assist = false } = {}) {
   const fields = Object.fromEntries(Object.entries(CHAT_FIELD_CONTRACTS).map(([id, contract]) => {
     const spec = { ...contract };
     if (spec.kind === "model") spec.values = new Set((state.servingData?.models ?? []).map((model) => model.id));
@@ -174,7 +174,17 @@ function chatValidationContext() {
   }));
   // answer_question may only recommend an option the visitor can actually see,
   // so the validator is handed this question's own option ids.
-  const questions = Object.fromEntries(INTERVIEW_QUESTIONS.map((question) => [
+  //
+  // An ASSIST turn is bound to ONE question — the same one chatSystemPrompt
+  // hands the model (see plannerState.helpQuestionId there). Scoping the map to
+  // it is what makes that binding enforceable: a well-formed answer to a
+  // DIFFERENT question is refused before it is rendered, retained, or allowed to
+  // badge an option the visitor never asked about. An empty map when no question
+  // is pending fails closed, which is the safe direction.
+  const scoped = assist
+    ? INTERVIEW_QUESTIONS.filter((question) => question.id === plannerState.helpQuestionId)
+    : INTERVIEW_QUESTIONS;
+  const questions = Object.fromEntries(scoped.map((question) => [
     question.id,
     new Set(question.options.map((option) => option.id)),
   ]));
@@ -831,7 +841,7 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       history: chatState.history,
       systemPrompt,
       userMessage: text,
-      validationContext: chatValidationContext(),
+      validationContext: chatValidationContext({ assist: intent === "assist" }),
       pageUrl: location.href,
       signal: controller.signal,
     });

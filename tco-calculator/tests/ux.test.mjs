@@ -558,6 +558,52 @@ test("a typed answer is bounds-checked against the real control contract before 
   assert.match(h.node("ai-ready-note").textContent, /f-users/);
 });
 
+test("an assist turn is bound to the one question it was asked about", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.get("plannerState.helpQuestionId = 'use_case'");
+
+  // chatSystemPrompt already hands the model exactly one question; the assist
+  // validation context must be scoped to the SAME one, or the binding is advice.
+  assert.deepEqual(Object.keys(h.get("chatValidationContext({ assist: true })").questions), ["use_case"]);
+  assert.equal(Object.keys(h.get("chatValidationContext()").questions).length, 8);
+
+  const answerFor = (questionId, option) => (args) => realRequestChatTurn({
+    ...args,
+    timeoutMs: 1000,
+    fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({
+      model: "MiniMax-M3",
+      choices: [{ message: { role: "assistant", content: null, tool_calls: [{ id: "call-assist", type: "function", function: {
+        name: "answer_question",
+        arguments: JSON.stringify({
+          question_id: questionId,
+          recommended_option: option,
+          answer: "Keep regulated records inside your own boundary.",
+          why: "You said the documents are HR records.",
+        }),
+      } }] } }],
+    }) }),
+  });
+
+  // A well-formed answer to a DIFFERENT question is refused: it never becomes
+  // help, never reaches history, and never badges an option the visitor is not
+  // even looking at.
+  h.context.requestChatTurn = answerFor("data_boundary", "restricted");
+  await h.get("sendChatMessage('I am not sure', {intent:'assist'})");
+  assert.equal(h.get("plannerState.help"), null, "advice about another question is never retained");
+  assert.match(h.node("ai-model-status").textContent, /data_boundary is not one of the guided planning questions/);
+  assert.equal(h.get("chatState.history.snapshot().length"), 0);
+
+  // The same answer, for the question actually asked, is accepted.
+  h.get("plannerState.helpQuestionId = 'data_boundary'");
+  h.get("plannerState.questionIndex = 4");
+  await h.get("sendChatMessage('I am not sure', {intent:'assist'})");
+  assert.equal(h.get("plannerState.help.question_id"), "data_boundary");
+  assert.match(h.node("ai-interview").innerHTML, /MiniMax suggests this/);
+  assert.equal(h.get("plannerState.answers.data_boundary"), undefined, "accepted advice still selects nothing");
+});
+
 test("chat modes reject crossed tool responses and a specification cannot send before Apply", async () => {
   const h = harness();
   h.get("setupPlanner()");
@@ -677,4 +723,18 @@ test("the page states the Nutanix price boundary and the surfaces agree that Fac
   assert.match(llms, /automatically GETs public OpenRouter pricing and Frankfurter FX/i);
   assert.match(llms, /Factor I O DOES proxy calculator AI requests/i);
   assert.match(llms, /no API-key field/i);
+
+  // The whole document has to agree, not just the section that was updated. Any
+  // surviving "we do not receive/proxy" claim must say it is about the BACKUP —
+  // an unqualified one is now a false privacy statement, not a stale sentence.
+  for (const [name, surface] of [["privacy.html", privacy], ["llms.txt", llms]]) {
+    for (const [claim] of surface.matchAll(/[^.<>]*\b(?:does not|do not|never)\s+[^.<>]*\b(?:receive|receives|proxy|proxies)\b[^.<>]*/gi)) {
+      assert.match(claim, /backup/i, `${name} still denies receiving something that is not the backup: "${claim.trim()}"`);
+    }
+  }
+  assert.match(privacy, /pressing Ask in the calculator sends your message to a Factor IO server/i);
+  assert.match(privacy, /single exception to the <em>transmit<\/em> half/i);
+  assert.doesNotMatch(privacy, /Nothing is ever transmitted to us by any user of any age/i);
+  assert.match(llms, /Factor I O DOES receive and proxy calculator AI requests/i);
+  assert.doesNotMatch(llms, /directly to the endpoint they configured/i);
 });

@@ -520,7 +520,14 @@ export async function requestChatTurn({
   const assistantMessage = cloneJson(raw);
   if (JSON.stringify(assistantMessage).length > maxAssistantChars) throw new ChatRequestError("response_too_large", "The complete assistant response exceeds the browser retention limit. Ask for a shorter answer.");
   let toolCall;
-  try { toolCall = validateAssistantToolCall(assistantMessage, validationContext); }
+  let prose;
+  try {
+    toolCall = validateAssistantToolCall(assistantMessage, validationContext, { assist });
+    // Prose beside a suggestion is optional — answer_question already carries
+    // answer/why. With no suggestion it is the entire reply, so it is required:
+    // an assist turn that returns neither is a failed turn, not a silent one.
+    prose = assist ? validateAssistantProse(assistantMessage, { optional: !!toolCall }) : null;
+  }
   catch (error) {
     if (error instanceof ChatContractError) throw new ChatRequestError(error.code, error.message);
     throw error;
@@ -528,7 +535,10 @@ export async function requestChatTurn({
   return {
     user,
     assistantMessage,
+    // null on a prose-only assist turn — every caller must handle that before
+    // dereferencing it.
     toolCall,
+    prose,
     model: typeof body.model === "string" ? body.model : String(model),
     usage: isObject(body.usage) ? cloneJson(body.usage) : null,
   };

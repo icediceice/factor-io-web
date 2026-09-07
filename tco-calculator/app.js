@@ -434,6 +434,7 @@ function applyPlannerAnswers() {
   plannerState.plan = plan;
   plannerState.applied = true;
   plannerState.refinement = null;
+  chatState.pendingSpec = null;
   $("ai-state").textContent = "Applied · reviewed proposal + local-first routing · assumptions remain editable";
   appendChat("assistant", "Applied the reviewed proposal once. The calculator is recomputing; inspect or override any assumption in the real controls.");
   dismissProposal();

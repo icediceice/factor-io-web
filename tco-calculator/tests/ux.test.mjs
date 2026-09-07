@@ -780,8 +780,10 @@ test("an assist turn asks the model a question instead of filling in a form", as
   assert.equal(h.get("plannerState.help"), null);
   assert.equal(h.get("plannerState.answers.use_case"), undefined);
   // It is still a real retained exchange; there is simply no tool result to keep.
-  assert.equal(h.get("chatState.history.snapshot().length"), 1);
-  assert.equal(h.get("chatState.history.snapshot()[0].tools.length"), 0);
+  // It belongs to the assist conversation, and the free-form one never sees it.
+  assert.equal(h.get("chatState.assistHistory.snapshot().length"), 1);
+  assert.equal(h.get("chatState.assistHistory.snapshot()[0].tools.length"), 0);
+  assert.equal(h.get("chatState.history.snapshot().length"), 0, "an assist turn never enters the free-form conversation");
 });
 
 test("free prose may not assert a price or smuggle markup onto the page", async () => {

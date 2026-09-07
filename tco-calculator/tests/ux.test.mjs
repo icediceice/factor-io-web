@@ -411,113 +411,84 @@ test("field harvesting and close use a shared range-blind control selector", () 
   assert.match(fields, /releaseFields/);
 });
 
-test("the AI interview cannot mutate calculator fields before readiness and Apply is total", () => {
+test("typed planner setup and suggestions never send implicitly; explicit Send retains complete tool history", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  assert.equal(h.fetchCalls.length, 0);
+  assert.match(h.node("ai-transcript").innerHTML, /What should AI help/);
+  h.node("ai-suggestions").events.click({ target: { closest: () => ({ dataset: { aiSuggestion: "0" } }) } });
+  assert.equal(h.fetchCalls.length, 0, "choosing suggested text must not send it");
+  assert.match(h.node("ai-message").value, /internal knowledge assistant/);
+
+  h.state.ready = true;
+  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
+  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
+  h.node("ai-token").value = "memory-only-secret";
+  await h.get("sendChatMessage() ");
+  assert.equal(h.fetchCalls.length, 1);
+  assert.equal(h.node("ai-copy-request").disabled, false);
+  assert.doesNotMatch(h.get("chatState.offlineArtifact.copyText"), /memory-only-secret/);
+  const history = JSON.parse(JSON.stringify(h.get("chatState.history.snapshot()")));
+  assert.equal(history.length, 1);
+  assert.equal(history[0].assistant.tool_calls[0].function.name, "ask_user");
+  assert.equal(history[0].tools[0].role, "tool");
+  assert.match(h.node("ai-transcript").innerHTML, /Where must the data stay/);
+});
+
+test("validated proposal is previewed before Apply and reaches real controls with one recompute", () => {
   const h = harness();
   h.state.workloadPresets = {
-    defaults: { shapes: {} },
-    provenance: {},
-    presets: [
-      { id: "support_desk", label: "Support", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "500" } },
-      { id: "agent_platform", label: "Agents", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "200" } },
-    ],
+    defaults: { shapes: {} }, provenance: {},
+    presets: [{ id: "support_desk", label: "Support", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "500", "f-horizon": "60" } }],
   };
+  h.state.servingData = { models: [{ id: "known-model", params_b: "8", active_params_b: "8", context_default: 8192, groups: [] }] };
+  h.node("f-sv-model").tagName = "SELECT";
+  h.node("f-sv-model").options = [{ value: "known-model", textContent: "Known model" }];
   h.node("f-users").value = "77";
   h.context.recomputes = 0;
-  h.get(`onLiveInput = () => { recomputes++; };
-    plannerState.answers = {use_case:'support',substrate:'nutanix',data_boundary:'internal',interaction:'assistant',overflow:'burst'};`);
+  h.get("onLiveInput = () => { recomputes++; }");
+  const proposal = {
+    summary: "A reviewable local-first support starting point.",
+    planning_profile: { use_case: "support", substrate: "nutanix", data_boundary: "internal", interaction: "assistant", overflow: "burst" },
+    changes: [
+      { field: "f-users", value: "2000", reason: "Matches the stated staff population." },
+      { field: "f-horizon", value: "60", reason: "Uses the standard comparison horizon." },
+      { field: "f-sv-model", value: "known-model", reason: "Evaluation candidate from the loaded catalog." },
+    ],
+    suggested_replies: [],
+  };
+  h.get("renderProposal")(proposal);
+  assert.equal(h.node("f-users").value, "77", "preview must be inert");
+  assert.equal(h.node("ai-proposal").hidden, false);
+  assert.match(h.node("ai-proposal-rows").innerHTML, /2000/);
   h.get("applyPlannerAnswers()");
-  assert.equal(h.node("f-users").value, "77");
+  assert.equal(h.node("f-users").value, "77", "Apply is locked before calculator readiness");
   assert.equal(h.context.recomputes, 0);
 
   h.state.ready = true;
   h.get("applyPlannerAnswers()");
-  assert.equal(h.node("f-users").value, "500");
+  assert.equal(h.node("f-users").value, "2000");
+  assert.equal(h.node("f-horizon").value, "60");
+  assert.equal(h.node("f-sv-model").value, "known-model");
   assert.equal(h.node("fr-policy").value, "local_first");
-  assert.equal(h.node("fr-blend").value, "100");
   assert.equal(h.node("fr-failshare").value, "0.15");
-  assert.equal(h.node("fr-failrate").value, "2");
   assert.equal(h.context.recomputes, 1);
-
-  h.get("plannerState.answers = {...plannerState.answers,use_case:'automation',overflow:'local_only'}; applyPlannerAnswers()");
-  assert.equal(h.node("f-users").value, "200");
-  assert.equal(h.node("fr-policy").value, "local_first");
-  assert.equal(h.node("fr-blend").value, "100");
-  assert.equal(h.node("fr-failshare").value, "0");
-  assert.equal(h.node("fr-failrate").value, "2");
-  assert.equal(h.context.recomputes, 2);
+  assert.equal(h.node("ai-proposal").hidden, true);
+  assert.equal(h.get("plannerState.applied"), true);
 });
 
-test("planner setup makes no request; Generate is the only fetch trigger", async () => {
-  const h = harness();
-  h.get("setupPlanner()");
-  assert.equal(h.fetchCalls.length, 0);
-  h.state.ready = true;
-  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
-  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
-  h.node("ai-token").value = "memory-only";
-  h.get("plannerState.prompt = 'safe prompt'; plannerState.blueprint = {text:'local blueprint'}");
-  await h.get("generatePlannerRefinement()");
-  assert.equal(h.fetchCalls.length, 1);
-  assert.equal(h.node("ai-refinement-text").textContent, "stub response");
-  assert.equal(h.node("ai-refinement").hidden, false);
-  assert.equal(h.get("plannerState.refinement.text"), "stub response");
-  assert.equal(h.node("ai-copy-refinement").disabled, false);
-});
-
-test("calculator recompute retains a prior model refinement and marks it stale", () => {
+test("manual calculator edits retain the structured specification and mark it stale", () => {
   const h = harness(); h.state.ready = true;
   h.get(`plannerState.plan = buildPlannerPlan({use_case:'support',substrate:'nutanix',data_boundary:'internal',interaction:'assistant',overflow:'local_only'});
-    plannerState.applied = true; plannerState.modelAttempted = true;
-    plannerState.refinement = {text:'retain this specification',model:'MiniMax-M3',truncated:false,stale:false};`);
-  h.node("ai-refinement-text").textContent = "retain this specification";
-  h.get("invalidateResults('Updating comparison…'); renderPlannerBlueprint()");
-  assert.equal(h.node("ai-refinement-text").textContent, "retain this specification");
+    plannerState.applied = true;
+    plannerState.refinement = {text:'retain this specification',model:'MiniMax-M3',stale:false};`);
+  h.get("onLiveInput()");
+  assert.equal(h.get("plannerState.refinement.text"), "retain this specification");
+  assert.equal(h.get("plannerState.refinement.stale"), true);
   assert.equal(h.node("ai-refinement").hidden, false);
   assert.equal(h.node("ai-refinement").dataset.stale, "true");
   assert.equal(h.node("ai-copy-refinement").disabled, false);
-  assert.match(h.node("ai-model-status").textContent, /previous scenario/);
-  assert.doesNotMatch(h.node("ai-model-status").textContent, /No model request has been made/);
-});
-
-test("user-driven interview rerenders move focus to the next action", () => {
-  const h = harness(); h.state.ready = true;
-  h.get("setupPlanner()");
-  assert.notEqual(h.node("ai-options-first-option").focused, true, "initial render must not steal focus");
-  h.get("choosePlannerAnswer('support')");
-  assert.equal(h.node("ai-options-first-option").focused, true);
-
-  h.node("ai-options-first-option").focused = false;
-  h.get(`plannerState.answers = {use_case:'support',substrate:'nutanix',data_boundary:'internal',interaction:'assistant'};
-    plannerState.questionIndex = 4; choosePlannerAnswer('local_only')`);
-  assert.equal(h.node("ai-apply").focused, true);
-
-  h.node("ai-options-first-option").focused = false;
-  h.node("ai-back").events.click();
-  assert.equal(h.node("ai-options-first-option").focused, true);
-
-  h.node("ai-options-first-option").focused = false;
-  h.node("ai-summary").events.click({ target: { closest: () => ({ dataset: { aiEdit: "2" } }) } });
-  assert.equal(h.node("ai-options-first-option").focused, true);
-});
-
-test("an older model completion cannot overwrite newer untrusted text", async () => {
-  const h = harness();
-  const pending = [];
-  h.context.requestRefinement = () => new Promise((resolve) => pending.push(resolve));
-  h.state.ready = true;
-  h.node("ai-endpoint").value = MINIMAX_DEFAULTS.endpoint;
-  h.node("ai-model").value = MINIMAX_DEFAULTS.model;
-  h.get("plannerState.prompt = 'prompt'; plannerState.blueprint = {text:'blueprint'}");
-  const older = h.get("generatePlannerRefinement()");
-  const newer = h.get("generatePlannerRefinement()");
-  pending[1]({ text: "<script>alert(1)</script> $12,400 invented", model: "newer", truncated: false });
-  await newer;
-  pending[0]({ text: "stale response", model: "older", truncated: false });
-  await older;
-  assert.equal(h.node("ai-refinement-text").textContent, "<script>alert(1)</script> $12,400 invented");
-  assert.equal(h.node("ai-refinement-text").innerHTML, "", "model output is assigned as text, never HTML");
-  assert.match(h.node("ai-model-status").textContent, /Unverified prose/);
-  assert.doesNotMatch(h.node("ai-model-status").textContent, /older/);
+  assert.match(h.node("ai-workspace-status").textContent, /stale/);
 });
 
 test("provider secrets and model prose are screen-only and absent from cost collection", () => {

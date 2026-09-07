@@ -218,11 +218,23 @@ function validateFieldValue(field, value, spec) {
 }
 
 export function validateCalculatorProposal(input, context = {}) {
-  const value = strictObject(input, ["summary", "changes", "question", "suggested_replies"], ["summary", "changes"], "propose_calculator_changes");
+  const value = strictObject(input, ["summary", "planning_profile", "changes", "question", "suggested_replies"], ["summary", "planning_profile", "changes"], "propose_calculator_changes");
   if (!Array.isArray(value.changes) || value.changes.length === 0 || value.changes.length > 24) {
     throw new ChatContractError("changes", "A proposal must contain 1–24 changes.");
   }
   const fields = isObject(context.fields) ? context.fields : {};
+  const profileValues = {
+    use_case: ["support", "knowledge", "analytics", "automation", "mixed"],
+    substrate: ["nutanix", "kubernetes", "vm", "workstation"],
+    data_boundary: ["restricted", "internal", "public"],
+    interaction: ["assistant", "embedded", "batch", "agent"],
+    overflow: ["local_only", "approved_api", "burst"],
+  };
+  const profile = strictObject(value.planning_profile, Object.keys(profileValues), Object.keys(profileValues), "planning_profile");
+  const planningProfile = Object.fromEntries(Object.entries(profileValues).map(([key, allowed]) => {
+    if (!allowed.includes(profile[key])) throw new ChatContractError("planning_profile", `${key} is not a supported planning profile value.`);
+    return [key, profile[key]];
+  }));
   const seen = new Set();
   const changes = value.changes.map((raw, i) => {
     const change = strictObject(raw, ["field", "value", "reason"], ["field", "value", "reason"], `changes[${i}]`);
@@ -240,6 +252,7 @@ export function validateCalculatorProposal(input, context = {}) {
   });
   return {
     summary: safeText(value.summary, "summary", { max: 1000 }),
+    planning_profile: planningProfile,
     changes,
     question: safeText(value.question, "question", { max: 500, optional: true }),
     suggested_replies: value.suggested_replies === undefined ? [] : safeTextArray(value.suggested_replies, "suggested_replies", { maxItems: 4 }),

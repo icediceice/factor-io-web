@@ -827,7 +827,9 @@ test("a follow-up continues the same question and ends when the visitor moves on
   h.state.ready = true;
   const asked = [];
   h.context.requestChatTurn = (args) => {
-    asked.push(args);
+    // Snapshotted AT DISPATCH, because this is what the model actually receives.
+    // Scoping the VISIBLE thread to one question is not the same promise.
+    asked.push({ ...args, sentHistory: args.history.snapshot() });
     return realRequestChatTurn({
       ...args,
       timeoutMs: 1000,

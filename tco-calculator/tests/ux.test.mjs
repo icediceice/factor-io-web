@@ -102,7 +102,7 @@ function harness() {
     fetch: fetchSpy, AbortController, URL, Blob,
     navigator: { clipboard: { writeText: async () => {} } },
     INTERVIEW_QUESTIONS, MINIMAX_DEFAULTS, answerFields, buildBlueprint, buildPlannerPlan, buildPrompt,
-    createRequestFence, isInterviewComplete, buildOfflineRequest, createChatHistory,
+    createRequestFence, isInterviewComplete, CHAT_LIMITS, buildOfflineRequest, createChatHistory,
     toolResultMessage, validateCalculatorProposal, validateFieldValue,
     requestChatTurn: (args) => realRequestChatTurn({ ...args, fetchImpl: fetchSpy, timeoutMs: 1000 }),
     resolveResource: async () => ({ offers: {} }),

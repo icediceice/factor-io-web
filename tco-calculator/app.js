@@ -22,7 +22,7 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
-import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ai1";
+import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260906-ai2";
 import {
   INTERVIEW_QUESTIONS,
   MINIMAX_DEFAULTS,
@@ -32,7 +32,7 @@ import {
   createRequestFence,
   isInterviewComplete,
   requestRefinement,
-} from "./planner.js?v=20260906-ai1";
+} from "./planner.js?v=20260906-ai2";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -96,6 +96,9 @@ const plannerState = {
   plan: null,
   blueprint: null,
   prompt: "",
+  refinement: null,
+  modelAttempted: false,
+  focusAfterRender: false,
   applied: false,
   abortController: null,
 };
@@ -145,25 +148,54 @@ function renderPlannerInterview() {
   $("ai-back").disabled = plannerState.questionIndex === 0;
   renderPlannerSummary();
   setPlannerReady(state.ready);
+  if (plannerState.focusAfterRender) {
+    plannerState.focusAfterRender = false;
+    const apply = $("ai-apply");
+    const target = atReview
+      ? (apply.disabled ? $("ai-question") : apply)
+      : $("ai-options").querySelector(".ai-option");
+    target?.focus();
+  }
 }
 
 function cancelPlannerRequest() {
+  const cancelled = Boolean(plannerState.abortController);
   plannerFence.cancel();
   if (plannerState.abortController) plannerState.abortController.abort();
   plannerState.abortController = null;
+  return cancelled;
 }
 
-function clearPlannerOutput(message = "Apply the guided setup to build a deployment blueprint.") {
-  cancelPlannerRequest();
+function clearPlannerOutput(message = "Apply the guided setup to build a deployment blueprint.", { keepRefinement = false } = {}) {
+  const cancelled = cancelPlannerRequest();
+  const refinement = keepRefinement ? plannerState.refinement : null;
+  plannerState.refinement = refinement;
   plannerState.blueprint = null;
   plannerState.prompt = "";
   $("ai-blueprint").innerHTML = `<p class="muted">${escapeHtml(message)}</p>`;
-  $("ai-refinement").hidden = true;
-  $("ai-refinement-text").textContent = "";
+  if (refinement) {
+    refinement.stale = true;
+    $("ai-refinement").hidden = false;
+    $("ai-refinement").dataset.stale = "true";
+    $("ai-refinement-text").textContent = refinement.text;
+    $("ai-copy-refinement").disabled = false;
+  } else {
+    $("ai-refinement").hidden = true;
+    delete $("ai-refinement").dataset.stale;
+    $("ai-refinement-text").textContent = "";
+    $("ai-copy-refinement").disabled = true;
+  }
   $("ai-copy-blueprint").disabled = true;
   $("ai-copy-prompt").disabled = true;
   $("ai-download").disabled = true;
   $("ai-generate").disabled = true;
+  $("ai-model-status").textContent = cancelled
+    ? "Generation cancelled because the calculator scenario changed."
+    : refinement
+      ? "Calculator inputs changed. The specification below was generated against the previous scenario — press Generate to refresh it."
+      : plannerState.modelAttempted
+        ? "The prior refinement was cleared. Generate was used earlier in this tab."
+        : "No model request has been made.";
 }
 
 function markPlannerAnswersChanged() {
@@ -180,6 +212,7 @@ function choosePlannerAnswer(optionId) {
   markPlannerAnswersChanged();
   plannerState.answers = { ...plannerState.answers, [question.id]: optionId };
   plannerState.questionIndex = Math.min(plannerState.questionIndex + 1, INTERVIEW_QUESTIONS.length);
+  plannerState.focusAfterRender = true;
   renderPlannerInterview();
 }
 
@@ -220,9 +253,26 @@ function renderPlannerBlueprint() {
   $("ai-copy-prompt").disabled = false;
   $("ai-download").disabled = false;
   $("ai-generate").disabled = !state.ready;
-  $("ai-refinement").hidden = true;
-  $("ai-refinement-text").textContent = "";
-  $("ai-model-status").textContent = "Blueprint ready locally. No model request has been made.";
+  if (plannerState.refinement) {
+    $("ai-refinement").hidden = false;
+    $("ai-refinement-text").textContent = plannerState.refinement.text;
+    $("ai-copy-refinement").disabled = false;
+    if (plannerState.refinement.stale) {
+      $("ai-refinement").dataset.stale = "true";
+      $("ai-model-status").textContent = "Calculator inputs changed. The specification below was generated against the previous scenario — press Generate to refresh it.";
+    } else {
+      delete $("ai-refinement").dataset.stale;
+      $("ai-model-status").textContent = `Refined by ${plannerState.refinement.model}${plannerState.refinement.truncated ? " · response clipped to the browser limit" : ""}. Unverified prose; not included in calculator totals or print.`;
+    }
+  } else {
+    $("ai-refinement").hidden = true;
+    delete $("ai-refinement").dataset.stale;
+    $("ai-refinement-text").textContent = "";
+    $("ai-copy-refinement").disabled = true;
+    $("ai-model-status").textContent = plannerState.modelAttempted
+      ? "Blueprint ready locally. No current refinement; Generate was used earlier in this tab."
+      : "Blueprint ready locally. No model request has been made.";
+  }
 }
 
 async function copyText(text) {
@@ -243,11 +293,19 @@ async function copyText(text) {
 }
 
 async function copyPlannerArtifact(kind) {
-  const text = kind === "prompt" ? plannerState.prompt : plannerState.blueprint?.text;
+  const text = kind === "prompt"
+    ? plannerState.prompt
+    : kind === "refinement"
+      ? plannerState.refinement?.text
+      : plannerState.blueprint?.text;
   const status = $("ai-model-status");
   try {
     await copyText(text);
-    status.textContent = kind === "prompt" ? "Prompt copied. Paste it into Ollama, LM Studio or another local model client." : "Blueprint copied.";
+    status.textContent = kind === "prompt"
+      ? "Prompt copied. Paste it into Ollama, LM Studio or another local model client."
+      : kind === "refinement"
+        ? `Refinement copied.${plannerState.refinement?.stale ? " It was generated against the previous scenario." : ""}`
+        : "Blueprint copied.";
   } catch (error) {
     status.textContent = error.message;
   }
@@ -270,10 +328,14 @@ async function generatePlannerRefinement() {
   const generation = plannerFence.begin();
   const controller = new AbortController();
   plannerState.abortController = controller;
+  plannerState.modelAttempted = true;
   const button = $("ai-generate");
   button.disabled = true;
   $("ai-model-status").textContent = "Sending the displayed prompt to your configured endpoint…";
-  $("ai-refinement").hidden = true;
+  if (plannerState.refinement) {
+    plannerState.refinement.stale = true;
+    $("ai-refinement").dataset.stale = "true";
+  }
   try {
     const result = await requestRefinement({
       endpoint: $("ai-endpoint").value,
@@ -284,12 +346,15 @@ async function generatePlannerRefinement() {
       signal: controller.signal,
     });
     if (!plannerFence.isCurrent(generation)) return;
+    plannerState.refinement = { ...result, stale: false };
     $("ai-refinement-text").textContent = result.text;
     $("ai-refinement").hidden = false;
+    delete $("ai-refinement").dataset.stale;
+    $("ai-copy-refinement").disabled = false;
     $("ai-model-status").textContent = `Refined by ${result.model}${result.truncated ? " · response clipped to the browser limit" : ""}. Unverified prose; not included in calculator totals or print.`;
   } catch (error) {
     if (!plannerFence.isCurrent(generation) || error?.code === "aborted") return;
-    $("ai-model-status").textContent = `${error.message} The local blueprint and copy/download actions still work.`;
+    $("ai-model-status").textContent = `${error.message} ${plannerState.refinement ? "The previous refinement remains available." : "The local blueprint and copy/download actions still work."}`;
   } finally {
     if (plannerFence.isCurrent(generation)) {
       plannerState.abortController = null;
@@ -309,14 +374,17 @@ function setupPlanner() {
     const edit = event.target.closest("[data-ai-edit]");
     if (!edit) return;
     plannerState.questionIndex = Number(edit.dataset.aiEdit);
+    plannerState.focusAfterRender = true;
     renderPlannerInterview();
   });
   $("ai-back").addEventListener("click", () => {
     plannerState.questionIndex = Math.max(0, plannerState.questionIndex - 1);
+    plannerState.focusAfterRender = true;
     renderPlannerInterview();
   });
   $("ai-apply").addEventListener("click", applyPlannerAnswers);
   $("ai-copy-blueprint").addEventListener("click", () => void copyPlannerArtifact("blueprint"));
+  $("ai-copy-refinement").addEventListener("click", () => void copyPlannerArtifact("refinement"));
   $("ai-copy-prompt").addEventListener("click", () => void copyPlannerArtifact("prompt"));
   $("ai-download").addEventListener("click", downloadPlannerBlueprint);
   $("ai-generate").addEventListener("click", () => void generatePlannerRefinement());
@@ -1516,7 +1584,7 @@ function invalidateResults(message) {
   }
   $("calculation-status").textContent = message;
   $("comparison").setAttribute("aria-busy", "true");
-  if (plannerState.applied) clearPlannerOutput("Calculator inputs changed. Rebuilding this applied blueprint from the next exact result…");
+  if (plannerState.applied) clearPlannerOutput("Calculator inputs changed. Rebuilding this applied blueprint from the next exact result…", { keepRefinement: true });
 }
 
 // The headline recomputes as you type. A calculator with a button you must

@@ -4,7 +4,7 @@
 // scenario assumptions. Keeping those terms separate is what lets the UI cite
 // the wattage without presenting the user's facility assumptions as vendor data.
 
-import { Dec } from "./exact.js";
+import { Dec, toRat, ratStr } from "./exact.js";
 
 const HOURS_PER_MONTH = 730n;
 let rowsByGpu = new Map();
@@ -29,6 +29,12 @@ const nonNegative = (value, field) => {
   return d;
 };
 
+const nonNegativeMoney = (value, field) => {
+  const amount = toRat(String(value));
+  if (amount.sign() < 0) throw new PowerRefusal("bad_power_input", `${field} must not be negative`, { field, value });
+  return amount;
+};
+
 export function runningCost({ gpuId, gpusProvisioned, pue, usdPerKwh, nodeOverheadFraction }) {
   const row = rowsByGpu.get(gpuId);
   if (!row) {
@@ -50,17 +56,17 @@ export function runningCost({ gpuId, gpusProvisioned, pue, usdPerKwh, nodeOverhe
   if (pueDec.lt("1")) {
     throw new PowerRefusal("bad_pue", "PUE must be at least 1", { pue });
   }
-  const rate = nonNegative(usdPerKwh, "usd_per_kwh");
+  const rate = nonNegativeMoney(usdPerKwh, "usd_per_kwh");
   const overhead = nonNegative(nodeOverheadFraction, "node_overhead_fraction");
   const gpuKw = Dec.from(String(row.tdp_w)).mul(BigInt(gpusProvisioned)).mul("0.001");
   const overheadKw = gpuKw.mul(overhead);
   const itKw = gpuKw.add(overheadKw);
   const facilityKw = itKw.mul(pueDec);
   const energyKwh = facilityKw.mul(HOURS_PER_MONTH);
-  const monthly = energyKwh.mul(rate);
+  const monthly = toRat(energyKwh).mul(rate);
 
   return {
-    monthly_usd: monthly.toString(),
+    monthly_usd: ratStr(monthly),
     gpu_id: gpuId,
     gpus_provisioned: gpusProvisioned,
     terms: {
@@ -78,8 +84,8 @@ export function runningCost({ gpuId, gpusProvisioned, pue, usdPerKwh, nodeOverhe
       facility_load_kw: { value: facilityKw.toString(), basis: "IT load × PUE" },
       hours_per_month: { value: HOURS_PER_MONTH.toString(), basis: "planning month" },
       energy_kwh: { value: energyKwh.toString(), basis: "facility load × hours" },
-      usd_per_kwh: { value: rate.toString(), basis: "assumed" },
-      monthly_usd: { value: monthly.toString(), basis: "energy × tariff" }
+      usd_per_kwh: { value: ratStr(rate), basis: "assumed" },
+      monthly_usd: { value: ratStr(monthly), basis: "energy × tariff" }
     }
   };
 }

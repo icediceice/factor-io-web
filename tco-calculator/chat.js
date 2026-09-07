@@ -568,7 +568,7 @@ export function buildOfflineRequest({ endpoint, model, history, systemPrompt, us
     payload,
     copyText,
     instructions: {
-      same_origin_gateway: "Post this payload through an approved same-origin HTTPS gateway that injects the MiniMax credential server-side and returns the unmodified Chat Completions response.",
+      same_origin_gateway: "Post this payload through an approved same-origin HTTPS gateway that injects the model credential server-side and returns the unmodified Chat Completions response.",
       local_llm: "For Ollama or LM Studio, paste the system and user messages into the local client. For a compatible HTTPS endpoint, keep the same tools and return exactly one tool call.",
       credential: "Keep credentials in memory for the session only. Never paste a real token into a saved request artifact.",
     },

@@ -132,6 +132,13 @@ const plannerState = {
 const plannerFence = createRequestFence();
 const chatState = {
   history: createChatHistory(),
+  // Assist turns keep their OWN history, cleared whenever the visitor moves to
+  // a different question. One shared history meant question A's exchanges still
+  // rode along in the payload for a question-D follow-up: the visible thread
+  // reset, so the visitor saw a fresh start while the model read the old topic
+  // first. That is the wrong answer that looks right. The free-form, proposal
+  // and spec conversation above is a different conversation and is untouched.
+  assistHistory: createChatHistory(),
   transcript: [],
   suggestions: [],
   pendingProposal: null,

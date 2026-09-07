@@ -108,7 +108,9 @@ and freshness protocol (§5), throughput evidence semantics (§6), commercial ov
 
 **Out of scope (consumed or deferred):** benchmark collection (the calculator
 *consumes* evidence rows, it does not produce them — §6), invoice ingestion,
-purchase execution, cluster scheduling, multi-currency conversion (USD only in v0.1).
+purchase execution, cluster scheduling, and non-USD source-feed normalization. Source
+and engine money remain USD; authored monetary inputs and every calculator money
+surface are THB through the exact §5.10 FX boundary.
 
 ### 1.4 Output contract (summary)
 

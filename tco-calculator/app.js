@@ -400,7 +400,9 @@ function requestQuestionHelp() {
     : `I am not sure how to answer "${question.prompt}". Which option fits, and why?`;
   plannerState.helpThread.push({ role: "you", text: typed || "I am not sure. Which option fits, and why?" });
   renderAssistThread();
-  void sendChatMessage(message, { intent: "assist", clearComposer: true });
+  // Returned, not swallowed: the callers fire-and-forget it, but a test — and
+  // any future caller that needs to wait — must be able to.
+  return sendChatMessage(message, { intent: "assist", clearComposer: true });
 }
 
 function setPlannerReady(ready) {

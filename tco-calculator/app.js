@@ -1538,7 +1538,7 @@ function readArchGroups() {
 
 // Selecting a model fills the fields a user would otherwise have to look up in a
 // config.json. Every one stays editable — the preset is a starting point, not a lock.
-function applyModelPreset(id) {
+function applyModelPreset(id, { recompute = true } = {}) {
   const m = state.servingData?.models.find((x) => x.id === id);
   if (!m) return;
   $("f-sv-params").value = m.params_b;
@@ -1546,7 +1546,7 @@ function applyModelPreset(id) {
   $("f-sv-ctx").value = String(m.context_default);
   $("f-sv-kvbytes").value = "";
   renderArchGroups(m.groups);
-  onLiveInput();
+  if (recompute) onLiveInput();
 }
 
 // Which sentence describes this stack. Order matters: a hybrid is named by the

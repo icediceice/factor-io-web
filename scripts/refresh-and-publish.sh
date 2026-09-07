@@ -12,7 +12,7 @@
 # writes to, and every guard below is there to make it REFUSE rather than guess:
 #
 #   exit 2  not on the publish branch
-#   exit 3  working tree dirty          -> a human left something behind
+#   exit 3  dirty tree, untracked too   -> a human or a crashed run left something
 #   exit 4  history diverged from origin -> never silently discarded
 #   exit 5  refresh itself failed        -> old data stands, banner does its job
 #   exit 6  refresh touched files outside tco-calculator/data

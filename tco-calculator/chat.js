@@ -42,6 +42,18 @@ export const CHAT_TOOLS = Object.freeze([
         additionalProperties: false,
         properties: {
           summary: { type: "string" },
+          planning_profile: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              use_case: { type: "string", enum: ["support", "knowledge", "analytics", "automation", "mixed"] },
+              substrate: { type: "string", enum: ["nutanix", "kubernetes", "vm", "workstation"] },
+              data_boundary: { type: "string", enum: ["restricted", "internal", "public"] },
+              interaction: { type: "string", enum: ["assistant", "embedded", "batch", "agent"] },
+              overflow: { type: "string", enum: ["local_only", "approved_api", "burst"] },
+            },
+            required: ["use_case", "substrate", "data_boundary", "interaction", "overflow"],
+          },
           changes: {
             type: "array",
             minItems: 1,
@@ -60,7 +72,7 @@ export const CHAT_TOOLS = Object.freeze([
           question: { type: "string" },
           suggested_replies: { type: "array", maxItems: 4, items: { type: "string" } },
         },
-        required: ["summary", "changes"],
+        required: ["summary", "planning_profile", "changes"],
       },
     },
   },

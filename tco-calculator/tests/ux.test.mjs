@@ -623,6 +623,46 @@ test("a single guided answer can be revised after Apply, and re-applying stays o
   assert.equal(h.node("f-users").value, "200", "undo touches no control");
 });
 
+// Also found on the deployed page: the first real answer the model gave — a
+// placement recommendation mentioning a node range — was discarded whole, and
+// the visitor got the sanitizer's message instead. Re-asking the identical
+// question with "do not write any digits" returned three paragraphs of ordinary
+// prose, which isolates the guard as the cause. The price rule is untouched; the
+// minus sign is the only thing that changed, because it is also how a range is
+// written.
+test("the claim guard rejects a price without rejecting the way a colleague writes", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.get("plannerState.helpQuestionId = 'substrate'");
+
+  const prose = (text) => async () => ({
+    user: { role: "user", content: "q" },
+    assistantMessage: { role: "assistant", content: text, tool_calls: [] },
+    toolCall: null,
+    prose: (await import("../chat.js")).validateAssistantProse({ role: "assistant", content: text }, { optional: false }),
+    model: "MiniMax-M3", usage: null,
+  });
+
+  // Still refused: a price in the model's own voice, and arithmetic that states a result.
+  for (const claim of ["Running this yourself lands around ฿120000 a month.", "So 1200 + 300 = 1500 per month.", "That is 24000 - 3000 once the licence lapses."]) {
+    h.context.requestChatTurn = prose(claim);
+    await h.get("sendChatMessage('what does it cost?', {intent:'assist'})");
+    assert.match(h.node("ai-model-status").textContent, /cite the deterministic ledger/, claim);
+  }
+
+  // Allowed: ranges and dated snapshots, which assert no price at all.
+  for (const ok of [
+    "With a small platform team, 2-3 nodes is the usual shape.",
+    "A 24-48 GB card covers this comfortably.",
+    "The 2026-09 snapshot is what the ledger cites.",
+  ]) {
+    h.context.requestChatTurn = prose(ok);
+    await h.get("sendChatMessage('how many nodes?', {intent:'assist'})");
+    assert.match(h.node("ai-thread").innerHTML, new RegExp(ok.slice(0, 24).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), ok);
+  }
+});
+
 // Found on the deployed page, not by this suite: with a real ledger and a real
 // blueprint loaded, the assembled prompt ran past chat.js's cap and requestChatTurn
 // refused the whole turn — "system prompt is longer than 12000 characters", no

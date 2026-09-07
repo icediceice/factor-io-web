@@ -487,6 +487,9 @@ function requestQuestionHelp() {
   if (plannerState.helpQuestionId !== question.id) {
     plannerState.helpThread = [];
     plannerState.help = null;
+    // Clearing only what the visitor can see is what left the previous
+    // question's exchanges sitting in the next question's outbound payload.
+    chatState.assistHistory.clear();
   }
   plannerState.helpQuestionId = question.id;
   const typed = String($("ai-message")?.value ?? "").trim();

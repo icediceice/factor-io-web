@@ -543,5 +543,10 @@ test("the page explains HTTPS localhost limits and Nutanix price boundaries", ()
       assert.match(publishedPrivacySurface, /Send|Ask/i);
     }
   }
-  assert.match(privacy, /does not receive, store, or proxy the backup, prompt, token, or model response/i);
+  assert.match(privacy, /automatic public GET requests at startup/i);
+  assert.match(privacy, /no calculator inputs, transcript, AI token, or result/i);
+  assert.match(privacy, /only when you explicitly choose[\s\S]*Send or Ask/i);
+  assert.match(privacy, /does not receive, store, or proxy the backup, AI request, token, or model response/i);
+  assert.match(privacy, /offline request artifact that excludes the real token/i);
+  assert.match(llms, /automatically GETs public OpenRouter pricing and Frankfurter FX/i);
 });

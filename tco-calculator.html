@@ -440,20 +440,35 @@
   <aside class="rail">
 
     <section class="ai-canvas" aria-labelledby="ai-canvas-title">
-      <div style="display:flex;justify-content:space-between;gap:10px"><span class="ai-kicker">AI setup guide</span><span id="ai-progress" class="ai-progress">01 / 05</span></div>
+      <div class="ai-chat-head"><span class="ai-kicker">AI planning conversation</span><span id="ai-progress" class="ai-progress">LOCAL FIRST</span></div>
       <h2 id="ai-canvas-title">How do you want to use AI?</h2>
-      <div role="status" aria-live="polite" aria-atomic="true">
-        <h3 id="ai-question" tabindex="-1" style="font-size:14px;margin-top:12px"></h3>
-        <p id="ai-help" class="muted"></p>
-      </div>
-      <div id="ai-options" class="ai-options"></div>
-      <div id="ai-summary" class="ai-summary" aria-label="planning answers"></div>
-      <div class="ai-nav">
-        <button id="ai-back" class="btn" type="button" disabled>Back</button>
-        <button id="ai-apply" class="btn btn-p" type="button" disabled>Apply to calculator</button>
-      </div>
-      <p id="ai-ready-note" class="muted" role="status"></p>
+      <p class="muted">Talk through users, data boundaries and workflow. MiniMax may prepare changes, but nothing enters the calculator until you review and Apply.</p>
+      <div id="ai-transcript" class="ai-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
+      <div id="ai-suggestions" class="ai-suggestions" aria-label="suggested replies"></div>
+      <section id="ai-proposal" class="ai-proposal" aria-labelledby="ai-proposal-title" hidden>
+        <h3 id="ai-proposal-title">Review proposed calculator changes</h3>
+        <p id="ai-proposal-summary" class="muted"></p>
+        <div class="scroll"><table><thead><tr><th>Input</th><th>Current</th><th>Proposed</th><th>Why</th></tr></thead><tbody id="ai-proposal-rows"></tbody></table></div>
+        <div class="ai-nav"><button id="ai-apply" class="btn btn-p" type="button" disabled>Apply proposal</button><button id="ai-dismiss" class="btn" type="button">Dismiss</button></div>
+      </section>
+      <form id="ai-composer" class="ai-composer">
+        <label for="ai-message">Your message</label>
+        <textarea id="ai-message" maxlength="4000" placeholder="Example: I need an internal support assistant for 2,000 staff, with sensitive documents kept on Nutanix."></textarea>
+        <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Send</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
+      </form>
+      <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>
       <p id="ai-state" class="muted">Not applied · calculator example is unchanged</p>
+      <details class="ai-connection screen-only">
+        <summary>Connect MiniMax or a local gateway</summary>
+        <p class="muted" style="margin-top:7px">Credentials stay in this tab only. Factor IO does not proxy or store them. A same-origin gateway may inject its credential server-side.</p>
+        <div class="ai-provider-grid">
+          <label for="ai-endpoint">OpenAI-compatible base URL<input id="ai-endpoint" type="url" value="https://api.minimax.io/v1" autocomplete="off" spellcheck="false"></label>
+          <label for="ai-model">Model<input id="ai-model" type="text" value="MiniMax-M3" autocomplete="off" spellcheck="false"></label>
+          <label for="ai-token">Session-only token<input id="ai-token" type="password" value="" autocomplete="off" spellcheck="false"></label>
+        </div>
+        <div class="ai-nav"><button id="ai-copy-request" class="btn" type="button" disabled>Copy request for gateway or local LLM</button></div>
+        <p id="ai-model-status" class="muted" role="status">No model request has been made.</p>
+      </details>
     </section>
 
     <div class="sec">

@@ -912,6 +912,10 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       systemPrompt,
       userMessage: text,
       validationContext: chatValidationContext({ assist: intent === "assist" }),
+      // Loosens WORDING on an assist turn only — the suggestion, if there is
+      // one, is schema-validated at any temperature and the prose is still
+      // refused if it asserts a price.
+      assist: intent === "assist",
       pageUrl: location.href,
       signal: controller.signal,
     });
@@ -921,17 +925,26 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       : intent === "assist"
         ? ["answer_question"]
         : ["ask_user", "answer_question", "propose_calculator_changes"];
-    if (!allowedTools.includes(result.toolCall.name)) {
-      const error = new Error(`MiniMax returned ${result.toolCall.name} for a ${intent} turn; no output was applied.`);
+    // toolCall is null only on an assist turn that answered in prose alone; the
+    // validator still refuses a missing tool call on every other intent.
+    if (result.toolCall && !allowedTools.includes(result.toolCall.name)) {
+      const error = new Error(`The assistant returned ${result.toolCall.name} for a ${intent} turn; no output was applied.`);
       error.code = "unexpected_tool";
       throw error;
     }
-    const toolResult = toolResultMessage(result.toolCall, handleChatTool(result));
-    chatState.history.append({ user: result.user, assistant: result.assistantMessage, tools: [toolResult] });
-    $("ai-model-status").textContent = `Structured ${result.toolCall.name} response received from ${result.model}. Review before any Apply.`;
+    const outcome = handleChatTool(result);
+    const tools = result.toolCall ? [toolResultMessage(result.toolCall, outcome)] : [];
+    chatState.history.append({ user: result.user, assistant: result.assistantMessage, tools });
+    $("ai-model-status").textContent = result.toolCall
+      ? `Structured ${result.toolCall.name} response received from ${result.model}. Review before any Apply.`
+      : `Answered in prose by ${result.model}. No calculator control was touched.`;
   } catch (error) {
     if (!chatFence.isCurrent(generation) || error?.code === "aborted") return;
-    appendChat("assistant", `${error.message}\n\nThe deterministic calculator is unchanged. You can copy the prepared token-free request for a same-origin gateway or local model client.`);
+    const note = `${error.message}\n\nThe deterministic calculator is unchanged. You can copy the prepared token-free request for a same-origin gateway or local model client.`;
+    // On an assist turn the failure belongs in the thread the visitor is
+    // reading; the transcript gets it either way via pushAssistReply.
+    if (intent === "assist") pushAssistReply(note);
+    else appendChat("assistant", note);
     $("ai-model-status").textContent = error.message;
   } finally {
     if (chatFence.isCurrent(generation)) {

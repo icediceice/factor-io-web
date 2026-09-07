@@ -27,7 +27,7 @@ the studio runs on. The best-documented public component is light-tools.
 ## About
 
 - [Factor I O studio](https://studio.factor-io.com/): Products, approach, services and contact.
-- [Privacy statement](https://studio.factor-io.com/privacy.html): Studio-wide policy — no advertising, no data collection; data leaves the device only on an explicit opt-in to the user's own cloud account.
+- [Privacy statement](https://studio.factor-io.com/privacy.html): Studio-wide policy — no advertising or tracking and no Factor I O data collection; data leaves the device only for an explicit app backup or when the user presses Generate in the AI Inference TCO Calculator to contact an endpoint they configured.
 - [Thanat Manasakool on LinkedIn](https://www.linkedin.com/in/thanat-manasakool-3101905a/): Founder & Principal Engineer. 20+ years in enterprise infrastructure, including five years as an Ecosystem Solutions Architect for Red Hat and Nutanix.
 - [Thanat Manasakool on GitHub](https://github.com/icediceice): Maintainer of light-tools.
 

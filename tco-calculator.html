@@ -671,8 +671,11 @@
       </div>
       <p class="muted" id="sv-note"></p>
 
-      <details class="adv">
-        <summary>Architecture detail</summary>
+      <!-- Was a second <details> inside a section that already folds. These four
+           are not a separate decision — they are the shape of the model chosen
+           above, so they stay here as a labelled band and fold with it. -->
+      <div class="subsec">
+        <h3 class="subhead">Architecture detail</h3>
         <div class="row">
           <div class="f">
             <label for="f-sv-kvquant">KV cache precision</label>

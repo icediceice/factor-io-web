@@ -539,7 +539,11 @@ function chatSystemPrompt(intent = "interview") {
   }
   return [
     "You are the specialized Factor IO local-LLM planning assistant.",
-    "Return exactly one structured tool call and no free-form answer.",
+    // An assist turn is answered in words. Every other turn's output IS the
+    // structure, so those still forbid prose outright.
+    intent === "assist"
+      ? "Answer in your own words, as a colleague would. Write plain prose of one to three short paragraphs, in the visitor's own register, and address what they actually asked rather than a template."
+      : "Return exactly one structured tool call and no free-form answer.",
     intent === "spec"
       ? "The user explicitly requested the post-Apply specification. Call present_local_llm_spec, grounded in the deterministic blueprint and component ledger."
       : intent === "assist"

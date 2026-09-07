@@ -793,12 +793,27 @@ async function init() {
   try {
     state.manifest = await loadManifest();
     const localManifest = state.manifest;
-    const [catalogResult, fallbackFxResult, openRouterResult, liveFxResult] = await Promise.allSettled([
-      resolveResource(localManifest, "catalog"),
-      loadFx(localManifest),
-      fetchOpenRouterModels(),
-      fetchLiveFx(),
-    ]);
+    // One parent signal bounds the complete live lane, including every
+    // OpenRouter pagination request. Per-request timeouts remain the inner
+    // guard, but a slow or blackholed live source cannot hold a valid local
+    // snapshot (and the entire control rail) inert indefinitely.
+    const liveController = new AbortController();
+    const liveDeadline = setTimeout(
+      () => liveController.abort(new Error("Live pricing prefetch exceeded 4 seconds")),
+      4000,
+    );
+    let resourceResults;
+    try {
+      resourceResults = await Promise.allSettled([
+        resolveResource(localManifest, "catalog"),
+        loadFx(localManifest),
+        fetchOpenRouterModels({ signal: liveController.signal }),
+        fetchLiveFx({ signal: liveController.signal }),
+      ]);
+    } finally {
+      clearTimeout(liveDeadline);
+    }
+    const [catalogResult, fallbackFxResult, openRouterResult, liveFxResult] = resourceResults;
     if (catalogResult.status !== "fulfilled") throw catalogResult.reason;
     if (fallbackFxResult.status !== "fulfilled") throw fallbackFxResult.reason;
     state.catalog = catalogResult.value;
@@ -2983,6 +2998,11 @@ const EXPORT_MONEY_KEYS = new Set([
   "self_hosted_one_time_total", "subscription_monthly", "target_monthly", "total",
   "unit_price",
 ]);
+// Provenance terms use `{ value, basis }`, so the currency-bearing parent name
+// is not the leaf key inspected below. Keep exceptional engine money terms
+// explicit instead of allowing an unlabelled scalar to escape into exports and
+// the compact ledger sent to MiniMax.
+const EXPORT_MONEY_TERM_PARENTS = new Set(["usd_per_kwh"]);
 
 function exportMoneyRecord(value) {
   if (value === null || value === undefined) return null;
@@ -3000,7 +3020,7 @@ function exportMoneyRecord(value) {
 function isExportMoneyField(key, path) {
   const parent = path[path.length - 1] ?? "";
   if (EXPORT_MONEY_KEYS.has(key) || /_usd$/.test(key)) return true;
-  if (key === "value" && (EXPORT_MONEY_KEYS.has(parent) || /_usd$/.test(parent) || parent === "per_1m")) return true;
+  if (key === "value" && (EXPORT_MONEY_KEYS.has(parent) || EXPORT_MONEY_TERM_PARENTS.has(parent) || /_usd$/.test(parent) || parent === "per_1m")) return true;
   if (path.includes("curve") && key !== "month") return true;
   if (path.includes("one_time") && /^[ABC]$/.test(key)) return true;
   return false;

@@ -58,14 +58,14 @@ export function laneBRequestCost(quote) {
 // Lane C per-token unit cost as a Rational: hourly / (tok_s x utilization).
 // Hyperbolic in utilization; zero utilization or zero tok_s is OUT OF DOMAIN.
 export function laneCPerToken({ hourlyRate, tokensS, utilization }) {
-  const u = Rat.from(utilization);
+  const u = toRat(utilization);
   if (u.isZero()) return { value: null, reason: "zero_utilization" };
   if (tokensS === null || tokensS <= 0) return { value: null, reason: "zero_capacity" };
   // hourly / (tokensS x util x 3600) — tokensS is tokens per SECOND and the
   // rate is per HOUR: the 3600 s/h factor is dimensional, not cosmetic
   // (peer G5: dropping it priced every Lane C token 3600x too high).
   const denominator = Rat.of(u.n * BigInt(tokensS) * 3600n, u.d);
-  const perToken = Rat.from(hourlyRate).div(denominator);
+  const perToken = toRat(hourlyRate).div(denominator);
   return { value: perToken, reason: null };
 }
 
@@ -81,7 +81,7 @@ export function utilizationOf(demandTokens, capacityTokens) {
 export function per1M(totalCost, demandTokens) {
   if (demandTokens === 0) return { value: null, reason: "zero_demand" };
   // (total / demand) x 1M — dividing by the Rational 1/1000000 multiplies by 1M.
-  return { value: Rat.from(totalCost).div(Rat.of(BigInt(demandTokens), 1n)).div(Rat.of(1n, 1000000n)), reason: null };
+  return { value: toRat(totalCost).div(Rat.of(BigInt(demandTokens), 1n)).div(Rat.of(1n, 1000000n)), reason: null };
 }
 
 // ------------------------------------------------------- lane monthly totals

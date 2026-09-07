@@ -38,14 +38,28 @@ was not the one the constant was calibrated on.
 The v0.2 constant path REMAINS as the documented fallback for accelerators with no
 published bandwidth figure, so no provider drops out of the comparison.
 
-**What v0.4 changes, and why.** The exact calculator remains intact. A guided
-local-LLM planner now asks one question at a time, maps the completed interview to
-an existing workload preset plus a complete local-first routing field set, and
-builds an authored Nutanix-or-portable deployment blueprint. Applying that setup is
-explicit; generated model prose never writes calculator inputs or enters price
-provenance. Optional refinement uses a visitor-configured OpenAI-compatible HTTPS
-endpoint (MiniMax by default) only after the visitor presses Generate. The token is
-held in the page's memory only, is not stored, and is never proxied by Factor I O.
+**What v0.6 changes, and why.** The exact calculator remains intact, but its guided
+planner is now a typed, multi-turn conversation instead of a fixed five-button
+interview. One deterministic welcome question and optional suggested text help the
+visitor start; suggested text never sends itself. Each **Send** is explicit. MiniMax
+may ask one next question or return an inert calculator proposal containing a
+complete planning profile and allowlisted current control values. The visitor sees
+old/new/reason rows and must press **Apply proposal** before the real controls change;
+Apply writes the existing workload preset and local-first routing fields, applies
+validated current-catalog choices, and schedules one normal deterministic recompute.
+After that exact result exists, a separate explicit **Ask MiniMax to explain this
+plan** action requests a Nutanix-biased specification with Kubernetes/Linux-VM
+equivalents and explanations that cite the deterministic component ledger rather
+than inventing arithmetic.
+
+The browser keeps the token and bounded complete exchange history in memory for the
+current tab only. It stores neither. Before every POST it builds a copyable,
+token-free request containing the same system/user messages and structured tools;
+that artifact remains available when CORS, networking or the model fails and can be
+passed through an approved same-origin gateway or into Ollama/LM Studio. Factor I O
+provides no proxy and never receives the token, prompt or response. AI output is
+validated as inert data, never mutates controls directly, never enters calculator
+math/provenance/export/print, and is marked stale after a manual calculator edit.
 
 Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
 and remain normative** — the tariff model, quote semantics, freshness envelope and

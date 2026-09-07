@@ -2685,6 +2685,129 @@ function renderSensitivity() {
   $("sensitivity").innerHTML = `<div class="card"><h3>Which option wins, and where that flips</h3><table><thead>${head}</thead><tbody>${body}</tbody></table><p class="muted">Each cell names the lowest ${r.horizon_months}-month modelled cost at that scenario — infrastructure, applicable platform subscriptions and one-time costs, the same basis as the comparison table. Each cell reruns demand, peak load, GPU sizing and capex; entered GPU counts or budgets stay fixed. Consulting and enterprise-licensing fees remain excluded. The API-price axis re-quotes a tariff scaled exactly. A row where the named option changes is the crossover.</p></div>`;
 }
 
+// Exported calculator money is never a bare number. Every record carries the
+// exact source/engine USD value and its exact + rounded THB presentation value,
+// so a downstream reader cannot mistake one unit for the other. Conversion is
+// performed once here, at the export boundary, using the same exact Rat as the UI.
+const THB_MONEY_INPUT_IDS = new Set([
+  "f-sh-capex", "f-sub-price", "f-sh-fixed", "f-power-rate", "fo-license",
+  "fo-consult", "f-onetime-b", "f-onetime-c", "fo-impl",
+]);
+const EXPORT_MONEY_KEYS = new Set([
+  "amount", "capex", "cost", "delta", "extended", "fixed_monthly",
+  "fully_loaded_total", "horizon_total", "hourly_rate", "infra_monthly",
+  "infra_total", "line_cost", "monthly", "monthly_opex", "monthly_savings",
+  "monthly_total", "one_time", "overlay_total", "per_token", "request_cost",
+  "recommended_monthly_total", "self_hosted_capex", "self_hosted_monthly_opex",
+  "self_hosted_one_time_total", "subscription_monthly", "target_monthly", "total",
+  "unit_price",
+]);
+
+function exportMoneyRecord(value) {
+  if (value === null || value === undefined) return null;
+  const usd = toRat(moneyValue(value));
+  const thb = toTHB(usd, state.fx);
+  return {
+    engine_currency: "USD",
+    engine_exact: ratStr(usd),
+    presentation_currency: "THB",
+    presentation_exact: ratStr(thb),
+    presentation_rounded: formatHalfUp(thb, 2),
+  };
+}
+
+function isExportMoneyField(key, path) {
+  const parent = path[path.length - 1] ?? "";
+  if (EXPORT_MONEY_KEYS.has(key) || /_usd$/.test(key)) return true;
+  if (key === "value" && (EXPORT_MONEY_KEYS.has(parent) || /_usd$/.test(parent) || parent === "per_1m")) return true;
+  if (path.includes("curve") && key !== "month") return true;
+  if (path.includes("one_time") && /^[ABC]$/.test(key)) return true;
+  return false;
+}
+
+function exportMoneyTree(value, path = []) {
+  if (Array.isArray(value)) return value.map((item, i) => exportMoneyTree(item, [...path, String(i)]));
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value).map(([key, child]) => {
+    const nextPath = [...path, key];
+    if (child !== null && typeof child !== "object" && isExportMoneyField(key, path)) {
+      return [key, exportMoneyRecord(child)];
+    }
+    return [key, exportMoneyTree(child, nextPath)];
+  }));
+}
+
+function buildComponentLedger(r) {
+  const d = state.demand;
+  const fx = fxProvenance(state.fx);
+  const option = (k) => {
+    const total = r.totals?.[k] ?? {};
+    return {
+      option: OPTION[k].key,
+      label: OPTION[k].label,
+      recurring_infrastructure: exportMoneyRecord(total.infra_monthly),
+      recurring_subscription: exportMoneyRecord(total.subscription_monthly),
+      recurring_total: exportMoneyRecord(total.monthly_total),
+      one_time: exportMoneyRecord(total.one_time),
+      horizon_total: exportMoneyRecord(total.horizon_total),
+      formula: "horizon_total = recurring_total × horizon_months + one_time",
+      priced: !!total.priced,
+    };
+  };
+  const sources = Object.fromEntries(Object.entries(state.manifest?.sources ?? {}).map(([id, source]) => [id, {
+    origin: source.origin ?? "snapshot",
+    status: source.status,
+    observed_at: source.observed_at,
+    last_success_at: source.last_success_at,
+    integrity: source.integrity,
+    record_count: source.record_count,
+  }]));
+  return {
+    schema: "factor-io.tco-component-ledger/1.0.0",
+    currency_contract: {
+      authored_inputs: "THB",
+      engine_and_source_prices: "USD",
+      presentation_and_export: "THB",
+      rounding: "round half up to 2 places at presentation only",
+      fx,
+    },
+    demand: d ? {
+      users: d.demand.users.text,
+      sessions_per_month: d.demand.sessions_mo.text,
+      tokens_per_month: d.demand.tokens_mo.text,
+      peak_tokens_per_second: d.peak.peak_tokens_s.text,
+      formula: "sessions/month = users × sessions/day × working days; tokens/month = Σ workload share × turns × token shape; peak tok/s = concurrent peak × stream tok/s",
+      per_workload: d.demand.workloads.map((w) => ({ type: w.type, share: w.share.text, turns_mo: w.turns_mo.text, tokens_mo: w.tokens_mo.text })),
+    } : null,
+    sizing: d ? {
+      gpu_id: state.inputs?.laneA?.hardware_topology ?? null,
+      gpus_required: d.sizing.gpus_required.text,
+      tokens_per_second_per_gpu: d.sizing.tokens_s_per_gpu.text,
+      assumed: d.sizing.assumed,
+      formula: "GPUs required = ceil(peak tok/s ÷ modelled or measured tok/s per GPU), subject to model memory fit",
+    } : null,
+    recurring: Object.fromEntries(OPTION_KEYS.map((k) => [OPTION[k].key, option(k)])),
+    capex: state.capexPlan ? exportMoneyTree(state.capexPlan, ["capex"]) : { unavailable: state.capexGap },
+    power: state.powerPlan ? exportMoneyTree(state.powerPlan, ["power"]) : { unavailable: state.powerGap },
+    subscription: state.subPlan ? exportMoneyTree(state.subPlan, ["subscription"]) : { unavailable: state.subGap },
+    routing: exportMoneyTree(r.routing_result, ["routing"]),
+    commercial_overlay: exportMoneyTree(r.overlay, ["commercial_overlay"]),
+    exclusions: {
+      comparison: COMPARISON_EXCLUSIONS,
+      overlay_treatment: "Consulting and enterprise licensing are itemized but excluded from option totals, curve and payback.",
+    },
+    freshness: { sources, live_failures: { ...state.liveFailures } },
+    formulas: [
+      "API monthly = Σ(meter unit price × request quantity) × requests/month",
+      "Rental monthly = fleet hourly price × modelled GPU-hours/month",
+      "Power monthly = facility kW × 730 hours × electricity tariff",
+      "Capex = whole nodes purchased × selected server unit price",
+      "Subscription = billable meter quantity × unit price, normalized by term",
+      "Horizon total = recurring monthly total × horizon months + one-time total",
+    ],
+  };
+}
+
 // The exported quote carries the OPTION names, never the engine's internal
 // A/B/C keys — the naming contract binds the export surface too (SPEC 8).
 function exportQuote(r) {

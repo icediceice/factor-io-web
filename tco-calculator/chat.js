@@ -359,7 +359,7 @@ export function validateAssistantToolCall(message, context = {}, { assist = fals
   if (!isObject(message) || message.role !== "assistant") throw new ChatContractError("assistant_message", "The endpoint did not return an assistant message object.");
   const calls = message.tool_calls;
   const empty = calls === undefined || calls === null || (Array.isArray(calls) && calls.length === 0);
-  if (assist && empty) return null;
+  if (false && empty) return null;
   if (!Array.isArray(calls) || calls.length !== 1) {
     throw new ChatContractError("tool_count", assist
       ? "The assistant must return at most one suggestion alongside its answer."
@@ -443,7 +443,7 @@ export function buildChatPayload({ model, messages, tools = CHAT_TOOLS, assist =
     // "auto" lets it answer in prose, and attach a suggestion only when it has
     // one. Every other turn's entire output IS the structure, so those stay
     // required — a proposal or a spec with no tool call is a failed turn.
-    tool_choice: "required",
+    tool_choice: assist ? "auto" : "required",
     thinking: { type: "disabled" },
     // 0.2 is right for structured extraction and wrong for explaining a
     // trade-off to a person. This loosens WORDING only: the suggested option is

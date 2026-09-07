@@ -82,6 +82,18 @@ test("MiniMax defaults use the documented OpenAI-compatible contract", () => {
   assert.equal(MINIMAX_DEFAULTS.model, "MiniMax-M3");
   assert.equal(chatCompletionsUrl(MINIMAX_DEFAULTS.endpoint), "https://api.minimax.io/v1/chat/completions");
   assert.equal(chatCompletionsUrl("https://gateway.example/v1/chat/completions"), "https://gateway.example/v1/chat/completions");
+  assert.throws(
+    () => chatCompletionsUrl("api.minimax.io/v1", "https://studio.factor-io.com/tco-calculator.html"),
+    (error) => error instanceof PlannerRequestError && error.code === "endpoint_scheme" && /https:\/\//.test(error.message),
+  );
+  assert.throws(
+    () => chatCompletionsUrl("//api.minimax.io/v1", "https://studio.factor-io.com/tco-calculator.html"),
+    (error) => error instanceof PlannerRequestError && error.code === "endpoint_scheme",
+  );
+  assert.equal(
+    chatCompletionsUrl("/v1", "https://studio.factor-io.com/tco-calculator.html"),
+    "https://studio.factor-io.com/v1/chat/completions",
+  );
 });
 
 test("an HTTPS page refuses an HTTP localhost endpoint with a prompt-courier remedy", () => {

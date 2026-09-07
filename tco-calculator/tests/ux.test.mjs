@@ -354,6 +354,7 @@ test("changed UI modules use matching versioned URLs across HTML and module impo
   assert.ok(version);
   assert.ok(app.includes(`./fields.js?v=${version}`));
   assert.ok(app.includes(`./planner.js?v=${version}`));
+  assert.ok(app.includes(`./chat.js?v=${version}`));
 });
 
 test("authored horizons default to 60 months in HTML and every workload preset", () => {

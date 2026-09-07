@@ -622,7 +622,7 @@ function clearPlannerOutput(message = "Apply a reviewed AI proposal to build a d
     $("ai-refinement").dataset.stale = "true";
     renderLocalLlmSpec(refinement);
     $("ai-copy-refinement").disabled = false;
-    $("ai-workspace-status").textContent = "Calculator inputs changed. This MiniMax specification is stale; request a new explanation after the exact result rebuilds.";
+    $("ai-workspace-status").textContent = "Calculator inputs changed. This specification is stale; request a new explanation after the exact result rebuilds.";
   } else {
     $("ai-refinement").hidden = true;
     delete $("ai-refinement").dataset.stale;

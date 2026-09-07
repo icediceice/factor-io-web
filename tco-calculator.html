@@ -847,26 +847,17 @@
     <div id="fit"></div>
     <div id="derived" class="card"></div>
     <section id="ai-workspace" class="card ai-workspace" aria-labelledby="ai-workspace-title">
-      <header><div><span class="ai-kicker">Guided Systems Canvas</span><h3 id="ai-workspace-title">Local-LLM deployment blueprint</h3></div><span class="tag tag-unknown">authored pattern</span></header>
-      <div id="ai-blueprint"><p class="muted">Apply the guided setup to build a deployment blueprint.</p></div>
+      <header><div><span class="ai-kicker">Conversation-led Cost Ledger</span><h3 id="ai-workspace-title">Local-LLM deployment blueprint</h3></div><span class="tag tag-unknown">deterministic first</span></header>
+      <div id="ai-blueprint"><p class="muted">Review and Apply an AI proposal to build the deterministic deployment blueprint and cost ledger.</p></div>
       <div class="ai-artifacts">
         <button id="ai-copy-blueprint" class="btn" type="button" disabled>Copy blueprint</button>
         <button id="ai-download" class="btn" type="button" disabled>Download blueprint</button>
         <button id="ai-copy-prompt" class="btn" type="button" disabled>Copy prompt for a local LLM</button>
-        <button id="ai-copy-refinement" class="btn" type="button" disabled>Copy model refinement</button>
+        <button id="ai-request-spec" class="btn btn-p screen-only" type="button" disabled>Ask MiniMax to explain this plan</button>
+        <button id="ai-copy-refinement" class="btn" type="button" disabled>Copy MiniMax specification</button>
       </div>
-      <details class="ai-refine screen-only">
-        <summary>Optional MiniMax or compatible endpoint refinement</summary>
-        <p class="muted" style="margin-top:6px">The deterministic blueprint works without AI. Generate sends the displayed prompt only to the endpoint below. The token stays in this tab and is never stored or proxied by Factor I O.</p>
-        <div class="ai-provider-grid">
-          <label for="ai-endpoint">OpenAI-compatible base URL<input id="ai-endpoint" type="url" value="https://api.minimax.io/v1" autocomplete="off" spellcheck="false"></label>
-          <label for="ai-model">Model<input id="ai-model" type="text" value="MiniMax-M3" autocomplete="off" spellcheck="false"></label>
-          <label for="ai-token">Subscription/API token<input id="ai-token" type="password" value="" autocomplete="off" spellcheck="false"></label>
-        </div>
-        <p class="muted" style="margin-top:8px">On this deployed HTTPS page, browsers block direct calls to <code>http://localhost</code>. For Ollama or LM Studio, use Copy prompt above, or expose an approved HTTPS gateway with CORS configured.</p>
-        <div class="ai-nav"><button id="ai-generate" class="btn btn-p" type="button" disabled>Generate refined spec</button><span id="ai-model-status" class="muted" role="status">No model request has been made.</span></div>
-        <div id="ai-refinement" class="ai-refinement" hidden><pre id="ai-refinement-text"></pre></div>
-      </details>
+      <p id="ai-workspace-status" class="muted">The calculator remains authoritative for every number.</p>
+      <div id="ai-refinement" class="ai-refinement screen-only" hidden><div id="ai-refinement-text"></div></div>
     </section>
     <div id="results"></div>
     <div id="sensitivity"></div>

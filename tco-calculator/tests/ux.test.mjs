@@ -623,6 +623,40 @@ test("a single guided answer can be revised after Apply, and re-applying stays o
   assert.equal(h.node("f-users").value, "200", "undo touches no control");
 });
 
+// Found on the deployed page, not by this suite: with a real ledger and a real
+// blueprint loaded, the assembled prompt ran past chat.js's cap and requestChatTurn
+// refused the whole turn — "system prompt is longer than 12000 characters", no
+// request ever sent. The old code budgeted the JSON alone, checked once, and
+// ignored ~1.5k of instructions sitting in front of it.
+test("the system prompt is budgeted whole, so a heavy page state cannot kill the assist turn", () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.get("plannerState.helpQuestionId = 'substrate'");
+  h.get("plannerState.blueprint = { text: 'x'.repeat(40000) }");
+  h.get("state.manifest = { sources: { huge: 'y'.repeat(40000) } }");
+
+  const prompt = h.get("chatSystemPrompt('assist')");
+  assert.ok(
+    prompt.length <= CHAT_LIMITS.maxSystemChars,
+    `the prompt must fit the contract chat.js enforces, was ${prompt.length} of ${CHAT_LIMITS.maxSystemChars}`,
+  );
+  // Shrinking is only correct if it never sacrifices the thing the turn is about.
+  assert.match(prompt, /GUIDED_QUESTION is the only question you may answer this turn/);
+  assert.match(prompt, /"id":"substrate"/, "the question being asked about is never what gets dropped");
+  assert.match(prompt, /"request_mode":"assist"/);
+  // And it must still fit the caller that actually enforces the cap.
+  assert.doesNotThrow(() => buildOfflineRequest({
+    model: "MiniMax-M3", endpoint: "https://ai.factor-io.com/v1", systemPrompt: prompt,
+    userMessage: "which placement fits?", pageUrl: "https://studio.factor-io.com/tco-calculator.html", assist: true,
+  }));
+
+  // An ordinary page state keeps the full context — the shrink must not fire early.
+  const light = harness();
+  light.get("setupPlanner()");
+  light.get("plannerState.helpQuestionId = 'substrate'");
+  assert.match(light.get("chatSystemPrompt('assist')"), /"source_envelopes"/);
+});
+
 test("an assist turn is bound to the one question it was asked about", async () => {
   const h = harness();
   h.get("setupPlanner()");

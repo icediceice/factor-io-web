@@ -308,7 +308,7 @@ function renderInterview() {
       <button type="button" class="ai-option-pick" data-ai-option="${escapeHtml(option.id)}" aria-pressed="${isSelected}">
         <span class="lab">${escapeHtml(option.label)}</span>
         ${option.note ? `<span class="note">${escapeHtml(option.note)}</span>` : ""}
-        ${isRecommended ? `<span class="rec">MiniMax suggests this</span>` : ""}
+        ${isRecommended ? `<span class="rec">Suggested by the assistant</span>` : ""}
       </button>${input}
     </div>`;
   }).join("");

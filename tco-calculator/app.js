@@ -378,8 +378,9 @@ function goToQuestion(index) {
   renderInterview();
 }
 
-// "Not sure" sends only this question plus the answers already given. The reply
-// is advice; renderInterview marks the suggested option but never picks it.
+// "Not sure" and every follow-up send only this question plus the answers
+// already given. The reply is advice; renderInterview marks the suggested
+// option but never picks it.
 // One ask, about the question on screen. A follow-up continues the thread; a
 // question the visitor has not asked about before starts a fresh one, and drops
 // the previous suggestion with it so no stale badge survives the move.

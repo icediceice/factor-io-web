@@ -310,7 +310,7 @@ export function validateAssistantToolCall(message, context = {}) {
     : name === "propose_calculator_changes"
       ? validateCalculatorProposal(args, context)
       : validateLocalLlmSpec(args);
-  return { id: String(call.id ?? ""), type: "function", name, arguments: validated };
+  return { id: call.id, type: "function", name, arguments: validated };
 }
 
 const exchangeSize = (exchange) => JSON.stringify(exchange).length;

@@ -1253,9 +1253,20 @@ through Cloudflare Tunnel → nginx → `127.0.0.1:8790`. It MUST:
 - read the MiniMax key from `MINIMAX_API_KEY` only, and never log it;
 - accept `POST /v1/chat/completions` and `GET /healthz` only, and answer CORS
   preflight for the allowlisted origins;
-- reject an origin outside `ALLOWED_ORIGINS`, a model outside
-  `MINIMAX_ALLOWED_MODELS` (`MiniMax-M3`), and a body above `MAX_BODY_BYTES`
-  (256 KB) with a JSON error rather than a torn-down socket;
+- reject a model outside `MINIMAX_ALLOWED_MODELS` (`MiniMax-M3`) with `400
+  model_not_allowed`, and a body above `MAX_BODY_BYTES` (256 KB) with `413
+  body_too_large` — a JSON error in both cases, never a torn-down socket (the
+  oversize path drains past the cap rather than destroying the request, because a
+  destroyed request surfaces to the caller as an opaque "fetch failed");
+- emit `Access-Control-Allow-Origin` **only** for an origin in `ALLOWED_ORIGINS`.
+  Note precisely what this is and is not: `ALLOWED_ORIGINS` is consulted **only**
+  in `corsHeaders` (`server.mjs:48`). It decides which browser origins may READ a
+  response; it does **not** gate the request. A non-browser caller — curl, a
+  script, anything that ignores CORS — is served regardless of its `Origin`.
+  [VERIFIED 2026-09-07: `POST` with `Origin: https://evil.example.com` returned
+  `200` and a full MiniMax completion.] This is ordinary CORS semantics, not a
+  defect in the implementation, but it means the origin list is **not** an access
+  control and must never be cited as one;
 - clamp `max_completion_tokens`, apply `UPSTREAM_TIMEOUT_MS`, and log neither
   request nor response bodies;
 - report `credential:false` on `/healthz` and answer `503` rather than exit when the
@@ -1473,7 +1484,7 @@ re-serves the prior digest with zero extra state.
 | R10 | GCP API key exposure | Actions-secrets-only §5.6; absence of credentials in all artifacts |
 | R11 | Planner credential or generated prose leaks into a quote/print | `ai-*` controls outside the cost selector; provider panel and response screen-only; text-only rendering §8 |
 | R12 | HTTPS deployment cannot reach an HTTP local runtime | Explain mixed-content/CORS boundary; deterministic blueprint + Copy prompt always work §8 |
-| R13 | **`ai.factor-io.com` is unauthenticated and unrated-limited, so a third party can spend Factor IO's MiniMax balance** | ACCEPTED for the prototype by explicit operator decision. Bounded by origin allowlist, `MiniMax-M3`-only, 256 KB bodies and clamped `max_completion_tokens` (§8.1) — none of which stops a scripted caller that forges `Origin`. Closing it needs the login the operator is building; until then the residual exposure is the MiniMax account balance |
+| R13 | **`ai.factor-io.com` is unauthenticated and unrated-limited, so a third party can spend Factor IO's MiniMax balance** | ACCEPTED for the prototype by explicit operator decision. The only real bounds are `MiniMax-M3`-only (400), 256 KB bodies (413) and clamped `max_completion_tokens` — they cap the cost of one call, not the number of calls. The origin allowlist is **not** a bound: it is CORS-only, so any non-browser caller is served without even forging a header (§8.1, verified 2026-09-07). Closing this needs the login the operator is building; until then the residual exposure is the whole MiniMax account balance |
 | R14 | Factor IO now relays prompts and responses it previously never saw | Bodies are never logged; nothing is stored; `privacy.html` §04 and `llms.txt` state the relay explicitly rather than retaining v0.6's "no proxy" claim (§8.1) |
 
 ---

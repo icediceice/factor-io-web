@@ -758,7 +758,7 @@ function renderPlannerBlueprint() {
     delete $("ai-refinement").dataset.stale;
     $("ai-refinement-text").textContent = "";
     $("ai-copy-refinement").disabled = true;
-    $("ai-workspace-status").textContent = "Blueprint ready locally. Ask MiniMax only when you want a grounded implementation specification and cost-component explanation.";
+    $("ai-workspace-status").textContent = "Blueprint ready locally. Ask for LLM assistance only when you want a grounded implementation specification and cost-component explanation.";
   }
 }
 

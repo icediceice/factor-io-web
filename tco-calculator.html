@@ -533,6 +533,12 @@
       <div class="ai-answerbar">
         <span class="ai-kicker">Your answers</span>
         <div id="ai-answers" class="ai-answers"></div>
+        <!-- Change one answer after Apply and the calculator no longer matches
+             the answers on screen. This states that drift rather than hiding
+             it — which controls would be rewritten, from what to what — and its
+             Re-apply goes back through applyGuidedAnswers, so a revision cannot
+             skip the all-or-nothing validation a first Apply had to pass. -->
+        <div id="ai-revision" class="ai-revision" role="status" hidden></div>
       </div>
 
       <!-- The transcript is now the RECORD, not the place you ask. Asking moved

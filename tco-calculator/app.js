@@ -121,6 +121,11 @@ const plannerState = {
   modelAttempted: false,
   focusAfterRender: false,
   applied: false,
+  // The answers as they stood at the last Apply, serialised. It is the only
+  // way to tell a revision from a first Apply: change one chip afterwards and
+  // the calculator no longer matches the answers on screen, and the visitor has
+  // no other way to see that.
+  appliedAnswers: null,
   abortController: null,
 };
 const plannerFence = createRequestFence();

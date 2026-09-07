@@ -748,7 +748,7 @@ function renderPlannerBlueprint() {
     $("ai-copy-refinement").disabled = false;
     if (plannerState.refinement.stale) {
       $("ai-refinement").dataset.stale = "true";
-      $("ai-workspace-status").textContent = "Calculator inputs changed. The specification below was generated against the previous scenario — ask MiniMax again after reviewing the rebuilt ledger.";
+      $("ai-workspace-status").textContent = "Calculator inputs changed. The specification below was generated against the previous scenario — ask again after reviewing the rebuilt ledger.";
     } else {
       delete $("ai-refinement").dataset.stale;
       $("ai-workspace-status").textContent = `Structured specification from ${plannerState.refinement.model}. It explains cited deterministic components but never changes calculator arithmetic.`;

@@ -28,6 +28,7 @@ const html = readFileSync(new URL("../../tco-calculator.html", import.meta.url),
 const privacy = readFileSync(new URL("../../privacy.html", import.meta.url), "utf8");
 const llms = readFileSync(new URL("../../llms.txt", import.meta.url), "utf8");
 const fields = readFileSync(new URL("../fields.js", import.meta.url), "utf8");
+const ENGINE_MODULES = ["calculator.js", "power.js", "subscription.js", "demand.js", "serving.js", "capex.js"];
 const TEST_FX_DOCUMENT = {
   source_id: "test-fx",
   source_url: "https://example.test/fx",
@@ -270,6 +271,41 @@ test("initialization restores static defaults and sizes the fleet before choosin
   assert.equal(h.node("rail").inert, false);
 });
 
+test("initialization gives the complete live lane one deadline before releasing the local snapshot", async () => {
+  const h = harness();
+  const signals = [];
+  const waitForAbort = ({ signal }) => {
+    signals.push(signal);
+    return new Promise((resolve, reject) => {
+      if (signal.aborted) reject(signal.reason);
+      else signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    });
+  };
+  h.context.fetchOpenRouterModels = waitForAbort;
+  h.context.fetchLiveFx = waitForAbort;
+  h.get(`setupSliders = () => {}; loadManifest = async () => ({}); renderBanner = () => {};
+    freshnessView = () => ({}); loadGpuPricing = async () => {}; loadPowerData = async () => {};
+    loadServingModels = async () => {}; loadServerPricing = async () => {};
+    loadSubscriptions = async () => {}; wireInputs = async () => {}; loadWorkloadPresets = async () => {};
+    computeDemand = () => { throw new DemandRefusal('fixture deliberately skips sizing'); };
+    fillServerConfigs = () => {}; flushLiveInput = () => {};`);
+
+  const initialization = h.get("init()");
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(signals.length, 2);
+  assert.equal(signals[0], signals[1], "both live sources share the aggregate deadline");
+  assert.equal(h.node("rail").inert, true);
+  h.tick();
+  await initialization;
+
+  assert.equal(signals[0].aborted, true);
+  assert.equal(h.state.ready, true, "the digest-pinned local snapshot remains usable after live timeout");
+  assert.equal(h.node("rail").inert, false);
+  assert.match(h.state.liveFailures.openrouter, /4 seconds/);
+  assert.match(h.state.liveFailures.fx, /4 seconds/);
+});
+
 test("stale export closures cannot write a quote", () => {
   const h = harness();
   assert.doesNotThrow(() => h.get("exportQuote")({}));
@@ -365,6 +401,13 @@ test("authored horizons default to 60 months in HTML and every workload preset",
   assert.ok(presets.presets.every((preset) => preset.fields["f-horizon"] === "60"));
 });
 
+test("deterministic engine modules cannot import the THB presentation boundary", () => {
+  for (const name of ENGINE_MODULES) {
+    const source = readFileSync(new URL(`../${name}`, import.meta.url), "utf8");
+    assert.doesNotMatch(source, /(?:from\s+|import\s*\()["']\.\/currency\.js(?:\?[^"']*)?["']/, name);
+  }
+});
+
 test("exported money preserves exact engine USD and converts once to exact THB", () => {
   const h = harness();
   const record = JSON.parse(JSON.stringify(h.get("exportMoneyRecord")("1/3")));
@@ -379,17 +422,29 @@ test("exported money preserves exact engine USD and converts once to exact THB",
     monthly_total: "10",
     curve: [{ month: 1, A: "20" }],
     per_1m: { value: "2", reason: null },
+    terms: { usd_per_kwh: { value: "4/33", basis: "assumed" } },
     utilization: "0.5",
   })));
   assert.equal(tree.monthly_total.presentation_exact, "330");
   assert.equal(tree.curve[0].A.presentation_exact, "660");
   assert.equal(tree.per_1m.value.presentation_exact, "66");
+  assert.deepEqual(tree.terms.usd_per_kwh.value, {
+    engine_currency: "USD",
+    engine_exact: "4/33",
+    presentation_currency: "THB",
+    presentation_exact: "4",
+    presentation_rounded: "4.00",
+  });
   assert.equal(tree.utilization, "0.5", "dimensionless fields must not be currency-converted");
 });
 
 test("deterministic component ledger covers cost components, formulas and source freshness", () => {
   const h = harness();
   h.state.manifest = { sources: { openrouter: { origin: "live", status: "fresh", observed_at: "2026-09-04T00:00:00Z", integrity: "transport-live", record_count: 100 } } };
+  h.state.powerPlan = {
+    monthly_usd: "30",
+    terms: { usd_per_kwh: { value: "4/33", basis: "assumed" } },
+  };
   const totals = {
     A: { priced: true, infra_monthly: "10", subscription_monthly: "2", monthly_total: "12", one_time: "100", horizon_total: "820" },
     B: { priced: false, infra_monthly: null, subscription_monthly: null, monthly_total: null, one_time: "0", horizon_total: null },
@@ -399,6 +454,8 @@ test("deterministic component ledger covers cost components, formulas and source
   assert.equal(ledger.schema, "factor-io.tco-component-ledger/1.0.0");
   assert.equal(ledger.recurring.self_hosted.horizon_total.presentation_exact, "27060");
   assert.equal(ledger.routing.recommended_monthly_total.presentation_exact, "396");
+  assert.equal(ledger.power.terms.usd_per_kwh.value.engine_exact, "4/33");
+  assert.equal(ledger.power.terms.usd_per_kwh.value.presentation_exact, "4");
   assert.equal(ledger.freshness.sources.openrouter.origin, "live");
   assert.ok(ledger.formulas.some((formula) => formula.includes("Horizon total")));
   for (const key of ["demand", "sizing", "recurring", "capex", "power", "subscription", "routing", "exclusions", "freshness", "formulas"]) assert.ok(key in ledger, key);

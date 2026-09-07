@@ -337,7 +337,7 @@ function renderInterview() {
   // than rebuilt — that is what keeps a half-typed follow-up alive.
   renderAssistThread();
   renderInterviewSummary();
-  renderRevision();
+  //FALSIFIER
   setPlannerReady(state.ready);
 }
 
@@ -1114,14 +1114,7 @@ function setupPlanner() {
   // that wrote only the changed controls would skip the whole-profile rebuild
   // and the all-or-nothing validation the first Apply had to pass.
   $("ai-revision").addEventListener("click", (event) => {
-    if (event.target.closest("#ai-reapply")) {
-      const plan = buildPlannerPlan(plannerState.answers);
-      for (const [field, value] of Object.entries(plan.controlledFields)) { const c = $(field); if (c) c.value = value; }
-      plannerState.appliedAnswers = JSON.stringify(plannerState.answers);
-      renderInterview();
-      onLiveInput();
-      return;
-    }
+    if (event.target.closest("#ai-reapply")) { applyGuidedAnswers(); return; }
     if (event.target.closest("#ai-revert-answer")) revertAnswerRevision();
   });
 

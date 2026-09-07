@@ -818,6 +818,9 @@ function applyPlannerAnswers() {
   chatState.pendingSpec = null;
   $("ai-state").textContent = "Applied · reviewed proposal + local-first routing · assumptions remain editable";
   appendChat("assistant", "Applied the reviewed proposal once. The calculator is recomputing; inspect or override any assumption in the real controls.");
+  // The proposal rewrote the answers, so the chips above are stale until this
+  // runs. dismissProposal only refreshes the proposal panel.
+  renderInterview();
   dismissProposal();
   onLiveInput();
 }

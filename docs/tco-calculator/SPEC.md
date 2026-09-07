@@ -1191,131 +1191,106 @@ frequently non-terminating and therefore travels as a reduced rational per §3.5
 
 ---
 
-## 8. UX — one calculator screen with a guided systems canvas
+## 8. UX — Conversation-led Cost Ledger
 
 ```
-┌─ inputs (sticky left rail) ─┬─ answers (right column, live) ─────────────┐
-│ AI setup guide (one prompt) │ verdict cards · fit & speed · demand       │
-│ Start here (preset chips)   │ local-LLM deployment blueprint             │
-│ Who uses it                 │ recommendation · payback · per-option      │
-│ What they do (mix)          │ cross-provider table · feasibility · curve │
-│ The model you'd run         │ sensitivity · provenance · export          │
-│ Hardware & prices           │                                            │
-│ Money                       │                                            │
-└─────────────────────────────┴────────────────────────────────────────────┘
+┌─ conversation (progressive) ──────┬─ deterministic cost ledger (live) ────┐
+│ transcript · one question at time │ source freshness · THB verdicts        │
+│ suggested text (fills only)       │ demand · sizing · recurring/one-time   │
+│ typed composer · Send / Cancel    │ subscription · routing · exclusions    │
+│ inert old/new/reason proposal     │ formulas · 60-month curve · provenance │
+│ explicit Apply proposal           │ Nutanix pattern + portable equivalents │
+│ Inspect or override assumptions ▾ │ copy/export · post-Apply AI spec        │
+└───────────────────────────────────┴─────────────────────────────────────────┘
 ```
 
-v0.2's four-page calculator wizard (S1→S2→S3⇄S4) remains REMOVED. It hid the causal link the tool
-exists to show: context length and model architecture drive GPU count, and a user
-who must navigate between screens to change one and read the other cannot see that
-they are the same fact. Everything is on one screen and the right column recomputes
-as you type (debounced ~220 ms); the Recalculate button remains only for an explicit
-re-pull of live prices, never as the thing that makes the answer correct.
+v0.2's four-page wizard remains REMOVED. The v0.6 macrostructure is a typed
+conversation beside the exact calculator result: conversation helps the visitor
+state intent, while deterministic controls, formulas, pricing and FX remain the
+authority. Borders provide depth; numerals are monospaced; violet and cyan are the
+only accents; no shadow or gradient may imply that AI prose outranks calculator
+evidence.
 
-**It is a calculator, not an essay.** Attribution is not narrative: every number
-keeps its click-through provenance popover, and the tags (`exact`, `estimated`,
-`assumed`, `first_party`, `indicative`, `unknown`) stay. What goes is the prose
-*around* the numbers.
+**Progressive conversation (normative).** The page lands on a complete worked
+60-month example and one deterministic welcome question. Suggested replies place
+text in the composer and NEVER submit. A visitor may type any answer, sends only by
+pressing **Send** or the documented keyboard equivalent, and may cancel an active
+request. Only one request may own the transcript at a time; a generation fence and
+abort signal prevent an older response from replacing newer state.
 
-**Usable without expertise (normative).** The audience includes people who do not
-know what a KV head is. Therefore:
+MiniMax exchanges are bounded but structurally complete. Each retained assistant
+message keeps its full content and tool calls; each tool-result message stays with
+the exchange that produced it. Pruning removes whole exchanges, never a single
+assistant/tool half. The three structured output classes are disjoint:
 
-- The page LANDS on a complete worked example — a selected preset, a real model, a
-  real accelerator — never an empty form. A blank form asks the user to supply the
-  expertise they came to borrow.
-- Every control carries a plain-language line saying what it does in the user's
-  terms ("What must sit in memory", "How much history each request carries",
-  "Halving this roughly doubles how many requests fit"). Section-level hints cover
-  self-evident fields; jargon controls each carry their own.
-- Engine vocabulary is translated at the render boundary. Routing keys render as
-  sentences ("send your own GPUs first", not `local_first`); refusal codes render as
-  causes ("this model does not fit on that accelerator", not
-  `no_viable_configuration`). The raw keys survive in the provenance popover and the
-  exported quote, which are the technical record.
-- Expert controls stay reachable but DEMOTED into collapsed `Architecture detail`
-  and `Service level, routing & overlay` sections. Demoted, never removed: the raw
-  architecture is editable per LAYER GROUP — attention kind (full / sliding / linear
-  / MLA), layer count, KV heads, head dim, tensors per layer, plus the window for a
-  sliding group and the latent rank and RoPE dim for an MLA one — with a
-  KV-bytes-per-token override as a separate expert shortcut.
-- **The architecture editor is GENERATED from the selected preset's own groups, one
-  block each — normative.** A single architecture dropdown would flatten a hybrid
-  into whichever kind was picked, and a hybrid is exactly the case a flat model gets
-  wrong (§6.6.1). A blank or unparseable field falls back to that group's preset
-  value rather than propagating a refusal, because since §6.6.4 a refusal legitimately
-  stops the comparison and a half-typed number must not.
-- A mix that does not sum to 1 is refused (§2.4), so the refusal comes with a
-  one-click remedy that says where the remainder went, rather than leaving the user
-  to do the arithmetic they came here to avoid.
+- `ask_user` asks exactly one next question and may provide non-sending suggestions.
+- `propose_calculator_changes` returns a complete planner profile plus allowlisted
+  control changes and a reason for each change.
+- `present_local_llm_spec` is accepted only for an explicit post-Apply specification
+  request and contains the deployment pattern, component mappings and ledger-backed
+  explanations.
 
-**Left rail (inputs).** *Start here* preset chips → *Who uses it* (user count,
-sessions/user/day, working days, peak concurrency, per-stream speed floor §6.2) →
-*What they do* (mix shares + per-turn token shapes) → **The model you'd run**
-(§6.6: model, size, active size, context, weight precision, serving stack, serving
-mode; collapsed: KV precision, concurrency cap, the per-group architecture editor,
-KV-bytes override) → *Hardware &
-prices* (owned accelerator, GPU count, measured tok/s override, rented provider +
-accelerator + utilization, API price feed + model) → *Money* (capex, monthly opex;
-collapsed: token budget, `required_p95_tok_s`, quote instant, routing policy,
-overlay).
+An interview turn accepts only the first two classes; a specification turn accepts
+only the third. Empty tool-call IDs, unknown tools, unknown fields, unsupported
+enums, out-of-bounds values and model IDs absent from the current loaded catalog are
+refused. MiniMax runs with `thinking.type = disabled` and `tool_choice = required`.
 
-**Right column (answers), in order of what a buyer asks:**
+**Exact outbound payload classes (normative).** Every explicit **Send** or **Ask
+MiniMax to explain this plan** POST contains only: (1) the system contract and turn
+intent; (2) the visitor's current message; (3) bounded current calculator controls,
+current-session model candidates, and per-source freshness envelopes; (4) the
+deterministic blueprint and compact component ledger when a valid result exists;
+(5) bounded complete exchange history; and (6) the three structured tool schemas.
+The real token is an in-memory Authorization value, not message content. Before each
+POST the browser builds a copyable token-free request artifact with the same
+messages and tools so CORS, network or model failure cannot erase the workflow.
 
-1. **Verdict cards** — monthly total per option, cheapest marked, others showing the
-   difference. Ranking compares EXACT values, never formatted strings.
-2. **Fit & speed** (§6.6) — does it fit, and how fast: GPUs per replica, VRAM used
-   vs usable, solved batch, per-stream tok/s, tokens/s per GPU, KV per request, and
-   `batch_bound_by`. Every figure carries the roofline formula in its popover and the
-   `assumed` tag. A configuration that does not serve renders its REASON and what to
-   change, never a blank panel.
-3. **Demand** — sessions, turns, tokens per month, peak tok/s, and the sized fleet
-   with the basis it was solved from. **The stated basis and topology MUST name the
-   input that actually sized the fleet, not the most detailed one available** — only
-   the roofline path solves replicas, so a fleet sized from a measured figure or the
-   v0.2 constant is stated as a flat count and labelled as such. Reporting replica
-   topology for a fleet that was never solved in replicas is a provenance error at
-   the exact point where a buyer decides which number to trust.
-4. **Recommendation and payback** (§2.5), then per-option cost/month, cost-per-1M
-   with `exact|estimated`, the **rented-GPU cross-provider table** — every provider
-   priced for this load at its cheapest holding SKU, sized on its OWN accelerator AND
-   the selected model so providers rank by delivered capacity rather than sticker
-   rate, a provider that cannot be priced listed with its reason instead of dropped —
-   p95 feasibility verdicts (`feasible|infeasible|unknown`, never "guarantee"), the
-   TCO curve, the sensitivity table, and the quote export.
+**Preview before mutation (normative).** AI output is inert data. A proposal renders
+current value, proposed value and reason rows; it does not change calculator state.
+**Apply proposal** revalidates the proposal against the controls and catalog loaded
+at that moment, applies the existing workload preset and the planner's complete
+routing profile, writes only allowlisted real controls, and schedules exactly one
+normal recomputation. Applying twice cannot retain a field from the first proposal.
+Changing a calculator control manually cancels an active request and marks retained
+AI prose stale without hiding the deterministic blueprint or ledger.
 
-The freshness banner (§5.5) and any data gap sit at the top of the right column,
-above the verdict, so a stale or unverifiable input is visible before the number it
-affects is read.
+**Post-Apply specification (normative).** The specification action remains disabled
+until an accepted proposal has been applied and a valid exact result exists. Its
+separate MiniMax turn transforms—not replaces—the deterministic blueprint and
+ledger into a Nutanix-biased local-LLM recommendation. Every Nutanix component MUST
+name a Kubernetes and/or ordinary Linux-VM equivalent so the result is portable to
+Nutanix Kubernetes Platform, another Kubernetes distribution, Ollama, LM Studio or
+an OpenAI-compatible local runtime. The specification calls the selected model an
+evaluation candidate, explains how each cited ledger path contributes to the THB
+result, and performs no arithmetic. It MUST state that Nutanix Enterprise AI licence
+cost is excluded until the visitor supplies a vendor quote.
 
-**Guided Systems Canvas (normative).** A short planning interview sits at the top
-of the existing rail, one question at a time; it does not replace or proxy any
-calculator control. Its identifiers use the `ai-*` prefix and MUST remain outside
-the `f-*|fb-*|fo-*|fr-*` cost-control contract. Therefore planner questions,
-endpoint details, tokens and generated prose cannot enter live cost recomputation,
-the print input appendix, or quote JSON.
+**Inspect or override assumptions.** The original controls remain reachable under
+progressive disclosure; the conversation neither replaces nor duplicates them.
+Jargon controls retain plain-language help, architecture remains editable per layer
+group, and a workload mix that does not sum to 1 is refused with a one-click remedy.
+All planner identifiers use `ai-*` and remain outside the `f-*|fb-*|fo-*|fr-*`
+cost-control contract, print input appendix and quote JSON.
 
-- Apply is disabled until calculator initialization completes and every planning
-  question has a valid answer. Pressing it calls the existing workload preset path,
-  then unconditionally writes the planner's complete routing field set
-  (`local_first`, blend, failover share and failover multiplier) before scheduling
-  one normal recomputation. Revising and applying twice cannot retain a field from
-  the first answer set.
-- The deterministic blueprint is authored client-side guidance and works without
-  any model or network. It names a Nutanix primary pattern when selected and a
-  portable Kubernetes/Linux-VM equivalent. It MUST state that Nutanix Enterprise
-  AI licence pricing is not included until the user enters a vendor quote.
-- Copy and download remain available if remote refinement fails. Copy MUST include
-  a static-file/older-browser fallback. A deployed HTTPS page MUST explain that a
-  browser cannot call an `http://localhost` Ollama/LM Studio endpoint; Copy prompt
-  is the local-runtime path unless the user provides an approved HTTPS gateway with
-  CORS configured.
-- Generate is the sole planner network trigger. It sends the displayed prompt only
-  to the entered OpenAI-compatible endpoint. Credentials stay in memory, outside
-  `.rail .f`, and every provider field plus remote response is screen-only. Model
-  output is bounded and assigned with `textContent`, never HTML. A generation fence
-  prevents an older response from replacing a newer plan.
-- Generated prose is explicitly unverified, never printed, never exported and never
-  treated as price, capacity, benchmark, licence or provenance evidence.
+**Deterministic ledger (normative).** The right workspace orders source freshness,
+verdicts, fit/speed, demand, recurring and one-time components, subscriptions,
+routing, exclusions, formulas, recommendation/payback, the 60-month curve,
+sensitivity and export. Each money surface is THB and links back to exact source-USD
+arithmetic plus the dated exact FX boundary. Ranking compares exact values, never
+formatted strings. The stated fleet basis names the input that actually sized it;
+an unavailable provider or invalid configuration renders its reason instead of
+disappearing. AI explanations cite ledger paths but never become price, capacity,
+benchmark, licence or provenance evidence.
+
+**Fallback and accessibility (normative).** Deterministic calculation, blueprint,
+ledger and copy remain usable without MiniMax. The offline artifact documents a
+visitor-owned same-origin gateway that may inject a credential server-side and the
+Ollama/LM Studio copy path. An HTTPS page explains that browsers normally block
+direct `http://localhost` mixed-content calls. The transcript, composer, suggestions,
+cancel, proposal rows and Apply action are keyboard reachable and announced; mobile
+actions are at least 44 CSS pixels. AI credentials, transcript and response are
+screen-only, memory-only for the current tab, rendered with text-safe DOM APIs, and
+never printed or exported.
 
 **Naming contract (normative).** The strings `Lane`, `Lane A`, `Lane B` and `Lane C`
 MUST NOT appear in any rendered surface or in the exported quote. The engine's

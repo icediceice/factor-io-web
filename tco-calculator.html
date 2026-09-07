@@ -826,8 +826,16 @@
       </div>
       <p class="muted" id="f-power-note"></p>
 
-      <details class="adv">
-        <summary>Service level, routing &amp; overlay</summary>
+    </div>
+
+    <!-- Promoted OUT of "Money". It was a <details class="adv"> nested inside a
+         section that itself folds — two disclosures deep, which is what buried
+         routing policy and the commercial overlay. It is also not a money
+         assumption: it is the separate decision of what happens when local
+         capacity runs out, and what else appears on the invoice. -->
+    <div class="sec">
+      <h2>Service level &amp; routing</h2>
+      <p class="hint">What happens when local capacity runs out, and what else you would be billed for.</p>
         <div class="row">
           <div class="f"><label for="f-sh-budget">Monthly token budget</label><input id="f-sh-budget" type="text" inputmode="numeric" placeholder="derived from capacity"></div>
           <div class="f">

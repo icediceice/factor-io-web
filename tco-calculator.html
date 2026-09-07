@@ -387,7 +387,10 @@
   .ai-turn .who { display:block; margin-bottom:3px; color:var(--dim); font:10px/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; }
   .ai-turn p { font-size:12.5px; line-height:1.55; overflow-wrap:anywhere; }
   .ai-turn p + p { margin-top:6px; }
-  .ai-composer textarea { min-height:56px; }
+  /* Tall enough for the placeholder to sit without scrolling. Measured at 1920:
+     the 82px default from the old boxed composer was wrong here, and 56px was
+     too short — the placeholder wrapped to three lines and clipped. */
+  .ai-composer textarea { min-height:70px; }
   .ai-applybar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; border-top:1px solid var(--line); margin-top:13px; padding-top:11px; }
   .ai-answerbar { margin-top:11px; }
   .ai-answers { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }

@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-07 (TCO calculator v0.7: eight-question guided interview + Factor IO AI proxy, no key field; services deck v3: turnkey thesis + AI delivery-gap evidence slide)
+> Last updated: 2026-09-07 (TCO calculator v0.8: conversational assist, decision-shaped rail, revisable answers, self-refreshing pricing, unbranded UI copy)
 
 ## Current Focus
 

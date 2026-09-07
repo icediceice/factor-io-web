@@ -544,7 +544,7 @@ export async function requestChatTurn({
   };
 }
 
-export function buildOfflineRequest({ endpoint, model, history, systemPrompt, userMessage, pageUrl }) {
+export function buildOfflineRequest({ endpoint, model, history, systemPrompt, userMessage, pageUrl, assist = false }) {
   const user = { role: "user", content: safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars, rejectClaims: false }) };
   const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: 12000, rejectClaims: false }) };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];

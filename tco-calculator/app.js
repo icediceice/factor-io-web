@@ -608,25 +608,7 @@ function chatSystemPrompt(intent = "interview") {
     deterministic_blueprint: plannerState.blueprint?.text ?? null,
     deterministic_component_ledger: compactLedger(state.result),
   };
-  let encoded = JSON.stringify(context);
-  if (encoded.length > 9500) {
-    context.model_candidates = context.model_candidates.slice(0, 12);
-    if (context.deterministic_component_ledger) {
-      const ledger = context.deterministic_component_ledger;
-      context.deterministic_component_ledger = {
-        schema: ledger.schema,
-        currency_contract: ledger.currency_contract,
-        demand: ledger.demand,
-        sizing: ledger.sizing,
-        recurring: ledger.recurring,
-        exclusions: ledger.exclusions,
-        freshness: ledger.freshness,
-        formulas: ledger.formulas,
-      };
-    }
-    encoded = JSON.stringify(context);
-  }
-  return [
+  const head = [
     "You are the specialized Factor IO local-LLM planning assistant.",
     // An assist turn is answered in words. Every other turn's output IS the
     // structure, so those still forbid prose outright.

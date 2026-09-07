@@ -9,6 +9,12 @@
       "path": "catalog-89e35205462f9fca.json",
       "digest": "89e35205462f9fca",
       "bytes": 2543485
+    },
+    "fx": {
+      "kind": "external",
+      "path": "fx.json",
+      "digest": "d1e95994997d412b",
+      "bytes": 369
     }
   },
   "sources": {
@@ -31,6 +37,18 @@
       "root_digest": "54792ddb7903db0e",
       "record_count": 2714,
       "missing_streak": 0
+    },
+    "fx": {
+      "source_id": "fx",
+      "status": "fresh",
+      "observed_at": "2026-09-04T00:00:00.000Z",
+      "last_success_at": "2026-09-07T01:46:43.000Z",
+      "expires_at": "2026-09-11T23:59:59.999Z",
+      "root_digest": "d1e95994997d412b",
+      "record_count": 1,
+      "missing_streak": 0,
+      "origin": "snapshot",
+      "integrity": "digest-pinned"
     }
   },
   "models": [

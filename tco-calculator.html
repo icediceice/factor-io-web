@@ -453,7 +453,7 @@
       </section>
       <form id="ai-composer" class="ai-composer">
         <label for="ai-message">Your message</label>
-        <textarea id="ai-message" maxlength="4000" placeholder="Example: I need an internal support assistant for 2,000 staff, with sensitive documents kept on Nutanix."></textarea>
+        <textarea id="ai-message" maxlength="4000" required aria-describedby="ai-ready-note" placeholder="Example: I need an internal support assistant for 2,000 staff, with sensitive documents kept on Nutanix."></textarea>
         <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Send</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
       </form>
       <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>

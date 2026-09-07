@@ -15,6 +15,11 @@ export const CHAT_LIMITS = Object.freeze({
   // model's own words, short enough that it cannot bury a page of unreviewed
   // text under one interview question.
   maxProseChars: 2000,
+  // The ceiling on the assembled system prompt. It is EXPORTED because the page
+  // builds that prompt and must budget against the same number: a prompt over
+  // this is refused here, which kills the whole turn with a message the visitor
+  // can do nothing about. One cap, one place.
+  maxSystemChars: 12000,
   timeoutMs: 30000,
 });
 

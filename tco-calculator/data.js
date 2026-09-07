@@ -66,6 +66,11 @@ export async function resolveResource(manifest, key, signal) {
   throw lastError;
 }
 
+export async function loadFx(manifest, signal) {
+  const raw = await resolveResource(manifest, "fx", signal);
+  return { ...raw, integrity: manifest.resources?.fx?.digest ? "digest-pinned" : (raw.integrity ?? "inline") };
+}
+
 async function sha256Hex(buf) {
   const h = await crypto.subtle.digest("SHA-256", buf);
   return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
@@ -78,6 +83,13 @@ export function freshnessView(manifest, now) {
     newest_observed_at: newestObservedAt(manifest.sources, now),
     banner: staleBanner(manifest.sources, now),
     errors: Object.values(manifest.sources ?? {}).filter((s) => sourceVerdict(s, now) === "error").map((s) => s.source_id),
-    per_source: Object.fromEntries(Object.entries(manifest.sources ?? {}).map(([k, s]) => [k, { verdict: sourceVerdict(s, now), observed_at: s.observed_at, expires_at: s.expires_at }])),
+    per_source: Object.fromEntries(Object.entries(manifest.sources ?? {}).map(([k, s]) => [k, {
+      verdict: sourceVerdict(s, now),
+      observed_at: s.observed_at,
+      expires_at: s.expires_at,
+      origin: s.origin ?? "snapshot",
+      integrity: s.integrity ?? (s.root_digest ? "digest-pinned" : "declared"),
+      record_count: s.record_count ?? null,
+    }])),
   };
 }

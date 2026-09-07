@@ -493,17 +493,16 @@
         <div id="ai-answers" class="ai-answers"></div>
       </div>
 
+      <!-- The transcript is now the RECORD, not the place you ask. Asking moved
+           up beside the question it is about (#ai-ask); this keeps the full
+           conversation, the free-form suggestions and the request details for
+           anyone who wants them, without making a visitor open a disclosure to
+           ask about the question already on their screen. -->
       <details class="ai-assist screen-only">
-        <summary>Ask MiniMax about this question, or read what it said</summary>
+        <summary>Full conversation and request details</summary>
         <div id="ai-transcript" class="ai-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
         <div id="ai-suggestions" class="ai-suggestions" aria-label="suggested replies"></div>
-        <form id="ai-composer" class="ai-composer">
-          <label for="ai-message">Ask about the question on screen</label>
-          <textarea id="ai-message" maxlength="4000" placeholder="Example: most of our documents are HR records — does that count as regulated?"></textarea>
-          <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Ask about this question</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
-        </form>
-        <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>
-        <p class="muted">MiniMax runs on Factor IO's own endpoint — there is no key to enter and nothing is stored. Your answers and the calculator's ledger are sent only when you ask.</p>
+        <p class="muted">The assistant runs on Factor IO's own endpoint — there is no key to enter and nothing is stored. Your answers and the calculator's ledger are sent only when you ask.</p>
         <div class="ai-nav"><button id="ai-copy-request" class="btn" type="button" disabled>Copy request for your own gateway or local LLM</button></div>
         <p id="ai-model-status" class="muted" role="status">No model request has been made.</p>
       </details>

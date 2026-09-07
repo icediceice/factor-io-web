@@ -36,6 +36,7 @@ import {
   isInterviewComplete,
 } from "./planner.js?v=20260907-guided";
 import {
+  CHAT_LIMITS,
   buildOfflineRequest,
   createChatHistory,
   requestChatTurn,

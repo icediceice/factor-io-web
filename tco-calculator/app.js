@@ -343,12 +343,91 @@ function renderInterview() {
 function renderInterviewSummary() {
   const summary = $("ai-answers");
   if (!summary) return;
+  const changed = changedAnswerIds();
   const rows = INTERVIEW_QUESTIONS
     .map((question, i) => ({ question, i, text: answerSummary(question) }))
     .filter((row) => row.text);
   summary.innerHTML = rows.length
-    ? rows.map((row) => `<button type="button" class="ai-chip" data-ai-step="${row.i}"><span class="k">${escapeHtml(row.question.eyebrow)}</span><span class="v">${escapeHtml(row.text)}</span></button>`).join("")
+    ? rows.map((row) => {
+      const edited = changed.has(row.question.id);
+      return `<button type="button" class="ai-chip" data-ai-step="${row.i}"${edited ? ` data-changed="true"` : ""}><span class="k">${escapeHtml(row.question.eyebrow)}</span><span class="v">${escapeHtml(row.text)}</span>${edited ? `<span class="edited">edited</span>` : ""}</button>`;
+    }).join("")
     : `<span class="muted">No answers yet. Nothing has changed in the calculator.</span>`;
+}
+
+// Which answers have drifted from the ones actually written into the calculator.
+// Before the first Apply there is no drift by definition, so this is empty and
+// every revision affordance below stays off the page.
+function changedAnswerIds() {
+  if (!plannerState.applied || !plannerState.appliedAnswers) return new Set();
+  let applied;
+  try { applied = JSON.parse(plannerState.appliedAnswers); }
+  catch { return new Set(); }
+  const ids = new Set();
+  for (const question of INTERVIEW_QUESTIONS) {
+    const before = JSON.stringify(applied[question.id] ?? null);
+    const after = JSON.stringify(plannerState.answers[question.id] ?? null);
+    if (before !== after) ids.add(question.id);
+  }
+  return ids;
+}
+
+// What re-applying WOULD do, computed from the same buildPlannerPlan the Apply
+// button uses — so the preview cannot promise a value the apply path would not
+// write. `from` is read off the live control rather than off the previous plan,
+// which means a manual override made after Apply shows up honestly as something
+// a re-apply overwrites. This computes nothing and changes nothing.
+function pendingRevision() {
+  const changed = changedAnswerIds();
+  if (changed.size === 0) return null;
+  if (!isInterviewComplete(plannerState.answers)) return null;
+  let plan;
+  try { plan = buildPlannerPlan(plannerState.answers); }
+  catch { return null; }
+  const changes = [];
+  for (const [field, value] of Object.entries(plan.controlledFields)) {
+    const control = $(field);
+    if (!control || String(control.value) === String(value)) continue;
+    changes.push({ field, from: control.value, to: String(value) });
+  }
+  const presetChanged = !!plannerState.plan && plan.presetId !== plannerState.plan.presetId;
+  return { changed, changes, presetChanged, presetId: plan.presetId };
+}
+
+function renderRevision() {
+  const box = $("ai-revision");
+  if (!box) return;
+  const revision = pendingRevision();
+  if (!revision) {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+  const answers = revision.changed.size === 1 ? "one answer" : `${revision.changed.size} answers`;
+  const preset = state.workloadPresets?.presets?.find((row) => row.id === revision.presetId)?.label;
+  const headline = revision.changes.length
+    ? `You changed ${answers} after applying. Re-applying rewrites ${revision.changes.length === 1 ? "one control" : `${revision.changes.length} controls`}${revision.presetChanged && preset ? `, starting from the ${preset} preset` : ""}. Nothing has changed yet.`
+    : `You changed ${answers} after applying, but they resolve to the values already in the controls. Re-applying would change nothing.`;
+  const rows = revision.changes
+    .map((change) => `<tr><td>${escapeHtml(controlLabel(change.field))}</td><td>${escapeHtml(controlDisplay(change.field, change.from))}</td><td>${escapeHtml(controlDisplay(change.field, change.to))}</td></tr>`)
+    .join("");
+  box.innerHTML = `<p class="muted">${escapeHtml(headline)}</p>
+    ${rows ? `<div class="ai-revision-table"><table><thead><tr><th>Control</th><th>Now</th><th>Would become</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}
+    <div class="ai-nav">
+      <button type="button" class="btn btn-p" id="ai-reapply">Re-apply the changed ${revision.changed.size === 1 ? "answer" : "answers"}</button>
+      <button type="button" class="btn" id="ai-revert-answer">Undo my change</button>
+    </div>`;
+  box.hidden = false;
+}
+
+// Undo throws away the visitor's edit, not the applied state: the answers go
+// back to the snapshot the calculator was actually built from, so the two agree
+// again without touching a single control.
+function revertAnswerRevision() {
+  if (!plannerState.appliedAnswers) return;
+  try { plannerState.answers = JSON.parse(plannerState.appliedAnswers); }
+  catch { return; }
+  renderInterview();
 }
 
 function selectAnswer(optionId) {

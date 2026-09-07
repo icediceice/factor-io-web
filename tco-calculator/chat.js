@@ -490,7 +490,7 @@ export async function requestChatTurn({
   const user = { role: "user", content: userText };
   const system = { role: "system", content: systemText };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
-  const payload = buildChatPayload({ model, messages });
+  const payload = buildChatPayload({ model, messages, assist });
   let url;
   try { url = chatCompletionsUrl(endpoint, pageUrl); }
   catch (error) { throw new ChatRequestError(error?.code ?? "endpoint", error?.message ?? "The endpoint is invalid.", error?.status ?? null); }

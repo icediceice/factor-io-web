@@ -502,8 +502,8 @@ export async function requestChatTurn({
   try {
     response = await fetchImpl(url, { method: "POST", headers, body: JSON.stringify(payload), signal: linked.signal });
   } catch (error) {
-    if (linked.timedOut()) throw new ChatRequestError("timeout", "MiniMax did not respond before the request timeout. The local blueprint and copyable request remain available.");
-    if (signal?.aborted || error?.name === "AbortError") throw new ChatRequestError("aborted", "The MiniMax request was cancelled.");
+    if (linked.timedOut()) throw new ChatRequestError("timeout", "The assistant did not respond before the request timeout. The local blueprint and copyable request remain available.");
+    if (signal?.aborted || error?.name === "AbortError") throw new ChatRequestError("aborted", "The request was cancelled.");
     throw new ChatRequestError("network", "The endpoint could not be reached. Check HTTPS, CORS, the endpoint path and local network access.");
   } finally {
     linked.cleanup();

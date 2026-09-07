@@ -13,7 +13,7 @@
     "working_days_mo": "21",
     "peak_concurrency_fraction": "0.05",
     "tokens_s_per_stream": "30",
-    "horizon_months": "36",
+    "horizon_months": "60",
     "shapes": {
       "chat": { "turns_per_session": "6", "in_tokens": "300", "out_tokens": "250", "cached_tokens": "0" },
       "rag": { "turns_per_session": "5", "in_tokens": "3000", "out_tokens": "400", "cached_tokens": "1000" },

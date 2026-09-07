@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { Dec, Rat, formatHalfUp } from "../exact.js";
+import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {
   INTERVIEW_QUESTIONS,
@@ -59,7 +59,7 @@ function harness() {
     return { ok: true, status: 200, json: async () => ({ model: "stub", choices: [{ message: { content: "stub response" } }] }) };
   };
   const context = vm.createContext({
-    Dec, Rat, formatHalfUp, fxProvenance, normalizeFxDocument, toTHB, toUSD,
+    Dec, Rat, formatHalfUp, ratStr, toRat, fxProvenance, normalizeFxDocument, toTHB, toUSD,
     console: { error() {}, warn() {} }, Event,
     DemandRefusal: class DemandRefusal extends Error {},
     ServingRefusal: class ServingRefusal extends Error {},

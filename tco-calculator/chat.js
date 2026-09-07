@@ -477,6 +477,7 @@ export async function requestChatTurn({
   systemPrompt,
   userMessage,
   validationContext = {},
+  assist = false,
   pageUrl,
   signal,
   fetchImpl = globalThis.fetch,

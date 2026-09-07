@@ -604,6 +604,141 @@ test("an assist turn is bound to the one question it was asked about", async () 
   assert.equal(h.get("plannerState.answers.data_boundary"), undefined, "accepted advice still selects nothing");
 });
 
+test("an assist turn asks the model a question instead of filling in a form", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.get("plannerState.helpQuestionId = 'use_case'; plannerState.questionIndex = 0;");
+
+  let sent = null;
+  h.context.requestChatTurn = (args) => realRequestChatTurn({
+    ...args,
+    timeoutMs: 1000,
+    fetchImpl: async (_url, init) => {
+      sent = JSON.parse(init.body);
+      return { ok: true, status: 200, json: async () => ({
+        model: "MiniMax-M3",
+        choices: [{ message: { role: "assistant", content: "It depends on who reads the answers.\n\nIf that is your own staff, an internal assistant is the honest starting point." } }],
+      }) };
+    },
+  });
+  await h.get("sendChatMessage('who is this for?', {intent:'assist'})");
+
+  // The mechanical cause of every reply reading the same: a forced tool call at
+  // an extraction temperature. An assist turn must send neither.
+  assert.equal(sent.tool_choice, "auto");
+  assert.ok(sent.temperature > 0.2, "assist turns loosen wording");
+
+  const thread = h.get("plannerState.helpThread");
+  assert.equal(thread.length, 1);
+  assert.equal(thread[0].role, "assistant");
+  assert.match(h.node("ai-thread").innerHTML, /who reads the answers/);
+  assert.equal(h.node("ai-thread").hidden, false);
+  // Prose alone badges nothing and selects nothing — the visitor still decides.
+  assert.equal(h.get("plannerState.help"), null);
+  assert.equal(h.get("plannerState.answers.use_case"), undefined);
+  // It is still a real retained exchange; there is simply no tool result to keep.
+  assert.equal(h.get("chatState.history.snapshot().length"), 1);
+  assert.equal(h.get("chatState.history.snapshot()[0].tools.length"), 0);
+});
+
+test("free prose may not assert a price or smuggle markup onto the page", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.get("plannerState.helpQuestionId = 'use_case'; plannerState.questionIndex = 0;");
+  const prose = (content) => (args) => realRequestChatTurn({
+    ...args,
+    timeoutMs: 1000,
+    fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({
+      model: "MiniMax-M3", choices: [{ message: { role: "assistant", content } }],
+    }) }),
+  });
+
+  // Loosening the template must not loosen this. Only the deterministic ledger
+  // states a number, so a price in the model's own voice is refused outright —
+  // that guard is what makes free prose safe to render at all.
+  h.context.requestChatTurn = prose("Running this yourself lands around ฿120000 a month.");
+  await h.get("sendChatMessage('what does it cost?', {intent:'assist'})");
+  assert.match(h.node("ai-model-status").textContent, /cite the deterministic ledger/);
+  assert.doesNotMatch(h.node("ai-thread").innerHTML, /120000/);
+  assert.equal(h.get("chatState.history.snapshot().length"), 0, "a refused answer is never retained");
+
+  h.context.requestChatTurn = prose("Use an <img src=x onerror=alert(1)> internal assistant.");
+  await h.get("sendChatMessage('which one?', {intent:'assist'})");
+  assert.match(h.node("ai-model-status").textContent, /plain text, not HTML/);
+  assert.doesNotMatch(h.node("ai-thread").innerHTML, /onerror/);
+
+  // Prose that is merely punctuated awkwardly is allowed through — and escaped.
+  h.context.requestChatTurn = prose('Ask yourself: is it 5 > 3, or "internal" only?');
+  await h.get("sendChatMessage('clarify', {intent:'assist'})");
+  assert.match(h.node("ai-thread").innerHTML, /5 &gt; 3/);
+  assert.doesNotMatch(h.node("ai-thread").innerHTML, /5 > 3/);
+  assert.match(h.node("ai-thread").innerHTML, /&quot;internal&quot;/);
+});
+
+test("a follow-up continues the same question and ends when the visitor moves on", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  const asked = [];
+  h.context.requestChatTurn = (args) => {
+    asked.push(args);
+    return realRequestChatTurn({
+      ...args,
+      timeoutMs: 1000,
+      fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({
+        model: "MiniMax-M3", choices: [{ message: { role: "assistant", content: "That depends on who is reading it." } }],
+      }) }),
+    });
+  };
+
+  h.node("ai-message").value = "who is this for?";
+  await h.get("requestQuestionHelp()");
+  const opened = h.get("plannerState.helpThread");
+  assert.equal(opened.length, 2, "the visitor's own words open the thread, then the answer");
+  assert.equal(opened[0].role, "you");
+  assert.match(asked[0].userMessage, /^About "/, "the opening turn names the question");
+  assert.equal(asked[0].assist, true);
+
+  h.node("ai-message").value = "what if half of them are contractors?";
+  await h.get("requestQuestionHelp()");
+  assert.equal(h.get("plannerState.helpThread").length, 4);
+  // A follow-up is sent as asked. Re-quoting the question every time is what
+  // made the exchange read like repeated form submissions.
+  assert.equal(asked[1].userMessage, "what if half of them are contractors?");
+  assert.deepEqual(Object.keys(asked[1].validationContext.questions), [h.get("plannerState.helpQuestionId")]);
+
+  // Moving to another question ends that conversation rather than carrying it
+  // over: a follow-up about options that are no longer on screen means nothing.
+  h.get("goToQuestion(3)");
+  assert.equal(h.node("ai-thread").hidden, true);
+  assert.equal(h.node("ai-thread").innerHTML, "");
+  h.node("ai-message").value = "and this one?";
+  await h.get("requestQuestionHelp()");
+  assert.equal(h.get("plannerState.helpThread").length, 2, "a different question starts a new thread");
+  assert.notEqual(h.get("plannerState.helpQuestionId"), asked[0].validationContext.questions && Object.keys(asked[0].validationContext.questions)[0]);
+});
+
+test("only an assist turn may answer without a tool call", async () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.context.requestChatTurn = (args) => realRequestChatTurn({
+    ...args,
+    timeoutMs: 1000,
+    fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({
+      model: "MiniMax-M3", choices: [{ message: { role: "assistant", content: "Sure, here is roughly what I would do." } }],
+    }) }),
+  });
+  // An interview or proposal turn's entire output IS the structure, so prose
+  // with no tool call is still a failed turn there.
+  await h.get("sendChatMessage('help me plan')");
+  assert.match(h.node("ai-model-status").textContent, /exactly one structured tool call/);
+  assert.equal(h.get("chatState.history.snapshot().length"), 0);
+  assert.equal(h.get("plannerState.helpThread").length, 0, "an interview refusal never enters the question thread");
+});
+
 test("chat modes reject crossed tool responses and a specification cannot send before Apply", async () => {
   const h = harness();
   h.get("setupPlanner()");

@@ -30,9 +30,10 @@
 const $ = (id) => document.getElementById(id);
 const CONTROL = "input:not([type=range]), select";
 
-// Sections that open on arrival. Everything else folds to a summary of its own
-// values: these two answer "who is this for", which is where a reader starts.
-const OPEN_SECTIONS = new Set(["Start here", "Who uses it", "What they do"]);
+// Which sections arrive expanded is declared in the MARKUP, as `data-open` on
+// the section itself. It used to be a Set of heading strings here, which meant
+// the fold defaults were coupled to display copy: rename a heading and every
+// section silently arrived folded, with no test and no error to say so.
 
 // A label ending in a parenthetical unit reads better split: the number and the
 // unit it is counted in are different information, and the value column should

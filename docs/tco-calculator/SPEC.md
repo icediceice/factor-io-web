@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | Status | Normative implementation contract |
-| Spec revision | v0.7 — 2026-09-07 (supersedes v0.6 — 2026-09-07, v0.5/v0.4 — 2026-09-06, v0.3/v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
-| Plan thread | 1546371070259494945 (factor-io-web); v0.6 was 1546330542415282260, v0.4 was 1546296134455005337, v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
-| Delivery | Static client-side calculator on GitHub Pages + a Factor IO AI proxy (`ai.factor-io.com`) + an operator-run pricing refresh command |
+| Spec revision | v0.8 — 2026-09-07 (supersedes v0.7 — 2026-09-07, v0.6 — 2026-09-07, v0.5/v0.4 — 2026-09-06, v0.3/v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
+| Plan thread | 1546476658704388198 (factor-io-web); v0.7 was 1546371070259494945, v0.6 was 1546330542415282260, v0.4 was 1546296134455005337, v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
+| Delivery | Static client-side calculator on GitHub Pages + a Factor IO AI proxy (`ai.factor-io.com`) + a scheduled pricing-snapshot publisher (systemd timer on light-worker) |
 
 **What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token
 number and compared three "lanes". Both were wrong at the point of use: the token

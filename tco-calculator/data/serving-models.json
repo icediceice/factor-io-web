@@ -524,7 +524,7 @@
       "config_url": "https://huggingface.co/zai-org/GLM-5.3-Flash/resolve/main/config.json",
       "model_type": "glm5_next_text",
       "hub_downloads": "784005",
-      "hub_likes": "2115",
+      "hub_likes": "2116",
       "observed_at": "2026-09-07",
       "resolved_from": [
         "unsloth/GLM-5.3-Flash-GGUF",
@@ -880,12 +880,12 @@
       "detail": null
     },
     {
-      "id": "AtomicChat/Qwen3.8-Flash-Next-GGUF",
+      "id": "agentionai/Qwen3.8-Flash-Next-ROCmFP4-FAST-imatrix-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
     {
-      "id": "agentionai/Qwen3.8-Flash-Next-ROCmFP4-FAST-imatrix-GGUF",
+      "id": "AtomicChat/Qwen3.8-Flash-Next-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },

@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1788779370989",
-  "generated_at": "2026-09-07T11:09:30.989Z",
-  "snapshot_digest": "44391b12cd47c09b",
+  "refresh_id": "refresh-1788779850482",
+  "generated_at": "2026-09-07T11:17:30.482Z",
+  "snapshot_digest": "09d09f03bb4f8cb0",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-44391b12cd47c09b.json",
-      "digest": "44391b12cd47c09b",
-      "bytes": 2748193
+      "path": "catalog-09d09f03bb4f8cb0.json",
+      "digest": "09d09f03bb4f8cb0",
+      "bytes": 2748033
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-07T11:09:30.989Z",
-      "last_success_at": "2026-09-07T11:09:30.989Z",
-      "expires_at": "2026-09-10T11:09:30.989Z",
+      "observed_at": "2026-09-07T11:17:30.482Z",
+      "last_success_at": "2026-09-07T11:17:30.482Z",
+      "expires_at": "2026-09-10T11:17:30.482Z",
       "root_digest": "96a4304c0e5b4ea2",
       "record_count": 417,
       "missing_streak": 0
@@ -31,9 +31,9 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-07T11:09:30.989Z",
-      "last_success_at": "2026-09-07T11:09:30.989Z",
-      "expires_at": "2026-09-10T11:09:30.989Z",
+      "observed_at": "2026-09-07T11:17:30.482Z",
+      "last_success_at": "2026-09-07T11:17:30.482Z",
+      "expires_at": "2026-09-10T11:17:30.482Z",
       "root_digest": "6de80ed42987ae10",
       "record_count": 2951,
       "missing_streak": 0
@@ -42,7 +42,7 @@
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-09-04T00:00:00.000Z",
-      "last_success_at": "2026-09-07T11:09:50.176Z",
+      "last_success_at": "2026-09-07T11:17:48.185Z",
       "expires_at": "2026-09-11T23:59:59.999Z",
       "root_digest": "74ff3ef2410bb2f1",
       "record_count": 1,
@@ -14323,16 +14323,6 @@
       "name": "gigachat/GigaChat-2",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gigachat/GigaChat-2-Lite",
-      "name": "gigachat/GigaChat-2-Lite",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -32430,20 +32420,6 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-opus-4.7-fast",
-      "name": "Anthropic: Claude Opus 4.7 (Fast)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
       "id": "openrouter:anthropic/claude-opus-4.7:batch",
       "name": "Anthropic: Claude Opus 4.7 (batch)",
       "tariff": "token",
@@ -32472,20 +32448,6 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-opus-4.8-fast",
-      "name": "Anthropic: Claude Opus 4.8 (Fast)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
       "id": "openrouter:anthropic/claude-opus-4.8:batch",
       "name": "Anthropic: Claude Opus 4.8 (batch)",
       "tariff": "token",
@@ -32504,20 +32466,6 @@
       "name": "Claude Opus 5",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
-      "id": "openrouter:anthropic/claude-opus-5-fast",
-      "name": "Claude Opus 5 (Fast)",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -33684,17 +33632,6 @@
       ]
     },
     {
-      "id": "openrouter:kwaipilot/kat-coder-air-v2.5",
-      "name": "Kwaipilot: KAT-Coder-Air V2.5",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:kwaipilot/kat-coder-pro-v2",
       "name": "Kwaipilot: KAT-Coder-Pro V2",
       "tariff": "token",
@@ -34058,17 +33995,6 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/codestral-2508:batch",
-      "name": "Mistral: Codestral 2508 (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:mistralai/devstral-2512",
       "name": "Mistral: Devstral 2 2512",
       "tariff": "token",
@@ -34113,17 +34039,6 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/ministral-8b-2512:batch",
-      "name": "Mistral: Ministral 3 8B 2512 (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:mistralai/mistral-large",
       "name": "Mistral Large",
       "tariff": "token",
@@ -34150,17 +34065,6 @@
       "name": "Mistral: Mistral Large 3 2512",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:mistralai/mistral-large-2512:batch",
-      "name": "Mistral: Mistral Large 3 2512 (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -34210,17 +34114,6 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/mistral-medium-3.1:batch",
-      "name": "Mistral: Mistral Medium 3.1 (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:mistralai/mistral-nemo",
       "name": "Mistral: Mistral Nemo",
       "tariff": "token",
@@ -34256,17 +34149,6 @@
       "name": "Mistral: Mistral Small 4",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:mistralai/mistral-small-2603:batch",
-      "name": "Mistral: Mistral Small 4 (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",

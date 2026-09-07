@@ -605,7 +605,7 @@ function cancelChatRequest(message = "Request cancelled. The deterministic calcu
   if (cancelled) {
     setChatBusy(false);
     if (message) appendChat("assistant", message);
-    $("ai-model-status").textContent = message || "MiniMax request cancelled.";
+    $("ai-model-status").textContent = message || "Request cancelled.";
   }
   return cancelled;
 }

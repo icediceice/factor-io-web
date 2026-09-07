@@ -419,9 +419,10 @@ const money = (x) => {
 };
 const intInput = (id) => { const v = $(id).value.trim().replace(/[ _,]/g, ""); return v === "" ? null : Number(v); };
 const decInput = (id) => { const v = $(id).value.trim(); return v === "" ? null : v; };
+const thbToEngine = (value) => ratStr(toUSD(String(value), state.fx));
 const engineMoneyInput = (id) => {
   const value = decInput(id);
-  return value === null ? null : ratStr(toUSD(value, state.fx));
+  return value === null ? null : thbToEngine(value);
 };
 // formatHalfUp always emits the full scale, so a percent readout reads "90.0000"
 // without this. The decimal point is therefore always present, which is what
@@ -777,7 +778,7 @@ function buildPowerPlan(gpuId, capexPlan, gpuCount, publish = true) {
         gpuId,
         gpusProvisioned,
         pue: decInput("f-power-pue") ?? "1.4",
-        usdPerKwh: decInput("f-power-rate") ?? "0.12",
+        usdPerKwh: engineMoneyInput("f-power-rate") ?? thbToEngine("4"),
         nodeOverheadFraction: pctInput("f-power-overhead") ?? "0.2",
       }),
       fleet_basis: capexPlan ? "whole_node_provisioned" : "selected_gpu_count",
@@ -808,7 +809,7 @@ function renderPowerNote() {
   const source = t.board_tdp_w.source_url
     ? `<a href="${escapeHtml(t.board_tdp_w.source_url)}" target="_blank" rel="noopener">source</a>`
     : "source unavailable";
-  const derived = `${money(p.monthly_usd)} / month from ${p.gpus_provisioned} installed GPU${p.gpus_provisioned === 1 ? "" : "s"} × ${escapeHtml(t.board_tdp_w.value)}W <span class="tag tag-exact">published</span> (${source}), PUE ${escapeHtml(t.pue.value)} <span class="tag tag-est">assumed</span>, electricity $${escapeHtml(t.usd_per_kwh.value)}/kWh <span class="tag tag-est">assumed</span>, and ${escapeHtml(t.node_overhead_fraction.value)} non-GPU overhead <span class="tag tag-est">assumed</span>. Electricity only: rack/colocation, network/egress, staff, and support/maintenance are not included; add them to the monthly override.`;
+  const derived = `${money(p.monthly_usd)} / month from ${p.gpus_provisioned} installed GPU${p.gpus_provisioned === 1 ? "" : "s"} × ${escapeHtml(t.board_tdp_w.value)}W <span class="tag tag-exact">published</span> (${source}), PUE ${escapeHtml(t.pue.value)} <span class="tag tag-est">assumed</span>, electricity ฿${escapeHtml(decInput("f-power-rate") ?? "4")}/kWh <span class="tag tag-est">assumed</span>, and ${escapeHtml(t.node_overhead_fraction.value)} non-GPU overhead <span class="tag tag-est">assumed</span>. Electricity only: rack/colocation, network/egress, staff, and support/maintenance are not included; add them to the monthly override.`;
   el.innerHTML = entered === null
     ? `Derived running cost: ${derived}`
     : `Your entered running cost is in use; derived comparison: ${derived}`;
@@ -975,7 +976,7 @@ function buildSubPlan({ owned, rented, users }, publish = true) {
   if (row && row.id !== "none") {
     const perOption = { A: owned, B: {}, C: rented };
     const applies = Array.isArray(row.applies_to) ? row.applies_to : [];
-    const priceOverride = decInput("f-sub-price");
+    const priceOverride = engineMoneyInput("f-sub-price");
     const term = $("f-sub-term").value || null;
     try {
       const byOption = {};
@@ -1914,10 +1915,10 @@ function buildScenario(usersOverride = null) {
   // must not repaint the notes that describe THIS one.
   const publish = usersOverride === null;
   const capexPlan = buildCapexPlan(gpuCount, publish);
-  const capexEntered = decInput("f-sh-capex");
+  const capexEntered = engineMoneyInput("f-sh-capex");
   const capex = capexEntered ?? (capexPlan ? capexPlan.capex : "0");
   const powerPlan = buildPowerPlan(gpuId, capexPlan, gpuCount, publish);
-  const runningMonthly = decInput("f-sh-fixed") ?? powerPlan?.monthly_usd ?? null;
+  const runningMonthly = engineMoneyInput("f-sh-fixed") ?? powerPlan?.monthly_usd ?? null;
 
   const laneA = {
     enabled: runningMonthly !== null && (capexEntered !== null || capexPlan !== null),
@@ -1978,9 +1979,9 @@ function buildScenario(usersOverride = null) {
   const overlay = {
     fully_loaded: false, // commercial fees are itemized, never per-token prices
     components: [
-      { name: "enterprise-licensing", basis: "monthly", amount: decInput("fo-license") ?? "0" },
-      { name: "ai-consulting", basis: "monthly", amount: decInput("fo-consult") ?? "0" },
-    ].filter((c) => Dec.from(c.amount).sign() > 0),
+      { name: "enterprise-licensing", basis: "monthly", amount: engineMoneyInput("fo-license") ?? "0" },
+      { name: "ai-consulting", basis: "monthly", amount: engineMoneyInput("fo-consult") ?? "0" },
+    ].filter((c) => toRat(c.amount).sign() > 0),
   };
 
   // GPU-hours are the RENTED option's own: its fleet, its utilization, computed
@@ -2016,12 +2017,12 @@ function buildScenario(usersOverride = null) {
   // is charged ONCE TO EVERY OPTION, which is what the field has always claimed:
   // it is the same project whichever way the tokens are served, so it cancels out
   // of the payback difference while still showing in each option's own total.
-  const implOnce = decInput("fo-impl") ?? "0";
-  const withImpl = (v) => Dec.from(v).add(Dec.from(implOnce)).toString();
+  const implOnce = engineMoneyInput("fo-impl") ?? "0";
+  const withImpl = (v) => ratStr(toRat(v).add(toRat(implOnce)));
   const oneTime = {
     A: implOnce,
-    B: withImpl(decInput("f-onetime-b") ?? "0"),
-    C: withImpl(decInput("f-onetime-c") ?? "0"),
+    B: withImpl(engineMoneyInput("f-onetime-b") ?? "0"),
+    C: withImpl(engineMoneyInput("f-onetime-c") ?? "0"),
   };
 
   return {
@@ -2065,7 +2066,7 @@ function run() {
     renderServerNote();
     renderPowerNote();
     renderSubNote();
-    $("calculation-status").textContent = `Comparison updated · ${state.result.horizon_months} months · USD`;
+    $("calculation-status").textContent = `Comparison updated · ${state.result.horizon_months} months · THB`;
   } catch (e) {
     invalidateResults("Comparison unavailable — check your inputs.");
     if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
@@ -2095,6 +2096,7 @@ const srcTag = (quote) => quote && quote.exact
   : `<span class="tag tag-est">estimated</span>`;
 
 function quoteRows(offerId, quote) {
+  const fx = fxProvenance(state.fx);
   return [
     ["snapshot digest", state.manifest.snapshot_digest],
     ["offer", offerId ?? "none"],
@@ -2103,6 +2105,11 @@ function quoteRows(offerId, quote) {
     ["applied overrides", quote ? JSON.stringify(quote.applied_overrides) : "[]"],
     ["meters", quote ? quote.meters.map((m) => `${m.meter}=${m.selected_key ?? "none"}x${m.quantity}`).join("; ") : "—"],
     ["sources", Object.entries(state.manifest.sources).map(([k, v]) => `${k}@${String(v.observed_at).slice(0, 10)}`).join("; ")],
+    ["display currency", "THB"],
+    ["engine/source currency", "USD"],
+    ["FX exact", fx.rate_exact],
+    ["FX formula", fx.formula],
+    ["FX observed", fx.observed_at],
     ["snapshot generated", state.manifest.generated_at],
   ];
 }

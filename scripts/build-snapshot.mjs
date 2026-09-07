@@ -27,6 +27,7 @@ import {
   nextState,
   N_CONSECUTIVE_RETIRE,
 } from "../tco-calculator/pricing.js";
+import { fetchOpenRouterModels } from "../tco-calculator/live-pricing.js";
 
 const UA = "factor-io-tco-ingestion/1.0 (static-site pricing snapshot; contact admin@factor-io.com)";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -46,33 +47,6 @@ async function fetchText(url) {
   const res = await fetch(url, { headers: { "user-agent": UA, accept: "application/json" } });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
   return res.text();
-}
-
-async function fetchOpenRouterAllText() {
-  const models = [];
-  let url = "https://openrouter.ai/api/v1/models";
-  let totalCount = null;
-  let pages = 0;
-  while (url) {
-    const page = parseJSONExact(await fetchText(url));
-    if (!page || !Array.isArray(page.data)) throw new Error("openrouter: unexpected envelope shape");
-    if (totalCount === null) {
-      // parseJSONExact delivers numeric literals as exact text — coerce
-      // strictly here or the truncation guard below silently never runs
-      // ("305" failed Number.isFinite and pagination went unverified, peer G1).
-      const tc = typeof page.total_count === "string" && /^-?\d+$/.test(page.total_count)
-        ? Number(page.total_count)
-        : page.total_count;
-      totalCount = Number.isSafeInteger(tc) ? tc : null;
-    }
-    models.push(...page.data);
-    url = page.links?.next ?? null;
-    if (++pages > 100) throw new Error("openrouter: pagination runaway");
-  }
-  if (Number.isFinite(totalCount) && models.length !== totalCount) {
-    throw new Error(`openrouter: truncated list — ${models.length} of ${totalCount}`);
-  }
-  return models;
 }
 
 const LITELLM_URL = "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json";
@@ -197,8 +171,12 @@ export function buildSnapshot({ previousManifest = null, previousCatalog = null,
     snapshot_digest: snapshotDigest,
     resources: {
       catalog: { kind: "external", path: catalogPath, digest: snapshotDigest, bytes: catalogBytes.length },
+      ...(previousManifest?.resources?.fx ? { fx: previousManifest.resources.fx } : {}),
     },
-    sources: sourceRecords,
+    sources: {
+      ...sourceRecords,
+      ...(previousManifest?.sources?.fx ? { fx: previousManifest.sources.fx } : {}),
+    },
     models: buildModelIndex(offers),
     provenance: {
       logs: [...provenance.openrouter.logs, ...provenance.litellm.logs],
@@ -261,7 +239,9 @@ async function main() {
       litellm: { ok: true, value: parseJSONExact(await readFile(`${SAMPLES_DIR}litellm-cost-map.json`, "utf8")) },
     };
   } else {
-    const orPromise = fetchOpenRouterAllText();
+    const orPromise = fetchOpenRouterModels({
+      headers: { "user-agent": UA, accept: "application/json" },
+    }).then((result) => result.models);
     const llPromise = fetchText(LITELLM_URL);
     const settled = await Promise.allSettled([orPromise, llPromise]);
     feeds = {

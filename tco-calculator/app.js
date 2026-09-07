@@ -2218,8 +2218,8 @@ function providerCard() {
     const provRows = [
       ["sku", String(p.sku)],
       ["fleet", `${p.gpus_required} x ${p.gpu_label ?? p.gpu_id}`],
-      ["per-GPU hourly", `$${p.gpu_hourly_usd}`],
-      ["fleet hourly", `$${p.fleet_hourly_usd}`],
+      ["per-GPU hourly", money(p.gpu_hourly_usd)],
+      ["fleet hourly", money(p.fleet_hourly_usd)],
       ["GPU-hours / month", p.hours],
       ["confidence", p.confidence],
       ["source", String(p.source_url)],
@@ -2230,7 +2230,7 @@ function providerCard() {
     return `<tr><td>${escapeHtml(p.provider_label)} <span class="tag ${tier}">${word}</span>${mark}</td>`
       + `<td>${escapeHtml(p.gpu_label ?? p.gpu_id)}</td>`
       + `<td class="n">${p.gpus_required}</td>`
-      + `<td class="n">$${escapeHtml(p.gpu_hourly_usd)}</td>`
+      + `<td class="n">${money(p.gpu_hourly_usd)}</td>`
       + `<td class="n">${numProv(money(p.monthly_total), provRows)}</td></tr>`;
   }).join("");
 
@@ -2256,7 +2256,7 @@ function providerCard() {
   return `<div class="card">
     <h3>${OPTION.C.label} — every provider in the registry, priced for this load</h3>
     <table>
-      <thead><tr><th>Provider</th><th>Accelerator</th><th class="n">GPUs</th><th class="n">$/GPU-hr</th><th class="n">Cost / month</th></tr></thead>
+      <thead><tr><th>Provider</th><th>Accelerator</th><th class="n">GPUs</th><th class="n">฿/GPU-hr</th><th class="n">Cost / month</th></tr></thead>
       <tbody>${body}</tbody>
     </table>
     ${pickGap}
@@ -2391,7 +2391,7 @@ function renderResults(r) {
       ...digest,
       ["provider", row ? row.provider_label : "—"],
       ["sku", row ? row.sku : "—"],
-      ["per-GPU hourly", row ? `$${row.gpu_hourly_usd}` : "—"],
+      ["per-GPU hourly", row ? money(row.gpu_hourly_usd) : "—"],
       ["confidence", row ? row.confidence : "unknown"],
       ["source", row ? row.source_url : "—"],
       ["observed", row ? String(row.observed_at).slice(0, 10) : "—"],
@@ -2497,7 +2497,7 @@ function renderOptionTotals(r) {
   const months = r.horizon_months;
   const overlay = r.overlay;
   $("comparison-scope").innerHTML = `<h2>Modelled cost over ${months} month${months === 1 ? "" : "s"}</h2>
-    <p>Infrastructure + platform licence + one-time costs · USD · lowest among priced options, not a like-for-like quality recommendation.</p>
+    <p>Infrastructure + platform licence + one-time costs · THB · lowest among priced options, not a like-for-like quality recommendation.</p>
     <p><strong>Additional commercial fees: ${money(overlay?.overlay_total ?? "0")} over ${months} months.</strong> Consulting and enterprise licensing are excluded from the comparison, curve and payback below.${overlay?.itemized.length ? ` ${overlay.itemized.map((i) => `${escapeHtml(i.name)}: ${money(i.amount)}/${i.basis === "monthly" ? "month" : "one-time"} (${money(i.extended)} across the period)`).join("; ")}.` : " No commercial fees entered; zero does not mean none will be required."}</p>
     <details class="screen-only"><summary>Review assumptions &amp; exclusions</summary><p>${COMPARISON_EXCLUSIONS}</p></details>
     <div class="print-only"><h3>Assumptions &amp; exclusions</h3><p>${COMPARISON_EXCLUSIONS}</p></div>`;
@@ -2505,7 +2505,7 @@ function renderOptionTotals(r) {
     const row = r.totals?.[c.k];
     const delta = c.on && best ? c.value.sub(best.value) : null;
     const more = delta && delta.sign() > 0
-      ? (money(delta) === "$0.00" ? "Less than $0.01 more across the period" : `${money(delta)} more across the period`) : "";
+      ? (money(delta) === "฿0.00" ? "Less than ฿0.01 more across the period" : `${money(delta)} more across the period`) : "";
     const sub = !c.on ? "Not fully costed — check pricing and configuration" : c.win
       ? `${tied ? "Joint lowest" : "Lowest"} modelled cost across the period` : more;
     return `<div class="vcard${c.win ? " best" : ""}">
@@ -2527,18 +2527,14 @@ const fmt = (v, places) => (v === null || v === undefined ? "—" : formatHalfUp
 
 const fmtPer1M = (v) => {
   if (v === null || v === undefined) return "—";
-  if (v instanceof Rat || v instanceof Dec) return formatHalfUp(v, 6);
-  const s = String(v);
-  const m = /^(-?\d+)\/(\d+)$/.exec(s);
-  if (m) return formatHalfUp(new Rat(BigInt(m[1]), BigInt(m[2])), 6);
-  return formatHalfUp(Dec.from(s), 6);
+  return `฿${groupDecimal(formatHalfUp(toTHB(moneyValue(v), state.fx), 6))}`;
 };
 
 function renderCurve(curve, payback = {}) {
   const w = 900, h = 260;
   const pad = { left: 78, right: 128, top: 42, bottom: 34 };
   const chartNumber = (raw) => {
-    const value = moneyValue(raw);
+    const value = toTHB(moneyValue(raw), state.fx);
     return value instanceof Rat ? Number(value.n) / Number(value.d) : Number(value.toString());
   };
   const series = OPTION_KEYS.map((key) => ({
@@ -2551,9 +2547,10 @@ function renderCurve(curve, payback = {}) {
   const maxV = Math.max(...numeric, 1);
   const x = (m) => pad.left + ((m - 1) / Math.max(1, curve.length - 1)) * (w - pad.left - pad.right);
   const y = (v) => h - pad.bottom - (v / maxV) * (h - pad.top - pad.bottom);
-  const tickMoney = new Intl.NumberFormat("en-US", {
+  const tickMoney = new Intl.NumberFormat("th-TH", {
     style: "currency",
-    currency: "USD",
+    currency: "THB",
+    currencyDisplay: "narrowSymbol",
     notation: maxV >= 1_000_000 ? "compact" : "standard",
     maximumFractionDigits: 0,
   });

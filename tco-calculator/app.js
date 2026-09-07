@@ -414,11 +414,11 @@ function setPlannerReady(ready) {
   if ($("ai-unsure")) $("ai-unsure").disabled = !ready || chatState.busy;
   $("ai-ready-note").textContent = ready
     ? (chatState.busy
-      ? "Asking MiniMax. You can cancel this request."
+      ? "Asking the assistant. You can cancel this request."
       : complete
         ? "All eight answered. Apply writes them into the real controls, where you can still change anything."
-        : "Answer the questions, or ask MiniMax about any one of them. Nothing changes in the calculator until you Apply.")
-    : "Loading calculator data. Apply and the MiniMax assist stay locked until the cited inputs are ready.";
+        : "Answer the questions, or ask about any one of them. Nothing changes in the calculator until you Apply.")
+    : "Loading calculator data. Apply and the LLM assistance stay locked until the cited inputs are ready.";
 }
 
 function setChatBusy(busy) {

@@ -12,8 +12,14 @@ import {
   buildPrompt,
   createRequestFence,
   isInterviewComplete,
-  requestRefinement as realRequestRefinement,
 } from "../planner.js";
+import {
+  buildOfflineRequest,
+  createChatHistory,
+  requestChatTurn as realRequestChatTurn,
+  toolResultMessage,
+  validateCalculatorProposal,
+} from "../chat.js";
 
 // Execute the real UI functions with a deliberately small DOM boundary and
 // controlled timers/fetches. These are behavioral unit tests, not browser tests.

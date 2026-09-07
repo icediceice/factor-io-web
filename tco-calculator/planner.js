@@ -238,6 +238,10 @@ export class PlannerRequestError extends Error {
 export function chatCompletionsUrl(endpoint, pageUrl = "https://localhost/") {
   const raw = String(endpoint ?? "").trim();
   if (!raw) throw new PlannerRequestError("endpoint_required", "Enter an OpenAI-compatible HTTPS endpoint.");
+  const rootRelative = raw.startsWith("/") && !raw.startsWith("//");
+  if (!rootRelative && !/^https?:\/\//i.test(raw)) {
+    throw new PlannerRequestError("endpoint_scheme", "Enter the full endpoint including https:// — for example https://api.minimax.io/v1. Use a leading / only for an intentional same-origin development gateway.");
+  }
   let url;
   let page;
   try {

@@ -608,6 +608,14 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       signal: controller.signal,
     });
     if (!chatFence.isCurrent(generation)) return;
+    const allowedTools = intent === "spec"
+      ? ["present_local_llm_spec"]
+      : ["ask_user", "propose_calculator_changes"];
+    if (!allowedTools.includes(result.toolCall.name)) {
+      const error = new Error(`MiniMax returned ${result.toolCall.name} for a ${intent} turn; no output was applied.`);
+      error.code = "unexpected_tool";
+      throw error;
+    }
     const toolResult = toolResultMessage(result.toolCall, handleChatTool(result));
     chatState.history.append({ user: result.user, assistant: result.assistantMessage, tools: [toolResult] });
     $("ai-model-status").textContent = `Structured ${result.toolCall.name} response received from ${result.model}. Review before any Apply.`;

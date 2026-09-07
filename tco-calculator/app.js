@@ -380,13 +380,26 @@ function goToQuestion(index) {
 
 // "Not sure" sends only this question plus the answers already given. The reply
 // is advice; renderInterview marks the suggested option but never picks it.
+// One ask, about the question on screen. A follow-up continues the thread; a
+// question the visitor has not asked about before starts a fresh one, and drops
+// the previous suggestion with it so no stale badge survives the move.
 function requestQuestionHelp() {
   const question = currentQuestion();
+  if (plannerState.helpQuestionId !== question.id) {
+    plannerState.helpThread = [];
+    plannerState.help = null;
+  }
   plannerState.helpQuestionId = question.id;
   const typed = String($("ai-message")?.value ?? "").trim();
+  const opening = plannerState.helpThread.length === 0;
+  // Only the opening turn needs to name the question — after that the retained
+  // history already carries it, and re-quoting it every time is what made the
+  // exchange read like a form submission rather than a conversation.
   const message = typed
-    ? `About "${question.prompt}" — ${typed}`
+    ? (opening ? `About "${question.prompt}" — ${typed}` : typed)
     : `I am not sure how to answer "${question.prompt}". Which option fits, and why?`;
+  plannerState.helpThread.push({ role: "you", text: typed || "I am not sure. Which option fits, and why?" });
+  renderAssistThread();
   void sendChatMessage(message, { intent: "assist", clearComposer: true });
 }
 

@@ -38,7 +38,7 @@
         "f-mix-agentic": "0",
         "f-peak-frac": "5",
         "f-tps-stream": "30",
-        "f-horizon": "36"
+        "f-horizon": "60"
       }
     },
     {
@@ -57,7 +57,7 @@
         "f-mix-agentic": "0",
         "f-peak-frac": "4",
         "f-tps-stream": "30",
-        "f-horizon": "36"
+        "f-horizon": "60"
       }
     },
     {
@@ -76,7 +76,7 @@
         "f-mix-agentic": "0",
         "f-peak-frac": "8",
         "f-tps-stream": "25",
-        "f-horizon": "36"
+        "f-horizon": "60"
       }
     },
     {
@@ -95,7 +95,7 @@
         "f-mix-agentic": "70",
         "f-peak-frac": "10",
         "f-tps-stream": "40",
-        "f-horizon": "36"
+        "f-horizon": "60"
       }
     },
     {
@@ -114,7 +114,7 @@
         "f-mix-agentic": "15",
         "f-peak-frac": "5",
         "f-tps-stream": "30",
-        "f-horizon": "36"
+        "f-horizon": "60"
       }
     }
   ]

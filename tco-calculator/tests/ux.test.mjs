@@ -527,7 +527,7 @@ test("an answer reaches the calculator only through Apply, and MiniMax advice ne
   h.get("plannerState.help = { question_id:'substrate', recommended_option:'kubernetes', answer:'Either works.', why:'You already run clusters.', caveats:[] }");
   h.get("plannerState.questionIndex = 3");
   h.get("renderInterview()");
-  assert.match(h.node("ai-interview").innerHTML, /MiniMax suggests this/);
+  assert.match(h.node("ai-interview").innerHTML, /Suggested by the assistant/);
   assert.match(h.node("ai-interview").innerHTML, /is-recommended/);
   assert.equal(h.get("plannerState.answers.substrate"), "nutanix", "advice must never change the answer");
   assert.equal(h.node("ai-apply-guided").disabled, false);
@@ -600,7 +600,7 @@ test("an assist turn is bound to the one question it was asked about", async () 
   h.get("plannerState.questionIndex = 4");
   await h.get("sendChatMessage('I am not sure', {intent:'assist'})");
   assert.equal(h.get("plannerState.help.question_id"), "data_boundary");
-  assert.match(h.node("ai-interview").innerHTML, /MiniMax suggests this/);
+  assert.match(h.node("ai-interview").innerHTML, /Suggested by the assistant/);
   assert.equal(h.get("plannerState.answers.data_boundary"), undefined, "accepted advice still selects nothing");
 });
 

@@ -100,12 +100,12 @@ export function laneAMonthly({ fixedMonthly, localTokens, overflowTokens, overfl
   let total = new Rat(0n, 1n);
   const lines = [];
   if (localTokens > 0) {
-    const fixed = Dec.from(fixedMonthly);
-    lines.push({ item: "lane_a_fixed", amount: fixed.toString(), note: "charged once — in-capacity tokens carry no per-token re-pricing" });
+    const fixed = toRat(fixedMonthly);
+    lines.push({ item: "lane_a_fixed", amount: ratStr(fixed), note: "charged once — in-capacity tokens carry no per-token re-pricing" });
     total = total.add(fixed);
     if (marginalPerToken !== null && marginalPerToken !== undefined) {
-      const marg = Dec.from(marginalPerToken).mul(BigInt(localTokens));
-      lines.push({ item: "lane_a_marginal", amount: marg.toString(), note: "user-entered power/ops marginal, itemized (SPEC 2.3)" });
+      const marg = toRat(marginalPerToken).mul(BigInt(localTokens));
+      lines.push({ item: "lane_a_marginal", amount: ratStr(marg), note: "user-entered power/ops marginal, itemized (SPEC 2.3)" });
       total = total.add(marg);
     }
   }
@@ -122,13 +122,13 @@ export function laneAMonthly({ fixedMonthly, localTokens, overflowTokens, overfl
 // a user decision — the UI surfaces standby cost separately).
 export function laneCMonthly({ hourlyRate, tokensS, utilization, servedTokens }) {
   if (servedTokens <= 0) return { total: ZERO, hours: new Rat(0n, 1n), lines: [] };
-  const u = Rat.from(utilization);
+  const u = toRat(utilization);
   if (u.isZero() || tokensS === null || tokensS <= 0) {
     return { total: ZERO, hours: Rat.of(0n, 1n), lines: [], out_of_domain: "zero_utilization_or_capacity" };
   }
   // hours = servedTokens / (tokensS x util x 3600) — tokensS is per SECOND.
   const hours = Rat.of(BigInt(servedTokens) * u.d, u.n * BigInt(tokensS) * 3600n);
-  const total = Rat.from(hourlyRate).mul(hours);
+  const total = toRat(hourlyRate).mul(hours);
   return { total, hours, lines: [{ item: "lane_c_hours", amount: ratStr(total), note: `hourly x ${hours.toString()}h` }] };
 }
 
@@ -233,21 +233,23 @@ export function advisoryBlendCost({ demandTokens, blendLocalPct, overflowUnitCos
 // failover share; a pure standby still surfaces its fixed cost, labelled.
 export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fallbackFixedMonthly, failoverShare, failoverRate }) {
   const lines = [{ item: "lane_b_base", amount: bMonthlyTotal.toString() }];
-  let total = Rat.from(bMonthlyTotal); // Rat accumulator — a non-terminating failover cost must still land in the total (peer G7)
-  const share = Rat.from(failoverShare);
+  let total = toRat(bMonthlyTotal); // Rat accumulator — a non-terminating failover cost must still land in the total (peer G7)
+  const share = toRat(failoverShare);
   if (cmpMoney(share, ZERO) > 0) {
-    const failoverCost = Rat.from(bMonthlyTotal).mul(share).mul(Rat.from(failoverRate));
+    const failoverCost = toRat(bMonthlyTotal).mul(share).mul(toRat(failoverRate));
     total = total.add(failoverCost);
     lines.push({ item: "failover_traffic", amount: ratStr(failoverCost), note: `failover_rate x share of demand on fallback lane ${fallbackKind}` });
     if (fallbackKind !== "B") {
       // The fallback lane serves tokens -> it is in service -> its fixed cost is
       // incurred exactly once (SPEC 2.3).
-      total = total.add(Dec.from(fallbackFixedMonthly));
-      lines.push({ item: "fallback_fixed", amount: Dec.from(fallbackFixedMonthly).toString(), note: `fallback lane ${fallbackKind} is in service — fixed charged once` });
+      const fallback = toRat(fallbackFixedMonthly);
+      total = total.add(fallback);
+      lines.push({ item: "fallback_fixed", amount: ratStr(fallback), note: `fallback lane ${fallbackKind} is in service — fixed charged once` });
     }
   } else if (fallbackKind !== "B") {
-    lines.push({ item: "standby_fixed", amount: Dec.from(fallbackFixedMonthly).toString(), note: "pure standby — fixed cost surfaced (SPEC 2.2)" });
-    total = total.add(Dec.from(fallbackFixedMonthly));
+    const standby = toRat(fallbackFixedMonthly);
+    lines.push({ item: "standby_fixed", amount: ratStr(standby), note: "pure standby — fixed cost surfaced (SPEC 2.2)" });
+    total = total.add(standby);
   }
   return { total, lines };
 }
@@ -260,17 +262,17 @@ export function apiFirstFailover({ demandTokens, bMonthlyTotal, fallbackKind, fa
 // API per-token price (SPEC 6.2) — util* = hourly / (tok_s x 3600 x bPerToken).
 export function breakevenUtilizationC({ hourlyRate, tokensS, bPerToken }) {
   if (tokensS === null || tokensS <= 0) return { value: null, reason: "zero_capacity" };
-  const denom = Rat.of(BigInt(tokensS) * 3600n, 1n).mul(Rat.from(bPerToken));
+  const denom = Rat.of(BigInt(tokensS) * 3600n, 1n).mul(toRat(bPerToken));
   if (denom.isZero()) return { value: null, reason: "zero_price" };
-  return { value: Rat.from(hourlyRate).div(denom), reason: null };
+  return { value: toRat(hourlyRate).div(denom), reason: null };
 }
 
 // Lane A vs B: the demand where amortized fixed per token crosses the API
 // per-token price — demand* = fixed / bPerToken; as utilization vs capacity.
 export function breakevenDemandA({ fixedMonthly, bPerToken, aMonthlyCapacity }) {
-  const p = Rat.from(bPerToken);
+  const p = toRat(bPerToken);
   if (p.isZero()) return { value: null, reason: "zero_price" };
-  const demand = Rat.from(fixedMonthly).div(p);
+  const demand = toRat(fixedMonthly).div(p);
   const utilization = aMonthlyCapacity === null || aMonthlyCapacity <= 0
     ? { value: null, reason: "zero_capacity" }
     : { value: demand.div(Rat.of(BigInt(aMonthlyCapacity), 1n)), reason: null };
@@ -639,7 +641,7 @@ export function runComparison({
         marginalPerToken: laneA.marginal_per_token ?? null,
       });
       const cmpv = cmpMoney(adv.total, toRat(recommendedTotal));
-      const deltaRat = Rat.from(adv.total).sub(toRat(recommendedTotal));
+      const deltaRat = toRat(adv.total).sub(toRat(recommendedTotal));
       routingResult.advisory = cmpv > 0
         ? { total: ratStr(adv.total), status: "dominated", delta: ratStr(deltaRat), note: "advisory blend loses to the derived split — never emitted as the optimum" }
         : { total: ratStr(adv.total), status: cmpv === 0 ? "equal" : "preferred", note: "advisory blend matches or beats the derived split" };
@@ -648,7 +650,7 @@ export function runComparison({
     const f = routing.failover ?? { rate: "1", share: "0", fallback: "A" };
     const fbKind = f.fallback === "C" ? "C" : "A";
     const fbFixed = fbKind === "C"
-      ? (laneC && laneC.enabled ? (ratToDecExact(Rat.from(laneC.hourly_rate).mul(Rat.of(720n, 1n))) ?? "0") : "0") // 720h standby month
+      ? (laneC && laneC.enabled ? ratStr(toRat(laneC.hourly_rate).mul(Rat.of(720n, 1n))) : "0") // 720h standby month
       : (laneA && laneA.enabled ? laneA.fixed_monthly : "0");
     const af = apiFirstFailover({ demandTokens: demand, bMonthlyTotal: bMonthly ?? "0", fallbackKind: fbKind, fallbackFixedMonthly: fbFixed, failoverShare: f.share, failoverRate: f.rate });
     routingResult.failover = { fallback: fbKind, share: f.share, rate: f.rate, lines: af.lines };
@@ -679,7 +681,7 @@ export function runComparison({
         fixedMonthly: laneA.fixed_monthly,
         localTokens: routedA.local,
         overflowTokens: routedA.overflow,
-        overflowUnitCost: overflowUnit === null ? null : Rat.from(overflowUnit),
+        overflowUnitCost: overflowUnit === null ? null : toRat(overflowUnit),
         marginalPerToken: laneA.marginal_per_token ?? null,
       });
       if (routedA.overflow > 0 && overflowUnit === null) reasons.push("secondary_lane_unpriced");
@@ -712,7 +714,7 @@ export function runComparison({
     // Non-substituting comparison annotation: the derived optimum + its total.
     if (laneA && laneA.enabled) {
       const split = derivedLocalFirstSplit({ demandTokens: demand, aMonthlyCapacity: laneA.monthly_token_budget ?? demand });
-      const a = laneAMonthly({ fixedMonthly: laneA.fixed_monthly, localTokens: split.local, overflowTokens: split.overflow, overflowUnitCost: overflowUnit === null ? null : Rat.from(overflowUnit), marginalPerToken: laneA.marginal_per_token ?? null });
+      const a = laneAMonthly({ fixedMonthly: laneA.fixed_monthly, localTokens: split.local, overflowTokens: split.overflow, overflowUnitCost: overflowUnit === null ? null : toRat(overflowUnit), marginalPerToken: laneA.marginal_per_token ?? null });
       routingResult.derived_optimum_note = { split: { local_tokens: split.local, overflow_tokens: split.overflow }, total: ratStr(a.total), note: "comparison annotation only — the pinned split is never silently replaced (SPEC 2.2)" };
     }
   } else {

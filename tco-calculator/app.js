@@ -752,6 +752,11 @@ function applyGuidedAnswers() {
     $("ai-ready-note").textContent = `These answers do not fit the current controls and were not applied: ${rejected.join(", ")}.`;
     return;
   }
+  // Read BEFORE the snapshot below is overwritten: this is the only moment that
+  // can still tell a revision from a first Apply. Revising takes the identical
+  // path from here — the preview in #ai-revision is inert, so the whole-profile
+  // rebuild and the all-or-nothing validation above are never bypassed by it.
+  const revising = changedAnswerIds().size > 0;
   applyWorkloadPreset(plan.presetId, { recompute: false });
   for (const [field, value] of Object.entries(plan.controlledFields)) {
     const control = $(field);
@@ -759,10 +764,15 @@ function applyGuidedAnswers() {
   }
   plannerState.plan = plan;
   plannerState.applied = true;
+  plannerState.appliedAnswers = JSON.stringify(plannerState.answers);
   plannerState.refinement = null;
   chatState.pendingSpec = null;
-  $("ai-state").textContent = "Applied · your eight answers · every assumption remains editable";
-  appendChat("assistant", "Applied your answers to the calculator. It is recomputing now — open any control to override an assumption.");
+  $("ai-state").textContent = revising
+    ? "Re-applied · your revised answers · every assumption remains editable"
+    : "Applied · your eight answers · every assumption remains editable";
+  appendChat("assistant", revising
+    ? "Re-applied your revised answers to the calculator. It is recomputing now — open any control to override an assumption."
+    : "Applied your answers to the calculator. It is recomputing now — open any control to override an assumption.");
   renderInterview();
   onLiveInput();
 }

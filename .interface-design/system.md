@@ -174,6 +174,27 @@ One value at a time, centered, over a scrim.
   jump and print stylesheet support use beyond a desktop. Narrow-viewport and
   PDF rendering still require browser measurement (not proved by unit tests).
 
+### Decision-named rail sections (2026-09-07, v0.8)
+
+The rail is organised by the DECISION each section settles, not by the category
+of field it holds. `How much demand` · `What the work is` · `Which model you'd
+run` · `What you'd compare against` · `What you assume about money` ·
+`Service level & routing`, each restating its question in the `.hint` beneath.
+
+- **One disclosure layer.** A section folds; nothing inside a section folds
+  again. A `<details class="adv">` nested in a section that already folds put
+  routing policy two levels down, which is what made the rail feel like it was
+  hiding things. The one surviving `details.adv` is `Tokens per turn`, and it
+  earns it by being a 4×4 table of raw inputs rather than a decision.
+- **`.subsec`** is the replacement for a nested disclosure — a labelled band
+  separated by a hairline, always visible when its section is open. Its
+  `.subhead` is 11.5px sans in `--dim`, deliberately NOT an uppercase mono
+  micro-label: those are rationed to one per section spine (see Typography).
+- **`data-open` on the section declares the fold default.** It used to be a Set
+  of heading strings inside `fields.js`, so renaming a heading silently folded
+  every section with nothing to catch it. Display copy must never be a
+  behavioural key.
+
 ### Other components
 
 `.chip` preset pills, `.card`, `.vcard` verdict cards, `.kpi` grid, `.tag`

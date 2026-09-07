@@ -467,8 +467,19 @@ test("field harvesting and close use a shared range-blind control selector", () 
   assert.match(fields, /const CONTROL = "input:not\(\[type=range\]\), select"/);
   assert.doesNotMatch(fields, /querySelector(?:All)?\("input, select"\)/);
   assert.match(fields, /f\.dataset\.inline/);
-  assert.match(fields, /h2\.cloneNode\(true\)/);
   assert.match(fields, /releaseFields/);
+  // Which sections arrive open is declared in the markup, not by matching
+  // heading strings in here. The old title allow-list meant renaming a heading
+  // silently folded every section, with nothing to catch it — and the v0.8 rail
+  // renamed all six. (This replaces an h2.cloneNode assertion that guarded the
+  // stripping of live spans out of a title that is no longer read at all.)
+  assert.doesNotMatch(fields, /OPEN_SECTIONS/);
+  assert.match(fields, /"open" in sec\.dataset/);
+  const railSections = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
+  assert.equal((railSections.match(/<div class="sec" data-open>/g) ?? []).length, 3);
+  // One disclosure layer in the rail. A details.adv nested inside a section
+  // that itself folds is what buried routing policy two levels deep.
+  assert.doesNotMatch(railSections, /<summary>Service level|<summary>Architecture detail/);
 });
 
 test("the guided interview renders without contacting MiniMax, and an assist turn refuses a non-assist tool", async () => {

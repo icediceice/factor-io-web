@@ -402,7 +402,7 @@ export function toolResultMessage(toolCall, result) {
   return { role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result) };
 }
 
-export function buildChatPayload({ model, messages, tools = CHAT_TOOLS }) {
+export function buildChatPayload({ model, messages, tools = CHAT_TOOLS, assist = false }) {
   const chosenModel = String(model ?? "").trim();
   if (!chosenModel) throw new ChatRequestError("model_required", "Enter the model name exposed by the endpoint.");
   if (!Array.isArray(messages) || messages.length === 0) throw new ChatRequestError("messages_required", "The conversation has no messages to send.");
@@ -410,9 +410,19 @@ export function buildChatPayload({ model, messages, tools = CHAT_TOOLS }) {
     model: chosenModel,
     messages: cloneJson(messages),
     tools: cloneJson(tools),
-    tool_choice: "required",
+    // An assist turn is a CONVERSATION: the visitor asked a question in their own
+    // words and deserves an answer in the model's. "required" forced every reply
+    // through a four-slot tool schema, which is why they all read identically.
+    // "auto" lets it answer in prose, and attach a suggestion only when it has
+    // one. Every other turn's entire output IS the structure, so those stay
+    // required — a proposal or a spec with no tool call is a failed turn.
+    tool_choice: assist ? "auto" : "required",
     thinking: { type: "disabled" },
-    temperature: 0.2,
+    // 0.2 is right for structured extraction and wrong for explaining a
+    // trade-off to a person. This loosens WORDING only: the suggested option is
+    // schema-validated at any temperature, and the prose is still refused if it
+    // asserts a price.
+    temperature: assist ? 0.7 : 0.2,
     max_completion_tokens: 1800,
     stream: false,
   };

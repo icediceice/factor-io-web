@@ -547,9 +547,12 @@
       <div class="example-actions"><button class="btn" id="reset-example" type="button" title="Reloads the calculator and clears your answers and any generated text">Reset whole page</button><a class="btn mobile-results" href="#comparison">View results ↓</a></div>
     </div>
 
-    <div class="sec">
-      <h2>Who uses it</h2>
-      <p class="hint">How many people, and how often they come back.</p>
+    <!-- data-open marks the sections that arrive expanded. It used to be a
+         title allow-list inside fields.js, which meant renaming a heading
+         silently changed which sections opened. The markup owns it now. -->
+    <div class="sec" data-open>
+      <h2>How much demand</h2>
+      <p class="hint">How many people, how often they come back, and the horizon the comparison runs over.</p>
       <div class="row">
         <div class="f"><label for="f-users">People using it</label><input id="f-users" type="text" inputmode="numeric" value="500"></div>
         <div class="f"><label for="f-sessions-day">Sessions each, per day</label><input id="f-sessions-day" type="text" inputmode="decimal" value="2"></div>

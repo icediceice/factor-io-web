@@ -320,7 +320,6 @@ function renderInterview() {
       <h3 id="ai-question-prompt">${escapeHtml(question.prompt)}</h3>
       <p class="muted">${escapeHtml(question.help)}</p>
       <div class="ai-options">${options}</div>
-      ${help ? `<div class="ai-help" role="note"><span class="ai-kicker">MiniMax on this question</span><p>${escapeHtml(help.answer)}</p><p class="why">${escapeHtml(help.why)}</p>${(help.caveats ?? []).length ? `<ul>${help.caveats.map((caveat) => `<li>${escapeHtml(caveat)}</li>`).join("")}</ul>` : ""}</div>` : ""}
       <div class="ai-nav">
         <button type="button" class="btn" id="ai-back"${index === 0 ? " disabled" : ""}>Back</button>
         <button type="button" class="btn" id="ai-next"${plannerState.answers[question.id] === undefined ? " disabled" : ""}>${index === INTERVIEW_QUESTIONS.length - 1 ? "Review" : "Next"}</button>

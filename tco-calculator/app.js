@@ -496,6 +496,8 @@ function setPlannerReady(ready) {
   if ($("ai-request-spec")) $("ai-request-spec").disabled = !ready || !plannerState.blueprint || chatState.busy;
   const complete = isInterviewComplete(plannerState.answers);
   if ($("ai-apply-guided")) $("ai-apply-guided").disabled = !ready || chatState.busy || !complete;
+  // Re-apply is the SAME gate as the first Apply, because it is the same call.
+  if ($("ai-reapply")) $("ai-reapply").disabled = !ready || chatState.busy || !complete;
   if ($("ai-unsure")) $("ai-unsure").disabled = !ready || chatState.busy;
   $("ai-ready-note").textContent = ready
     ? (chatState.busy

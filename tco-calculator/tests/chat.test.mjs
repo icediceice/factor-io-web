@@ -21,6 +21,7 @@ const fields = {
 
 const proposal = (changes = [{ field: "f-users", value: "500", reason: "Matches the described support workload." }]) => ({
   summary: "A reviewable starting point for the stated workflow.",
+  planning_profile: { use_case: "support", substrate: "nutanix", data_boundary: "internal", interaction: "assistant", overflow: "local_only" },
   changes,
   question: "Would you like to review the assumptions before applying them?",
   suggested_replies: ["Review assumptions", "Apply later"],
@@ -101,6 +102,7 @@ test("calculator proposals accept only current allowlisted values and remain ine
     { field: "fr-policy", value: "local_first", reason: "Keeps approved data on the local runtime first." },
   ]), { fields });
   assert.deepEqual(accepted.changes.map((change) => change.field), ["f-users", "f-sv-model", "fr-policy"]);
+  assert.equal(accepted.planning_profile.substrate, "nutanix");
   assert.equal(accepted.changes[0].value, "2500");
   assert.equal(Object.prototype.hasOwnProperty.call(accepted, "apply"), false);
 });

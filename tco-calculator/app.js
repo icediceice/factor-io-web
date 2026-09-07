@@ -399,6 +399,7 @@ function pendingRevision() {
 function renderRevision() {
   const box = $("ai-revision");
   if (!box) return;
+  const wasHidden = box.hidden;
   const revision = pendingRevision();
   if (!revision) {
     box.hidden = true;

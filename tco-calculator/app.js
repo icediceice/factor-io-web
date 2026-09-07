@@ -35,6 +35,13 @@ import {
   isInterviewComplete,
   requestRefinement,
 } from "./planner.js?v=20260907-thb-chat";
+import {
+  buildOfflineRequest,
+  createChatHistory,
+  requestChatTurn,
+  toolResultMessage,
+  validateCalculatorProposal,
+} from "./chat.js?v=20260907-thb-chat";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -107,6 +114,17 @@ const plannerState = {
   abortController: null,
 };
 const plannerFence = createRequestFence();
+const chatState = {
+  history: createChatHistory(),
+  transcript: [],
+  suggestions: [],
+  pendingProposal: null,
+  pendingSpec: null,
+  offlineArtifact: null,
+  busy: false,
+  abortController: null,
+};
+const chatFence = createRequestFence();
 
 function plannerOption(question, optionId) {
   return question.options.find((option) => option.id === optionId) ?? null;

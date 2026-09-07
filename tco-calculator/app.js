@@ -132,11 +132,13 @@ function plannerOption(question, optionId) {
 
 function setPlannerReady(ready) {
   const complete = isInterviewComplete(plannerState.answers);
-  $("ai-apply").disabled = !ready || !complete;
-  $("ai-generate").disabled = !ready || !plannerState.blueprint;
+  if ($("ai-apply")) $("ai-apply").disabled = !ready || !(chatState.pendingProposal || complete);
+  if ($("ai-send")) $("ai-send").disabled = !ready || chatState.busy;
+  if ($("ai-request-spec")) $("ai-request-spec").disabled = !ready || !plannerState.blueprint || chatState.busy;
+  if ($("ai-generate")) $("ai-generate").disabled = !ready || !plannerState.blueprint;
   $("ai-ready-note").textContent = ready
-    ? (complete ? "Ready to apply. Calculator values change only after you press Apply." : "Answer each question to prepare a calculator setup.")
-    : "Loading calculator data. You can review the questions; Apply and Generate stay locked until the cited inputs are ready.";
+    ? (chatState.busy ? "Waiting for MiniMax. You can cancel this request." : "Ready. Send is explicit; proposals change nothing until you press Apply.")
+    : "Loading calculator data. Send and Apply stay locked until the cited inputs are ready.";
 }
 
 function renderPlannerSummary() {
@@ -210,7 +212,8 @@ function clearPlannerOutput(message = "Apply the guided setup to build a deploym
   $("ai-copy-blueprint").disabled = true;
   $("ai-copy-prompt").disabled = true;
   $("ai-download").disabled = true;
-  $("ai-generate").disabled = true;
+  if ($("ai-generate")) $("ai-generate").disabled = true;
+  if ($("ai-request-spec")) $("ai-request-spec").disabled = true;
   $("ai-model-status").textContent = cancelled
     ? "Generation cancelled because the calculator scenario changed."
     : refinement

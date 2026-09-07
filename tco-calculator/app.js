@@ -1081,7 +1081,7 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       // so nothing secret exists in this page to send.
       endpoint: MINIMAX_DEFAULTS.endpoint,
       model: MINIMAX_DEFAULTS.model,
-      history: chatState.history,
+      history,
       systemPrompt,
       userMessage: text,
       validationContext: chatValidationContext({ assist: intent === "assist" }),

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { Dec, Rat, formatHalfUp } from "../exact.js";
+import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {
   INTERVIEW_QUESTIONS,
   MINIMAX_DEFAULTS,
@@ -21,6 +22,14 @@ const html = readFileSync(new URL("../../tco-calculator.html", import.meta.url),
 const privacy = readFileSync(new URL("../../privacy.html", import.meta.url), "utf8");
 const llms = readFileSync(new URL("../../llms.txt", import.meta.url), "utf8");
 const fields = readFileSync(new URL("../fields.js", import.meta.url), "utf8");
+const TEST_FX_DOCUMENT = {
+  source_id: "test-fx",
+  source_url: "https://example.test/fx",
+  observed_at: "2026-09-04",
+  expires_at: "2026-09-05T23:59:59.999Z",
+  usd_thb: "33",
+};
+const TEST_FX = normalizeFxDocument(TEST_FX_DOCUMENT, { integrity: "test-fixture" });
 function harness() {
   const nodes = new Map();
   const listeners = new Map();
@@ -50,7 +59,8 @@ function harness() {
     return { ok: true, status: 200, json: async () => ({ model: "stub", choices: [{ message: { content: "stub response" } }] }) };
   };
   const context = vm.createContext({
-    Dec, Rat, formatHalfUp, console: { error() {}, warn() {} }, Event,
+    Dec, Rat, formatHalfUp, fxProvenance, normalizeFxDocument, toTHB, toUSD,
+    console: { error() {}, warn() {} }, Event,
     DemandRefusal: class DemandRefusal extends Error {},
     ServingRefusal: class ServingRefusal extends Error {},
     document: {
@@ -73,12 +83,17 @@ function harness() {
     INTERVIEW_QUESTIONS, MINIMAX_DEFAULTS, buildBlueprint, buildPlannerPlan, buildPrompt,
     createRequestFence, isInterviewComplete,
     requestRefinement: (args) => realRequestRefinement({ ...args, fetchImpl: fetchSpy }),
+    resolveResource: async () => ({ offers: {} }),
+    loadFx: async () => TEST_FX_DOCUMENT,
+    fetchOpenRouterModels: async () => { throw new Error("offline test fixture"); },
+    fetchLiveFx: async () => { throw new Error("offline test fixture"); },
     syncChips() {}, enhanceRail() {}, releaseFields() {},
   });
   const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");
   assert.doesNotMatch(executable, /^\s*import\b/m, "the VM harness must strip multiline module imports");
   vm.runInContext(executable, context);
   const get = (expression) => vm.runInContext(expression, context);
+  get("state").fx = TEST_FX;
   return { context, node, nodes, get, listeners, timers, state: get("state"),
     fetchCalls,
     tick() { const work = [...timers.values()]; timers.clear(); work.forEach((f) => f()); } };
@@ -170,9 +185,9 @@ test("consulting overlay is visibly additional and cannot silently relabel unit 
   const r = result({ A: "432000", B: "500000", C: null });
   r.overlay = { overlay_total: "360000", itemized: [{ name: "ai-consulting", amount: "10000", extended: "360000", basis: "monthly" }] };
   h.get("renderOptionTotals")(r);
-  assert.match(h.node("comparison-scope").innerHTML, /Additional commercial fees: \$360000.00/);
+  assert.match(h.node("comparison-scope").innerHTML, /Additional commercial fees: ฿11,880,000.00/);
   assert.match(h.node("comparison-scope").innerHTML, /excluded from the comparison, curve and payback/);
-  assert.match(h.node("verdict").innerHTML, /\$432000.00/);
+  assert.match(h.node("verdict").innerHTML, /฿14,256,000.00/);
   assert.doesNotMatch(html, /id="fo-loaded"/);
   assert.doesNotMatch(app, /r\.overlay\.label/);
 });

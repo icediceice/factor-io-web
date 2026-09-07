@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| Status | Normative draft for implementation |
-| Spec revision | v0.4 — 2026-09-06 (supersedes v0.3 — 2026-08-29, v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
-| Plan thread | 1546296134455005337 (factor-io-web); v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
+| Status | Normative implementation contract |
+| Spec revision | v0.6 — 2026-09-07 (supersedes v0.5/v0.4 — 2026-09-06, v0.3/v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
+| Plan thread | 1546330542415282260 (factor-io-web); v0.4 was 1546296134455005337, v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
 | Delivery | Static client-side calculator on GitHub Pages + an operator-run pricing refresh command |
 
 **What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token

@@ -114,6 +114,19 @@ currency figure absolutely, but a bare `-` between digits is a RANGE, not
 arithmetic; requiring whitespace on both sides of the minus keeps `2-3 nodes` and
 `2026-09` renderable while a spaced subtraction still trips.
 
+Two further v0.8 defects were found by the post-ship verify pass, and both are also
+normative. **(3)** Scoping an assist conversation to one question means scoping the
+REQUEST, not only the rendered thread: a shared retained history replayed the
+previous question's exchanges ahead of the current one, so the visitor saw a fresh
+start while the model read a stale topic first. Assist turns therefore keep a
+history of their own, cleared on the same `helpQuestionId` transition that clears
+the thread, and never mixed with the free-form, proposal or spec conversation.
+**(4)** For the unattended publisher, *clean* must mean `git status --porcelain`
+empty. `git diff` does not see an untracked file, and since the publisher stages
+with `git add -A -- tco-calculator/data` while its outside-surface guard excludes
+that same directory, a half-written catalog from a crashed earlier run would
+otherwise be committed and pushed with nobody watching.
+
 Sections 3, 4, 5.1–5.6, 7, 9, 10 and the F1–F10 fixtures of §12.4 are **unchanged
 and remain normative** — the tariff model, quote semantics, freshness envelope and
 decimal-exact arithmetic all survive v0.2 intact. The engine keeps its internal

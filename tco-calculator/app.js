@@ -1039,7 +1039,7 @@ function fillRentGpus() {
     .map((r, i) => ({ r, i }))
     .filter(({ r }) => r.provider === p);
   $("f-rent-gpu").innerHTML = opts
-    .map(({ r, i }) => `<option value="${i}">${escapeHtml(gpus[r.gpu_id]?.label ?? r.gpu_id)} — $${r.gpu_hourly_usd}/GPU-hr · ${escapeHtml(r.sku)}</option>`)
+    .map(({ r, i }) => `<option value="${i}">${escapeHtml(gpus[r.gpu_id]?.label ?? r.gpu_id)} — ${money(r.gpu_hourly_usd)}/GPU-hr · ${escapeHtml(r.sku)}</option>`)
     .join("");
   if (opts.length) $("f-rent-gpu").value = String(opts[0].i);
   renderRentNote();
@@ -1061,7 +1061,7 @@ function renderRentNote() {
     : `<span class="tag tag-est">indicative</span> public aggregator — the vendor's own API is credential-gated, so this is an order-of-magnitude planning figure, not a quote`;
   const seeded = row.seeded ? " This row is <strong>seeded</strong> from a cited secondary source rather than fetched live." : "";
   const basis = row.source_basis ? ` ${escapeHtml(row.source_basis)}` : "";
-  $("f-rent-note").innerHTML = `${escapeHtml(row.sku)} · $${row.gpu_hourly_usd}/GPU-hr · ${tier}.${seeded}${basis} Observed ${escapeHtml(String(row.observed_at).slice(0, 10))}.`;
+  $("f-rent-note").innerHTML = `${escapeHtml(row.sku)} · ${money(row.gpu_hourly_usd)}/GPU-hr · ${tier}.${seeded}${basis} Observed ${escapeHtml(String(row.observed_at).slice(0, 10))}.`;
 }
 
 // ═════════════════════════════════════════ v0.3: the model being served

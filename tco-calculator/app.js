@@ -1110,6 +1110,13 @@ function setupPlanner() {
     const chip = event.target.closest("[data-ai-step]");
     if (chip) goToQuestion(Number(chip.dataset.aiStep));
   });
+  // Re-apply deliberately calls applyGuidedAnswers and nothing else. A shortcut
+  // that wrote only the changed controls would skip the whole-profile rebuild
+  // and the all-or-nothing validation the first Apply had to pass.
+  $("ai-revision").addEventListener("click", (event) => {
+    if (event.target.closest("#ai-reapply")) { applyGuidedAnswers(); return; }
+    if (event.target.closest("#ai-revert-answer")) revertAnswerRevision();
+  });
 
   $("ai-cancel").addEventListener("click", () => cancelChatRequest());
   $("ai-apply-guided").addEventListener("click", applyGuidedAnswers);

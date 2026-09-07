@@ -3,11 +3,12 @@
 //
 //   node scripts/refresh-pricing.mjs
 //
-// Repopulates ALL FOUR halves of what the calculator prices from:
+// Repopulates all five source groups the calculator prices or converts from:
 //   1. rented-GPU rates       -> tco-calculator/data/gpu-pricing.json
 //   2. model names + tariffs  -> tco-calculator/data/manifest.json + catalog-*.json
 //   3. serving-model presets  -> tco-calculator/data/serving-models.json
 //   4. server acquisition     -> tco-calculator/data/server-pricing.json
+//   5. EUR/USD + EUR/THB FX   -> tco-calculator/data/fx.json + manifest pin
 //
 // Stage 3 is what keeps the SELF-HOSTED side from going stale. Stages 1 and 2
 // price the rented and API lanes and were always refreshable; the serving presets
@@ -52,7 +53,7 @@ function run(script) {
 const banner = (s) => `\n${"─".repeat(72)}\n${s}\n${"─".repeat(72)}`;
 
 async function main() {
-  console.log(banner("1/4  Rented-GPU rates  (AWS + Azure first-party, aggregator indicative)"));
+  console.log(banner("1/5  Rented-GPU rates  (AWS + Azure first-party, aggregator indicative)"));
   const gpu = await run("build-gpu-pricing.mjs");
   process.stdout.write(gpu.out);
   if (gpu.code !== 0) {
@@ -61,7 +62,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(banner("2/4  Model names + tariffs  (LiteLLM + OpenRouter)"));
+  console.log(banner("2/5  Model names + tariffs  (LiteLLM + OpenRouter)"));
   const snap = await run("build-snapshot.mjs");
   process.stdout.write(snap.out);
   if (snap.code !== 0) {
@@ -70,7 +71,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(banner("3/4  Serving-model presets  (Hugging Face Hub, ranked by trendingScore)"));
+  console.log(banner("3/5  Serving-model presets  (Hugging Face Hub, ranked by trendingScore)"));
   const serving = await run("build-serving-models.mjs");
   process.stdout.write(serving.out);
   if (serving.code !== 0) {
@@ -79,7 +80,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(banner("4/4  Server acquisition prices  (cited bands, citations re-verified)"));
+  console.log(banner("4/5  Server acquisition prices  (cited bands, citations re-verified)"));
   const servers = await run("build-server-pricing.mjs");
   process.stdout.write(servers.out);
   if (servers.code !== 0) {
@@ -92,6 +93,15 @@ async function main() {
     process.exit(1);
   }
 
+  console.log(banner("5/5  USD→THB FX  (official ECB EUR reference-rate cross)"));
+  const fx = await run("build-fx.mjs");
+  process.stdout.write(fx.out);
+  if (fx.code !== 0) {
+    process.stderr.write(fx.err);
+    console.error(`\n✗ FX refresh FAILED (exit ${fx.code}) after ${fx.ms}ms — data/fx.json and its manifest pin were NOT rewritten, so the previous rate and observed_at stand.`);
+    process.exit(1);
+  }
+
   // Coverage summary — the operator's actual question is "did the providers I
   // care about come back", which neither sub-script can answer alone.
   let summary = null;
@@ -100,13 +110,14 @@ async function main() {
     const manifest = JSON.parse(await readFile(`${DATA_DIR}manifest.json`, "utf8"));
     const servingDoc = JSON.parse(await readFile(`${DATA_DIR}serving-models.json`, "utf8"));
     const serverDoc = JSON.parse(await readFile(`${DATA_DIR}server-pricing.json`, "utf8"));
-    summary = { doc, manifest, servingDoc, serverDoc };
+    const fxDoc = JSON.parse(await readFile(`${DATA_DIR}fx.json`, "utf8"));
+    summary = { doc, manifest, servingDoc, serverDoc, fxDoc };
   } catch (e) {
     console.error(`\n✗ refreshed, but the written files could not be re-read: ${e.message}`);
     process.exit(1);
   }
 
-  const { doc, manifest, servingDoc, serverDoc } = summary;
+  const { doc, manifest, servingDoc, serverDoc, fxDoc } = summary;
   console.log(banner("Coverage"));
   const pad = (s, n) => String(s).padEnd(n);
   console.log(`${pad("PROVIDER", 18)}${pad("TIER", 14)}${pad("ROWS", 6)}GPUS`);
@@ -145,6 +156,7 @@ async function main() {
   const srvUnreachable = srvRows.filter((r) => r.verification?.status === "unreachable").length;
   console.log(`server rows   ${srvRows.length} across ${Object.keys(serverDoc.by_gpu ?? {}).length} accelerators (${Object.keys(serverDoc.by_gpu ?? {}).join(", ")})`);
   console.log(`server cites  ${srvVerified} verified · ${srvBroken} broken · ${srvUnreachable} unreachable`);
+  console.log(`fx             EUR/USD ${fxDoc.eur_usd} · EUR/THB ${fxDoc.eur_thb} · observed ${fxDoc.observed_at}`);
 
   console.log(`observed_at   ${doc.generated_at}`);
 

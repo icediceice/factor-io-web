@@ -569,6 +569,59 @@ test("a typed answer is bounds-checked against the real control contract before 
   assert.match(h.node("ai-ready-note").textContent, /f-users/);
 });
 
+test("a single guided answer can be revised after Apply, and re-applying stays on the validated path", () => {
+  const h = harness();
+  h.get("setupPlanner()");
+  h.state.ready = true;
+  h.state.workloadPresets = {
+    defaults: { shapes: {} },
+    presets: [{ id: "internal_kb", label: "Knowledge", assumption_label: "assumed", assumption_note: "test", fields: { "f-users": "500", "f-horizon": "36" } }],
+  };
+  h.node("fr-policy").tagName = "SELECT";
+  h.node("fr-policy").options = [{ value: "local_first" }, { value: "api_first" }, { value: "fixed_split" }];
+  h.context.recomputes = 0;
+  h.get("onLiveInput = () => { recomputes++; }");
+  const click = (id, selector) => h.node(id).events.click({ target: { closest: (s) => (s === selector ? {} : null) } });
+
+  h.get("plannerState.answers = { use_case:'knowledge', scale:'company', intensity:'routine', substrate:'nutanix', data_boundary:'internal', interaction:'assistant', overflow:'local_only', horizon:'y5' }");
+  h.get("applyGuidedAnswers()");
+  assert.equal(h.node("f-users").value, "1000");
+  assert.equal(h.node("ai-revision").hidden, true, "nothing has drifted the moment the answers were applied");
+  assert.doesNotMatch(h.node("ai-answers").innerHTML, /data-changed/);
+
+  // Revise ONE answer. The preview is inert: no control moves, nothing recomputes.
+  h.get("plannerState.answers.scale = 'department'");
+  h.get("renderInterview()");
+  assert.equal(h.node("f-users").value, "1000", "a revised answer must not reach the control on its own");
+  assert.equal(h.context.recomputes, 1, "previewing a revision recomputes nothing");
+  assert.equal(h.node("ai-revision").hidden, false);
+  assert.match(h.node("ai-revision").innerHTML, /You changed one answer after applying/);
+  assert.match(h.node("ai-revision").innerHTML, /Nothing has changed yet/);
+  assert.match(h.node("ai-revision").innerHTML, /<td>f-users<\/td><td>1000<\/td><td>200<\/td>/, "the preview names the control and both values");
+  assert.match(h.node("ai-answers").innerHTML, /data-changed="true"/, "the edited answer chip is marked");
+
+  // Re-apply is the SAME call the first Apply made, so it writes and recomputes once.
+  click("ai-revision", "#ai-reapply");
+  assert.equal(h.node("f-users").value, "200");
+  assert.equal(h.context.recomputes, 2);
+  assert.equal(h.node("ai-revision").hidden, true, "the drift is gone once it is applied");
+  assert.match(h.node("ai-state").textContent, /^Re-applied/);
+
+  // A revision is bounds-checked exactly as the first Apply was.
+  h.get("plannerState.answers.scale = { id:'custom', value:'99999999999' }");
+  h.get("renderInterview()");
+  click("ai-revision", "#ai-reapply");
+  assert.equal(h.node("f-users").value, "200", "a revision cannot write a value the control contract refuses");
+  assert.equal(h.context.recomputes, 2, "a refused revision recomputes nothing");
+  assert.match(h.node("ai-ready-note").textContent, /f-users/);
+
+  // Undo restores the answers the calculator was actually built from.
+  click("ai-revision", "#ai-revert-answer");
+  assert.equal(h.get("plannerState.answers.scale"), "department");
+  assert.equal(h.node("ai-revision").hidden, true);
+  assert.equal(h.node("f-users").value, "200", "undo touches no control");
+});
+
 test("an assist turn is bound to the one question it was asked about", async () => {
   const h = harness();
   h.get("setupPlanner()");

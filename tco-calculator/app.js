@@ -1914,6 +1914,8 @@ let liveTimer = null;
 function onLiveInput() {
   syncSliders();
   if (!state.ready) return;
+  if (chatState.busy) cancelChatRequest("Calculator inputs changed, so the in-flight MiniMax request was cancelled. Send again after the exact result rebuilds.");
+  if (plannerState.applied) clearPlannerOutput("Calculator inputs changed. Rebuilding this applied blueprint from the next exact result…", { keepRefinement: true });
   $("example-state").textContent = "Customized scenario · assumptions remain editable";
   invalidateResults("Updating comparison…");
   clearTimeout(liveTimer);

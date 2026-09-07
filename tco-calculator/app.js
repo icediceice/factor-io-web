@@ -328,6 +328,9 @@ function renderInterview() {
     </div>`;
 
   $("ai-progress").textContent = chatState.busy ? "ASKING MINIMAX" : `${answeredCount()} OF ${INTERVIEW_QUESTIONS.length}`;
+  // The conversation lives outside this element, so it is re-rendered rather
+  // than rebuilt — that is what keeps a half-typed follow-up alive.
+  renderAssistThread();
   renderInterviewSummary();
   setPlannerReady(state.ready);
 }

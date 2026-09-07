@@ -443,7 +443,7 @@ export function buildChatPayload({ model, messages, tools = CHAT_TOOLS, assist =
     // "auto" lets it answer in prose, and attach a suggestion only when it has
     // one. Every other turn's entire output IS the structure, so those stay
     // required — a proposal or a spec with no tool call is a failed turn.
-    tool_choice: assist ? "auto" : "required",
+    tool_choice: "required",
     thinking: { type: "disabled" },
     // 0.2 is right for structured extraction and wrong for explaining a
     // trade-off to a person. This loosens WORDING only: the suggested option is

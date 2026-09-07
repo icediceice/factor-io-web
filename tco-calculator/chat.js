@@ -491,7 +491,7 @@ export async function requestChatTurn({
 }) {
   if (typeof fetchImpl !== "function") throw new ChatRequestError("fetch_unavailable", "This browser cannot send the request. Copy the request into a model client instead.");
   const userText = safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars, rejectClaims: false });
-  const systemText = safeText(systemPrompt, "system prompt", { max: 12000, rejectClaims: false });
+  const systemText = safeText(systemPrompt, "system prompt", { max: CHAT_LIMITS.maxSystemChars, rejectClaims: false });
   const user = { role: "user", content: userText };
   const system = { role: "system", content: systemText };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
@@ -551,7 +551,7 @@ export async function requestChatTurn({
 
 export function buildOfflineRequest({ endpoint, model, history, systemPrompt, userMessage, pageUrl, assist = false }) {
   const user = { role: "user", content: safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars, rejectClaims: false }) };
-  const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: 12000, rejectClaims: false }) };
+  const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: CHAT_LIMITS.maxSystemChars, rejectClaims: false }) };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
   const url = chatCompletionsUrl(endpoint, pageUrl);
   // The copied request must be the request that would actually have been sent —

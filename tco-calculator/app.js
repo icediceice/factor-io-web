@@ -979,7 +979,7 @@ function fillServerConfigs() {
     .concat(rows.map((r) => {
       const n = `${r.gpu_count}&times;`;
       const flag = r.verification?.status === "verified" ? "" : " ⚠";
-      return `<option value="${escapeHtml(r.server_id)}">${n} ${escapeHtml(r.form_factor)} — $${groupInt(r.usd_typical)}${flag}</option>`;
+      return `<option value="${escapeHtml(r.server_id)}">${n} ${escapeHtml(r.form_factor)} — ${money(r.usd_typical)}${flag}</option>`;
     }))
     .join("");
   // Keep the user's pick across an accelerator change when it still exists;

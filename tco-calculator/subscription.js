@@ -25,7 +25,7 @@
 // guessed meter prices silently wrong, and silently wrong is the one failure this
 // calculator is built to not have.
 
-import { Dec, Rat, formatHalfUp, ratStr } from "./exact.js";
+import { Dec, Rat, formatHalfUp, ratStr, toRat } from "./exact.js";
 
 export class SubscriptionRefusal extends RangeError {
   constructor(code, message, detail) {
@@ -161,7 +161,7 @@ export function subscriptionCost({ row, quantity = null, priceOverride = null, t
     );
   }
 
-  const unit = Rat.from(Dec.from(String(rawPrice)));
+  const unit = toRat(String(rawPrice));
   const extended = unit.mul(qty);
   const effectiveTerm = term ?? spec.term;
 
@@ -185,7 +185,7 @@ export function subscriptionCost({ row, quantity = null, priceOverride = null, t
   }
 
   if (oneTimeExtra !== null && oneTimeExtra !== undefined && oneTimeExtra !== "") {
-    oneTime = oneTime.add(Rat.from(Dec.from(String(oneTimeExtra))));
+    oneTime = oneTime.add(toRat(String(oneTimeExtra)));
   }
 
   return {

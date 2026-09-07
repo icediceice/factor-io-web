@@ -321,24 +321,34 @@
   .example-actions { display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap; }
   .ai-canvas { border:1px solid rgba(232,230,240,.18); border-radius:5px; padding:13px; margin-bottom:18px; }
   .ai-canvas h2 { font-size:15px; line-height:1.3; margin:5px 0; }
+  .ai-chat-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
   .ai-kicker, .ai-progress { font:10.5px/1.3 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); }
   .ai-progress { color:var(--dim); }
-  .ai-options { display:grid; gap:6px; margin:11px 0; }
-  .ai-option, .ai-summary-row {
-    width:100%; background:transparent; color:var(--ink); border:1px solid rgba(232,230,240,.16);
-    border-radius:4px; padding:9px 10px; text-align:left; cursor:pointer;
-  }
-  .ai-option:hover, .ai-option:focus-visible, .ai-summary-row:hover, .ai-summary-row:focus-visible { border-color:var(--cyan); }
-  .ai-option[aria-pressed="true"] { border-color:var(--accent); }
-  .ai-option strong, .ai-option span { display:block; }
-  .ai-option strong { font-size:12.5px; font-weight:600; }
-  .ai-option span { color:var(--dim); font-size:11px; margin-top:2px; }
-  .ai-summary { border-top:1px solid var(--line); margin-top:11px; padding-top:8px; }
-  .ai-summary-row { display:grid; grid-template-columns:90px 1fr; gap:8px; padding:5px 0; border:0; border-bottom:1px solid var(--line); border-radius:0; }
-  .ai-summary-row span { font:10.5px/1.4 var(--mono); color:var(--dim); text-transform:uppercase; }
-  .ai-summary-row strong { font-size:11.5px; font-weight:500; }
+  .ai-transcript { max-height:390px; overflow-y:auto; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:11px 0 0; padding:8px 0; }
+  .ai-message { padding:8px 10px; border-left:2px solid var(--cyan); color:var(--dim); font-size:12.5px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .ai-message + .ai-message { margin-top:7px; }
+  .ai-message[data-role="user"] { border-left-color:var(--accent); color:var(--ink); }
+  .ai-message .who { display:block; margin-bottom:3px; color:var(--dim); font:10px/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+  .ai-suggestions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .ai-suggestion { background:transparent; border:1px solid rgba(232,230,240,.2); border-radius:4px; color:var(--ink); cursor:pointer; padding:6px 9px; text-align:left; font-size:11.5px; }
+  .ai-suggestion:hover, .ai-suggestion:focus-visible { border-color:var(--cyan); }
+  .ai-composer { margin-top:10px; }
+  .ai-composer label { display:block; color:var(--dim); font-size:11.5px; margin-bottom:4px; }
+  .ai-composer textarea { width:100%; min-height:82px; resize:vertical; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.18); border-radius:4px; padding:9px 10px; font:13px/1.45 inherit; }
+  .ai-composer textarea:focus { border-color:var(--cyan); outline:2px solid var(--cyan); outline-offset:2px; }
+  .ai-proposal { border:1px solid var(--accent); border-radius:4px; margin-top:10px; padding:10px; }
+  .ai-proposal h3 { font-size:13px; margin-bottom:4px; }
+  .ai-proposal table { margin-top:7px; }
+  .ai-proposal td:first-child, .ai-proposal td:nth-child(2), .ai-proposal td:nth-child(3) { font-family:var(--mono); }
   .ai-nav, .ai-artifacts { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:11px; }
-  .btn:disabled, .ai-option:disabled { opacity:.45; cursor:not-allowed; }
+  .btn:disabled, .ai-suggestion:disabled { opacity:.45; cursor:not-allowed; }
+  .ai-connection { border-top:1px solid var(--line); margin-top:12px; padding-top:9px; }
+  .ai-connection > summary { cursor:pointer; color:var(--ink); font-size:12px; }
+  .ai-provider-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:9px; margin-top:10px; }
+  .ai-provider-grid label { display:block; color:var(--dim); font-size:11.5px; }
+  .ai-provider-grid label:last-child { grid-column:1 / -1; }
+  .ai-provider-grid input { width:100%; margin-top:3px; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.16); border-radius:4px; padding:7px 8px; font:13px/1.35 var(--mono); }
+  .ai-provider-grid input:focus { border-color:var(--cyan); }
   .ai-workspace > header { display:flex; justify-content:space-between; gap:16px; align-items:start; margin-bottom:11px; }
   .ai-workspace h3 { margin-bottom:2px; }
   .ai-boundary { border-left:2px solid var(--cyan); padding:7px 9px; margin:7px 0; background:rgba(34,211,238,.04); }
@@ -347,15 +357,8 @@
   .ai-spec-grid section:nth-child(even) { padding-left:12px; border-left:1px solid var(--line); }
   .ai-spec-grid h4 { font:10.5px/1.4 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
   .ai-spec-grid p + p { margin-top:6px; }
-  .ai-refine { border-top:1px solid var(--line); margin-top:14px; padding-top:12px; }
-  .ai-refine > summary { cursor:pointer; color:var(--ink); font-weight:600; }
-  .ai-provider-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:9px; margin-top:12px; }
-  .ai-provider-grid label { display:block; color:var(--dim); font-size:11.5px; }
-  .ai-provider-grid label:last-child { grid-column:1 / -1; }
-  .ai-provider-grid input { width:100%; margin-top:3px; background:rgba(10,10,15,.75); color:var(--ink); border:1px solid rgba(232,230,240,.16); border-radius:4px; padding:7px 8px; font:13px/1.35 var(--mono); }
-  .ai-provider-grid input:focus { border-color:var(--cyan); }
-  .ai-refinement { max-height:430px; overflow:auto; border:1px solid var(--line); margin-top:10px; padding:11px; }
-  .ai-refinement[data-stale="true"] { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent); }
+  .ai-refinement { max-height:520px; overflow:auto; border:1px solid var(--line); margin-top:12px; padding:11px; }
+  .ai-refinement[data-stale="true"] { border-color:var(--accent); border-left-width:3px; }
   .ai-refinement pre { color:var(--dim); font:12px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; }
   .intro { margin-bottom:16px; }
   .intro h1 { font-size:22px; font-weight:600; letter-spacing:-.025em; }

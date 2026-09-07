@@ -549,7 +549,10 @@ export function buildOfflineRequest({ endpoint, model, history, systemPrompt, us
   const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: 12000, rejectClaims: false }) };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
   const url = chatCompletionsUrl(endpoint, pageUrl);
-  const payload = buildChatPayload({ model, messages });
+  // The copied request must be the request that would actually have been sent —
+  // an assist turn copied with tool_choice "required" would behave differently
+  // in the visitor's own gateway than it does here.
+  const payload = buildChatPayload({ model, messages, assist });
   const copyText = [
     `POST ${url}`,
     "Content-Type: application/json",

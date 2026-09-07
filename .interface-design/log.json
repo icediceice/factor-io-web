@@ -1,10 +1,26 @@
 [
   {
+    "date": "2026-09-07",
+    "macrostructure": "Spec-Sheet Ledger",
+    "density": "reading-first",
+    "depth": "borders-only",
+    "screen": "services.html v2 — repositioning revision, electric-yellow palette, reading mode",
+    "notes": "S9 repeat is deliberate and justified: this is the SAME screen revised, not a new one, so the shape is held fixed and only the argument, palette and small-screen behaviour changed. Three substantive changes. (1) Reading mode: the fixed 1920x1080 stage letterboxed to a 390x219 strip on a phone with 2.6px micro-labels while the nav chrome stayed full size, so the deck read as broken when SENT AS A LINK — which is half its job. Below 1100px it now leaves the stage entirely and renders the same DOM as a scrolling document. This is a deliberate override of slide-design's 'letterbox, never reflow' invariant, which assumes a presentation-only artifact; the reading tier declares its own clamp-bounded fluid scale rather than the enumerated stage ladder (argued V10 + V13). (2) Palette: violet retired — it was borrowed from a vendor relationship that has ended — and replaced with electric yellow #FFE800 as the brand signal, cyan kept for link/data. --warn moved amber -> orange so the clock dot stays a separate semantic against the new accent. tco-calculator.html KEEPS violet; system.md still governs it. (3) Positioning: the deck stopped arguing against systems integrators. Slide 9 became two positive audience columns (infrastructure owner / delivery partner), slide 10 became three negotiable contract shapes with knowledge transfer as an explicit line item rather than an assumed default, and the close moved from 'your renewal date' to 'send me the part that is hard' so it lands for both audiences. Gates 47 pass / 7 argued / 0 unresolved; critique H4 D4 S3 O5 R4 P4. Next deck build should avoid Spec-Sheet Ledger without stating why."
+  },
+  {
     "date": "2026-09-06",
     "macrostructure": "Spec-Sheet Ledger",
     "density": "reading-first",
     "depth": "borders-only",
     "screen": "services.html — bilingual TH/EN services pitch deck",
     "notes": "First entry. Deliberately NOT the pitch-deck attractor (centred hero + three soft-shadow icon cards + logo wall). Numbered section rail, label-to-value rows, mono on every figure — the deck argues by looking audited rather than marketed. Tokens inherited from system.md; VARIANCE 3->6 and MOTION 2->4 raised for this surface only. Next deck build should avoid repeating Spec-Sheet Ledger without stating why."
+  },
+  {
+    "date": "2026-09-06",
+    "macrostructure": "Guided Systems Canvas",
+    "density": "interview-left / generated-system-right",
+    "depth": "borders-only",
+    "screen": "tco-calculator.html — interactive local-LLM workflow planner inside the TCO calculator",
+    "notes": "Distinct from Spec-Sheet Ledger: one authored question is visible at a time in the input rail; the main workspace expands into a deployment flow and operating pattern only after explicit Apply. Existing dark technical-instrument tokens remain. Manual 54-gate anti-slop audit passed in source: no gradient, shadow, glass, decorative semantic status colour, fake metric, oversized hero, card carousel, icon library, pill overuse, looping motion, hidden focus, duplicate calculator control, implicit AI request, or uncited generated cost. Mono is reserved for progress, values, endpoint fields and generated technical text; borders carry hierarchy. Browser measurement remains the final visual gate."
   }
 ]

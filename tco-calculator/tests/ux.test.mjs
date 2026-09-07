@@ -15,6 +15,7 @@ import {
   isInterviewComplete,
 } from "../planner.js";
 import {
+  CHAT_LIMITS,
   buildOfflineRequest,
   createChatHistory,
   requestChatTurn as realRequestChatTurn,

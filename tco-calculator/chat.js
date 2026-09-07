@@ -359,7 +359,7 @@ export function validateAssistantToolCall(message, context = {}, { assist = fals
   if (!isObject(message) || message.role !== "assistant") throw new ChatContractError("assistant_message", "The endpoint did not return an assistant message object.");
   const calls = message.tool_calls;
   const empty = calls === undefined || calls === null || (Array.isArray(calls) && calls.length === 0);
-  if (false && empty) return null;
+  if (assist && empty) return null;
   if (!Array.isArray(calls) || calls.length !== 1) {
     throw new ChatContractError("tool_count", assist
       ? "The assistant must return at most one suggestion alongside its answer."

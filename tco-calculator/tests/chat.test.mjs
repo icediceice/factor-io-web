@@ -37,6 +37,24 @@ const assistantCall = (name, args, extras = {}) => ({
   ...extras,
 });
 
+test("conversation preserves long explanations and safe prose beside rejected optional tools", async () => {
+  const run = (message) => requestChatTurn({
+    endpoint: "https://example.test/v1", model: "MiniMax-M3", assist: true,
+    systemPrompt: "Explain the current calculator scenario.", userMessage: "Why rent?",
+    fetchImpl: async () => ({ ok: true, json: async () => ({ choices: [{ message }] }) }),
+  });
+  const long = "Renting avoids owning idle capacity. ".repeat(80);
+  assert.equal((await run({ role: "assistant", content: long })).prose, long.trim());
+  const mixed = await run({ role: "assistant", content: "Renting avoids upfront hardware.\n\nIt costs ฿4,320,000.50.\n\nCheck the utilization assumption." });
+  assert.match(mixed.prose, /Renting avoids/);
+  assert.match(mixed.prose, /Check the utilization/);
+  assert.doesNotMatch(mixed.prose, /4,320|000\.50/);
+  const invalid = await run(assistantCall("not_a_tool", {}, { content: "Consider utilization before changing the deployment." }));
+  assert.match(invalid.prose, /Consider utilization/);
+  assert.equal(invalid.toolCall, null);
+  assert.ok(invalid.toolError);
+});
+
 test("MiniMax request disables thinking, requires a tool and preserves the complete assistant object", async () => {
   const calls = [];
   const message = assistantCall("propose_calculator_changes", proposal(), {

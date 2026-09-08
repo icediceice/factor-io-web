@@ -598,7 +598,7 @@ test("fresh return restores once, but a locally edited initialization is never o
   assert.equal(h.node("f-users").value, "99"); assert.equal(h.computations(), 1);
   const edited = returnHarness(); edited.node("f-users").value = "88"; edited.get("manualRevision++"); edited.get("processAdvisorReturn(true)");
   assert.equal(edited.node("f-users").value, "88"); assert.equal(edited.computations(), 0);
-  assert.match(app, /addEventListener\("pageshow"/);
+  assert.match(app, /addEventListener\?\.\("pageshow"/);
 });
 test("storage consumption failure rolls all reviewed controls back", () => {
   const h = returnHarness(); h.get("processAdvisorReturn(false)");

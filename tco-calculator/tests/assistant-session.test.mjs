@@ -35,4 +35,5 @@ test("reset clears only owned keys; identities ignore object ordering, not edits
   const a = { "f-users": "20", "f-days": "21" }; const b = { "f-days": "21", "f-users": "20" };
   assert.equal(controlIdentity(a), controlIdentity(b));
   assert.deepEqual(controlDiff(a, { ...b, "f-users": "30" }), [{ field: "f-users", from: "20", to: "30" }]);
+  assert.deepEqual(controlDiff({ "f-g1-window": "4096" }, {}), [{ field: "f-g1-window", from: "4096", to: "" }]);
 });

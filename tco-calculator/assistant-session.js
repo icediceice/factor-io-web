@@ -54,5 +54,7 @@ export function clearHandoffs(storage) {
   for (const key of keys) if (key?.startsWith(HANDOFF.prefix)) storage.removeItem(key);
 }
 export function controlDiff(before, after) {
-  return Object.keys(after).sort().filter(id => before[id] !== after[id]).map(id => ({ field: id, from: before[id] ?? "", to: after[id] }));
+  return [...new Set([...Object.keys(before), ...Object.keys(after)])].sort()
+    .filter(id => before[id] !== after[id])
+    .map(id => ({ field: id, from: before[id] ?? "", to: after[id] ?? "" }));
 }

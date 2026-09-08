@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Calculator layout acceptance</title>
+<style>body{background:#0a0a0f;color:#e8e6f0;font:14px/1.5 system-ui;margin:20px}pre{white-space:pre-wrap}section{margin:24px 0}.viewport{overflow:auto;border:1px solid #555}iframe{display:block;border:0;height:1100px}button{min-height:44px}a{color:#22d3ee}</style>
+<h1>Calculator layout acceptance</h1>
+<p>Passive layout measurements on the real page. This fixture never sends AI requests. Live conversation checks belong in the normal customer composer.</p>
+<p id="status" role="status">Measuring 390, 1100 and 1920 CSS-pixel viewports…</p>
+<div id="checks"></div>
+<script type="module">
+const reports = [];
+const frameReady = (frame) => new Promise((resolve, reject) => {
+  const start = Date.now();
+  const check = () => {
+    const doc = frame.contentDocument;
+    if (doc?.querySelector('#curve .plot-grid') && doc.querySelector('#comparison')?.getAttribute('aria-busy') === 'false') return resolve(doc);
+    if (Date.now() - start > 45000) return reject(new Error(doc?.querySelector('#gapbox')?.textContent || 'Calculator did not produce a graph within 45 seconds'));
+    setTimeout(check, 250);
+  };
+  check();
+});
+for (const width of [390, 1100, 1920]) {
+  const section = document.createElement('section');
+  const heading = document.createElement('h2'); heading.textContent = `${width}px`;
+  const report = document.createElement('pre'); report.textContent = 'Loading…';
+  const wrap = document.createElement('div'); wrap.className = 'viewport';
+  const frame = document.createElement('iframe'); frame.width = width; frame.title = `Calculator at ${width} CSS pixels`;
+  frame.src = '../../tco-calculator.html?layout-check=conversation';
+  wrap.append(frame); section.append(heading, report, wrap); document.querySelector('#checks').append(section);
+  try {
+    const doc = await frameReady(frame);
+    const win = frame.contentWindow;
+    const grid = [...doc.querySelectorAll('#curve .plot-grid')];
+    const ys = grid.map((line) => line.getBoundingClientRect().y);
+    const plotHeight = Math.max(...ys) - Math.min(...ys);
+    const fonts = [...doc.querySelectorAll('#curve .plot-label')].map((label) => {
+      const m = label.getScreenCTM();
+      return parseFloat(win.getComputedStyle(label).fontSize) * Math.hypot(m.c, m.d);
+    });
+    const targets = [...doc.querySelectorAll('#ai-send,#present-graph,#ai-starters button')].map((el) => ({id:el.id || el.textContent, height:el.getBoundingClientRect().height}));
+    const graphBeforeDetails = !!(doc.querySelector('#curve-card').compareDocumentPosition(doc.querySelector('#results')) & 4);
+    const transcriptDisclosed = !doc.querySelector('#ai-transcript').closest('details');
+    const guidedClosed = !doc.querySelector('#ai-guided').open;
+    const overflow = doc.documentElement.scrollWidth > width;
+    const mobileGraphFirst = width > 1100 || doc.querySelector('#curve-card').getBoundingClientRect().top < doc.querySelector('.rail').getBoundingClientRect().top;
+    const checks = {width, plotHeight, minRenderedAxisFont:Math.min(...fonts), targets, graphBeforeDetails, transcriptDisclosed, guidedClosed, overflow, mobileGraphFirst};
+    checks.pass = plotHeight >= (width === 390 ? 260 : 380) && checks.minRenderedAxisFont >= 11 && targets.every((t) => t.height >= 44) && graphBeforeDetails && transcriptDisclosed && guidedClosed && !overflow && mobileGraphFirst;
+    reports.push(checks); report.textContent = JSON.stringify(checks, null, 2);
+  } catch (error) { reports.push({width, pass:false, error:error.message}); report.textContent = error.message; }
+}
+document.querySelector('#status').textContent = `${reports.filter((row) => row.pass).length}/3 viewports PASS. No AI requests were sent by this fixture.`;
+</script>
+</html>

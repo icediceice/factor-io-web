@@ -108,13 +108,9 @@ const plannerState = {
   questionIndex: 0,
   // The question the visitor last asked about, the inert structured suggestion
   // that came back, and the running conversation about that one question.
-  // `help` badges an option; it never selects one. `helpThread` belongs to
-  // helpQuestionId alone — asking about a different question starts a new one,
-  // because a follow-up like "what about the second option?" is meaningless
-  // once a different question is on screen.
+  // A recommendation is scoped to its request's question, never auto-selected.
   helpQuestionId: null,
   help: null,
-  helpThread: [],
   plan: null,
   blueprint: null,
   prompt: "",
@@ -132,13 +128,8 @@ const plannerState = {
 const plannerFence = createRequestFence();
 const chatState = {
   history: createChatHistory(),
-  // Assist turns keep their OWN history, cleared whenever the visitor moves to
-  // a different question. One shared history meant question A's exchanges still
-  // rode along in the payload for a question-D follow-up: the visible thread
-  // reset, so the visitor saw a fresh start while the model read the old topic
-  // first. That is the wrong answer that looks right. The free-form, proposal
-  // and spec conversation above is a different conversation and is untouched.
-  assistHistory: createChatHistory(),
+  lastScenario: null,
+  pendingTurn: null,
   transcript: [],
   suggestions: [],
   pendingProposal: null,
@@ -200,7 +191,7 @@ function chatValidationContext({ assist = false } = {}) {
   // badge an option the visitor never asked about. An empty map when no question
   // is pending fails closed, which is the safe direction.
   const scoped = assist
-    ? INTERVIEW_QUESTIONS.filter((question) => question.id === plannerState.helpQuestionId)
+    ? INTERVIEW_QUESTIONS.filter((question) => question.id === (plannerState.helpQuestionId ?? currentQuestion().id))
     : INTERVIEW_QUESTIONS;
   const questions = Object.fromEntries(scoped.map((question) => [
     question.id,
@@ -225,7 +216,7 @@ function controlDisplay(id, value = $(id)?.value ?? "") {
 
 function renderChatTranscript() {
   const transcript = $("ai-transcript");
-  transcript.innerHTML = chatState.transcript.map((message) => `<div class="ai-message" data-role="${escapeHtml(message.role)}"><span class="who">${message.role === "user" ? "You" : "Planning assistant"}</span>${escapeHtml(message.text)}</div>`).join("");
+  transcript.innerHTML = chatState.transcript.map((message) => `<div class="ai-message" data-role="${escapeHtml(message.role)}"><span class="who">${message.role === "user" ? "You" : message.role === "assistant" ? "AI assistant" : "Calculator status"}</span>${proseHtml(message.text)}${message.figures ? `<details class="reply-figures"><summary>Calculator figures when you asked · ${escapeHtml(message.figures.horizon)} months</summary>${message.figures.rows.map((row) => `<p><strong>${escapeHtml(row.label)}</strong><br>${escapeHtml(row.horizon)} total · ${escapeHtml(row.monthly)} / month · ${escapeHtml(row.upfront)} upfront</p>`).join("")}<p>${escapeHtml(message.figures.payback)}</p><p>${escapeHtml(message.figures.freshness)}</p></details>` : ""}</div>`).join("");
   transcript.scrollTop = transcript.scrollHeight;
 }
 
@@ -239,34 +230,10 @@ const proseHtml = (text) => String(text)
   .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`)
   .join("");
 
-// The per-question conversation, rendered beneath the options it is about. It
-// shows nothing at all once the visitor moves on: the thread is bound to
-// helpQuestionId, so it must not linger over a question it never discussed.
-function renderAssistThread() {
-  const box = $("ai-thread");
-  if (!box) return;
-  const onThisQuestion = plannerState.helpQuestionId === currentQuestion().id;
-  const turns = onThisQuestion ? plannerState.helpThread : [];
-  box.innerHTML = turns.map((turn) => `<div class="ai-turn" data-role="${escapeHtml(turn.role)}"><span class="who">${turn.role === "you" ? "You" : "Assistant"}</span>${proseHtml(turn.text)}</div>`).join("");
-  box.hidden = turns.length === 0;
-  box.scrollTop = box.scrollHeight;
-}
-
-// One reply, into the inline thread and the full transcript both. The transcript
-// stays the complete record; the thread is what the visitor actually reads.
-function pushAssistReply(text) {
+function appendChat(role, text, figures = null) {
   const message = String(text ?? "").trim();
   if (!message) return;
-  plannerState.helpThread.push({ role: "assistant", text: message });
-  if (plannerState.helpThread.length > 16) plannerState.helpThread.splice(0, plannerState.helpThread.length - 16);
-  appendChat("assistant", message);
-  renderAssistThread();
-}
-
-function appendChat(role, text) {
-  const message = String(text ?? "").trim();
-  if (!message) return;
-  chatState.transcript.push({ role, text: message });
+  chatState.transcript.push({ role, text: message, figures });
   if (chatState.transcript.length > 40) chatState.transcript.splice(0, chatState.transcript.length - 40);
   renderChatTranscript();
 }
@@ -341,9 +308,6 @@ function renderInterview() {
     </div>`;
 
   $("ai-progress").textContent = chatState.busy ? "ASKING ASSISTANT" : `${answeredCount()} OF ${INTERVIEW_QUESTIONS.length}`;
-  // The conversation lives outside this element, so it is re-rendered rather
-  // than rebuilt — that is what keeps a half-typed follow-up alive.
-  renderAssistThread();
   renderInterviewSummary();
   renderRevision();
   setPlannerReady(state.ready);
@@ -484,27 +448,11 @@ function goToQuestion(index) {
 // suggestion with it so no stale badge survives the move.
 function requestQuestionHelp() {
   const question = currentQuestion();
-  if (plannerState.helpQuestionId !== question.id) {
-    plannerState.helpThread = [];
-    plannerState.help = null;
-    // Clearing only what the visitor can see is what left the previous
-    // question's exchanges sitting in the next question's outbound payload.
-    chatState.assistHistory.clear();
-  }
+  if (chatState.busy) return;
+  plannerState.help = null;
   plannerState.helpQuestionId = question.id;
-  const typed = String($("ai-message")?.value ?? "").trim();
-  const opening = plannerState.helpThread.length === 0;
-  // Only the opening turn needs to name the question — after that the retained
-  // history already carries it, and re-quoting it every time is what made the
-  // exchange read like a form submission rather than a conversation.
-  const message = typed
-    ? (opening ? `About "${question.prompt}" — ${typed}` : typed)
-    : `I am not sure how to answer "${question.prompt}". Which option fits, and why?`;
-  plannerState.helpThread.push({ role: "you", text: typed || "I am not sure. Which option fits, and why?" });
-  renderAssistThread();
-  // Returned, not swallowed: the callers fire-and-forget it, but a test — and
-  // any future caller that needs to wait — must be able to.
-  return sendChatMessage(message, { intent: "assist", clearComposer: true });
+  const message = `I am not sure how to answer "${question.prompt}". Which option fits, and why?`;
+  return sendChatMessage(message, { intent: "assist", clearComposer: false });
 }
 
 function setPlannerReady(ready) {

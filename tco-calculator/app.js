@@ -733,11 +733,18 @@ function cancelChatRequest(message = "Request cancelled. The deterministic calcu
   chatState.abortController?.abort();
   chatState.abortController = null;
   if (cancelled) {
+    restorePendingQuestion();
     setChatBusy(false);
-    if (message) appendChat("assistant", message);
+    if (message) appendChat("status", message);
     $("ai-model-status").textContent = message || "Request cancelled.";
   }
   return cancelled;
+}
+
+function restorePendingQuestion() {
+  const pending = chatState.pendingTurn;
+  if (pending && !$("ai-message").value.trim()) $("ai-message").value = pending.text;
+  chatState.pendingTurn = null;
 }
 
 function clearPlannerOutput(message = "Apply a reviewed AI proposal to build a deployment blueprint.", { keepRefinement = false } = {}) {
@@ -972,13 +979,13 @@ function handleChatTool(result) {
   if (!toolCall) {
     // The model answered and had no option to recommend. Nothing is badged and
     // nothing is selected; the visitor still decides, exactly as before.
-    pushAssistReply(result.prose);
+    appendChat("assistant", result.prose, result.figures);
     renderChatSuggestions([]);
     return null;
   }
   if (toolCall.name === "ask_user") {
     const ask = toolCall.arguments;
-    appendChat("assistant", [ask.question, ask.rationale].filter(Boolean).join("\n\n"));
+    appendChat("assistant", [result.prose, ask.question, ask.rationale].filter(Boolean).join("\n\n"), result.figures);
     renderChatSuggestions(ask.suggested_replies);
     return { status: "displayed", calculator_mutated: false };
   }
@@ -993,11 +1000,11 @@ function handleChatTool(result) {
     // The prose is the answer the visitor reads; the tool call is now only how
     // an option gets badged. Fall back to the structured fields when the model
     // sent the suggestion with nothing said around it.
-    pushAssistReply([
+    appendChat("assistant", [
       result.prose ?? advice.answer,
       option ? `Suggested answer: ${option.label} — ${advice.why}` : `No single option follows from that yet. ${advice.why}`,
       ...(advice.caveats ?? []),
-    ].filter(Boolean).join("\n\n"));
+    ].filter(Boolean).join("\n\n"), result.figures);
     renderInterview();
     renderChatSuggestions([]);
     return { status: "displayed", calculator_mutated: false, option_selected: false };
@@ -1005,7 +1012,7 @@ function handleChatTool(result) {
   if (toolCall.name === "propose_calculator_changes") {
     const proposal = toolCall.arguments;
     renderProposal(proposal);
-    appendChat("assistant", [proposal.summary, proposal.question].filter(Boolean).join("\n\n"));
+    appendChat("assistant", [result.prose, proposal.summary, proposal.question].filter(Boolean).join("\n\n"), result.figures);
     renderChatSuggestions(proposal.suggested_replies);
     return { status: "previewed", calculator_mutated: false, awaiting_explicit_apply: true };
   }
@@ -1112,7 +1119,7 @@ function setupPlanner() {
   // ai.factor-io.com, which holds the credential server-side.
   $("ai-composer").addEventListener("submit", (event) => {
     event.preventDefault();
-    void requestQuestionHelp();
+    void sendChatMessage($("ai-message").value);
   });
   $("ai-message").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {

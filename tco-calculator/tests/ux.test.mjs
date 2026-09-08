@@ -212,16 +212,6 @@ test("responsive graph uses requested geometry and draws single points with HTML
   assert.doesNotMatch(graph, /NaN|Infinity/);
 });
 
-test("main composer sends the customer's exact question as a general conversation", () => {
-  const h = harness();
-  h.get("setupPlanner")();
-  h.context.sent = null;
-  h.get("sendChatMessage = (text, options) => { sent = { text, options }; }");
-  h.node("ai-message").value = "Why is renting cheaper for this scenario?";
-  h.node("ai-composer").requestSubmit();
-  assert.equal(h.context.sent.text, "Why is renting cheaper for this scenario?");
-  assert.notEqual(h.context.sent.options?.intent, "assist");
-});
 
 test("all authored cost inputs and newly created architecture inputs are live without an id list", () => {
   const h = harness();

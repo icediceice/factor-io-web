@@ -534,7 +534,31 @@ function compactLedger(result) {
   };
 }
 
-function chatSystemPrompt(intent = "interview") {
+function conversationSnapshot() {
+  const r = state.result;
+  const controls = Object.fromEntries(Object.keys(CHAT_FIELD_CONTRACTS).map((id) => [id, $(id)?.value ?? ""]));
+  for (const el of enteredControls()) controls[el.id] = el.value;
+  const figures = r ? {
+    horizon: r.horizon_months,
+    rows: OPTION_KEYS.filter((key) => r.totals?.[key]?.priced).map((key) => ({
+      key, label: OPTION[key].label, horizon: money(r.totals[key].horizon_total),
+      monthly: money(r.totals[key].monthly_total), upfront: money(r.totals[key].one_time),
+    })),
+    payback: Object.entries(r.payback ?? {}).map(([key, row]) => `${key}: ${row?.converges ? `${row.months} months` : "No modelled crossing"}`).join("; "),
+    freshness: `Pricing snapshot ${state.manifest?.snapshot_digest ?? "unavailable"}; FX ${state.fx?.observed_at ?? "see source dates"}.`,
+  } : null;
+  const core = {
+    calculation_status: r ? "current" : "pending_or_invalid — no current cost conclusion available",
+    controls, answers: { ...plannerState.answers }, applied_answers: plannerState.appliedAnswers,
+    figures, exclusions: COMPARISON_EXCLUSIONS,
+    sources: state.manifest?.sources ?? {},
+  };
+  const identity = JSON.stringify({ controls, answers: core.answers, applied: core.applied_answers,
+    figures, sources: core.sources, fx: state.fx });
+  return { core, figures, identity };
+}
+
+function chatSystemPrompt(intent = "conversation", snapshot = conversationSnapshot()) {
   const fields = Object.keys(CHAT_FIELD_CONTRACTS).map((id) => ({
     id,
     label: controlLabel(id),
@@ -543,6 +567,9 @@ function chatSystemPrompt(intent = "interview") {
   }));
   const question = intent === "assist" ? INTERVIEW_QUESTIONS.find((q) => q.id === plannerState.helpQuestionId) : null;
   const context = {
+    current_scenario: snapshot.core,
+    history_scope: "Earlier turns are conversation context, not current pricing evidence. Answer cost questions ONLY from current_scenario. The visible app figures are authoritative; do not repeat amounts in prose. Up to eight complete exchanges are retained.",
+    scenario_changed: chatState.lastScenario !== null && chatState.lastScenario !== snapshot.identity,
     request_mode: intent,
     // In assist mode the model is answering ONE question, so it is given that
     // question and its options verbatim rather than the whole interview.
@@ -577,19 +604,18 @@ function chatSystemPrompt(intent = "interview") {
     "You are the specialized Factor IO local-LLM planning assistant.",
     // An assist turn is answered in words. Every other turn's output IS the
     // structure, so those still forbid prose outright.
-    intent === "assist"
+    intent !== "spec"
       ? "Answer in your own words, as a colleague would. Write plain prose of one to three short paragraphs, in the visitor's own register, and address what they actually asked rather than a template."
       : "Return exactly one structured tool call and no free-form answer.",
     intent === "spec"
       ? "The user explicitly requested the post-Apply specification. Call present_local_llm_spec, grounded in the deterministic blueprint and component ledger."
       : intent === "assist"
-        ? "The user is asking about the single guided question in GUIDED_QUESTION. Answer that question and nothing else. If one of its options now clearly follows, ALSO call answer_question for exactly that question_id to mark it — one call at most, and only with an option id from that question's own options. If nothing follows yet, just answer in prose and ask the one thing you would need to know, with no tool call at all. Follow-up turns continue the same conversation: answer what was just asked instead of restating your first answer. Do not interview them about other questions and do not propose calculator changes."
-        : "Interview naturally one concise question at a time with ask_user. When enough is known, call propose_calculator_changes with a complete planning_profile and only allowed current controls.",
+        ? "This explicit Not sure request names GUIDED_QUESTION. Explain its options using the calculator and conversation context. Optionally call answer_question for that question only; never select an option."
+        : "Have a natural conversation about the customer's current calculator scenario. Answer their question first, including challenging a mistaken premise. You may optionally ask one useful question or propose_calculator_changes with a complete planning_profile and allowed controls. Do not force an interview, invent a quote, or call answer_question on a general turn.",
     "Prefer a local-first Nutanix design. For every Nutanix-specific component, name a portable Kubernetes or Linux-VM equivalent.",
     "Treat model selection as an evaluation candidate, never a guarantee. Use only model IDs and enum values present in CURRENT_CONTEXT.",
-    "Never invent or calculate prices, savings, licences, benchmarks or capacity. Explain costs only by citing deterministic ledger paths and their supplied values/formulas.",
+    "Never invent or calculate prices, savings, licences, benchmarks or capacity. Explain the supplied comparison qualitatively. The app displays exact currency figures beside your reply; refer to those figures rather than writing currency or arithmetic yourself.",
     "Never request or propose credentials, endpoints, HTML, direct control mutation or unsupported fields. The user must preview and explicitly Apply every proposal.",
-    intent === "assist" ? "GUIDED_QUESTION is the only question you may answer this turn." : "",
     "CURRENT_CONTEXT",
   ].filter(Boolean).join("\n");
 
@@ -653,8 +679,14 @@ function chatSystemPrompt(intent = "interview") {
     encoded = JSON.stringify({
       request_mode: context.request_mode,
       guided_question: context.guided_question,
+      current_scenario: { ...snapshot.core, sources: undefined },
+      history_scope: context.history_scope,
+      scenario_changed: context.scenario_changed,
       note: "Context omitted: it exceeded this request's system-prompt budget.",
     });
+  }
+  if (head.length + encoded.length + 1 > CHAT_LIMITS.maxSystemChars) {
+    throw new Error("This scenario is too large to send safely. Shorten custom labels before asking again; the calculator remains available.");
   }
   return `${head}\n${encoded}`;
 }

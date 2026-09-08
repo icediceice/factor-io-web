@@ -2,7 +2,7 @@
   "schema": "factor-io.tco-serving-models/1.0.0",
   "note": "Inputs for the serving roofline (SPEC v0.3 §6.6). Decode is memory-bandwidth bound, so what a GPU delivers is a FUNCTION of the model being served — size, context, attention architecture and quantization — not a constant per accelerator. This file supplies the three tables that function needs. It ships NO throughput figures: every tok/s the calculator prints is derived from the formula and labelled at the point of use, so there is no unlabelled benchmark hiding in a data file.",
   "provenance": {
-    "observed": "2026-09-07",
+    "observed": "2026-09-08",
     "owner": "site author",
     "re_verify_before": "2026-12-01"
   },
@@ -212,13 +212,13 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 27 sliding + 9 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 27 sliding + 9 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/XHToken/Spark-X2.5-4B",
       "config_url": "https://huggingface.co/XHToken/Spark-X2.5-4B/resolve/main/config.json",
       "model_type": "spark2_5",
       "hub_downloads": "7216",
-      "hub_likes": "648",
-      "observed_at": "2026-09-07",
+      "hub_likes": "760",
+      "observed_at": "2026-09-08",
       "resolved_from": [
         "XHToken/Spark-X2.5-4B-GGUF"
       ],
@@ -233,6 +233,35 @@
           "truncated": false
         }
       ]
+    },
+    {
+      "id": "minicpm5-2b",
+      "label": "MiniCPM5-2B — dense, full attention",
+      "family": "openbmb",
+      "architecture": "full",
+      "params_b": "2.52",
+      "active_params_b": "2.52",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "full",
+          "layers": 42,
+          "kv_heads": 2,
+          "head_dim": 128,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-09-08: 42 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B",
+      "config_url": "https://huggingface.co/openbmb/MiniCPM5-2B/resolve/main/config.json",
+      "model_type": "llama",
+      "hub_downloads": "13",
+      "hub_likes": "389",
+      "observed_at": "2026-09-08"
     },
     {
       "id": "glm-5-3",
@@ -254,13 +283,13 @@
           "qk_rope_head_dim": 64
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (752.683B vs 753.33B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (752.683B vs 753.33B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/zai-org/GLM-5.3",
       "config_url": "https://huggingface.co/zai-org/GLM-5.3/resolve/main/config.json",
       "model_type": "glm_moe_dsa",
       "hub_downloads": "442064",
-      "hub_likes": "1744",
-      "observed_at": "2026-09-07",
+      "hub_likes": "1754",
+      "observed_at": "2026-09-08",
       "resolved_from": [
         "dealignai/GLM-5.3-CYBERSECURITY-FP8",
         "dealignai/GLM-5.3-UNCENSORED-FP8"
@@ -309,13 +338,13 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 48 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 48 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/IFM/K2-Horizon-MoVA-36B-A4B",
       "config_url": "https://huggingface.co/IFM/K2-Horizon-MoVA-36B-A4B/resolve/main/config.json",
       "model_type": "k2_horizon",
       "hub_downloads": "2226",
-      "hub_likes": "192",
-      "observed_at": "2026-09-07",
+      "hub_likes": "216",
+      "observed_at": "2026-09-08",
       "resolved_from": [
         "IFM/K2-Horizon-MoVA-36B-A4B-GGUF"
       ],
@@ -357,13 +386,13 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 48 linear + 16 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 48 linear + 16 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/Qwen/Qwen3.8-27B",
       "config_url": "https://huggingface.co/Qwen/Qwen3.8-27B/resolve/main/config.json",
       "model_type": "qwen3_5_text",
       "hub_downloads": "6416358",
-      "hub_likes": "14181",
-      "observed_at": "2026-09-07",
+      "hub_likes": "14295",
+      "observed_at": "2026-09-08",
       "resolved_from": [
         "Jackrong/Qwopus3.8-27B-Flash-GGUF",
         "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
@@ -430,34 +459,6 @@
       ]
     },
     {
-      "id": "hy4-preview",
-      "label": "Hy4-preview — MLA latent cache, MoE",
-      "family": "tencent",
-      "architecture": "mla",
-      "params_b": "779.96",
-      "active_params_b": "41.42",
-      "active_params_basis": "derived",
-      "context_default": 32768,
-      "context_max": 1048576,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "mla",
-          "layers": 78,
-          "kv_lora_rank": 512,
-          "qk_rope_head_dim": 64
-        }
-      ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (771.575B vs 779.961B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/tencent/Hy4-preview",
-      "config_url": "https://huggingface.co/tencent/Hy4-preview/resolve/main/config.json",
-      "model_type": "hy_v4",
-      "hub_downloads": "6705",
-      "hub_likes": "448",
-      "observed_at": "2026-09-07"
-    },
-    {
       "id": "spark-x2-5-1-7b",
       "label": "Spark-X2.5-1.7B — sliding-window hybrid",
       "family": "xhtoken",
@@ -486,13 +487,41 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 21 sliding + 7 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 21 sliding + 7 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/XHToken/Spark-X2.5-1.7B",
       "config_url": "https://huggingface.co/XHToken/Spark-X2.5-1.7B/resolve/main/config.json",
       "model_type": "spark2_5",
       "hub_downloads": "2660",
-      "hub_likes": "98",
-      "observed_at": "2026-09-07"
+      "hub_likes": "103",
+      "observed_at": "2026-09-08"
+    },
+    {
+      "id": "hy4-preview",
+      "label": "Hy4-preview — MLA latent cache, MoE",
+      "family": "tencent",
+      "architecture": "mla",
+      "params_b": "779.96",
+      "active_params_b": "41.42",
+      "active_params_basis": "derived",
+      "context_default": 32768,
+      "context_max": 1048576,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "mla",
+          "layers": 78,
+          "kv_lora_rank": 512,
+          "qk_rope_head_dim": 64
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-09-08: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (771.575B vs 779.961B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/tencent/Hy4-preview",
+      "config_url": "https://huggingface.co/tencent/Hy4-preview/resolve/main/config.json",
+      "model_type": "hy_v4",
+      "hub_downloads": "6705",
+      "hub_likes": "451",
+      "observed_at": "2026-09-08"
     },
     {
       "id": "glm-5-3-flash",
@@ -519,13 +548,13 @@
           "qk_rope_head_dim": 0
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 34 linear + 11 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (319.436B vs 321.323B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 34 linear + 11 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (319.436B vs 321.323B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/zai-org/GLM-5.3-Flash",
       "config_url": "https://huggingface.co/zai-org/GLM-5.3-Flash/resolve/main/config.json",
       "model_type": "glm5_next_text",
       "hub_downloads": "784005",
-      "hub_likes": "2116",
-      "observed_at": "2026-09-07",
+      "hub_likes": "2139",
+      "observed_at": "2026-09-08",
       "resolved_from": [
         "unsloth/GLM-5.3-Flash-GGUF",
         "orcarouter/GLM-5.3-Flash-Uncensored-FP8"
@@ -572,90 +601,42 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 61 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-08: 61 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/IFM/K2-Horizon-375B-A23B",
       "config_url": "https://huggingface.co/IFM/K2-Horizon-375B-A23B/resolve/main/config.json",
       "model_type": "k2_horizon",
       "hub_downloads": "1388",
-      "hub_likes": "61",
-      "observed_at": "2026-09-07"
+      "hub_likes": "63",
+      "observed_at": "2026-09-08"
     },
     {
-      "id": "nvidia-nemotron-3-nano-30b-a3b-bf16",
-      "label": "NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 — full attention, MoE",
-      "family": "nvidia",
+      "id": "ouro-1-4b",
+      "label": "Ouro-1.4B — dense, full attention",
+      "family": "bytedance",
       "architecture": "full",
-      "params_b": "31.58",
-      "active_params_b": "3",
-      "active_params_basis": "declared",
+      "params_b": "1.43",
+      "active_params_b": "1.43",
+      "active_params_basis": "dense",
       "context_default": 32768,
-      "context_max": 262144,
+      "context_max": 65536,
       "kv_bytes_per_token_bf16_expected": null,
       "basis": "derived",
       "groups": [
         {
           "kind": "full",
-          "layers": 52,
-          "kv_heads": 2,
+          "layers": 24,
+          "kv_heads": 16,
           "head_dim": 128,
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 52 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
-      "config_url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16/resolve/main/config.json",
-      "model_type": "nemotron_h",
-      "hub_downloads": "850786",
-      "hub_likes": "820",
-      "observed_at": "2026-09-07",
-      "resolved_from": [
-        "pipecat-ai/phonellm-alpha-1"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "pipecat-ai/phonellm-alpha-1",
-          "hops": 1,
-          "path": [
-            "pipecat-ai/phonellm-alpha-1",
-            "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16"
-          ],
-          "truncated": false
-        }
-      ]
-    },
-    {
-      "id": "ornith-1-5-35b-a3b",
-      "label": "Ornith-1.5-35B-A3B — linear/GDN hybrid, MoE",
-      "family": "ornith-ai",
-      "architecture": "hybrid",
-      "params_b": "35.95",
-      "active_params_b": "3",
-      "active_params_basis": "declared",
-      "context_default": 32768,
-      "context_max": 262144,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "linear",
-          "layers": 30,
-          "state_bytes_per_seq": null
-        },
-        {
-          "kind": "full",
-          "layers": 10,
-          "kv_heads": 2,
-          "head_dim": 256,
-          "tensors": 2
-        }
-      ],
-      "note": "Derived from the repository's own config.json on 2026-09-07: 30 linear + 10 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B",
-      "config_url": "https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B/resolve/main/config.json",
-      "model_type": "qwen3_5_moe_text",
-      "hub_downloads": "291053",
-      "hub_likes": "559",
-      "observed_at": "2026-09-07"
+      "note": "Derived from the repository's own config.json on 2026-09-08: 24 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/ByteDance/Ouro-1.4B",
+      "config_url": "https://huggingface.co/ByteDance/Ouro-1.4B/resolve/main/config.json",
+      "model_type": "ouro",
+      "hub_downloads": "25544",
+      "hub_likes": "154",
+      "observed_at": "2026-09-08"
     },
     {
       "id": "qwen3-8b",
@@ -787,7 +768,7 @@
       "observed_at": "2026-08-29"
     }
   ],
-  "derived_note": "The rows tagged basis:\"derived\" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on 2026-09-07, ranked by trendingScore. Third-party derivatives resolve to their named main-lab base for up to three hops, and the best derivative trendingScore credits that base's ordering. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.",
+  "derived_note": "The rows tagged basis:\"derived\" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on 2026-09-08, ranked by trendingScore. Third-party derivatives resolve to their named main-lab base for up to three hops, and the best derivative trendingScore credits that base's ordering. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.",
   "skipped": [
     {
       "id": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp",
@@ -795,13 +776,13 @@
       "detail": null
     },
     {
-      "id": "BreezeBlue/Breeze-TTS-2",
-      "reason": "pipeline_tag is \"text-to-speech\", not text-generation",
+      "id": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+      "reason": "derivative repo (base_model:quantized:JANGQ-AI/GLM-5.3-FP8)",
       "detail": null
     },
     {
-      "id": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
-      "reason": "derivative repo (base_model:quantized:JANGQ-AI/GLM-5.3-FP8)",
+      "id": "BreezeBlue/Breeze-TTS-2",
+      "reason": "pipeline_tag is \"text-to-speech\", not text-generation",
       "detail": null
     },
     {
@@ -820,7 +801,17 @@
       "detail": null
     },
     {
+      "id": "XHToken/Spark-X2.5-4B-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
       "id": "IFM/K2-Horizon-MoVA-36B-A4B-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "openbmb/MiniCPM5-2B-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
@@ -830,23 +821,13 @@
       "detail": null
     },
     {
-      "id": "orcarouter/GLM-5.3-Flash-Uncensored-FP8",
-      "reason": "derivative repo (base_model:finetune:zai-org/GLM-5.3-Flash)",
-      "detail": null
-    },
-    {
       "id": "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
     {
-      "id": "XHToken/Spark-X2.5-4B-GGUF",
-      "reason": "GGUF container — a re-upload of another repo's weights",
-      "detail": null
-    },
-    {
-      "id": "pipecat-ai/phonellm-alpha-1",
-      "reason": "derivative repo (base_model:finetune:nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16)",
+      "id": "orcarouter/GLM-5.3-Flash-Uncensored-FP8",
+      "reason": "derivative repo (base_model:finetune:zai-org/GLM-5.3-Flash)",
       "detail": null
     },
     {
@@ -860,8 +841,8 @@
       "detail": null
     },
     {
-      "id": "nvidia/DeepSeek-V4-Flash-0731-NVFP4",
-      "reason": "derivative repo (base_model:quantized:deepseek-ai/DeepSeek-V4-Flash-0731)",
+      "id": "pipecat-ai/phonellm-alpha-1",
+      "reason": "derivative repo (base_model:finetune:nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16)",
       "detail": null
     },
     {
@@ -870,23 +851,13 @@
       "detail": null
     },
     {
+      "id": "nvidia/DeepSeek-V4-Flash-0731-NVFP4",
+      "reason": "derivative repo (base_model:quantized:deepseek-ai/DeepSeek-V4-Flash-0731)",
+      "detail": null
+    },
+    {
       "id": "dealignai/GLM-5.3-UNCENSORED-FP8",
       "reason": "derivative repo (base_model:quantized:JANGQ-AI/GLM-5.3-FP8)",
-      "detail": null
-    },
-    {
-      "id": "ornith-ai/Ornith-1.5-35B-A3B-GGUF",
-      "reason": "GGUF container — a re-upload of another repo's weights",
-      "detail": null
-    },
-    {
-      "id": "agentionai/Qwen3.8-Flash-Next-ROCmFP4-FAST-imatrix-GGUF",
-      "reason": "GGUF container — a re-upload of another repo's weights",
-      "detail": null
-    },
-    {
-      "id": "AtomicChat/Qwen3.8-Flash-Next-GGUF",
-      "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
     {
@@ -895,8 +866,18 @@
       "detail": null
     },
     {
+      "id": "AtomicChat/Qwen3.8-Flash-Next-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
       "id": "superwhisper/s1-mini",
       "reason": "derivative repo (base_model:finetune:Qwen/Qwen3-0.6B)",
+      "detail": null
+    },
+    {
+      "id": "ornith-ai/Ornith-1.5-35B-A3B-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
     {
@@ -913,12 +894,27 @@
       "id": "inclusionAI/Ling-3.0-flash-Fin",
       "reason": "mixture of experts whose active parameter count is not derivable — the geometry model does not reproduce the published total",
       "detail": "geometry 132.341B vs published 127.486B"
+    },
+    {
+      "id": "IFM/K2-Horizon-0.9B",
+      "reason": "mixture of experts whose active parameter count is not derivable — the geometry model does not reproduce the published total",
+      "detail": "geometry 0.418B vs published 1.078B"
+    },
+    {
+      "id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "reason": "qk_rope_head_dim without kv_lora_rank — not classic MLA, cache width is not derivable from this config",
+      "detail": null
+    },
+    {
+      "id": "meta-llama/Llama-3.1-8B-Instruct",
+      "reason": "gated repo — config.json returned HTTP 401",
+      "detail": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json"
     }
   ],
   "skipped_note": "Candidates the mapper could not express, listed rather than dropped silently. A skip is a REFUSAL, not an absence: serving.js throws on an attention kind outside {full, sliding, linear, mla}, and it silently prices an MoE as dense when active parameters are unknown, so a row that cannot be derived must not be written. Gated config repositories are named separately from transient fetch failures. Hand-curate any row here that matters.",
   "coverage": {
-    "resolved_base_count": 6,
-    "gated_repo_count": 0
+    "resolved_base_count": 5,
+    "gated_repo_count": 1
   },
   "resolved_bases": [
     {
@@ -926,7 +922,7 @@
       "derivative_ids": [
         "XHToken/Spark-X2.5-4B-GGUF"
       ],
-      "credited_trending_score": 542
+      "credited_trending_score": 634
     },
     {
       "base_id": "zai-org/GLM-5.3",
@@ -934,14 +930,14 @@
         "dealignai/GLM-5.3-CYBERSECURITY-FP8",
         "dealignai/GLM-5.3-UNCENSORED-FP8"
       ],
-      "credited_trending_score": 262
+      "credited_trending_score": 228
     },
     {
       "base_id": "IFM/K2-Horizon-MoVA-36B-A4B",
       "derivative_ids": [
         "IFM/K2-Horizon-MoVA-36B-A4B-GGUF"
       ],
-      "credited_trending_score": 187
+      "credited_trending_score": 210
     },
     {
       "base_id": "Qwen/Qwen3.8-27B",
@@ -953,7 +949,7 @@
         "Mia-AiLab/Qwen3.8-27B-EXL3-3.5bpw",
         "Jackrong/Qwopus3.8-27B-Flash"
       ],
-      "credited_trending_score": 132
+      "credited_trending_score": 140
     },
     {
       "base_id": "zai-org/GLM-5.3-Flash",
@@ -961,14 +957,7 @@
         "unsloth/GLM-5.3-Flash-GGUF",
         "orcarouter/GLM-5.3-Flash-Uncensored-FP8"
       ],
-      "credited_trending_score": 71
-    },
-    {
-      "base_id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
-      "derivative_ids": [
-        "pipecat-ai/phonellm-alpha-1"
-      ],
-      "credited_trending_score": 52
+      "credited_trending_score": 63
     }
   ]
 }

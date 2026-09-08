@@ -67,12 +67,12 @@ export function setupStarters({ getData, onAdvisor, onCustom }) {
     <p>Hardware estimate: <a href="https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing">card-price source</a> and <a href="https://vrlatech.com/how-much-does-a-custom-ai-workstation-cost/">GPU cost-share assumption</a>. Exact source dates and derivation travel with the exported result.</p>`;
     refresh();
   }
-  function setMode(next) {
+  function setMode(next, { notify = true } = {}) {
     mode = next;
     $("starter-page").hidden = mode !== "starter";
     $("custom-page").hidden = mode !== "custom";
     $("starter-back").hidden = mode !== "custom";
-    if (mode === "custom") onCustom?.();
+    if (mode === "custom" && notify) onCustom?.();
   }
   function snapshot() {
     return { mode, case_id: selected.id, overrides: edits.get(selected.id) ?? {},
@@ -97,5 +97,5 @@ export function setupStarters({ getData, onAdvisor, onCustom }) {
     }
   });
   select(selected.id);
-  return { refresh, snapshot, setMode, restore(value) { if (value?.overrides) edits.set(value.case_id, value.overrides); select(value?.case_id); setMode(value?.mode === "custom" ? "custom" : "starter"); } };
+  return { refresh, snapshot, setMode, restore(value) { if (value?.overrides) edits.set(value.case_id, value.overrides); select(value?.case_id); setMode(value?.mode === "custom" ? "custom" : "starter", { notify: false }); } };
 }

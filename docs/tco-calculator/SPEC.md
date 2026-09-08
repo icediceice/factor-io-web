@@ -1260,20 +1260,20 @@ frequently non-terminating and therefore travels as a reduced rational per §3.5
 ## 8. UX — Guided Interview beside the Cost Ledger
 
 ```
-┌─ guided interview (8 steps) ──────┬─ deterministic cost ledger (live) ─────┐
-│ progress rail 1..8 · one question │ source freshness · THB verdicts        │
-│ option cards · typed custom value │ demand · sizing · recurring/one-time   │
-│ "Not sure — help me decide"       │ subscription · routing · exclusions    │
-│ revisable answer chips            │ formulas · 60-month curve · provenance │
-│ explicit Apply guided answers     │ Nutanix pattern + portable equivalents │
-│ Ask MiniMax ▾ · assumptions ▾     │ copy/export · post-Apply AI spec       │
-└───────────────────────────────────┴────────────────────────────────────────┘
+┌─ customer conversation ──────────┬─ comparison canvas ───────────────────┐
+│ useful starters · visible replies│ source freshness · THB headline totals│
+│ one composer · Send / Cancel     │ large cumulative graph · Present/Exit │
+│ calculator figures per reply    │ comparison actions · print/export     │
+│ guided questions ▾ · Apply      │ capacity / cost details ▾             │
+│ real assumptions · details ▾    │ blueprint/spec only after Apply       │
+└──────────────────────────────────┴───────────────────────────────────────┘
 ```
 
-v0.2's four-page wizard remains REMOVED, and so does v0.6's blank composer as the
-primary entry. The v0.7 macrostructure is an eight-step guided interview beside the
-exact calculator result: the interview asks what the calculator needs, while
-deterministic controls, formulas, pricing and FX remain the authority. Borders
+The macrostructure is **Comparison Canvas with Conversation**. A large graph and
+useful conversational starters are primary; the eight-question interview is an
+optional disclosure. On narrow screens the graph precedes the long input rail,
+with jump links to conversation and assumptions. Deterministic controls, formulas,
+pricing and FX remain the authority. Borders
 provide depth; numerals are monospaced; violet and cyan are the only accents; no
 shadow or gradient may imply that AI prose outranks calculator evidence.
 
@@ -1314,7 +1314,7 @@ the prototype. See §11 R13 and the Known issues in `PROGRESS.md`.
 
 ### 8.2 Guided interview (normative)
 
-The page lands on a complete worked 60-month example and question 1 of 8. The eight
+The page lands on a complete worked 60-month example; opening guided setup reveals question 1 of 8. The eight
 questions, in order, are `use_case`, `scale`, `intensity`, `substrate`,
 `data_boundary`, `interaction`, `overflow`, `horizon` (`planner.js:INTERVIEW_QUESTIONS`).
 
@@ -1334,8 +1334,9 @@ questions, in order, are `use_case`, `scale`, `intensity`, `substrate`,
 
 **Not sure — help me decide.** This is the only implicit-looking action, and it is
 still explicit: it sends one `assist` turn about the question currently on screen,
-optionally carrying whatever the visitor typed. It is the only path from the
-interview to MiniMax.
+in the same visible conversation and retained history as general questions. It
+does not overwrite an unrelated typed draft. The normal composer sends the
+customer's exact words without attaching the current guided question.
 
 ### 8.3 Structured output classes (normative)
 
@@ -1359,13 +1360,25 @@ assistant/tool half. The four structured output classes are disjoint:
   request and contains the deployment pattern, component mappings and ledger-backed
   explanations.
 
-An `assist` turn accepts **only** `answer_question`; an interview turn accepts
-`ask_user`, `answer_question` and `propose_calculator_changes`; a specification turn
-accepts only `present_local_llm_spec`. A tool outside the turn's set is refused, the
-exchange is discarded rather than retained, and nothing is applied. Empty tool-call
-IDs, unknown tools, unknown fields, unsupported enums, out-of-bounds values and model
-IDs absent from the current loaded catalog are refused. MiniMax runs with
-`thinking.type = disabled` and `tool_choice = required`.
+An explicit guided `assist` turn offers only `answer_question`; a general
+conversation offers `ask_user` and `propose_calculator_changes`. Both use
+`tool_choice = auto` and permit prose alone. Specification turns remain required
+`present_local_llm_spec`; the chat module's default structured API stays compatible.
+All requests disable thinking. Invalid optional tools cannot erase valid prose:
+they are ignored with visible status, never applied. Retained provider calls keep
+matching inert rejection results; malformed call envelopes that cannot safely be
+replayed are not retained and the history limitation is stated. Empty replies,
+HTML, oversized responses and invalid required specifications fail visibly.
+
+Conversational prose is bounded to 8000 characters. Paragraphs containing a
+currency/arithmetic claim are replaced with an omitted-figure notice; the remaining
+prose is rechecked and escaped. Structured proposals remain strictly validated.
+Only the app's exact, request-time figure snapshot supplies displayed money beside
+the answer, under a labelled disclosure. Old reply figures never recalculate.
+One bounded history retains up to eight complete exchanges. New system context
+marks scenario changes and makes current controls/results authoritative over old
+assistant turns. Failure and cancellation restore retryable text without replacing
+a newer draft; status messages are not presented as model replies.
 
 **Exact outbound payload classes (normative).** Every explicit **Not sure**, **Send**
 or **Ask MiniMax to explain this plan** POST contains only: (1) the system contract
@@ -1373,7 +1386,13 @@ and turn intent; (2) the visitor's current message; (3) on an `assist` turn, the
 current question and the answers so far; (4) bounded current calculator controls,
 current-session model candidates, and per-source freshness envelopes; (5) the
 deterministic blueprint and compact component ledger when a valid result exists;
-(6) bounded complete exchange history; and (7) the four structured tool schemas.
+(6) bounded complete exchange history; and (7) only the turn's allowed tool schemas.
+Prompt budgeting reserves the current scenario, exact formatted totals/monthly/
+upfront/payback, calculation status, exclusions and dated FX before optional
+catalogs or blueprint. Invalid/pending results are explicitly unavailable, never
+silently replaced by old figures. The total system prompt remains within 12000
+characters. Unsupported changes to the calculator's option semantics are forbidden
+in the prompt: owned hardware cannot become the rental option via a fictional toggle.
 No credential is present in the headers or in message content. Before each POST the
 browser builds a copyable request artifact with the same messages and tools so CORS,
 network or model failure cannot erase the workflow; that artifact carries no
@@ -1415,9 +1434,14 @@ All planner identifiers use `ai-*` and remain outside the `f-*|fb-*|fo-*|fr-*`
 cost-control contract, print input appendix and quote JSON.
 
 **Deterministic ledger (normative).** The right workspace orders source freshness,
-verdicts, fit/speed, demand, recurring and one-time components, subscriptions,
-routing, exclusions, formulas, recommendation/payback, the 60-month curve,
-sensitivity and export. Each money surface is THB and links back to exact source-USD
+headline totals, the large cumulative graph and immediately reachable export,
+then optional capacity/cost/sensitivity details and the post-Apply blueprint.
+The graph uses responsive SVG geometry, wrapping HTML legends and visible single
+points. Its plotted grid span is at least 380 CSS pixels at 1100/1920 viewports and
+260 at 390; rendered axis text is at least 11 CSS pixels. Present graph is reversible
+with Exit/Escape and restored focus. Pending computation retains visibly dimmed,
+labelled last-valid geometry; invalid computation clears it. Print opens evidence
+disclosures and restores their screen state afterwards. Each money surface is THB and links back to exact source-USD
 arithmetic plus the dated exact FX boundary. Ranking compares exact values, never
 formatted strings. The stated fleet basis names the input that actually sized it;
 an unavailable provider or invalid configuration renders its reason instead of

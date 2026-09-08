@@ -1041,6 +1041,8 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "conv
   let systemPrompt;
   const history = chatState.history;
   const conversational = intent !== "spec";
+  const allowedTools = intent === "spec" ? ["present_local_llm_spec"]
+    : intent === "assist" ? ["answer_question"] : ["ask_user", "propose_calculator_changes"];
   try {
     systemPrompt = chatSystemPrompt(intent, snapshot);
     chatState.offlineArtifact = buildOfflineRequest({
@@ -1050,6 +1052,7 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "conv
       systemPrompt,
       userMessage: text,
       assist: conversational,
+      toolNames: allowedTools,
       pageUrl: location.href,
     });
     $("ai-copy-request").disabled = false;
@@ -1079,15 +1082,11 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "conv
       validationContext: chatValidationContext({ assist: intent === "assist" }),
       // Conversation permits prose, but suggestions remain inert and validated.
       assist: conversational,
+      toolNames: allowedTools,
       pageUrl: location.href,
       signal: controller.signal,
     });
     if (!chatFence.isCurrent(generation)) return;
-    const allowedTools = intent === "spec"
-      ? ["present_local_llm_spec"]
-      : intent === "assist"
-        ? ["answer_question"]
-        : ["ask_user", "propose_calculator_changes"];
     // toolCall is null only on an assist turn that answered in prose alone; the
     // validator still refuses a missing tool call on every other intent.
     if (result.toolCall && !allowedTools.includes(result.toolCall.name)) {

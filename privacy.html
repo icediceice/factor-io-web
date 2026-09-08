@@ -77,8 +77,8 @@
   <p>We collect, store, and transmit <strong>no personal data</strong>. There are no user accounts,
   no analytics, and no telemetry. Everything you create in the app — your countdowns, dates, and
   settings — stays on your device.</p>
-  <p>The web calculator&rsquo;s Ask button is the single exception to the <em>transmit</em> half of
-  that sentence, and only to it: pressing Ask sends your message and planning context to a Factor IO
+  <p>The web calculator&rsquo;s separate AI advisor is the single exception to the <em>transmit</em> half of
+  that sentence, and only to it: pressing Send or Ask sends your message and planning context to a Factor IO
   server so the AI request can be completed. Section 04 states exactly what is sent, to whom, and
   what is kept. Nothing else in any Factor IO app transmits your data to us.</p>
 
@@ -89,12 +89,13 @@
   <ul>
     <li><strong>Android backup</strong> — upload app data to your Google Drive.</li>
     <li><strong>iPhone backup</strong> — upload app data to your iCloud.</li>
-    <li><strong>AI Inference TCO Calculator Ask</strong> — POST your question and bounded planning context to Factor IO's AI endpoint at <code>ai.factor-io.com</code>, which forwards it to MiniMax.</li>
+    <li><strong>Calculator AI advisor Send or Ask</strong> — POST your question and bounded captured planning context to Factor IO's AI endpoint at <code>ai.factor-io.com</code>, which forwards it to MiniMax.</li>
   </ul>
   <p>The backup lives inside your personal account with that provider and is governed by their
   privacy policy. <strong>Factor IO does not receive, store, or proxy the backup.</strong> For calculator AI requests, the payload contains your message, bounded current controls, current model candidates and source-status envelopes, the deterministic blueprint and component ledger when available, bounded complete exchange history, and structured tool definitions.</p>
   <p><strong>Factor IO now proxies calculator AI requests.</strong> This changed in v0.7 and is a deliberate reversal of the previous arrangement. There is no longer any API-key field in the calculator, because the MiniMax credential is held on a Factor IO server and added to your request there — it never exists in your browser. In exchange, your request passes through infrastructure we operate: <code>ai.factor-io.com</code> receives your message and planning context, adds the credential, forwards the request to MiniMax and returns MiniMax's reply to you unchanged. We do not store your message, the planning context or the response; the service logs only the request route, status, model name, byte counts and duration. Your conversation history stays in memory for the current tab and is never written to disk by us.</p>
-  <p>Before each request the calculator still builds a copyable, credential-free version of it, so you can run the same planning turn against Ollama, LM Studio or your own OpenAI-compatible gateway instead, and never involve Factor IO's endpoint at all.</p>
+  <p>Opening the separate advisor stores a bounded scenario and pending proposal in this tab's <code>sessionStorage</code> for up to two hours (at most four records). This includes calculator controls, selected example, captured figures and source dates, not conversation messages or credentials. The opaque URL identifier is only a reference to that tab-local record. Reload loses the in-memory conversation, but can retain an unexpired scenario. The advisor's confirmed Clear action removes its owned records and current conversation without touching other site storage. Opening the advisor or selecting an example never sends inference.</p>
+  <p>The advisor can prepare and copy a credential-free request for Ollama, LM Studio or your own OpenAI-compatible gateway without sending it. Send and Ask contact Factor IO's endpoint explicitly.</p>
   <p>If you never ask a question, <strong>no conversation or calculator context is sent to an AI endpoint</strong>. The automatic public pricing and FX GETs still occur.</p>
 
   <div class="kicker"><b>05</b> / Third-party services</div>
@@ -108,7 +109,7 @@
   <h2>Safe for everyone</h2>
   <p>Because our apps collect no data from anyone, they collect no data from children either.
   Our Android and iPhone apps transmit nothing to us, at any age. On the web calculator the one
-  action that sends anything to a Factor IO server is pressing Ask; it never happens on its own,
+  action that sends anything to a Factor IO server is pressing Send or Ask; it never happens on its own,
   and what it sends is forwarded and not stored.</p>
 
   <div class="kicker"><b>07</b> / Changes to this statement</div>

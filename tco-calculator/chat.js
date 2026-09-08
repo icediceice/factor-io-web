@@ -542,7 +542,7 @@ export async function requestChatTurn({
   try { body = await response.json(); }
   catch { throw new ChatRequestError("invalid_json", "The endpoint returned a non-JSON response."); }
   const raw = body?.choices?.[0]?.message;
-  if (!isObject(raw)) throw new ChatRequestError("response_schema", "The endpoint returned no assistant message.");
+  if (!isObject(raw) || raw.role !== "assistant") throw new ChatRequestError("response_schema", "The endpoint returned no assistant message.");
   const assistantMessage = cloneJson(raw);
   if (JSON.stringify(assistantMessage).length > maxAssistantChars) throw new ChatRequestError("response_too_large", "The complete assistant response exceeds the browser retention limit. Ask for a shorter answer.");
   let toolCall;

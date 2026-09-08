@@ -479,6 +479,41 @@
     .print-inputs dt, .print-inputs dd { margin:0; overflow-wrap:anywhere; }
     .print-inputs code { display:block; font-size:10px; }
   }
+  /* Comparison Canvas with Conversation: a real plot, not a scaled thumbnail. */
+  .curve-card { overflow:visible; }
+  .curve-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .curve-head h2 { font-size:17px; }
+  #curve { min-width:0; }
+  #curve .curve { display:block; width:100%; max-width:none; height:auto; }
+  #curve[data-stale="true"] { opacity:.38; }
+  .curve-legend { display:flex; flex-wrap:wrap; gap:14px 24px; margin:10px 0; }
+  .curve-legend > div { flex:1 1 170px; min-width:0; font:12px/1.6 var(--mono); overflow-wrap:anywhere; }
+  .curve-legend strong { display:block; }
+  .result-disclosure, .guided-disclosure { border-top:1px solid var(--line); margin-top:14px; padding-top:6px; }
+  summary { cursor:pointer; min-height:44px; padding:10px 0; color:var(--ink); }
+  .btn, .ai-suggestion, .ai-step, .ai-chip { min-height:44px; }
+  .ai-transcript:empty { display:none; }
+  .ai-message { white-space:normal; font-size:14px; }
+  .ai-message p + p { margin-top:10px; }
+  .ai-message[data-role="status"] { border-left-color:var(--line); font-size:12px; }
+  .reply-figures { font:11px/1.6 var(--mono); margin-top:10px; }
+  #ai-canvas, #assumptions { scroll-margin-top:65px; }
+  .graph-presentation .shell { display:block; }
+  .graph-presentation .rail, .graph-presentation .out > :not(#curve-card):not(#verdict):not(#comparison-scope) { display:none; }
+  .graph-presentation .curve-card { border-color:var(--cyan); }
+  @media (max-width:1100px) {
+    .out { grid-row:1; }
+    .rail { grid-row:2; }
+  }
+  @media print {
+    .result-disclosure > * { display:block !important; }
+    .result-disclosure > summary { display:none !important; }
+    .result-disclosure::details-content { display:block; content-visibility:visible; }
+    .graph-presentation .out > :not(.screen-only) { display:block; }
+    .curve text { fill:#333; }
+    .curve line { stroke:#aaa; }
+    #curve[data-stale="true"] { display:none; }
+  }
 </style>
 
 <script type="application/ld+json">
@@ -512,7 +547,7 @@
   <!-- ══════════════════════ INPUTS ══════════════════════ -->
   <aside class="rail">
 
-    <section class="ai-canvas" aria-labelledby="ai-canvas-title">
+    <section id="ai-canvas" class="ai-canvas" aria-labelledby="ai-canvas-title" tabindex="-1">
       <div class="ai-chat-head"><span class="ai-kicker">AI assistant</span></div>
       <h2 id="ai-canvas-title">Talk through this comparison</h2>
       <p class="muted">Ask about the graph, your assumptions, or what to change. The assistant uses the current calculator context. You review and Apply any proposed changes.</p>
@@ -586,7 +621,7 @@
     <!-- data-open marks the sections that arrive expanded. It used to be a
          title allow-list inside fields.js, which meant renaming a heading
          silently changed which sections opened. The markup owns it now. -->
-    <div class="sec" data-open>
+    <div id="assumptions" class="sec" data-open tabindex="-1">
       <h2>How much demand</h2>
       <p class="hint">How many people, how often they come back, and the horizon the comparison runs over.</p>
       <div class="row">

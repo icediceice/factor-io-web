@@ -1,9 +1,15 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-08 (calculator comparison canvas and contextual conversation)
+> Last updated: 2026-09-08 (single-server savings examples and dedicated advisor)
 
 ## Current Focus
+
+The calculator now leads with three complete, labelled single-server examples: code reading, document triage and test drafting. One fixed workstation, full capex/electricity, residual API spend, net savings and payback are visible without a sizing interview. Custom sizing remains secondary. AI lives on `tco-assistant.html`, carrying a two-hour tab-local scenario; complete returned changes require explicit review and one Apply/recompute. Spotify is cited for Gemini-worker bulk-read token reduction, not a total billing or local-hardware benchmark. Model throughput/quality remain assumptions to validate, and cheaper uncited hardware has not been invented.
+
+Validation in this implementation: browser fixture passes at 390/1100/1920 for both pages, no horizontal overflow, key actions at least 44px, text contrast at least 7.5:1, scenario navigation, full guided review/Apply and a fresh blueprint snapshot. Custom presentation/Escape/focus and print disclosure restoration pass. Only mocked AI turns were used. Full Node suite and independent ship verification are recorded at plan close; publication is not implied by this working-tree entry.
+
+### Previous focus (comparison canvas; historical)
 
 The calculator now uses **Comparison Canvas with Conversation**: a prominent responsive graph, Present/Exit mode, one visible customer conversation grounded in current calculator context, and optional guided setup/details. General Send no longer rewrites a question into guided help. Reply figures are frozen exact calculator values; invalid optional tools cannot erase safe prose; cancellation recovers the question. Apply, engine/FX arithmetic, existing proxy and pricing feeds are unchanged. Local verification: 310 tests; 390/1100/1920 plot spans 280/400/395.83px with readable axes, 44px key actions, no overflow; presentation/Escape/focus, print disclosure restoration and immediate export pass. Real two-turn replies were visible and retained context. AI advice remains advisory: a live reply proposed a nonexistent ownership-to-rental switch, so the prompt now includes actual option semantics; validators remain the mutation boundary. Publication and independent verification are recorded at plan close.
 
@@ -19,7 +25,7 @@ Upcoming work in priority order:
 
 - [ ] **Authenticate `ai.factor-io.com`** — the proxy is deliberately open for the prototype (operator decision, 2026-09-07: "no limit for now, I'll build the login this evening"). Until the login exists, anyone who forges an `Origin` header can spend Factor IO's MiniMax balance. See SPEC §11 R13
 - [ ] **Shared-asset multi-workload modelling** — one box's capex is currently charged wholly to inference. The on-prem argument is that the same 2-GPU workstation also runs embeddings, data preprocessing, batch jobs and fine-tuning; amortizing the capex across those workloads is what makes owning win at demands far below the current 1,096-user crossover
-- [ ] **Cascade lane: local work that shrinks the frontier API bill** — model a configuration where local preprocessing/routing reduces tokens sent to the big model rather than replacing it. Today the three options are mutually exclusive alternatives; the realistic deployment is local *plus* API, and the tool cannot express it
+- [x] **Single-server cascade examples** — separate starter economics model local preprocessing plus residual premium API requests with per-meter re-quotes. Legacy custom A/B/C alternatives remain unchanged; arbitrary custom cascade authoring and measured model-quality validation remain future work.
 - [ ] **Sensitivity grid's API-price axis earns nothing at the default scenario** — all three columns read identically because Rented GPU wins every cell and its cost is API-price independent. Either span a range where the winner flips, or replace the axis with one that moves the answer
 - [ ] **Rented GPU is billed hours-used while self-hosted pays a full month** — renting shows ~100x cheaper ($88.04 vs $10,000 on the Support desk preset) because the rented option is only charged the ~30 GPU-hours the demand needs, and cannot serve the 750 tok/s peak the other ~700 hours. Pre-existing v0.1 lane-C semantic, bound by fixtures. See todo_1787976899690281935
 - [ ] **No server acquisition price for a100_40, a100_80, a10g, a10, l4, l40s, a800** — those accelerators fall back to "enter the hardware cost yourself". `refresh-pricing.mjs` names them each run; closing it means finding a citable published node figure per accelerator and adding seed rows

@@ -30,7 +30,7 @@ export function setupStarters({ getData, onAdvisor, onCustom }) {
       const caveats = Object.values(r.quotes).flatMap(q => q.quote?.reasons ?? []);
       $("starter-result").innerHTML = `<p class="starter-eyebrow">Illustrative result · full server cost included</p>
         <h2>${positive ? `${money(r.net_monthly)} less per month` : `${money(toRat(r.net_monthly).neg().toString())} more per month`}</h2>
-        <p class="starter-result-note">Recurring cost ${positive ? "reduction" : "increase"}, before recovering the hardware purchase. <strong>${esc(payback)}.</strong></p>
+        <p class="starter-result-note">Recurring cost ${positive ? "reduction" : "increase"}, before recovering the hardware purchase.<br><strong>${money(r.capex)} upfront for one server · Payback: ${esc(payback)}.</strong></p>
         <dl class="starter-ledger">
           <div><dt>Premium API only</dt><dd>${money(r.baseline_api)} / mo</dd></div>
           <div><dt>API after local work <small>Includes bypass, failed tasks and capacity overflow</small></dt><dd>${money(r.residual_api)} / mo</dd></div>
@@ -40,6 +40,7 @@ export function setupStarters({ getData, onAdvisor, onCustom }) {
           <div><dt>Net saving over ${r.horizon_months} months <small>After the entire hardware purchase</small></dt><dd>${money(r.horizon_savings)}</dd></div>
         </dl>
         <p class="muted">${r.counts.successful.toLocaleString()} of ${r.counts.tasks.toLocaleString()} tasks finish the local step successfully; ${(r.counts.bypass + r.counts.failed + r.counts.overflow).toLocaleString()} use the original premium request. Capacity overflow: ${r.counts.overflow.toLocaleString()}. This box never scales itself.</p>
+        <p class="muted">API prices observed ${esc(String(data.manifest?.sources?.openrouter?.observed_at ?? "unknown").slice(0, 10))}; hardware estimate ${esc(r.hardware.observed_at ?? "undated")}; exchange rate ${esc(data.fx?.observed_at ?? "undated")}. ${esc(data.liveFailures?.openrouter ? "Live API pricing unavailable; using the dated fallback." : "")}</p>
         ${caveats.length ? `<p class="starter-warning">API pricing caveats: ${esc([...new Set(caveats)].join(", "))}</p>` : ""}
         <div class="starter-actions screen-only"><button class="btn" data-starter-export>Export this example</button><button class="btn" data-starter-print>Print this example</button></div>`;
     }

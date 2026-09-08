@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI advisor — Factor IO</title>
+  <meta name="description" content="Optional AI advice for a captured Factor IO local-AI savings example or custom comparison. Proposed calculator changes require review and Apply.">
+  <link rel="stylesheet" href="tco-calculator/assistant.css?v=20260908-starters">
+</head>
+<body class="advisor-body">
+<main class="focus-page">
+  <nav><a id="advisor-back" href="tco-calculator.html">← Back to calculator</a></nav>
+  <h1>Talk through your local AI setup</h1>
+  <p>The calculator works without this conversation. Ask about tradeoffs, assumptions or a pilot. Advice may be wrong; captured calculator figures are reference evidence, not a new quote.</p>
+  <section id="advisor-context" aria-label="Captured calculator context"><p>Opening the selected scenario…</p></section>
+  <div id="ai-transcript" class="advisor-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
+  <div id="ai-suggestions" class="starter-actions" aria-label="Suggested replies"></div>
+  <form id="ai-composer">
+    <label for="ai-message">Ask about the setup</label>
+    <textarea id="ai-message" rows="4" maxlength="4000" placeholder="Which assumptions should we validate in a small pilot?"></textarea>
+    <div class="starter-actions"><button id="ai-send" class="btn btn-p" type="submit">Send</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button><button id="ai-copy-request" class="btn" type="button" disabled>Copy request for a local LLM</button></div>
+  </form>
+  <p id="ai-model-status" class="muted" role="status">No request has been sent. Send or Ask explicitly contacts Factor IO's AI endpoint.</p>
+  <section id="ai-proposal" hidden aria-label="Suggested custom configuration" tabindex="-1"><h2>Suggested custom configuration</h2><p id="ai-proposal-summary"></p><p>Nothing has changed. Return to the calculator to see every field change, including preset defaults, before applying.</p><div class="starter-actions"><button id="ai-review" class="btn btn-p" type="button">Review in calculator →</button><button id="ai-dismiss" class="btn" type="button">Dismiss</button></div></section>
+  <details id="ai-guided"><summary>Optional guided custom setup</summary><p class="muted">These answers propose a custom comparison; they do not edit the single-server example. You can revise them before returning.</p><div id="ai-interview"></div><div class="starter-actions"><button id="ai-guided-review" class="btn" type="button" disabled>Review answers in calculator →</button></div></details>
+  <section id="advisor-blueprint" hidden><h2>Applied deployment blueprint</h2><pre id="advisor-blueprint-text"></pre><div class="starter-actions"><button id="ai-request-spec" class="btn" type="button" disabled>Ask for a grounded specification</button><button id="ai-copy-blueprint" class="btn" type="button">Copy blueprint</button><button id="ai-copy-prompt" class="btn" type="button">Copy local-LLM prompt</button><button id="ai-download" class="btn" type="button">Download blueprint</button></div></section>
+  <section id="advisor-spec" hidden><h2>AI implementation advice</h2><pre id="advisor-spec-text"></pre><button id="ai-copy-spec" class="btn" type="button">Copy specification</button></section>
+  <details><summary>Privacy and context</summary><p>The scenario and pending proposal stay in this tab's session storage for up to two hours. Conversation history stays in page memory and is lost on reload. Only Send or Ask sends context and retained exchanges to Factor IO's endpoint. Do not include secrets or customer data.</p><p><a href="privacy.html">Full privacy notice</a></p><button id="advisor-reset" class="btn" type="button">Clear this tab's advisor context</button></details>
+</main>
+<script type="module" src="tco-calculator/assistant.js?v=20260908-starters"></script>
+</body>
+</html>

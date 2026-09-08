@@ -544,17 +544,26 @@ function conversationSnapshot() {
       key, label: OPTION[key].label, horizon: money(r.totals[key].horizon_total),
       monthly: money(r.totals[key].monthly_total), upfront: money(r.totals[key].one_time),
     })),
-    payback: Object.entries(r.payback ?? {}).map(([key, row]) => `${key}: ${row?.converges ? `${row.months} months` : "No modelled crossing"}`).join("; "),
+    payback: [["B", r.payback?.vs_model_api], ["C", r.payback?.vs_rented_gpu]].map(([key, row]) => `Self-hosted vs ${OPTION[key].label}: ${row?.converges ? `${row.months} months${row.months > r.horizon_months ? " (outside this horizon)" : " (within this horizon)"}` : "No modelled crossing"}`).join("; "),
     freshness: `Pricing snapshot ${state.manifest?.snapshot_digest ?? "unavailable"}; FX ${state.fx?.observed_at ?? "see source dates"}.`,
   } : null;
   const core = {
     calculation_status: r ? "current" : "pending_or_invalid — no current cost conclusion available",
     controls, answers: { ...plannerState.answers }, applied_answers: plannerState.appliedAnswers,
+    resolved_configuration: r ? {
+      self_hosted_hardware: state.inputs?.laneA?.hardware_topology ?? null,
+      rented_hardware: state.inputs?.laneC?.hardware_topology ?? null,
+      local_model: controlDisplay("f-sv-model"), api_model: controlDisplay("fb-model"),
+      required_owned_gpus: state.demand?.sizing?.gpus_required?.text ?? null,
+      tokens_per_month: state.demand?.demand?.tokens_mo?.text ?? null,
+      peak_tokens_per_second: state.demand?.peak?.peak_tokens_s?.text ?? null,
+      blank_override_meaning: "Blank overrides use the resolved/default configuration; they do not mean missing hardware or zero cost.",
+    } : null,
     figures, exclusions: COMPARISON_EXCLUSIONS,
     sources: state.manifest?.sources ?? {},
   };
   const identity = JSON.stringify({ controls, answers: core.answers, applied: core.applied_answers,
-    figures, sources: core.sources, fx: state.fx });
+    figures, resolved: core.resolved_configuration, sources: core.sources, fx: state.fx });
   return { core, figures, identity };
 }
 

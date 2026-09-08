@@ -513,11 +513,10 @@
   <aside class="rail">
 
     <section class="ai-canvas" aria-labelledby="ai-canvas-title">
-      <div class="ai-chat-head"><span class="ai-kicker">Guided planning</span><span id="ai-progress" class="ai-progress">0 OF 8</span></div>
-      <h2 id="ai-canvas-title">Answer eight questions. Get a costed plan.</h2>
-      <p class="muted">Every answer maps to a real calculator control, and nothing is written until you press Apply. Unsure about a question? Ask about that one — LLM assistance advises, it never answers for you.</p>
-
-      <div id="ai-interview" class="ai-interview"></div>
+      <div class="ai-chat-head"><span class="ai-kicker">AI assistant</span></div>
+      <h2 id="ai-canvas-title">Talk through this comparison</h2>
+      <p class="muted">Ask about the graph, your assumptions, or what to change. The assistant uses the current calculator context. You review and Apply any proposed changes.</p>
+      <div id="ai-starters" class="ai-nav screen-only"><button class="btn" type="button" data-chat-starter="Explain this comparison and its most important assumptions.">Explain comparison</button><button class="btn" type="button" data-chat-starter="What would you change first in this scenario, and why?">What should I change?</button></div>
 
       <!-- The ask box lives WITH the question, not behind a disclosure. It sits
            outside #ai-interview on purpose: that element is re-rendered
@@ -525,15 +524,20 @@
            steal focus mid-sentence. Keeping the field and the answer thread
            static means the conversation survives every re-render. -->
       <div id="ai-ask" class="ai-ask screen-only">
-        <div id="ai-thread" class="ai-thread" role="log" aria-live="polite" aria-label="assistant answers about this question" hidden></div>
+        <div id="ai-transcript" class="ai-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
+        <div id="ai-suggestions" class="ai-suggestions" aria-label="suggested replies"></div>
         <form id="ai-composer" class="ai-composer">
-          <label for="ai-message">Ask about this question</label>
-          <textarea id="ai-message" maxlength="4000" rows="3" placeholder="e.g. most of our documents are HR records — does that count?"></textarea>
-          <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Ask</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
+          <label for="ai-message">Ask about your scenario</label>
+          <textarea id="ai-message" maxlength="4000" rows="3" placeholder="Why does this option cost less? What assumptions should we check?"></textarea>
+          <div class="ai-nav"><button id="ai-send" class="btn btn-p" type="submit" disabled>Send</button><button id="ai-cancel" class="btn" type="button" hidden>Cancel</button></div>
         </form>
         <p id="ai-ready-note" class="muted" role="status">Loading calculator data before the first request…</p>
+        <p id="ai-model-status" class="muted" role="status">No model request has been made.</p>
       </div>
 
+      <details id="ai-guided" class="guided-disclosure">
+      <summary>Need help setting up? Guided questions <span id="ai-progress" class="ai-progress">0 OF 8</span></summary>
+      <div id="ai-interview" class="ai-interview"></div>
       <div class="ai-applybar">
         <button id="ai-apply-guided" class="btn btn-p" type="button" disabled>Apply answers to the calculator</button>
         <span id="ai-state" class="muted">Not applied · calculator example is unchanged</span>
@@ -549,6 +553,7 @@
              skip the all-or-nothing validation a first Apply had to pass. -->
         <div id="ai-revision" class="ai-revision" role="status" hidden></div>
       </div>
+      </details>
 
       <!-- The transcript is now the RECORD, not the place you ask. Asking moved
            up beside the question it is about (#ai-ask); this keeps the full
@@ -556,12 +561,9 @@
            anyone who wants them, without making a visitor open a disclosure to
            ask about the question already on their screen. -->
       <details class="ai-assist screen-only">
-        <summary>Full conversation and request details</summary>
-        <div id="ai-transcript" class="ai-transcript" role="log" aria-live="polite" aria-label="AI planning conversation"></div>
-        <div id="ai-suggestions" class="ai-suggestions" aria-label="suggested replies"></div>
+        <summary>Privacy and request details</summary>
         <p class="muted">The assistant runs on Factor IO's own endpoint — there is no key to enter and nothing is stored. Your answers and the calculator's ledger are sent only when you ask.</p>
         <div class="ai-nav"><button id="ai-copy-request" class="btn" type="button" disabled>Copy request for your own gateway or local LLM</button></div>
-        <p id="ai-model-status" class="muted" role="status">No model request has been made.</p>
       </details>
 
       <section id="ai-proposal" class="ai-proposal" aria-labelledby="ai-proposal-title" tabindex="-1" hidden>
@@ -957,10 +959,15 @@
 
     <div id="comparison-scope" class="comparison-scope"></div>
     <div id="verdict" class="verdict"></div>
-
-    <div id="fit"></div>
-    <div id="derived" class="card"></div>
-    <section id="ai-workspace" class="card ai-workspace" aria-labelledby="ai-workspace-title">
+    <section id="curve-card" class="card curve-card" aria-labelledby="curve-title">
+      <div class="curve-head"><h2 id="curve-title">Cumulative modelled cost</h2><button id="present-graph" class="btn screen-only" type="button" aria-pressed="false">Present graph</button></div>
+      <p id="curve-status" class="muted" role="status">Waiting for the comparison…</p>
+      <div id="curve"></div>
+      <p class="muted">Infrastructure, applicable platform subscriptions and entered one-time costs. Consulting and enterprise-licensing fees are excluded. A crossing marks payback, not guaranteed savings.</p>
+      <nav class="ai-nav screen-only" aria-label="Comparison actions"><a class="btn" href="#ai-canvas">Discuss this comparison</a><a class="btn" href="#assumptions">Edit assumptions</a></nav>
+    </section>
+    <details class="result-disclosure"><summary>Capacity and workload details</summary><div id="fit"></div><div id="derived" class="card"></div></details>
+    <section id="ai-workspace" class="card ai-workspace" aria-labelledby="ai-workspace-title" hidden>
       <header><div><span class="ai-kicker">Conversation-led Cost Ledger</span><h3 id="ai-workspace-title">Local-LLM deployment blueprint</h3></div><span class="tag tag-unknown">deterministic first</span></header>
       <div id="ai-blueprint"><p class="muted">Review and Apply an AI proposal to build the deterministic deployment blueprint and cost ledger.</p></div>
       <div class="ai-artifacts">
@@ -973,8 +980,8 @@
       <p id="ai-workspace-status" class="muted">The calculator remains authoritative for every number.</p>
       <div id="ai-refinement" class="ai-refinement screen-only" hidden><div id="ai-refinement-text"></div></div>
     </section>
-    <div id="results"></div>
-    <div id="sensitivity"></div>
+    <details class="result-disclosure"><summary>Cost breakdown and evidence</summary><div id="results"></div></details>
+    <details class="result-disclosure screen-only"><summary>Sensitivity analysis</summary><div id="sensitivity"></div></details>
 
     <div class="foot">
       &copy; 2026 Factor I O Co., Ltd. &mdash; prices cited per source, snapshot in <code>tco-calculator/data/</code> &middot;
@@ -992,6 +999,6 @@
 <div id="field-vault" aria-hidden="true"></div>
 <!-- The sheet mounts here. Empty until a value is opened. -->
 <div id="sheet-root"></div>
-<script type="module" src="tco-calculator/app.js?v=20260907-guided"></script>
+<script type="module" src="tco-calculator/app.js?v=20260908-conversation"></script>
 </body>
 </html>

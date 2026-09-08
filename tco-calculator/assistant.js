@@ -40,6 +40,7 @@ export function advisorPrompt(record, { intent = "conversation", questionId = nu
 }
 
 export function createAdvisor({ document, record = null, onReturn, requestTurn = requestChatTurn, pageUrl = "https://studio.factor-io.com/tco-assistant.html" }) {
+  record = record ? JSON.parse(serial(record)) : null;
   const $ = id => document.getElementById(id);
   const history = createChatHistory();
   const fence = createRequestFence();
@@ -53,7 +54,7 @@ export function createAdvisor({ document, record = null, onReturn, requestTurn =
     state.busy = value; $("ai-send").disabled = value; $("ai-message").disabled = value; $("ai-cancel").hidden = !value;
     $("ai-review").disabled = value || !record || !state.proposal;
     $("ai-guided-review").disabled = value || !record || !isInterviewComplete(state.answers);
-    $("ai-request-spec").disabled = value || !record?.applied || !record?.blueprint || !record?.ledger || !!state.proposal;
+    $("ai-request-spec").disabled = value || !record?.applied || !record?.blueprint || !record?.ledger || !!state.proposal || serial(state.answers) !== serial(record?.answers ?? {});
   }
   function cancel(note = "Request cancelled. Your question is ready to retry.") {
     fence.cancel(); state.controller?.abort(); state.controller = null;
@@ -69,9 +70,9 @@ export function createAdvisor({ document, record = null, onReturn, requestTurn =
     $("ai-interview").innerHTML = `<p class="muted">Question ${state.questionIndex + 1} of ${INTERVIEW_QUESTIONS.length}</p><h2>${esc(q.prompt)}</h2><p>${esc(q.help)}</p><div class="advisor-options">${q.options.map(o => `<div><button class="btn" type="button" data-option="${esc(o.id)}" aria-pressed="${selected === o.id}">${esc(o.label)}${state.advice?.question_id === q.id && state.advice.recommended_option === o.id ? " · AI suggestion (not selected)" : ""}</button>${o.note ? `<p class="muted">${esc(o.note)}</p>` : ""}${o.input ? `<label>${esc(o.input.unit)}<input id="advisor-answer-value" type="text" inputmode="decimal" value="${esc(selected === o.id ? answer?.value ?? "" : "")}"></label>` : ""}</div>`).join("")}</div><div class="starter-actions"><button class="btn" type="button" data-question-back ${state.questionIndex ? "" : "disabled"}>Back</button><button class="btn" type="button" data-question-next ${state.questionIndex === INTERVIEW_QUESTIONS.length - 1 ? "disabled" : ""}>Next</button><button class="btn" type="button" data-question-ask ${state.busy ? "disabled" : ""}>Ask about this question</button></div>`;
     busy(state.busy);
   }
-  async function send(message = $("ai-message").value, { intent = "conversation", questionId = null } = {}) {
+  async function send(message = $("ai-message").value, { intent = "conversation", questionId = null, clearComposer = true } = {}) {
     const text = String(message).trim(); if (!text || state.busy) return;
-    if (intent === "spec" && (!record?.applied || !record?.blueprint || !record?.ledger || state.proposal)) { $("ai-model-status").textContent = "Return, review and Apply first, then reopen the advisor with the recomputed result."; return; }
+    if (intent === "spec" && (!record?.applied || !record?.blueprint || !record?.ledger || state.proposal || serial(state.answers) !== serial(record?.answers ?? {}))) { $("ai-model-status").textContent = "Return, review and Apply first, then reopen the advisor with the recomputed result."; return; }
     const tools = intent === "spec" ? ["present_local_llm_spec"] : intent === "assist" ? ["answer_question"] : record ? ["ask_user", "propose_calculator_changes"] : ["ask_user"];
     let systemPrompt;
     try {
@@ -80,7 +81,8 @@ export function createAdvisor({ document, record = null, onReturn, requestTurn =
       $("ai-copy-request").disabled = false;
     } catch (error) { $("ai-model-status").textContent = error.message; return; }
     const generation = fence.begin(); const controller = new AbortController(); state.controller = controller; state.pending = text;
-    $("ai-message").value = ""; append("user", text); busy(true); $("ai-suggestions").innerHTML = "";
+    if (clearComposer) $("ai-message").value = "";
+    append("user", text); busy(true); $("ai-suggestions").innerHTML = "";
     $("ai-model-status").textContent = "Sending only after your explicit action. The calculator is unchanged.";
     try {
       const reply = await requestTurn({ ...MINIMAX_DEFAULTS, history, systemPrompt, userMessage: text, assist: intent !== "spec", toolNames: tools, pageUrl, signal: controller.signal, validationContext: advisorValidation(record, intent === "assist" ? questionId : null) });
@@ -113,7 +115,17 @@ export function createAdvisor({ document, record = null, onReturn, requestTurn =
     } finally { if (fence.isCurrent(generation)) { state.controller = null; busy(false); } }
   }
   function returnForReview(proposal) { try { if (!record || state.busy) return; onReturn(proposal); } catch (error) { $("ai-model-status").textContent = error.message; } }
-  async function copy(text) { try { if (!text) throw new Error("Nothing is ready to copy"); await navigator.clipboard.writeText(text); $("ai-model-status").textContent = "Copied."; } catch { $("ai-model-status").textContent = "Clipboard unavailable. Select and copy the displayed content."; } }
+  async function copy(text) {
+    if (!text) { $("ai-model-status").textContent = "Nothing is ready to copy."; return; }
+    try { await globalThis.navigator?.clipboard?.writeText(text); if (!globalThis.navigator?.clipboard) throw new Error("unavailable"); }
+    catch {
+      const area = document.createElement("textarea"); area.value = text; area.setAttribute("readonly", ""); document.body.appendChild(area); area.select();
+      const copied = document.execCommand?.("copy");
+      if (!copied) { $("ai-model-status").textContent = "Clipboard unavailable. Select and copy the text below."; area.focus(); return; }
+      area.remove();
+    }
+    $("ai-model-status").textContent = "Copied.";
+  }
   $("ai-composer").addEventListener("submit", e => { e.preventDefault(); void send(); });
   $("ai-message").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); void send(); } });
   $("ai-cancel").addEventListener("click", () => cancel());
@@ -127,10 +139,10 @@ export function createAdvisor({ document, record = null, onReturn, requestTurn =
     if (button) { const option = q.options.find(o => o.id === button.dataset.option); if (!option) return; state.answers[q.id] = option.input ? { id: option.id, value: $("advisor-answer-value")?.value.trim() ?? "" } : option.id; renderInterview(); }
     if (e.target.closest("[data-question-back]") && state.questionIndex > 0) { state.questionIndex--; renderInterview(); }
     if (e.target.closest("[data-question-next]") && state.questionIndex < INTERVIEW_QUESTIONS.length - 1) { state.questionIndex++; renderInterview(); }
-    if (e.target.closest("[data-question-ask]")) void send(`Help me decide: ${q.prompt}`, { intent: "assist", questionId: q.id });
+    if (e.target.closest("[data-question-ask]")) void send(`Help me decide: ${q.prompt}`, { intent: "assist", questionId: q.id, clearComposer: false });
   });
   $("ai-interview").addEventListener("input", e => { if (e.target.id !== "advisor-answer-value") return; const q = INTERVIEW_QUESTIONS[state.questionIndex]; const option = q.options.find(o => o.input); if (option) { state.answers[q.id] = { id: option.id, value: e.target.value.trim() }; busy(state.busy); } });
-  $("ai-request-spec").addEventListener("click", () => void send("Explain the applied deployment blueprint and its supplied cost components without new arithmetic.", { intent: "spec" }));
+  $("ai-request-spec").addEventListener("click", () => void send("Explain the applied deployment blueprint and its supplied cost components without new arithmetic.", { intent: "spec", clearComposer: false }));
   $("ai-copy-blueprint").addEventListener("click", () => void copy(record?.blueprint?.text));
   $("ai-copy-prompt").addEventListener("click", () => void copy(record?.localPrompt));
   $("ai-copy-spec").addEventListener("click", () => void copy(state.spec));

@@ -121,6 +121,92 @@ function harness() {
     tick() { const work = [...timers.values()]; timers.clear(); work.forEach((f) => f()); } };
 }
 
+test("reply figures freeze request-time costs and changed controls are explicit in follow-up context", async () => {
+  const h = harness(); h.get("setupPlanner()"); h.state.ready = true;
+  h.get("compactLedger = () => null");
+  h.state.result = { horizon_months: 60, totals: { A: { priced: true, horizon_total: "100", monthly_total: "1", one_time: "40" } }, payback: {} };
+  h.node("f-users").value = "500";
+  const sent = [];
+  h.context.requestChatTurn = async (args) => {
+    sent.push(args);
+    return { user:{role:"user",content:args.userMessage}, assistantMessage:{role:"assistant",content:"Check utilization first."}, toolCall:null, prose:"Check utilization first.", model:"test" };
+  };
+  await h.get("sendChatMessage('Why rent?')");
+  const frozen = JSON.stringify(h.get("chatState.transcript").find((row) => row.role === "assistant").figures);
+  assert.match(frozen, /3,300\.00/);
+  h.node("f-users").value = "5000";
+  h.state.result.totals.A.horizon_total = "200";
+  await h.get("sendChatMessage('And now?')");
+  assert.match(sent[1].systemPrompt, /"scenario_changed":true/);
+  assert.match(sent[1].systemPrompt, /"f-users":"5000"/);
+  assert.equal(JSON.stringify(h.get("chatState.transcript").find((row) => row.role === "assistant").figures), frozen);
+  assert.match(h.node("ai-transcript").innerHTML, /Scenario changed/);
+  assert.equal(sent[1].userMessage, "And now?");
+});
+
+test("cancel and calculator edits recover the question without accepting a late reply or overwriting a draft", async () => {
+  for (const draft of ["", "My next question"]) {
+    const h = harness(); h.get("setupPlanner()"); h.state.ready = true;
+    let resolve;
+    h.context.requestChatTurn = () => new Promise((done) => { resolve = done; });
+    h.node("ai-message").value = "Why rent?";
+    const pending = h.get("sendChatMessage()");
+    h.node("ai-message").value = draft;
+    h.get("onLiveInput()");
+    assert.equal(h.node("ai-message").value, draft || "Why rent?");
+    assert.equal(h.get("chatState.busy"), false);
+    resolve({user:{role:"user",content:"Why rent?"}, assistantMessage:{role:"assistant",content:"Late answer"}, prose:"Late answer", toolCall:null});
+    await pending;
+    assert.doesNotMatch(h.node("ai-transcript").innerHTML, /Late answer/);
+    assert.equal(h.get("chatState.history.snapshot().length"), 0);
+  }
+});
+
+test("failed requests are retryable status, not fabricated assistant replies", async () => {
+  const h = harness(); h.get("setupPlanner()"); h.state.ready = true;
+  h.context.requestChatTurn = async () => { throw new Error("Request timed out"); };
+  await h.get("sendChatMessage('Explain this')");
+  assert.equal(h.node("ai-message").value, "Explain this");
+  assert.equal(h.get("chatState.transcript").filter((row) => row.role === "assistant").length, 0);
+  assert.match(h.node("ai-transcript").innerHTML, /data-role="status"/);
+});
+
+test("invalid optional tool preserves prose and has an inert rejection in the next complete exchange", async () => {
+  const h = harness(); h.get("setupPlanner()"); h.state.ready = true;
+  h.context.requestChatTurn = (args) => realRequestChatTurn({ ...args, fetchImpl:async () => ({ok:true,json:async () => ({choices:[{message:{role:"assistant",content:"Check utilization first.", tool_calls:[{id:"bad-1",type:"function",function:{name:"unknown_tool",arguments:"{}"}}]}}]})}) });
+  await h.get("sendChatMessage('Why rent?')");
+  assert.match(h.node("ai-transcript").innerHTML, /Check utilization first/);
+  const exchange = h.get("chatState.history.snapshot()[0]");
+  assert.equal(exchange.assistant.tool_calls[0].function.name, "unknown_tool");
+  assert.equal(exchange.tools[0].tool_call_id, "bad-1");
+  assert.match(exchange.tools[0].content, /rejected/);
+  assert.equal(h.get("chatState.pendingProposal"), null);
+});
+
+test("graph keeps marked last-valid geometry while pending and clears on invalid computation", () => {
+  const h = harness(); h.state.ready = true;
+  h.node("curve").innerHTML = "previous plot";
+  h.get("invalidateResults('Updating')");
+  assert.equal(h.node("curve").innerHTML, "previous plot");
+  assert.equal(h.node("curve").dataset.stale, "true");
+  assert.equal(h.state.result, null);
+  h.get("refreshDerived = () => { throw new Error('invalid'); }");
+  h.get("run()");
+  assert.equal(h.node("curve").innerHTML, "");
+  assert.match(h.node("curve-status").textContent, /unavailable/);
+});
+
+test("responsive graph uses requested geometry and draws single points with HTML legends", () => {
+  const h = harness();
+  const graph = h.get("renderCurve")([{month:1,A:"10",B:"10",C:null}], {}, {width:320,height:340});
+  assert.match(graph, /viewBox="0 0 320 340"/);
+  assert.match(graph, /<circle/);
+  assert.match(graph, /class="plot-label"/);
+  assert.match(graph, /class="curve-legend"/);
+  assert.match(graph, /not costed/);
+  assert.doesNotMatch(graph, /NaN|Infinity/);
+});
+
 test("main composer sends the customer's exact question as a general conversation", () => {
   const h = harness();
   h.get("setupPlanner")();

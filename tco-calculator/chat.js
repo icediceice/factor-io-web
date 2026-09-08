@@ -502,6 +502,7 @@ export async function requestChatTurn({
   userMessage,
   validationContext = {},
   assist = false,
+  toolNames = null,
   pageUrl,
   signal,
   fetchImpl = globalThis.fetch,
@@ -514,7 +515,8 @@ export async function requestChatTurn({
   const user = { role: "user", content: userText };
   const system = { role: "system", content: systemText };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
-  const payload = buildChatPayload({ model, messages, assist });
+  const tools = toolNames ? CHAT_TOOLS.filter((tool) => toolNames.includes(tool.function.name)) : CHAT_TOOLS;
+  const payload = buildChatPayload({ model, messages, assist, tools });
   let url;
   try { url = chatCompletionsUrl(endpoint, pageUrl); }
   catch (error) { throw new ChatRequestError(error?.code ?? "endpoint", error?.message ?? "The endpoint is invalid.", error?.status ?? null); }
@@ -573,7 +575,7 @@ export async function requestChatTurn({
   };
 }
 
-export function buildOfflineRequest({ endpoint, model, history, systemPrompt, userMessage, pageUrl, assist = false }) {
+export function buildOfflineRequest({ endpoint, model, history, systemPrompt, userMessage, pageUrl, assist = false, toolNames = null }) {
   const user = { role: "user", content: safeText(userMessage, "user message", { max: CHAT_LIMITS.maxUserChars, rejectClaims: false }) };
   const system = { role: "system", content: safeText(systemPrompt, "system prompt", { max: CHAT_LIMITS.maxSystemChars, rejectClaims: false }) };
   const messages = history?.messages ? history.messages({ system, user }) : [system, user];
@@ -581,7 +583,8 @@ export function buildOfflineRequest({ endpoint, model, history, systemPrompt, us
   // The copied request must be the request that would actually have been sent —
   // an assist turn copied with tool_choice "required" would behave differently
   // in the visitor's own gateway than it does here.
-  const payload = buildChatPayload({ model, messages, assist });
+  const tools = toolNames ? CHAT_TOOLS.filter((tool) => toolNames.includes(tool.function.name)) : CHAT_TOOLS;
+  const payload = buildChatPayload({ model, messages, assist, tools });
   const copyText = [
     `POST ${url}`,
     "Content-Type: application/json",

@@ -469,7 +469,7 @@ function setPlannerReady(ready) {
       ? "Asking the assistant. You can cancel this request."
       : complete
         ? "All eight answered. Apply writes them into the real controls, where you can still change anything."
-        : "Answer the questions, or ask about any one of them. Nothing changes in the calculator until you Apply.")
+        : "Ask in your own words. Guided setup is optional; nothing changes until you Apply.")
     : "Loading calculator data. Apply and the LLM assistance stay locked until the cited inputs are ready.";
 }
 
@@ -821,7 +821,7 @@ function applyGuidedAnswers() {
   $("ai-state").textContent = revising
     ? "Re-applied · your revised answers · every assumption remains editable"
     : "Applied · your eight answers · every assumption remains editable";
-  appendChat("assistant", revising
+  appendChat("status", revising
     ? "Re-applied your revised answers to the calculator. It is recomputing now — open any control to override an assumption."
     : "Applied your answers to the calculator. It is recomputing now — open any control to override an assumption.");
   renderInterview();
@@ -868,7 +868,7 @@ function applyPlannerAnswers() {
   plannerState.refinement = null;
   chatState.pendingSpec = null;
   $("ai-state").textContent = "Applied · reviewed proposal + local-first routing · assumptions remain editable";
-  appendChat("assistant", "Applied the reviewed proposal once. The calculator is recomputing; inspect or override any assumption in the real controls.");
+  appendChat("status", "Applied the reviewed proposal once. The calculator is recomputing; inspect or override any assumption in the real controls.");
   // The proposal rewrote the answers, so the chips above are stale until this
   // runs. dismissProposal only refreshes the proposal panel.
   renderInterview();
@@ -2480,7 +2480,7 @@ function invalidateResults(message) {
   $("curve")?.setAttribute("aria-busy", "true");
   if ($("curve")) $("curve").dataset.stale = "true";
   if ($("curve-status")) $("curve-status").textContent = "Updating — graph shows the last valid scenario, not the edited inputs.";
-  for (const id of ["verdict", "results", "sensitivity", "comparison-scope", "derived", "fit"]) {
+  for (const id of ["verdict", "results", "sensitivity", "comparison-scope", "derived", "fit", "result-actions"]) {
     if ($(id)) $(id).innerHTML = "";
   }
   $("calculation-status").textContent = message;
@@ -3296,8 +3296,8 @@ function renderResults(r) {
       <p class="muted">Feasibility verdicts are evidence-gated: unknown beats invented. The shipped evidence store is empty by mandate (SPEC 6.5).</p>
     </div>
     ${printInputsAppendix()}
-    <p><button class="btn btn-s" id="export">Export estimate (JSON)</button> <button class="btn btn-s" id="print-summary">Print / save PDF</button> <span class="muted">Inputs, cost scope and cited prices. A planning estimate, not a binding quote.</span></p>
   `;
+  $("result-actions").innerHTML = `<p><button class="btn btn-s" id="export">Export estimate (JSON)</button> <button class="btn btn-s" id="print-summary">Print / save PDF</button> <span class="muted">Inputs, cost scope and cited prices. A planning estimate, not a binding quote.</span></p>`;
   $("export").addEventListener("click", () => exportQuote(r));
   $("print-summary").addEventListener("click", () => { if (state.result === r) window.print(); });
   renderOptionTotals(r);

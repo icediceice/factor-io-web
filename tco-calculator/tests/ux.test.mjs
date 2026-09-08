@@ -402,8 +402,9 @@ test("mix refusals describe percentages and the corrective action", () => {
 test("changed UI modules use matching versioned URLs across HTML and module import", () => {
   const version = html.match(/app\.js\?v=([^\"]+)/)?.[1];
   assert.ok(version);
-  assert.ok(app.includes(`./fields.js?v=${version}`));
-  assert.ok(app.includes(`./planner.js?v=${version}`));
+  // Unchanged field/planner modules keep their existing cache identity.
+  assert.match(app, /\.\/fields\.js\?v=/);
+  assert.match(app, /\.\/planner\.js\?v=/);
   assert.ok(app.includes(`./chat.js?v=${version}`));
 });
 
@@ -488,7 +489,7 @@ test("field harvesting and close use a shared range-blind control selector", () 
   assert.doesNotMatch(fields, /OPEN_SECTIONS/);
   assert.match(fields, /"open" in sec\.dataset/);
   const railSections = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
-  assert.equal((railSections.match(/<div class="sec" data-open>/g) ?? []).length, 3);
+  assert.equal((railSections.match(/<div\b[^>]*class="sec"[^>]*data-open[^>]*>/g) ?? []).length, 3);
   // One disclosure layer in the rail. A details.adv nested inside a section
   // that itself folds is what buried routing policy two levels deep.
   assert.doesNotMatch(railSections, /<summary>Service level|<summary>Architecture detail/);
@@ -509,7 +510,7 @@ test("the guided interview renders without contacting MiniMax, and an assist tur
   // The question the visitor is on is what gets asked about — nothing else.
   assert.equal(h.get("plannerState.helpQuestionId"), "use_case");
   assert.match(h.get("chatState.offlineArtifact.copyText"), /What should AI help people do/);
-  assert.match(h.get("chatState.offlineArtifact.copyText"), /most of our documents are HR records/);
+  assert.equal(h.node("ai-message").value, "most of our documents are HR records", "Not sure does not erase an unrelated draft");
   assert.equal(h.node("ai-copy-request").disabled, false);
 
   await new Promise((resolve) => setImmediate(resolve));
@@ -520,7 +521,7 @@ test("the guided interview renders without contacting MiniMax, and an assist tur
   assert.doesNotMatch(h.get("chatState.offlineArtifact.copyText"), /Bearer\s+\S/);
   // The fixture answers with ask_user, which an assist turn does not allow.
   assert.equal(h.get("plannerState.help"), null);
-  assert.match(h.node("ai-model-status").textContent, /returned ask_user for a assist turn/);
+  assert.match(h.node("ai-model-status").textContent, /incompatible suggestion/);
   assert.equal(h.get("chatState.history.snapshot().length"), 0, "a refused tool call is never kept as history");
 });
 
@@ -662,7 +663,8 @@ test("the claim guard rejects a price without rejecting the way a colleague writ
   for (const claim of ["Running this yourself lands around ฿120000 a month.", "So 1200 + 300 = 1500 per month.", "That is 24000 - 3000 once the licence lapses."]) {
     h.context.requestChatTurn = prose(claim);
     await h.get("sendChatMessage('what does it cost?', {intent:'assist'})");
-    assert.match(h.node("ai-model-status").textContent, /cite the deterministic ledger/, claim);
+    assert.match(h.node("ai-transcript").innerHTML, /Unverified figure omitted/, claim);
+    assert.doesNotMatch(h.node("ai-transcript").innerHTML, /120000|1200 \+ 300|24000 - 3000/);
   }
 
   // Allowed: ranges and dated snapshots, which assert no price at all.
@@ -673,7 +675,7 @@ test("the claim guard rejects a price without rejecting the way a colleague writ
   ]) {
     h.context.requestChatTurn = prose(ok);
     await h.get("sendChatMessage('how many nodes?', {intent:'assist'})");
-    assert.match(h.node("ai-thread").innerHTML, new RegExp(ok.slice(0, 24).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), ok);
+    assert.match(h.node("ai-transcript").innerHTML, new RegExp(ok.slice(0, 24).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), ok);
   }
 });
 
@@ -695,7 +697,9 @@ test("the system prompt is budgeted whole, so a heavy page state cannot kill the
     `the prompt must fit the contract chat.js enforces, was ${prompt.length} of ${CHAT_LIMITS.maxSystemChars}`,
   );
   // Shrinking is only correct if it never sacrifices the thing the turn is about.
-  assert.match(prompt, /GUIDED_QUESTION is the only question you may answer this turn/);
+  assert.match(prompt, /explicit Not sure request/);
+  assert.match(prompt, /current_scenario/);
+  assert.match(prompt, /pending_or_invalid/);
   assert.match(prompt, /"id":"substrate"/, "the question being asked about is never what gets dropped");
   assert.match(prompt, /"request_mode":"assist"/);
   // And it must still fit the caller that actually enforces the cap.
@@ -782,19 +786,16 @@ test("an assist turn asks the model a question instead of filling in a form", as
   assert.equal(sent.tool_choice, "auto");
   assert.ok(sent.temperature > 0.2, "assist turns loosen wording");
 
-  const thread = h.get("plannerState.helpThread");
-  assert.equal(thread.length, 1);
-  assert.equal(thread[0].role, "assistant");
-  assert.match(h.node("ai-thread").innerHTML, /who reads the answers/);
-  assert.equal(h.node("ai-thread").hidden, false);
+  const thread = h.get("chatState.transcript");
+  assert.equal(thread.length, 2);
+  assert.equal(thread[1].role, "assistant");
+  assert.match(h.node("ai-transcript").innerHTML, /who reads the answers/);
   // Prose alone badges nothing and selects nothing — the visitor still decides.
   assert.equal(h.get("plannerState.help"), null);
   assert.equal(h.get("plannerState.answers.use_case"), undefined);
   // It is still a real retained exchange; there is simply no tool result to keep.
-  // It belongs to the assist conversation, and the free-form one never sees it.
-  assert.equal(h.get("chatState.assistHistory.snapshot().length"), 1);
-  assert.equal(h.get("chatState.assistHistory.snapshot()[0].tools.length"), 0);
-  assert.equal(h.get("chatState.history.snapshot().length"), 0, "an assist turn never enters the free-form conversation");
+  assert.equal(h.get("chatState.history.snapshot().length"), 1);
+  assert.equal(h.get("chatState.history.snapshot()[0].tools.length"), 0);
 });
 
 test("free prose may not assert a price or smuggle markup onto the page", async () => {
@@ -815,24 +816,24 @@ test("free prose may not assert a price or smuggle markup onto the page", async 
   // that guard is what makes free prose safe to render at all.
   h.context.requestChatTurn = prose("Running this yourself lands around ฿120000 a month.");
   await h.get("sendChatMessage('what does it cost?', {intent:'assist'})");
-  assert.match(h.node("ai-model-status").textContent, /cite the deterministic ledger/);
-  assert.doesNotMatch(h.node("ai-thread").innerHTML, /120000/);
-  assert.equal(h.get("chatState.history.snapshot().length"), 0, "a refused answer is never retained");
+  assert.match(h.node("ai-transcript").innerHTML, /Unverified figure omitted/);
+  assert.doesNotMatch(h.node("ai-transcript").innerHTML, /120000/);
+  assert.equal(h.get("chatState.history.snapshot().length"), 1, "raw provider response is retained, not rendered");
 
   h.context.requestChatTurn = prose("Use an <img src=x onerror=alert(1)> internal assistant.");
   await h.get("sendChatMessage('which one?', {intent:'assist'})");
   assert.match(h.node("ai-model-status").textContent, /plain text, not HTML/);
-  assert.doesNotMatch(h.node("ai-thread").innerHTML, /onerror/);
+  assert.doesNotMatch(h.node("ai-transcript").innerHTML, /onerror/);
 
   // Prose that is merely punctuated awkwardly is allowed through — and escaped.
   h.context.requestChatTurn = prose('Ask yourself: is it 5 > 3, or "internal" only?');
   await h.get("sendChatMessage('clarify', {intent:'assist'})");
-  assert.match(h.node("ai-thread").innerHTML, /5 &gt; 3/);
-  assert.doesNotMatch(h.node("ai-thread").innerHTML, /5 > 3/);
-  assert.match(h.node("ai-thread").innerHTML, /&quot;internal&quot;/);
+  assert.match(h.node("ai-transcript").innerHTML, /5 &gt; 3/);
+  assert.doesNotMatch(h.node("ai-transcript").innerHTML, /5 > 3/);
+  assert.match(h.node("ai-transcript").innerHTML, /&quot;internal&quot;/);
 });
 
-test("a follow-up continues the same question and ends when the visitor moves on", async () => {
+test("general and guided turns share the visible conversation across topic changes", async () => {
   const h = harness();
   h.get("setupPlanner()");
   h.state.ready = true;
@@ -851,40 +852,34 @@ test("a follow-up continues the same question and ends when the visitor moves on
   };
 
   h.node("ai-message").value = "who is this for?";
-  await h.get("requestQuestionHelp()");
-  const opened = h.get("plannerState.helpThread");
-  assert.equal(opened.length, 2, "the visitor's own words open the thread, then the answer");
-  assert.equal(opened[0].role, "you");
-  assert.match(asked[0].userMessage, /^About "/, "the opening turn names the question");
+  await h.get("sendChatMessage()");
+  const opened = h.get("chatState.transcript");
+  assert.equal(opened.length, 2);
+  assert.equal(opened[0].role, "user");
+  assert.equal(asked[0].userMessage, "who is this for?");
   assert.equal(asked[0].assist, true);
   assert.deepEqual(asked[0].sentHistory, [], "an opening turn carries no prior exchange");
 
-  h.node("ai-message").value = "what if half of them are contractors?";
+  h.get("goToQuestion(3)");
   await h.get("requestQuestionHelp()");
-  assert.equal(h.get("plannerState.helpThread").length, 4);
+  assert.equal(h.get("chatState.transcript").filter((row) => row.role !== "status").length, 4);
   // A follow-up is sent as asked. Re-quoting the question every time is what
   // made the exchange read like repeated form submissions.
-  assert.equal(asked[1].userMessage, "what if half of them are contractors?");
+  assert.match(asked[1].userMessage, /I am not sure how to answer/);
   assert.deepEqual(Object.keys(asked[1].validationContext.questions), [h.get("plannerState.helpQuestionId")]);
   assert.equal(asked[1].sentHistory.length, 1, "a follow-up carries the exchange it is following up on");
 
-  // Moving to another question ends that conversation rather than carrying it
-  // over: a follow-up about options that are no longer on screen means nothing.
-  h.get("goToQuestion(3)");
-  assert.equal(h.node("ai-thread").hidden, true);
-  assert.equal(h.node("ai-thread").innerHTML, "");
-  h.node("ai-message").value = "and this one?";
-  await h.get("requestQuestionHelp()");
-  assert.equal(h.get("plannerState.helpThread").length, 2, "a different question starts a new thread");
-  // The falsifier. A reset visible thread is not the model forgetting: the
-  // payload used to still open with the first question's exchanges, so the
-  // answer on screen could be about a question the visitor had already left.
-  assert.deepEqual(asked[2].sentHistory, [], "moving on clears the model's history, not just the visible one");
-  assert.equal(h.get("chatState.assistHistory.snapshot().length"), 1, "only the new question's exchange is retained");
-  assert.notEqual(h.get("plannerState.helpQuestionId"), asked[0].validationContext.questions && Object.keys(asked[0].validationContext.questions)[0]);
+  h.get("goToQuestion(4)");
+  assert.match(h.node("ai-transcript").innerHTML, /who is this for/);
+  h.node("ai-message").value = "what if half of them are contractors?";
+  await h.get("sendChatMessage()");
+  assert.equal(asked[2].userMessage, "what if half of them are contractors?");
+  assert.equal(asked[2].sentHistory.length, 2);
+  assert.equal(h.get("chatState.history.snapshot().length"), 3);
+  assert.equal(h.get("chatState.transcript").filter((row) => row.role === "assistant").length, 3);
 });
 
-test("only an assist turn may answer without a tool call", async () => {
+test("a general conversation answers without a forced tool call", async () => {
   const h = harness();
   h.get("setupPlanner()");
   h.state.ready = true;
@@ -895,12 +890,9 @@ test("only an assist turn may answer without a tool call", async () => {
       model: "MiniMax-M3", choices: [{ message: { role: "assistant", content: "Sure, here is roughly what I would do." } }],
     }) }),
   });
-  // An interview or proposal turn's entire output IS the structure, so prose
-  // with no tool call is still a failed turn there.
   await h.get("sendChatMessage('help me plan')");
-  assert.match(h.node("ai-model-status").textContent, /exactly one structured tool call/);
-  assert.equal(h.get("chatState.history.snapshot().length"), 0);
-  assert.equal(h.get("plannerState.helpThread").length, 0, "an interview refusal never enters the question thread");
+  assert.match(h.node("ai-transcript").innerHTML, /roughly what I would do/);
+  assert.equal(h.get("chatState.history.snapshot().length"), 1);
 });
 
 test("the calculator UI offers LLM assistance without naming the vendor behind it", () => {
@@ -915,7 +907,7 @@ test("the calculator UI offers LLM assistance without naming the vendor behind i
   assert.doesNotMatch(stripLineComments(app).replace(/MINIMAX_DEFAULTS/g, ""), /MiniMax/i);
   const chatSource = readFileSync(new URL("../chat.js", import.meta.url), "utf8");
   assert.doesNotMatch(stripLineComments(chatSource), /MiniMax/i, "no error string shown to a visitor names the vendor");
-  assert.match(visibleHtml, /LLM assistance/);
+  assert.match(visibleHtml, /AI assistant/);
   // The disclosure surfaces still name it, and must keep doing so.
   assert.match(privacy, /MiniMax/i);
   assert.match(llms, /MiniMax/i);
@@ -939,7 +931,7 @@ test("chat modes reject crossed tool responses and a specification cannot send b
   await h.get("sendChatMessage('Help me plan')");
   assert.equal(h.get("chatState.history.snapshot().length"), 0);
   assert.equal(h.get("plannerState.refinement"), null);
-  assert.match(h.node("ai-transcript").innerHTML, /no output was applied/);
+  assert.match(h.node("ai-transcript").innerHTML, /nothing was applied/);
 });
 
 test("validated proposal is previewed before Apply and reaches real controls with one recompute", () => {

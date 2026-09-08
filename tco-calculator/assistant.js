@@ -161,6 +161,6 @@ function initAdvisor() {
   const advisor = createAdvisor({ document, record, pageUrl: location.href, onReturn(proposal) { writeProposal(storage, id, proposal); location.assign(`tco-calculator.html?advisor=${encodeURIComponent(id)}`); } });
   if (record) document.getElementById("advisor-back").href = `tco-calculator.html?advisor=${encodeURIComponent(id)}`;
   globalThis.addEventListener("pagehide", () => advisor.cancel("Navigation cancelled the pending request."));
-  document.getElementById("advisor-reset").addEventListener("click", () => { advisor.cancel(); try { clearHandoffs(storage); } catch {} location.replace("tco-assistant.html"); });
+  document.getElementById("advisor-reset").addEventListener("click", () => { if (!globalThis.confirm("Clear this tab's advisor scenarios, proposals and current conversation?")) return; advisor.cancel(); try { clearHandoffs(storage); } catch {} location.replace("tco-assistant.html"); });
 }
 if (typeof document !== "undefined" && document.getElementById("advisor-context")) initAdvisor();

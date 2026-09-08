@@ -43,7 +43,7 @@ import {
   toolResultMessage,
   validateCalculatorProposal,
   validateFieldValue,
-} from "./chat.js?v=20260907-guided";
+} from "./chat.js?v=20260908-conversation";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {
@@ -748,6 +748,7 @@ function restorePendingQuestion() {
 }
 
 function clearPlannerOutput(message = "Apply a reviewed AI proposal to build a deployment blueprint.", { keepRefinement = false } = {}) {
+  $("ai-workspace").hidden = !plannerState.applied;
   const refinement = keepRefinement ? plannerState.refinement : null;
   plannerState.refinement = refinement;
   plannerState.blueprint = null;
@@ -886,6 +887,7 @@ function currentPlannerContext() {
 
 function renderPlannerBlueprint() {
   if (!plannerState.plan || !plannerState.applied) return;
+  $("ai-workspace").hidden = false;
   const context = currentPlannerContext();
   const blueprint = buildBlueprint(plannerState.plan, context);
   plannerState.blueprint = blueprint;
@@ -1176,6 +1178,13 @@ function setupPlanner() {
   });
 
   $("ai-cancel").addEventListener("click", () => cancelChatRequest());
+  $("ai-starters")?.addEventListener("click", (event) => {
+    const starter = event.target.closest("[data-chat-starter]");
+    if (starter) void sendChatMessage(starter.dataset.chatStarter, { clearComposer: false });
+  });
+  $("present-graph")?.addEventListener("click", () => setGraphPresentation(!graphPresented));
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && graphPresented) setGraphPresentation(false); });
+  globalThis.addEventListener?.("resize", () => { if (state.result) renderGraph(state.result); });
   $("ai-apply-guided").addEventListener("click", applyGuidedAnswers);
   $("ai-apply").addEventListener("click", applyPlannerAnswers);
   $("ai-dismiss").addEventListener("click", dismissProposal);
@@ -2469,6 +2478,9 @@ function syncSliders() {
 
 function invalidateResults(message) {
   state.result = null;
+  $("curve")?.setAttribute("aria-busy", "true");
+  if ($("curve")) $("curve").dataset.stale = "true";
+  if ($("curve-status")) $("curve-status").textContent = "Updating — graph shows the last valid scenario, not the edited inputs.";
   for (const id of ["verdict", "results", "sensitivity", "comparison-scope", "derived", "fit"]) {
     if ($(id)) $(id).innerHTML = "";
   }
@@ -2904,6 +2916,8 @@ function run() {
     $("calculation-status").textContent = `Comparison updated · ${state.result.horizon_months} months · THB`;
   } catch (e) {
     invalidateResults("Comparison unavailable — check your inputs.");
+    if ($("curve")) { $("curve").innerHTML = ""; $("curve").setAttribute("aria-busy", "false"); }
+    if ($("curve-status")) $("curve-status").textContent = "Graph unavailable — correct the inputs to compare costs.";
     if (e instanceof DemandRefusal || e instanceof ServingRefusal) {
       // Clear both output surfaces. Leaving the previous run's totals and verdict
       // standing under a refusal is how an impossible configuration keeps a price
@@ -3282,17 +3296,13 @@ function renderResults(r) {
       <ul style="color:rgba(232,230,240,.72)">${verdictLi(`${OPTION.A.label} p95 vs SLO`, r.throughput.verdicts.lane_A)}${verdictLi(`${OPTION.C.label} p95 vs SLO`, r.throughput.verdicts.lane_C)}</ul>
       <p class="muted">Feasibility verdicts are evidence-gated: unknown beats invented. The shipped evidence store is empty by mandate (SPEC 6.5).</p>
     </div>
-    <div class="card">
-      <h3>Cumulative modelled cost over ${r.horizon_months} months</h3>
-      ${renderCurve(r.curve, r.payback)}
-      <p class="muted">Infrastructure, applicable platform subscriptions and entered one-time costs. Consulting and enterprise-licensing fees are excluded from both this curve and payback. Self-hosted starts at its capex; a crossing marks payback, not guaranteed savings.</p>
-    </div>
     ${printInputsAppendix()}
     <p><button class="btn btn-s" id="export">Export estimate (JSON)</button> <button class="btn btn-s" id="print-summary">Print / save PDF</button> <span class="muted">Inputs, cost scope and cited prices. A planning estimate, not a binding quote.</span></p>
   `;
   $("export").addEventListener("click", () => exportQuote(r));
   $("print-summary").addEventListener("click", () => { if (state.result === r) window.print(); });
   renderOptionTotals(r);
+  renderGraph(r);
   renderSensitivity();
 }
 
@@ -3365,9 +3375,34 @@ const fmtPer1M = (v) => {
   return `฿${groupDecimal(formatHalfUp(toTHB(moneyValue(v), state.fx), 6))}`;
 };
 
-function renderCurve(curve, payback = {}) {
-  const w = 900, h = 260;
-  const pad = { left: 78, right: 128, top: 42, bottom: 34 };
+let graphPresented = false;
+let graphReturnFocus = null;
+function setGraphPresentation(active) {
+  if (active) graphReturnFocus = document.activeElement;
+  graphPresented = active;
+  document.body.classList.toggle("graph-presentation", active);
+  $("present-graph").textContent = active ? "Exit presentation" : "Present graph";
+  $("present-graph").setAttribute("aria-pressed", String(active));
+  if (state.result) renderGraph(state.result);
+  if (active) $("present-graph").focus();
+  else graphReturnFocus?.focus?.();
+}
+
+function renderGraph(r) {
+  const box = $("curve");
+  if (!box) return;
+  const width = Math.max(240, box.getBoundingClientRect?.().width || 900);
+  const height = (globalThis.innerWidth ?? 1200) <= 480 ? 340 : 460;
+  box.innerHTML = renderCurve(r.curve ?? [], r.payback, { width, height });
+  delete box.dataset.stale;
+  box.setAttribute("aria-busy", "false");
+  $("curve-title").textContent = `Cumulative modelled cost · ${r.horizon_months} months`;
+  $("curve-status").textContent = "Current scenario · THB · review assumptions before sharing";
+}
+
+function renderCurve(curve, payback = {}, { width = 900, height = 460 } = {}) {
+  const w = width, h = height;
+  const pad = { left: 70, right: 16, top: 20, bottom: 40 };
   const chartNumber = (raw) => {
     const value = toTHB(moneyValue(raw), state.fx);
     return value instanceof Rat ? Number(value.n) / Number(value.d) : Number(value.toString());
@@ -3393,26 +3428,20 @@ function renderCurve(curve, payback = {}) {
   const grid = Array.from({ length: 4 }, (_, i) => {
     const value = maxV * (i / 3);
     const yy = y(value);
-    return `<line x1="${pad.left}" y1="${yy.toFixed(1)}" x2="${w - pad.right}" y2="${yy.toFixed(1)}" stroke="rgba(232,230,240,.12)" />`
-      + `<text x="${pad.left - 8}" y="${(yy + 4).toFixed(1)}" text-anchor="end" fill="rgba(232,230,240,.5)" font-size="10" font-family="monospace">${escapeHtml(tickMoney.format(value))}</text>`;
+    return `<line class="plot-grid" x1="${pad.left}" y1="${yy.toFixed(1)}" x2="${w - pad.right}" y2="${yy.toFixed(1)}" stroke="rgba(232,230,240,.18)" />`
+      + `<text class="plot-label" x="${pad.left - 8}" y="${(yy + 4).toFixed(1)}" text-anchor="end" fill="rgba(232,230,240,.7)" font-size="12" font-family="monospace">${escapeHtml(tickMoney.format(value))}</text>`;
   }).join("");
 
   const paths = series.map((s) => {
     if (!s.points.length) return "";
     const pts = s.points.map((p) => `${x(p.month).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
-    return `<polyline points="${pts}" fill="none" stroke="${OPTION[s.key].color}" stroke-width="2" />`;
+    return `<polyline points="${pts}" fill="none" stroke="${OPTION[s.key].color}" stroke-width="2" />${s.points.length === 1 ? `<circle cx="${x(s.points[0].month)}" cy="${y(s.points[0].value)}" r="4" fill="${OPTION[s.key].color}" />` : ""}`;
   }).join("");
 
-  const legend = series.map((s, i) => {
+  const legend = series.map((s) => {
     const suffix = s.points.length ? "" : " — not costed";
     const color = s.points.length ? OPTION[s.key].color : "rgba(232,230,240,.45)";
-    return `<text x="${pad.left + i * 225}" y="18" fill="${color}" font-size="11" font-family="monospace">${escapeHtml(OPTION[s.key].label + suffix)}</text>`;
-  }).join("");
-
-  const endLabels = series.map((s) => {
-    const last = s.points.at(-1);
-    if (!last) return "";
-    return `<text x="${(x(last.month) + 7).toFixed(1)}" y="${(y(last.value) + 4).toFixed(1)}" fill="${OPTION[s.key].color}" font-size="10" font-family="monospace">${escapeHtml(money(last.raw))}</text>`;
+    return `<div><strong style="color:${color}">${escapeHtml(OPTION[s.key].label + suffix)}</strong>${s.points.length ? `${escapeHtml(money(s.points.at(-1).raw))} at horizon` : "Price unavailable"}</div>`;
   }).join("");
 
   const paybackRules = [
@@ -3421,14 +3450,14 @@ function renderCurve(curve, payback = {}) {
   ].filter(({ value }) => value?.converges && value.months >= 1 && value.months <= curve.length)
     .map(({ value, target }, i) => {
       const xx = x(value.months);
-      return `<line x1="${xx.toFixed(1)}" y1="${pad.top}" x2="${xx.toFixed(1)}" y2="${h - pad.bottom}" stroke="${OPTION[target].color}" stroke-width="1" stroke-dasharray="4 4" opacity=".8" />`
-        + `<text x="${(xx + 4).toFixed(1)}" y="${pad.top + 11 + i * 12}" fill="${OPTION[target].color}" font-size="9" font-family="monospace">payback vs ${escapeHtml(OPTION[target].label)} · mo ${value.months}</text>`;
+      return `<line x1="${xx.toFixed(1)}" y1="${pad.top}" x2="${xx.toFixed(1)}" y2="${h - pad.bottom}" stroke="${OPTION[target].color}" stroke-width="1" stroke-dasharray="4 4" opacity=".8"><title>Payback vs ${escapeHtml(OPTION[target].label)} · month ${value.months}</title></line>`;
     }).join("");
 
   const axis = `<line x1="${pad.left}" y1="${h - pad.bottom}" x2="${w - pad.right}" y2="${h - pad.bottom}" stroke="rgba(232,230,240,.3)" />`
-    + `<text x="${pad.left}" y="${h - 9}" fill="rgba(232,230,240,.5)" font-size="10" font-family="monospace">mo 1</text>`
-    + `<text x="${w - pad.right - 34}" y="${h - 9}" fill="rgba(232,230,240,.5)" font-size="10" font-family="monospace">mo ${curve.length}</text>`;
-  return `<svg class="curve" viewBox="0 0 ${w} ${h}" role="img" aria-label="cumulative cost over the horizon">${legend}${grid}${paybackRules}${paths}${endLabels}${axis}</svg>`;
+    + `<text class="plot-label" x="${pad.left}" y="${h - 9}" fill="rgba(232,230,240,.7)" font-size="12" font-family="monospace">mo 1</text>`
+    + `<text class="plot-label" x="${w - pad.right}" y="${h - 9}" text-anchor="end" fill="rgba(232,230,240,.7)" font-size="12" font-family="monospace">mo ${curve.length}</text>`;
+  const crossings = [["B", payback.vs_model_api], ["C", payback.vs_rented_gpu]].map(([key, row]) => `${OPTION[key].label}: ${row?.converges ? `payback month ${row.months}` : "no modelled payback"}`).join(" · ");
+  return `<svg class="curve" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="cumulative cost over the horizon">${grid}${paybackRules}${paths}${axis}</svg><div class="curve-legend">${legend}</div><p class="muted">${escapeHtml(crossings)}</p>`;
 }
 
 // Scale one offer's prices by an exact rational factor — the sensitivity's

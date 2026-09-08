@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-09-08",
+    "macrostructure": "Comparison Canvas with Conversation",
+    "density": "large comparison-first plot / visible customer conversation / optional guided setup and evidence",
+    "depth": "borders-only",
+    "screen": "tco-calculator.html — prominent graph and persistent contextual conversation",
+    "notes": "Supersedes stepper-primary UI and retires the duplicate per-question thread. General and guided turns now share visible history; exact request-time calculator figures sit with each reply. Real controls and Apply boundary preserved. Local passive iframe measurements at 390/1100/1920: plot spans 280/400/395.83 CSS px; transformed axis text 12/12/11.87px; key actions 44px; no body overflow. Graph precedes detailed panels and mobile rail. Presentation entry/Escape/focus, print disclosure expansion/restoration and immediate export pass at all three widths. No inference trigger in fixture. Existing dark/violet/cyan, mono values and border-only tokens retained. light-design skill unavailable: these are explicit measured checks, not a claim to have run its 54 numbered gates. Live two-turn conversation is checked separately through the real composer; model advice remains advisory and may be wrong. Next revision should retain one conversation surface and test plotted geometry rather than container whitespace."
+  },
+  {
     "date": "2026-09-07",
     "macrostructure": "Decision Ledger",
     "density": "rail 5 / results 9",

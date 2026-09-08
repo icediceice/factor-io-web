@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1788779850482",
-  "generated_at": "2026-09-07T11:17:30.482Z",
-  "snapshot_digest": "09d09f03bb4f8cb0",
+  "refresh_id": "refresh-1788847372528",
+  "generated_at": "2026-09-08T06:02:52.528Z",
+  "snapshot_digest": "84427078c3291183",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-09d09f03bb4f8cb0.json",
-      "digest": "09d09f03bb4f8cb0",
-      "bytes": 2748033
+      "path": "catalog-84427078c3291183.json",
+      "digest": "84427078c3291183",
+      "bytes": 2748214
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "74ff3ef2410bb2f1",
+      "digest": "98b97834a589e668",
       "bytes": 377
     }
   },
@@ -21,19 +21,19 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-07T11:17:30.482Z",
-      "last_success_at": "2026-09-07T11:17:30.482Z",
-      "expires_at": "2026-09-10T11:17:30.482Z",
-      "root_digest": "96a4304c0e5b4ea2",
-      "record_count": 417,
+      "observed_at": "2026-09-08T06:02:52.528Z",
+      "last_success_at": "2026-09-08T06:02:52.528Z",
+      "expires_at": "2026-09-11T06:02:52.528Z",
+      "root_digest": "7eb2f79845b059c3",
+      "record_count": 415,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-07T11:17:30.482Z",
-      "last_success_at": "2026-09-07T11:17:30.482Z",
-      "expires_at": "2026-09-10T11:17:30.482Z",
+      "observed_at": "2026-09-08T06:02:52.528Z",
+      "last_success_at": "2026-09-08T06:02:52.528Z",
+      "expires_at": "2026-09-11T06:02:52.528Z",
       "root_digest": "6de80ed42987ae10",
       "record_count": 2951,
       "missing_streak": 0
@@ -41,10 +41,10 @@
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-04T00:00:00.000Z",
-      "last_success_at": "2026-09-07T11:17:48.185Z",
-      "expires_at": "2026-09-11T23:59:59.999Z",
-      "root_digest": "74ff3ef2410bb2f1",
+      "observed_at": "2026-09-07T00:00:00.000Z",
+      "last_success_at": "2026-09-08T06:03:12.428Z",
+      "expires_at": "2026-09-14T23:59:59.999Z",
+      "root_digest": "98b97834a589e668",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -3396,17 +3396,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/deepseek-v4-flash-0731",
-      "name": "azure_ai/deepseek-v4-flash-0731",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
       ]
     },
     {
@@ -7551,20 +7540,6 @@
       "name": "databricks/databricks-gpt-5-2-codex",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_read",
-        "input",
-        "op_dbu_in",
-        "output",
-        "op_dbu_out"
-      ]
-    },
-    {
-      "id": "litellm:databricks/databricks-gpt-5-3-codex",
-      "name": "databricks/databricks-gpt-5-3-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read",
@@ -13266,42 +13241,6 @@
       ]
     },
     {
-      "id": "litellm:gemini-2.5-flash-native-audio-latest",
-      "name": "gemini-2.5-flash-native-audio-latest",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gemini-2.5-flash-native-audio-preview-09-2025",
-      "name": "gemini-2.5-flash-native-audio-preview-09-2025",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gemini-2.5-flash-native-audio-preview-12-2025",
-      "name": "gemini-2.5-flash-native-audio-preview-12-2025",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:gemini-2.5-flash-preview-09-2025",
       "name": "gemini-2.5-flash-preview-09-2025",
       "tariff": "token",
@@ -13408,20 +13347,6 @@
         "cache_read",
         "audio_in_tok",
         "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gemini-3.1-flash-live-preview",
-      "name": "gemini-3.1-flash-live-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "image_in_tok",
-        "input",
-        "op_video_second",
-        "audio_out_tok",
         "output"
       ]
     },
@@ -13746,42 +13671,6 @@
       ]
     },
     {
-      "id": "litellm:gemini/gemini-2.5-flash-native-audio-latest",
-      "name": "gemini/gemini-2.5-flash-native-audio-latest",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gemini/gemini-2.5-flash-native-audio-preview-09-2025",
-      "name": "gemini/gemini-2.5-flash-native-audio-preview-09-2025",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gemini/gemini-2.5-flash-native-audio-preview-12-2025",
-      "name": "gemini/gemini-2.5-flash-native-audio-preview-12-2025",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:gemini/gemini-2.5-flash-preview-09-2025",
       "name": "gemini/gemini-2.5-flash-preview-09-2025",
       "tariff": "token",
@@ -13894,20 +13783,6 @@
       ]
     },
     {
-      "id": "litellm:gemini/gemini-3.1-flash-live-preview",
-      "name": "gemini/gemini-3.1-flash-live-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "image_in_tok",
-        "input",
-        "op_video_second",
-        "audio_out_tok",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:gemini/gemini-3.1-pro-preview",
       "name": "gemini/gemini-3.1-pro-preview",
       "tariff": "token",
@@ -13989,18 +13864,6 @@
         "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
-      ]
-    },
-    {
-      "id": "litellm:gemini/gemini-3.5-live-translate-preview",
-      "name": "gemini/gemini-3.5-live-translate-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "audio_in_tok",
-        "input",
-        "audio_out_tok",
-        "output"
       ]
     },
     {
@@ -32756,7 +32619,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -33546,17 +33410,6 @@
       ]
     },
     {
-      "id": "openrouter:ibm-granite/granite-4.1-8b",
-      "name": "IBM: Granite 4.1 8B",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:ibm-granite/granite-4.2-8b",
       "name": "IBM: Granite 4.2 8B",
       "tariff": "token",
@@ -33945,7 +33798,7 @@
       "id": "openrouter:minimax/minimax-m2.7:free",
       "name": "MiniMax: MiniMax M2.7 (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -33977,7 +33830,7 @@
       "id": "openrouter:minimax/minimax-m3:free",
       "name": "MiniMax: MiniMax M3 (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -34225,8 +34078,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -34302,28 +34154,6 @@
       "meters": [
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "openrouter:nex-agi/nex-n2-mini",
-      "name": "Nex AGI: Nex-N2-Mini",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:nex-agi/nex-n2-pro",
-      "name": "Nex AGI: Nex-N2-Pro",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
       ]
     },
     {
@@ -34412,17 +34242,6 @@
       "name": "NVIDIA: Nemotron 3 Ultra",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:nvidia/nemotron-3-ultra-550b-a55b:batch",
-      "name": "NVIDIA: Nemotron 3 Ultra (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -36290,18 +36109,6 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3.8-max",
-      "name": "Qwen: Qwen3.8 Max",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
       "id": "openrouter:qwen/qwen3.8-max-0902",
       "name": "Qwen: Qwen3.8 Max (0902)",
       "tariff": "token",
@@ -36818,8 +36625,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -36864,16 +36670,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:z-ai/glm-5.2:free",
-      "name": "Z.ai: GLM 5.2 (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {

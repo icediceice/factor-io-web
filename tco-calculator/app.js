@@ -614,6 +614,7 @@ function chatSystemPrompt(intent = "conversation", snapshot = conversationSnapsh
         : "Have a natural conversation about the customer's current calculator scenario. Answer their question first, including challenging a mistaken premise. You may optionally ask one useful question or propose_calculator_changes with a complete planning_profile and allowed controls. Do not force an interview, invent a quote, or call answer_question on a general turn.",
     "Prefer a local-first Nutanix design. For every Nutanix-specific component, name a portable Kubernetes or Linux-VM equivalent.",
     "Treat model selection as an evaluation candidate, never a guarantee. Use only model IDs and enum values present in CURRENT_CONTEXT.",
+    "CALCULATOR SEMANTICS: Self-hosted means owned hardware; Rented GPU is a separate comparison option. There is no switch that turns the owned option into a rented one. f-sh-gpu is an accelerator ID, never zero or a renting toggle. Blank hardware/capex overrides mean derived purchase costs, not free hardware. Do not remove real costs or reduce demand without evidence merely to make an option win. First check workload, peak concurrency, rental utilization, billing basis and excluded operating costs. Use customer-facing control labels, never invent field IDs or unsupported UI actions. Offer only changes supported by the proposal tool's allowed controls; discuss other investigations as questions, not instructions to apply fictional settings.",
     "Never invent or calculate prices, savings, licences, benchmarks or capacity. Explain the supplied comparison qualitatively. The app displays exact currency figures beside your reply; refer to those figures rather than writing currency or arithmetic yourself.",
     "Never request or propose credentials, endpoints, HTML, direct control mutation or unsupported fields. The user must preview and explicitly Apply every proposal.",
     "CURRENT_CONTEXT",
@@ -1097,7 +1098,7 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "conv
     result.figures = snapshot.figures;
     const outcome = handleChatTool(result);
     const calls = result.assistantMessage.tool_calls ?? [];
-    const retainable = Array.isArray(calls) && calls.every((call) => typeof call?.id === "string" && call.id.trim()) && new Set(calls.map((call) => call.id)).size === calls.length;
+    const retainable = Array.isArray(calls) && calls.every((call) => typeof call?.id === "string" && call.id.trim() && call.type === "function" && typeof call.function?.name === "string" && typeof call.function?.arguments === "string") && new Set(calls.map((call) => call.id)).size === calls.length;
     if (retainable) {
       const tools = calls.map((call) => toolResultMessage(call, call.id === result.toolCall?.id ? outcome : { status: "rejected", calculator_mutated: false, reason: result.toolError ?? "unsupported_tool" }));
       history.append({ user: result.user, assistant: result.assistantMessage, tools });
@@ -1182,8 +1183,18 @@ function setupPlanner() {
     if (starter) void sendChatMessage(starter.dataset.chatStarter, { clearComposer: false });
   });
   $("present-graph")?.addEventListener("click", () => setGraphPresentation(!graphPresented));
+  $("curve-card")?.addEventListener("click", (event) => { if (graphPresented && event.target.closest('a[href^="#"]')) setGraphPresentation(false); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && graphPresented) setGraphPresentation(false); });
   globalThis.addEventListener?.("resize", () => { if (state.result) renderGraph(state.result); });
+  let printDisclosures = [];
+  globalThis.addEventListener?.("beforeprint", () => {
+    printDisclosures = [...document.querySelectorAll(".result-disclosure")].filter((el) => !el.open);
+    for (const el of printDisclosures) el.open = true;
+  });
+  globalThis.addEventListener?.("afterprint", () => {
+    for (const el of printDisclosures) el.open = false;
+    printDisclosures = [];
+  });
   $("ai-apply-guided").addEventListener("click", applyGuidedAnswers);
   $("ai-apply").addEventListener("click", applyPlannerAnswers);
   $("ai-dismiss").addEventListener("click", dismissProposal);
@@ -3421,7 +3432,7 @@ function renderCurve(curve, payback = {}, { width = 900, height = 460 } = {}) {
     currency: "THB",
     currencyDisplay: "narrowSymbol",
     notation: maxV >= 1_000_000 ? "compact" : "standard",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: maxV >= 1_000_000 ? 1 : 0,
   });
 
   const grid = Array.from({ length: 4 }, (_, i) => {

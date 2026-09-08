@@ -178,6 +178,9 @@ const HTML = /<\/?[a-z][^>]*>/i;
 // actually writes in. Every other operator keeps the loose spacing, and a
 // subtraction that states its result still trips on the "=".
 const ARITHMETIC_CLAIM = /(?:[$฿€£]\s*\d|\b\d+(?:\.\d+)?\s*(?:\+|\*|×|\/|÷|=)\s*\d+|\b\d+(?:\.\d+)?\s+-\s+\d+)/;
+// In prose, a line-start hyphen is a Markdown bullet, not subtraction from
+// a preceding numbered heading. Structured fields keep the stricter detector.
+const PROSE_CLAIM = /(?:[$฿€£]\s*\d|\b\d+(?:\.\d+)?\s*(?:\+|\*|×|\/|÷|=)\s*\d+|\b\d+(?:\.\d+)?[^\S\r\n]+-\s+\d+)/;
 const FORBIDDEN_FIELD = /(?:token|secret|password|endpoint|api[-_]?key|credential)/i;
 const DECIMAL = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
 const INTEGER = /^-?(?:0|[1-9]\d*)$/;
@@ -401,23 +404,40 @@ export function validateAssistantToolCall(message, context = {}, { assist = fals
   return { id: call.id, type: "function", name, arguments: validated };
 }
 
-// The prose is the part the four-slot template used to suppress, and it is also
-// the part nothing else validates — the tool schema no longer stands between the
-// model and the screen. rejectClaims stays ON: the model may explain a trade-off
-// in its own words, but a price or a sum in its own voice is refused outright,
-// because only the deterministic ledger is allowed to state a number.
+// Prose is validated independently of optional tools. Detected prices and sums
+// become explicit notices; safe explanation survives and figures come from the
+// calculator. Structured tool fields remain fail-closed through safeText.
 // Required when there is no tool call (a turn that says nothing is a failed
 // turn); optional beside one, whose answer/why fields already carry text.
 export function validateAssistantProse(message, { optional = false } = {}) {
   const content = isObject(message) ? message.content : null;
   if (optional && (content === undefined || content === null || String(content).trim() === "")) return null;
   const text = safeText(content, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: false });
-  // Redact whole paragraphs, not decimal-sensitive sentence fragments. Keep
-  // useful explanation, but let only the app's frozen figure strip quote money.
-  const clean = text.split(/\n\s*\n/).map((paragraph) => ARITHMETIC_CLAIM.test(paragraph)
-    ? "[Unverified figure omitted — see the calculator figures below.]"
-    : paragraph).join("\n\n");
-  return safeText(clean, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: true });
+  const notice = "[Unverified figure omitted — see the calculator figures below.]";
+  let offset = 0;
+  const lines = text.split("\n").map((line) => {
+    const row = { text: line, start: offset, end: offset + line.length, redact: false };
+    offset = row.end + 1;
+    return row;
+  });
+  // Match the ORIGINAL document before replacing anything: cross-line currency
+  // and arithmetic redact every touched line, including decimal continuations.
+  // No fixed retry count or offsets calculated from already-replaced text.
+  for (const hit of text.matchAll(new RegExp(PROSE_CLAIM.source, "g"))) {
+    for (const line of lines) {
+      if (line.start < hit.index + hit[0].length && line.end > hit.index) line.redact = true;
+    }
+  }
+  const output = [];
+  for (const line of lines) {
+    const value = line.redact ? notice : line.text;
+    if (value !== notice || output.at(-1) !== notice) output.push(value);
+  }
+  let clean = output.join("\n");
+  // Re-check with the same prose grammar. Notice expansion must not convert a
+  // valid bounded input into another whole-turn error.
+  if (PROSE_CLAIM.test(clean) || clean.length > CHAT_LIMITS.maxProseChars) clean = notice;
+  return safeText(clean, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: false });
 }
 
 const exchangeSize = (exchange) => JSON.stringify(exchange).length;

@@ -29,20 +29,12 @@ import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentit
 import { enhanceRail, syncChips, releaseFields } from "./fields.js?v=20260907-guided";
 import {
   INTERVIEW_QUESTIONS,
-  MINIMAX_DEFAULTS,
-  answerFields,
   buildBlueprint,
   buildPlannerPlan,
   buildPrompt,
-  createRequestFence,
   isInterviewComplete,
 } from "./planner.js?v=20260907-guided";
 import {
-  CHAT_LIMITS,
-  buildOfflineRequest,
-  createChatHistory,
-  requestChatTurn,
-  toolResultMessage,
   validateCalculatorProposal,
   validateFieldValue,
 } from "./chat.js?v=20260908-conversation-v4";
@@ -297,6 +289,9 @@ function expandAdvisorProposal(returned, before, originalGroups) {
 }
 function validateReturnedControls(values, groups) {
   validateControlRecord(values);
+  for (const id of Object.keys(captureControls())) {
+    if (!/^f-g\d+-/.test(id) && !(id in values)) throw new Error(`Missing control: ${id}`);
+  }
   const groupValues = groupControlValues(groups);
   const contracts = currentProposalContracts().fields;
   for (const [id, value] of Object.entries(values)) {
@@ -335,8 +330,10 @@ function processAdvisorReturn(fresh = false) {
       validateReturnedControls(record.controls, record.groups);
       const row = state.gpuPricing.rows[Number(record.controls["f-rent-gpu"])];
       if (record.rental_identity && ["provider", "gpu_id", "sku"].some(k => row?.[k] !== record.rental_identity[k])) throw new Error("Rental catalog changed; reopen the advisor from the current calculator.");
-      writeReturnedControls(record.controls, record.groups); restoredHandoff = true;
-      starterUI.restore(record.starter); flushLiveInput();
+      const before = captureControls(); const groups = readArchGroups(); const starter = starterUI.snapshot();
+      try { writeReturnedControls(record.controls, record.groups); starterUI.restore(record.starter); }
+      catch (error) { writeReturnedControls(before, groups); starterUI.restore(starter); throw error; }
+      restoredHandoff = true; flushLiveInput();
     }
     if (currentControlIdentity() !== record.identity) throw new Error("Calculator inputs changed while you were away. The proposal was not applied; your edits are preserved. Reopen the advisor from this scenario.");
     if (!record.proposal) return;

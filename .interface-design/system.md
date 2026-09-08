@@ -165,8 +165,10 @@ One value at a time, centered, over a scrim.
   never writes its clamped value back. No pointer-only scrub gestures.
 - `data-inline` excludes primary fields from vaulting. A shared range-blind
   selector identifies authoritative controls in harvesting, summaries and close.
-- Pending edits remove stale results/export immediately; expensive derivation
-  and comparison run after a 220ms pause, with chip sync after derivation.
+- Pending edits remove stale totals/export immediately; expensive derivation
+  and comparison run after a 220ms pause, with chip sync after derivation. The
+  promoted graph retains dimmed, explicitly labelled last-valid geometry while
+  pending and clears on invalid input, so it cannot be read as current.
 - Headline cards rank the selected horizon's infrastructure + platform licence
   + upfront cost, using exact arithmetic and joint-tie labels. Additional
   commercial fees are stated alongside, never silently called inclusive TCO.
@@ -205,6 +207,24 @@ provenance tags, `.pop` provenance popover, `.banner` / `.gap` alerts.
 **Dark-locked.** `color-scheme: dark` is declared and there is no light palette.
 This is deliberate for an instrument and is not a gap to fill. Any future light
 mode is a separate elevation system, not an inversion.
+
+## Comparison Canvas with Conversation (2026-09-08)
+
+The graph sits directly below headline totals, before detailed evidence. Plot
+geometry is responsive rather than letterboxed; legends/end-values wrap in HTML.
+Present/Exit and Escape preserve focus. Narrow layouts show the graph before the
+long rail, with jump links back to chat and assumptions. Export stays outside details.
+
+One visible conversation replaces both the hidden transcript and per-question
+thread. Explicit starters make the empty composer useful. Guided setup is optional;
+proposals remain inert until Apply, and the blueprint appears only afterwards.
+Reply figures are exact frozen calculator values, not generated citations. Status
+messages and model replies are distinct. Preserve the real field nodes and
+decision-shaped rail; do not add another independent chat surface.
+
+Rendered acceptance uses the passive `tco-calculator/tests/browser-check.html`:
+measure actual gridline span and transformed axis font sizes, not SVG box height.
+The fixture exercises presentation/print disclosure but never sends inference.
 
 ## Never do this here
 

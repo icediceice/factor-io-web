@@ -1199,10 +1199,12 @@ function setupPlanner() {
   globalThis.addEventListener?.("beforeprint", () => {
     printDisclosures = [...document.querySelectorAll(".result-disclosure")].filter((el) => !el.open);
     for (const el of printDisclosures) el.open = true;
+    if (state.result) $("curve").innerHTML = renderCurve(state.result.curve ?? [], state.result.payback, { width: 700, height: 440 });
   });
   globalThis.addEventListener?.("afterprint", () => {
     for (const el of printDisclosures) el.open = false;
     printDisclosures = [];
+    if (state.result) renderGraph(state.result);
   });
   $("ai-apply-guided").addEventListener("click", applyGuidedAnswers);
   $("ai-apply").addEventListener("click", applyPlannerAnswers);

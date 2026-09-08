@@ -11,6 +11,7 @@ import {
   validateCalculatorProposal,
   validateLocalLlmSpec,
   validateQuestionAnswer,
+  validateAssistantProse,
 } from "../chat.js";
 
 const fields = {
@@ -53,6 +54,29 @@ test("conversation preserves long explanations and safe prose beside rejected op
   assert.match(invalid.prose, /Consider utilization/);
   assert.equal(invalid.toolCall, null);
   assert.ok(invalid.toolError);
+});
+
+test("conversation preserves numbered headings and safe single-newline bullets", () => {
+  const prose = (content) => validateAssistantProse({ role: "assistant", content });
+  const heading = "### Option 2\n\n- 4 nodes give you headroom.";
+  assert.equal(prose(heading), heading);
+  const mixed = prose("Renting looks cheaper here because:\n- the API option bills per token at ฿12 / 1M\n- self-hosting needs the capex up front\n- your utilization assumption drives the crossing");
+  assert.match(mixed, /self-hosting needs the capex up front/);
+  assert.match(mixed, /your utilization assumption drives the crossing/);
+  assert.doesNotMatch(mixed, /฿12/);
+});
+
+test("conversation redacts multiline claims without decimal fragments or a pass limit", () => {
+  const prose = (content) => validateAssistantProse({ role: "assistant", content });
+  const mixed = prose("Keep this explanation.\n฿\n1,200.50 per month\n1500 - 300\n2 +\n3\nKeep this conclusion.");
+  assert.match(mixed, /Keep this explanation/);
+  assert.match(mixed, /Keep this conclusion/);
+  assert.doesNotMatch(mixed, /1,200|\.50|1500|300|2 \+|\n3/);
+  assert.equal(prose("2-3 nodes and 24-48 GB"), "2-3 nodes and 24-48 GB");
+  const many = prose(("฿\n1,200.50\nSafe line.\n").repeat(40));
+  assert.doesNotMatch(many, /฿|1,200|\.50/);
+  assert.equal((many.match(/Safe line/g) ?? []).length, 40);
+  assert.doesNotThrow(() => prose(("$1\nx\n").repeat(1000)));
 });
 
 test("MiniMax request disables thinking, requires a tool and preserves the complete assistant object", async () => {

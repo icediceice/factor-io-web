@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
-import { controlIdentity, controlDiff, validateControlRecord } from "../assistant-session.js";
+import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
 import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {
@@ -114,7 +114,7 @@ function harness() {
     fetchOpenRouterModels: async () => { throw new Error("offline test fixture"); },
     fetchLiveFx: async () => { throw new Error("offline test fixture"); },
     syncChips() {}, enhanceRail() {}, releaseFields() {},
-    controlIdentity, controlDiff, validateControlRecord,
+    controlIdentity, controlDiff, validateControlRecord, readHandoff, consumeHandoff,
     setupStarters: () => ({ refresh() {}, snapshot: () => ({ mode: "starter" }), restore() {}, setMode() {} }),
   });
   const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");
@@ -523,6 +523,90 @@ test("field harvesting and close use a shared range-blind control selector", () 
 
 const profile = { use_case: "support", substrate: "nutanix", data_boundary: "internal", interaction: "assistant", overflow: "burst" };
 const guidedAnswers = { ...profile, scale: "department", intensity: "routine", horizon: "y5" };
+function returnHarness() {
+  const h = harness(); const stored = new Map(); let mode = "starter"; let computations = 0;
+  const storage = { get length() { return stored.size; }, key: n => [...stored.keys()][n], getItem: key => stored.get(key) ?? null, setItem: (key, value) => stored.set(key, value), removeItem: key => stored.delete(key) };
+  h.context.sessionStorage = storage;
+  h.state.ready = true;
+  h.state.manifest = { snapshot_digest: "current", models: [{ id: "openrouter:test", name: "Test" }, { id: "other:claude-test", name: "Claude test" }] };
+  h.state.gpuPricing = { rows: [{ provider: "first", gpu_id: "gpu" }, { provider: "second", gpu_id: "gpu2" }] };
+  h.state.serverPricing = { rows: [] }; h.state.servingData = { models: [] };
+  h.state.workloadPresets = { defaults: { shapes: Object.fromEntries(["chat", "rag", "graph_rag", "agentic"].map(key => [key, { turns_per_session: 2, in_tokens: 100, out_tokens: 50, cached_tokens: 0 }])) }, presets: [{ id: "support_desk", fields: { "f-mix-chat": "100", "f-mix-rag": "0", "f-mix-graphrag": "0", "f-mix-agentic": "0" } }] };
+  const before = { ...buildPlannerPlan(guidedAnswers).controlledFields, "f-users": "20", "f-sv-maxbatch": "", "f-sub-term": "", "f-rent-provider": "first", "f-rent-gpu": "0", "fb-feed": "openrouter", "fb-model": "openrouter:test", "f-utc": "2026-09-08T00:00:00Z" };
+  for (const [id, value] of Object.entries(before)) h.node(id).value = value;
+  for (const id of ["fr-policy", "f-rent-provider", "f-rent-gpu", "fb-feed", "fb-model", "f-sub-term"]) {
+    h.node(id).tagName = "SELECT";
+    h.node(id).options = [...new Set([before[id], "local_first", "first", "second", "0", "1", "openrouter", "other", "openrouter:test", "other:claude-test", "annual"])].map(value => ({ value, textContent: value }));
+  }
+  h.context.document.querySelectorAll = () => [...h.nodes.values()].filter(n => /^(f-|fb-|fo-|fr-)/.test(n.id) && n.value !== undefined && (n.id in before || n.value !== ""));
+  h.get("readArchGroups = () => []");
+  h.context.applyControls = values => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
+  h.get("writeReturnedControls = values => applyControls(values)");
+  h.context.recompute = () => { computations++; h.state.result = { computed: true }; };
+  h.get("flushLiveInput = () => recompute()");
+  const starter = { snapshot: () => ({ mode }), setMode: value => { mode = value; if (mode === "custom") h.context.recompute(); }, restore: value => { mode = value.mode; } };
+  h.context.starter = starter; h.get("starterUI = starter");
+  const id = "00000000-0000-4000-8000-000000000099";
+  const record = { controls: h.get("captureControls()"), groups: [], identity: h.get("currentControlIdentity()"), starter: starter.snapshot(), pricing_identity: "captured", proposal: { kind: "guided", answers: guidedAnswers } };
+  saveHandoff(storage, record, { id }); h.context.location.href += `?advisor=${id}`;
+  return { ...h, storage, id, record, computations: () => computations };
+}
+test("return accepts real optional blanks and refuses removed options and malformed batches", () => {
+  const h = returnHarness();
+  assert.doesNotThrow(() => h.get("validateReturnedControls")(h.record.controls, []));
+  assert.throws(() => h.get("validateReturnedControls")({ ...h.record.controls, "f-sub-term": "retired" }, []), /Unavailable option/);
+  assert.throws(() => h.get("validateReturnedControls")({ ...h.record.controls, "f-sv-maxbatch": "abc" }, []), /integer/);
+  h.context.document.getElementById = id => id === "f-users" ? null : h.node(id);
+  assert.throws(() => h.get("validateReturnedControls")(h.record.controls, []), /Removed control/);
+});
+test("return preview expands preset and guided side effects without mutating inputs", () => {
+  const h = returnHarness(); h.get("processAdvisorReturn(false)");
+  assert.equal(h.node("f-users").value, "20"); assert.equal(h.computations(), 0);
+  const pending = h.get("pendingReview");
+  assert.equal(pending.prepared.controls["f-users"], "200");
+  assert.equal(pending.prepared.controls["f-chat-in"], "100");
+  assert.match(h.node("return-review").innerHTML, /Prices refreshed/);
+  assert.match(h.node("return-review").innerHTML, /20 → 200/);
+});
+test("return expands dependent provider and API defaults into the reviewed control set", () => {
+  const h = returnHarness();
+  const result = h.get("expandAdvisorProposal")({ kind: "proposal", value: { summary: "Change providers", planning_profile: profile, changes: [{ field: "f-rent-provider", value: "second", reason: "Example" }, { field: "fb-feed", value: "other", reason: "Example" }], suggested_replies: [] } }, h.record.controls, []);
+  assert.equal(result.controls["f-rent-gpu"], "1"); assert.equal(result.controls["fb-model"], "other:claude-test");
+  assert.equal(h.node("f-rent-gpu").value, "0");
+});
+test("Apply rechecks identity, consumes once, enters custom and computes exactly once", () => {
+  const h = returnHarness(); h.get("processAdvisorReturn(false)"); h.get("applyReturnedProposal()");
+  assert.equal(h.node("f-users").value, "200"); assert.equal(h.computations(), 1);
+  assert.equal(readHandoff(h.storage, h.id).consumed, true);
+  assert.equal(h.get("plannerState.applied"), true);
+  h.get("applyReturnedProposal()"); h.get("processAdvisorReturn(true)");
+  assert.equal(h.computations(), 1);
+});
+test("manual edits before return or after preview survive without application", () => {
+  for (const afterPreview of [false, true]) {
+    const h = returnHarness(); if (afterPreview) h.get("processAdvisorReturn(false)");
+    h.node("f-users").value = "99";
+    if (afterPreview) h.get("applyReturnedProposal()"); else h.get("processAdvisorReturn(false)");
+    assert.equal(h.node("f-users").value, "99"); assert.equal(h.computations(), 0);
+    assert.equal(readHandoff(h.storage, h.id).consumed, false);
+  }
+});
+test("fresh return restores once, but a locally edited initialization is never overwritten", () => {
+  const h = returnHarness(); h.node("f-users").value = "50"; h.get("processAdvisorReturn(true)");
+  assert.equal(h.node("f-users").value, "20"); assert.equal(h.computations(), 1);
+  h.node("f-users").value = "99"; h.get("processAdvisorReturn(true)");
+  assert.equal(h.node("f-users").value, "99"); assert.equal(h.computations(), 1);
+  const edited = returnHarness(); edited.node("f-users").value = "88"; edited.get("manualRevision++"); edited.get("processAdvisorReturn(true)");
+  assert.equal(edited.node("f-users").value, "88"); assert.equal(edited.computations(), 0);
+  assert.match(app, /addEventListener\("pageshow"/);
+});
+test("storage consumption failure rolls all reviewed controls back", () => {
+  const h = returnHarness(); h.get("processAdvisorReturn(false)");
+  h.storage.setItem = () => { throw new Error("Storage blocked"); }; h.get("applyReturnedProposal()");
+  assert.equal(h.node("f-users").value, "20"); assert.equal(h.computations(), 0);
+  assert.match(h.node("return-status").textContent, /Storage blocked/);
+  assert.equal(h.get("plannerState.applied"), false);
+});
 const advisorRecord = () => ({ saved_at: Date.now(), controls: { "f-users": "20" }, contracts: { "f-users": { kind: "integer", min: 1, max: 10000000 } }, context: { mode: "custom", label: "test scenario", figures: { monthly: "฿3,300.00" }, sources: { api: { status: "stale", observed_at: "2026-01-01" } } }, answers: {} });
 function advisorHarness({ record = advisorRecord(), transport = null } = {}) {
   const h = harness(); const calls = []; const returned = [];

@@ -14,7 +14,7 @@ export const CHAT_LIMITS = Object.freeze({
   // Free prose on an assist turn. Generous enough to explain a trade-off in the
   // model's own words, short enough that it cannot bury a page of unreviewed
   // text under one interview question.
-  maxProseChars: 2000,
+  maxProseChars: 8000,
   // The ceiling on the assembled system prompt. It is EXPORTED because the page
   // builds that prompt and must budget against the same number: a prompt over
   // this is refused here, which kills the whole turn with a message the visitor
@@ -411,7 +411,13 @@ export function validateAssistantToolCall(message, context = {}, { assist = fals
 export function validateAssistantProse(message, { optional = false } = {}) {
   const content = isObject(message) ? message.content : null;
   if (optional && (content === undefined || content === null || String(content).trim() === "")) return null;
-  return safeText(content, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: true });
+  const text = safeText(content, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: false });
+  // Redact whole paragraphs, not decimal-sensitive sentence fragments. Keep
+  // useful explanation, but let only the app's frozen figure strip quote money.
+  const clean = text.split(/\n\s*\n/).map((paragraph) => ARITHMETIC_CLAIM.test(paragraph)
+    ? "[Unverified figure omitted — see the calculator figures below.]"
+    : paragraph).join("\n\n");
+  return safeText(clean, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: true });
 }
 
 const exchangeSize = (exchange) => JSON.stringify(exchange).length;
@@ -539,12 +545,16 @@ export async function requestChatTurn({
   if (JSON.stringify(assistantMessage).length > maxAssistantChars) throw new ChatRequestError("response_too_large", "The complete assistant response exceeds the browser retention limit. Ask for a shorter answer.");
   let toolCall;
   let prose;
+  let toolError = null;
   try {
-    toolCall = validateAssistantToolCall(assistantMessage, validationContext, { assist });
-    // Prose beside a suggestion is optional — answer_question already carries
-    // answer/why. With no suggestion it is the entire reply, so it is required:
-    // an assist turn that returns neither is a failed turn, not a silent one.
-    prose = assist ? validateAssistantProse(assistantMessage, { optional: !!toolCall }) : null;
+    prose = assist ? validateAssistantProse(assistantMessage, { optional: true }) : null;
+    try { toolCall = validateAssistantToolCall(assistantMessage, validationContext, { assist }); }
+    catch (error) {
+      if (!assist || !prose || !(error instanceof ChatContractError)) throw error;
+      toolCall = null;
+      toolError = error.code;
+    }
+    if (assist && !toolCall && !prose) throw new ChatContractError("empty_answer", "The assistant returned no answer. Please send again.");
   }
   catch (error) {
     if (error instanceof ChatContractError) throw new ChatRequestError(error.code, error.message);
@@ -557,6 +567,7 @@ export async function requestChatTurn({
     // dereferencing it.
     toolCall,
     prose,
+    toolError,
     model: typeof body.model === "string" ? body.model : String(model),
     usage: isObject(body.usage) ? cloneJson(body.usage) : null,
   };

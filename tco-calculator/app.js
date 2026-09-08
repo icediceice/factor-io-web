@@ -304,6 +304,7 @@ function validateReturnedControls(values, groups) {
     const el = $(id); if (!el) throw new Error(`Removed control: ${id}`);
     if (id === "f-utc") { if (!/^\d{4}-\d\d-\d\dT\d\d:00:00Z$/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error("Invalid quote time"); continue; }
     if (id === "f-srv-config") { if (value && !state.serverPricing.rows.some(r => r.server_id === value && r.gpu_id === values["f-sh-gpu"])) throw new Error("Server no longer matches the accelerator"); continue; }
+    if (id === "f-sv-maxbatch" && value === "") continue; // blank is the real control's uncapped/default state
     if (contracts[id]) validateFieldValue(id, value, contracts[id]);
     else if (el.tagName === "SELECT" && !controlValues(id).includes(value)) throw new Error(`Unavailable option: ${controlLabel(id)}`);
   }

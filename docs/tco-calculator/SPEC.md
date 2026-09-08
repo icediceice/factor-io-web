@@ -3,9 +3,31 @@
 | | |
 |---|---|
 | Status | Normative implementation contract |
-| Spec revision | v0.8 — 2026-09-07 (supersedes v0.7 — 2026-09-07, v0.6 — 2026-09-07, v0.5/v0.4 — 2026-09-06, v0.3/v0.2 — 2026-08-29, v0.1 — 2026-08-27) |
-| Plan thread | 1546476658704388198 (factor-io-web); v0.7 was 1546371070259494945, v0.6 was 1546330542415282260, v0.4 was 1546296134455005337, v0.3 was 1543165562891538537, v0.2 was 1543101965414703186, v0.1 was 1542478190939996174 |
+| Spec revision | v0.9 — 2026-09-08 (single-server examples and dedicated advisor; earlier revisions retained below as history) |
+| Plan thread | 1546941087258779831 (factor-io-web); v0.8 was 1546476658704388198 |
 | Delivery | Static client-side calculator on GitHub Pages + a Factor IO AI proxy (`ai.factor-io.com`) + a scheduled pricing-snapshot publisher (systemd timer on light-worker) |
+
+## v0.9 precedence and buying experience (normative)
+
+This section supersedes the primary demand-entry and embedded interview/conversation requirements in §2.4 and §8. Historical revision descriptions below are not instructions to restore those surfaces. Legacy custom A/B/C routing, tariff semantics, freshness contracts and F1–F10 fixtures remain unchanged.
+
+The initial page is a **Focus Rail** for one complete, visibly illustrative example: code reading before premium reasoning, document triage with premium exceptions, or test drafting with premium review. No demand entry or AI request is required. Each case names one whole RTX PRO 6000 96 GB workstation, Qwen3 8B, BF16 weights/KV, vLLM, context/concurrency, task cadence and local/premium responsibilities. This is a cited derived-component hardware estimate, not a vendor quote or measured deployment. Hardware is fixed; overflow goes to the original premium request, never silently buys more servers. Early setup content precedes asynchronous pricing; missing prices produce an explicit unavailable state, not a partial favourable total.
+
+`starter-cases.js` owns authored assumptions; `starter-economics.js` composes the existing exact `runComparison`, `servingPlan`, `nodesForFleet`, `runningCost` and `paybackMonths` functions. Each baseline and successful residual request has its own prompt/output/cache-read/cache-write/request shape and is re-quoted independently. Absent or unservable offers and missing prices for consumed meters refuse the result. No API-price multiplication from an annotated average. Task accounting is disjoint: tasks = successful local + bypass + failure + capacity overflow. Every non-success pays the original premium shape once; a successful task pays zero or one declared residual request. Capacity includes an explicitly assumed prefill rate plus decode roofline; neither establishes task quality or measured throughput.
+
+The visible ledger separates baseline API, remaining API, API bill reduction, full rated-power electricity (730 hours with overhead/PUE), whole-server capex, recurring net savings and horizon savings. Task scheduling never discounts electricity or acquisition cost. Payback is whole months, beyond-horizon, or no-payback; low use and price drift must display losses honestly. Staffing, rack/network, maintenance, software licences, tax/finance and quality validation are exclusions, not hidden zero-cost services. Starter exports own their exact USD ledger and FX provenance; displayed amounts are THB. Custom graph/print/export retain their existing authority, independently of starter state.
+
+[Spotify's engineering article](https://engineering.atspotify.com/2026/9/portal-by-spotify-cut-my-claude-code-token-usage-by-90) supports task delegation, not a local hardware savings claim: it reports about 90% mean bulk-read Claude token reduction using Gemini 2.5 Flash workers. It is **not** total Claude billing reduction, a universal savings percentage or a benchmark of these example models.
+
+### Dedicated advisor and return lifecycle
+
+`tco-assistant.html` / `assistant.js` provide the only conversation surface; custom sizing is secondary and the eight-question guide is optional on the advisor page. Normal same-tab navigation carries an opaque scenario ID. `assistant-session.js` stores at most four bounded v1 scenario/proposal records in per-tab sessionStorage, each at most 240,000 characters with a two-hour expiry. Reset clears only the owned namespace. The visible transcript (latest 40 messages) and retained model history (eight complete exchanges) live only in page memory and disappear on reload.
+
+Captured controls, mode/case, exact figures/ledger and source dates are immutable reference evidence, not a second live calculator. Missing/expired/blocked context permits general advice without mutation/spec authority. Send/Ask alone starts inference; navigation, case selection and authored guided answers never do. Requests retain the whole-system-prompt cap, scoped optional tools, safe prose and cancellation fencing; pagehide aborts and fences late replies.
+
+Returned suggestions remain inert. Calculator initialization and BFCache pageshow use one idempotent handler. A fresh return can restore the validated source descriptor only before local edits supersede it. Current controls are checked independently from pricing freshness; control conflicts preserve edits, while changed prices require current re-quotation at Apply. The calculator expands preset/model/architecture, rental/server and API-feed dependencies into a complete old/new diff, including removals. Explicit Apply rechecks the preview identity, writes the reviewed configuration with rollback on failure, consumes it once, enters custom mode and computes once. Reload/Back never replays a consumed proposal. A grounded specification requires reopening the advisor from a valid applied/recomputed custom result. Model prose never supplies financial arithmetic, provenance or calculator exports.
+
+## Historical revision rationale
 
 **What v0.2 changes, and why.** v0.1 asked the user to assert a monthly token
 number and compared three "lanes". Both were wrong at the point of use: the token

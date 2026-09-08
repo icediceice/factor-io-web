@@ -8,27 +8,62 @@
 <div id="checks"></div>
 <script type="module">
 const reports = [];
-const frameReady = (frame) => new Promise((resolve, reject) => {
+const frameReady = (frame, predicate = doc => doc?.querySelector('#starter-result .starter-ledger')) => new Promise((resolve, reject) => {
   const start = Date.now();
   const check = () => {
     const doc = frame.contentDocument;
-    if (doc?.querySelector('#curve .plot-grid') && doc.querySelector('#comparison')?.getAttribute('aria-busy') === 'false') return resolve(doc);
-    if (Date.now() - start > 45000) return reject(new Error(doc?.querySelector('#gapbox')?.textContent || 'Calculator did not produce a graph within 45 seconds'));
+    if (predicate(doc)) return resolve(doc);
+    if (Date.now() - start > 45000) return reject(new Error(doc?.querySelector('#return-review')?.textContent || doc?.querySelector('#gapbox')?.textContent || 'Page did not become ready within 45 seconds'));
     setTimeout(check, 250);
   };
   check();
 });
+const visible = el => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0;
+function measure(doc, width) {
+  const win = doc.defaultView;
+  const rgba = value => (value.match(/[\d.]+/g) ?? []).map(Number);
+  const blend = (fg, bg) => fg.slice(0, 3).map((v, i) => v * (fg[3] ?? 1) + bg[i] * (1 - (fg[3] ?? 1)));
+  const background = el => {
+    const chain = []; for (let n = el; n; n = n.parentElement) chain.unshift(n);
+    return chain.reduce((bg, n) => blend(rgba(win.getComputedStyle(n).backgroundColor), bg), [255, 255, 255]);
+  };
+  const lum = rgb => rgb.map(v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0);
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05);
+  const root = doc.querySelector('.focus-page');
+  const text = [...root.querySelectorAll('*')].filter(el => visible(el) && [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()));
+  const contrast = text.map(el => {
+    const cs = win.getComputedStyle(el); const bg = background(el); const value = ratio(blend(rgba(cs.color), bg), bg);
+    const need = parseFloat(cs.fontSize) >= 24 || (parseFloat(cs.fontSize) >= 18.66 && Number(cs.fontWeight) >= 700) ? 3 : 4.5;
+    return { element: el.id || el.className || el.tagName, ratio: Number(value.toFixed(2)), need };
+  });
+  const actions = [...root.querySelectorAll('button,summary,input,textarea,nav a')].filter(visible).map(el => ({ id: el.id || el.textContent.trim().slice(0, 50), width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height }));
+  return { overflow: doc.documentElement.scrollWidth > width, actions, smallActions: actions.filter(r => r.width < 44 || r.height < 44), contrastFailures: contrast.filter(r => r.ratio < r.need), minimumContrast: Math.min(...contrast.map(r => r.ratio)), typeScale: [...new Set(text.map(el => win.getComputedStyle(el).fontSize))] };
+}
 for (const width of [390, 1100, 1920]) {
   const section = document.createElement('section');
   const heading = document.createElement('h2'); heading.textContent = `${width}px`;
   const report = document.createElement('pre'); report.textContent = 'Loading…';
   const wrap = document.createElement('div'); wrap.className = 'viewport';
   const frame = document.createElement('iframe'); frame.width = width; frame.title = `Calculator at ${width} CSS pixels`;
-  frame.src = '../../tco-calculator.html?layout-check=conversation-final';
+  frame.src = `../../tco-calculator.html?layout-check=starters-${Date.now()}`;
   wrap.append(frame); section.append(heading, report, wrap); document.querySelector('#checks').append(section);
   try {
     const doc = await frameReady(frame);
+    await doc.fonts.ready;
     const win = frame.contentWindow;
+    const starter = measure(doc, width);
+    const setupVisible = doc.querySelector('#starter-setup').textContent.includes('One tower workstation');
+    const noComposer = !doc.querySelector('#ai-composer');
+    const fixedResult = doc.querySelector('#starter-result').textContent;
+    const starterDetails = doc.querySelector('#starter-assumptions').closest('details');
+    starterDetails.querySelector('summary').focus();
+    const disclosureFocus = doc.activeElement === starterDetails.querySelector('summary');
+    win.dispatchEvent(new win.Event('beforeprint'));
+    const starterPrint = starterDetails.open && doc.querySelector('#custom-page').hidden;
+    win.dispatchEvent(new win.Event('afterprint'));
+    const starterPrintRestored = !starterDetails.open;
+    doc.querySelector('#starter-custom').click();
+    await frameReady(frame, d => d.querySelector('#curve .plot-grid') && d.querySelector('#comparison').getAttribute('aria-busy') === 'false');
     const grid = [...doc.querySelectorAll('#curve .plot-grid')];
     const ys = grid.map((line) => line.getBoundingClientRect().y);
     const plotHeight = Math.max(...ys) - Math.min(...ys);
@@ -36,10 +71,8 @@ for (const width of [390, 1100, 1920]) {
       const m = label.getScreenCTM();
       return parseFloat(win.getComputedStyle(label).fontSize) * Math.hypot(m.c, m.d);
     });
-    const targets = [...doc.querySelectorAll('#ai-send,#present-graph,#ai-starters button')].map((el) => ({id:el.id || el.textContent, height:el.getBoundingClientRect().height}));
+    const targets = [...doc.querySelectorAll('#present-graph,#custom-advisor')].map((el) => ({id:el.id, height:el.getBoundingClientRect().height}));
     const graphBeforeDetails = !!(doc.querySelector('#curve-card').compareDocumentPosition(doc.querySelector('#results')) & 4);
-    const transcriptDisclosed = !doc.querySelector('#ai-transcript').closest('details');
-    const guidedClosed = !doc.querySelector('#ai-guided').open;
     const overflow = doc.documentElement.scrollWidth > width;
     const mobileGraphFirst = width > 1100 || doc.querySelector('#curve-card').getBoundingClientRect().top < doc.querySelector('.rail').getBoundingClientRect().top;
     const present = doc.querySelector('#present-graph');
@@ -53,9 +86,34 @@ for (const width of [390, 1100, 1920]) {
     win.dispatchEvent(new win.Event('afterprint'));
     const printRestored = folded.every((el) => !el.open);
     const exportReachable = !doc.querySelector('#export').closest('details');
-    win.scrollTo(0,0);
-    const checks = {width, plotHeight, minRenderedAxisFont:Math.min(...fonts), targets, graphBeforeDetails, transcriptDisclosed, guidedClosed, overflow, mobileGraphFirst, presentationEntered, presentationExited, printExpanded, printRestored, exportReachable};
-    checks.pass = plotHeight >= (width === 390 ? 260 : 380) && checks.minRenderedAxisFont >= 11 && targets.every((t) => t.height >= 44) && graphBeforeDetails && transcriptDisclosed && guidedClosed && !overflow && mobileGraphFirst && presentationEntered && presentationExited && printExpanded && printRestored && exportReachable;
+    doc.querySelector('#starter-back').click();
+    const modePreserved = doc.querySelector('#starter-result').textContent === fixedResult;
+    doc.querySelector('#starter-advisor').click();
+    const advisorDoc = await frameReady(frame, d => d.querySelector('#advisor-context details'));
+    await advisorDoc.fonts.ready;
+    const advisor = measure(advisorDoc, width);
+    const captured = advisorDoc.querySelector('#advisor-context').textContent.includes('Read code locally');
+    const transcriptDisclosed = !advisorDoc.querySelector('#ai-transcript').closest('details');
+    const guidedClosed = !advisorDoc.querySelector('#ai-guided').open;
+    advisorDoc.querySelector('#ai-guided').open = true;
+    for (let question = 0; question < 8; question++) {
+      advisorDoc.querySelector('[data-option]').click();
+      if (question < 7) advisorDoc.querySelector('[data-question-next]').click();
+    }
+    const guided = measure(advisorDoc, width);
+    advisorDoc.querySelector('#ai-guided-review').click();
+    const returnDoc = await frameReady(frame, d => d.querySelector('#return-apply'));
+    const reviewVisible = visible(returnDoc.querySelector('#return-apply'));
+    returnDoc.querySelector('#return-apply').click();
+    const applied = returnDoc.querySelector('#return-review').textContent.includes('Applied once and recomputed') && !returnDoc.querySelector('#custom-page').hidden;
+    returnDoc.querySelector('#custom-advisor').click();
+    const appliedDoc = await frameReady(frame, d => d.querySelector('#advisor-blueprint') && !d.querySelector('#advisor-blueprint').hidden);
+    const specResnapshot = !appliedDoc.querySelector('#ai-request-spec').disabled;
+    // End in the primary buying experience for visual inspection, without inference.
+    frame.src = `../../tco-calculator.html?layout-check=final-${Date.now()}`;
+    await frameReady(frame);
+    const checks = {width, starter, advisor, guided, setupVisible, noComposer, disclosureFocus, starterPrint, starterPrintRestored, modePreserved, captured, reviewVisible, applied, specResnapshot, plotHeight, minRenderedAxisFont:Math.min(...fonts), targets, graphBeforeDetails, transcriptDisclosed, guidedClosed, overflow, mobileGraphFirst, presentationEntered, presentationExited, printExpanded, printRestored, exportReachable};
+    checks.pass = [starter, advisor, guided].every(r => !r.overflow && !r.smallActions.length && !r.contrastFailures.length) && setupVisible && noComposer && disclosureFocus && starterPrint && starterPrintRestored && modePreserved && captured && reviewVisible && applied && specResnapshot && plotHeight >= (width === 390 ? 260 : 380) && checks.minRenderedAxisFont >= 11 && targets.every((t) => t.height >= 44) && graphBeforeDetails && transcriptDisclosed && guidedClosed && !overflow && mobileGraphFirst && presentationEntered && presentationExited && printExpanded && printRestored && exportReachable;
     reports.push(checks); report.textContent = JSON.stringify(checks, null, 2);
   } catch (error) { reports.push({width, pass:false, error:error.message}); report.textContent = error.message; }
 }

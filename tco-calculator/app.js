@@ -1028,25 +1028,26 @@ function handleChatTool(result) {
   return { status: "displayed", calculator_mutated: false, deterministic_ledger_authoritative: true };
 }
 
-async function sendChatMessage(message = $("ai-message").value, { intent = "interview", clearComposer = true } = {}) {
+async function sendChatMessage(message = $("ai-message").value, { intent = "conversation", clearComposer = true } = {}) {
   const text = String(message ?? "").trim();
   if (!state.ready || chatState.busy || !text) return;
   if (intent === "spec" && (!plannerState.applied || !plannerState.blueprint || !state.result)) {
     $("ai-workspace-status").textContent = "Apply a reviewed proposal and wait for a valid exact result before asking for the specification.";
     return;
   }
-  const systemPrompt = chatSystemPrompt(intent);
-  // One question, one conversation. An assist turn never carries another
-  // question's exchanges, and never leaks its own into the free-form thread.
-  const history = intent === "assist" ? chatState.assistHistory : chatState.history;
+  const snapshot = conversationSnapshot();
+  let systemPrompt;
+  const history = chatState.history;
+  const conversational = intent !== "spec";
   try {
+    systemPrompt = chatSystemPrompt(intent, snapshot);
     chatState.offlineArtifact = buildOfflineRequest({
       endpoint: MINIMAX_DEFAULTS.endpoint,
       model: MINIMAX_DEFAULTS.model,
       history,
       systemPrompt,
       userMessage: text,
-      assist: intent === "assist",
+      assist: conversational,
       pageUrl: location.href,
     });
     $("ai-copy-request").disabled = false;
@@ -1055,7 +1056,9 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
     return;
   }
   if (clearComposer) $("ai-message").value = "";
+  if (chatState.lastScenario && chatState.lastScenario !== snapshot.identity) appendChat("status", "Scenario changed. Earlier replies keep the figures from when you asked; this answer uses the current calculator.");
   appendChat("user", text);
+  chatState.pendingTurn = { text };
   renderChatSuggestions([]);
   const generation = chatFence.begin();
   const controller = new AbortController();
@@ -1072,10 +1075,8 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       systemPrompt,
       userMessage: text,
       validationContext: chatValidationContext({ assist: intent === "assist" }),
-      // Loosens WORDING on an assist turn only — the suggestion, if there is
-      // one, is schema-validated at any temperature and the prose is still
-      // refused if it asserts a price.
-      assist: intent === "assist",
+      // Conversation permits prose, but suggestions remain inert and validated.
+      assist: conversational,
       pageUrl: location.href,
       signal: controller.signal,
     });
@@ -1084,27 +1085,30 @@ async function sendChatMessage(message = $("ai-message").value, { intent = "inte
       ? ["present_local_llm_spec"]
       : intent === "assist"
         ? ["answer_question"]
-        : ["ask_user", "answer_question", "propose_calculator_changes"];
+        : ["ask_user", "propose_calculator_changes"];
     // toolCall is null only on an assist turn that answered in prose alone; the
     // validator still refuses a missing tool call on every other intent.
     if (result.toolCall && !allowedTools.includes(result.toolCall.name)) {
-      const error = new Error(`The assistant returned ${result.toolCall.name} for a ${intent} turn; no output was applied.`);
-      error.code = "unexpected_tool";
-      throw error;
+      if (!conversational || !result.prose) throw new Error("The assistant returned an incompatible suggestion without an answer. Please send again; nothing was applied.");
+      result.toolCall = null;
+      result.toolError = "unexpected_tool";
     }
+    result.figures = snapshot.figures;
     const outcome = handleChatTool(result);
-    const tools = result.toolCall ? [toolResultMessage(result.toolCall, outcome)] : [];
-    history.append({ user: result.user, assistant: result.assistantMessage, tools });
-    $("ai-model-status").textContent = result.toolCall
-      ? `Structured ${result.toolCall.name} response received from ${result.model}. Review before any Apply.`
-      : `Answered in prose by ${result.model}. No calculator control was touched.`;
+    const calls = result.assistantMessage.tool_calls ?? [];
+    const retainable = Array.isArray(calls) && calls.every((call) => typeof call?.id === "string" && call.id.trim()) && new Set(calls.map((call) => call.id)).size === calls.length;
+    if (retainable) {
+      const tools = calls.map((call) => toolResultMessage(call, call.id === result.toolCall?.id ? outcome : { status: "rejected", calculator_mutated: false, reason: result.toolError ?? "unsupported_tool" }));
+      history.append({ user: result.user, assistant: result.assistantMessage, tools });
+      chatState.lastScenario = snapshot.identity;
+    }
+    chatState.pendingTurn = null;
+    $("ai-model-status").textContent = `${result.toolError ? "Answer received; an invalid optional suggestion was ignored. " : "Answer received. "}No controls changed. ${retainable ? "Up to eight complete exchanges are available for follow-ups." : "This malformed exchange could not be retained for follow-ups."}`;
   } catch (error) {
     if (!chatFence.isCurrent(generation) || error?.code === "aborted") return;
-    const note = `${error.message}\n\nThe deterministic calculator is unchanged. You can copy the prepared token-free request for a same-origin gateway or local model client.`;
-    // On an assist turn the failure belongs in the thread the visitor is
-    // reading; the transcript gets it either way via pushAssistReply.
-    if (intent === "assist") pushAssistReply(note);
-    else appendChat("assistant", note);
+    restorePendingQuestion();
+    const note = `${error.message}\n\nYour question is ready to retry. The calculator is unchanged.`;
+    appendChat("status", note);
     $("ai-model-status").textContent = error.message;
   } finally {
     if (chatFence.isCurrent(generation)) {

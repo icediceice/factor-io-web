@@ -436,7 +436,12 @@ export function validateAssistantProse(message, { optional = false } = {}) {
   let clean = output.join("\n");
   // Re-check with the same prose grammar. Notice expansion must not convert a
   // valid bounded input into another whole-turn error.
-  if (PROSE_CLAIM.test(clean) || clean.length > CHAT_LIMITS.maxProseChars) clean = notice;
+  if (PROSE_CLAIM.test(clean)) clean = notice;
+  if (clean.length > CHAT_LIMITS.maxProseChars) {
+    const suffix = "\n[Answer shortened.]";
+    const prefix = clean.slice(0, CHAT_LIMITS.maxProseChars - suffix.length);
+    clean = prefix.slice(0, prefix.lastIndexOf("\n")) + suffix;
+  }
   return safeText(clean, "answer", { max: CHAT_LIMITS.maxProseChars, rejectClaims: false });
 }
 

@@ -780,7 +780,7 @@ test("the system prompt is budgeted whole, so a heavy page state cannot kill the
   h.get("setupPlanner()");
   h.get("plannerState.helpQuestionId = 'substrate'");
   h.get("plannerState.blueprint = { text: 'x'.repeat(40000) }");
-  h.get("state.manifest = { sources: { huge: 'y'.repeat(40000) } }");
+  h.get("state.manifest = { sources: { huge: 'y'.repeat(40000), priced: {status:'stale',observed_at:'2026-01-01',expires_at:'2026-01-02'} } }");
 
   const prompt = h.get("chatSystemPrompt('assist')");
   assert.ok(
@@ -791,6 +791,8 @@ test("the system prompt is budgeted whole, so a heavy page state cannot kill the
   assert.match(prompt, /explicit Not sure request/);
   assert.match(prompt, /current_scenario/);
   assert.match(prompt, /pending_or_invalid/);
+  assert.match(prompt, /"observed_at":"2026-01-01"/);
+  assert.match(prompt, /"status":"stale"/);
   assert.match(prompt, /"id":"substrate"/, "the question being asked about is never what gets dropped");
   assert.match(prompt, /"request_mode":"assist"/);
   // And it must still fit the caller that actually enforces the cap.

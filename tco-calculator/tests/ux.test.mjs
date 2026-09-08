@@ -626,6 +626,18 @@ test("dedicated advisor opens without inference; calculator contains no composer
   assert.match(html, /id="starter-page"[\s\S]*id="custom-page" hidden/);
   assert.doesNotMatch(advisorSource, /from ["']\.\/app\.js/);
 });
+test("local request preparation copies without inference, and empty copy gives guidance", async () => {
+  const h = advisorHarness();
+  h.node("ai-copy-request").events.click();
+  assert.match(h.node("ai-model-status").textContent, /Nothing is ready/);
+  h.node("ai-message").value = "Explain this locally";
+  h.node("ai-copy-request").events.click();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.calls.length, 0);
+  assert.match(h.advisor.state.offline.copyText, /Explain this locally/);
+  assert.equal(h.node("ai-message").value, "Explain this locally");
+  assert.equal(h.node("ai-model-status").textContent, "Copied.");
+});
 test("composer sends the exact general question; plain prose does not force a tool", async () => {
   const h = advisorHarness(); h.node("ai-message").value = "Why is renting cheaper for this scenario?";
   h.node("ai-composer").requestSubmit(); await new Promise(resolve => setImmediate(resolve));

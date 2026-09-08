@@ -306,7 +306,7 @@ function validateReturnedControls(values, groups) {
     if (id === "f-srv-config") { if (value && !state.serverPricing.rows.some(r => r.server_id === value && r.gpu_id === values["f-sh-gpu"])) throw new Error("Server no longer matches the accelerator"); continue; }
     if (id === "f-sv-maxbatch" && value === "") continue; // blank is the real control's uncapped/default state
     if (contracts[id]) validateFieldValue(id, value, contracts[id]);
-    else if (el.tagName === "SELECT" && !controlValues(id).includes(value)) throw new Error(`Unavailable option: ${controlLabel(id)}`);
+    else if (el.tagName === "SELECT" && ![...el.options].some(option => option.value === value)) throw new Error(`Unavailable option: ${controlLabel(id)}`);
   }
   const rental = state.gpuPricing.rows[Number(values["f-rent-gpu"])];
   if (!rental || rental.provider !== values["f-rent-provider"]) throw new Error("Rental GPU no longer belongs to the selected provider");
@@ -364,8 +364,10 @@ function applyReturnedProposal() {
     catch (error) { writeReturnedControls(before, groups); throw error; }
     pendingReview = null; plannerState.answers = prepared.answers; plannerState.plan = prepared.plan;
     plannerState.appliedAnswers = JSON.stringify(prepared.answers); plannerState.applied = true;
-    starterUI.setMode("custom"); flushLiveInput();
-    $("return-review").innerHTML = '<p role="status">Applied once and recomputed. Review the custom comparison below. Open the advisor again to discuss this result or request its blueprint specification.</p><a class="btn" href="#comparison">View recomputed comparison ↓</a>';
+    starterUI.setMode("custom"); // onCustom performs the single recomputation
+    $("return-review").innerHTML = state.result
+      ? '<p role="status">Applied once and recomputed. Review the custom comparison below. Open the advisor again to discuss this result or request its blueprint specification.</p><a class="btn" href="#comparison">View recomputed comparison ↓</a>'
+      : '<p role="status">Settings applied once, but this comparison cannot be calculated. Resolve the errors below before requesting a blueprint specification.</p>';
   } catch (error) { $("return-status").textContent = error.message; }
 }
 

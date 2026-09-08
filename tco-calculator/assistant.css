@@ -50,6 +50,7 @@
 .focus-page input:hover, .focus-page textarea:hover, .focus-page summary:hover { border-color:var(--cyan); color:var(--ink); }
 .focus-page summary:active { color:var(--cyan); }
 .focus-page textarea { resize:vertical; font-family:var(--sans); }
+.focus-page input::placeholder, .focus-page textarea::placeholder { color:var(--dim); opacity:1; }
 .starter-actions { display:flex; flex-wrap:wrap; gap:var(--s2); margin:var(--s4) 0; }
 .focus-page summary { min-height:var(--touch); cursor:pointer; padding:var(--s3) 0; }
 .focus-page ul { margin:var(--s4) 0 var(--s6); padding-left:var(--s6); }
@@ -59,6 +60,7 @@
 .advisor-body { margin:0; background:var(--bg); color:var(--ink); font:var(--body)/1.6 var(--sans); }
 .advisor-body a { color:var(--cyan); }
 .advisor-transcript { min-height:var(--transcript-min); margin:var(--s6) 0; }
+.advisor-transcript:empty { min-height:0; }
 .advisor-message { padding:var(--s4) 0; border-bottom:1px solid var(--line); }
 .advisor-message .who { color:var(--dim); font-size:var(--small); }
 .advisor-message[data-role="user"] { border-left:2px solid var(--accent); padding-left:var(--s4); }

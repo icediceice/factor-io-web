@@ -21,6 +21,8 @@ import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, cheapestBoxForLoad, serversForGpu, CapexRefusal } from "./capex.js?v=20260906-ux3";
 import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
+import { setupStarters } from "./starter-ui.js";
+import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentity, controlDiff, validateControlRecord } from "./assistant-session.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
@@ -103,42 +105,12 @@ const state = {
   ready: false,
 };
 
-const plannerState = {
-  answers: {},
-  questionIndex: 0,
-  // The question the visitor last asked about, the inert structured suggestion
-  // that came back, and the running conversation about that one question.
-  // A recommendation is scoped to its request's question, never auto-selected.
-  helpQuestionId: null,
-  help: null,
-  plan: null,
-  blueprint: null,
-  prompt: "",
-  refinement: null,
-  modelAttempted: false,
-  focusAfterRender: false,
-  applied: false,
-  // The answers as they stood at the last Apply, serialised. It is the only
-  // way to tell a revision from a first Apply: change one chip afterwards and
-  // the calculator no longer matches the answers on screen, and the visitor has
-  // no other way to see that.
-  appliedAnswers: null,
-  abortController: null,
-};
-const plannerFence = createRequestFence();
-const chatState = {
-  history: createChatHistory(),
-  lastScenario: null,
-  pendingTurn: null,
-  transcript: [],
-  suggestions: [],
-  pendingProposal: null,
-  pendingSpec: null,
-  offlineArtifact: null,
-  busy: false,
-  abortController: null,
-};
-const chatFence = createRequestFence();
+const plannerState = { answers: {}, appliedAnswers: null, applied: false, plan: null };
+let starterUI = null;
+let activeHandoffId = null;
+let restoredHandoff = false;
+let manualRevision = 0;
+let pendingReview = null;
 
 const CHAT_FIELD_CONTRACTS = Object.freeze({
   "f-users": { kind: "integer", min: 1, max: 10000000 },
@@ -174,7 +146,7 @@ function controlValues(id) {
   return [...($(id)?.options ?? [])].map((option) => option.value).filter((value) => value !== "");
 }
 
-function chatValidationContext({ assist = false } = {}) {
+function chatValidationContext() {
   const fields = Object.fromEntries(Object.entries(CHAT_FIELD_CONTRACTS).map(([id, contract]) => {
     const spec = { ...contract };
     if (spec.kind === "model") spec.values = new Set((state.servingData?.models ?? []).map((model) => model.id));
@@ -190,10 +162,7 @@ function chatValidationContext({ assist = false } = {}) {
   // DIFFERENT question is refused before it is rendered, retained, or allowed to
   // badge an option the visitor never asked about. An empty map when no question
   // is pending fails closed, which is the safe direction.
-  const scoped = assist
-    ? INTERVIEW_QUESTIONS.filter((question) => question.id === (plannerState.helpQuestionId ?? currentQuestion().id))
-    : INTERVIEW_QUESTIONS;
-  const questions = Object.fromEntries(scoped.map((question) => [
+  const questions = Object.fromEntries(INTERVIEW_QUESTIONS.map((question) => [
     question.id,
     new Set(question.options.map((option) => option.id)),
   ]));
@@ -400,7 +369,14 @@ async function init() {
     else el.selectedIndex = [...el.options].findIndex((o) => o.defaultSelected);
     if (el.tagName === "SELECT" && el.selectedIndex < 0) el.selectedIndex = 0;
   }
-  setupPlanner();
+  setupPresentation();
+  starterUI = setupStarters({
+    getData: () => ({ ...state, quoteUtc: Date.parse($("f-utc").value), loadError: state.loadError }),
+    onAdvisor: snapshot => openAdvisor(snapshot),
+    onCustom: () => { if (state.ready) flushLiveInput(); },
+  });
+  $("custom-advisor").addEventListener("click", event => { event.preventDefault(); openAdvisor(); });
+  globalThis.addEventListener?.("pageshow", event => { if (event.persisted && state.ready) processAdvisorReturn(false); });
   setupSliders();
   document.querySelector(".rail").inert = true;
   // UTC hour selector: the quote instant is a DECLARED input (determinism),
@@ -547,10 +523,13 @@ async function init() {
     // labelled scenario, so the first thing the screen shows is a worked example
     // the user edits — not a form they must fill before anything happens.
     state.ready = true;
-    setPlannerReady(true);
+    starterUI.refresh();
     flushLiveInput();
+    processAdvisorReturn(true);
   } catch (e) {
     invalidateResults("Example unavailable — reload to retry.");
+    state.loadError = `Cited prices could not be loaded: ${e.message}`;
+    starterUI?.refresh();
     showGap(`the pricing snapshot could not be loaded (${escapeHtml(e.message)}). The calculator shows no numbers without its cited data.`);
     console.error("calculator initialization failed", e);
   } finally {
@@ -1484,7 +1463,7 @@ async function wireInputs() {
     if (state.catalogError) await fillModels(beginSelection());
     flushLiveInput();
   });
-  $("reset-example").addEventListener("click", () => location.reload());
+  $("reset-example").addEventListener("click", () => { try { clearHandoffs(sessionStorage); } catch {} location.replace("tco-calculator.html"); });
   $("mix-balance").addEventListener("click", balanceMix);
   await fillModels(beginSelection());
 }
@@ -1499,6 +1478,7 @@ function handleControlEdit(event) {
   if (!isCostControl(el) || !state.ready) return;
   // Selects emit both events in modern browsers. Handle exactly one.
   if (event.type !== (el.tagName === "SELECT" ? "change" : "input")) return;
+  manualRevision++;
   if (el.id === "fb-feed") { void fillModels(beginSelection()); return; }
   if (el.id === "f-rent-provider") fillRentGpus();
   if (el.id === "f-rent-gpu") renderRentNote();
@@ -1575,8 +1555,7 @@ let liveTimer = null;
 function onLiveInput() {
   syncSliders();
   if (!state.ready) return;
-  if (chatState.busy) cancelChatRequest("Calculator inputs changed, so the in-flight request was cancelled. Send again after the exact result rebuilds.");
-  if (plannerState.applied) clearPlannerOutput("Calculator inputs changed. Rebuilding this applied blueprint from the next exact result…", { keepRefinement: true });
+  plannerState.applied = false;
   $("example-state").textContent = "Customized scenario · assumptions remain editable";
   invalidateResults("Updating comparison…");
   clearTimeout(liveTimer);
@@ -1988,7 +1967,6 @@ function run() {
     state.rentGap = s.rentGap;
     state.result = runComparison({ ...state.inputs, evidenceRows: [] });
     renderResults(state.result);
-    renderPlannerBlueprint();
     renderServerNote();
     renderPowerNote();
     renderSubNote();

@@ -134,6 +134,11 @@ test("reply figures freeze request-time costs and changed controls are explicit 
   await h.get("sendChatMessage('Why rent?')");
   const frozen = JSON.stringify(h.get("chatState.transcript").find((row) => row.role === "assistant").figures);
   assert.match(frozen, /3,300\.00/);
+  h.state.result.payback = { self_hosted_capex:"40", vs_model_api:{converges:true,months:40}, vs_rented_gpu:{converges:true,months:131} };
+  const payback = h.get("conversationSnapshot().figures.payback");
+  assert.match(payback, /Model API: 40 months \(within this horizon\)/);
+  assert.match(payback, /Rented GPU: 131 months \(outside this horizon\)/);
+  assert.doesNotMatch(payback, /self_hosted_capex/);
   h.node("f-users").value = "5000";
   h.state.result.totals.A.horizon_total = "200";
   await h.get("sendChatMessage('And now?')");

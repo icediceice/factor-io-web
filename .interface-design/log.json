@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-09-08",
+    "macrostructure": "Focus Rail",
+    "density": "balanced — one fixed single-server example, custom sizing secondary",
+    "depth": "borders-only",
+    "screen": "tco-calculator.html starter and tco-assistant.html dedicated advisor",
+    "notes": "Supersedes Comparison Canvas with Conversation as the initial experience; preserves that calculator under Custom sizing. No interview or inference required for a complete labelled example. Full one-server capex, residual API requests, full idle electricity and honest payback lead. Claude light-design read and used: 54 gates reviewed, 53 pass/inapplicable and one argued V4 exception retaining existing violet/cyan brand; no unresolved failure in changed surfaces. Existing advanced custom selects are unchanged, outside the new Focus Rail audit. Critique H4 D4 S4 O5 R4 P4. Passive browser fixture at 390/1100/1920 measured no body overflow, >=44px primary actions, >=7.5:1 text contrast and >=3:1 enabled control boundaries; captured context, full guided preview/Apply and fresh spec snapshot pass without inference. Custom graph/presentation/focus/print restoration preserved. Screenshot review promoted the result above longer setup explanation. Measurements are iframe DOM observations, not operator-only eval or PDF validation. Next revision should avoid another primary chat surface and preserve independent starter/custom financial authority."
+  },
+  {
+    "date": "2026-09-08",
     "macrostructure": "Comparison Canvas with Conversation",
     "density": "large comparison-first plot / visible customer conversation / optional guided setup and evidence",
     "depth": "borders-only",

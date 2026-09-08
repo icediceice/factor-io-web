@@ -43,7 +43,7 @@ import {
   toolResultMessage,
   validateCalculatorProposal,
   validateFieldValue,
-} from "./chat.js?v=20260908-conversation";
+} from "./chat.js?v=20260908-conversation-v2";
 
 // The single place the engine's internal keys become user-facing names.
 const OPTION = {

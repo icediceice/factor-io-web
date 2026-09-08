@@ -208,7 +208,21 @@ provenance tags, `.pop` provenance popover, `.banner` / `.gap` alerts.
 This is deliberate for an instrument and is not a gap to fill. Any future light
 mode is a separate elevation system, not an inversion.
 
-## Comparison Canvas with Conversation (2026-09-08)
+## Focus Rail: one single-server example (2026-09-08, current)
+
+The buying experience now opens with one complete example and its economic outcome, not a sizing rail or a conversation. The named macrostructure is **Focus Rail**, balanced density, borders-only. It differs from the previous Comparison Canvas by making one fixed setup and its recurring result the primary object. The legacy comparison canvas remains under Custom sizing; its graph, controls and print/export are not redesigned.
+
+`tco-calculator/assistant.css` governs both new Focus Rail surfaces. Its tokens retain the established dark/violet/cyan brand, with opaque readable secondary text, a 4px spacing base, 4px radius, 44px actions, 960px reading width and 13/16/24/32px type scale (the calculator's inherited 12px metadata remains). Financial columns use mono/tabular figures; mobile stacks are label/value pairs, not columns. Accent selection always has text/pressed state. Control outlines use a stronger control-border token, distinct from decorative separators. Focus appears immediately, no looping motion, reduced-motion supported.
+
+The separate advisor is the only chat surface. Captured context is disclosed, not presented as live; guided setup is optional. Return review is on the calculator and includes implicit defaults/removals. No second calculator runs in the advisor. Empty, loading, unavailable, cancelled, malformed-context and applied states have explicit copy. Selection/disclosure controls are synchronous, so loading/error/success apply to the resulting pricing or request region, not to an invented per-button spinner. Reset has confirmation. Transcript is bounded to 40 visible messages; retained request history is eight complete exchanges.
+
+### v0.9 gate and rendered evidence
+
+Scope: new starter/advisor surfaces and changed lifecycle; unchanged advanced custom controls retain their historical exceptions, including native selects. All 54 numbered light-design gates reviewed: **53/54 pass or inapplicable; V4 is one deliberate brand exception** (existing violet selection plus cyan links/focus preserved by the approved brief). S1–S9, D1–D9, V1–V3/V5–V13, T1–T8, N1–N5, A1–A6, M1–M4 have no unresolved failure in the changed surfaces. Focus Rail's moderate one-entity density applies, not a Ledger row-count floor. Inline source links are prose links rather than primary button targets. No invented customer metrics, benchmark claim or universally positive savings.
+
+Browser fixture measured both pages at 390/1100/1920 CSS px, after fonts ready: no horizontal overflow, primary targets >=44px, text contrast >=7.5:1, enabled control boundaries >=3:1. Scenario capture, authored guide, return preview, Apply and reopened spec eligibility all pass without inference. Custom graph spans 280/400/about396px, axis labels >=11px, presentation/Escape/focus and print disclosure restoration pass. Measurements use same-origin passive iframe DOM reads because host eval is operator-only; no claim of PDF output or automated screen-reader testing. Screenshot review moved the result above the longer setup so recurring savings, full upfront cost and payback are seen together. Critique: hierarchy4, density4, states4, honesty5, restraint4, specificity4. The single-box capex/residual-API distinction is the design's argument.
+
+## Comparison Canvas with Conversation (2026-09-08, historical)
 
 The graph sits directly below headline totals, before detailed evidence. Plot
 geometry is responsive rather than letterboxed; legends/end-values wrap in HTML.

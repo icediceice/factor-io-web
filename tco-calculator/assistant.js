@@ -129,7 +129,13 @@ export function createAdvisor({ document, record = null, onReturn, requestTurn =
   $("ai-composer").addEventListener("submit", e => { e.preventDefault(); void send(); });
   $("ai-message").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); void send(); } });
   $("ai-cancel").addEventListener("click", () => cancel());
-  $("ai-copy-request").addEventListener("click", () => void copy(state.offline?.copyText));
+  $("ai-copy-request").addEventListener("click", () => {
+    try {
+      const text = $("ai-message").value.trim();
+      if (text) state.offline = buildOfflineRequest({ ...MINIMAX_DEFAULTS, history, systemPrompt: advisorPrompt(record, { answers: state.answers }), userMessage: text, assist: true, toolNames: record ? ["ask_user", "propose_calculator_changes"] : ["ask_user"], pageUrl });
+      void copy(state.offline?.copyText);
+    } catch (error) { $("ai-model-status").textContent = error.message; }
+  });
   $("ai-suggestions").addEventListener("click", e => { const b = e.target.closest("[data-suggestion]"); if (b) { $("ai-message").value = state.suggestions[Number(b.dataset.suggestion)]; $("ai-message").focus(); } });
   $("ai-review").addEventListener("click", () => returnForReview({ kind: "proposal", value: state.proposal }));
   $("ai-dismiss").addEventListener("click", () => { state.proposal = null; $("ai-proposal").hidden = true; busy(state.busy); });

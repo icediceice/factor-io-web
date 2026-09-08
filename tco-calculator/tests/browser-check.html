@@ -24,7 +24,7 @@ for (const width of [390, 1100, 1920]) {
   const report = document.createElement('pre'); report.textContent = 'Loading…';
   const wrap = document.createElement('div'); wrap.className = 'viewport';
   const frame = document.createElement('iframe'); frame.width = width; frame.title = `Calculator at ${width} CSS pixels`;
-  frame.src = '../../tco-calculator.html?layout-check=conversation';
+  frame.src = '../../tco-calculator.html?layout-check=conversation-final';
   wrap.append(frame); section.append(heading, report, wrap); document.querySelector('#checks').append(section);
   try {
     const doc = await frameReady(frame);
@@ -42,8 +42,20 @@ for (const width of [390, 1100, 1920]) {
     const guidedClosed = !doc.querySelector('#ai-guided').open;
     const overflow = doc.documentElement.scrollWidth > width;
     const mobileGraphFirst = width > 1100 || doc.querySelector('#curve-card').getBoundingClientRect().top < doc.querySelector('.rail').getBoundingClientRect().top;
-    const checks = {width, plotHeight, minRenderedAxisFont:Math.min(...fonts), targets, graphBeforeDetails, transcriptDisclosed, guidedClosed, overflow, mobileGraphFirst};
-    checks.pass = plotHeight >= (width === 390 ? 260 : 380) && checks.minRenderedAxisFont >= 11 && targets.every((t) => t.height >= 44) && graphBeforeDetails && transcriptDisclosed && guidedClosed && !overflow && mobileGraphFirst;
+    const present = doc.querySelector('#present-graph');
+    present.focus(); present.click();
+    const presentationEntered = doc.body.classList.contains('graph-presentation') && present.textContent === 'Exit presentation';
+    doc.dispatchEvent(new win.KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+    const presentationExited = !doc.body.classList.contains('graph-presentation') && doc.activeElement === present;
+    const folded = [...doc.querySelectorAll('.result-disclosure')].filter((el) => !el.open);
+    win.dispatchEvent(new win.Event('beforeprint'));
+    const printExpanded = folded.every((el) => el.open);
+    win.dispatchEvent(new win.Event('afterprint'));
+    const printRestored = folded.every((el) => !el.open);
+    const exportReachable = !doc.querySelector('#export').closest('details');
+    win.scrollTo(0,0);
+    const checks = {width, plotHeight, minRenderedAxisFont:Math.min(...fonts), targets, graphBeforeDetails, transcriptDisclosed, guidedClosed, overflow, mobileGraphFirst, presentationEntered, presentationExited, printExpanded, printRestored, exportReachable};
+    checks.pass = plotHeight >= (width === 390 ? 260 : 380) && checks.minRenderedAxisFont >= 11 && targets.every((t) => t.height >= 44) && graphBeforeDetails && transcriptDisclosed && guidedClosed && !overflow && mobileGraphFirst && presentationEntered && presentationExited && printExpanded && printRestored && exportReachable;
     reports.push(checks); report.textContent = JSON.stringify(checks, null, 2);
   } catch (error) { reports.push({width, pass:false, error:error.message}); report.textContent = error.message; }
 }

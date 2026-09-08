@@ -183,6 +183,191 @@ function controlDisplay(id, value = $(id)?.value ?? "") {
   return String(value);
 }
 
+function setupPresentation() {
+  $("present-graph")?.addEventListener("click", () => setGraphPresentation(!graphPresented));
+  $("curve-card")?.addEventListener("click", event => { if (graphPresented && event.target.closest('a[href^="#"]')) setGraphPresentation(false); });
+  document.addEventListener("keydown", event => { if (event.key === "Escape" && graphPresented) setGraphPresentation(false); });
+  globalThis.addEventListener?.("resize", () => { if (state.result && starterUI?.snapshot().mode === "custom") renderGraph(state.result); });
+  let printDisclosures = [];
+  globalThis.addEventListener?.("beforeprint", () => {
+    const selector = starterUI?.snapshot().mode === "starter" ? "#starter-page details" : ".result-disclosure";
+    printDisclosures = [...document.querySelectorAll(selector)].filter(el => !el.open);
+    for (const el of printDisclosures) el.open = true;
+    if (state.result && starterUI?.snapshot().mode === "custom") $("curve").innerHTML = renderCurve(state.result.curve ?? [], state.result.payback, { width: 700, height: 440 });
+  });
+  globalThis.addEventListener?.("afterprint", () => {
+    for (const el of printDisclosures) el.open = false;
+    printDisclosures = [];
+    if (state.result && starterUI?.snapshot().mode === "custom") renderGraph(state.result);
+  });
+}
+
+function captureControls() { return Object.fromEntries(enteredControls().map(el => [el.id, el.value])); }
+function currentControlIdentity() {
+  const starter = starterUI?.snapshot();
+  return JSON.stringify({ controls: controlIdentity(captureControls()), mode: starter?.mode ?? "custom", case_id: starter?.case_id, overrides: starter?.overrides });
+}
+function openAdvisor(starter = null) {
+  try {
+    if (!state.ready || (starter ? !starter.result : !state.result)) throw new Error("Wait for a valid calculator result before opening contextual advice.");
+    const controls = captureControls();
+    const contracts = Object.fromEntries(Object.entries(chatValidationContext().fields).map(([id, spec]) => [id, { ...spec, label: controlLabel(id), values: spec.values ? [...new Set([controls[id], ...spec.values])].slice(0, 128) : undefined }]));
+    const custom = conversationSnapshot();
+    const context = starter ? { mode: "starter", label: starter.setup.label, setup: starter.setup, figures: {
+      currency: "THB", baseline_api: money(starter.result.baseline_api), residual_api: money(starter.result.residual_api), running_cost: money(starter.result.running_cost), upfront: money(starter.result.capex), net_monthly: money(starter.result.net_monthly), horizon_savings: money(starter.result.horizon_savings), payback: starter.result.payback,
+    }, exclusions: starter.exclusions, sources: starter.result.sources } : { ...custom.core, mode: "custom", label: "custom comparison" };
+    const applied = !starter && plannerState.applied && !!plannerState.plan;
+    const blueprintContext = { presetLabel: state.workloadPresets?.presets.find(p => p.id === plannerState.plan?.presetId)?.label ?? "custom", modelLabel: controlDisplay("f-sv-model") };
+    const blueprint = applied ? buildBlueprint(plannerState.plan, blueprintContext) : null;
+    activeHandoffId = saveHandoff(sessionStorage, { controls, groups: readArchGroups(), contracts, context,
+      starter: starterUI.snapshot(), identity: currentControlIdentity(), answers: plannerState.answers, applied,
+      blueprint, localPrompt: blueprint ? buildPrompt({ plan: plannerState.plan, blueprint, context: blueprintContext }) : null,
+      ledger: starter ? starter.result : compactLedger(state.result),
+      pricing_identity: `${state.manifest?.snapshot_digest}|${state.fx?.observed_at}`,
+      rental_identity: state.gpuPricing?.rows?.[Number(controls["f-rent-gpu"])] ?? null,
+    });
+    location.assign(`tco-assistant.html?scenario=${encodeURIComponent(activeHandoffId)}`);
+  } catch (error) {
+    const box = $("return-review"); box.hidden = false;
+    box.innerHTML = `<p role="alert">${escapeHtml(error.message)}</p><a class="btn" href="tco-assistant.html">Open advisor without calculator context →</a>`;
+  }
+}
+
+function groupControlValues(groups) {
+  if (!Array.isArray(groups) || groups.length > 64) throw new Error("Invalid attention groups");
+  const values = {};
+  groups.forEach((g, i) => {
+    if (!GROUP_KINDS.some(([kind]) => kind === g.kind)) throw new Error("Unsupported attention type");
+    const fields = { kind: g.kind, layers: g.layers };
+    if (g.kind === "mla") Object.assign(fields, { lora: g.kv_lora_rank, rope: g.qk_rope_head_dim });
+    else if (g.kind !== "linear") Object.assign(fields, { heads: g.kv_heads, dim: g.head_dim, tensors: g.tensors ?? 2, ...(g.kind === "sliding" ? { window: g.window_tokens } : {}) });
+    for (const [key, value] of Object.entries(fields)) values[gf(i, key)] = String(value ?? "");
+  });
+  return values;
+}
+function currentProposalContracts() {
+  const ctx = chatValidationContext();
+  ctx.fields["f-rent-gpu"].values = state.gpuPricing.rows.map((_, i) => String(i));
+  ctx.fields["fb-model"].values = state.manifest.models.filter(m => !["retired", "quarantined"].includes(m.state)).map(m => m.id);
+  return ctx;
+}
+function expandAdvisorProposal(returned, before, originalGroups) {
+  let plan; let changes = []; let answers;
+  if (returned?.kind === "guided") {
+    if (!isInterviewComplete(returned.answers)) throw new Error("Complete the guided answers before returning");
+    answers = returned.answers; plan = buildPlannerPlan(answers);
+  } else if (returned?.kind === "proposal") {
+    const proposal = validateCalculatorProposal(returned.value, currentProposalContracts());
+    answers = proposal.planning_profile; plan = buildPlannerPlan(answers); changes = proposal.changes;
+  } else throw new Error("Unsupported returned proposal");
+  const preset = state.workloadPresets.presets.find(p => p.id === plan.presetId);
+  if (!preset) throw new Error("The requested workload preset is no longer available");
+  const values = { ...before };
+  for (const [type, field] of Object.entries(MIX_FIELD)) {
+    const shape = state.workloadPresets.defaults.shapes[type];
+    for (const [suffix, key] of [["turns", "turns_per_session"], ["in", "in_tokens"], ["out", "out_tokens"], ["cached", "cached_tokens"]]) values[`f-${field}-${suffix}`] = String(shape[key]);
+  }
+  Object.assign(values, preset.fields, plan.controlledFields);
+  let groups = originalGroups;
+  const modelChange = changes.find(change => change.field === "f-sv-model");
+  if (modelChange) {
+    const model = state.servingData.models.find(m => m.id === modelChange.value);
+    if (!model) throw new Error("The proposed local model is no longer available");
+    Object.assign(values, { "f-sv-model": model.id, "f-sv-params": model.params_b, "f-sv-active": model.active_params_b, "f-sv-ctx": String(model.context_default), "f-sv-kvbytes": "" });
+    groups = model.groups;
+    for (const id of Object.keys(values)) if (/^f-g\d+-/.test(id)) delete values[id];
+    Object.assign(values, groupControlValues(groups));
+  }
+  for (const change of changes) values[change.field] = change.value;
+  if (values["f-rent-provider"] !== before["f-rent-provider"] && !changes.some(c => c.field === "f-rent-gpu")) values["f-rent-gpu"] = String(state.gpuPricing.rows.findIndex(r => r.provider === values["f-rent-provider"]));
+  if (values["f-sh-gpu"] !== before["f-sh-gpu"]) {
+    const rows = serversForGpu(values["f-sh-gpu"], state.serverPricing.rows);
+    if (!rows.some(row => row.server_id === values["f-srv-config"])) {
+      const pick = rows.length ? cheapestConfigFor({ gpuId: values["f-sh-gpu"], servers: state.serverPricing.rows, gpusRequired: Math.max(1, Number(state.demand?.sizing?.gpus_required?.text ?? rows[0].gpu_count)), priceBasis: values["f-srv-basis"] }) : null;
+      values["f-srv-config"] = pick?.best?.server_id ?? rows[0]?.server_id ?? "";
+    }
+  }
+  if (values["fb-feed"] !== before["fb-feed"] && !changes.some(c => c.field === "fb-model")) {
+    const models = state.manifest.models.filter(m => m.id.startsWith(`${values["fb-feed"]}:`) && !["retired", "quarantined"].includes(m.state)).sort((a, b) => a.name.localeCompare(b.name));
+    values["fb-model"] = (models.find(m => /gpt-4o/.test(m.id)) ?? models.find(m => /claude/.test(m.id)) ?? models[0])?.id ?? "";
+  }
+  for (const id of Object.keys(values)) values[id] = String(values[id] ?? "");
+  validateReturnedControls(values, groups);
+  return { controls: values, groups, plan, answers };
+}
+function validateReturnedControls(values, groups) {
+  validateControlRecord(values);
+  const groupValues = groupControlValues(groups);
+  const contracts = currentProposalContracts().fields;
+  for (const [id, value] of Object.entries(values)) {
+    if (/^f-g\d+-/.test(id)) { if (!(id in groupValues)) throw new Error(`Removed attention control: ${id}`); if (!id.endsWith("-kind") && value && !/^\d+$/.test(value)) throw new Error(`Invalid attention value: ${id}`); continue; }
+    const el = $(id); if (!el) throw new Error(`Removed control: ${id}`);
+    if (id === "f-utc") { if (!/^\d{4}-\d\d-\d\dT\d\d:00:00Z$/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error("Invalid quote time"); continue; }
+    if (id === "f-srv-config") { if (value && !state.serverPricing.rows.some(r => r.server_id === value && r.gpu_id === values["f-sh-gpu"])) throw new Error("Server no longer matches the accelerator"); continue; }
+    if (contracts[id]) validateFieldValue(id, value, contracts[id]);
+    else if (el.tagName === "SELECT" && !controlValues(id).includes(value)) throw new Error(`Unavailable option: ${controlLabel(id)}`);
+  }
+  const rental = state.gpuPricing.rows[Number(values["f-rent-gpu"])];
+  if (!rental || rental.provider !== values["f-rent-provider"]) throw new Error("Rental GPU no longer belongs to the selected provider");
+  if (!values["fb-model"].startsWith(`${values["fb-feed"]}:`)) throw new Error("API offer no longer belongs to the selected feed");
+}
+function writeReturnedControls(values, groups) {
+  // All validation and proposal expansion occurred BEFORE touching these nodes.
+  renderArchGroups(groups);
+  for (const id of ["f-sh-gpu", "f-rent-provider", "fb-feed"]) $(id).value = values[id];
+  fillRentGpus(); fillServerConfigs();
+  const offers = state.manifest.models.filter(m => m.id.startsWith(`${values["fb-feed"]}:`) && !["retired", "quarantined"].includes(m.state));
+  $("fb-model").innerHTML = offers.map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`).join("");
+  if (!controlValues("f-utc").includes(values["f-utc"])) { const option = document.createElement("option"); option.value = values["f-utc"]; option.textContent = `${values["f-utc"]} · captured quote time`; $("f-utc").appendChild(option); }
+  for (const [id, value] of Object.entries(values)) { if (!$(id)) throw new Error(`Cannot restore ${id}`); $(id).value = value; }
+  renderRentNote(); syncSliders(); syncChips();
+}
+function processAdvisorReturn(fresh = false) {
+  const id = new URL(location.href).searchParams.get("advisor") ?? activeHandoffId;
+  if (!id || !state.ready) return;
+  const box = $("return-review");
+  try {
+    const record = readHandoff(sessionStorage, id);
+    if (!record) throw new Error("Advisor context is missing or expired. Your current calculator inputs were kept.");
+    if (record.consumed) return;
+    if (fresh && !restoredHandoff && !manualRevision) {
+      validateReturnedControls(record.controls, record.groups);
+      const row = state.gpuPricing.rows[Number(record.controls["f-rent-gpu"])];
+      if (record.rental_identity && ["provider", "gpu_id", "sku"].some(k => row?.[k] !== record.rental_identity[k])) throw new Error("Rental catalog changed; reopen the advisor from the current calculator.");
+      writeReturnedControls(record.controls, record.groups); restoredHandoff = true;
+      starterUI.restore(record.starter); flushLiveInput();
+    }
+    if (currentControlIdentity() !== record.identity) throw new Error("Calculator inputs changed while you were away. The proposal was not applied; your edits are preserved. Reopen the advisor from this scenario.");
+    if (!record.proposal) return;
+    const prepared = expandAdvisorProposal(record.proposal, captureControls(), readArchGroups());
+    const diff = controlDiff(captureControls(), prepared.controls);
+    const changedPricing = record.pricing_identity !== `${state.manifest?.snapshot_digest}|${state.fx?.observed_at}`;
+    pendingReview = { id, prepared, identity: currentControlIdentity() };
+    box.hidden = false;
+    box.innerHTML = `<h2>Review custom sizing changes</h2><p>Nothing has been applied. This enters custom comparison, not a changed starter example.</p>${changedPricing ? '<p class="starter-warning">Prices refreshed since you left. Apply uses current prices and exchange rates, not the captured totals.</p>' : ""}<dl class="starter-ledger">${diff.map(c => `<div><dt>${escapeHtml(controlLabel(c.field))}</dt><dd>${escapeHtml(c.from || "derived")} → ${escapeHtml(c.to || "derived")}</dd></div>`).join("")}</dl><div class="starter-actions"><button id="return-apply" class="btn btn-p" type="button">Apply these changes once</button><button id="return-dismiss" class="btn" type="button">Dismiss</button></div><p id="return-status" role="status"></p>`;
+    $("return-apply").addEventListener("click", applyReturnedProposal);
+    $("return-dismiss").addEventListener("click", () => { pendingReview = null; box.hidden = true; });
+    box.scrollIntoView?.({ block: "start" });
+  } catch (error) { pendingReview = null; box.hidden = false; box.innerHTML = `<p role="alert">${escapeHtml(error.message)}</p>`; }
+}
+function applyReturnedProposal() {
+  const pending = pendingReview; if (!pending) return;
+  try {
+    if (currentControlIdentity() !== pending.identity) throw new Error("Inputs changed since this preview. Reopen the advisor; nothing was applied.");
+    const record = readHandoff(sessionStorage, pending.id);
+    if (!record || record.consumed) throw new Error("This proposal expired or was already applied.");
+    const prepared = expandAdvisorProposal(record.proposal, captureControls(), readArchGroups());
+    if (controlIdentity(prepared.controls) !== controlIdentity(pending.prepared.controls)) throw new Error("Available settings changed since the preview. Review again before applying.");
+    const before = captureControls(); const groups = readArchGroups();
+    try { writeReturnedControls(prepared.controls, prepared.groups); consumeHandoff(sessionStorage, pending.id); }
+    catch (error) { writeReturnedControls(before, groups); throw error; }
+    pendingReview = null; plannerState.answers = prepared.answers; plannerState.plan = prepared.plan;
+    plannerState.appliedAnswers = JSON.stringify(prepared.answers); plannerState.applied = true;
+    starterUI.setMode("custom"); flushLiveInput();
+    $("return-review").innerHTML = '<p role="status">Applied once and recomputed. Review the custom comparison below. Open the advisor again to discuss this result or request its blueprint specification.</p><a class="btn" href="#comparison">View recomputed comparison ↓</a>';
+  } catch (error) { $("return-status").textContent = error.message; }
+}
+
 function compactLedger(result) {
   if (!result) return null;
   const ledger = buildComponentLedger(result);

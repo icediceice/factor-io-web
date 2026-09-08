@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
+import { controlIdentity, controlDiff, validateControlRecord } from "../assistant-session.js";
 import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {
@@ -31,6 +33,8 @@ const html = readFileSync(new URL("../../tco-calculator.html", import.meta.url),
 const privacy = readFileSync(new URL("../../privacy.html", import.meta.url), "utf8");
 const llms = readFileSync(new URL("../../llms.txt", import.meta.url), "utf8");
 const fields = readFileSync(new URL("../fields.js", import.meta.url), "utf8");
+const advisorHtml = readFileSync(new URL("../../tco-assistant.html", import.meta.url), "utf8");
+const advisorSource = readFileSync(new URL("../assistant.js", import.meta.url), "utf8");
 const ENGINE_MODULES = ["calculator.js", "power.js", "subscription.js", "demand.js", "serving.js", "capex.js"];
 const TEST_FX_DOCUMENT = {
   source_id: "test-fx",
@@ -110,6 +114,8 @@ function harness() {
     fetchOpenRouterModels: async () => { throw new Error("offline test fixture"); },
     fetchLiveFx: async () => { throw new Error("offline test fixture"); },
     syncChips() {}, enhanceRail() {}, releaseFields() {},
+    controlIdentity, controlDiff, validateControlRecord,
+    setupStarters: () => ({ refresh() {}, snapshot: () => ({ mode: "starter" }), restore() {}, setMode() {} }),
   });
   const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");
   assert.doesNotMatch(executable, /^\s*import\b/m, "the VM harness must strip multiline module imports");
@@ -420,7 +426,8 @@ test("changed UI modules use matching versioned URLs across HTML and module impo
   // Unchanged field/planner modules keep their existing cache identity.
   assert.match(app, /\.\/fields\.js\?v=/);
   assert.match(app, /\.\/planner\.js\?v=/);
-  assert.ok(app.includes(`./chat.js?v=${version}`));
+  assert.match(advisorSource, /\.\/chat\.js\?v=20260908-conversation-v4/);
+  assert.ok(advisorHtml.includes(`assistant.js?v=${version}`));
 });
 
 test("authored horizons default to 60 months in HTML and every workload preset", () => {
@@ -513,6 +520,177 @@ test("field harvesting and close use a shared range-blind control selector", () 
 // Inline-chat tests are migrated below to the real dedicated advisor controller,
 // and to calculator-side returned-proposal expansion. Custom arithmetic, control,
 // graph, initialization, export and pricing tests above remain unchanged.
+
+const profile = { use_case: "support", substrate: "nutanix", data_boundary: "internal", interaction: "assistant", overflow: "burst" };
+const guidedAnswers = { ...profile, scale: "department", intensity: "routine", horizon: "y5" };
+const advisorRecord = () => ({ saved_at: Date.now(), controls: { "f-users": "20" }, contracts: { "f-users": { kind: "integer", min: 1, max: 10000000 } }, context: { mode: "custom", label: "test scenario", figures: { monthly: "฿3,300.00" }, sources: { api: { status: "stale", observed_at: "2026-01-01" } } }, answers: {} });
+function advisorHarness({ record = advisorRecord(), transport = null } = {}) {
+  const h = harness(); const calls = []; const returned = [];
+  let request = transport ?? (async args => ({ user: { role: "user", content: args.userMessage }, assistantMessage: { role: "assistant", content: "Check the assumptions first." }, toolCall: null, prose: "Check the assumptions first." }));
+  const advisor = createAdvisor({ document: h.context.document, record, onReturn: value => returned.push(value), requestTurn: args => { calls.push({ ...args, sentHistory: args.history.snapshot() }); return request(args); } });
+  return { ...h, advisor, calls, returned, setRequest: value => { request = value; } };
+}
+const realReply = message => args => realRequestChatTurn({ ...args, timeoutMs: 1000, fetchImpl: async () => ({ ok: true, json: async () => ({ choices: [{ message }] }) }) });
+const toolReply = (name, args, content = null) => realReply({ role: "assistant", content, tool_calls: [{ id: "tool-1", type: "function", function: { name, arguments: JSON.stringify(args) } }] });
+
+test("dedicated advisor opens without inference; calculator contains no composer", () => {
+  const h = advisorHarness();
+  assert.equal(h.calls.length, 0);
+  assert.match(h.node("ai-interview").innerHTML, /Question 1 of 8/);
+  assert.doesNotMatch(html, /id="ai-transcript"|id="ai-composer"|id="ai-workspace"/);
+  assert.match(advisorHtml, /id="ai-transcript"[^>]*role="log"[^>]*aria-live="polite"/);
+  assert.match(html, /id="starter-page"[\s\S]*id="custom-page" hidden/);
+  assert.doesNotMatch(advisorSource, /from ["']\.\/app\.js/);
+});
+test("composer sends the exact general question; plain prose does not force a tool", async () => {
+  const h = advisorHarness(); h.node("ai-message").value = "Why is renting cheaper for this scenario?";
+  h.node("ai-composer").requestSubmit(); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.calls[0].userMessage, "Why is renting cheaper for this scenario?");
+  assert.deepEqual(h.calls[0].toolNames, ["ask_user", "propose_calculator_changes"]);
+  assert.equal(h.calls[0].assist, true);
+  assert.equal(h.advisor.history.snapshot().length, 1);
+});
+test("captured figures are immutable and clearly described as reference evidence", async () => {
+  const record = advisorRecord(); const h = advisorHarness({ record });
+  record.context.figures.monthly = "changed";
+  await h.advisor.send("Explain this");
+  assert.equal(h.advisor.state.transcript[1].figures.monthly, "฿3,300.00");
+  assert.match(h.calls[0].systemPrompt, /CAPTURED calculator evidence, not a live quote/);
+  assert.match(h.node("ai-transcript").innerHTML, /Captured calculator figures/);
+});
+test("cancel and navigation fencing recover the question, ignore late replies and preserve drafts", async () => {
+  for (const draft of ["", "My next question"]) {
+    let resolve; const h = advisorHarness({ transport: () => new Promise(done => { resolve = done; }) });
+    const request = h.advisor.send("Why rent?"); h.node("ai-message").value = draft;
+    h.advisor.cancel("Navigation cancelled this request.");
+    assert.equal(h.node("ai-message").value, draft || "Why rent?");
+    assert.equal(h.calls[0].signal.aborted, true);
+    resolve({ user: { role: "user", content: "Why rent?" }, assistantMessage: { role: "assistant", content: "Late answer" }, prose: "Late answer", toolCall: null });
+    await request;
+    assert.doesNotMatch(h.node("ai-transcript").innerHTML, /Late answer/);
+    assert.equal(h.advisor.history.snapshot().length, 0);
+  }
+  assert.match(advisorSource, /addEventListener\("pagehide"/);
+});
+test("request failure is retryable status, not a fabricated assistant reply", async () => {
+  const h = advisorHarness({ transport: async () => { throw new Error("Request timed out"); } });
+  await h.advisor.send("Explain this");
+  assert.equal(h.node("ai-message").value, "Explain this");
+  assert.equal(h.advisor.state.transcript.filter(row => row.role === "assistant").length, 0);
+  assert.match(h.node("ai-transcript").innerHTML, /data-role="status"/);
+});
+test("optional invalid tool retains safe prose and a rejected result in complete history", async () => {
+  const h = advisorHarness({ transport: toolReply("unknown_tool", {}, "Check utilization first.") });
+  await h.advisor.send("Why rent?");
+  assert.match(h.node("ai-transcript").innerHTML, /Check utilization first/);
+  const exchange = h.advisor.history.snapshot()[0];
+  assert.equal(exchange.assistant.tool_calls[0].function.name, "unknown_tool");
+  assert.match(exchange.tools[0].content, /rejected/);
+  assert.equal(h.advisor.state.proposal, null);
+});
+test("guided Ask preserves an unrelated draft and uses only its question contract", async () => {
+  const h = advisorHarness(); h.node("ai-message").value = "My own draft";
+  h.node("ai-interview").events.click({ target: { closest: s => s === "[data-question-ask]" ? {} : null } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.node("ai-message").value, "My own draft");
+  assert.deepEqual(Object.keys(h.calls[0].validationContext.questions), ["use_case"]);
+  assert.match(h.calls[0].systemPrompt, /"id":"use_case"/);
+});
+test("general and guided turns retain one visible conversation and one bounded history", async () => {
+  const h = advisorHarness();
+  await h.advisor.send("Who is this for?");
+  await h.advisor.send("Help me decide", { intent: "assist", questionId: "substrate" });
+  await h.advisor.send("What about contractors?");
+  assert.deepEqual(h.calls.map(c => c.sentHistory.length), [0, 1, 2]);
+  assert.equal(h.advisor.state.transcript.filter(row => row.role === "assistant").length, 3);
+  for (let i = 0; i < 10; i++) await h.advisor.send(`Follow-up ${i}`);
+  assert.equal(h.advisor.history.snapshot().length, 8);
+  assert.match(h.node("ai-transcript").innerHTML, /Who is this for/);
+});
+test("whole-system-prompt cap preserves guided question and captured context", () => {
+  const record = advisorRecord(); record.blueprint = { text: "x".repeat(40000) }; record.ledger = { huge: "y".repeat(40000) };
+  const prompt = advisorPrompt(record, { intent: "assist", questionId: "substrate" });
+  assert.ok(prompt.length <= CHAT_LIMITS.maxSystemChars);
+  assert.match(prompt, /"id":"substrate"/); assert.match(prompt, /"status":"stale"/);
+  assert.doesNotThrow(() => buildOfflineRequest({ ...MINIMAX_DEFAULTS, systemPrompt: prompt, userMessage: "Which placement?", pageUrl: "https://studio.factor-io.com/tco-assistant.html", assist: true }));
+});
+test("wrong-question advice is rejected and accepted advice never selects an answer", async () => {
+  const advice = { question_id: "data_boundary", recommended_option: "restricted", answer: "Keep records inside.", why: "They are private." };
+  const h = advisorHarness({ transport: toolReply("answer_question", advice) });
+  await h.advisor.send("Not sure", { intent: "assist", questionId: "use_case" });
+  assert.equal(h.advisor.state.advice, null); assert.equal(h.advisor.history.snapshot().length, 0);
+  h.advisor.state.questionIndex = 4;
+  await h.advisor.send("Not sure", { intent: "assist", questionId: "data_boundary" });
+  assert.equal(h.advisor.state.advice.question_id, "data_boundary");
+  assert.equal(h.advisor.state.answers.data_boundary, undefined);
+  assert.match(h.node("ai-interview").innerHTML, /AI suggestion \(not selected\)/);
+  assert.deepEqual(Object.keys(advisorValidation(advisorRecord(), "data_boundary").questions), ["data_boundary"]);
+});
+test("claim guard still redacts money, accepts ranges and escapes prose", async () => {
+  const h = advisorHarness();
+  for (const text of ["It costs ฿120000 monthly.", "So 1200 + 300 = 1500 per month."]) {
+    h.setRequest(realReply({ role: "assistant", content: text })); await h.advisor.send("Cost?");
+    assert.match(h.node("ai-transcript").innerHTML, /Unverified figure omitted/);
+    assert.doesNotMatch(h.node("ai-transcript").innerHTML, /120000|1200 \+ 300/);
+  }
+  h.setRequest(realReply({ role: "assistant", content: 'A 24-48 GB range, dated 2026-09. Is 5 > 3 or "internal"?' })); await h.advisor.send("Clarify");
+  assert.match(h.node("ai-transcript").innerHTML, /24-48 GB/); assert.match(h.node("ai-transcript").innerHTML, /5 &gt; 3/);
+  h.setRequest(realReply({ role: "assistant", content: "Use <img src=x onerror=alert(1)>" })); await h.advisor.send("Which?");
+  assert.doesNotMatch(h.node("ai-transcript").innerHTML, /onerror/);
+  assert.match(h.node("ai-model-status").textContent, /plain text, not HTML/);
+});
+test("direct advisor entry works but cannot propose changes or request a grounded spec", async () => {
+  const h = advisorHarness({ record: null });
+  assert.match(h.node("advisor-context").innerHTML, /No current calculator context/);
+  await h.advisor.send("General advice"); assert.deepEqual(h.calls[0].toolNames, ["ask_user"]);
+  await h.advisor.send("A spec", { intent: "spec" }); assert.equal(h.calls.length, 1);
+  assert.equal(h.node("ai-guided-review").disabled, true);
+});
+test("specification requires an applied recomputed snapshot and unchanged guided answers", async () => {
+  const record = { ...advisorRecord(), applied: true, blueprint: { text: "A portable deployment blueprint" }, ledger: { schema: "test" } };
+  const h = advisorHarness({ record });
+  assert.equal(h.node("ai-request-spec").disabled, false);
+  h.advisor.state.answers = guidedAnswers; h.advisor.renderInterview();
+  assert.equal(h.node("ai-request-spec").disabled, true);
+  await h.advisor.send("Spec", { intent: "spec" }); assert.equal(h.calls.length, 0);
+  assert.match(h.node("ai-model-status").textContent, /recomputed result/);
+});
+test("proposal preview is inert and only Review returns it to calculator", async () => {
+  const proposal = { summary: "Review this starting point.", planning_profile: profile, changes: [{ field: "f-users", value: "200", reason: "Given team size." }], suggested_replies: [] };
+  const h = advisorHarness({ transport: toolReply("propose_calculator_changes", proposal) });
+  await h.advisor.send("Suggest a setup");
+  assert.equal(h.returned.length, 0); assert.equal(h.node("ai-proposal").hidden, false);
+  h.node("ai-review").events.click(); assert.equal(h.returned.length, 1);
+  assert.equal(h.returned[0].kind, "proposal"); assert.equal(h.returned[0].value.changes[0].value, "200");
+});
+test("guided answers can be revised before review without touching calculator controls", () => {
+  const h = advisorHarness(); h.advisor.state.answers = { ...guidedAnswers }; h.advisor.renderInterview();
+  assert.equal(h.node("ai-guided-review").disabled, false);
+  h.advisor.state.answers.scale = "company"; h.advisor.renderInterview();
+  assert.equal(h.node("f-users").value, ""); assert.equal(h.returned.length, 0);
+  h.node("ai-guided-review").events.click();
+  assert.equal(h.returned[0].answers.scale, "company");
+  assert.equal(h.returned[0].kind, "guided");
+});
+test("manual calculator edits invalidate the applied blueprint authority", () => {
+  const h = harness(); h.state.ready = true; h.get("plannerState.applied = true"); h.get("onLiveInput()");
+  assert.equal(h.get("plannerState.applied"), false);
+  assert.doesNotMatch(html, /id="ai-refinement"/);
+});
+test("AI has no credential controls, and prose is outside calculator input harvesting", () => {
+  for (const surface of [html, advisorHtml]) assert.doesNotMatch(surface, /id="ai-token"|id="ai-endpoint"|type="password"/);
+  assert.doesNotMatch(advisorHtml, /MiniMax/i); assert.match(privacy, /MiniMax/i); assert.match(llms, /MiniMax/i);
+  const h = harness(); h.context.document.querySelectorAll = () => [h.node("ai-message"), h.node("f-users")];
+  assert.equal(h.get("enteredControls().map(el => el.id).join(',')"), "f-users");
+});
+test("Nutanix blueprint keeps licensing boundary and privacy surfaces disclose proxy", () => {
+  assert.match(buildBlueprint(buildPlannerPlan(profile), {}).text, /no public list price/i);
+  assert.match(privacy, /Factor IO now proxies calculator AI requests/i);
+  assert.match(llms, /Factor I O DOES proxy calculator AI requests/i);
+  assert.match(privacy, /credential is held on a Factor IO server/i);
+  assert.match(privacy, /automatic public GET requests at startup/i);
+  assert.match(llms, /automatically GETs public OpenRouter pricing and Frankfurter FX/i);
+});
 
 test("the staleness banner says how old the prices are, not which envelope lapsed", () => {
   const h = harness();

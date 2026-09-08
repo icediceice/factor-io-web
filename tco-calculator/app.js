@@ -560,7 +560,10 @@ function conversationSnapshot() {
       blank_override_meaning: "Blank overrides use the resolved/default configuration; they do not mean missing hardware or zero cost.",
     } : null,
     figures, exclusions: COMPARISON_EXCLUSIONS,
-    sources: state.manifest?.sources ?? {},
+    sources: Object.fromEntries(Object.entries(state.manifest?.sources ?? {}).map(([id, source]) => [id, {
+      status: source?.status ?? "unknown", observed_at: source?.observed_at ?? null,
+      last_success_at: source?.last_success_at ?? null, expires_at: source?.expires_at ?? null,
+    }])),
   };
   const identity = JSON.stringify({ controls, answers: core.answers, applied: core.applied_answers,
     figures, resolved: core.resolved_configuration, sources: core.sources, fx: state.fx });
@@ -689,7 +692,7 @@ function chatSystemPrompt(intent = "conversation", snapshot = conversationSnapsh
     encoded = JSON.stringify({
       request_mode: context.request_mode,
       guided_question: context.guided_question,
-      current_scenario: { ...snapshot.core, sources: undefined },
+      current_scenario: snapshot.core,
       history_scope: context.history_scope,
       scenario_changed: context.scenario_changed,
       note: "Context omitted: it exceeded this request's system-prompt budget.",

@@ -76,7 +76,10 @@ test("conversation redacts multiline claims without decimal fragments or a pass 
   const many = prose(("฿\n1,200.50\nSafe line.\n").repeat(40));
   assert.doesNotMatch(many, /฿|1,200|\.50/);
   assert.equal((many.match(/Safe line/g) ?? []).length, 40);
-  assert.doesNotThrow(() => prose(("$1\nx\n").repeat(1000)));
+  const expanded = prose(("$1\nx\n").repeat(1000));
+  assert.match(expanded, /\nx\n/);
+  assert.match(expanded, /Answer shortened/);
+  assert.ok(expanded.length <= 8000);
 });
 
 test("MiniMax request disables thinking, requires a tool and preserves the complete assistant object", async () => {

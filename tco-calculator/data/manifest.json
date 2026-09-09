@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1788847372528",
-  "generated_at": "2026-09-08T06:02:52.528Z",
-  "snapshot_digest": "84427078c3291183",
+  "refresh_id": "refresh-1788934854500",
+  "generated_at": "2026-09-09T06:20:54.500Z",
+  "snapshot_digest": "5b88b091c092d955",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-84427078c3291183.json",
-      "digest": "84427078c3291183",
-      "bytes": 2748214
+      "path": "catalog-5b88b091c092d955.json",
+      "digest": "5b88b091c092d955",
+      "bytes": 2774279
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "98b97834a589e668",
+      "digest": "9873cef6339bc836",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-08T06:02:52.528Z",
-      "last_success_at": "2026-09-08T06:02:52.528Z",
-      "expires_at": "2026-09-11T06:02:52.528Z",
-      "root_digest": "7eb2f79845b059c3",
-      "record_count": 415,
+      "observed_at": "2026-09-09T06:20:54.500Z",
+      "last_success_at": "2026-09-09T06:20:54.500Z",
+      "expires_at": "2026-09-12T06:20:54.500Z",
+      "root_digest": "a25e4dc1f87310de",
+      "record_count": 418,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-08T06:02:52.528Z",
-      "last_success_at": "2026-09-08T06:02:52.528Z",
-      "expires_at": "2026-09-11T06:02:52.528Z",
-      "root_digest": "6de80ed42987ae10",
-      "record_count": 2951,
+      "observed_at": "2026-09-09T06:20:54.500Z",
+      "last_success_at": "2026-09-09T06:20:54.500Z",
+      "expires_at": "2026-09-12T06:20:54.500Z",
+      "root_digest": "4e212607de0ecbc2",
+      "record_count": 2979,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-07T00:00:00.000Z",
-      "last_success_at": "2026-09-08T06:03:12.428Z",
-      "expires_at": "2026-09-14T23:59:59.999Z",
-      "root_digest": "98b97834a589e668",
+      "observed_at": "2026-09-08T00:00:00.000Z",
+      "last_success_at": "2026-09-09T06:21:11.081Z",
+      "expires_at": "2026-09-15T23:59:59.999Z",
+      "root_digest": "9873cef6339bc836",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -3566,6 +3566,22 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/gpt-6-astra",
+      "name": "azure_ai/gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/gpt-oss-120b",
       "name": "azure_ai/gpt-oss-120b",
       "tariff": "token",
@@ -4858,6 +4874,19 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-fable-5-1",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "bedrock/us-gov-east-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -4873,6 +4902,19 @@
     {
       "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-opus-4-8",
       "name": "bedrock/us-gov-east-1/anthropic.claude-opus-4-8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-opus-5",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-opus-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -4963,6 +5005,16 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/nvidia.nemotron-nano-9b-v2",
+      "name": "bedrock/us-gov-east-1/nvidia.nemotron-nano-9b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/nvidia.nemotron-super-3-120b",
       "name": "bedrock/us-gov-east-1/nvidia.nemotron-super-3-120b",
       "tariff": "token",
@@ -4985,6 +5037,26 @@
     {
       "id": "litellm:bedrock/us-gov-east-1/openai.gpt-oss-20b-1:0",
       "name": "bedrock/us-gov-east-1/openai.gpt-oss-20b-1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/amazon.nova-lite-v1:0",
+      "name": "bedrock/us-gov-west-1/amazon.nova-lite-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/amazon.nova-micro-v1:0",
+      "name": "bedrock/us-gov-west-1/amazon.nova-micro-v1:0",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -5069,6 +5141,19 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-fable-5-1",
+      "name": "bedrock/us-gov-west-1/anthropic.claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "bedrock/us-gov-west-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -5084,6 +5169,19 @@
     {
       "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-opus-4-8",
       "name": "bedrock/us-gov-west-1/anthropic.claude-opus-4-8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-opus-5",
+      "name": "bedrock/us-gov-west-1/anthropic.claude-opus-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -5166,6 +5264,16 @@
     {
       "id": "litellm:bedrock/us-gov-west-1/nvidia.nemotron-nano-3-30b",
       "name": "bedrock/us-gov-west-1/nvidia.nemotron-nano-3-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/nvidia.nemotron-nano-9b-v2",
+      "name": "bedrock/us-gov-west-1/nvidia.nemotron-nano-9b-v2",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -5436,8 +5544,100 @@
       ]
     },
     {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-oss-120b",
+      "name": "bedrock_mantle/us-gov-east-1/openai.gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-oss-20b",
+      "name": "bedrock_mantle/us-gov-east-1/openai.gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/xai.grok-4.6",
+      "name": "bedrock_mantle/us-gov-east-1/xai.grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/google.gemma-4-26b-a4b",
+      "name": "bedrock_mantle/us-gov-west-1/google.gemma-4-26b-a4b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/google.gemma-4-31b",
+      "name": "bedrock_mantle/us-gov-west-1/google.gemma-4-31b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/google.gemma-4-e2b",
+      "name": "bedrock_mantle/us-gov-west-1/google.gemma-4-e2b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/openai.gpt-oss-120b",
+      "name": "bedrock_mantle/us-gov-west-1/openai.gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/openai.gpt-oss-20b",
+      "name": "bedrock_mantle/us-gov-west-1/openai.gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock_mantle/us-gov-west-1/xai.grok-4.3",
       "name": "bedrock_mantle/us-gov-west-1/xai.grok-4.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/xai.grok-4.6",
+      "name": "bedrock_mantle/us-gov-west-1/xai.grok-4.6",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27569,8 +27769,46 @@
       ]
     },
     {
+      "id": "litellm:us-gov.anthropic.claude-3-haiku-20240307-v1:0",
+      "name": "us-gov.anthropic.claude-3-haiku-20240307-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.anthropic.claude-fable-5-1",
+      "name": "us-gov.anthropic.claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us-gov.anthropic.claude-opus-4-8",
       "name": "us-gov.anthropic.claude-opus-4-8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.anthropic.claude-opus-5",
+      "name": "us-gov.anthropic.claude-opus-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27610,6 +27848,77 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.nvidia.nemotron-nano-12b-v2",
+      "name": "us-gov.nvidia.nemotron-nano-12b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.nvidia.nemotron-nano-3-30b",
+      "name": "us-gov.nvidia.nemotron-nano-3-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.nvidia.nemotron-nano-9b-v2",
+      "name": "us-gov.nvidia.nemotron-nano-9b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.nvidia.nemotron-super-3-120b",
+      "name": "us-gov.nvidia.nemotron-super-3-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.openai.gpt-oss-120b-1:0",
+      "name": "us-gov.openai.gpt-oss-120b-1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.openai.gpt-oss-20b-1:0",
+      "name": "us-gov.openai.gpt-oss-20b-1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.xai.grok-4.6",
+      "name": "us-gov.xai.grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -32742,6 +33051,17 @@
       ]
     },
     {
+      "id": "openrouter:deepseek/deepseek-v4-flash-vision-exp:batch",
+      "name": "DeepSeek: DeepSeek V4 Flash Vision Exp (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:deepseek/deepseek-v4-pro",
       "name": "DeepSeek: DeepSeek V4 Pro 0423",
       "tariff": "token",
@@ -33432,10 +33752,21 @@
       ]
     },
     {
+      "id": "openrouter:inception/mercury-2.5",
+      "name": "Inception: Mercury 2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:inception/mercury-2.5-preview",
       "name": "Inception: Mercury 2.5 Preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -34149,6 +34480,26 @@
     {
       "id": "openrouter:morph/morph-v3-large",
       "name": "Morph: Morph V3 Large",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:nex-agi/nex-n2.5-mini:free",
+      "name": "Nex AGI: Nex-N2.5-Mini (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:nex-agi/nex-n2.5-pro:free",
+      "name": "Nex AGI: Nex-N2.5-Pro (free)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -35795,8 +36146,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -35918,7 +36268,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -36673,6 +37024,17 @@
       ]
     },
     {
+      "id": "openrouter:z-ai/glm-5.2:batch",
+      "name": "Z.ai: GLM 5.2 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:z-ai/glm-5.3",
       "name": "Z.ai: GLM 5.3",
       "tariff": "token",
@@ -36697,6 +37059,17 @@
     {
       "id": "openrouter:z-ai/glm-5.3-flash:batch",
       "name": "Z.ai: GLM 5.3 Flash (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.3:batch",
+      "name": "Z.ai: GLM 5.3 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -37043,6 +37416,21 @@
       },
       {
         "offer": "litellm:eu.twelvelabs.marengo-embed-2-7-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:twelvelabs.marengo-embed-3-0-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:us.twelvelabs.marengo-embed-3-0-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:eu.twelvelabs.marengo-embed-3-0-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
       },
@@ -37618,6 +38006,11 @@
       },
       {
         "offer": "litellm:bedrock/us-gov-east-1/amazon.titan-embed-text-v2:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:bedrock/us-gov-west-1/amazon.nova-2-multimodal-embeddings-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
       },
@@ -40318,6 +40711,21 @@
         "offer": "litellm:vertex_ai/imagen-4.0-ultra-generate-001",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:vertex_ai/lyria-002",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:vertex_ai/lyria-3-clip-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:vertex_ai/lyria-3-pro-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
       },
       {
         "offer": "litellm:vertex_ai/mistral-ocr-2505",

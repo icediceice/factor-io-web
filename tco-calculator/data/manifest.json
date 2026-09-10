@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1788934854500",
-  "generated_at": "2026-09-09T06:20:54.500Z",
-  "snapshot_digest": "5b88b091c092d955",
+  "refresh_id": "refresh-1789020292903",
+  "generated_at": "2026-09-10T06:04:52.903Z",
+  "snapshot_digest": "3d417737a6a4db21",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-5b88b091c092d955.json",
-      "digest": "5b88b091c092d955",
-      "bytes": 2774279
+      "path": "catalog-3d417737a6a4db21.json",
+      "digest": "3d417737a6a4db21",
+      "bytes": 2782713
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "9873cef6339bc836",
+      "digest": "41bd864110ec6242",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-09T06:20:54.500Z",
-      "last_success_at": "2026-09-09T06:20:54.500Z",
-      "expires_at": "2026-09-12T06:20:54.500Z",
-      "root_digest": "a25e4dc1f87310de",
-      "record_count": 418,
+      "observed_at": "2026-09-10T06:04:52.903Z",
+      "last_success_at": "2026-09-10T06:04:52.903Z",
+      "expires_at": "2026-09-13T06:04:52.903Z",
+      "root_digest": "988b0d7096d7bdbe",
+      "record_count": 422,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-09T06:20:54.500Z",
-      "last_success_at": "2026-09-09T06:20:54.500Z",
-      "expires_at": "2026-09-12T06:20:54.500Z",
-      "root_digest": "4e212607de0ecbc2",
-      "record_count": 2979,
+      "observed_at": "2026-09-10T06:04:52.903Z",
+      "last_success_at": "2026-09-10T06:04:52.903Z",
+      "expires_at": "2026-09-13T06:04:52.903Z",
+      "root_digest": "607cf4d19252fdea",
+      "record_count": 2990,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-08T00:00:00.000Z",
-      "last_success_at": "2026-09-09T06:21:11.081Z",
-      "expires_at": "2026-09-15T23:59:59.999Z",
-      "root_digest": "9873cef6339bc836",
+      "observed_at": "2026-09-09T00:00:00.000Z",
+      "last_success_at": "2026-09-10T06:05:13.982Z",
+      "expires_at": "2026-09-16T23:59:59.999Z",
+      "root_digest": "41bd864110ec6242",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -3328,6 +3328,16 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/cohere-command-a",
+      "name": "azure_ai/cohere-command-a",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/deepseek-r1",
       "name": "azure_ai/deepseek-r1",
       "tariff": "token",
@@ -3582,6 +3592,17 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/gpt-chat-latest",
+      "name": "azure_ai/gpt-chat-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/gpt-oss-120b",
       "name": "azure_ai/gpt-oss-120b",
       "tariff": "token",
@@ -3637,6 +3658,28 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/grok-4-20-non-reasoning",
+      "name": "azure_ai/grok-4-20-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/grok-4-20-reasoning",
+      "name": "azure_ai/grok-4-20-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -3829,6 +3872,16 @@
     {
       "id": "litellm:azure_ai/mistral-small-2503",
       "name": "azure_ai/mistral-small-2503",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/model-router",
+      "name": "azure_ai/model-router",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -14360,6 +14413,17 @@
       ]
     },
     {
+      "id": "litellm:gemini/lyria-3.5",
+      "name": "gemini/lyria-3.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_out"
+      ]
+    },
+    {
       "id": "litellm:gemini/lyria-3.5-clip-preview",
       "name": "gemini/lyria-3.5-clip-preview",
       "tariff": "token",
@@ -14668,6 +14732,32 @@
         "cache_read|>272000",
         "output",
         "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:global.openai.gpt-6-astra",
+      "name": "global.openai.gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|>272000",
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:global.twelvelabs.pegasus-1-2-v1:0",
+      "name": "global.twelvelabs.pegasus-1-2-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "op_video_second",
+        "output"
       ]
     },
     {
@@ -28444,6 +28534,22 @@
       ]
     },
     {
+      "id": "litellm:us.openai.gpt-6-astra",
+      "name": "us.openai.gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|>272000",
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:us.twelvelabs.pegasus-1-2-v1:0",
       "name": "us.twelvelabs.pegasus-1-2-v1:0",
       "tariff": "token",
@@ -30735,8 +30841,11 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|>200000",
         "input",
-        "output"
+        "input|>200000",
+        "output",
+        "output|>200000"
       ]
     },
     {
@@ -30746,8 +30855,39 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|>200000",
         "input",
-        "output"
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/xai/grok-4.3",
+      "name": "vertex_ai/xai/grok-4.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/xai/grok-4.6",
+      "name": "vertex_ai/xai/grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
       ]
     },
     {
@@ -34126,16 +34266,6 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m2.7:free",
-      "name": "MiniMax: MiniMax M2.7 (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m3",
       "name": "MiniMax: MiniMax M3",
       "tariff": "token",
@@ -34155,16 +34285,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m3:free",
-      "name": "MiniMax: MiniMax M3 (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -34409,7 +34529,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -34541,7 +34662,7 @@
       "id": "openrouter:nousresearch/hermes-4-70b",
       "name": "Nous: Hermes 4 70B",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -37455,6 +37576,16 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:azure_ai/codex-mini",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/whisper",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
         "offer": "litellm:azure_ai/gpt-5.4-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -38086,6 +38217,16 @@
       },
       {
         "offer": "litellm:cohere.embed-v4:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:us.cohere.embed-v4:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:global.cohere.embed-v4:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
       },
@@ -39283,6 +39424,26 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:chatgpt/gpt-5.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-5.6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-5.6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-5.6-terra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:chatgpt/gpt-5.4",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -39414,6 +39575,26 @@
       },
       {
         "offer": "litellm:gpt-image-2-2026-04-21",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:gpt-image-2.5-flare",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:gpt-image-2.5-flare-2026-09-08",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:gpt-image-2.5-sunburst",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:gpt-image-2.5-sunburst-2026-09-08",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
       },
@@ -40218,6 +40399,16 @@
         "mode": "rerank"
       },
       {
+        "offer": "litellm:rerank-v4.0-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:rerank-v4.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
         "offer": "litellm:nvidia_nim/nvidia/nv-rerankqa-mistral-4b-v3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -40818,6 +41009,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:voyage/voyage-multilingual-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
         "offer": "litellm:voyage/voyage-3-large",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -41288,7 +41484,17 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:bedrock_mantle/openai.gpt-daybreak-blue-5.6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-5.6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/openai.gpt-6-astra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       },
@@ -41393,6 +41599,11 @@
         "mode": "audio_transcription"
       },
       {
+        "offer": "litellm:vertex_ai/gemini-3.5-live-translate-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
         "offer": "litellm:perplexity/pplx-embed-context-v1-0.6b",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -41466,6 +41677,26 @@
         "offer": "litellm:xai/grok-imagine-image-2.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-video-1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-video-1.5-2026-05-30",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-imagine-video-1.5-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
       },
       {
         "offer": "litellm:low/1024-x-1024/grok-imagine-image-2.0",

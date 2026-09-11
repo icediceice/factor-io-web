@@ -12,7 +12,9 @@ const frameAt = async (path, width, noScript = false) => {
   if (noScript) frame.setAttribute('sandbox', 'allow-same-origin');
   const loaded = new Promise((resolve, reject) => { frame.onload = resolve; frame.onerror = reject; });
   frame.src = path; stage.replaceChildren(frame); await loaded; await frame.contentDocument.fonts.ready;
-  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  // Background host tabs suspend animation frames. After load/fonts, a geometry
+  // read flushes layout synchronously; no foreground animation lifecycle needed.
+  frame.contentDocument.documentElement.getBoundingClientRect();
   return frame;
 };
 const visible = (node, win) => {

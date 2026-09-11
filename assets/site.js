@@ -60,11 +60,25 @@ export async function copyDraft(textarea, clipboard) {
 // of the current one. Reduced motion applies the identical end state with no staging.
 const reducedMotion = () => typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FLOW_IDLE = ['idle', 'idle', 'idle', 'idle', 'idle'];
+// A human really did approve this exact request, so every stage is earned.
 const FLOW_PASS = ['pass', 'pass', 'pass', 'pass', 'pass'];
 // Outside staging and unapproved: identity clears, scope refuses, and the chain
 // STOPS at the human gate rather than running on.
 const FLOW_HALT = ['pass', 'pass', 'deny', 'wait', 'idle'];
-const FLOW_INVALID = ['pass', 'pass', 'deny', 'idle', 'idle'];
+// Already inside the agent's authorized scope: no human decision is required, so the
+// approval stage stays NEUTRAL. Painting it 'pass' would claim an approval nobody gave.
+const FLOW_SCOPED = ['pass', 'pass', 'pass', 'idle', 'pass'];
+// The request itself is malformed. It is refused at the request stage and must never
+// show a human wait, because approving it can never clear it.
+const FLOW_MALFORMED = ['deny', 'idle', 'idle', 'idle', 'idle'];
+
+// Every painted stage must describe an event that actually occurred, so the chain is
+// derived from the model's real situation rather than from one allow/deny bit.
+export function flowStates(model) {
+  if (!validRequest(model.snapshot())) return FLOW_MALFORMED;
+  if (model.approvedExact()) return FLOW_PASS;
+  return model.evaluate() ? FLOW_SCOPED : FLOW_HALT;
+}
 
 export function bindDemo(root) {
   const copy = JSON.parse(root.dataset.copy), model = createDemo();

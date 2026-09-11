@@ -104,8 +104,8 @@ export function bindDemo(root) {
     model.update({ target: target.value, revision: revision.value === '' ? NaN : Number(revision.value) });
   };
   for (const input of [target, revision]) input.addEventListener('input', () => { sync(); show('invalidated'); paint(FLOW_IDLE); });
-  root.querySelector('[data-evaluate]').addEventListener('click', () => { sync(); const allowed = model.evaluate(); show(allowed ? 'allowed' : 'denied', allowed ? 'allowed' : 'denied'); paint(allowed ? FLOW_PASS : FLOW_HALT); });
-  root.querySelector('[data-approve]').addEventListener('click', () => { sync(); const bound = model.approve(); show(bound ? 'approved' : 'denied', bound ? 'approval' : 'denied'); paint(bound ? FLOW_PASS : FLOW_INVALID); });
+  root.querySelector('[data-evaluate]').addEventListener('click', () => { sync(); const allowed = model.evaluate(); show(allowed ? 'allowed' : 'denied', allowed ? 'allowed' : 'denied'); paint(flowStates(model)); });
+  root.querySelector('[data-approve]').addEventListener('click', () => { sync(); const bound = model.approve(); show(bound ? 'approved' : 'denied', bound ? 'approval' : 'denied'); paint(flowStates(model)); });
   root.querySelector('[data-reset]').addEventListener('click', () => { model.reset(); target.value = 'production/payment-api'; revision.value = '182'; show('initial'); paint(FLOW_IDLE); });
   root.querySelector('.demo-interactive').hidden = false;
   return model;

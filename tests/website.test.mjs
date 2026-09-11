@@ -8,7 +8,7 @@ import { resolve } from 'node:path';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
 import { ROOT, generate, loadContent, assertParity, samePreviewBytes } from '../scripts/build-site.mjs';
-import { createDemo, prepareMailDraft, copyDraft, MAILTO_LIMIT } from '../assets/site.js';
+import { createDemo, flowStates, prepareMailDraft, copyDraft, MAILTO_LIMIT } from '../assets/site.js';
 
 const read = path => readFile(resolve(ROOT, path), 'utf8');
 const content = await loadContent(), output = await generate();

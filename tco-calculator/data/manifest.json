@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789020292903",
-  "generated_at": "2026-09-10T06:04:52.903Z",
-  "snapshot_digest": "3d417737a6a4db21",
+  "refresh_id": "refresh-1789106542461",
+  "generated_at": "2026-09-11T06:02:22.461Z",
+  "snapshot_digest": "b1361b6b2933d9db",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-3d417737a6a4db21.json",
-      "digest": "3d417737a6a4db21",
-      "bytes": 2782713
+      "path": "catalog-b1361b6b2933d9db.json",
+      "digest": "b1361b6b2933d9db",
+      "bytes": 2789259
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "41bd864110ec6242",
+      "digest": "c2cca312c425611a",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-10T06:04:52.903Z",
-      "last_success_at": "2026-09-10T06:04:52.903Z",
-      "expires_at": "2026-09-13T06:04:52.903Z",
-      "root_digest": "988b0d7096d7bdbe",
-      "record_count": 422,
+      "observed_at": "2026-09-11T06:02:22.461Z",
+      "last_success_at": "2026-09-11T06:02:22.461Z",
+      "expires_at": "2026-09-14T06:02:22.461Z",
+      "root_digest": "8106e796f52d4755",
+      "record_count": 426,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-10T06:04:52.903Z",
-      "last_success_at": "2026-09-10T06:04:52.903Z",
-      "expires_at": "2026-09-13T06:04:52.903Z",
-      "root_digest": "607cf4d19252fdea",
-      "record_count": 2990,
+      "observed_at": "2026-09-11T06:02:22.461Z",
+      "last_success_at": "2026-09-11T06:02:22.461Z",
+      "expires_at": "2026-09-14T06:02:22.461Z",
+      "root_digest": "0826900617ca3d6c",
+      "record_count": 2993,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-09T00:00:00.000Z",
-      "last_success_at": "2026-09-10T06:05:13.982Z",
-      "expires_at": "2026-09-16T23:59:59.999Z",
-      "root_digest": "41bd864110ec6242",
+      "observed_at": "2026-09-10T00:00:00.000Z",
+      "last_success_at": "2026-09-11T06:02:40.305Z",
+      "expires_at": "2026-09-17T23:59:59.999Z",
+      "root_digest": "c2cca312c425611a",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -23321,6 +23321,22 @@
       ]
     },
     {
+      "id": "litellm:openrouter/openai/gpt-5.6-sol",
+      "name": "openrouter/openai/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:openrouter/openai/gpt-5.6-terra",
       "name": "openrouter/openai/gpt-5.6-terra",
       "tariff": "token",
@@ -31154,6 +31170,17 @@
       ]
     },
     {
+      "id": "litellm:wandb/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "name": "wandb/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:wandb/google/gemma-4-31B-it",
       "name": "wandb/google/gemma-4-31B-it",
       "tariff": "token",
@@ -31171,6 +31198,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:wandb/ibm-granite/granite-4.2-8b",
+      "name": "wandb/ibm-granite/granite-4.2-8b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -33235,6 +33273,17 @@
       ]
     },
     {
+      "id": "openrouter:deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:dots-studio/dots-3-note-preview:free",
       "name": "Dots Studio: Dots3-Note Preview (free)",
       "tariff": "token",
@@ -33903,17 +33952,6 @@
       ]
     },
     {
-      "id": "openrouter:inception/mercury-2.5-preview",
-      "name": "Inception: Mercury 2.5 Preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:inclusionai/ling-3.0-flash",
       "name": "inclusionAI: Ling 3.0 Flash",
       "tariff": "token",
@@ -33948,6 +33986,16 @@
     {
       "id": "openrouter:inclusionai/ling-3.0-flash-sante:free",
       "name": "inclusionAI: Ling 3.0 Flash Sante (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:inclusionai/ling-3.0-flash-vl:free",
+      "name": "inclusionAI: Ling 3.0 Flash VL (free)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -36633,8 +36681,32 @@
       ]
     },
     {
+      "id": "openrouter:sakana/fugu-max",
+      "name": "Sakana: Fugu Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:sakana/fugu-ultra",
       "name": "Sakana: Fugu Ultra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:sakana/fugu-ultra-v2",
+      "name": "Sakana: Fugu Ultra v2",
       "tariff": "token",
       "state": "active",
       "meters": [

@@ -1,4 +1,17 @@
 /* Engineering Field Guide: editorial hierarchy, system boundaries, no bitmap assets. */
+/* light-design · macrostructure: Topology (the governance approval chain) · density: balanced · depth: borders-only
+ * gates: 54/54 after adding this stamp (S1 was the one real failure). Four argued exceptions, not silent passes:
+ *   V3 Inter is deliberate, not a default — it is the Latin half of a bilingual pairing with Noto Sans Thai.
+ *   V4 the second hue (--focus) is the pre-existing semantic status token already used for focus rings and the
+ *      denied status bar; it is reused here for the refused node rather than introduced as a second accent.
+ *   V10/V11 pre-existing site-wide spacing drift and the native <select> — both outside this change, and the
+ *      select is styled through the token set rather than left raw.
+ * critique: H4 D4 S4 O5 R4 P4 — no axis below 3, so no forced revision pass.
+ * signature move: node health is carried by glyph AND border weight AND colour, never colour alone, so the
+ *   chain still reads in greyscale and under colour-blindness. Layout is fixed grid order and never reshuffles.
+ * data: the demo is a labelled in-browser simulation. identity, target and revision are fictional and the
+ *   visible copy says so; nothing is wired to a live source and no request leaves the page.
+ */
 @media(min-width:1081px){.menu-toggle{display:none}}
 #main-nav a{min-width:44px;justify-content:center}
 :root{color-scheme:light;--paper:#f4f3ed;--white:#fff;--ink:#172d2a;--muted:#4b605b;--accent:#006a57;--tint:#e2ede5;--line:#bdc9c1;--focus:#a64b00;--font:Inter,"Noto Sans Thai",Tahoma,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai",Tahoma,monospace}

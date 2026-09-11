@@ -7,13 +7,33 @@ import { once } from 'node:events';
 import { resolve } from 'node:path';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
-import { ROOT, generate, loadContent, assertParity } from '../scripts/build-site.mjs';
+import { ROOT, generate, loadContent, assertParity, samePreviewBytes } from '../scripts/build-site.mjs';
 import { createDemo, prepareMailDraft, copyDraft, MAILTO_LIMIT } from '../assets/site.js';
 
 const read = path => readFile(resolve(ROOT, path), 'utf8');
 const content = await loadContent(), output = await generate();
 const decode = s => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 const schema = html => JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
+
+test('direct email links opt out of edge obfuscation so the no-JS fallback survives publication', async () => {
+  for (const html of [...output.values(), await read('light-tools.html'), await read('privacy.html')]) {
+    for (const match of html.matchAll(/<a\b[^>]*href="mailto:[^"]*"[^>]*>[\s\S]*?<\/a>/g)) {
+      assert.equal(html.slice(match.index - 16, match.index), '<!--email_off-->');
+      assert.equal(html.slice(match.index + match[0].length, match.index + match[0].length + 17), '<!--/email_off-->');
+    }
+  }
+});
+
+test('published comparison allows only removal of exact opt-out comments, not obfuscation or injected code', () => {
+  const expected = Buffer.from('<!--email_off--><a href="mailto:admin@factor-io.com">admin@factor-io.com</a><!--/email_off-->');
+  const plain = Buffer.from('<a href="mailto:admin@factor-io.com">admin@factor-io.com</a>');
+  assert.equal(samePreviewBytes('/en/', expected, expected), true);
+  assert.equal(samePreviewBytes('/en/', expected, plain), true);
+  assert.equal(samePreviewBytes('/site.css', expected, plain), false);
+  assert.equal(samePreviewBytes('/en/', expected, Buffer.from(plain + '<script src="/cdn-cgi/email-decode.min.js"></script>')), false);
+  assert.equal(samePreviewBytes('/en/', expected, Buffer.from(plain.toString().replace('mailto:', '/cdn-cgi/l/email-protection#'))), false);
+  assert.equal(samePreviewBytes('/en/', expected, Buffer.from(plain + ' ')), false);
+});
 
 test('all committed output matches deterministic generation with no wall-clock dependency', async () => {
   assert.equal(output.size, 16);

@@ -1,4 +1,6 @@
-// patch-home.mjs — the ONLY sanctioned way to edit index.html's real content.
+// Historical bundled-home patcher, retained only for replaying archived revisions.
+// Current website: edit content/en/site.json or content/th/site.json, then
+// run node scripts/build-site.mjs. Never use this patcher on generated output.
 //
 // The live homepage lives JSON-encoded inside <script type="__bundler/template">.
 // KB records four hand-escaped sed attempts that all silently missed, so this
@@ -31,7 +33,7 @@ const RS = String.fromCodePoint(0x27);     // apostrophe is ASCII: U+2019 count 
 
 const src = fs.readFileSync(FILE, 'utf8');
 const i = src.indexOf(OPEN);
-if (i < 0) throw new Error('template block not found');
+if (i < 0) throw new Error('Historical template absent. This homepage is generated: edit content/en/site.json or content/th/site.json and run node scripts/build-site.mjs.');
 const start = i + OPEN.length;
 const end = src.indexOf(CLOSE, start);
 if (end < 0) throw new Error('template block unterminated');

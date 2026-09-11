@@ -116,7 +116,7 @@ async function runAll() {
   try {
     for (const width of [390,768,1440]) for (const locale of ['en','th']) for (const page of pages) {
       const frame = await frameAt(`/${locale}/${page}`, width);
-      const result = measure(frame,width); result.failures.push(...interactions(frame,page));
+      const result = measure(frame,width); result.failures.push(...await interactions(frame,page));
       results.push({ path:`/${locale}/${page}`, width, ...result });
       report.textContent = `Running ${results.length}/42\n` + JSON.stringify(results.filter(r=>r.failures.length),null,2);
     }

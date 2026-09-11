@@ -49,18 +49,45 @@ export async function copyDraft(textarea, clipboard) {
   }
 }
 
+// The chart is emphasis, never the argument: every status line is set SYNCHRONOUSLY
+// in the handler, and only node states are staged. Nothing on a timer may touch
+// .demo-status, or a pending frame from a previous click could overwrite the verdict
+// of the current one. Reduced motion applies the identical end state with no staging.
+const reducedMotion = () => typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FLOW_IDLE = ['idle', 'idle', 'idle', 'idle', 'idle'];
+const FLOW_PASS = ['pass', 'pass', 'pass', 'pass', 'pass'];
+// Outside staging and unapproved: identity clears, scope refuses, and the chain
+// STOPS at the human gate rather than running on.
+const FLOW_HALT = ['pass', 'pass', 'deny', 'wait', 'idle'];
+const FLOW_INVALID = ['pass', 'pass', 'deny', 'idle', 'idle'];
+
 export function bindDemo(root) {
   const copy = JSON.parse(root.dataset.copy), model = createDemo();
   const target = root.querySelector('[name=target]'), revision = root.querySelector('[name=revision]');
-  const status = root.querySelector('[data-status]');
+  const status = root.querySelector('[data-status]'), halt = root.querySelector('[data-halt]');
+  const nodes = [...root.querySelectorAll('.flow-node')];
+  let timers = [];
+  const paint = states => {
+    for (const timer of timers) clearTimeout(timer);
+    timers = [];
+    const step = reducedMotion() ? 0 : 260, waiting = states.includes('wait');
+    states.forEach((state, i) => {
+      if (!nodes[i]) return;
+      if (step) timers.push(setTimeout(() => { nodes[i].dataset.state = state; }, i * step));
+      else nodes[i].dataset.state = state;
+    });
+    if (!halt) return;
+    if (step) timers.push(setTimeout(() => { halt.hidden = !waiting; }, states.length * step));
+    else halt.hidden = !waiting;
+  };
   const show = (key, state = 'denied') => { status.textContent = copy[key]; status.dataset.state = state; };
   const sync = () => {
     model.update({ target: target.value, revision: revision.value === '' ? NaN : Number(revision.value) });
   };
-  for (const input of [target, revision]) input.addEventListener('input', () => { sync(); show('invalidated'); });
-  root.querySelector('[data-evaluate]').addEventListener('click', () => { sync(); const allowed = model.evaluate(); show(allowed ? 'allowed' : 'denied', allowed ? 'allowed' : 'denied'); });
-  root.querySelector('[data-approve]').addEventListener('click', () => { sync(); show(model.approve() ? 'approved' : 'denied', 'approval'); });
-  root.querySelector('[data-reset]').addEventListener('click', () => { model.reset(); target.value = 'production/payment-api'; revision.value = '182'; show('initial'); });
+  for (const input of [target, revision]) input.addEventListener('input', () => { sync(); show('invalidated'); paint(FLOW_IDLE); });
+  root.querySelector('[data-evaluate]').addEventListener('click', () => { sync(); const allowed = model.evaluate(); show(allowed ? 'allowed' : 'denied', allowed ? 'allowed' : 'denied'); paint(allowed ? FLOW_PASS : FLOW_HALT); });
+  root.querySelector('[data-approve]').addEventListener('click', () => { sync(); const bound = model.approve(); show(bound ? 'approved' : 'denied', bound ? 'approval' : 'denied'); paint(bound ? FLOW_PASS : FLOW_INVALID); });
+  root.querySelector('[data-reset]').addEventListener('click', () => { model.reset(); target.value = 'production/payment-api'; revision.value = '182'; show('initial'); paint(FLOW_IDLE); });
   root.querySelector('.demo-interactive').hidden = false;
   return model;
 }

@@ -1,9 +1,17 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-08 (single-server savings examples and dedicated advisor)
+> Last updated: 2026-09-11 (infrastructure-first bilingual consulting website)
 
 ## Current Focus
+
+The marketing site now leads with Thanat Manasakool's nearly 20 years in enterprise infrastructure and technical enablement of Thailand's leading SI partners. Seven explicit English/Thai page types cover infrastructure architecture/migration, private AI, SI enablement and the supplied governed-AI consulting specification. Root is complete English HTML canonical to `/en/`; `/en/` and `/th/` pages work directly without JavaScript. The calculator/advisor and historical `services.html` deck remain separate, unchanged resources.
+
+Local verification: 27/27 website tests, 327/327 existing calculator tests, deterministic export check and 23-route/asset local-preview byte comparison pass. The browser fixture passes all 42 combinations (seven routes × two languages × 390/768/1440px), with no horizontal/text overflow, >=44px standalone actions, minimum measured text contrast 5.46:1, paired mobile navigation/Escape/focus, exact simulated approval invalidation and long Thai email-draft fallback. Direct no-JS Thai governance passes. EN/TH homepage screenshots were visually inspected; uncaught browser errors are zero. No real email or inference request was made.
+
+Thai is public and language-linked but `noindex` pending the operator's native-language review; this is not privacy or completed language approval. Names remain in supplied Latin script. Existing Red Hat/Nutanix role history is retained without the unconfirmed five-year duration or any endorsement claim. Publication and independent verify-ship reconciliation are recorded in approved Light plan `1547876455281594451`; this working-tree milestone does not imply either has completed. Content/build/claims and full 25-section mapping: `docs/consulting-website.md`.
+
+### Previous focus (single-server savings and dedicated advisor; historical)
 
 The calculator now leads with three complete, labelled single-server examples: code reading, document triage and test drafting. One fixed workstation, full capex/electricity, residual API spend, net savings and payback are visible without a sizing interview. Custom sizing remains secondary. AI lives on `tco-assistant.html`, carrying a two-hour tab-local scenario; complete returned changes require explicit review and one Apply/recompute. Spotify is cited for Gemini-worker bulk-read token reduction, not a total billing or local-hardware benchmark. Model throughput/quality remain assumptions to validate, and cheaper uncited hardware has not been invented.
 
@@ -40,6 +48,16 @@ Upcoming work in priority order:
 *(Populated by escalation events. Survives compaction — do not remove.)*
 
 ## Work Log
+
+### 2026-09-11
+
+#### Infrastructure-first bilingual consultancy rewrite
+
+- Replaced the packed consumer-app homepage with a dependency-free static export from explicit EN/TH content and shared templates/config. Engineering Field Guide presentation uses native topology/workflow diagrams, paper/ink/teal, readable Thai and a permanently visible language switch. Source and generated pages are committed together; `.nojekyll` retains plain static Pages hosting. Dates are explicit editorial values; asset URLs carry content hashes and `--check` detects generated drift.
+- Preserved root JSON-LD `#organization`/`#founder` for unchanged calculator consumers, all four legacy sitemap URLs and the existing tool/advisor disclosures. Only light-tools founder prose and founder/organization schema descriptions changed. Privacy distinguishes local email drafting from ordinary sent-email correspondence while preserving calculator/proxy policies. The historical bundled-home patcher now directs maintainers to content/build; local `serve.mjs` handles directories, redirects and HEAD.
+- Governance is clearly a local simulation: production is denied until exact target/restart/revision approval, and changes/reverts/reset invalidate approval. Contact prepares a complete local draft; no submission or storage. The full encoded mailto is capped at 1800 characters, with no truncation and an always-available selectable/copyable fallback. Sending stays with the visitor.
+- Verification: 27 website + 327 calculator tests pass; 42 browser layout/state cases and no-JS Thai pass; minimum measured text contrast 5.46:1; local 23-route/asset byte match. The browser pass found intrinsically narrow navigation labels, fixed with a 44px minimum. The fixture itself initially waited for background-tab animation frames; replacing that unnecessary scheduler dependency with a post-load/font synchronous geometry read made all cases reproducible. No production behavior was changed for that fixture repair.
+- Preserved deck Git blob: `67fa2bba803cb9840dead1ccbf2a4a94067e21ce`; calculator entry: `bdb1767cf5a7fc114bd351a18d4053e9ccf0fbff`; advisor entry: `6c31c55512c34e334e1b2a88f0117d26fce8833c`. Unrelated `.claude/skills/smart-index/SKILL.md` and `.bak` are excluded from staging. Native Thai sign-off/indexing remains a disclosed follow-up; no customer, certification, benchmark, SLA or vendor endorsement was invented.
 
 ### 2026-09-07 (latest)
 

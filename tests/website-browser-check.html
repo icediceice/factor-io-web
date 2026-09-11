@@ -42,6 +42,7 @@ function measure(frame, width) {
   if (visible(toggle, win)) {
     toggle.click(); if (toggle.getAttribute('aria-expanded') !== 'true') failures.push('menu did not open');
     if ([...doc.querySelectorAll('#main-nav a')].filter(a => visible(a, win)).length !== 7) failures.push('mobile navigation incomplete');
+    for (const a of doc.querySelectorAll('#main-nav a')) { const b = a.getBoundingClientRect(); if (b.width < 43.9 || b.height < 43.9) failures.push('small mobile navigation action'); }
     doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     if (toggle.getAttribute('aria-expanded') !== 'false' || doc.activeElement !== toggle) failures.push('Escape/focus failed');
   }

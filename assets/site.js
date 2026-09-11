@@ -16,6 +16,11 @@ export function createDemo() {
       request = next;
     },
     approve() { approval = validRequest(request) ? { ...request } : null; return !!approval; },
+    // Read-only view of state that already exists: did a HUMAN approve this exact
+    // request? The chart needs it to tell "allowed because in scope" apart from
+    // "allowed because approved", so the human-approval node never shows a tick
+    // nobody earned. Adds no state and changes no existing behaviour.
+    approvedExact: () => sameRequest(approval, request),
     evaluate() { return validRequest(request) && (request.target === 'staging/payment-api' || sameRequest(approval, request)); },
     reset() { request = { target: 'production/payment-api', operation: 'restart', revision: 182 }; approval = null; },
   };

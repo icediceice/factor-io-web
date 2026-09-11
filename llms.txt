@@ -7,9 +7,9 @@ The practice leads with infrastructure architecture, migration, private AI and S
 ## Consulting website
 
 - [English homepage](https://studio.factor-io.com/en/): Infrastructure expertise and governed enterprise AI.
-- [Services](https://studio.factor-io.com/en/services/): Infrastructure/SI engagements; Enterprise AI Workflow Engineering, Governed Agent Operations, Service & Dependency Intelligence, Custom Enterprise AI Solution; recurring controlled optimization.
-- [Platform](https://studio.factor-io.com/en/platform/): Light governance, model placement, structured control versus flexible payload, optional Nutanix inference integration without endorsement.
-- [Governance](https://studio.factor-io.com/en/governance/): Explicit identity/scope/approval and a local illustrative demo, not a connected production service.
+- [Services](https://studio.factor-io.com/en/services/): Infrastructure/SI engagements; Enterprise AI Workflow Engineering, Governed Agent Operations, Service & Dependency Intelligence, Custom Enterprise AI Solution; chatbot, RAG and GraphRAG delivered for a whole organization rather than a pilot; recurring controlled optimization.
+- [Platform](https://studio.factor-io.com/en/platform/): Light governance, model placement, structured control versus flexible payload, and why enforcement must sit outside the model — a prompt is a request, not a boundary.
+- [Governance](https://studio.factor-io.com/en/governance/): Explicit identity/scope/approval and a local illustrative flowchart that halts at the human approval gate until a visitor approves that exact revision; not a connected production service.
 - [How We Work](https://studio.factor-io.com/en/how-we-work/): Understand, Integrate, Govern, Operate & Improve.
 - [About](https://studio.factor-io.com/en/about/): Principal-led infrastructure engineering and SI enablement.
 - [Contact](https://studio.factor-io.com/en/contact/): Prepare a complete local email draft. No automatic submission, storage or inference. Sending via the visitor's email app is a separate explicit action; ordinary email correspondence may be retained.

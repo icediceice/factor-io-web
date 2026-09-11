@@ -133,6 +133,33 @@ test('demo denies production until exact approval and invalidates changes, rever
   for (const revision of [NaN, 0, -1, 1.5, 1000000]) { d.update({ target: 'production/payment-api', revision }); assert.equal(d.approve(), false); assert.equal(d.evaluate(), false); }
 });
 
+test('governance flowchart renders one node per declared stage, in both locales', () => {
+  for (const locale of ['en', 'th']) {
+    const html = output.get(outputPath(locale, 'governance')), d = content[locale].demo;
+    assert.equal(d.stages.length, 5);
+    assert.equal((html.match(/class="flow-node"/g) || []).length, d.stages.length);
+    for (const label of d.stages) assert.ok(html.includes(esc(label)), `${locale}: missing stage ${label}`);
+    // The halt notice ships hidden; only the script may reveal it.
+    assert.match(html, /<p class="flow-halt" data-halt hidden/);
+    assert.ok(html.includes(esc(d.halt)));
+    // The no-JS argument must survive with the exact revision still named.
+    assert.ok(html.includes(esc(d.static)) && d.static.includes('182'));
+  }
+});
+
+test('vendor product framing is gone while the founder employment history is preserved', async () => {
+  for (const locale of ['en', 'th']) {
+    const json = await read(`content/${locale}/site.json`);
+    assert.doesNotMatch(json, /Nutanix Enterprise AI|Nutanix Ready|Nutanix AI/);
+    assert.match(json, /Ecosystem Solutions Architect/);
+    assert.doesNotMatch(json, /nutanix"/);
+  }
+  assert.match(await read('llms.txt'), /Ecosystem Solutions Architect/);
+  assert.doesNotMatch(await read('llms.txt'), /Nutanix inference|optional Nutanix/);
+  // The founder schema description is a cross-page contract; it must not drift.
+  assert.match(config.founderDescription, /Red Hat and Nutanix/);
+});
+
 const values = { name: 'Test Engineer', email: 'test@example.com', company: 'Example', workflow: 'A staging migration.' };
 test('short contact draft safely encodes subject/body; preparation never means delivery', () => {
   const result = prepareMailDraft({ ...values, workflow: 'A & B? #1\n<unsafe> + = 100%' }, content.en.contact, config.email);

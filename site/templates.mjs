@@ -36,9 +36,19 @@ function progression(c) {
 
 function demo(c) {
   const d = c.demo;
+  // Topology: the flow is a fixed chain of nodes. Layout never reshuffles, and each
+  // node carries its own state as a glyph AND a border weight, never colour alone,
+  // so it survives greyscale and colour-blindness. The chart is decorative for
+  // assistive tech: .demo-status is the live region that announces every transition
+  // in words, and .static-explanation carries the whole argument with no JS at all.
+  const stages = d.stages.map((label, i) => `<li class="flow-node" data-stage="${i}" data-state="idle">
+      <span class="flow-index">${String(i + 1).padStart(2, '0')}</span><span class="flow-label">${esc(label)}</span></li>`).join('');
   return `<div class="demo" data-demo data-copy="${esc(JSON.stringify(d))}">
     <h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p>
     <dl class="identity-row"><div><dt>${esc(d.identity)}</dt><dd><code>workflow-agent-17</code></dd></div><div><dt>${esc(d.scope)}</dt><dd><code>staging/*</code></dd></div></dl>
+    <ol class="flowchart" data-flow aria-hidden="true">${stages}</ol>
+    <p class="flow-halt" data-halt hidden aria-hidden="true">${esc(d.halt)}</p>
+    <p class="flow-legend" aria-hidden="true">${esc(d.legend)}</p>
     <div class="demo-interactive" hidden>
       <div class="field-row"><label>${esc(d.target)}<select name="target"><option>production/payment-api</option><option>staging/payment-api</option><option>production/reporting-api</option></select></label>
       <label>${esc(d.revision)}<input name="revision" type="number" min="1" max="999999" value="182" required></label></div>

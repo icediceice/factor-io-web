@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Consulting website · synthetic browser checks</title>
+<style>body{font:15px/1.6 system-ui;margin:24px;background:#fff;color:#172d2a}pre{white-space:pre-wrap;overflow-wrap:anywhere}iframe{display:block;height:900px;border:0;margin:24px 0}button,a{padding:12px;margin-right:12px}#stage{overflow:auto}summary{cursor:pointer}</style></head>
+<body><h1>Website browser checks</h1><p>Synthetic verification only. Public but noindex. No messages, inference, external-app launches or clipboard writes.</p>
+<button id="run" type="button">Run all checks</button><a href="?view=en">English 390px preview</a><a href="?view=th">Thai 390px preview</a>
+<pre id="report" role="status">Ready.</pre><div id="stage"></div>
+<script type="module">
+const report = document.querySelector('#report'), stage = document.querySelector('#stage'), run = document.querySelector('#run');
+const pages = ['', 'services/', 'platform/', 'governance/', 'how-we-work/', 'about/', 'contact/'];
+const frameAt = async (path, width, noScript = false) => {
+  const frame = document.createElement('iframe'); frame.width = width; frame.title = `${path} at ${width}px`;
+  if (noScript) frame.setAttribute('sandbox', 'allow-same-origin');
+  const loaded = new Promise((resolve, reject) => { frame.onload = resolve; frame.onerror = reject; });
+  frame.src = path; stage.replaceChildren(frame); await loaded; await frame.contentDocument.fonts.ready;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  return frame;
+};
+const visible = (node, win) => {
+  const style = win.getComputedStyle(node), box = node.getBoundingClientRect();
+  return style.display !== 'none' && style.visibility !== 'hidden' && box.width > 0 && box.height > 0 && box.bottom > 0;
+};
+const rgb = color => (color.match(/[\d.]+/g) || []).map(Number);
+const luminance = color => {
+  const c = color.slice(0,3).map(v => { const s = v / 255; return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4; });
+  return c[0] * .2126 + c[1] * .7152 + c[2] * .0722;
+};
+function background(node, win) {
+  for (let current = node; current; current = current.parentElement) {
+    const c = rgb(win.getComputedStyle(current).backgroundColor);
+    if (c.length === 3 || c[3] === 1) return c;
+  }
+  return [255,255,255];
+}
+function measure(frame, width) {
+  const doc = frame.contentDocument, win = frame.contentWindow, failures = [];
+  if (win.innerWidth !== width) failures.push(`actual width ${win.innerWidth} != ${width}`);
+  if (doc.documentElement.scrollWidth > width + 1) failures.push(`body overflow ${doc.documentElement.scrollWidth}`);
+  for (const a of doc.querySelectorAll('.language a')) { const b = a.getBoundingClientRect(); if (!visible(a, win) || b.left < 0 || b.right > width + 1 || b.bottom > win.innerHeight) failures.push('language control offscreen'); }
+  const toggle = doc.querySelector('.menu-toggle');
+  if (visible(toggle, win)) {
+    toggle.click(); if (toggle.getAttribute('aria-expanded') !== 'true') failures.push('menu did not open');
+    if ([...doc.querySelectorAll('#main-nav a')].filter(a => visible(a, win)).length !== 7) failures.push('mobile navigation incomplete');
+    doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    if (toggle.getAttribute('aria-expanded') !== 'false' || doc.activeElement !== toggle) failures.push('Escape/focus failed');
+  }
+  let minContrast = 30, actions = 0;
+  for (const node of doc.querySelectorAll('body *')) {
+    if (!visible(node, win) || ['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.tagName)) continue;
+    const style = win.getComputedStyle(node), box = node.getBoundingClientRect();
+    if (node.matches('button, .button, .text-link, .brand, #main-nav a, .language a')) {
+      actions++; if (box.height < 43.9 || box.width < 43.9) failures.push(`small action ${node.textContent.trim().slice(0,30)} ${box.width.toFixed(1)}x${box.height.toFixed(1)}`);
+    }
+    const textNodes = [...node.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim());
+    if (textNodes.length && !node.matches('select,option,input,textarea')) {
+      const fg = luminance(rgb(style.color)), bg = luminance(background(node, win));
+      const contrast = (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05); minContrast = Math.min(minContrast,contrast);
+      if (contrast < 4.5) failures.push(`contrast ${contrast.toFixed(2)}: ${node.textContent.trim().slice(0,35)}`);
+      for (const text of textNodes) {
+        const range = doc.createRange(); range.selectNodeContents(text);
+        for (const rect of range.getClientRects()) if (rect.left < -1 || rect.right > width + 1) failures.push(`text outside viewport: ${text.textContent.trim().slice(0,35)}`);
+      }
+      if (['hidden','clip'].includes(style.overflowY) && node.scrollHeight > node.clientHeight + 1) failures.push('vertically clipped text');
+    }
+  }
+  const unexpected = win.performance.getEntriesByType('resource').filter(entry => new URL(entry.name).origin !== location.origin);
+  if (unexpected.length) failures.push('unexpected external resource: ' + unexpected.map(e=>e.name).join(', '));
+  const motionRule = [...doc.styleSheets].flatMap(sheet => [...sheet.cssRules]).some(rule => rule.conditionText === '(prefers-reduced-motion: reduce)');
+  if (!motionRule) failures.push('reduced-motion override absent');
+  return { failures: [...new Set(failures)], minContrast: minContrast.toFixed(2), actions };
+}
+function interactions(frame, page) {
+  const doc = frame.contentDocument, win = frame.contentWindow, failures = [];
+  const input = (node, value) => { node.value = value; node.dispatchEvent(new win.Event('input', { bubbles:true })); };
+  if (page === 'governance/') {
+    const root = doc.querySelector('[data-demo]'), status = root.querySelector('[data-status]');
+    const click = selector => root.querySelector(selector).click();
+    click('[data-evaluate]'); if (status.dataset.state !== 'denied') failures.push('initial production not denied');
+    click('[data-approve]'); click('[data-evaluate]'); if (status.dataset.state !== 'allowed') failures.push('exact approval not allowed');
+    input(root.querySelector('[name=revision]'), '183'); input(root.querySelector('[name=revision]'), '182');
+    click('[data-evaluate]'); if (status.dataset.state !== 'denied') failures.push('reverted request reused approval');
+    click('[data-reset]'); if (status.dataset.state !== 'denied') failures.push('reset not denied');
+  }
+  if (page === 'contact/') {
+    const root = doc.querySelector('[data-contact]'), form = root.querySelector('form');
+    if (form.hidden) failures.push('form failed to initialize');
+    const data = { name:'Test Engineer', email:'test@example.com', company:'Synthetic fixture', workflow:'Infrastructure review' };
+    for (const [key,value] of Object.entries(data)) input(form.elements.namedItem(key), value);
+    form.requestSubmit(); if (root.querySelector('.draft-panel').hidden) failures.push('draft not prepared');
+    const long = 'ตรวจสอบระบบก่อนย้ายไป Production 🚦\n'.repeat(60);
+    input(form.elements.namedItem('workflow'), long);
+    if (!root.querySelector('.draft-panel').hidden || root.querySelector('[data-mail]').hasAttribute('href')) failures.push('stale draft survived input');
+    form.requestSubmit();
+    if (!root.querySelector('.email-draft').value.endsWith(long)) failures.push('long Thai draft truncated');
+    if (!root.querySelector('[data-mail]').hidden || root.querySelector('[data-mail]').hasAttribute('href')) failures.push('oversized mailto offered');
+    input(form.elements.namedItem('email'), 'invalid'); form.requestSubmit();
+    if (!root.querySelector('.draft-panel').hidden) failures.push('invalid email prepared');
+  }
+  return failures;
+}
+async function runAll() {
+  run.disabled = true; const results = [];
+  try {
+    for (const width of [390,768,1440]) for (const locale of ['en','th']) for (const page of pages) {
+      const frame = await frameAt(`/${locale}/${page}`, width);
+      const result = measure(frame,width); result.failures.push(...interactions(frame,page));
+      results.push({ path:`/${locale}/${page}`, width, ...result });
+      report.textContent = `Running ${results.length}/42\n` + JSON.stringify(results.filter(r=>r.failures.length),null,2);
+    }
+    const noJs = await frameAt('/th/governance/',390,true);
+    const noJsPass = noJs.contentDocument.documentElement.lang === 'th' && noJs.contentDocument.querySelector('.static-explanation').textContent.includes('182') && noJs.contentDocument.querySelector('#main-nav').getBoundingClientRect().height > 0;
+    const failed = results.filter(r=>r.failures.length);
+    report.textContent = `${failed.length || !noJsPass ? 'FAIL' : 'PASS'} · ${results.length} layout cases · no-JS Thai ${noJsPass ? 'PASS' : 'FAIL'}\n${JSON.stringify(results,null,2)}`;
+    document.body.dataset.result = failed.length || !noJsPass ? 'fail' : 'pass';
+    window.websiteChecks = {results,noJsPass};
+  } catch(error) { report.textContent = `ERROR: ${error.stack}`; document.body.dataset.result = 'error'; }
+  finally { run.disabled = false; }
+}
+run.addEventListener('click', runAll);
+const view = new URLSearchParams(location.search).get('view');
+if (view === 'en' || view === 'th') { report.textContent = `${view} live page at 390px`; await frameAt(`/${view}/`,390); }
+else await runAll();
+</script></body></html>

@@ -68,7 +68,10 @@ export async function checkPreview(origin, output) {
       const response = await fetch(new URL(`${path}?rev=${hash(bytes).slice(0, 12)}`, base), { signal: AbortSignal.timeout(10000), cache: 'no-store' });
       if (!response.ok) return `${path}: HTTP ${response.status}`;
       const received = Buffer.from(await response.arrayBuffer());
-      return bytes.equals(received) ? null : `${path}: byte mismatch`;
+      if (bytes.equals(received)) return null;
+      let offset = 0;
+      while (offset < Math.min(bytes.length, received.length) && bytes[offset] === received[offset]) offset++;
+      return `${path}: byte mismatch at ${offset} (expected ${bytes.length}, received ${received.length}); received excerpt ${JSON.stringify(received.subarray(Math.max(0, offset - 40), offset + 150).toString('utf8'))}`;
     } catch (error) { return `${path}: ${error.message}`; }
   }));
   const failures = results.filter(Boolean);

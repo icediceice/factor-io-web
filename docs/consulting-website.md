@@ -31,11 +31,11 @@ Dates are editorial source fields, never the build clock. Sitemap retains root, 
 | 8 Four services | Services `ai-services`, plus infrastructure/SI engagements |
 | 9 Continuous optimization | Services `optimization`, How We Work |
 | 10 Exception-driven review | Home `exceptions`, Governance `review` |
-| 11 Governance demo | Governance `demo`, shared demo copy and local interaction |
+| 11 Governance demo | Governance `demo`, shared demo copy and a local halting flowchart |
 | 12 Architecture | Home topology, Platform `architecture` |
 | 13 Data/reasoning philosophy | Platform `data` |
 | 14 Model placement | Platform `models` |
-| 15 Nutanix | Platform `nutanix`, explicit non-endorsement |
+| 15 Prompt is not enforcement | Platform `enforcement`, Home `problem` |
 | 16 Engagement phases | How We Work `engagement` |
 | 17 Differentiation | How We Work `operating-model`, Home values |
 | 18 CTA | Shared CTA, Contact |

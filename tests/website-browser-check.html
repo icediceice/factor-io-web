@@ -86,13 +86,35 @@ async function interactions(frame, page) {
     if (states()[3] !== 'wait') failures.push('flow did not halt at the human approval gate');
     if (states()[4] !== 'idle') failures.push('flow ran past the halt without approval');
     if (root.querySelector('[data-halt]').hidden) failures.push('halt notice not shown while waiting');
-    click('[data-approve]'); click('[data-evaluate]'); if (status.dataset.state !== 'allowed') failures.push('exact approval not allowed');
+    // Approval ALONE must carry the chart to the end, so it is asserted BEFORE any
+    // second evaluate: an allowed evaluate independently paints all-pass, so checking
+    // after it would stay green even if the approve handler stopped advancing at all.
+    click('[data-approve]'); if (status.dataset.state !== 'approval') failures.push('approval not bound');
     await settled();
-    if (states().some(state => state !== 'pass')) failures.push(`approved flow did not run to completion: ${states().join(',')}`);
+    if (states().some(state => state !== 'pass')) failures.push(`approval alone did not complete the chart: ${states().join(',')}`);
     if (!root.querySelector('[data-halt]').hidden) failures.push('halt notice survived approval');
+    click('[data-evaluate]'); if (status.dataset.state !== 'allowed') failures.push('exact approval not allowed');
     input(root.querySelector('[name=revision]'), '183'); input(root.querySelector('[name=revision]'), '182');
     click('[data-evaluate]'); if (status.dataset.state !== 'denied') failures.push('reverted request reused approval');
     click('[data-reset]'); if (status.dataset.state !== 'denied') failures.push('reset not denied');
+    // In the agent's own authorized scope no human decision is required, so the
+    // human-approval stage must stay neutral rather than showing the tick the
+    // approved production path earns.
+    input(root.querySelector('[name=target]'), 'staging/payment-api');
+    click('[data-evaluate]'); if (status.dataset.state !== 'allowed') failures.push('in-scope staging not allowed');
+    await settled();
+    if (states()[3] !== 'idle') failures.push(`staging claimed a human approval: ${states().join(',')}`);
+    if (states()[4] !== 'pass') failures.push('in-scope request did not reach execution');
+    if (!root.querySelector('[data-halt]').hidden) failures.push('halt notice shown with no human gate');
+    // A malformed request is refused at the request stage and must never park on a
+    // person: approving it can never clear it.
+    click('[data-reset]'); input(root.querySelector('[name=revision]'), '');
+    click('[data-evaluate]');
+    await settled();
+    if (states()[0] !== 'deny') failures.push(`invalid request not refused at the request stage: ${states().join(',')}`);
+    if (states()[3] === 'wait') failures.push('invalid request parked on a human decision');
+    if (!root.querySelector('[data-halt]').hidden) failures.push('halt notice shown for an unclearable request');
+    click('[data-reset]');
   }
   if (page === 'contact/') {
     const root = doc.querySelector('[data-contact]'), form = root.querySelector('form');

@@ -2,7 +2,11 @@ import { config, routes, routePath } from './config.mjs';
 
 export const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c');
-const link = (href, label, cls = 'text-link') => `<a class="${cls}" href="${esc(href)}">${esc(label)}</a>`;
+const link = (href, label, cls = 'text-link') => {
+  const anchor = `<a class="${cls}" href="${esc(href)}">${esc(label)}</a>`;
+  // Preserve the direct no-JS contact path through Cloudflare's HTML edge filter.
+  return href.startsWith('mailto:') ? `<!--email_off-->${anchor}<!--/email_off-->` : anchor;
+};
 
 export function renderJsonLd() {
   return `<script type="application/ld+json">${json({ '@context': 'https://schema.org', '@graph': [

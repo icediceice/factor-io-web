@@ -19,7 +19,7 @@
     "legend": "Refused · Waiting for a person · Passed",
     "initial": "DENIED · production/payment-api sits outside staging/*, and nobody has approved it.",
     "denied": "DENIED · This action is outside the standing scope, or it no longer matches the approval on file. It stops here for a person to look at.",
-    "approved": "APPROVED · Your approval is bound to the target, operation and revision shown. Run the request again to let the flow continue.",
+    "approved": "APPROVED · Your approval is bound to the target, operation and revision shown, so the request clears the gate and the flow runs to the end. Nothing real was touched.",
     "allowed": "ALLOWED · This exact request now has authority, so the flow runs to the end. Nothing real was touched.",
     "invalidated": "APPROVAL REVOKED · The request changed, so the previous approval is void — even if you set the values back to what they were.",
     "evidence": "Illustrative evidence: identity workflow-agent-17, the target and revision, the policy decision, and what the approval actually covered. After a real action you still compare what happened against what was approved, and reconcile any difference.",

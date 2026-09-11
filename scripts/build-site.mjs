@@ -57,18 +57,29 @@ export async function generate() {
   return output;
 }
 
+export function samePreviewBytes(path, expected, received) {
+  if (expected.equals(received)) return true;
+  if (!(path.endsWith('/') || path.endsWith('.html'))) return false;
+  // The only permitted edge transformation is removal of our two opt-out markers.
+  // Never strip injected scripts, email rewrites, whitespace or arbitrary comments.
+  const withoutMarkers = Buffer.from(expected.toString('utf8').replace(/<!--\/?email_off-->/g, ''));
+  return withoutMarkers.equals(received);
+}
+
 export async function checkPreview(origin, output) {
   const base = new URL(origin);
   if (!['http:', 'https:'].includes(base.protocol) || base.pathname !== '/' || base.search || base.hash || base.username || base.password) throw new Error('Preview must be a plain HTTP(S) origin');
   const expected = new Map([...output].map(([path, text]) => [path.endsWith('index.html') ? `/${path.slice(0, -10)}` : `/${path}`, Buffer.from(text)]));
   for (const name of assetNames) expected.set(`/assets/${name}`, await readFile(resolve(ROOT, 'assets', name)));
   for (const path of ['light-tools.html', 'privacy.html', 'tco-calculator.html', 'tco-assistant.html']) expected.set(`/${path}`, await readFile(resolve(ROOT, path)));
+  let markerRemovals = 0;
   const results = await Promise.all([...expected].map(async ([path, bytes]) => {
     try {
       const response = await fetch(new URL(`${path}?rev=${hash(bytes).slice(0, 12)}`, base), { signal: AbortSignal.timeout(10000), cache: 'no-store' });
       if (!response.ok) return `${path}: HTTP ${response.status}`;
       const received = Buffer.from(await response.arrayBuffer());
       if (bytes.equals(received)) return null;
+      if (samePreviewBytes(path, bytes, received)) { markerRemovals++; return null; }
       let offset = 0;
       while (offset < Math.min(bytes.length, received.length) && bytes[offset] === received[offset]) offset++;
       return `${path}: byte mismatch at ${offset} (expected ${bytes.length}, received ${received.length}); received excerpt ${JSON.stringify(received.subarray(Math.max(0, offset - 40), offset + 150).toString('utf8'))}`;
@@ -76,7 +87,7 @@ export async function checkPreview(origin, output) {
   }));
   const failures = results.filter(Boolean);
   if (failures.length) throw new Error(`Preview does not match checkout:\n${failures.join('\n')}`);
-  console.log(`Preview byte match: ${expected.size} routes/assets at ${base.origin}`);
+  console.log(`Preview verified: ${expected.size} routes/assets at ${base.origin}; ${markerRemovals} HTML responses differ only by removed email_off markers, all other bytes exact.`);
 }
 
 async function main(args) {

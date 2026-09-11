@@ -133,6 +133,33 @@ test('demo denies production until exact approval and invalidates changes, rever
   for (const revision of [NaN, 0, -1, 1.5, 1000000]) { d.update({ target: 'production/payment-api', revision }); assert.equal(d.approve(), false); assert.equal(d.evaluate(), false); }
 });
 
+test('flowchart stages never claim an approval or a human wait that did not happen', () => {
+  const d = createDemo();
+  // Unapproved production: refused at scope, parked on the human gate, execution untouched.
+  assert.deepEqual(flowStates(d), ['pass', 'pass', 'deny', 'wait', 'idle']);
+  // A real human decision is the only thing that may tick the human-approval stage.
+  assert.equal(d.approve(), true);
+  assert.deepEqual(flowStates(d), ['pass', 'pass', 'pass', 'pass', 'pass']);
+  // In the agent's own scope the request is allowed with no approval at all, so the
+  // human-approval stage must stay neutral rather than earning the same tick.
+  d.reset(); d.update({ target: 'staging/payment-api' });
+  assert.equal(d.evaluate(), true); assert.equal(d.approvedExact(), false);
+  assert.deepEqual(flowStates(d), ['pass', 'pass', 'pass', 'idle', 'pass']);
+  // Approving that in-scope request IS a genuine human decision, so it may tick.
+  assert.equal(d.approve(), true);
+  assert.deepEqual(flowStates(d), ['pass', 'pass', 'pass', 'pass', 'pass']);
+  // A malformed request is refused at the request stage and never waits on a person.
+  for (const revision of [NaN, 0, -1, 1.5, 1000000]) {
+    d.reset(); d.update({ revision });
+    assert.equal(d.approve(), false);
+    assert.deepEqual(flowStates(d), ['deny', 'idle', 'idle', 'idle', 'idle']);
+  }
+  // A change after approval revokes it, returning the chain to the human gate.
+  d.reset(); d.approve(); d.update({ revision: 183 });
+  assert.equal(d.approvedExact(), false);
+  assert.deepEqual(flowStates(d), ['pass', 'pass', 'deny', 'wait', 'idle']);
+});
+
 test('governance flowchart renders one node per declared stage, in both locales', () => {
   for (const locale of ['en', 'th']) {
     const html = output.get(outputPath(locale, 'governance')), d = content[locale].demo;

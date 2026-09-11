@@ -2,154 +2,162 @@
   "locale": "en", "updated": "2026-09-11",
   "ui": {
     "skip": "Skip to content", "menu": "Menu", "nav": "Main navigation", "language": "Language", "home": "Factor IO home",
-    "primary": "Discuss your infrastructure", "secondary": "See how governance works", "learn": "Explore the services", "privacy": "Privacy", "resources": "Engineering resources", "calculator": "Local AI cost calculator", "tools": "light-tools · open source", "footer": "Infrastructure engineering. Governed enterprise AI. Thailand.",
-    "ctaTitle": "Start with the system. Tell us what needs to work.", "ctaBody": "An infrastructure decision, a migration, or a workflow you want AI to help with. Bring the problem, the data you have and the outcome you need. You do not need to choose a model or framework first.", "ctaLink": "Discuss your use case", "contactNote": "Direct contact with the engineer responsible for the work.", "backTop": "Back to top"
+    "primary": "Book a demo", "secondary": "See how the control works", "learn": "Explore the services", "privacy": "Privacy", "resources": "Engineering resources", "calculator": "Local AI cost calculator", "tools": "light-tools · open source", "footer": "Infrastructure engineering. Governed enterprise AI. Thailand.",
+    "ctaTitle": "Start with the systems you already run.", "ctaBody": "Bring the problem, the data you already have and the outcome you need. You do not need to choose a model or a framework first. Booking a demo prepares an email on your device — you decide whether to send it.", "ctaLink": "Book a demo", "contactNote": "You talk directly to the engineer who does the work.", "backTop": "Back to top"
   },
   "topology": {
-    "title": "Your environment. Clear boundaries.", "caption": "An illustrative architecture, adapted to your infrastructure and operating model.",
+    "title": "Your environment. Clear boundaries.", "caption": "An illustrative architecture, adapted to your infrastructure and the way your organization works.",
     "models": ["Local / private AI", "Enterprise AI", "Frontier APIs"], "agent": "Agents · reasoning & preparation", "boundary": "LIGHT · GOVERNED EXECUTION",
     "fields": ["Identity", "Authorization", "Scope", "Approval", "State", "Audit", "Policy", "Tool control", "Reconcile"], "systems": "Your systems, data & workflows", "note": "Reasoning can be flexible. Actions need permission."
   },
-  "progression": { "title": "More capable people. Accountable automation.", "body": "AI gathers information, connects evidence and prepares the work. People retain authority where judgment, risk or accountability matters.", "steps": ["Understand", "Recommend", "Prepare", "Human approval", "Execute within policy", "Verify"] },
+  "progression": { "title": "More capable people. Automation that answers to someone.", "body": "AI gathers the information, connects the evidence and prepares the work. People keep the decisions where judgment, risk or accountability actually matters.", "steps": ["Understand", "Recommend", "Prepare", "Human approval", "Execute within policy", "Verify"] },
   "demo": {
-    "title": "A request is not permission.", "intro": "Interactive illustration only. This runs in your browser and is not connected to any infrastructure. Try the request, then approve that exact revision as the simulated human reviewer.",
-    "identity": "Trusted identity", "scope": "Authorized scope", "target": "Requested target", "revision": "Workflow revision", "operation": "Operation", "request": "Evaluate request", "approve": "Simulate human approval", "reset": "Reset example", "approvalLabel": "Approval applies only to the target, operation and revision shown above.",
-    "initial": "DENIED · production/payment-api is outside staging/*. No human approval is recorded.",
-    "denied": "DENIED · The action is outside the standing scope or no longer matches the current approval. Stop for human review.",
-    "approved": "APPROVAL RECORDED · Simulated approval is bound to the displayed target, operation and revision. Evaluate the request again.",
-    "allowed": "EXECUTION ALLOWED · This exact request has standing staging authority or matching simulated human approval. No real action has run.",
-    "invalidated": "APPROVAL REVOKED · The request changed. Any previous approval is invalid, even if you change the values back.",
-    "evidence": "Illustrative evidence: identity workflow-agent-17; target and revision; policy decision; approval binding. After a real action, verify observed state against approved intent and reconcile any mismatch.",
-    "static": "A restart of production/payment-api by workflow-agent-17, authorized for staging/*, is denied. Explicit human approval for that target, restart operation and revision 182 permits only that exact request. Identity and permissions come from the trusted execution layer, never from what an LLM claims."
+    "title": "Asking is not the same as being allowed.", "intro": "An illustration that runs in your browser and is connected to nothing. Start the request and watch where it stops. It will not go any further until you approve that exact revision yourself.",
+    "identity": "Trusted identity", "scope": "Authorized scope", "target": "Requested target", "revision": "Workflow revision", "operation": "Operation", "request": "Run the request", "approve": "Approve this revision", "reset": "Reset the example", "approvalLabel": "Your approval covers only the target, operation and revision shown above.",
+    "stages": ["Request", "Identity", "Scope", "Human approval", "Execution"],
+    "halt": "Stopped here. The flow is waiting for a human decision and will not continue on its own.",
+    "legend": "Refused · Waiting for a person · Passed",
+    "initial": "DENIED · production/payment-api sits outside staging/*, and nobody has approved it.",
+    "denied": "DENIED · This action is outside the standing scope, or it no longer matches the approval on file. It stops here for a person to look at.",
+    "approved": "APPROVED · Your approval is bound to the target, operation and revision shown. Run the request again to let the flow continue.",
+    "allowed": "ALLOWED · This exact request now has authority, so the flow runs to the end. Nothing real was touched.",
+    "invalidated": "APPROVAL REVOKED · The request changed, so the previous approval is void — even if you set the values back to what they were.",
+    "evidence": "Illustrative evidence: identity workflow-agent-17, the target and revision, the policy decision, and what the approval actually covered. After a real action you still compare what happened against what was approved, and reconcile any difference.",
+    "static": "A restart of production/payment-api by workflow-agent-17, which is authorized only for staging/*, is refused. A human approval naming that target, the restart operation and revision 182 permits that one request and nothing else. Identity and permissions come from the execution layer, never from what the model claims about itself."
   },
   "contact": {
-    "title": "Prepare a conversation, not a ticket.", "intro": "This form prepares an email on your device. Nothing is submitted to a server. You choose whether to open your email app and send it.",
-    "name": "Name", "email": "Your email", "company": "Company (optional)", "workflow": "Infrastructure or workflow challenge", "hint": "Describe the current environment, the outcome you want and any boundaries we should know. Do not include credentials, personal records or confidential production data.",
-    "prepare": "Prepare email", "draft": "Your complete email draft", "open": "Open email app", "copy": "Copy draft", "prepared": "Draft prepared locally — not sent. Review the full text, then send it yourself from your email app.",
-    "long": "This draft is too long for a reliable email-app link. Copy the complete text below into an email to admin@factor-io.com. Nothing has been shortened or sent.",
-    "copied": "Draft copied. Nothing has been sent.", "copyFailed": "Copy is unavailable. The draft is selected below; copy it manually.", "changed": "Your inputs changed. Prepare a new draft before using it.", "invalid": "Check the required fields and use a valid email address.", "subject": "Infrastructure & governed AI enquiry", "fallback": "Prefer your own email app? Write directly to", "nojs": "Email drafting needs JavaScript. You can still contact us directly using the address below.", "privacy": "Read how website enquiries are handled."
+    "title": "Prepare a conversation, not a ticket.", "intro": "This form prepares an email on your device. Nothing is sent to a server. You choose whether to open your email app and send it.",
+    "name": "Name", "email": "Your email", "company": "Company (optional)", "workflow": "Infrastructure or workflow challenge", "hint": "Describe the environment you have now, the outcome you want and any limits we should know about. Please leave out credentials, personal records and confidential production data.",
+    "prepare": "Prepare email", "draft": "Your complete email draft", "open": "Open email app", "copy": "Copy draft", "prepared": "Draft prepared on your device — not sent. Read it through, then send it yourself from your email app.",
+    "long": "This draft is too long to open reliably through an email-app link. Copy the complete text below into an email to admin@factor-io.com. Nothing has been shortened or sent.",
+    "copied": "Draft copied. Nothing has been sent.", "copyFailed": "Copy is unavailable. The draft is selected below; copy it manually.", "changed": "Your details changed. Prepare a new draft before you use it.", "invalid": "Check the required fields and use a valid email address.", "subject": "Demo request / infrastructure & governed AI", "fallback": "Prefer your own email app? Write directly to", "nojs": "Preparing the email needs JavaScript. You can still contact us directly at the address below.", "privacy": "Read how website enquiries are handled."
   },
   "pages": {
     "home": {
-      "nav": "Home", "title": "Infrastructure engineering & governed AI in Thailand", "description": "Nearly 20 years in enterprise infrastructure, enabling Thailand's leading SI partners. Architecture, migration, private AI and governed workflow consulting.", "eyebrow": "FACTOR IO / INFRASTRUCTURE & ENTERPRISE AI", "headline": "Infrastructure expertise. Governed AI, put to work.", "lede": "Nearly 20 years in enterprise infrastructure, enabling Thailand's leading systems integrators. We design the platforms, connect the workflows and keep consequential actions under human control.",
+      "nav": "Home", "title": "Infrastructure engineering & governed AI in Thailand", "description": "Nearly 20 years in enterprise infrastructure, enabling Thailand's leading SI partners. Architecture, migration, private AI, and AI your organization can actually keep under control.", "eyebrow": "FACTOR IO / INFRASTRUCTURE & ENTERPRISE AI", "headline": "AI your organization can actually rely on.", "lede": "Nearly 20 years in enterprise infrastructure. We connect AI to the systems you already run, and we make sure it can only do what it is allowed to do.",
       "sections": [
-        { "id": "problem", "kind": "statement", "kicker": "01 / The real work", "title": "The hard part is not calling an LLM.", "body": "Your applications, APIs, data, identities, approvals and operating procedures already exist. The engineering work is connecting them safely and usefully. We take on that integration burden, working with the environment you trust.", "items": [] },
-        { "id": "values", "kind": "cards", "kicker": "02 / Working principles", "title": "Fit the business. Make authority explicit.", "body": "Governed AI that works with your business, not around it.", "items": [
-          { "title": "Use your existing systems", "body": "No re-engineering around us. Integrate with the systems, data, identities and workflows your organization already uses." },
-          { "title": "No implicit authority", "body": "Each agent has explicit identity, permissions, scope and approval. Claiming authority in a prompt cannot create it." },
-          { "title": "Humans stay in control", "body": "Automate authorized routine work. Escalate risk, uncertainty and exceptional conditions to the people responsible." }
+        { "id": "problem", "kind": "statement", "kicker": "01 / The real problem", "title": "A prompt is not a control.", "body": "Writing do not delete anything into an instruction does not make deletion impossible. It is a request, and a system that works on probability is free to ignore it. No organization can run on the hope that the model behaves itself. What an AI is allowed to do has to be enforced outside the model, in a layer it cannot talk its way past.", "items": [] },
+        { "id": "values", "kind": "cards", "kicker": "02 / How we work", "title": "Fit the business. Make authority explicit.", "body": "AI that works with your business, inside limits you can point at.", "items": [
+          { "title": "Use the systems you already have", "body": "You do not rebuild anything to suit us. We connect to the systems, data, identities and approvals your organization already runs on." },
+          { "title": "Nothing is permitted by default", "body": "Every agent has a named identity, its own permissions and a defined scope. Claiming authority in a prompt does not create it." },
+          { "title": "People stay in charge", "body": "Approved routine work runs on its own. Risk, doubt and anything unusual goes to the person who is accountable for it." }
         ] },
-        { "id": "offers", "kind": "ledger", "kicker": "03 / What we help you deliver", "title": "From infrastructure decisions to working systems.", "body": "Architecture guidance, hands-on engineering and technical enablement for enterprise teams and SI partners.", "items": [
-          { "title": "Infrastructure & migration", "body": "Platform architecture, dependency discovery, container and virtualization choices, staged migration plans and operational handover." },
-          { "title": "Private AI & governed workflows", "body": "Model placement, enterprise integration and controlled agent execution on infrastructure that fits your security and operating requirements." },
+        { "id": "offers", "kind": "ledger", "kicker": "03 / What we help you deliver", "title": "From infrastructure decisions to systems that run.", "body": "Architecture guidance, hands-on engineering and technical enablement for enterprise teams and SI partners.", "items": [
+          { "title": "Infrastructure & migration", "body": "Platform architecture, dependency discovery, container and virtualization choices, staged migration plans, and a proper handover to the people who will operate it." },
+          { "title": "Private AI & governed workflows", "body": "Where the models run, how they reach enterprise data, and how their actions stay inside your security and operating requirements." },
           { "title": "SI partner enablement", "body": "Solution design reviews, technical workshops, proof-of-concept planning and delivery guidance for Thailand's SI engineering teams." }
         ] },
-        { "id": "exceptions", "kind": "exceptions", "kicker": "04 / Human attention is valuable", "title": "AI handles volume. Humans handle judgment.", "body": "Do not make people rubber-stamp every routine result. Route the right cases to review, using explicit rules and evidence.", "items": [
-          { "title": "Normal result", "body": "Continue within the approved workflow." },
-          { "title": "High value, missing evidence or conflicting data", "body": "Pause for human review." },
-          { "title": "Low confidence", "body": "Escalate uncertainty; do not invent certainty." },
-          { "title": "Policy violation", "body": "Block the action and request human review." },
-          { "title": "Large blast radius", "body": "Require explicit approval before execution." }
+        { "id": "exceptions", "kind": "exceptions", "kicker": "04 / Where human attention belongs", "title": "Decision-makers should look at what actually needs them.", "body": "AI takes the work that costs time and labour. People check the parts that matter. The system has to put complete, short evidence in front of the reviewer — not let AI run unchecked.", "items": [
+          { "title": "Normal result", "body": "Continues inside the approved workflow." },
+          { "title": "High value, missing evidence or conflicting data", "body": "Stops for a person to review." },
+          { "title": "Low confidence", "body": "Escalates the doubt instead of inventing certainty." },
+          { "title": "Against policy", "body": "Blocks the action and asks for review." },
+          { "title": "Wide blast radius", "body": "Requires explicit approval before anything runs." }
         ] },
-        { "id": "founder", "kind": "founder", "kicker": "05 / The engineer behind the work", "title": "Experience on the partner side of the architecture.", "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners.", "items": [] }
+        { "id": "founder", "kind": "founder", "kicker": "05 / The engineer behind the work", "title": "Experience from the partner side of the architecture.", "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners.", "items": [] }
       ]
     },
     "services": {
-      "nav": "Services", "title": "Infrastructure, private AI & SI enablement services", "description": "Infrastructure architecture, migration and technical enablement for Thai SIs, plus enterprise AI workflow engineering, governed agents and continuous optimization.", "eyebrow": "01 / SERVICES", "headline": "Engineering help where the work gets technical.", "lede": "Start with the infrastructure and operating reality. Scope an engagement around a decision, an integration or a delivery outcome — with clear responsibilities and evidence of what works.",
+      "nav": "Services", "title": "Infrastructure, private AI & SI enablement services", "description": "Infrastructure architecture, migration and technical enablement for Thai SIs, plus AI workflow engineering, governed agents, chatbot, RAG and GraphRAG delivery.", "eyebrow": "01 / SERVICES", "headline": "Engineering help where the work gets technical.", "lede": "Start with the infrastructure and how things actually operate today. Scope the work around a decision, an integration or a result you need to show — with clear responsibilities and evidence that it works.",
       "sections": [
         { "id": "infrastructure", "kind": "ledger", "kicker": "The foundation", "title": "Infrastructure expertise, applied directly.", "body": "Work with a principal engineer on the decisions that shape reliability, operability and the path to production.", "items": [
-          { "title": "Architecture & migration", "body": "Assess the platform, map dependencies and compare container, virtualization and private-cloud options. Deliver architecture decisions, a phased migration plan, validation criteria and rollback considerations." },
-          { "title": "Private AI infrastructure", "body": "Plan compute, model serving, data access, identity and operational ownership. Evaluate local, enterprise-hosted and approved API options against workload requirements, not a universal model preference." },
-          { "title": "SI technical enablement", "body": "Support solution qualification, architecture reviews, workshops and proof-of-concept design. Help partner engineers understand the trade-offs, validate the solution and take ownership of delivery." }
+          { "title": "Architecture & migration", "body": "Assess the platform, map the dependencies and compare container, virtualization and private-cloud options. You get architecture decisions, a phased migration plan, validation criteria and a rollback position." },
+          { "title": "Private AI infrastructure", "body": "Plan the compute, model serving, data access, identity and who operates it. Weigh local, enterprise-hosted and approved API options against what the workload actually needs, rather than a favourite model." },
+          { "title": "SI technical enablement", "body": "Support solution qualification, architecture reviews, workshops and proof-of-concept design, so partner engineers understand the trade-offs and can take delivery on themselves." }
         ] },
-        { "id": "ai-services", "kind": "ledger", "kicker": "Putting AI to work", "title": "Four ways to connect AI to the business.", "body": "Light supplies a reusable governance and execution foundation. The engagement adapts it to your data, identities, systems and approval processes.", "items": [
-          { "title": "Enterprise AI Workflow Engineering", "body": "Turn an existing process into an AI-assisted workflow: connect authoritative data, define the reasoning task, structure outputs and establish human checkpoints. Applicable to finance, procurement, compliance, operations, support, sales operations, manufacturing, logistics, documents, reporting and IT." },
-          { "title": "Governed Agent Operations", "body": "Define durable workload identity, authorization, scoped tool access and mutation boundaries. Integrate human approvals, policy checks, execution audit and post-action reconciliation. The model proposes; the platform decides whether execution is allowed." },
-          { "title": "Service & Dependency Intelligence", "body": "Build an evidence-backed service graph from repositories, configuration, runtime, infrastructure and documentation. Discover dependencies and owners, detect changes, assess blast radius, prepare impact reports, notify affected teams and support migrations and incident investigation." },
-          { "title": "Custom Enterprise AI Solution", "body": "Design a bounded solution around the customer's own data and operating model when a packaged product does not fit. Prepare context, reason, produce structured output, validate it and return the result to the existing workflow through a human or policy boundary." }
+        { "id": "ai-services", "kind": "ledger", "kicker": "Putting AI to work", "title": "Four ways to connect AI to the business.", "body": "Light provides the control and execution foundation. The engagement adapts it to your data, identities, systems and approval steps.", "items": [
+          { "title": "Enterprise AI Workflow Engineering", "body": "Turn an existing process into an AI-assisted one: connect the authoritative data, define the reasoning task, structure the output and place the human checkpoints. It applies to finance, procurement, compliance, operations, support, sales operations, manufacturing, logistics, documents, reporting and IT." },
+          { "title": "Governed Agent Operations", "body": "Give each workload a durable identity, its own authorization, scoped tool access and defined limits on what it may change. Wire in human approval, policy checks, audit and after-the-fact reconciliation. The model proposes; the platform decides whether it runs." },
+          { "title": "Service & Dependency Intelligence", "body": "Build a service graph out of real evidence from repositories, configuration, runtime, infrastructure and documentation. Find dependencies and owners, spot changes, judge blast radius, prepare impact reports and support migrations and incident investigation." },
+          { "title": "Custom Enterprise AI Solution", "body": "Design a bounded solution around your own data and way of working when packaged software does not fit. Prepare the context, reason, produce structured output, validate it, and return the result to the existing workflow through a human or policy boundary." }
         ] },
-        { "id": "optimization", "kind": "statement", "kicker": "A recurring engagement", "title": "AI Workflow Continuous Optimization.", "body": "Review human corrections, rejected outputs, escalations, exceptions, false positives and negatives, latency, model performance, data changes and business rules. AI can prepare improvements; changes are tested, reviewed and released as controlled workflow revisions. Production policy never changes silently.", "items": [] }
+        { "id": "usecases", "kind": "ledger", "kicker": "Use cases", "title": "Built for the whole organization, not a pilot for six people.", "body": "The same controlled foundation carries very different workloads. What changes is the data and the approvals — not the way authority is enforced.", "items": [
+          { "title": "Chatbot", "body": "An assistant the entire company can ask, not a demo a handful of people try once. It answers from real internal information, and it knows which questions each person is allowed to have answered." },
+          { "title": "RAG", "body": "Answers drawn from your own documents, with a citation back to the source it used — so a reviewer can check the answer instead of having to trust it." },
+          { "title": "GraphRAG", "body": "Connects relationships across systems and documents, so the questions that need several hops can be answered at all: who depends on this, and what breaks if we change it." }
+        ] },
+        { "id": "optimization", "kind": "statement", "kicker": "An ongoing engagement", "title": "AI workflows need maintenance, not just a launch.", "body": "Review the corrections people made, the outputs they rejected, the escalations and exceptions, the false positives and negatives, how long things take, how the model performs, and what changed in the data and the business rules. AI can propose improvements, but every change is tested, reviewed and released as a controlled revision. Production policy never changes quietly.", "items": [] }
       ]
     },
     "platform": {
-      "nav": "Platform", "title": "Light: a governed execution foundation for enterprise AI", "description": "Separate flexible AI reasoning from controlled execution. Integrate Light with enterprise systems, private models, frontier APIs and optional Nutanix AI infrastructure.", "eyebrow": "02 / PLATFORM", "headline": "Loose on reasoning. Rigid on control.", "lede": "Light is the reusable execution and governance foundation beneath the solution. It governs the actions surrounding a probabilistic model; it does not make the LLM deterministic.",
+      "nav": "Platform", "title": "Light: the control layer for enterprise AI", "description": "Separate flexible AI reasoning from controlled execution. Connect Light to your enterprise systems, private models and frontier APIs, with authority enforced outside the model.", "eyebrow": "02 / PLATFORM", "headline": "Flexible reasoning. Strict control.", "lede": "Light is the control and execution layer for AI. It governs a system that works on probability so the results can be trusted. It does not pretend to turn a language model into a deterministic one.",
       "sections": [
-        { "id": "architecture", "kind": "architecture", "kicker": "The execution boundary", "title": "Keep model choice separate from authority.", "body": "Local, enterprise-hosted and frontier models can support agents. Light governs identity, authorization, scope, approval, tool access, state, audit, execution and reconciliation before those agents interact with your systems.", "items": [] },
-        { "id": "data", "kind": "cards", "kicker": "Control fields + business context", "title": "Flexible data. Unambiguous control.", "body": "Customer-specific information should not require rebuilding the whole platform. Combine known control fields, flexible business payloads, evidence, reasoning instructions and structured output.", "items": [
-          { "title": "Controlled structured fields", "body": "Authorization, routing, enforcement, thresholds and state transitions use explicit structured data. A sentence in a business document does not grant permission." },
-          { "title": "Flexible business payload", "body": "Documents, text and JSON carry domain-specific context. Keep their evidence and reasoning instructions separate from trusted control fields." },
-          { "title": "Validated output", "body": "Check structured output against the workflow contract, then apply the human or policy boundary before returning it to an existing process." }
+        { "id": "architecture", "kind": "architecture", "kicker": "The execution boundary", "title": "Keep model choice separate from authority.", "body": "Agents can run on local, enterprise-hosted or frontier models. Light governs identity, authorization, scope, approval, tool access, state, audit, execution and reconciliation before any of them reach your systems.", "items": [] },
+        { "id": "enforcement", "kind": "cards", "kicker": "Why a prompt is not enough", "title": "Enforcement has to live outside the model.", "body": "An instruction is a request. A permission is a fact. Three things have to be true outside the model for the difference to hold.", "items": [
+          { "title": "Instructions are requests, not limits", "body": "A model can ignore a rule in its prompt, misread it, or be argued out of it. Nothing written in a prompt is a boundary, however firmly it is worded." },
+          { "title": "Permissions sit outside the model", "body": "Identity, scope and approval are checked by the execution layer. The model can ask for something; it cannot grant itself anything." },
+          { "title": "Every action leaves evidence", "body": "What was requested, what the policy decided, who approved it and what actually happened are all recorded, so somebody can check afterwards." }
         ] },
-        { "id": "models", "kind": "ledger", "kicker": "Model placement", "title": "Use the model that fits the workload.", "body": "Choose according to security, capability, performance and cost. Governance stays consistent across providers; no model is universally superior.", "items": [
-          { "title": "Local / private models", "body": "A placement option for sensitive data, subject to the organization's data controls and operating capacity." },
-          { "title": "Enterprise-hosted AI", "body": "Controlled serving and access for workloads within your enterprise platform." },
-          { "title": "Frontier APIs", "body": "An option for difficult reasoning when data policy permits the external service." },
-          { "title": "Smaller models", "body": "Evaluate focused models for classification, extraction and routine processing." }
+        { "id": "data", "kind": "cards", "kicker": "Control fields + business context", "title": "Flexible data. Unambiguous control.", "body": "Information specific to one customer should not mean rebuilding the platform. Combine known control fields with flexible business payloads, evidence, reasoning instructions and structured output.", "items": [
+          { "title": "Controlled structured fields", "body": "Authorization, routing, enforcement, thresholds and state changes use explicit structured data. A sentence inside a business document does not grant permission." },
+          { "title": "Flexible business payload", "body": "Documents, text and JSON carry the context of the job. Their evidence and instructions stay separate from the control fields the platform trusts." },
+          { "title": "Validated output", "body": "Check structured output against what the workflow expects, then apply the human or policy boundary before it returns to an existing process." }
         ] },
-        { "id": "nutanix", "kind": "flow", "kicker": "An optional infrastructure fit", "title": "Nutanix Enterprise AI + Light.", "body": "Nutanix Enterprise AI can provide the model and inference infrastructure. Light provides governance, workflow and execution integration. This is an architectural integration option, not an official endorsement, Nutanix Ready designation, partner product or joint-support claim.", "items": [
-          { "title": "Nutanix Enterprise AI", "body": "Models / inference infrastructure" },
-          { "title": "Light", "body": "Governance / workflow / execution" },
-          { "title": "Enterprise systems and data", "body": "Your existing environment" }
+        { "id": "models", "kind": "ledger", "kicker": "Model placement", "title": "Use the model that fits the work.", "body": "Choose on security, capability, performance and cost. The control model stays the same across providers, and no single model is best at everything.", "items": [
+          { "title": "Local / private models", "body": "An option for sensitive data, within your own data controls and whatever your team can realistically operate." },
+          { "title": "Enterprise-hosted AI", "body": "Controlled serving and access for workloads that belong on your enterprise platform." },
+          { "title": "Frontier APIs", "body": "An option for genuinely hard reasoning, when your data policy allows an external service." },
+          { "title": "Smaller models", "body": "Worth evaluating for classification, extraction and routine processing, where a large model earns nothing." }
         ] }
       ]
     },
     "governance": {
-      "nav": "Governance", "title": "AI governance: explicit identity, scope & human approval", "description": "See how a scoped agent request is denied, how exact human approval changes authorization and why AI identity cannot be claimed in a prompt.", "eyebrow": "03 / GOVERNANCE", "headline": "The model proposes. Authority lives elsewhere.", "lede": "AI reasoning can be flexible. Enterprise execution must remain controlled. Identity, permissions and approval come from the trusted execution layer — not from what an LLM says.",
+      "nav": "Governance", "title": "AI governance: explicit identity, scope & human approval", "description": "See a scoped agent request refused, watch the flow stop at the approval gate, and see why AI identity cannot simply be claimed in a prompt.", "eyebrow": "03 / GOVERNANCE", "headline": "The model proposes. Something else decides.", "lede": "AI can reason freely. Touching real systems cannot be free. Identity, permissions and approval come from the execution layer — not from what the model says about itself.",
       "sections": [
-        { "id": "demo", "kind": "demo", "kicker": "Explore the boundary", "title": "Staging authority does not include production.", "body": "The same proposed action can be useful and unauthorized. A policy decision must happen before execution, not after it.", "items": [] },
-        { "id": "controls", "kind": "ledger", "kicker": "What the boundary holds", "title": "Check the request. Preserve the evidence.", "body": "Define the controls for each workflow as part of the integration, including how to stop and who can approve an exception.", "items": [
-          { "title": "Identity & authorization", "body": "Use trusted workload identity and explicit permissions. A model cannot inherit another agent's authority by claiming its name." },
-          { "title": "Scope & approval", "body": "Bind tool access and changes to approved targets, operations and revision. Changed intent requires fresh approval." },
-          { "title": "State & audit", "body": "Record the request, policy decision, approval and execution outcome so a reviewer can reconstruct what was authorized and what happened." },
-          { "title": "Verify & reconcile", "body": "Compare observed state with approved intent. Surface partial failures, unexpected changes and unresolved outcomes for accountable follow-up." }
+        { "id": "demo", "kind": "demo", "kicker": "Watch where it stops", "title": "Staging authority does not include production.", "body": "The same proposed action can be useful and still not be allowed. The policy decision happens before execution, not afterwards — so the flow stops and waits for a person.", "items": [] },
+        { "id": "controls", "kind": "ledger", "kicker": "What the boundary holds", "title": "Check the request. Keep the evidence.", "body": "Defining the controls for each workflow is part of the integration work, including how to stop something and who is allowed to approve an exception.", "items": [
+          { "title": "Identity & authorization", "body": "Trusted workload identity and explicit permissions. A model does not inherit another agent's authority by claiming to be it." },
+          { "title": "Scope & approval", "body": "Tool access and changes are bound to an approved target, operation and revision. If the intent changes, the approval has to be given again." },
+          { "title": "State & audit", "body": "Record the request, the policy decision, the approval and the outcome, so a reviewer can reconstruct what was allowed and what happened." },
+          { "title": "Verify & reconcile", "body": "Compare what actually happened against what was approved. Surface partial failures, unexpected changes and unresolved outcomes to someone who can act on them." }
         ] },
-        { "id": "review", "kind": "exceptions", "kicker": "Exception-driven review", "title": "Human attention goes where it matters.", "body": "AI handles volume. Humans handle judgment. Review conditions are explicit, not a request to blindly trust a confidence score.", "items": [
-          { "title": "Normal result", "body": "Process within the pre-approved policy." },
-          { "title": "High-value transaction", "body": "Require human review." },
-          { "title": "Missing evidence / conflicting data", "body": "Pause and ask a responsible reviewer." },
-          { "title": "Low confidence", "body": "Escalate rather than assume." },
-          { "title": "Policy violation", "body": "Block execution and route to review." },
-          { "title": "Large blast radius", "body": "Require explicit approval." }
+        { "id": "review", "kind": "exceptions", "kicker": "Review by risk and exception", "title": "Send people the cases that genuinely need a person.", "body": "AI handles the volume; people handle the judgment. What gets escalated is written down as a rule, so nobody is asked to trust a confidence score without seeing the evidence behind it.", "items": [
+          { "title": "Normal result", "body": "Runs under the policy already approved." },
+          { "title": "High-value transaction", "body": "Always goes to a person." },
+          { "title": "Missing evidence or conflicting data", "body": "Stops and asks someone accountable." },
+          { "title": "Low confidence", "body": "Escalates instead of guessing." },
+          { "title": "Against policy", "body": "Blocked, then routed to review." },
+          { "title": "Wide blast radius", "body": "Needs explicit approval first." }
         ] }
       ]
     },
     "how-we-work": {
-      "nav": "How We Work", "title": "How we work: understand, integrate, govern & improve", "description": "An infrastructure-led engagement with clear outcomes, authoritative evidence, integration, human approval boundaries and controlled production improvements.", "eyebrow": "04 / HOW WE WORK", "headline": "A working system starts with shared understanding.", "lede": "We carry the integration burden. Your team retains ownership of business decisions, operating responsibilities and authority boundaries.",
+      "nav": "How We Work", "title": "How we work: understand, integrate, govern & improve", "description": "An infrastructure-led engagement with clear outcomes, authoritative evidence, integration, human approval boundaries and controlled production changes.", "eyebrow": "04 / HOW WE WORK", "headline": "A system that works starts with a shared understanding.", "lede": "We carry the integration work. Your team keeps the business decisions, the operating responsibility and the authority to say what AI may do.",
       "sections": [
-        { "id": "engagement", "kind": "ledger", "kicker": "Four engagement phases", "title": "Make the outcome and boundaries explicit.", "body": "Scope the work around your environment. Agree deliverables and verification criteria before building.", "items": [
-          { "title": "Understand", "body": "Identify the desired outcome, required evidence, authoritative data, decision and action boundaries, and human responsibilities. Map the current infrastructure and workflow." },
-          { "title": "Integrate", "body": "Connect systems, APIs, databases, documents, infrastructure, identity and existing workflows. Prepare context from evidence and return validated outputs to the process people use." },
-          { "title": "Govern", "body": "Define agent identity, permissions, scope, approval gates, escalation, validation and audit requirements. Test the refused paths as well as the permitted ones." },
-          { "title": "Operate & Improve", "body": "Verify production outcomes, hand over operational knowledge and review corrections and exceptions. Test, review and release changes as explicit workflow revisions." }
+        { "id": "engagement", "kind": "ledger", "kicker": "Four phases", "title": "Agree the outcome and the boundaries first.", "body": "Scope the work around your environment. Settle what gets delivered, and how it will be checked, before anything gets built.", "items": [
+          { "title": "Understand", "body": "Identify the outcome you want, the evidence it needs, where the authoritative data lives, what may be decided and acted on, and what stays with people. Map the infrastructure and workflow you have now." },
+          { "title": "Integrate", "body": "Connect systems, APIs, databases, documents, infrastructure, identity and the workflows already in use. Prepare context from real evidence and return validated results into the process people actually work in." },
+          { "title": "Govern", "body": "Define agent identity, permissions, scope, approval gates, escalation, validation and audit requirements. Test the paths that must be refused as carefully as the ones that must succeed." },
+          { "title": "Operate & improve", "body": "Check the results in production, hand over the operating knowledge, and review corrections and exceptions. Changes are tested, reviewed and released as explicit workflow revisions." }
         ] },
-        { "id": "workflow", "kind": "flow", "kicker": "From data to action", "title": "Reasoning is one part of the workflow.", "body": "The same pattern supports IT operations and business processes. Data enters as evidence; it does not become authority.", "items": [
+        { "id": "workflow", "kind": "flow", "kicker": "From data to action", "title": "Reasoning is only one part of the workflow.", "body": "The same pattern covers IT operations and business processes. Data arrives as evidence; it never turns into authority.", "items": [
           { "title": "Enterprise data", "body": "Use authoritative sources." },
-          { "title": "Context preparation", "body": "Select relevant evidence." },
-          { "title": "AI reasoning", "body": "Apply explicit instructions." },
+          { "title": "Context preparation", "body": "Select the relevant evidence." },
+          { "title": "AI reasoning", "body": "Follow explicit instructions." },
           { "title": "Structured output", "body": "Produce a defined result." },
-          { "title": "Validation", "body": "Check the result and evidence." },
-          { "title": "Human / policy boundary", "body": "Check permission before action." },
+          { "title": "Validation", "body": "Check the result and its evidence." },
+          { "title": "Human / policy boundary", "body": "Check permission before acting." },
           { "title": "Existing workflow", "body": "Integrate, verify and reconcile." }
         ] },
-        { "id": "operating-model", "kind": "statement", "kicker": "What stays with you", "title": "Your systems. Your judgment. Clear ownership.", "body": "Integrate AI into a real business workflow. Give each agent only the authority its role requires. Use systems and processes your organization already trusts. Verify, govern and audit what AI is allowed to do. Automation should make your people more capable, not remove them from accountable decisions.", "items": [] }
+        { "id": "operating-model", "kind": "statement", "kicker": "What stays with you", "title": "Your systems. Your judgment. Clear ownership.", "body": "Put AI into a real business workflow. Give each agent only the authority its role actually needs. Work with systems and processes your organization already trusts. Verify, govern and audit what AI is permitted to do. Automation should make your people more capable, not quietly remove them from decisions they are answerable for.", "items": [] }
       ]
     },
     "about": {
       "nav": "About", "title": "Thanat Manasakool: infrastructure engineer & SI enabler", "description": "Factor IO is led by Thanat Manasakool: nearly 20 years in enterprise infrastructure and technical enablement of Thailand's leading SI partners.", "eyebrow": "05 / ABOUT FACTOR IO", "headline": "Infrastructure is the foundation of the practice.", "lede": "Factor I O Co., Ltd. is a Thailand-based engineering consultancy led by Thanat Manasakool, Founder & Principal Engineer.",
       "sections": [
         { "id": "experience", "kind": "founder", "kicker": "Principal-led engineering", "title": "Nearly 20 years close to the technical decisions.", "body": "Thanat Manasakool brings nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners.", "items": [] },
-        { "id": "approach", "kind": "ledger", "kicker": "What that means for an engagement", "title": "Architecture, integration and team capability.", "body": "The practice connects infrastructure experience with governed enterprise AI. The aim is a solution your team can understand, operate and improve.", "items": [
-          { "title": "Work with the environment", "body": "Start with your infrastructure, dependencies, policies and operational constraints. Explain trade-offs and agree what evidence will demonstrate readiness." },
+        { "id": "approach", "kind": "ledger", "kicker": "What that means for your project", "title": "Architecture, integration and a team that can carry it.", "body": "The practice joins infrastructure experience to enterprise AI that stays under control. The aim is a system your own team can understand, operate and improve.", "items": [
+          { "title": "Work with the environment you have", "body": "Start from your infrastructure, dependencies, policies and operating limits. Explain the trade-offs, and agree what evidence will show it is ready." },
           { "title": "Enable the people delivering it", "body": "Support SI partners and enterprise engineers through design reviews, technical workshops, validation and knowledge transfer." },
-          { "title": "Make consequential work accountable", "body": "Keep authority to approve risk with the people responsible. Use governed execution and verification to make AI useful within those boundaries." }
+          { "title": "Make consequential work accountable", "body": "The authority to accept risk stays with the people responsible for it. Controlled execution and verification make AI useful inside those limits." }
         ] },
-        { "id": "independence", "kind": "statement", "kicker": "Independent practice", "title": "Clear about experience. Careful about claims.", "body": "References to Red Hat and Nutanix describe professional background or architecture choices. They do not imply current vendor endorsement, certification, formal partnership or jointly supported services. Engagement scope and responsibilities are agreed directly with the customer.", "items": [] }
+        { "id": "independence", "kind": "statement", "kicker": "Independent practice", "title": "We work for you, not for a vendor.", "body": "The founder has previously worked with Red Hat and Nutanix. We mention it so you can judge the technical background behind the advice — not to suggest we represent anyone. We are not a reseller, a certified partner, or part of a joint-support arrangement, and the scope and responsibilities of every engagement are agreed with you directly.", "items": [] }
       ]
     },
     "contact": {
-      "nav": "Contact", "title": "Discuss infrastructure, private AI or SI enablement", "description": "Contact Factor IO about infrastructure architecture, migration, private AI, governed workflows or technical enablement. Prepare an email locally; nothing is auto-submitted.", "eyebrow": "06 / CONTACT", "headline": "Tell us what needs to work.", "lede": "An infrastructure decision, an SI solution challenge, a migration, or a workflow you want AI to help with. Start with your environment and the outcome you need.",
+      "nav": "Contact", "title": "Discuss infrastructure, private AI or SI enablement", "description": "Contact Factor IO about infrastructure architecture, migration, private AI, governed workflows or technical enablement. The email is prepared on your device and nothing is sent automatically.", "eyebrow": "06 / CONTACT", "headline": "Tell us what needs to work.", "lede": "An infrastructure decision, an SI solution problem, a migration, or a workflow you want AI to help with. Start with the environment you have and the outcome you need.",
       "sections": [
-        { "id": "enquiry", "kind": "contact", "kicker": "Start a technical conversation", "title": "You do not need the architecture worked out.", "body": "Bring the business problem, the data available and the constraints. We can help work through the model, platform and integration decisions together.", "items": [] }
+        { "id": "enquiry", "kind": "contact", "kicker": "Start a technical conversation", "title": "You do not need the architecture worked out.", "body": "Bring the business problem, the data you have and the constraints you are under. We can work through the model, platform and integration decisions together.", "items": [] }
       ]
     }
   }

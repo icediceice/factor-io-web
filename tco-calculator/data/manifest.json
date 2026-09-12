@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789106542461",
-  "generated_at": "2026-09-11T06:02:22.461Z",
-  "snapshot_digest": "b1361b6b2933d9db",
+  "refresh_id": "refresh-1789194332028",
+  "generated_at": "2026-09-12T06:25:32.028Z",
+  "snapshot_digest": "73d6c83b2d5b20bf",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-b1361b6b2933d9db.json",
-      "digest": "b1361b6b2933d9db",
-      "bytes": 2789259
+      "path": "catalog-73d6c83b2d5b20bf.json",
+      "digest": "73d6c83b2d5b20bf",
+      "bytes": 2791611
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "c2cca312c425611a",
+      "digest": "e2cee5d444b3b617",
       "bytes": 377
     }
   },
@@ -21,19 +21,19 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-11T06:02:22.461Z",
-      "last_success_at": "2026-09-11T06:02:22.461Z",
-      "expires_at": "2026-09-14T06:02:22.461Z",
-      "root_digest": "8106e796f52d4755",
-      "record_count": 426,
+      "observed_at": "2026-09-12T06:25:32.028Z",
+      "last_success_at": "2026-09-12T06:25:32.028Z",
+      "expires_at": "2026-09-15T06:25:32.028Z",
+      "root_digest": "a01a1c82dc8dc42f",
+      "record_count": 429,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-11T06:02:22.461Z",
-      "last_success_at": "2026-09-11T06:02:22.461Z",
-      "expires_at": "2026-09-14T06:02:22.461Z",
+      "observed_at": "2026-09-12T06:25:32.028Z",
+      "last_success_at": "2026-09-12T06:25:32.028Z",
+      "expires_at": "2026-09-15T06:25:32.028Z",
       "root_digest": "0826900617ca3d6c",
       "record_count": 2993,
       "missing_streak": 0
@@ -41,10 +41,10 @@
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-10T00:00:00.000Z",
-      "last_success_at": "2026-09-11T06:02:40.305Z",
-      "expires_at": "2026-09-17T23:59:59.999Z",
-      "root_digest": "c2cca312c425611a",
+      "observed_at": "2026-09-11T00:00:00.000Z",
+      "last_success_at": "2026-09-12T06:25:52.260Z",
+      "expires_at": "2026-09-18T23:59:59.999Z",
+      "root_digest": "e2cee5d444b3b617",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -33106,8 +33106,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -33994,8 +33993,39 @@
       ]
     },
     {
+      "id": "openrouter:inclusionai/ling-3.0-flash-vl",
+      "name": "inclusionAI: Ling 3.0 Flash VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:inclusionai/ling-3.0-flash-vl:free",
       "name": "inclusionAI: Ling 3.0 Flash VL (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:inference-net/schematron-v2-small",
+      "name": "Inference.net: Schematron V2 Small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:inference-net/schematron-v2-turbo",
+      "name": "Inference.net: Schematron V2 Turbo",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -34701,16 +34731,6 @@
       "name": "Nous: Hermes 4 405B",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:nousresearch/hermes-4-70b",
-      "name": "Nous: Hermes 4 70B",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -36167,7 +36187,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -37286,6 +37307,26 @@
   "provenance": {
     "logs": [
       {
+        "offer": "openrouter:~openai/gpt-astra-latest",
+        "rule": "alias_skipped",
+        "target": "openai/gpt-6-astra"
+      },
+      {
+        "offer": "openrouter:~openai/gpt-sol-latest",
+        "rule": "alias_skipped",
+        "target": "openai/gpt-5.6-sol"
+      },
+      {
+        "offer": "openrouter:~openai/gpt-terra-latest",
+        "rule": "alias_skipped",
+        "target": "openai/gpt-5.6-terra"
+      },
+      {
+        "offer": "openrouter:~openai/gpt-luna-latest",
+        "rule": "alias_skipped",
+        "target": "openai/gpt-5.6-luna"
+      },
+      {
         "offer": "openrouter:~z-ai/glm-flash-latest",
         "rule": "alias_skipped",
         "target": "z-ai/glm-5.3-flash"
@@ -37339,11 +37380,6 @@
         "offer": "openrouter:~anthropic/claude-sonnet-latest",
         "rule": "alias_skipped",
         "target": "anthropic/claude-sonnet-5"
-      },
-      {
-        "offer": "openrouter:~openai/gpt-latest",
-        "rule": "alias_skipped",
-        "target": "openai/gpt-5.6-sol"
       },
       {
         "offer": "openrouter:~anthropic/claude-opus-latest",

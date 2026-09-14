@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789279992869",
-  "generated_at": "2026-09-13T06:13:12.869Z",
-  "snapshot_digest": "c4042f350358adce",
+  "refresh_id": "refresh-1789366314173",
+  "generated_at": "2026-09-14T06:11:54.173Z",
+  "snapshot_digest": "d0d92b67819e9d2d",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-c4042f350358adce.json",
-      "digest": "c4042f350358adce",
-      "bytes": 2816228
+      "path": "catalog-d0d92b67819e9d2d.json",
+      "digest": "d0d92b67819e9d2d",
+      "bytes": 2816285
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-13T06:13:12.869Z",
-      "last_success_at": "2026-09-13T06:13:12.869Z",
-      "expires_at": "2026-09-16T06:13:12.869Z",
+      "observed_at": "2026-09-14T06:11:54.173Z",
+      "last_success_at": "2026-09-14T06:11:54.173Z",
+      "expires_at": "2026-09-17T06:11:54.173Z",
       "root_digest": "a01a1c82dc8dc42f",
       "record_count": 429,
       "missing_streak": 0
@@ -31,9 +31,9 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-13T06:13:12.869Z",
-      "last_success_at": "2026-09-13T06:13:12.869Z",
-      "expires_at": "2026-09-16T06:13:12.869Z",
+      "observed_at": "2026-09-14T06:11:54.173Z",
+      "last_success_at": "2026-09-14T06:11:54.173Z",
+      "expires_at": "2026-09-17T06:11:54.173Z",
       "root_digest": "51e658b37e6e17ad",
       "record_count": 3025,
       "missing_streak": 0
@@ -42,7 +42,7 @@
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-09-11T00:00:00.000Z",
-      "last_success_at": "2026-09-13T06:13:31.904Z",
+      "last_success_at": "2026-09-14T06:12:11.925Z",
       "expires_at": "2026-09-18T23:59:59.999Z",
       "root_digest": "e2cee5d444b3b617",
       "record_count": 1,
@@ -34425,7 +34425,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -34435,7 +34436,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {

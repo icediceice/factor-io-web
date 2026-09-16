@@ -159,7 +159,7 @@ export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', l
 
     const settings = getSettings(db, '');
     const number = allocateInvoiceNumber(db, settings);
-    const issue = str(issueDate) || todayBkk();
+    const issue = accountingDate(issueDate, 'issue_date');
     const termsDays = Number(settings['invoice.payment_terms_days'] ?? '30');
     const totals = computeInvoiceTotals(
       srcLines.map((l) => ({ qtyMilli: l.qty_milli, unitSatang: l.unit_satang, discountSatang: l.discount_satang })),

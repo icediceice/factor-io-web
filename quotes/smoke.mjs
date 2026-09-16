@@ -118,9 +118,8 @@ try {
   failed++;
   console.error(`FAIL  unexpected: ${e.message}`);
 } finally {
-  server.kill('SIGTERM');
-  await new Promise((r) => setTimeout(r, 300));
-  if (server.exitCode === null) server.kill('SIGKILL');
+  // test child: no graceful-close hang on keep-alive sockets — kill outright
+  server.kill('SIGKILL');
   if (failed) {
     console.error(`\nserver log tail:\n${serverLog.split('\n').slice(-12).join('\n')}`);
     console.error(`SMOKE FAILED: ${failed} failure(s), ${passed} passed`);

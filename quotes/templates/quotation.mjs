@@ -153,7 +153,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
   table.lines { width:100%; border-collapse:collapse; margin-top:4pt; }
   table.lines th { font:7.5pt/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase;
                    text-align:left; color:var(--muted); border-bottom:1.5pt solid var(--ink); padding:5pt 6pt; }
-  table.lines td { border-bottom:.5pt solid var(--line); padding:7pt 6pt; vertical-align:top; }
+  table.lines td { border-bottom:.5pt solid var(--line); padding:5.5pt 6pt; vertical-align:top; }
   table.lines .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
   table.lines .pos { color:var(--accent); font-family:var(--mono); font-size:8pt; width:14pt; }
   table.lines .desc strong { font-weight:600; }

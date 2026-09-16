@@ -18,7 +18,7 @@ export function parseSatang(value) {
   }
   const s = String(value ?? '').trim();
   if (!/^\d{1,15}(\.\d{1,2})?$/.test(s)) {
-    throw new Error(`invalid money amount: ${JSON.stringify(String(str))} (expected decimal with up to 2 places)`);
+    throw new Error(`invalid money amount: ${JSON.stringify(s)} (expected decimal with up to 2 places)`);
   }
   const [major, minor = ''] = s.split('.');
   return Number(major) * 100 + Number((minor + '00').slice(0, 2));

@@ -77,6 +77,28 @@ export function fxToThb(satang, rateStr) {
   return roundSatang(numer / scale);
 }
 
+/** Parse a decimal quantity string ("0.5", "2", "12.25") into milli-units.
+ *  Strings only — the same no-float rule as money. */
+export function parseMilli(value) {
+  if (typeof value === 'number') {
+    throw new Error(`invalid quantity: ${value} (send a decimal string, not a number)`);
+  }
+  const s = String(value ?? '').trim();
+  if (!/^\d{1,6}(\.\d{1,3})?$/.test(s)) {
+    throw new Error(`invalid quantity: ${JSON.stringify(s)} (expected decimal with up to 3 places)`);
+  }
+  const [whole, frac = ''] = s.split('.');
+  return Number(whole) * 1000 + Number((frac + '000').slice(0, 3));
+}
+
+/** milli-units -> display string ("0.5", "2", "12.25"). */
+export function milliToDecimal(milli) {
+  if (!Number.isSafeInteger(milli) || milli <= 0) throw new Error(`invalid milli quantity: ${milli}`);
+  const whole = Math.floor(milli / 1000);
+  const frac = String(milli % 1000).padStart(3, '0').replace(/0+$/, '');
+  return frac ? `${whole}.${frac}` : `${whole}`;
+}
+
 /** "1250.55" + currency display -> "฿1,250.55" (grouping, symbol first). */
 export function formatMoney(satang, { symbol = '฿', code = 'THB' } = {}) {
   const s = satangToDecimal(satang);

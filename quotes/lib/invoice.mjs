@@ -155,8 +155,11 @@ export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', l
         qty_milli, unit, unit_satang, discount_satang
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
+    // Positions are renumbered 1..n rather than copied: the source quotation
+    // may have gaps after line edits, and this is a customer-facing legal
+    // document where the first line must read 1, not 0 and not 7.
     for (const [i, l] of srcLines.entries()) {
-      insLine.run(invoiceId, i, l.kind, l.description_en, l.description_th,
+      insLine.run(invoiceId, i + 1, l.kind, l.description_en, l.description_th,
         l.qty_milli, l.unit, l.unit_satang, l.discount_satang);
     }
 

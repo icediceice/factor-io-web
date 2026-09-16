@@ -50,7 +50,9 @@ const navLinks = [
 
 export function renderShell(active, title, subtitle) {
   document.title = `${title} · Factor I/O Quotes`;
-  const here = location.pathname.split('/').pop() || 'index.html';
+  // `active` wins over the URL so a detail page can light up its section:
+  // invoice.html asks for 'invoices.html', quote.html for 'index.html'.
+  const here = active || location.pathname.split('/').pop() || 'index.html';
   const header = el(`<header class="site-header"><div class="header-inner">
     <a class="brand" href="index.html">FACTOR<span> I/O</span></a>
     <nav id="main-nav" aria-label="Main">

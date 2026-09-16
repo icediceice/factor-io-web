@@ -1,9 +1,18 @@
 // quotes/lib/invoice.mjs — tax invoices, payments and received WHT certificates.
 //
 // An invoice is a FIRST-CLASS entity, not a quotation status. It carries its
-// own number series, its own issue_date (which IS the VAT tax point for the
-// income this system reports), and one quotation may bill as several invoices
-// (deposit + balance). A quotation status could express none of that.
+// own number series and its own issue_date, which IS the VAT tax point for the
+// income this system reports. A quotation status could express neither.
+//
+// SCOPE, stated so nobody reads a promise into the schema: this bills ONE
+// invoice per accepted quotation, for the whole quotation. invoice_lines is a
+// snapshot, not an allocation — it records no source quotation_line_id and no
+// billed-so-far quantity, and issueInvoice moves the quotation to 'invoiced',
+// after which createInvoiceFromQuotation refuses it. Deposit + balance billing
+// therefore is NOT supported; adding it means a real allocation model (source
+// line ids, remaining-quantity arithmetic, a cap across non-cancelled
+// invoices), not a relaxed status check. Relaxing the check alone would let a
+// second invoice duplicate the full quotation value in silence.
 //
 // THE RULE THIS MODULE EXISTS TO ENFORCE: an issued invoice is FROZEN. Its
 // vat_rate_percent, wht_rate_percent and every *_satang column are copied out

@@ -49,6 +49,13 @@ Upcoming work in priority order:
 
 ## Work Log
 
+#### Quotation system v0.1 — quotes/ service: authenticated web app, Chromium PDF, agent CLI (2026-09-16, plan local:4efb711db7d6dfb5bfb911b1d839fa9a)
+
+- **What:** Self-contained `quotes/` subtree, zero runtime deps (node:sqlite, node:http, headless Chromium): Google-authenticated web app (own OAuth client + host-only `quotes_session` cookie; allowlist falls back to the board env, deliberately NOT sharing the board cookie), settings-driven REST API, immutable revision snapshots + audit rows on issue, Chromium-rendered bilingual EN/TH A4 PDFs (Loma for Thai; Thai rendering verified to the ToUnicode CMap), agent CLI (`cli.mjs`, bearer token, `--json` everywhere), end-to-end smoke (`smoke.mjs`, 12 checks incl. real-PDF byte assertions in both languages), deploy assets (`quotes/deploy/`: systemd user unit, nginx vhost, cloudflared ingress snippet). 58/58 `node --test` + 12/12 smoke green. UI inspected at 390/768/1440.
+- **Known issues:** (1) Seed settings doc renders ~1.05 pages in TH → signature/footer spill to page 2; content-dependent, accepted after 4 shave passes. (2) Dev loopback lane closes the moment ANY credential env is set — smoke caught a half-configured server answering 200 unauthenticated; now 401 (dev lane is zero-config only). (3) snap Chromium cannot write /tmp or hidden dirs → PDF scratch root is `$HOME/quotes-tmp` (`QUOTES_TMPDIR` override). (4) UI is static+fetch, not server-rendered — deliberate: terminal/API is the primary surface.
+- **Next:** operator OAuth client + prod deploy (runbook `quotes/README.md`); optional follow-ups: PDF watermark, quote→invoice flow.
+
+
 ### 2026-09-11
 
 #### Plain-language TH/EN rewrite, vendor-neutral positioning and the halting governance flowchart

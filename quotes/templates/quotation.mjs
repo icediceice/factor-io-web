@@ -151,7 +151,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
   .party { flex:1; border:1px solid var(--line); background:var(--tint); padding:8pt 10pt; }
   .party .kicker { font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6pt; }
   .party .name { font-weight:750; font-size:11pt; }
-  .party .sub { color:var(--muted); font-size:8.5pt; margin-top:3pt; line-height:1.6; }
+  .party .sub { color:var(--muted); font-size:8.5pt; margin-top:3pt; line-height:1.5; }
   table.lines { width:100%; border-collapse:collapse; margin-top:4pt; }
   table.lines th { font:7.5pt/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase;
                    text-align:left; color:var(--muted); border-bottom:1.5pt solid var(--ink); padding:5pt 6pt; }

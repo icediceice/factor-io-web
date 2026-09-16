@@ -47,8 +47,9 @@ describe('line subtotal', () => {
 describe('percentages', () => {
   test('VAT 7% halves-up on odd satang', () => {
     assert.equal(vatOf(10000, '7'), 700);
-    assert.equal(vatOf(101, '7'), 8);      // 7.07 -> 707 satang? no: 101*0.07=7.07 -> 7
-    assert.equal(vatOf(101, '7'), 7);
+    assert.equal(vatOf(101, '7'), 7);      // 7.07 -> 7 (HALF-UP)
+    assert.equal(vatOf(150, '7'), 11);     // 10.5 -> 11 (halves UP)
+    assert.equal(vatOf(100, '0'), 0);
   });
   test('VAT handles fractional percent strings', () => {
     assert.equal(vatOf(10000, '7.5'), 750);

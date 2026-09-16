@@ -145,8 +145,8 @@ export function renderQuotationHtml(doc, lang = 'en') {
   header > div:last-child { min-width:0; }
   .meta { font-family:var(--mono); font-size:8pt; color:var(--muted); text-align:right; line-height:1.8; overflow-wrap:anywhere; }
   .meta b { color:var(--ink); }
-  .parties { display:flex; gap:20pt; margin:16pt 0 14pt; }
-  .party { flex:1; border:1px solid var(--line); background:var(--tint); padding:10pt 12pt; }
+  .parties { display:flex; gap:20pt; margin:11pt 0 10pt; }
+  .party { flex:1; border:1px solid var(--line); background:var(--tint); padding:8pt 10pt; }
   .party .kicker { font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6pt; }
   .party .name { font-weight:750; font-size:11pt; }
   .party .sub { color:var(--muted); font-size:8.5pt; margin-top:3pt; line-height:1.6; }

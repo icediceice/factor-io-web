@@ -110,7 +110,7 @@ describe('documents and revisions', () => {
     const { rev } = markStatus(db, qid, 'issued', 'op@factor-io.com');
     assert.equal(rev, 1);
     const snap = db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=? AND rev=1').get(qid);
-    assert.deepEqual(JSON.parse(snap.snapshotJson), JSON.parse(before));
+    assert.deepEqual(JSON.parse(snap.snapshot_json), JSON.parse(before));
     db.prepare("UPDATE quotation_lines SET unit_satang = 999 WHERE quotation_id = ?").run(qid);
     const afterMutation = JSON.stringify(buildQuoteDocument(db, qid));
     assert.notEqual(afterMutation, before);              // live doc follows the rows

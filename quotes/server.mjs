@@ -10,6 +10,8 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openDb } from './lib/db.mjs';
+import { buildQuoteDocument } from './lib/quote.mjs';
+import { renderQuotationPdf } from './lib/pdf.mjs';
 import {
   assertProductionConfig, makeAuth, emailAllowed, safeReturnTo,
   sessionCookie, clearSessionCookie, exchangeCode,

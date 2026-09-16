@@ -41,7 +41,7 @@ const call = async (method, path, body) => {
 const server = spawn(process.execPath, [join(HERE, 'server.mjs')], {
   env: {
     ...process.env,
-    QUOTES_PORT: String(PORT),
+    QUOTES_PORT: '0',
     QUOTES_DB_PATH: join(DB, 'quotes.db'),
     QUOTES_AGENT_TOKEN: TOKEN,
   },

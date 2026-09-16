@@ -38,7 +38,11 @@ export function createApp(env = process.env) {
     const addr = req.socket?.remoteAddress ?? '';
     const loopback = addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
     const site = (req.headers['sec-fetch-site'] ?? '').toLowerCase();
-    if (!configured && loopback && site !== 'cross-site') return { email: 'dev', lane: 'human' };
+    // Dev lane exists ONLY in the zero-config case: the moment the operator
+    // sets ANY credential (agent token or session secret), unauthenticated
+    // requests are refused even on loopback.
+    const anyAuth = Boolean(cfg.agentToken || cfg.secret || cfg.clientId);
+    if (!configured && !anyAuth && loopback && site !== 'cross-site') return { email: 'dev', lane: 'human' };
     return { email: '', lane: null };
   }
 

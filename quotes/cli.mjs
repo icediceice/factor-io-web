@@ -32,7 +32,7 @@ function parseArgs(argv) {
     const a = argv[i];
     if (a === '--json') { flags.json = true; continue; }
     if (a.startsWith('--')) {
-      const key = a.slice(2);
+      const key = a.slice(2).replace(/-([a-z])/g, (_, c) => '_' + c); // --tax-id -> tax_id
       const next = argv[i + 1];
       if (next === undefined || next.startsWith('--')) flags[key] = true;
       else { flags[key] = next; i++; }

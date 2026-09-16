@@ -163,13 +163,52 @@ export function saveRevision(db, quotationId, doc, actor) {
   });
 }
 
+/** Every status the quotations table's CHECK constraint accepts. This list and
+ *  the CHECK in db.mjs migration 3 are ONE fact stored twice — change both or
+ *  you get a SQLITE_CONSTRAINT at runtime or a silently refused transition. */
+export const QUOTATION_STATUSES = [
+  'draft', 'issued', 'proposed', 'accepted', 'declined',
+  'invoiced', 'paid', 'superseded', 'cancelled',
+];
+
+/** Legal moves. The pipeline runs draft -> issued -> proposed -> accepted and
+ *  then hands off to the invoice side; 'invoiced' and 'paid' are driven by
+ *  lib/invoice.mjs as invoices are raised and settled, never set by hand.
+ *
+ *  issued -> issued is DELIBERATE and load-bearing: re-issuing is how a fresh
+ *  immutable revision snapshot is taken, and tests/quote.test.mjs pins that
+ *  calling markStatus(issued) twice yields rev 2. Do not "tidy" it away.
+ *
+ *  declined -> superseded lets a refused quote be replaced by a revision.
+ *  paid, superseded and cancelled are terminal. */
+const TRANSITIONS = {
+  draft:      ['issued', 'cancelled'],
+  issued:     ['issued', 'proposed', 'accepted', 'declined', 'superseded', 'cancelled'],
+  proposed:   ['accepted', 'declined', 'superseded', 'cancelled'],
+  accepted:   ['invoiced', 'superseded', 'cancelled'],
+  invoiced:   ['paid', 'cancelled'],
+  paid:       [],
+  declined:   ['superseded'],
+  superseded: [],
+  cancelled:  [],
+};
+
 /** Transition status with an audit row; issuing snapshots the document. */
 export function markStatus(db, quotationId, status, actor) {
-  const allowed = ['draft', 'issued', 'superseded', 'cancelled'];
-  if (!allowed.includes(status)) throw new Error(`invalid status: ${status}`);
+  if (!QUOTATION_STATUSES.includes(status)) throw new Error(`invalid status: ${status}`);
   return tx(db, () => {
+    const row = db.prepare('SELECT status FROM quotations WHERE id = ?').get(quotationId);
+    if (!row) throw new Error(`quotation ${quotationId} not found`);
+    const from = String(row.status);
+    const legal = TRANSITIONS[from] ?? [];
+    if (!legal.includes(status)) {
+      throw new Error(
+        `illegal status transition: ${from} -> ${status}`
+        + (legal.length ? ` (from ${from}, allowed: ${legal.join(', ')})` : ` (${from} is terminal)`)
+      );
+    }
     db.prepare("UPDATE quotations SET status = ?, updated_at = datetime('now') WHERE id = ?").run(status, quotationId);
-    audit(db, actor, 'quotation.status', 'quotation', quotationId, { status });
+    audit(db, actor, 'quotation.status', 'quotation', quotationId, { from, status });
     let rev = null;
     if (status === 'issued') {
       const doc = buildQuoteDocument(db, quotationId);

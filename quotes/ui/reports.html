@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reports · Factor I/O</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<script type="module">
+import { api, fmtSatang, el, toast, renderShell } from './app.js';
+
+const main = renderShell('reports.html', 'Tax worksheets',
+  'Figures read from issued invoices, dated by their tax point. These are worksheets to transcribe onto a return — nothing here files anything with the Revenue Department.');
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const money = (s, c = 'THB') => (s == null ? '<span class="muted">—</span>' : fmtSatang(s, c));
+const now = new Date();
+const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+// ---------------------------------------------------------------- PP 30
+const pp30Card = el(`<section class="card">
+  <h2>PP 30 — monthly VAT (output side)</h2>
+  <p class="sub">Output VAT only. This system does not track purchases, so input VAT and the net payable are left blank on purpose rather than shown as zero — a zero there would be a false statement on a return.</p>
+  <form id="pp30form" class="grid" style="max-width:520px">
+    <label>Period<input name="month" type="month" value="${thisMonth}"></label>
+  </form>
+  <div id="pp30"><div class="empty">Loading…</div></div>
+</section>`);
+
+async function loadPp30() {
+  const v = pp30Card.querySelector('input[name=month]').value || thisMonth;
+  const [year, month] = v.split('-').map(Number);
+  const { report: r } = await api('GET', `/reports/pp30?year=${year}&month=${month}`);
+  pp30Card.querySelector('#pp30').innerHTML = `
+    <dl class="kv" style="margin-bottom:18px">
+      <dt>Period</dt><dd class="mono">${esc(r.period)}</dd>
+      <dt>Filing deadline</dt><dd class="mono">${esc(r.dueOn.paper)} on paper · ${esc(r.dueOn.efiling)} by e-filing</dd>
+      <dt>Invoices in period</dt><dd>${r.invoiceCount}</dd>
+    </dl>
+    <table class="totals" style="margin:0 0 18px 0">
+      <tr><td class="lbl">Total sales (net)</td><td class="num">${money(r.totalSalesSatang)}</td></tr>
+      <tr><td class="lbl">Sales subject to VAT</td><td class="num">${money(r.vatableNetSatang)}</td></tr>
+      <tr class="payable"><td class="lbl">Output VAT</td><td class="num">${money(r.outputVatSatang)}</td></tr>
+      ${r.zeroRatedOrExemptSatang ? `<tr class="memo"><td class="lbl">Zero-rated or exempt sales</td><td class="num">${money(r.zeroRatedOrExemptSatang)}</td></tr>` : ''}
+      <tr class="memo"><td class="lbl">Input VAT</td><td class="num">not tracked</td></tr>
+      <tr class="memo"><td class="lbl">Net VAT payable</td><td class="num">needs input VAT</td></tr>
+    </table>
+    ${r.unclassified ? `<p class="status status-cancelled" style="display:block;padding:10px 12px">
+      This period contains 0% sales. Zero-rated and exempt sales go in <strong>different boxes</strong> on the PP 30 and this system cannot tell them apart — classify them by hand before filing.</p>` : ''}
+    ${r.invoices.length ? `<table class="list"><thead><tr>
+        <th>Invoice</th><th>Tax point</th><th>Status</th><th class="num">Net</th><th class="num">VAT</th><th class="num">Total</th>
+      </tr></thead><tbody>
+      ${r.invoices.map((i) => `<tr>
+        <td class="mono"><a href="invoice.html?id=${i.id}">${esc(i.number)}</a></td>
+        <td class="mono">${esc(i.issueDate)}</td>
+        <td class="muted">${esc(i.status)}</td>
+        <td class="num">${money(i.netSatang)}</td>
+        <td class="num">${money(i.vatSatang)}<span class="muted mono"> ${esc(i.vatRate)}%</span></td>
+        <td class="num">${money(i.grandSatang)}</td>
+      </tr>`).join('')}
+    </tbody></table>` : '<div class="empty">No invoices with a tax point in this period.</div>'}`;
+}
+
+// ------------------------------------------------------------- income
+const incomeCard = el(`<section class="card">
+  <h2>Income by month</h2>
+  <p class="sub">Accrual basis: income is recognised on the tax-invoice date, not when the cash arrives.</p>
+  <form id="incomeform" class="grid" style="max-width:520px">
+    <label>Year<input name="year" type="number" min="2000" max="2999" value="${now.getFullYear()}"></label>
+  </form>
+  <div id="income"><div class="empty">Loading…</div></div>
+</section>`);
+
+async function loadIncome() {
+  const year = incomeCard.querySelector('input[name=year]').value || now.getFullYear();
+  const { report: r } = await api('GET', `/reports/income?year=${year}`);
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  incomeCard.querySelector('#income').innerHTML = `
+    <table class="list"><thead><tr>
+      <th>Month</th><th class="num">Invoices</th><th class="num">Net income</th><th class="num">VAT</th><th class="num">Withheld</th>
+    </tr></thead><tbody>
+      ${r.months.map((m) => `<tr${m.invoiceCount ? '' : ' class="muted"'}>
+        <td class="mono">${esc(m.period)} <span class="muted">${MONTHS[m.month - 1]}</span></td>
+        <td class="num">${m.invoiceCount || ''}</td>
+        <td class="num">${m.netSatang ? money(m.netSatang) : '<span class="muted">—</span>'}</td>
+        <td class="num">${m.vatSatang ? money(m.vatSatang) : '<span class="muted">—</span>'}</td>
+        <td class="num">${m.whtSatang ? money(m.whtSatang) : '<span class="muted">—</span>'}</td>
+      </tr>`).join('')}
+    </tbody></table>
+    <table class="totals">
+      <tr class="grand"><td class="lbl">Net income ${esc(r.year)}</td><td class="num">${money(r.totalNetSatang)}</td></tr>
+      <tr class="memo"><td class="lbl">Output VAT collected</td><td class="num">${money(r.totalVatSatang)}</td></tr>
+      <tr class="memo"><td class="lbl">Withholding on that income</td><td class="num">${money(r.totalWhtSatang)}</td></tr>
+      <tr class="memo"><td class="lbl">Basis</td><td class="num">${esc(r.basis)}</td></tr>
+    </table>`;
+}
+
+// ---------------------------------------------------------------- PND
+const pndCard = el(`<section class="card">
+  <h2>PND 50 / 51 — corporate income tax</h2>
+  <p class="sub">Revenue and creditable withholding only. Expenses are out of scope, so taxable profit cannot be computed here.</p>
+  <form id="pndform" class="grid" style="max-width:520px">
+    <label>Year<input name="year" type="number" min="2000" max="2999" value="${now.getFullYear()}"></label>
+    <label>Period
+      <select name="half">
+        <option value="">Full year — PND 50</option>
+        <option value="1">First half — PND 51</option>
+        <option value="2">Second half</option>
+      </select>
+    </label>
+  </form>
+  <div id="pnd"><div class="empty">Loading…</div></div>
+</section>`);
+
+async function loadPnd() {
+  const f = new FormData(pndCard.querySelector('#pndform'));
+  const half = f.get('half') ? `&half=${f.get('half')}` : '';
+  const { report: r } = await api('GET', `/reports/pnd?year=${f.get('year')}${half}`);
+  pndCard.querySelector('#pnd').innerHTML = `
+    <dl class="kv" style="margin-bottom:18px">
+      <dt>Form</dt><dd>${esc(r.form)}</dd>
+      <dt>Period</dt><dd class="mono">${esc(r.periodFrom)} → ${esc(r.periodTo)}</dd>
+      <dt>Invoices</dt><dd>${r.invoiceCount}</dd>
+    </dl>
+    <table class="totals">
+      <tr class="grand"><td class="lbl">Revenue (net of VAT)</td><td class="num">${money(r.revenueSatang)}</td></tr>
+      <tr class="payable"><td class="lbl">Creditable withholding tax</td><td class="num">${money(r.creditableWhtSatang)}</td></tr>
+      <tr class="memo"><td class="lbl">Expenses</td><td class="num">not tracked</td></tr>
+      <tr class="memo"><td class="lbl">Taxable profit</td><td class="num">needs expenses</td></tr>
+    </table>`;
+}
+
+// ---------------------------------------------------------------- WHT
+const whtCard = el(`<section class="card">
+  <h2>Withholding tax credit register</h2>
+  <p class="sub">Certificates received from customers. Each one is tax already paid on the company's behalf — a credit against the PND liability, never a cost.</p>
+  <form id="whtform" class="grid" style="max-width:520px">
+    <label>From<input name="from" type="date" value="${now.getFullYear()}-01-01"></label>
+    <label>To<input name="to" type="date" value="${now.getFullYear()}-12-31"></label>
+  </form>
+  <div id="whtbox"><div class="empty">Loading…</div></div>
+</section>`);
+
+async function loadWht() {
+  const f = new FormData(whtCard.querySelector('#whtform'));
+  const { report: r } = await api('GET', `/reports/wht?from=${f.get('from')}&to=${f.get('to')}`);
+  const forms = Object.entries(r.byForm);
+  whtCard.querySelector('#whtbox').innerHTML = `
+    <table class="totals" style="margin:0 0 18px 0">
+      <tr class="grand"><td class="lbl">Total creditable</td><td class="num">${money(r.totalWhtSatang)}</td></tr>
+      <tr class="memo"><td class="lbl">On a base of</td><td class="num">${money(r.totalBaseSatang)}</td></tr>
+      ${forms.map(([k, v]) => `<tr class="memo"><td class="lbl">${esc(k)}</td><td class="num">${money(v)}</td></tr>`).join('')}
+    </table>
+    ${r.certificates.length ? `<table class="list"><thead><tr>
+        <th>Cert no.</th><th>Issued</th><th>Form</th><th>Invoice</th><th>Payer</th><th class="num">Base</th><th class="num">Withheld</th>
+      </tr></thead><tbody>
+      ${r.certificates.map((w) => `<tr>
+        <td class="mono">${esc(w.certNumber) || '—'}</td>
+        <td class="mono">${esc(w.issuedOn)}</td>
+        <td class="mono">${esc(w.pndForm)}</td>
+        <td class="mono">${w.invoiceId ? `<a href="invoice.html?id=${w.invoiceId}">${esc(w.invoiceNumber)}</a>` : '—'}</td>
+        <td>${esc(w.payerName) || '—'}</td>
+        <td class="num">${money(w.baseSatang)}</td>
+        <td class="num">${money(w.whtSatang)}</td>
+      </tr>`).join('')}
+    </tbody></table>` : '<div class="empty">No certificates in this range.</div>'}`;
+}
+
+main.append(pp30Card, incomeCard, pndCard, whtCard);
+
+const wire = (card, fn) => {
+  card.querySelector('form').addEventListener('change', () => fn().catch((e) => toast(e.message, 'error')));
+  return fn().catch((e) => {
+    card.querySelector('div[id]').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    toast(e.message, 'error');
+  });
+};
+
+wire(pp30Card, loadPp30);
+wire(incomeCard, loadIncome);
+wire(pndCard, loadPnd);
+wire(whtCard, loadWht);
+</script>
+</body>
+</html>

@@ -17,10 +17,13 @@ Layout:
     lib/auth.mjs          HMAC sessions + Google OAuth + agent bearer lane
     lib/money.mjs         satang integer arithmetic (no floats, ever)
     lib/quote.mjs         totals engine, settings-driven numbering, snapshots
+    lib/invoice.mjs       tax invoices: frozen rates, payments, WHT certs
+    lib/reports.mjs       PP 30 / income / WHT / PND worksheets (read-only)
     lib/pdf.mjs           headless Chromium renderer
     templates/quotation.mjs  bilingual A4 document template
-    ui/                   human screens (quotations, editor, clients,
-                          catalog, settings)
+    templates/invoice.mjs    bilingual A4 TAX INVOICE template
+    ui/                   human screens (quotations, editor, invoices,
+                          invoice, reports, clients, catalog, settings)
     tests/                node --test suite
     deploy/               systemd user unit, nginx vhost, cloudflared ingress
 

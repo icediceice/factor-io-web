@@ -14,7 +14,7 @@ a{color:var(--accent)}
 .wrap{width:min(1200px,calc(100% - 48px));margin:28px auto 64px}
 h1{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em;margin:0 0 6px}
 .sub{color:var(--muted);margin:0 0 22px;max-width:70ch}
-.card{background:var(--white);border:1px solid var(--line);padding:20px 22px;margin-bottom:22px}
+.card{background:var(--white);border:1px solid var(--line);padding:20px 22px;margin-bottom:22px;overflow-x:auto}
 .card h2{font-size:1.05rem;margin:0 0 14px}
 table.list{width:100%;border-collapse:collapse;font-size:14.5px}
 table.list th{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:8px 10px}

@@ -230,7 +230,7 @@ export function createApi(db) {
       const doc = tx(db, () => {
         const settings = getSettings(db, '');
         const number = allocateQuoteNumber(db, settings);
-        const issueDate = optStr(body, 'issue_date', { max: 10 }) || null;
+        const issueDate = optStr(body, 'issue_date', { max: 10 });
         const { lastInsertRowid: id } = db.prepare(
           `INSERT INTO quotations (number, client_id, lang, currency, issue_date, fx_base, fx_rate, fx_as_of, notes, created_by)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`

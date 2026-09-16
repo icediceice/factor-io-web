@@ -230,7 +230,11 @@ export function issueInvoice(db, invoiceId, { actor = 'agent', issueDate } = {})
     if (lines.length === 0) throw new Error(`invoice ${inv.number} has no lines`);
 
     const settings = getSettings(db, '');
-    const issue = str(issueDate) || str(inv.issue_date) || todayBkk();
+    // Re-stamping the tax point at issue is legitimate (the draft may be days
+    // old); it is still a date that gets printed and filed, so it is checked.
+    const issue = str(issueDate)
+      ? assertAccountingDate(issueDate, 'issue_date')
+      : (str(inv.issue_date) || todayBkk());
     const termsDays = Number(settings['invoice.payment_terms_days'] ?? '30');
     const totals = computeInvoiceTotals(
       lines.map((l) => ({ qtyMilli: l.qty_milli, unitSatang: l.unit_satang, discountSatang: l.discount_satang })),

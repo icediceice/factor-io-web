@@ -362,7 +362,7 @@ export function createApi(db) {
         const count = db.prepare('SELECT COUNT(*) c FROM quotation_lines WHERE quotation_id = ?').get(id).c;
         if (!count) throw bad('cannot issue a quotation with no lines');
         const { status, rev } = markStatus(db, id, 'issued', actor);
-        return json(200, { status, rev, quotation: buildQuoteDocument(db, id) });
+        return json(200, docEnvelope(buildQuoteDocument(db, id), { status, rev }));
       }
 
       if (seg[2] === 'status' && method === 'POST') {

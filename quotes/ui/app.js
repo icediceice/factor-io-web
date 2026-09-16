@@ -58,9 +58,14 @@ export function renderShell(active, title, subtitle) {
     <nav id="main-nav" aria-label="Main">
       ${navLinks.map(([, label, href]) => `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
     </nav>
-    <a class="button quiet" href="/auth/logout" style="background:transparent;color:var(--muted);border-color:var(--line)">Sign out</a>
+    <span data-auth-actions></span>
   </div></header>`);
   document.body.prepend(header);
+  fetch('/healthz').then((res) => res.ok ? res.json() : null).then((health) => {
+    if (health?.authMode !== 'oauth') return;
+    const link = el('<a class="button quiet" href="/auth/logout" style="background:transparent;color:var(--muted);border-color:var(--line)">Sign out</a>');
+    header.querySelector('[data-auth-actions]').append(link);
+  }).catch(() => {});
   const main = el(`<div class="wrap"><h1>${title}</h1><p class="sub">${subtitle ?? ''}</p></div>`);
   document.body.append(main);
   return main;

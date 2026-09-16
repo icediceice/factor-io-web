@@ -83,7 +83,9 @@ const money = (s) => {
 };
 
 async function main() {
-  const [cmd, ...rest] = process.argv.slice(2);
+  let [cmd, ...rest] = process.argv.slice(2);
+  // global flags may sit before the subcommand: `quotes --json list`
+  while (cmd && cmd.startsWith('--')) { rest.push(cmd); cmd = rest.shift(); }
   const { positional, flags } = parseArgs(rest);
   const asJson = (v) => { console.log(JSON.stringify(v, null, 2)); };
 

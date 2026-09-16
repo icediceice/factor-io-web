@@ -445,7 +445,7 @@ export function recordWhtCertificate(db, { invoiceId = null, paymentId = null, c
         base_satang, wht_satang, rate_percent, payer_name, payer_tax_id,
         file_path, note, created_by
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(invoiceId, paymentId, str(certNumber), str(issuedOn) || todayBkk(), str(pndForm) || 'PND53',
+    `).run(invoiceId, paymentId, str(certNumber), accountingDate(issuedOn, 'issued_on'), str(pndForm) || 'PND53',
       base, wht, str(ratePercent), str(payerName), str(payerTaxId), str(filePath), str(note), actor);
 
     let balance = null;

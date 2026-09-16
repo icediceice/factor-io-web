@@ -140,9 +140,9 @@ async function main() {
       if (flags['desc-th']) body.description_th = flags['desc-th'];
       if (flags.unit) body.unit = flags.unit;
       if (flags.discount !== undefined) body.discount_satang = Number(flags.discount);
-      const { line, quotation } = await call('POST', `/api/quotations/${id}/lines`, body);
-      if (flags.json) return asJson({ line, quotation });
-      console.log(`line ${line.id} added; payable now ${money(quotation.totals.payableSatang)}`);
+      const r = await call('POST', `/api/quotations/${id}/lines`, body);
+      if (flags.json) return asJson(r);
+      console.log(`line ${r.line.id} added; payable now ${money(r.totals.payableSatang)}`);
       return;
     }
     case 'line-rm': {

@@ -139,8 +139,9 @@ export function renderQuotationHtml(doc, lang = 'en') {
   .issuer { margin-top:6pt; color:var(--muted); font-size:8.5pt; line-height:1.55; }
   .issuer strong { color:var(--ink); font-size:10pt; }
   .logo { max-height:52pt; max-width:150pt; }
-  h1 { font-size:17pt; letter-spacing:.14em; margin:0 0 6pt; font-weight:750; color:var(--accent); }
-  .meta { font-family:var(--mono); font-size:8.5pt; color:var(--muted); text-align:right; line-height:1.8; }
+  h1 { font-size:14.5pt; letter-spacing:.12em; margin:0 0 6pt; font-weight:750; color:var(--accent); }
+  header > div:last-child { min-width:0; }
+  .meta { font-family:var(--mono); font-size:8pt; color:var(--muted); text-align:right; line-height:1.8; overflow-wrap:anywhere; }
   .meta b { color:var(--ink); }
   .parties { display:flex; gap:20pt; margin:16pt 0 14pt; }
   .party { flex:1; border:1px solid var(--line); background:var(--tint); padding:10pt 12pt; }

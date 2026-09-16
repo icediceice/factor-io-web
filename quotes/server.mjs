@@ -19,6 +19,7 @@ import {
   sessionCookie, clearSessionCookie, exchangeCode,
 } from './lib/auth.mjs';
 import { createApi } from './api.mjs';
+import { isTailnetAddr, tailnetWhois } from './lib/tailnet.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = join(HERE, 'ui');
@@ -26,19 +27,27 @@ const PORT = Number(process.env.QUOTES_PORT ?? 8787);
 const DB_PATH = process.env.QUOTES_DB_PATH ?? join(HERE, 'data', 'quotes.db');
 const BODY_LIMIT = 1024 * 1024;
 
-export function createApp(env = process.env) {
+export function createApp(env = process.env, options = {}) {
   const db = openDb(env.QUOTES_DB_PATH ?? DB_PATH);
   const api = createApi(db);
   const auth = makeAuth(env);
-  const configured = Boolean(auth.cfg.secret && auth.cfg.clientId && auth.cfg.publicUrl);
+  const configured = auth.cfg.mode === 'tailscale'
+    || Boolean(auth.cfg.secret && auth.cfg.clientId && auth.cfg.publicUrl);
+  const lookupTailnetLogin = options.tailnetWhoisImpl ?? tailnetWhois;
 
-  function actorFor(req) {
+  async function actorFor(req) {
     const r = auth.authenticate(req);
     if (r.lane) return r;
     // dev sentinel: unconfigured + loopback client + non-cross-site origin,
     // exactly the board's local/ dev lane. Never in production (boot refuses).
     const addr = req.socket?.remoteAddress ?? '';
     const loopback = addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
+    if (auth.cfg.mode === 'tailscale') {
+      if (!isTailnetAddr(addr)) return { email: '', lane: null, status: 403 };
+      const email = await lookupTailnetLogin(addr);
+      if (!email || !emailAllowed(email, auth.cfg.list)) return { email: '', lane: null, status: 403 };
+      return { email, lane: 'human' };
+    }
     const site = (req.headers['sec-fetch-site'] ?? '').toLowerCase();
     // Dev lane exists ONLY in the zero-config case: the moment the operator
     // sets ANY credential (agent token or session secret), unauthenticated
@@ -55,11 +64,11 @@ export function createApp(env = process.env) {
 
       if (path.startsWith('/auth/')) return authRoutes(req, res, url);
       if (path === '/healthz') {
-        return sendJson(res, 200, { ok: true });
+        return sendJson(res, 200, { ok: true, authMode: auth.cfg.mode });
       }
       if (path.startsWith('/api/')) {
-        const identity = actorFor(req);
-        if (!identity.lane) return sendJson(res, 401, { error: 'unauthorized' });
+        const identity = await actorFor(req);
+        if (!identity.lane) return sendJson(res, identity.status ?? 401, { error: 'unauthorized' });
         // binary route: the rendered quotation PDF (GET only, no body)
         const pdfMatch = path.match(/^\/api\/quotations\/(\d+)\/pdf$/);
         if (pdfMatch) {
@@ -87,8 +96,9 @@ export function createApp(env = process.env) {
       }
 
       // human UI
-      const identity = actorFor(req);
+      const identity = await actorFor(req);
       if (!identity.lane) {
+        if (auth.cfg.mode === 'tailscale') return sendJson(res, identity.status ?? 403, { error: 'forbidden' });
         const dest = `/auth/login?return_to=${encodeURIComponent(path + url.search)}`;
         res.writeHead(302, { Location: dest });
         return res.end();
@@ -101,6 +111,10 @@ export function createApp(env = process.env) {
 
   function authRoutes(req, res, url) {
     const path = url.pathname;
+    if (auth.cfg.mode === 'tailscale') {
+      res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+      return res.end('Authentication is handled by the tailnet.\n');
+    }
     if (path === '/auth/login') {
       if (!configured) {
         res.writeHead(503, { 'content-type': 'text/html; charset=utf-8' });
@@ -244,14 +258,47 @@ function escapeHtml(s) {
 // ---- entry point ----
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-  try { assertProductionConfig(); } catch (e) { console.error(e.message); process.exit(1); }
+  try { await assertProductionConfig(); } catch (e) { console.error(e.message); process.exit(1); }
   const app = createApp();
-  const server = createServer((req, res) => app.handle(req, res));
-  server.listen(PORT, '127.0.0.1', () => {
-    const actual = server.address().port; // PORT may be 0 (ephemeral, used by smoke)
-    console.log(`quotes server listening on http://127.0.0.1:${actual} (db: ${process.env.QUOTES_DB_PATH ?? DB_PATH})`);
-  });
-  const shutdown = () => { server.close(() => { app.close(); process.exit(0); }); };
+  const servers = [];
+  try {
+    for (const bind of bindAddresses(process.env.QUOTES_BIND)) {
+      const server = createServer((req, res) => app.handle(req, res));
+      await new Promise((resolveListen, rejectListen) => {
+        server.once('error', rejectListen);
+        server.listen(PORT, bind, () => {
+          server.removeListener('error', rejectListen);
+          resolveListen();
+        });
+      });
+      servers.push(server);
+      const actual = server.address().port; // PORT may be 0 (ephemeral, used by smoke)
+      console.log(`quotes server listening on http://${bind}:${actual} (db: ${process.env.QUOTES_DB_PATH ?? DB_PATH})`);
+    }
+  } catch (e) {
+    console.error(`failed to bind quotes server: ${e.message}`);
+    for (const server of servers) server.close();
+    app.close();
+    process.exit(1);
+  }
+  const shutdown = () => {
+    let remaining = servers.length;
+    for (const server of servers) server.close(() => {
+      if (--remaining === 0) { app.close(); process.exit(0); }
+    });
+  };
   process.on('SIGTERM', shutdown);
   process.on('SIGINT', shutdown);
+}
+
+export function bindAddresses(raw = '127.0.0.1') {
+  const addresses = [...new Set(String(raw).split(',').map((part) => part.trim()).filter(Boolean))];
+  if (addresses.length === 0) throw new Error('QUOTES_BIND must name at least one address');
+  for (const addr of addresses) {
+    const loopback = addr === '127.0.0.1' || addr === '::1';
+    if (!loopback && !isTailnetAddr(addr)) {
+      throw new Error(`QUOTES_BIND address is neither loopback nor tailnet: ${addr}`);
+    }
+  }
+  return addresses;
 }

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clients · Factor I/O</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<script type="module">
+import { api, el, toast, renderShell } from './app.js';
+
+const main = renderShell('clients.html', 'Clients', 'Companies you quote for. Tax IDs flow onto the PDF.');
+
+const listCard = el('<section class="card"><h2>All clients</h2><div id="list"><div class="empty">Loading…</div></div></section>');
+const formCard = el(`<section class="card"><h2>New client</h2>
+  <form id="new">
+    <div class="grid">
+      <label>Name (EN) <input name="name" required></label>
+      <label>ชื่อ (TH) <input name="name_th"></label>
+      <label>Tax ID <input name="tax_id" inputmode="numeric"></label>
+      <label>Contact <input name="contact"></label>
+      <label>Email <input name="email" type="email"></label>
+      <label>Phone <input name="phone"></label>
+    </div>
+    <label>Address (EN) <textarea name="address" rows="2"></textarea></label>
+    <label>ที่อยู่ (TH) <textarea name="address_th" rows="2"></textarea></label>
+    <div class="row-actions"><button type="submit">Add client</button></div>
+  </form>
+</section>`);
+
+main.append(listCard, formCard);
+
+async function load() {
+  const { clients } = await api('GET', '/clients');
+  const box = listCard.querySelector('#list');
+  box.innerHTML = clients.length ? `<table class="list"><thead><tr>
+      <th>Name</th><th>Tax ID</th><th>Contact</th><th></th>
+    </tr></thead><tbody>
+    ${clients.map((c) => `<tr>
+      <td><strong>${c.name}</strong>${c.name_th ? `<br><span class="muted">${c.name_th}</span>` : ''}</td>
+      <td class="mono">${c.tax_id ?? ''}</td>
+      <td>${c.contact ?? ''}${c.email ? `<br><span class="muted">${c.email}</span>` : ''}</td>
+      <td><button class="danger" data-del="${c.id}">Delete</button></td>
+    </tr>`).join('')}
+  </tbody></table>` : '<div class="empty">No clients yet.</div>';
+  for (const b of box.querySelectorAll('[data-del]')) {
+    b.addEventListener('click', async () => {
+      try { await api('DELETE', `/clients/${b.dataset.del}`); toast('Client deleted'); load(); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+}
+
+formCard.querySelector('#new').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target).entries());
+  try { await api('POST', '/clients', body); toast('Client added'); e.target.reset(); load(); }
+  catch (err) { toast(err.message, 'error'); }
+});
+
+load().catch((e) => toast(e.message, 'error'));
+</script>
+</body>
+</html>

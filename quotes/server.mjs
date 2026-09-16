@@ -162,6 +162,34 @@ export function createApp(env = process.env) {
     }
   }
 
+  // The tax invoice renders from the FROZEN invoice row — buildInvoiceDocument
+  // reads the stored satang totals and rate strings and never recomputes, so a
+  // PDF re-rendered years later still shows the figures that were filed.
+  //
+  // A draft is deliberately still renderable: the operator needs to proof it
+  // before issuing. The template stamps it "NOT A VALID TAX INVOICE" and the
+  // filename says draft, because an unissued document has no tax point.
+  async function invoicePdfRoute(res, invoiceId, lang) {
+    try {
+      const doc = buildInvoiceDocument(db, invoiceId);
+      const useLang = lang === 'th' || lang === 'en' ? lang : (doc.invoice.lang || 'en');
+      const html = renderInvoiceHtml(doc, useLang);
+      const { buffer, chromium } = await htmlToPdf(html);
+      const suffix = doc.invoice.status === 'draft' ? '-DRAFT' : '';
+      const filename = `${doc.invoice.number}${suffix}-${useLang.toUpperCase()}.pdf`;
+      res.writeHead(200, {
+        'content-type': 'application/pdf',
+        'content-disposition': `inline; filename="${filename}"`,
+        'x-rendered-by': chromium,
+      });
+      return res.end(buffer);
+    } catch (e) {
+      const status = e.message.includes('no Chromium') ? 503
+        : e.message.includes('not found') ? 404 : 500;
+      return sendJson(res, status, { error: e.message });
+    }
+  }
+
   async function serveStatic(res, path) {
     let rel = path === '/' || path === '/quotes' || path === '/quotes/'
       ? '/index.html'

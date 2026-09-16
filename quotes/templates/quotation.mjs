@@ -132,7 +132,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
           --sans:${lang === 'th' ? "'Loma','Noto Sans Thai'," : ''}Inter,Tahoma,system-ui,sans-serif;
           --mono:ui-monospace,'SFMono-Regular',Consolas,${lang === 'th' ? "'Loma'," : ''}monospace; }
   * { box-sizing: border-box; }
-  body { margin:0; color:var(--ink); font:10.5pt/1.65 var(--sans); }
+  body { margin:0; color:var(--ink); font:10pt/1.6 var(--sans); }
   .doc { max-width:100%; }
   header { display:flex; justify-content:space-between; align-items:flex-start;
            border-bottom:2.5pt solid var(--accent); padding-bottom:10pt; gap:16pt; }

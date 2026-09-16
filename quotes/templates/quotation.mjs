@@ -135,7 +135,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
   body { margin:0; color:var(--ink); font:10.5pt/1.65 var(--sans); }
   .doc { max-width:100%; }
   header { display:flex; justify-content:space-between; align-items:flex-start;
-           border-bottom:2.5pt solid var(--accent); padding-bottom:14pt; gap:16pt; }
+           border-bottom:2.5pt solid var(--accent); padding-bottom:10pt; gap:16pt; }
   .brand { font-size:15pt; font-weight:750; letter-spacing:.06em; }
   .brand .io { color:var(--accent); font-family:var(--mono); }
   .issuer { margin-top:6pt; color:var(--muted); font-size:8.5pt; line-height:1.55; }

@@ -68,8 +68,8 @@ describe('quotation flow', () => {
     assert.match(q.number, /^QT-\d{6}-\d{4}$/);
     assert.equal(q.status, 'draft');
 
-    await call('POST', `/quotations/${q.quotation.id}/lines`, { body: { kind: 'service', description_en: 'Discovery', qty: '3', unit_price: '35000.00' } });
-    const withHalf = await call('POST', `/quotations/${q.quotation.id}/lines`, {
+    await call('POST', `/quotations/${q.id}/lines`, { body: { kind: 'service', description_en: 'Discovery', qty: '3', unit_price: '35000.00' } });
+    const withHalf = await call('POST', `/quotations/${q.id}/lines`, {
       body: { kind: 'service', description_en: 'Workshop', qty: '0.5', unit_price: '35000.00' },
     });
     assert.equal(withHalf.status, 201);
@@ -78,7 +78,7 @@ describe('quotation flow', () => {
     assert.equal(doc.totals.vatSatang, 857500);        // 7%
     assert.equal(doc.totals.grandSatang, 13107500);
 
-    const issue = await call('POST', `/quotations/${q.quotation.id}/issue`);
+    const issue = await call('POST', `/quotations/${q.id}/issue`);
     assert.equal(issue.status, 200);
     assert.equal(JSON.parse(issue.body).rev, 1);
     assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_revisions').get().c, 1);
@@ -88,7 +88,7 @@ describe('quotation flow', () => {
     assert.ok(audits.every((a) => a.actor === 'op@factor-io.com'));
 
     // issued quotes are frozen: line edits and header edits refuse
-    const frozen = await call('PUT', `/quotations/${q.quotation.id}`, { body: { notes: 'nope' } });
+    const frozen = await call('PUT', `/quotations/${q.id}`, { body: { notes: 'nope' } });
     assert.equal(frozen.status, 400);
   });
 
@@ -96,8 +96,8 @@ describe('quotation flow', () => {
     const { call } = boot();
     const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } })).body).client;
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
-    await call('POST', `/quotations/${q.quotation.id}/lines`, { body: { kind: 'hardware', description_en: 'Box', qty: '1', unit_price: '10000.00' } });
-    const u = await call('PUT', `/quotations/${q.quotation.id}/lines/1`, { body: { discount_satang: 99999999 } });
+    await call('POST', `/quotations/${q.id}/lines`, { body: { kind: 'hardware', description_en: 'Box', qty: '1', unit_price: '10000.00' } });
+    const u = await call('PUT', `/quotations/${q.id}/lines/1`, { body: { discount_satang: 99999999 } });
     assert.equal(JSON.parse(u.body).quotation.totals.discountSatang, 1000000); // clamped to subtotal
     assert.equal(JSON.parse(u.body).quotation.totals.netSatang, 0);
   });
@@ -106,7 +106,7 @@ describe('quotation flow', () => {
     const { db, call } = boot();
     const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } }, { actor: 'agent' })).body).client;
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id }, actor: 'agent' })).body).quotation;
-    await call('POST', `/quotations/${q.quotation.id}/issue`, { actor: 'agent' });
+    await call('POST', `/quotations/${q.id}/issue`, { actor: 'agent' });
     const audits = db.prepare('SELECT DISTINCT actor FROM audit_log').all();
     assert.deepEqual(audits, [{ actor: 'agent' }]);
   });
@@ -115,7 +115,7 @@ describe('quotation flow', () => {
     const { db, call } = boot();
     const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } })).body).client;
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
-    const id = q.quotation.id;
+    const id = q.id;
     await call('DELETE', `/quotations/${id}`);
     assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations').get().c, 0);
     assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_lines').get().c, 0);

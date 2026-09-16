@@ -19,6 +19,24 @@
 //   quotes set vat.rate_percent 8         # one setting
 //   quotes pdf 12 --lang th -o quote.pdf
 //
+//   # sales pipeline (forecast — never income)
+//   quotes propose 12 | quotes accept 12 | quotes decline 12
+//
+//   # invoices: income is recognised on the tax-invoice date
+//   quotes invoice 12 [--date 2026-09-20] [--lang th]   # draft from a quotation
+//   quotes inv-issue 5 [--date 2026-09-20]              # FREEZES the tax rates
+//   quotes inv-show 5
+//   quotes pay 5 --amount 10400.00 [--date 2026-09-25] [--ref TRF-9912]
+//   quotes wht-add 5 --base 10000.00 --wht 300.00 --form PND53 [--cert W-1]
+//   quotes inv-pdf 5 --lang th -o invoice.pdf
+//
+//   # reports — worksheets to transcribe, NOT a filing channel
+//   quotes report pp30 --year 2026 --month 9
+//   quotes report income --year 2026
+//   quotes report wht --from 2026-01-01 --to 2026-12-31
+//   quotes report pnd --year 2026 [--half 1]
+//   quotes report pipeline
+//
 // Env: QUOTES_URL (default http://127.0.0.1:8787), QUOTES_AGENT_TOKEN (required
 // unless the server runs unconfigured on loopback, where its dev lane admits).
 

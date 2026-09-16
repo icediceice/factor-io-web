@@ -154,6 +154,8 @@ export function createApp(env = process.env) {
 }
 
 function readBody(req) {
+  // plain-object requests (tests, internal calls) carry the parsed body
+  if (typeof req.on !== 'function') return Promise.resolve(req.body ?? {});
   return new Promise((resolveBody, reject) => {
     const chunks = [];
     let size = 0;

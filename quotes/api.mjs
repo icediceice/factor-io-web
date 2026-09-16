@@ -266,7 +266,7 @@ export function createApi(db) {
       if (!row) throw missing('quotation');
 
       if (!seg[2]) {
-        if (method === 'GET') return json(200, { quotation: buildQuoteDocument(db, id) });
+        if (method === 'GET') return json(200, docEnvelope(buildQuoteDocument(db, id)));
         if (method === 'PUT') {
           const fields = ['lang', 'currency', 'notes', 'issue_date', 'fx_base', 'fx_rate', 'fx_as_of'];
           const sets = [];

@@ -174,8 +174,8 @@ export function renderQuotationHtml(doc, lang = 'en') {
   .block h2 { font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 6pt; }
   .block p { margin:0; font-size:9pt; line-height:1.7; color:var(--ink); white-space:pre-wrap; }
   .block .sub { color:var(--muted); }
-  ol.terms { margin:0; padding-inline-start:14pt; font-size:8.5pt; color:var(--muted); line-height:1.7; }
-  ol.terms li { margin-bottom:3pt; }
+  ol.terms { margin:0; padding-inline-start:14pt; font-size:8.5pt; color:var(--muted); line-height:1.55; }
+  ol.terms li { margin-bottom:2pt; }
   .sign { display:flex; gap:40pt; margin-top:16pt; }
   .sign div { flex:1; border-top:.75pt solid var(--line); padding-top:5pt; font-size:8.5pt; color:var(--muted); text-align:center; }
   footer { margin-top:12pt; border-top:.5pt solid var(--line); padding-top:6pt;

@@ -161,6 +161,172 @@ const MIGRATIONS = [
         ('bank.swift',        '', 'seed');
     `,
   },
+  {
+    version: 3,
+    name: 'accounting-schema',
+    // Rebuilds `quotations` to widen the status CHECK, then adds the invoice
+    // side. SQLite cannot ALTER a CHECK, so this is the official 12-step
+    // procedure: create new_X -> copy -> DROP old X -> rename new_X to X.
+    // The rename-old-first variant is explicitly documented as INCORRECT
+    // because it corrupts FK references held by other tables.
+    //
+    // migrate() disables foreign keys around this (see the note there) — the
+    // DROP below would otherwise fire ON DELETE CASCADE and wipe
+    // quotation_lines and quotation_revisions.
+    //
+    // No index, trigger or view exists on `quotations` itself, so there is
+    // nothing to reconstruct after the rename.
+    sql: `
+      CREATE TABLE quotations_new (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        number        TEXT NOT NULL UNIQUE,
+        client_id     INTEGER NOT NULL REFERENCES clients(id),
+        status        TEXT NOT NULL DEFAULT 'draft'
+                      CHECK (status IN ('draft','issued','proposed','accepted',
+                                        'declined','invoiced','paid',
+                                        'superseded','cancelled')),
+        lang          TEXT NOT NULL DEFAULT 'en' CHECK (lang IN ('en','th')),
+        currency      TEXT NOT NULL DEFAULT 'THB',
+        issue_date    TEXT NOT NULL DEFAULT '',
+        valid_until   TEXT NOT NULL DEFAULT '',
+        fx_base       TEXT NOT NULL DEFAULT '',
+        fx_rate       TEXT NOT NULL DEFAULT '',
+        fx_as_of      TEXT NOT NULL DEFAULT '',
+        notes         TEXT NOT NULL DEFAULT '',
+        created_by    TEXT NOT NULL DEFAULT '',
+        created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      INSERT INTO quotations_new
+        (id, number, client_id, status, lang, currency, issue_date, valid_until,
+         fx_base, fx_rate, fx_as_of, notes, created_by, created_at, updated_at)
+        SELECT
+         id, number, client_id, status, lang, currency, issue_date, valid_until,
+         fx_base, fx_rate, fx_as_of, notes, created_by, created_at, updated_at
+        FROM quotations;
+
+      DROP TABLE quotations;
+      ALTER TABLE quotations_new RENAME TO quotations;
+
+      -- A tax invoice is its own entity, never a quotation status: it carries
+      -- its own number series, its own issue_date (which IS the VAT tax point),
+      -- and one quotation may bill as several invoices (deposit + balance).
+      --
+      -- vat_rate_percent / wht_rate_percent and every *_satang column are
+      -- FROZEN copies taken once at issue. Reports read these columns and never
+      -- re-derive from settings, so editing a rate later cannot retroactively
+      -- move a figure that has already been filed.
+      CREATE TABLE invoices (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        number           TEXT NOT NULL UNIQUE,
+        quotation_id     INTEGER REFERENCES quotations(id),
+        client_id        INTEGER NOT NULL REFERENCES clients(id),
+        status           TEXT NOT NULL DEFAULT 'draft'
+                         CHECK (status IN ('draft','issued','paid','cancelled')),
+        lang             TEXT NOT NULL DEFAULT 'en' CHECK (lang IN ('en','th')),
+        currency         TEXT NOT NULL DEFAULT 'THB',
+        issue_date       TEXT NOT NULL DEFAULT '',
+        due_date         TEXT NOT NULL DEFAULT '',
+        branch_code      TEXT NOT NULL DEFAULT '00000',
+        vat_rate_percent TEXT NOT NULL DEFAULT '0',
+        wht_rate_percent TEXT NOT NULL DEFAULT '0',
+        wht_mode         TEXT NOT NULL DEFAULT 'memo'
+                         CHECK (wht_mode IN ('memo','deduct')),
+        subtotal_satang  INTEGER NOT NULL DEFAULT 0 CHECK (subtotal_satang >= 0),
+        discount_satang  INTEGER NOT NULL DEFAULT 0 CHECK (discount_satang >= 0),
+        net_satang       INTEGER NOT NULL DEFAULT 0 CHECK (net_satang >= 0),
+        vat_satang       INTEGER NOT NULL DEFAULT 0 CHECK (vat_satang >= 0),
+        grand_satang     INTEGER NOT NULL DEFAULT 0 CHECK (grand_satang >= 0),
+        wht_satang       INTEGER NOT NULL DEFAULT 0 CHECK (wht_satang >= 0),
+        payable_satang   INTEGER NOT NULL DEFAULT 0 CHECK (payable_satang >= 0),
+        fx_base          TEXT NOT NULL DEFAULT '',
+        fx_rate          TEXT NOT NULL DEFAULT '',
+        fx_as_of         TEXT NOT NULL DEFAULT '',
+        notes            TEXT NOT NULL DEFAULT '',
+        created_by       TEXT NOT NULL DEFAULT '',
+        created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at       TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX idx_invoices_issue_date ON invoices(issue_date);
+      CREATE INDEX idx_invoices_quotation  ON invoices(quotation_id);
+      CREATE INDEX idx_invoices_client     ON invoices(client_id);
+
+      -- Snapshot of the billed lines, copied from quotation_lines at raise
+      -- time. Editing the quotation afterwards must not alter a filed invoice.
+      CREATE TABLE invoice_lines (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_id      INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+        position        INTEGER NOT NULL DEFAULT 0,
+        kind            TEXT NOT NULL CHECK (kind IN ('service','hardware')),
+        description_en  TEXT NOT NULL,
+        description_th  TEXT NOT NULL DEFAULT '',
+        qty_milli       INTEGER NOT NULL CHECK (qty_milli > 0),
+        unit            TEXT NOT NULL DEFAULT 'day',
+        unit_satang     INTEGER NOT NULL CHECK (unit_satang >= 0),
+        discount_satang INTEGER NOT NULL DEFAULT 0 CHECK (discount_satang >= 0),
+        created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX idx_invoice_lines ON invoice_lines(invoice_id, position);
+
+      CREATE TABLE payments (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_id    INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+        paid_on       TEXT NOT NULL,
+        amount_satang INTEGER NOT NULL CHECK (amount_satang > 0),
+        method        TEXT NOT NULL DEFAULT 'transfer',
+        reference     TEXT NOT NULL DEFAULT '',
+        note          TEXT NOT NULL DEFAULT '',
+        created_by    TEXT NOT NULL DEFAULT '',
+        created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX idx_payments_invoice ON payments(invoice_id);
+      CREATE INDEX idx_payments_paid_on ON payments(paid_on);
+
+      -- WHT certificates RECEIVED from customers who withheld at source.
+      -- These are tax already paid on our behalf, credited against PND 50/51 —
+      -- not a liability. base_satang is the NET (pre-VAT) amount withheld on.
+      CREATE TABLE wht_certificates (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_id    INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+        payment_id    INTEGER REFERENCES payments(id) ON DELETE SET NULL,
+        cert_number   TEXT NOT NULL DEFAULT '',
+        issued_on     TEXT NOT NULL,
+        pnd_form      TEXT NOT NULL DEFAULT 'PND53'
+                      CHECK (pnd_form IN ('PND53','PND3','PND54','other')),
+        base_satang   INTEGER NOT NULL CHECK (base_satang >= 0),
+        wht_satang    INTEGER NOT NULL CHECK (wht_satang >= 0),
+        rate_percent  TEXT NOT NULL DEFAULT '',
+        payer_name    TEXT NOT NULL DEFAULT '',
+        payer_tax_id  TEXT NOT NULL DEFAULT '',
+        file_path     TEXT NOT NULL DEFAULT '',
+        note          TEXT NOT NULL DEFAULT '',
+        created_by    TEXT NOT NULL DEFAULT '',
+        created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX idx_wht_invoice   ON wht_certificates(invoice_id);
+      CREATE INDEX idx_wht_issued_on ON wht_certificates(issued_on);
+    `,
+  },
+  {
+    version: 4,
+    name: 'seed-accounting-settings',
+    // Same rule as migration 2: placeholders only. Every business fact is a
+    // settings row the operator owns — none of these belong in code.
+    sql: `
+      INSERT INTO settings (key, value, updated_by) VALUES
+        ('invoice.number_format',     'INV-{YYYY}{MM}-{SEQ:4}', 'seed'),
+        ('invoice.payment_terms_days','30', 'seed'),
+        ('invoice.terms_en',          '', 'seed'),
+        ('invoice.terms_th',          '', 'seed'),
+        ('tax.entity_type',           'company', 'seed'),
+        ('tax.vat_registered',        '1', 'seed'),
+        ('tax.branch_code',           '00000', 'seed'),
+        ('tax.fiscal_year_end',       '12-31', 'seed'),
+        ('company.branch_th',         'สำนักงานใหญ่', 'seed'),
+        ('company.branch_en',         'Head Office', 'seed');
+    `,
+  },
 ];
 
 export function openDb(path) {

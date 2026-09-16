@@ -173,7 +173,7 @@ deliberately honest about what they cannot know:
 
 | Key | Default | Meaning |
 |---|---|---|
-| `invoice.number_format` | `INV-{YYYY}{MM}{SEQ:4}` | Own counter; never collides with quote numbers |
+| `invoice.number_format` | `INV-{YYYY}{MM}-{SEQ:4}` | Own counter; never collides with quote numbers |
 | `invoice.payment_terms_days` | `30` | Drives `due_date` from the issue date |
 | `invoice.terms_en` / `invoice.terms_th` | — | Printed on the tax invoice |
 | `tax.entity_type` | `company` | Co., Ltd. — PP 30 / PND 50 / 51 |

@@ -148,9 +148,9 @@ async function main() {
     case 'line-rm': {
       const id = needId(positional, 0, 'quotation id');
       const lineId = needId(positional, 1, 'line id');
-      const doc = await call('DELETE', `/api/quotations/${id}/lines/${lineId}`);
-      if (flags.json) return asJson(doc);
-      console.log(`line ${lineId} removed; payable now ${money(doc.totals.payableSatang)}`);
+      const r = await call('DELETE', `/api/quotations/${id}/lines/${lineId}`);
+      if (flags.json) return asJson(r);
+      console.log(`line ${lineId} removed; payable now ${money(r.totals.payableSatang)}`);
       return;
     }
     case 'issue': {

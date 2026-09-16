@@ -144,8 +144,7 @@ export function createApp(env = process.env) {
     }
   }
 
-  app.close = () => db.close();
-  return app;
+  return { handle, close: () => db.close() };
 
   function sendJson(res, status, body) {
     const data = JSON.stringify(body, null, 2) + '\n';

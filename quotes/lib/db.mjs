@@ -188,16 +188,37 @@ export function migrate(db) {
   }
 }
 
-/** Run fn inside a transaction; rolls back on throw. Returns fn's result. */
+const inTx = new WeakSet();
+
+/** Run fn inside a transaction, rolling back on throw. Reentrant: an inner
+ *  call nests via SAVEPOINT so a domain function can compose storage calls
+ *  (markStatus -> saveRevision) without clobbering the outer transaction. */
 export function tx(db, fn) {
-  db.exec('BEGIN;');
+  if (inTx.has(db)) {
+    db.exec('SAVEPOINT nested;');
+    try {
+      const out = fn();
+      db.exec('RELEASE nested;');
+      return out;
+    } catch (err) {
+      db.exec('ROLLBACK TO nested;');
+      db.exec('RELEASE nested;');
+      throw err;
+    }
+  }
+  inTx.add(db);
   try {
-    const out = fn();
-    db.exec('COMMIT;');
-    return out;
-  } catch (err) {
-    db.exec('ROLLBACK;');
-    throw err;
+    db.exec('BEGIN;');
+    try {
+      const out = fn();
+      db.exec('COMMIT;');
+      return out;
+    } catch (err) {
+      db.exec('ROLLBACK;');
+      throw err;
+    }
+  } finally {
+    inTx.delete(db);
   }
 }
 

@@ -395,6 +395,170 @@ export function createApi(db) {
       }
     }
 
+    // ---------- invoices ----------
+    // The invoice envelope keeps `totals` a TOP-LEVEL sibling, exactly like the
+    // quotation one: cli.mjs reads r.totals.* flat, so nesting it breaks the CLI.
+    const invEnvelope = (doc, extra = {}) => ({
+      invoice: doc.invoice,
+      client: doc.client,
+      lines: doc.lines,
+      totals: doc.totals,
+      balance: doc.balance,
+      payments: doc.payments,
+      wht_certificates: doc.whtCertificates,
+      issuer: doc.issuer,
+      bank: doc.bank,
+      terms: doc.terms,
+      ...extra,
+    });
+
+    if (path === '/invoices' && method === 'GET') {
+      const clauses = [];
+      const args = [];
+      if (query.status) { clauses.push('status = ?'); args.push(query.status); }
+      if (query.client_id) { clauses.push('client_id = ?'); args.push(Number(query.client_id)); }
+      if (query.month) { clauses.push('issue_date LIKE ?'); args.push(`${query.month}%`); }
+      const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+      return json(200, { invoices: db.prepare(`SELECT * FROM invoices ${where} ORDER BY id DESC`).all(...args) });
+    }
+    if (path === '/invoices' && method === 'POST') {
+      const quotationId = Number(body.quotation_id);
+      if (!Number.isInteger(quotationId)) throw bad('quotation_id is required');
+      if (!db.prepare('SELECT id FROM quotations WHERE id = ?').get(quotationId)) throw missing('quotation');
+      let created;
+      try {
+        created = createInvoiceFromQuotation(db, quotationId, {
+          actor,
+          lang: optStr(body, 'lang', { max: 2 }),
+          issueDate: optStr(body, 'issue_date', { max: 10 }),
+          notes: optStr(body, 'notes'),
+        });
+      } catch (e) { throw bad(e.message); }
+      return json(201, invEnvelope(buildInvoiceDocument(db, created.id)));
+    }
+
+    if (seg[0] === 'invoices' && seg[1]) {
+      const id = Number(seg[1]);
+      if (!Number.isInteger(id)) throw bad('bad invoice id');
+      const inv = db.prepare('SELECT * FROM invoices WHERE id = ?').get(id);
+      if (!inv) throw missing('invoice');
+
+      if (!seg[2] && method === 'GET') return json(200, invEnvelope(buildInvoiceDocument(db, id)));
+
+      if (!seg[2] && method === 'DELETE') {
+        if (inv.status !== 'draft') throw bad('only a draft invoice can be deleted; cancel an issued one instead');
+        tx(db, () => {
+          db.prepare('DELETE FROM invoices WHERE id = ?').run(id);
+          audit(db, actor, 'invoice.delete', 'invoice', id, { number: inv.number });
+        });
+        return json(200, { ok: true });
+      }
+
+      if (seg[2] === 'issue' && method === 'POST') {
+        try {
+          issueInvoice(db, id, { actor, issueDate: optStr(body, 'issue_date', { max: 10 }) });
+        } catch (e) { throw bad(e.message); }
+        return json(200, invEnvelope(buildInvoiceDocument(db, id)));
+      }
+
+      if (seg[2] === 'status' && method === 'POST') {
+        const status = needStr(body, 'status', { max: 20 });
+        try { markInvoiceStatus(db, id, status, actor); } catch (e) { throw bad(e.message); }
+        return json(200, invEnvelope(buildInvoiceDocument(db, id)));
+      }
+
+      if (seg[2] === 'payments') {
+        if (method === 'GET') {
+          return json(200, {
+            payments: db.prepare('SELECT * FROM payments WHERE invoice_id = ? ORDER BY paid_on, id').all(id),
+            balance: invoiceBalance(db, id),
+          });
+        }
+        if (method === 'POST') {
+          const amountSatang = body.amount_satang != null
+            ? Number(body.amount_satang)
+            : parseSatang(needStr(body, 'amount'));
+          try {
+            recordPayment(db, id, {
+              actor,
+              paidOn: optStr(body, 'paid_on', { max: 10 }),
+              amountSatang,
+              method: optStr(body, 'method', { max: 30 }),
+              reference: optStr(body, 'reference', { max: 200 }),
+              note: optStr(body, 'note'),
+            });
+          } catch (e) { throw bad(e.message); }
+          return json(201, invEnvelope(buildInvoiceDocument(db, id)));
+        }
+        if (method === 'DELETE' && seg[3]) {
+          const pid = Number(seg[3]);
+          const p = db.prepare('SELECT * FROM payments WHERE id = ? AND invoice_id = ?').get(pid, id);
+          if (!p) throw missing('payment');
+          tx(db, () => {
+            db.prepare('DELETE FROM payments WHERE id = ?').run(pid);
+            // reversing a payment un-settles the invoice
+            if (inv.status === 'paid') db.prepare("UPDATE invoices SET status='issued' WHERE id = ?").run(id);
+            audit(db, actor, 'payment.delete', 'invoice', id, { payment_id: pid, amount_satang: p.amount_satang });
+          });
+          return json(200, invEnvelope(buildInvoiceDocument(db, id)));
+        }
+      }
+
+      if (seg[2] === 'wht' && method === 'POST') {
+        const baseSatang = body.base_satang != null ? Number(body.base_satang) : parseSatang(needStr(body, 'base'));
+        const whtSatang = body.wht_satang != null ? Number(body.wht_satang) : parseSatang(needStr(body, 'wht'));
+        try {
+          recordWhtCertificate(db, {
+            actor, invoiceId: id,
+            certNumber: optStr(body, 'cert_number', { max: 100 }),
+            issuedOn: optStr(body, 'issued_on', { max: 10 }),
+            pndForm: optStr(body, 'pnd_form', { max: 10 }) || 'PND53',
+            baseSatang, whtSatang,
+            ratePercent: optStr(body, 'rate_percent', { max: 10 }),
+            payerName: optStr(body, 'payer_name', { max: 300 }),
+            payerTaxId: optStr(body, 'payer_tax_id', { max: 50 }),
+            filePath: optStr(body, 'file_path', { max: 500 }),
+            note: optStr(body, 'note'),
+          });
+        } catch (e) { throw bad(e.message); }
+        return json(201, invEnvelope(buildInvoiceDocument(db, id)));
+      }
+    }
+
+    // ---------- reports ----------
+    // Worksheets to transcribe. Nothing here files anything with the Revenue
+    // Department, and every figure is read from frozen invoice columns.
+    if (seg[0] === 'reports' && method === 'GET') {
+      const yearOf = () => {
+        if (query.year != null) {
+          const y = Number(query.year);
+          if (!Number.isInteger(y)) throw bad('year must be an integer');
+          return y;
+        }
+        return Number(new Date().getFullYear());
+      };
+      try {
+        if (seg[1] === 'pp30') {
+          const month = Number(query.month);
+          if (!Number.isInteger(month)) throw bad('month is required (1-12)');
+          return json(200, { report: pp30Monthly(db, { year: yearOf(), month }) });
+        }
+        if (seg[1] === 'income') return json(200, { report: incomeByMonth(db, { year: yearOf() }) });
+        if (seg[1] === 'wht') return json(200, { report: whtRegister(db, { from: query.from, to: query.to }) });
+        if (seg[1] === 'pnd') {
+          const half = query.half != null ? Number(query.half) : null;
+          if (half != null && half !== 1 && half !== 2) throw bad('half must be 1 or 2');
+          return json(200, { report: pndSummary(db, { year: yearOf(), half }) });
+        }
+        if (seg[1] === 'pipeline') {
+          return json(200, { report: pipelineSummary(db, { year: query.year ? Number(query.year) : null }) });
+        }
+      } catch (e) {
+        if (e instanceof ApiError) throw e;
+        throw bad(e.message);
+      }
+    }
+
     throw missing(`route ${method} ${path}`);
   }
 

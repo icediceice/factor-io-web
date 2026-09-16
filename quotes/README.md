@@ -92,6 +92,128 @@ boundary as decimal STRINGS; quantities as decimal strings ("0.5" = half a
 day). Issued quotations are frozen — corrections mean a new draft or a
 superseding quote.
 
+## Accounting: quotation → tax invoice → settlement
+
+The lifecycle, and the only legal moves between states:
+
+    draft → issued → proposed → accepted → invoiced → paid
+                  ↘ declined      ↘ cancelled / superseded
+
+`issued → proposed` is the "we have put this in front of the customer" step;
+`accepted` is what unlocks invoicing. Illegal jumps (`draft → paid`, going
+backwards) are refused by `lib/quote.mjs` and surface as HTTP 400, not 500.
+
+### The tax point is the invoice issue date
+
+Income is recognised on **accrual**, dated by the tax invoice's `issue_date` —
+not when the cash lands. That date is also the VAT tax point, so it decides
+which PP 30 period the output VAT falls into. The Revenue Code tax point for
+services is the earliest of: payment made, tax invoice issued, or service
+utilised; issuing the invoice is the event this system records.
+
+`issue_date` is written in Asia/Bangkok at write time (`lib/money.mjs:todayBkk`),
+and reports match months by plain string prefix. The timezone decision is made
+once, on write. An invoice issued at 23:30 on 31 January Bangkok time is stored
+as `2026-01-31` and lands in January — there is no UTC drift at a month edge.
+
+### Rates are FROZEN onto the invoice
+
+A quotation recomputes its totals from live settings on every read. An invoice
+must not: a figure already transcribed onto a filed PP 30 cannot be allowed to
+move because someone edited `vat.rate_percent` months later.
+
+So `issueInvoice()` is the single place that reads rates from settings. It
+copies `vat_rate_percent`, `wht_rate_percent`, `wht_mode` and every satang
+total onto the invoice row, once, and every report and PDF reads only those
+stored columns. Editing a rate afterwards changes nothing that was already
+issued. This is pinned by tests at three levels — unit, report, and smoke.
+
+Raising an invoice also **snapshots the lines**, so editing the source
+quotation afterwards cannot move an invoiced figure.
+
+### Withholding tax: `memo` vs `deduct`
+
+WHT is computed on the **net, pre-VAT base**, never on the VAT-inclusive total.
+The `wht.apply` setting decides how it appears, and the two modes settle
+differently:
+
+| Mode | Invoice face | Customer transfers | Does the certificate settle? |
+|---|---|---|---|
+| `memo` | full grand total | grand − WHT | **Yes** — it closes the gap |
+| `deduct` | grand − WHT | the invoice face | **No** — already deducted |
+
+Worked example at 7% VAT / 3% WHT on a net of 10,000.00: VAT 700.00, grand
+10,700.00, WHT 300.00, so the customer transfers 10,400.00. In `memo` mode the
+invoice says 10,700.00 and the certificate for 300.00 settles the remainder; in
+`deduct` mode the invoice says 10,400.00 and only cash can settle it. Counting
+the certificate in `deduct` mode would mark an invoice paid while cash is still
+owed.
+
+### Reports are worksheets, never a filing channel
+
+Nothing in this system submits anything to the Revenue Department. The reports
+produce figures to **read and transcribe** onto a return, and they are
+deliberately honest about what they cannot know:
+
+- **PP 30** (monthly VAT, due the 15th on paper / 23rd by e-filing): output
+  side only. `inputVatSatang` and `netPayableSatang` return `null`, never `0` —
+  a zero there would be a false statement on a return. Expenses are out of
+  scope, so input VAT is yours to add by hand.
+- A 0% invoice sets `unclassified: true`. Zero-rated and exempt sales occupy
+  **different boxes** on the PP 30 and this system has no per-invoice tax
+  classification, so it refuses to guess. Classify those by hand.
+- **PND 50 / 51**: revenue and creditable withholding only. `expensesSatang`
+  and `taxableProfitSatang` are `null` for the same reason.
+- **WHT register**: certificates received are a **credit** against the
+  company's own income tax, never a cost.
+- Only `issued` and `paid` invoices are income. Drafts and cancelled invoices
+  are not.
+
+### Settings keys this adds
+
+| Key | Default | Meaning |
+|---|---|---|
+| `invoice.number_format` | `INV-{YYYY}{MM}{SEQ:4}` | Own counter; never collides with quote numbers |
+| `invoice.payment_terms_days` | `30` | Drives `due_date` from the issue date |
+| `invoice.terms_en` / `invoice.terms_th` | — | Printed on the tax invoice |
+| `tax.entity_type` | `company` | Co., Ltd. — PP 30 / PND 50 / 51 |
+| `tax.vat_registered` | `1` | |
+| `tax.branch_code` | `00000` | Head office; frozen onto each invoice |
+| `tax.fiscal_year_end` | `12-31` | |
+| `company.branch_th` / `company.branch_en` | สำนักงานใหญ่ / Head Office | Printed on the document |
+
+Existing `vat.rate_percent`, `wht.rate_percent` and `wht.apply` keep their
+meaning — they are simply *copied* onto an invoice at issue instead of being
+read live.
+
+### Tax invoice document
+
+`templates/invoice.mjs` carries the mandatory particulars from the Revenue
+Department's VAT page (rd.go.th/english/6043.html §6): the words "Tax invoice"
+prominently, the issuer's name/address/TIN, the purchaser's name and address,
+the serial number, the description/value/quantity, the VAT amount as its own
+figure, and the date of issuance.
+
+**Per-line discounts render as their own visible column, and must stay that
+way.** Under §3.1 a discount leaves the VAT base *only if* it is clearly shown
+on the tax invoice — a discount folded into a unit price is not deductible.
+
+A draft invoice is still renderable so it can be proofed, but it is watermarked
+"NOT A VALID TAX INVOICE" and its filename carries `-DRAFT`: an unissued
+document has no tax point.
+
+### Agent usage
+
+    node cli.mjs propose 1                 # issued  → proposed
+    node cli.mjs accept 1                  # proposed → accepted
+    node cli.mjs invoice 1                 # raise a draft invoice
+    node cli.mjs inv-issue 1               # FREEZES the rates; sets the tax point
+    node cli.mjs pay 1 --amount 10400.00 --method transfer
+    node cli.mjs wht-add 1 --base 10000.00 --wht 300.00 --form PND53
+    node cli.mjs inv-pdf 1 --lang th -o invoice.pdf
+    node cli.mjs report pp30 --year 2026 --month 9
+    node cli.mjs report income --year 2026
+
 ## Design notes
 
 - **Money is integer satang everywhere**; rounding happens once per derived

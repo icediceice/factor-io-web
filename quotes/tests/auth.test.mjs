@@ -99,7 +99,8 @@ describe('request authentication lanes', () => {
   const req = (headers) => ({ headers });
 
   test('valid cookie authenticates the human lane with the email', () => {
-    const token = signSession('op@factor-io.com', SECRET, 3600, now);
+    // real-clock token: authenticate() verifies against Date.now() internally
+    const token = signSession('op@factor-io.com', SECRET, 3600);
     const r = authenticate(req({ cookie: `quotes_session=${token}` }), cfg);
     assert.deepEqual(r, { email: 'op@factor-io.com', lane: 'human' });
   });

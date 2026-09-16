@@ -183,7 +183,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
            display:flex; justify-content:space-between; }
 </style>
 </head>
-<body>
+<body${'' /* #flat debug hook set by the dump script */}>
 <div class="doc">
   <header>
     <div>

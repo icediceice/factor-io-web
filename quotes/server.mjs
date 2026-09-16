@@ -41,7 +41,7 @@ export function createApp(env = process.env) {
     // Dev lane exists ONLY in the zero-config case: the moment the operator
     // sets ANY credential (agent token or session secret), unauthenticated
     // requests are refused even on loopback.
-    const anyAuth = Boolean(cfg.agentToken || cfg.secret || cfg.clientId);
+    const anyAuth = Boolean(auth.cfg.agentToken || auth.cfg.secret || auth.cfg.clientId);
     if (!configured && !anyAuth && loopback && site !== 'cross-site') return { email: 'dev', lane: 'human' };
     return { email: '', lane: null };
   }

@@ -99,7 +99,6 @@ superseding quote.
   own host-only cookie (`quotes_session`), own allowlist (board fallback).
 - Thai PDFs need a Thai font on the host: `fonts-tlwg-*` (Loma) is present on
   light-worker; the deploy box must have it or TH renders fallback glyphs.
-  light-worker; the deploy box must have it or TH renders fallback glyphs.
    **cloudflared ingress** (deploy/cloudflared-quotes.yml), then reload both.
 8. **First sign-in**: open https://quotes.factor-io.com, sign in with an
    allowlisted Google account, and fill in Settings (company block, tax IDs,

@@ -30,6 +30,19 @@ class ApiError extends Error {
 const bad = (msg) => new ApiError(400, msg);
 const missing = (what) => new ApiError(404, `${what} not found`);
 
+/** API envelope for a quotation document: header, client, lines and totals
+ *  are siblings so `quotation.id`, `totals.grandSatang` read flat. */
+const docEnvelope = (doc, extra = {}) => ({
+  quotation: doc.quotation,
+  client: doc.client,
+  lines: doc.lines,
+  totals: doc.totals,
+  issuer: doc.issuer,
+  bank: doc.bank,
+  terms: doc.terms,
+  ...extra,
+});
+
 const needStr = (body, key, { max = 2000 } = {}) => {
   const v = body?.[key];
   if (typeof v !== 'string' || !v.trim()) throw bad(`${key} is required`);

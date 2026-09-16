@@ -131,6 +131,21 @@ export function createApp(env = process.env) {
     '.woff2': 'font/woff2',
   };
 
+  async function pdfRoute(res, quotationId, lang) {
+    try {
+      const doc = buildQuoteDocument(db, quotationId);
+      const { buffer, filename, chromium } = await renderQuotationPdf(doc, lang === 'th' ? 'th' : 'en');
+      res.writeHead(200, {
+        'content-type': 'application/pdf',
+        'content-disposition': `inline; filename="${filename}"`,
+        'x-rendered-by': chromium,
+      });
+      return res.end(buffer);
+    } catch (e) {
+      return sendJson(res, e.message.includes('no Chromium') ? 503 : 500, { error: e.message });
+    }
+  }
+
   async function serveStatic(res, path) {
     let rel = path === '/' || path === '/quotes' || path === '/quotes/'
       ? '/index.html'

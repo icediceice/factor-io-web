@@ -63,18 +63,3 @@ export function renderShell(active, title, subtitle) {
 }
 // (resume duplicated this block once; the copy below was removed)
 /* DUP-MARKER */
-export function renderShell(active, title, subtitle) {
-  document.title = `${title} · Factor I/O Quotes`;
-  const here = location.pathname.split('/').pop() || 'index.html';
-  const header = el(`<header class="site-header"><div class="header-inner">
-    <a class="brand" href="index.html">FACTOR<span> I/O</span></a>
-    <nav id="main-nav" aria-label="Main">
-      ${navLinks.map(([, label, href]) => `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
-    </nav>
-    <a class="button quiet" href="/auth/logout" style="background:transparent;color:var(--muted);border-color:var(--line)">Sign out</a>
-  </div></header>`);
-  document.body.prepend(header);
-  const main = el(`<div class="wrap"><h1>${title}</h1><p class="sub">${subtitle ?? ''}</p></div>`);
-  document.body.append(main);
-  return main;
-}

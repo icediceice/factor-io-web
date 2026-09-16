@@ -365,17 +365,23 @@ export function createApi(db) {
         }
       }
 
+      // markStatus throws plain Errors for an invalid or illegal transition.
+      // Those are CLIENT errors — without this mapping they escape as a 500,
+      // which tells the caller the server broke when in fact they asked for a
+      // move the state machine forbids.
       if (seg[2] === 'issue' && method === 'POST') {
         const count = db.prepare('SELECT COUNT(*) c FROM quotation_lines WHERE quotation_id = ?').get(id).c;
         if (!count) throw bad('cannot issue a quotation with no lines');
-        const { status, rev } = markStatus(db, id, 'issued', actor);
-        return json(200, docEnvelope(buildQuoteDocument(db, id), { status, rev }));
+        let result;
+        try { result = markStatus(db, id, 'issued', actor); } catch (e) { throw bad(e.message); }
+        return json(200, docEnvelope(buildQuoteDocument(db, id), { status: result.status, rev: result.rev }));
       }
 
       if (seg[2] === 'status' && method === 'POST') {
         const status = needStr(body, 'status', { max: 20 });
-        const { status: s, rev } = markStatus(db, id, status, actor);
-        return json(200, docEnvelope(buildQuoteDocument(db, id), { status: s, rev }));
+        let result;
+        try { result = markStatus(db, id, status, actor); } catch (e) { throw bad(e.message); }
+        return json(200, docEnvelope(buildQuoteDocument(db, id), { status: result.status, rev: result.rev }));
       }
 
       if (seg[2] === 'revisions') {

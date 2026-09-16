@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789452974918",
-  "generated_at": "2026-09-15T06:16:14.918Z",
-  "snapshot_digest": "e4ba9048554cc50c",
+  "refresh_id": "refresh-1789539622071",
+  "generated_at": "2026-09-16T06:20:22.071Z",
+  "snapshot_digest": "3a340996e469782b",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-e4ba9048554cc50c.json",
-      "digest": "e4ba9048554cc50c",
-      "bytes": 2847308
+      "path": "catalog-3a340996e469782b.json",
+      "digest": "3a340996e469782b",
+      "bytes": 2897683
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "3c72a9b715c02ec4",
+      "digest": "11f40f959dfc6d24",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-15T06:16:14.918Z",
-      "last_success_at": "2026-09-15T06:16:14.918Z",
-      "expires_at": "2026-09-18T06:16:14.918Z",
-      "root_digest": "a8ca6e53118f3278",
-      "record_count": 427,
+      "observed_at": "2026-09-16T06:20:22.071Z",
+      "last_success_at": "2026-09-16T06:20:22.071Z",
+      "expires_at": "2026-09-19T06:20:22.071Z",
+      "root_digest": "fff6517ef80eb50b",
+      "record_count": 425,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-15T06:16:14.918Z",
-      "last_success_at": "2026-09-15T06:16:14.918Z",
-      "expires_at": "2026-09-18T06:16:14.918Z",
-      "root_digest": "fc8cb025e7aac814",
-      "record_count": 3054,
+      "observed_at": "2026-09-16T06:20:22.071Z",
+      "last_success_at": "2026-09-16T06:20:22.071Z",
+      "expires_at": "2026-09-19T06:20:22.071Z",
+      "root_digest": "e6165bdd0891e144",
+      "record_count": 3126,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-14T00:00:00.000Z",
-      "last_success_at": "2026-09-15T06:16:32.727Z",
-      "expires_at": "2026-09-21T23:59:59.999Z",
-      "root_digest": "3c72a9b715c02ec4",
+      "observed_at": "2026-09-15T00:00:00.000Z",
+      "last_success_at": "2026-09-16T06:20:45.206Z",
+      "expires_at": "2026-09-22T23:59:59.999Z",
+      "root_digest": "11f40f959dfc6d24",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -97,6 +97,796 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/agnes-2.5-flash",
+      "name": "aihubmix/agnes-2.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/agnes-2.5-pro",
+      "name": "aihubmix/agnes-2.5-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/cc-glm-5.1",
+      "name": "aihubmix/cc-glm-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/claude-fable-5",
+      "name": "aihubmix/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/claude-haiku-4-5",
+      "name": "aihubmix/claude-haiku-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/claude-opus-4-8-think",
+      "name": "aihubmix/claude-opus-4-8-think",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/claude-opus-5",
+      "name": "aihubmix/claude-opus-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/claude-sonnet-5",
+      "name": "aihubmix/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/coding-glm-5.3",
+      "name": "aihubmix/coding-glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/coding-kimi-k3",
+      "name": "aihubmix/coding-kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/coding-xiaomi-mimo-v2-omni",
+      "name": "aihubmix/coding-xiaomi-mimo-v2-omni",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/coding-xiaomi-mimo-v2.5",
+      "name": "aihubmix/coding-xiaomi-mimo-v2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/coding-xiaomi-mimo-v2.5-pro",
+      "name": "aihubmix/coding-xiaomi-mimo-v2.5-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/command-a-plus-05-2026",
+      "name": "aihubmix/command-a-plus-05-2026",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/deepseek-v4-flash",
+      "name": "aihubmix/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/deepseek-v4-pro",
+      "name": "aihubmix/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/doubao-seed-2-0-code-preview",
+      "name": "aihubmix/doubao-seed-2-0-code-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/doubao-seed-2-0-lite-260428",
+      "name": "aihubmix/doubao-seed-2-0-lite-260428",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/doubao-seed-2-0-mini",
+      "name": "aihubmix/doubao-seed-2-0-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/doubao-seed-2-0-pro",
+      "name": "aihubmix/doubao-seed-2-0-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/doubao-seed-2-1-turbo",
+      "name": "aihubmix/doubao-seed-2-1-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/ernie-5.1",
+      "name": "aihubmix/ernie-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemini-3-flash-preview",
+      "name": "aihubmix/gemini-3-flash-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemini-3-flash-preview-search",
+      "name": "aihubmix/gemini-3-flash-preview-search",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemini-3.1-pro-preview",
+      "name": "aihubmix/gemini-3.1-pro-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemini-3.1-pro-preview-customtools",
+      "name": "aihubmix/gemini-3.1-pro-preview-customtools",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemini-3.5-flash-lite",
+      "name": "aihubmix/gemini-3.5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemini-3.7-flash",
+      "name": "aihubmix/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemma-4-26b-a4b-it",
+      "name": "aihubmix/gemma-4-26b-a4b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gemma-4-31b-it",
+      "name": "aihubmix/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/glm-5.2-fast-preview",
+      "name": "aihubmix/glm-5.2-fast-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/glm-5.3",
+      "name": "aihubmix/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/glm-5.3-flash",
+      "name": "aihubmix/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/glm-5v-turbo",
+      "name": "aihubmix/glm-5v-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.3-codex",
+      "name": "aihubmix/gpt-5.3-codex",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.4-high",
+      "name": "aihubmix/gpt-5.4-high",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.4-low",
+      "name": "aihubmix/gpt-5.4-low",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.4-mini",
+      "name": "aihubmix/gpt-5.4-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.4-nano",
+      "name": "aihubmix/gpt-5.4-nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.5",
+      "name": "aihubmix/gpt-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.5-pro",
+      "name": "aihubmix/gpt-5.5-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.6-luna",
+      "name": "aihubmix/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.6-sol-disc",
+      "name": "aihubmix/gpt-5.6-sol-disc",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-5.6-terra",
+      "name": "aihubmix/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/gpt-chat-latest",
+      "name": "aihubmix/gpt-chat-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/grok-4-20-non-reasoning",
+      "name": "aihubmix/grok-4-20-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/grok-4-20-reasoning",
+      "name": "aihubmix/grok-4-20-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/grok-4.6",
+      "name": "aihubmix/grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/grok-build-0.1",
+      "name": "aihubmix/grok-build-0.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/hy3",
+      "name": "aihubmix/hy3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/hy4-preview",
+      "name": "aihubmix/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/kimi-k2.6",
+      "name": "aihubmix/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/kimi-k2.7-code-highspeed",
+      "name": "aihubmix/kimi-k2.7-code-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/kimi-k3",
+      "name": "aihubmix/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/longcat-2.0",
+      "name": "aihubmix/longcat-2.0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/mai-thinking-1",
+      "name": "aihubmix/mai-thinking-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/mimo-v2-omni",
+      "name": "aihubmix/mimo-v2-omni",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/mimo-v2-pro",
+      "name": "aihubmix/mimo-v2-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/minimax-m2.7",
+      "name": "aihubmix/minimax-m2.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/minimax-m3",
+      "name": "aihubmix/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/muse-spark-1.2",
+      "name": "aihubmix/muse-spark-1.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3-coder-next",
+      "name": "aihubmix/qwen3-coder-next",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.5-122b-a10b",
+      "name": "aihubmix/qwen3.5-122b-a10b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.5-397b-a17b",
+      "name": "aihubmix/qwen3.5-397b-a17b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.6-27b",
+      "name": "aihubmix/qwen3.6-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.6-35b-a3b",
+      "name": "aihubmix/qwen3.6-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.6-max-preview",
+      "name": "aihubmix/qwen3.6-max-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.7-plus",
+      "name": "aihubmix/qwen3.7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.8-2.4t-a95b",
+      "name": "aihubmix/qwen3.8-2.4t-a95b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.8-flash",
+      "name": "aihubmix/qwen3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/qwen3.8-max",
+      "name": "aihubmix/qwen3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_write",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aihubmix/step-3.7-flash",
+      "name": "aihubmix/step-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -33730,7 +34520,7 @@
     },
     {
       "id": "openrouter:anthropic/claude-opus-5",
-      "name": "Claude Opus 5",
+      "name": "Anthropic: Claude Opus 5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33744,7 +34534,7 @@
     },
     {
       "id": "openrouter:anthropic/claude-opus-5:batch",
-      "name": "Claude Opus 5 (batch)",
+      "name": "Anthropic: Claude Opus 5 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -34779,7 +35569,7 @@
       "id": "openrouter:google/gemma-4-31b-it:batch",
       "name": "Google: Gemma 4 31B (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -36702,7 +37492,7 @@
       "id": "openrouter:openai/gpt-oss-20b:batch",
       "name": "OpenAI: gpt-oss-20b (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -37850,7 +38640,7 @@
       "id": "openrouter:thinkingmachines/inkling-small:batch",
       "name": "Thinking Machines: Inkling Small (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",

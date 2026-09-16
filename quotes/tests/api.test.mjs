@@ -73,10 +73,12 @@ describe('quotation flow', () => {
       body: { kind: 'service', description_en: 'Workshop', qty: '0.5', unit_price: '35000.00' },
     });
     assert.equal(withHalf.status, 201);
-    const doc = JSON.parse(withHalf.body).quotation;
+    const doc = JSON.parse(withHalf.body); // envelope: quotation / totals / lines
     assert.equal(doc.totals.subtotalSatang, 12250000);  // 105000 + 17500 THB
-    assert.equal(doc.totals.vatSatang, 857500);        // 7%
+    assert.equal(doc.totals.vatSatang, 857500);         // 7%
     assert.equal(doc.totals.grandSatang, 13107500);
+    assert.equal(doc.lines.length, 2);
+    assert.equal(doc.lines[1].qtyMilli, 500);           // 0.5-day half-day line
 
     const issue = await call('POST', `/quotations/${q.id}/issue`);
     assert.equal(issue.status, 200);

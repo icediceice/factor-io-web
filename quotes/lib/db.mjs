@@ -174,17 +174,40 @@ export function openDb(path) {
 
 export function migrate(db) {
   const { user_version: current } = db.prepare('PRAGMA user_version;').get();
-  for (const m of MIGRATIONS) {
-    if (m.version <= current) continue;
-    db.exec('BEGIN;');
-    try {
-      db.exec(m.sql);
-      db.exec(`PRAGMA user_version = ${m.version};`);
-      db.exec('COMMIT;');
-    } catch (err) {
-      db.exec('ROLLBACK;');
-      throw new Error(`migration ${m.version} (${m.name}) failed: ${err.message}`);
+  const pending = MIGRATIONS.filter((m) => m.version > current);
+  if (pending.length === 0) return;
+
+  // Foreign keys are disabled around the whole run, OUTSIDE any transaction.
+  // Two SQLite rules force this and both are load-bearing:
+  //   - DROP TABLE with FKs enabled performs an implicit DELETE FROM, and that
+  //     DELETE *does* fire ON DELETE CASCADE. A table-rebuild migration would
+  //     therefore wipe quotation_lines and quotation_revisions.
+  //   - PRAGMA foreign_keys is a no-op inside a transaction, so the guard
+  //     cannot live in a migration's own SQL — it would be silently ignored.
+  // This is step 1 and step 12 of SQLite's official 12-step ALTER procedure.
+  const { foreign_keys: fkWasOn } = db.prepare('PRAGMA foreign_keys;').get();
+  if (fkWasOn) db.exec('PRAGMA foreign_keys = OFF;');
+  try {
+    for (const m of pending) {
+      db.exec('BEGIN;');
+      try {
+        db.exec(m.sql);
+        // Step 10: prove the rebuild left no dangling reference before commit.
+        if (fkWasOn) {
+          const violations = db.prepare('PRAGMA foreign_key_check;').all();
+          if (violations.length > 0) {
+            throw new Error(`foreign_key_check reported ${violations.length} violation(s): ${JSON.stringify(violations)}`);
+          }
+        }
+        db.exec(`PRAGMA user_version = ${m.version};`);
+        db.exec('COMMIT;');
+      } catch (err) {
+        db.exec('ROLLBACK;');
+        throw new Error(`migration ${m.version} (${m.name}) failed: ${err.message}`);
+      }
     }
+  } finally {
+    if (fkWasOn) db.exec('PRAGMA foreign_keys = ON;');
   }
 }
 

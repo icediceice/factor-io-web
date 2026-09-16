@@ -140,7 +140,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
            border-bottom:2.5pt solid var(--accent); padding-bottom:10pt; gap:16pt; }
   .brand { font-size:15pt; font-weight:750; letter-spacing:.06em; }
   .brand .io { color:var(--accent); font-family:var(--mono); }
-  .issuer { margin-top:6pt; color:var(--muted); font-size:8.5pt; line-height:1.55; }
+  .issuer { margin-top:5pt; color:var(--muted); font-size:8.5pt; line-height:1.45; }
   .issuer strong { color:var(--ink); font-size:10pt; }
   .logo { max-height:52pt; max-width:150pt; }
   h1 { font-size:14.5pt; letter-spacing:.12em; margin:0 0 6pt; font-weight:750; color:var(--accent); }

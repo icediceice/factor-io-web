@@ -232,7 +232,10 @@ describe('http auth boundary (createApp actorFor lanes)', () => {
       const res = fakeRes();
       await app.handle(fakeReq({
         method: 'POST', url: '/api/clients', remote: '100.83.80.43',
-        headers: { 'tailscale-user-login': 'forged@evil.example' },
+        headers: {
+          'content-type': 'application/json',
+          'tailscale-user-login': 'forged@evil.example',
+        },
         body: { name: 'Tailnet Client' },
       }), res);
       assert.equal(res.statusCode, 201);
@@ -246,6 +249,93 @@ describe('http auth boundary (createApp actorFor lanes)', () => {
       check.close();
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  test('tailscale mode rejects cross-site and foreign-origin writes', async () => {
+    const tailEnv = {
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    };
+    let lookups = 0;
+    const app = createApp(tailEnv, { tailnetWhoisImpl: async () => { lookups++; return 'real@factor-io.com'; } });
+    try {
+      for (const headers of [
+        { 'sec-fetch-site': 'cross-site', 'content-type': 'text/plain;charset=UTF-8' },
+        {
+          'sec-fetch-site': 'same-origin',
+          origin: 'http://attacker.example',
+          host: 'quotes.factor-io.com',
+          'content-type': 'application/json',
+        },
+      ]) {
+        const res = fakeRes();
+        await app.handle(fakeReq({
+          method: 'POST', url: '/api/clients', remote: '100.83.80.43',
+          headers, body: { name: 'CSRF Client' },
+        }), res);
+        assert.equal(res.statusCode, 403);
+      }
+      assert.equal(lookups, 0);
+    } finally { app.close(); }
+  });
+
+  test('tailscale mode admits same-origin JSON writes', async () => {
+    const app = createApp({
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    }, { tailnetWhoisImpl: async () => 'real@factor-io.com' });
+    try {
+      const res = fakeRes();
+      await app.handle(fakeReq({
+        method: 'POST', url: '/api/clients', remote: '100.83.80.43',
+        headers: {
+          'sec-fetch-site': 'same-origin',
+          origin: 'http://quotes.factor-io.com',
+          host: 'quotes.factor-io.com',
+          'content-type': 'application/json',
+        },
+        body: { name: 'Same-origin Client' },
+      }), res);
+      assert.equal(res.statusCode, 201);
+    } finally { app.close(); }
+  });
+
+  test('API POST and PUT require JSON content type', async () => {
+    const app = createApp({
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    }, { tailnetWhoisImpl: async () => 'real@factor-io.com' });
+    try {
+      const res = fakeRes();
+      await app.handle(fakeReq({
+        method: 'POST', url: '/api/clients', remote: '100.83.80.43',
+        headers: { 'content-type': 'text/plain;charset=UTF-8' },
+        body: { name: 'Simple Request Client' },
+      }), res);
+      assert.equal(res.statusCode, 415);
+      assert.match(res.body, /application\/json/);
+    } finally { app.close(); }
+  });
+
+  test('agent bearer bypasses browser provenance checks in tailscale mode', async () => {
+    const app = createApp({
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com', QUOTES_AGENT_TOKEN: 'agent-secret-token',
+    }, { tailnetWhoisImpl: async () => { throw new Error('bearer request must not call whois'); } });
+    try {
+      const res = fakeRes();
+      await app.handle(fakeReq({
+        method: 'POST', url: '/api/clients', remote: '127.0.0.1',
+        headers: {
+          authorization: 'Bearer agent-secret-token',
+          'sec-fetch-site': 'cross-site',
+          origin: 'http://attacker.example',
+          'content-type': 'application/json',
+        },
+        body: { name: 'Agent Client' },
+      }), res);
+      assert.equal(res.statusCode, 201);
+    } finally { app.close(); }
   });
 
   test('non-tailnet peers and failed whois are refused with 403', async () => {

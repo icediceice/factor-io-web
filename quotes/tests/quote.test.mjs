@@ -148,3 +148,105 @@ describe('documents and revisions', () => {
     assert.equal(row.actor, 'agent');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Migration proof. Plan step 5 promised BOTH installation paths, and only one
+// of them is interesting: a fresh DB never exercises migration 3's quotations
+// rebuild. That rebuild is a one-way door — DROP TABLE with foreign keys ON
+// performs an implicit DELETE that FIRES ON DELETE CASCADE, which would take
+// quotation_lines and quotation_revisions with it. Nothing but a populated
+// v2 upgrade can catch that regression, so it is committed here rather than
+// checked by hand once.
+// ---------------------------------------------------------------------------
+
+/** A genuine schema-v2 database: migrations 1-2 applied, user_version = 2. */
+function openV2Db() {
+  const db = new DatabaseSync(':memory:');
+  db.exec('PRAGMA foreign_keys = ON;');   // as openDb() does — this is what makes DROP cascade
+  for (const m of MIGRATIONS.filter((m) => m.version <= 2)) {
+    db.exec(m.sql);
+    db.exec(`PRAGMA user_version = ${m.version};`);
+  }
+  return db;
+}
+
+describe('migrations', () => {
+  test('a fresh database lands on user_version 4', () => {
+    const db = openDb(':memory:');
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 4);
+    // Migration 4's seeds are present and are the accounting keys, not stubs.
+    const s = getSettings(db, '');
+    assert.equal(s['invoice.number_format'], 'INV-{YYYY}{MM}-{SEQ:4}');
+    assert.equal(s['invoice.payment_terms_days'], '30');
+    assert.equal(s['tax.branch_code'], '00000');
+    // The widened CHECK actually took: a v3-only status must be storable.
+    db.prepare(`INSERT INTO clients (name) VALUES ('X')`).run();
+    db.prepare(`INSERT INTO quotations (number, client_id, status) VALUES ('QT-X', 1, 'proposed')`).run();
+    assert.equal(db.prepare(`SELECT status FROM quotations WHERE number='QT-X'`).get().status, 'proposed');
+  });
+
+  test('a POPULATED v2 database upgrades to 4 with every row and status intact', () => {
+    const db = openV2Db();
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 2);
+
+    const { lastInsertRowid: clientId } = db.prepare(
+      `INSERT INTO clients (name, tax_id) VALUES (?, ?)`
+    ).run('Legacy Client Ltd', '0105558000000');
+    // Every status the v2 CHECK allowed — each one must survive the rebuild.
+    const v2Statuses = ['draft', 'issued', 'superseded', 'cancelled'];
+    const before = [];
+    for (const [i, status] of v2Statuses.entries()) {
+      const { lastInsertRowid: qid } = db.prepare(
+        `INSERT INTO quotations (number, client_id, status, lang, issue_date, notes)
+         VALUES (?, ?, ?, 'th', '2026-01-0' || ?, ?)`
+      ).run(`QT-202601-000${i + 1}`, clientId, status, i + 1, `legacy ${status}`);
+      db.prepare(
+        `INSERT INTO quotation_lines
+           (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, discount_satang)
+         VALUES (?, 1, 'service', ?, 1000, 'day', 3500000, 0)`
+      ).run(qid, `line for ${status}`);
+      db.prepare(
+        `INSERT INTO quotation_revisions (quotation_id, rev, snapshot_json, actor)
+         VALUES (?, 1, ?, 'legacy')`
+      ).run(qid, JSON.stringify({ status }));
+      before.push({ id: Number(qid), number: `QT-202601-000${i + 1}`, status });
+    }
+    db.prepare(`INSERT INTO quote_counters (key, value) VALUES ('QT-202601', 4)`).run();
+
+    migrate(db);
+
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 4);
+    // Ids, numbers and statuses all preserved — a rebuild that renumbered rows
+    // would silently detach every child row and every stored revision.
+    const after = db.prepare('SELECT id, number, status, lang, notes FROM quotations ORDER BY id').all();
+    assert.equal(after.length, before.length);
+    for (const [i, row] of after.entries()) {
+      assert.equal(Number(row.id), before[i].id);
+      assert.equal(row.number, before[i].number);
+      assert.equal(row.status, before[i].status);
+      assert.equal(row.lang, 'th');
+      assert.equal(row.notes, `legacy ${before[i].status}`);
+    }
+    // THE CASCADE CHECK: children still attached, not deleted by the DROP.
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_lines').get().c, before.length);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_revisions').get().c, before.length);
+    for (const q of before) {
+      assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_lines WHERE quotation_id = ?').get(q.id).c, 1);
+      assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_revisions WHERE quotation_id = ?').get(q.id).c, 1);
+    }
+    // No dangling references anywhere after the rebuild.
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check;').all(), []);
+    // The counter table is untouched, so numbering cannot restart and collide.
+    assert.equal(db.prepare(`SELECT value FROM quote_counters WHERE key='QT-202601'`).get().value, 4);
+    // And the new tables exist with the widened status CHECK live.
+    db.prepare(`UPDATE quotations SET status = 'invoiced' WHERE id = ?`).run(before[0].id);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM invoices').get().c, 0);
+    assert.equal(getSettings(db, '')['invoice.number_format'], 'INV-{YYYY}{MM}-{SEQ:4}');
+  });
+
+  test('migrating an already-current database is a no-op', () => {
+    const db = openDb(':memory:');
+    migrate(db);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 4);
+  });
+});

@@ -35,7 +35,7 @@ Layout:
     # click through the UI; the moment any credential env is set, that lane
     # closes and only real sessions/bearer tokens work.
 
-    node smoke.mjs                  # boots its own server, 12 end-to-end checks
+    node smoke.mjs                  # boots its own server, 32 end-to-end checks
     node --test tests/*.test.mjs    # unit/integration suite
 
 ## Operator install (light-worker, production)

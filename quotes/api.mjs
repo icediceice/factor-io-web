@@ -368,7 +368,7 @@ export function createApi(db) {
       if (seg[2] === 'status' && method === 'POST') {
         const status = needStr(body, 'status', { max: 20 });
         const { status: s, rev } = markStatus(db, id, status, actor);
-        return json(200, { status: s, rev, quotation: buildQuoteDocument(db, id) });
+        return json(200, docEnvelope(buildQuoteDocument(db, id), { status: s, rev }));
       }
 
       if (seg[2] === 'revisions') {

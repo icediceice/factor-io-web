@@ -1,7 +1,8 @@
 // quotes/tests/quote.test.mjs — totals engine, numbering, snapshots.
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { openDb, getSettings } from '../lib/db.mjs';
+import { DatabaseSync } from 'node:sqlite';
+import { openDb, getSettings, migrate, MIGRATIONS } from '../lib/db.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
   saveRevision, markStatus,

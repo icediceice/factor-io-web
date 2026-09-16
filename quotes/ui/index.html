@@ -75,8 +75,8 @@ async function loadStats() {
 // Only the moves the state machine actually allows are offered, so the UI can
 // never present a button that the server will refuse.
 const NEXT = {
-  issued: [['proposed', 'Mark proposed'], ['declined', 'Declined']],
-  proposed: [['accepted', 'Accept'], ['declined', 'Declined']],
+  issued: [['proposed', 'Mark proposed'], ['declined', 'Decline']],
+  proposed: [['accepted', 'Accept'], ['declined', 'Decline']],
 };
 
 async function loadList() {

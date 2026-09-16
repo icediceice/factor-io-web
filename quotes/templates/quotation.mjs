@@ -125,8 +125,10 @@ export function renderQuotationHtml(doc, lang = 'en') {
 <title>${esc(t.title)} ${esc(q.number)}</title>
 <style>
   @page { size: A4; margin: 16mm 14mm 18mm; }
-  /* screen preview mirrors the print content box (A4 - margins) */
-  @media screen { body { padding: 16mm 14mm; background: #e8e6de; } .doc { background: #fff; padding: 6mm; box-shadow: 0 1px 6px rgba(23,45,42,.18); } }
+  /* screen preview mirrors the print content box (A4 - margins);
+     #flat = debug view at exact print geometry (no paper chrome) */
+  @media screen { body { padding: 16mm 14mm; background: #e8e6de; } .doc { background: #fff; padding: 6mm; box-shadow: 0 1px 6px rgba(23,45,42,.18); }
+    body.flat { padding: 0; background: #fff; width: 182mm; } body.flat .doc { padding: 0; box-shadow: none; } }
   :root { --paper:#f4f3ed; --ink:#172d2a; --muted:#4b605b; --accent:#006a57;
           --tint:#e2ede5; --line:#bdc9c1;
           --sans:${lang === 'th' ? "'Loma','Noto Sans Thai'," : ''}Inter,Tahoma,system-ui,sans-serif;

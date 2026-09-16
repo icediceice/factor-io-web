@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-16 (quotes/ accounting v1 — invoices, frozen tax rates, PP 30 / PND worksheets)
+> Last updated: 2026-09-16 (quotes/ tailnet-only identity and ingress boundary)
 
 ## Current Focus
 
@@ -48,6 +48,12 @@ Upcoming work in priority order:
 *(Populated by escalation events. Survives compaction — do not remove.)*
 
 ## Work Log
+
+#### Tailnet-only quotes access — Tailscale whois identity, no public ingress (2026-09-16, plan local:7a072d4af16539306df77244f42271b1)
+
+- **What:** Replaced the production browser perimeter for `quotes.factor-io.com` with direct tailnet access on light-worker's `100.111.93.20`. The app derives the human actor from `tailscale whois` of the socket peer, lowercases and allowlists `UserProfile.LoginName`, caches per-peer lookups for 60 seconds, and denies on timeout, malformed output, non-tailnet source or unavailable tailscaled. Client `Tailscale-User-*` headers are ignored. OAuth remains tested behind explicit `QUOTES_AUTH_MODE=oauth`; production has no default mode. The bearer-agent loopback lane remains.
+- **Ingress:** The listener accepts only explicit loopback or `100.64.0.0/10` binds. nginx and cloudflared quote-ingress assets were removed. The DNS-only A record points at the unroutable-on-public-internet Tailscale address; WireGuard supplies transport encryption, with no browser TLS/padlock by operator decision.
+- **Operational prerequisite:** Back up `/home/ice/.factor-quotes/data/quotes.db` before the first restart because pending migrations 3 and 4 include a quotations-table rebuild. The deployment and real tailnet/off-tailnet outcome checks remain the final ship gate.
 
 #### Accounting v1 — quotation→invoice→payment lifecycle, frozen tax rates, PP 30 / PND worksheets (2026-09-16, plan local:c370ca159c0fa687ccc38c27ab5a0e84)
 

@@ -354,7 +354,7 @@ export function createApi(db) {
             db.prepare('DELETE FROM quotation_lines WHERE id = ?').run(lineId);
             audit(db, actor, 'line.remove', 'quotation', id, { line_id: lineId, description: line.description_en });
           });
-          return json(200, { ok: true, quotation: buildQuoteDocument(db, id) });
+          return json(200, docEnvelope(buildQuoteDocument(db, id), { ok: true }));
         }
       }
 

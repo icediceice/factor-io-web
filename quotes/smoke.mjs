@@ -13,8 +13,8 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const PORT = 18790;
-const BASE = `http://127.0.0.1:${PORT}`;
+// port 0 = ephemeral: concurrent smoke runs never collide (EADDRINUSE lesson)
+let BASE = null; // resolved from the server's own "listening on" line
 const TOKEN = 'smoke-agent-token-0123456789';
 const DB = join(process.env.HOME ?? tmpdir(), 'quotes-smoke-run');
 

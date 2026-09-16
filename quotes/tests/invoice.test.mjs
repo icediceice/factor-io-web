@@ -233,6 +233,38 @@ describe('settlement by cash and by withholding certificate', () => {
     assert.equal(db.prepare('SELECT status s FROM invoices WHERE id=?').get(id).s, 'paid');
   });
 
+  test('THE DEDUCT CASE: the certificate must NOT settle again what was already deducted', () => {
+    const { db, qid } = seedAccepted();
+    setSetting(db, 'wht.apply', 'deduct', 'op@x.io');
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    issueInvoice(db, id, {});
+    // deduct mode: the invoice face is already 10,700,000 - 300,000 = 10,400,000.
+    assert.equal(db.prepare('SELECT payable_satang p FROM invoices WHERE id=?').get(id).p, 10400000);
+
+    // The customer underpays by exactly the WHT and sends the certificate. The
+    // certificate is a tax credit, NOT a second settlement — the 300,000 of
+    // cash is genuinely still owed and the invoice must stay open.
+    recordPayment(db, id, { paidOn: '2026-09-20', amountSatang: 10100000 });
+    recordWhtCertificate(db, {
+      invoiceId: id, certNumber: 'WHT-002', issuedOn: '2026-09-20',
+      pndForm: 'PND53', baseSatang: 10000000, whtSatang: 300000, ratePercent: '3',
+      payerName: 'Acme Ltd', payerTaxId: '0105558000000',
+    });
+
+    const b = invoiceBalance(db, id);
+    assert.equal(b.whtMode, 'deduct');
+    assert.equal(b.withheldSatang, 300000, 'still REPORTED — it is a real PND credit');
+    assert.equal(b.settledSatang, 10100000, 'but it must not count toward settlement');
+    assert.equal(b.outstandingSatang, 300000);
+    assert.equal(b.settled, false);
+    assert.equal(db.prepare('SELECT status s FROM invoices WHERE id=?').get(id).s, 'issued');
+
+    // Only the real cash closes it.
+    recordPayment(db, id, { paidOn: '2026-09-25', amountSatang: 300000 });
+    assert.equal(invoiceBalance(db, id).settled, true);
+    assert.equal(db.prepare('SELECT status s FROM invoices WHERE id=?').get(id).s, 'paid');
+  });
+
   test('a WHT amount larger than its base is refused', () => {
     const { db, qid } = seedAccepted();
     const { id } = createInvoiceFromQuotation(db, qid, {});

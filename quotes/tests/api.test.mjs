@@ -124,7 +124,7 @@ describe('quotation flow', () => {
     assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_lines').get().c, 0);
     assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_revisions').get().c, 0);
     const q2 = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
-    assert.notEqual(q2.quotation.number, q.quotation.number);
+    assert.notEqual(q2.number, q.number); // counters never reuse a number
   });
 });
 

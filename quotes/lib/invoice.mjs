@@ -361,7 +361,7 @@ export function recordPayment(db, invoiceId, { paidOn, amountSatang, method = 't
     const info = db.prepare(`
       INSERT INTO payments (invoice_id, paid_on, amount_satang, method, reference, note, created_by)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(invoiceId, str(paidOn) || todayBkk(), amount, str(method) || 'transfer', str(reference), str(note), actor);
+    `).run(invoiceId, accountingDate(paidOn, 'paid_on'), amount, str(method) || 'transfer', str(reference), str(note), actor);
 
     const after = invoiceBalance(db, invoiceId);
     if (after.settled && inv.status === 'issued') markInvoiceStatus(db, invoiceId, 'paid', actor);

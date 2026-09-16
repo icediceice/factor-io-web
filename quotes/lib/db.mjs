@@ -356,7 +356,7 @@ export function migrate(db) {
   //     cannot live in a migration's own SQL — it would be silently ignored.
   // This is step 1 and step 12 of SQLite's official 12-step ALTER procedure.
   const { foreign_keys: fkWasOn } = db.prepare('PRAGMA foreign_keys;').get();
-  if (false) db.exec('PRAGMA foreign_keys = OFF;'); // TEMP-FALSIFIER
+  if (fkWasOn) db.exec('PRAGMA foreign_keys = OFF;');
   try {
     for (const m of pending) {
       db.exec('BEGIN;');

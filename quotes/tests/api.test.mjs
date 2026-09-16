@@ -65,8 +65,8 @@ describe('quotation flow', () => {
     const { db, call } = boot();
     const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Acme' } })).body).client;
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
-    assert.match(q.quotation.number, /^QT-\d{6}-\d{4}$/);
-    assert.equal(q.quotation.status, 'draft');
+    assert.match(q.number, /^QT-\d{6}-\d{4}$/);
+    assert.equal(q.status, 'draft');
 
     await call('POST', `/quotations/${q.quotation.id}/lines`, { body: { kind: 'service', description_en: 'Discovery', qty: '3', unit_price: '35000.00' } });
     const withHalf = await call('POST', `/quotations/${q.quotation.id}/lines`, {

@@ -26,7 +26,20 @@ table.list tr:hover td{background:var(--tint)}
 .status{display:inline-block;padding:2px 9px;border:1px solid var(--line);font:11.5px var(--mono)}
 .status-issued{border-color:var(--accent);color:var(--accent);background:var(--tint)}
 .status-draft{color:var(--muted)}
-.status-cancelled,.status-superseded{color:var(--focus);border-color:var(--focus)}
+.status-cancelled,.status-superseded,.status-declined{color:var(--focus);border-color:var(--focus)}
+/* Pipeline stages read as provisional; only money-bearing states get the solid
+   accent fill, so 'proposed' can never be mistaken for 'paid' at a glance. */
+.status-proposed{color:var(--ink);border-color:var(--ink);border-style:dashed}
+.status-accepted{color:var(--accent);border-color:var(--accent);border-style:dashed}
+.status-invoiced{border-color:var(--accent);color:var(--accent);background:var(--tint)}
+.status-paid{background:var(--accent);color:var(--white);border-color:var(--accent)}
+/* Dashboard: pipeline and recognised income must never share a visual weight. */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+.stat{border:1px solid var(--line);padding:14px 16px;background:var(--white)}
+.stat.lead{border-color:var(--accent);border-width:2px}
+.stat .label{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat .value{font-size:1.6rem;font-weight:750;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .note{font-size:12.5px;color:var(--muted);margin-top:4px}
 label{display:block;font-size:13.5px;font-weight:600;margin-bottom:14px}
 input,select,textarea{display:block;width:100%;min-height:44px;margin-top:5px;background:var(--white);color:var(--ink);border:1px solid var(--muted);border-radius:2px;padding:9px 11px;font:15px/1.5 var(--font)}
 textarea{resize:vertical}

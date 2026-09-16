@@ -44,6 +44,19 @@ export function createApp(env = process.env, options = {}) {
     const loopback = addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
     if (auth.cfg.mode === 'tailscale') {
       if (!isTailnetAddr(addr)) return { email: '', lane: null, status: 403 };
+      const method = (req.method ?? 'GET').toUpperCase();
+      const stateChanging = method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+      if (stateChanging) {
+        const site = String(req.headers['sec-fetch-site'] ?? '').toLowerCase();
+        if (site === 'cross-site') return { email: '', lane: null, status: 403 };
+        const origin = String(req.headers.origin ?? '');
+        // Tailnet mode is deliberately HTTP-only. Missing browser provenance is
+        // admitted for direct tailnet tools; a browser-supplied origin must be
+        // this request's own origin.
+        if (origin && origin !== `http://${req.headers.host ?? ''}`) {
+          return { email: '', lane: null, status: 403 };
+        }
+      }
       const email = await lookupTailnetLogin(addr);
       if (!email || !emailAllowed(email, auth.cfg.list)) return { email: '', lane: null, status: 403 };
       return { email, lane: 'human' };
@@ -82,6 +95,12 @@ export function createApp(env = process.env, options = {}) {
         if (invPdfMatch) {
           if (req.method !== 'GET') return sendJson(res, 405, { error: 'GET only' });
           return invoicePdfRoute(res, Number(invPdfMatch[1]), url.searchParams.get('lang'));
+        }
+        if (req.method === 'POST' || req.method === 'PUT') {
+          const contentType = String(req.headers['content-type'] ?? '').split(';', 1)[0].trim().toLowerCase();
+          if (contentType !== 'application/json') {
+            return sendJson(res, 415, { error: 'content-type must be application/json' });
+          }
         }
         const body = await readBody(req);
         const reply = await api({

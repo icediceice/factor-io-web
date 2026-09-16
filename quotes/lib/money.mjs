@@ -8,9 +8,15 @@
 
 export const MAX_SAFE_SATANG = Number.MAX_SAFE_INTEGER;
 
-/** Parse a decimal money string ("1250.5", "1250.55") into satang. */
-export function parseSatang(str) {
-  const s = String(str ?? '').trim();
+/** Parse a decimal money string ("1250.5", "1250.55") into satang.
+ *  Numbers are deliberately refused: money enters as strings or integers,
+ *  never as a JS float — a number here is exactly how 0.30000000000000004
+ *  bugs are born. */
+export function parseSatang(value) {
+  if (typeof value === 'number') {
+    throw new Error(`invalid money amount: ${value} (send a decimal string, not a number)`);
+  }
+  const s = String(value ?? '').trim();
   if (!/^\d{1,15}(\.\d{1,2})?$/.test(s)) {
     throw new Error(`invalid money amount: ${JSON.stringify(String(str))} (expected decimal with up to 2 places)`);
   }

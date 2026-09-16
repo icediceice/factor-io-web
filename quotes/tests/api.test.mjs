@@ -100,8 +100,9 @@ describe('quotation flow', () => {
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
     await call('POST', `/quotations/${q.id}/lines`, { body: { kind: 'hardware', description_en: 'Box', qty: '1', unit_price: '10000.00' } });
     const u = await call('PUT', `/quotations/${q.id}/lines/1`, { body: { discount_satang: 99999999 } });
-    assert.equal(JSON.parse(u.body).quotation.totals.discountSatang, 1000000); // clamped to subtotal
-    assert.equal(JSON.parse(u.body).quotation.totals.netSatang, 0);
+    const upd = JSON.parse(u.body); // envelope: totals at the top level
+    assert.equal(upd.totals.discountSatang, 1000000); // clamped to subtotal
+    assert.equal(upd.totals.netSatang, 0);
   });
 
   test('agent lane drives the same flow (actor "agent" in audit)', async () => {

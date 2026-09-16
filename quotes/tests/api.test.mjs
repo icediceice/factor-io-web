@@ -106,7 +106,7 @@ describe('quotation flow', () => {
 
   test('agent lane drives the same flow (actor "agent" in audit)', async () => {
     const { db, call } = boot();
-    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } }, { actor: 'agent' })).body).client;
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' }, actor: 'agent' })).body).client;
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id }, actor: 'agent' })).body).quotation;
     await call('POST', `/quotations/${q.id}/issue`, { actor: 'agent' });
     const audits = db.prepare('SELECT DISTINCT actor FROM audit_log').all();

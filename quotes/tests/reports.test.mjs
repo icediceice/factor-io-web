@@ -230,6 +230,17 @@ describe('pipeline is never presented as income', () => {
     assert.equal(s.outstandingReceivableSatang, 10700000);
   });
 
+  test('a PARTLY paid invoice reports only what is still owed', () => {
+    const db = db0();
+    const qid = accepted(db, 'QT-P4');
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    issueInvoice(db, id, { issueDate: '2026-09-15' });
+    // Half collected. The invoice is still 'issued', so summing payable_satang
+    // would claim the whole 10,700,000 is outstanding.
+    recordPayment(db, id, { amountSatang: 5000000 });
+    assert.equal(pipelineSummary(db, { year: 2026 }).outstandingReceivableSatang, 5700000);
+  });
+
   test('a settled invoice leaves the outstanding receivable', () => {
     const db = db0();
     const qid = accepted(db, 'QT-P3');

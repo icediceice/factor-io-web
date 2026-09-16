@@ -26,13 +26,14 @@ const ok = (name, cond, detail = '') => {
 };
 
 const call = async (method, path, body) => {
+  const sendsJson = method === 'POST' || method === 'PUT';
   const res = await fetch(BASE + path, {
     method,
     headers: {
       authorization: `Bearer ${TOKEN}`,
-      ...(body ? { 'content-type': 'application/json' } : {}),
+      ...(sendsJson ? { 'content-type': 'application/json' } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
   const json = await res.json().catch(() => null);
   return { status: res.status, json };

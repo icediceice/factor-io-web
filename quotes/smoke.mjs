@@ -119,6 +119,90 @@ try {
     if (process.env.SMOKE_KEEP) await writeFile(join(DB, `smoke-${lang}.pdf`), buf);
   }
 
+  // ---- accounting: pipeline -> invoice -> settlement -> PP 30 ----------
+  const qid = q.json.quotation.id;
+  const proposed = await call('POST', `/api/quotations/${qid}/status`, { status: 'proposed' });
+  ok('quotation -> proposed', proposed.status === 200 && proposed.json.status === 'proposed');
+  const accepted = await call('POST', `/api/quotations/${qid}/status`, { status: 'accepted' });
+  ok('quotation -> accepted', accepted.status === 200 && accepted.json.status === 'accepted');
+
+  const badJump = await call('POST', `/api/quotations/${qid}/status`, { status: 'draft' });
+  ok('backwards transition refused', badJump.status === 400, badJump.json?.error);
+
+  const inv = await call('POST', '/api/invoices', { quotation_id: qid, issue_date: '2026-09-15' });
+  ok('draft invoice raised from the quotation',
+    inv.status === 201 && /^INV-\d{6}-\d{4}$/.test(inv.json.invoice.number), inv.json.invoice?.number);
+  const invId = inv.json.invoice.id;
+
+  const noPay = await call('POST', `/api/invoices/${invId}/payments`, { amount: '1.00' });
+  ok('a draft invoice refuses payment', noPay.status === 400, noPay.json?.error);
+
+  const issued = await call('POST', `/api/invoices/${invId}/issue`, { issue_date: '2026-09-15' });
+  ok('invoice issued — tax point stamped',
+    issued.status === 200 && issued.json.invoice.issueDate === '2026-09-15', issued.json.invoice?.issueDate);
+  // same figures as the quotation: net 12,400,000; VAT 7% 868,000; WHT 3% 372,000
+  const it = issued.json.totals;
+  ok('invoice totals frozen exact (satang)',
+    it.netSatang === 12400000 && it.vatSatang === 868000 && it.grandSatang === 13268000 && it.whtSatang === 372000,
+    `net ${it.netSatang} vat ${it.vatSatang} wht ${it.whtSatang}`);
+  ok('issuing the invoice moved the quotation to invoiced',
+    (await call('GET', `/api/quotations/${qid}`)).json.quotation.status === 'invoiced');
+
+  const reIssue = await call('POST', `/api/invoices/${invId}/issue`, {});
+  ok('an issued invoice refuses re-issue (frozen)', reIssue.status === 400, reIssue.json?.error);
+
+  const over = await call('POST', `/api/invoices/${invId}/payments`, { amount_satang: 99999999 });
+  ok('overpayment refused', over.status === 400, over.json?.error);
+
+  // memo WHT: customer transfers grand - wht, then hands over the certificate
+  const pay = await call('POST', `/api/invoices/${invId}/payments`, {
+    amount_satang: 12896000, paid_on: '2026-09-25', reference: 'TRF-SMOKE',
+  });
+  ok('payment recorded, still short by exactly the WHT',
+    pay.status === 201 && pay.json.balance.outstandingSatang === 372000,
+    `outstanding ${pay.json?.balance?.outstandingSatang}`);
+
+  const wht = await call('POST', `/api/invoices/${invId}/wht`, {
+    base_satang: 12400000, wht_satang: 372000, pnd_form: 'PND53',
+    cert_number: 'WHT-SMOKE-1', issued_on: '2026-09-25', rate_percent: '3',
+  });
+  ok('WHT certificate settles the invoice',
+    wht.status === 201 && wht.json.balance.settled === true && wht.json.invoice.status === 'paid',
+    `outstanding ${wht.json?.balance?.outstandingSatang}, status ${wht.json?.invoice?.status}`);
+
+  const pp30 = await call('GET', '/api/reports/pp30?year=2026&month=9');
+  ok('PP 30 worksheet reports the output VAT',
+    pp30.status === 200 && pp30.json.report.outputVatSatang === 868000 && pp30.json.report.vatableNetSatang === 12400000,
+    `output VAT ${pp30.json?.report?.outputVatSatang}`);
+  ok('PP 30 names its filing deadline',
+    pp30.json.report.dueOn.paper === '2026-10-15' && pp30.json.report.dueOn.efiling === '2026-10-23');
+  ok('PP 30 leaves the input side explicitly absent, not zero',
+    pp30.json.report.inputVatSatang === null && pp30.json.report.netPayableSatang === null);
+
+  const octPp30 = await call('GET', '/api/reports/pp30?year=2026&month=10');
+  ok('a September invoice does not leak into October', octPp30.json.report.invoiceCount === 0);
+
+  // THE INVARIANT: editing the rate must not move an already-filed figure.
+  await call('PUT', '/api/settings', { settings: { 'vat.rate_percent': '25' } });
+  const pp30After = await call('GET', '/api/reports/pp30?year=2026&month=9');
+  ok('FILED FIGURES DO NOT MOVE when vat.rate_percent is edited',
+    pp30After.json.report.outputVatSatang === 868000,
+    `after edit: ${pp30After.json?.report?.outputVatSatang} (was 868000)`);
+  await call('PUT', '/api/settings', { settings: { 'vat.rate_percent': '7' } });
+
+  const whtReg = await call('GET', '/api/reports/wht?from=2026-01-01&to=2026-12-31');
+  ok('WHT register credits the certificate',
+    whtReg.json.report.totalWhtSatang === 372000 && whtReg.json.report.byForm.PND53 === 372000);
+
+  const pipeline = await call('GET', '/api/reports/pipeline?year=2026');
+  ok('pipeline is separated from recognised income',
+    pipeline.json.report.recognisedIncome.netSatang === 12400000
+    && pipeline.json.report.outstandingReceivableSatang === 0);
+
+  const income = await call('GET', '/api/reports/income?year=2026');
+  ok('income lands in September on the tax-invoice date',
+    income.json.report.months[8].netSatang === 12400000 && income.json.report.totalNetSatang === 12400000);
+
   const audits = await call('GET', '/api/quotations');
   ok('quota of sanity: list still answers', audits.status === 200);
 } catch (e) {

@@ -61,6 +61,8 @@ export function renderShell(active, title, subtitle) {
   document.body.append(main);
   return main;
 }
+// (resume duplicated this block once; the copy below was removed)
+/* DUP-MARKER */
 export function renderShell(active, title, subtitle) {
   document.title = `${title} · Factor I/O Quotes`;
   const here = location.pathname.split('/').pop() || 'index.html';

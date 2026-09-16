@@ -239,10 +239,19 @@ export function pipelineSummary(db, { year } = {}) {
     SELECT COALESCE(SUM(net_satang), 0) AS net, COUNT(*) AS n
     FROM invoices WHERE status IN ${INCOME_STATUSES}${yearFilter}
   `).get();
-  const outstanding = db.prepare(`
-    SELECT COALESCE(SUM(payable_satang), 0) AS payable
-    FROM invoices WHERE status = 'issued'${yearFilter}
-  `).get();
+  // Outstanding is summed from invoiceBalance PER INVOICE, not as
+  // SUM(payable_satang). A partially-paid invoice is still 'issued', so
+  // summing the payable column would report the full face value of an invoice
+  // that is half collected and overstate the receivable. invoiceBalance is
+  // also the single place that knows a withholding certificate settles in
+  // 'memo' mode but not in 'deduct' — duplicating that rule here is exactly
+  // how it gets it wrong in one of the two places.
+  const openIds = db.prepare(`
+    SELECT id FROM invoices WHERE status = 'issued'${yearFilter}
+  `).all();
+  const outstanding = {
+    payable: openIds.reduce((a, r) => a + invoiceBalance(db, r.id).outstandingSatang, 0),
+  };
 
   return {
     pipeline: {

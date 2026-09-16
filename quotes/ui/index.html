@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quotations · Factor I/O</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<script type="module">
+import { api, fmtSatang, el, toast, statusChip, renderShell } from './app.js';
+
+const main = renderShell('index.html', 'Quotations', 'Author quotations, issue them into an immutable revision, and download the PDF.');
+
+const listCard = el(`<section class="card">
+  <h2>Quotations</h2>
+  <div id="list"><div class="empty">Loading…</div></div>
+</section>`);
+
+const newCard = el(`<section class="card">
+  <h2>New quotation</h2>
+  <form id="new">
+    <div class="grid">
+      <label>Client
+        <select name="client_id" required><option value="">Loading clients…</option></select>
+      </label>
+      <label>Language
+        <select name="lang"><option value="en">English</option><option value="th">ไทย</option></select>
+      </label>
+      <label>Issue date (blank = today)
+        <input name="issue_date" type="date">
+      </label>
+    </div>
+    <label>Notes
+      <textarea name="notes" rows="2" placeholder="Scope summary, references…"></textarea>
+    </label>
+    <div class="row-actions"><button type="submit">Create draft</button></div>
+  </form>
+</section>`);
+
+main.append(listCard, newCard);
+
+async function loadList() {
+  const { quotations } = await api('GET', '/quotations');
+  const box = listCard.querySelector('#list');
+  if (!quotations.length) { box.innerHTML = '<div class="empty">No quotations yet — create the first one below.</div>'; return; }
+  const clients = await api('GET', '/clients');
+  const nameOf = (id) => clients.clients.find((c) => c.id === id)?.name ?? `client #${id}`;
+  box.innerHTML = `<table class="list"><thead><tr>
+    <th>No.</th><th>Client</th><th>Status</th><th>Issued</th><th class="num">Total payable</th><th></th>
+  </tr></thead><tbody>
+    ${[...quotations].reverse().map((q) => `<tr>
+      <td class="mono"><a href="quote.html?id=${q.id}">${q.number}</a></td>
+      <td>${nameOf(q.client_id)}</td>
+      <td>${statusChip(q.status)}</td>
+      <td>${q.issue_date ?? ''}</td>
+      <td class="num muted" data-id="${q.id}">…</td>
+      <td><a class="button quiet" href="quote.html?id=${q.id}">Open</a></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+  // totals need the document; fill lazily
+  for (const q of quotations) {
+    api('GET', `/quotations/${q.id}`).then((d) => {
+      const cell = box.querySelector(`td[data-id="${q.id}"]`);
+      if (cell) cell.textContent = fmtSatang(d.totals.payableSatang, d.totals.currency);
+    }).catch(() => {});
+  }
+}
+
+async function loadClients(select) {
+  const { clients } = await api('GET', '/clients');
+  select.innerHTML = clients.length
+    ? clients.map((c) => `<option value="${c.id}">${c.name}</option>`).join('')
+    : '<option value="">— create a client first —</option>';
+}
+
+newCard.querySelector('#new').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  try {
+    const body = { client_id: Number(f.get('client_id')), lang: f.get('lang'), notes: f.get('notes') };
+    if (f.get('issue_date')) body.issue_date = f.get('issue_date');
+    const { quotation } = await api('POST', '/quotations', body);
+    toast(`Created ${quotation.number}`);
+    location.href = `quote.html?id=${quotation.id}`;
+  } catch (err) { toast(err.message, 'error'); }
+});
+
+loadClients(newCard.querySelector('select[name=client_id]')).catch((e) => toast(e.message, 'error'));
+loadList().catch((e) => toast(e.message, 'error'));
+</script>
+</body>
+</html>

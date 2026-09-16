@@ -51,7 +51,14 @@ let serverLog = '';
 server.stdout.on('data', (d) => { serverLog += d; });
 server.stderr.on('data', (d) => { serverLog += d; });
 
-async function waitHealthy(tries = 40) {
+async function waitHealthy(tries = 60) {
+  // the server binds port 0, so learn the assigned port from its own log line
+  for (let i = 0; i < tries && !BASE; i++) {
+    const m = serverLog.match(/listening on (http:\/\/[^\s)]+)/);
+    if (m) BASE = m[1];
+    else await new Promise((r) => setTimeout(r, 250));
+  }
+  if (!BASE) return false;
   for (let i = 0; i < tries; i++) {
     try {
       const r = await fetch(`${BASE}/healthz`);

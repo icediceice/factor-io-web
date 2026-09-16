@@ -52,6 +52,12 @@ export function createApp(env = process.env) {
       if (path.startsWith('/api/')) {
         const identity = actorFor(req);
         if (!identity.lane) return sendJson(res, 401, { error: 'unauthorized' });
+        // binary route: the rendered quotation PDF (GET only, no body)
+        const pdfMatch = path.match(/^\/api\/quotations\/(\d+)\/pdf$/);
+        if (pdfMatch) {
+          if (req.method !== 'GET') return sendJson(res, 405, { error: 'GET only' });
+          return pdfRoute(res, Number(pdfMatch[1]), url.searchParams.get('lang'));
+        }
         const body = await readBody(req);
         const reply = await api({
           method: req.method,

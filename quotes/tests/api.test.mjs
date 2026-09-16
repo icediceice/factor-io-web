@@ -110,7 +110,7 @@ describe('quotation flow', () => {
     const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' }, actor: 'agent' })).body).client;
     const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id }, actor: 'agent' })).body).quotation;
     await call('POST', `/quotations/${q.id}/issue`, { actor: 'agent' });
-    const audits = db.prepare('SELECT DISTINCT actor FROM audit_log').all();
+    const audits = db.prepare('SELECT DISTINCT actor FROM audit_log').all().map((r) => ({ ...r }));
     assert.deepEqual(audits, [{ actor: 'agent' }]);
   });
 

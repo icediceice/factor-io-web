@@ -20,7 +20,11 @@ import { dirname, resolve } from 'node:path';
 export const SATANG = 100;          // minor units per THB
 export const MILLI = 1000;          // qty resolution: 1 unit = 1000 milli
 
-const MIGRATIONS = [
+// Exported so the migration test can build a genuine OLD-VERSION database by
+// applying a prefix of this list, then prove migrate() upgrades it in place.
+// Asserting on a fresh DB only would never exercise the quotations rebuild,
+// which is the one-way door in migration 3.
+export const MIGRATIONS = [
   {
     version: 1,
     name: 'core-schema',

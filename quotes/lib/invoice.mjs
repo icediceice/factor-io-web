@@ -1,0 +1,467 @@
+// quotes/lib/invoice.mjs — tax invoices, payments and received WHT certificates.
+//
+// An invoice is a FIRST-CLASS entity, not a quotation status. It carries its
+// own number series, its own issue_date (which IS the VAT tax point for the
+// income this system reports), and one quotation may bill as several invoices
+// (deposit + balance). A quotation status could express none of that.
+//
+// THE RULE THIS MODULE EXISTS TO ENFORCE: an issued invoice is FROZEN. Its
+// vat_rate_percent, wht_rate_percent and every *_satang column are copied out
+// of settings exactly once, at issue, and never recomputed. lib/quote.mjs's
+// computeTotals reads settings LIVE on every call, which is correct for a
+// quotation (a live working document) and catastrophic for a filed figure —
+// editing vat.rate_percent would retroactively move a number already written
+// onto a PP 30. Reports read these frozen columns, never settings.
+//
+// Contract boundary matches lib/quote.mjs: DB rows are snake_case, the
+// document object is camelCase, and `totals` stays a TOP-LEVEL sibling in the
+// envelope because cli.mjs reads r.totals.* flat.
+
+import { tx, getSettings, audit } from './db.mjs';
+import { lineSubtotal, vatOf, whtOf, fxToThb, todayBkk, addDaysBkk } from './money.mjs';
+import { markStatus } from './quote.mjs';
+
+export const INVOICE_STATUSES = ['draft', 'issued', 'paid', 'cancelled'];
+
+const INVOICE_TRANSITIONS = {
+  draft:     ['issued', 'cancelled'],
+  issued:    ['paid', 'cancelled'],
+  paid:      [],
+  cancelled: [],
+};
+
+const num = (v) => (v == null ? 0 : Number(v));
+const str = (v) => (v == null ? '' : String(v));
+
+/**
+ * Totals from snapshotted lines + EXPLICIT rates.
+ *
+ * Deliberately does NOT take a settings object: the caller must have already
+ * decided which rates apply and be able to persist them alongside the result.
+ * That signature is the guard rail — it makes "recompute from live settings"
+ * something you have to do on purpose rather than by accident.
+ */
+export function computeInvoiceTotals(lines, { vatRate, whtRate, whtMode, currency, fxRate }) {
+  let subtotalSatang = 0;
+  let discountSatang = 0;
+  for (const line of lines) {
+    const sub = lineSubtotal(line.qtyMilli, line.unitSatang);
+    const disc = Math.min(Math.max(0, Number(line.discountSatang) || 0), sub);
+    subtotalSatang += sub;
+    discountSatang += disc;
+  }
+  const netSatang = subtotalSatang - discountSatang;
+  const vatSatang = vatOf(netSatang, vatRate ?? '0');
+  const grandSatang = netSatang + vatSatang;
+  // WHT is withheld on the NET (pre-VAT) base: 10,000 + 7% VAT = 10,700, less
+  // 3% of 10,000 = 300, so the customer transfers 10,400.
+  const whtSatang = whtOf(netSatang, whtRate ?? '0');
+  const mode = whtMode === 'deduct' ? 'deduct' : 'memo';
+  const payableSatang = mode === 'deduct' ? grandSatang - whtSatang : grandSatang;
+  const totals = {
+    subtotalSatang, discountSatang, netSatang,
+    vatRate: str(vatRate ?? '0'), vatSatang,
+    grandSatang,
+    whtRate: str(whtRate ?? '0'), whtSatang, whtMode: mode,
+    payableSatang,
+    currency: currency ?? 'THB',
+  };
+  if (fxRate && currency && currency !== 'THB') {
+    totals.thbPayableSatang = fxToThb(payableSatang, fxRate);
+  }
+  return totals;
+}
+
+/**
+ * Allocate the next invoice number from settings['invoice.number_format'].
+ * Same tokens and the same monotonic, reuse-proof counter table as quotations
+ * — the prefix keys the row, so INV- and QT- series never collide.
+ */
+export function allocateInvoiceNumber(db, settings, nowMs = Date.now()) {
+  const fmt = settings['invoice.number_format'] ?? 'INV-{YYYY}{MM}-{SEQ:4}';
+  const seqMatch = fmt.match(/\{SEQ:(\d+)\}/);
+  const seqWidth = seqMatch ? Number(seqMatch[1]) : 4;
+  const [y, m, d] = todayBkk(nowMs).split('-');
+  const prefix = fmt
+    .replace(/\{SEQ:\d+\}/, '')
+    .replaceAll('{YYYY}', y)
+    .replaceAll('{MM}', m)
+    .replaceAll('{DD}', d);
+  return tx(db, () => {
+    db.prepare('INSERT INTO quote_counters (key, value) VALUES (?, 0) ON CONFLICT(key) DO NOTHING').run(prefix);
+    db.prepare('UPDATE quote_counters SET value = value + 1 WHERE key = ?').run(prefix);
+    const { value } = db.prepare('SELECT value FROM quote_counters WHERE key = ?').get(prefix);
+    return prefix + String(value).padStart(seqWidth, '0');
+  });
+}
+
+/**
+ * Raise a DRAFT invoice from an accepted quotation, snapshotting its lines.
+ *
+ * The snapshot is the point: editing the quotation afterwards must not move a
+ * figure on an invoice. Totals stored here are PROVISIONAL — issueInvoice()
+ * recomputes and freezes them, because the tax point is the issue date and the
+ * rate that applies is the rate on that date, not on the date of drafting.
+ */
+export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', lang, issueDate, notes = '' } = {}) {
+  return tx(db, () => {
+    const q = db.prepare('SELECT * FROM quotations WHERE id = ?').get(quotationId);
+    if (!q) throw new Error(`quotation ${quotationId} not found`);
+    if (q.status !== 'accepted') {
+      throw new Error(`quotation ${q.number} is '${q.status}' — only an accepted quotation can be invoiced`);
+    }
+    const srcLines = db.prepare(
+      'SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id'
+    ).all(quotationId);
+    if (srcLines.length === 0) throw new Error(`quotation ${q.number} has no lines to invoice`);
+
+    const settings = getSettings(db, '');
+    const number = allocateInvoiceNumber(db, settings);
+    const issue = str(issueDate) || todayBkk();
+    const termsDays = Number(settings['invoice.payment_terms_days'] ?? '30');
+    const totals = computeInvoiceTotals(
+      srcLines.map((l) => ({ qtyMilli: l.qty_milli, unitSatang: l.unit_satang, discountSatang: l.discount_satang })),
+      {
+        vatRate: settings['vat.rate_percent'] ?? '0',
+        whtRate: settings['wht.rate_percent'] ?? '0',
+        whtMode: settings['wht.apply'] ?? 'memo',
+        currency: q.currency || 'THB',
+        fxRate: q.fx_rate,
+      },
+    );
+
+    const info = db.prepare(`
+      INSERT INTO invoices (
+        number, quotation_id, client_id, status, lang, currency,
+        issue_date, due_date, branch_code,
+        vat_rate_percent, wht_rate_percent, wht_mode,
+        subtotal_satang, discount_satang, net_satang, vat_satang,
+        grand_satang, wht_satang, payable_satang,
+        fx_base, fx_rate, fx_as_of, notes, created_by
+      ) VALUES (?, ?, ?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      number, quotationId, q.client_id, str(lang) || q.lang || 'en', q.currency || 'THB',
+      issue, addDaysBkk(issue, termsDays), settings['tax.branch_code'] ?? '00000',
+      totals.vatRate, totals.whtRate, totals.whtMode,
+      totals.subtotalSatang, totals.discountSatang, totals.netSatang, totals.vatSatang,
+      totals.grandSatang, totals.whtSatang, totals.payableSatang,
+      str(q.fx_base), str(q.fx_rate), str(q.fx_as_of), str(notes), actor,
+    );
+    const invoiceId = Number(info.lastInsertRowid);
+
+    const insLine = db.prepare(`
+      INSERT INTO invoice_lines (
+        invoice_id, position, kind, description_en, description_th,
+        qty_milli, unit, unit_satang, discount_satang
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    for (const [i, l] of srcLines.entries()) {
+      insLine.run(invoiceId, i, l.kind, l.description_en, l.description_th,
+        l.qty_milli, l.unit, l.unit_satang, l.discount_satang);
+    }
+
+    audit(db, actor, 'invoice.create', 'invoice', invoiceId, { number, quotationId, lines: srcLines.length });
+    return { id: invoiceId, number, status: 'draft', totals };
+  });
+}
+
+/**
+ * Issue the invoice: stamp the tax point and FREEZE the tax figures.
+ *
+ * This is the only place rates are read from settings for an invoice, and
+ * after it runs nothing recomputes them. Everything downstream — PP 30, the
+ * income report, the PDF — reads the stored columns.
+ */
+export function issueInvoice(db, invoiceId, { actor = 'agent', issueDate } = {}) {
+  return tx(db, () => {
+    const inv = db.prepare('SELECT * FROM invoices WHERE id = ?').get(invoiceId);
+    if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+    if (inv.status !== 'draft') {
+      throw new Error(`invoice ${inv.number} is already '${inv.status}' — an issued invoice is frozen; cancel it and raise a new one`);
+    }
+    const lines = db.prepare(
+      'SELECT * FROM invoice_lines WHERE invoice_id = ? ORDER BY position, id'
+    ).all(invoiceId);
+    if (lines.length === 0) throw new Error(`invoice ${inv.number} has no lines`);
+
+    const settings = getSettings(db, '');
+    const issue = str(issueDate) || str(inv.issue_date) || todayBkk();
+    const termsDays = Number(settings['invoice.payment_terms_days'] ?? '30');
+    const totals = computeInvoiceTotals(
+      lines.map((l) => ({ qtyMilli: l.qty_milli, unitSatang: l.unit_satang, discountSatang: l.discount_satang })),
+      {
+        vatRate: settings['vat.rate_percent'] ?? '0',
+        whtRate: settings['wht.rate_percent'] ?? '0',
+        whtMode: settings['wht.apply'] ?? 'memo',
+        currency: inv.currency || 'THB',
+        fxRate: inv.fx_rate,
+      },
+    );
+
+    db.prepare(`
+      UPDATE invoices SET
+        status = 'issued', issue_date = ?, due_date = ?, branch_code = ?,
+        vat_rate_percent = ?, wht_rate_percent = ?, wht_mode = ?,
+        subtotal_satang = ?, discount_satang = ?, net_satang = ?, vat_satang = ?,
+        grand_satang = ?, wht_satang = ?, payable_satang = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).run(
+      issue, addDaysBkk(issue, termsDays), settings['tax.branch_code'] ?? '00000',
+      totals.vatRate, totals.whtRate, totals.whtMode,
+      totals.subtotalSatang, totals.discountSatang, totals.netSatang, totals.vatSatang,
+      totals.grandSatang, totals.whtSatang, totals.payableSatang,
+      invoiceId,
+    );
+
+    // The quotation follows its invoice into the billed state.
+    if (inv.quotation_id) {
+      const q = db.prepare('SELECT status FROM quotations WHERE id = ?').get(inv.quotation_id);
+      if (q && q.status === 'accepted') markStatus(db, inv.quotation_id, 'invoiced', actor);
+    }
+    audit(db, actor, 'invoice.issue', 'invoice', invoiceId, { number: inv.number, issueDate: issue, taxPoint: issue });
+    return { id: invoiceId, number: str(inv.number), status: 'issued', issueDate: issue, totals };
+  });
+}
+
+/** Transition an invoice with an audit row, guarding illegal moves. */
+export function markInvoiceStatus(db, invoiceId, status, actor = 'agent') {
+  if (!INVOICE_STATUSES.includes(status)) throw new Error(`invalid invoice status: ${status}`);
+  return tx(db, () => {
+    const inv = db.prepare('SELECT status, number FROM invoices WHERE id = ?').get(invoiceId);
+    if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+    const from = str(inv.status);
+    const legal = INVOICE_TRANSITIONS[from] ?? [];
+    if (!legal.includes(status)) {
+      throw new Error(`illegal invoice transition: ${from} -> ${status}`
+        + (legal.length ? ` (allowed: ${legal.join(', ')})` : ` (${from} is terminal)`));
+    }
+    db.prepare("UPDATE invoices SET status = ?, updated_at = datetime('now') WHERE id = ?").run(status, invoiceId);
+    audit(db, actor, 'invoice.status', 'invoice', invoiceId, { from, status });
+    return { status };
+  });
+}
+
+/**
+ * What is still outstanding on an invoice.
+ *
+ * NON-OBVIOUS AND LOAD-BEARING: an invoice is settled by cash AND by tax
+ * withheld at source. When wht.apply is 'memo' we invoice the full VAT-
+ * inclusive amount, but the customer lawfully transfers less and hands over a
+ * withholding certificate for the difference. Counting only bank payments
+ * would leave every such invoice permanently short by the WHT amount and it
+ * would never reach 'paid'. A certificate is tax already paid on our behalf,
+ * so it settles the invoice exactly as cash does.
+ */
+export function invoiceBalance(db, invoiceId) {
+  const inv = db.prepare('SELECT payable_satang FROM invoices WHERE id = ?').get(invoiceId);
+  if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+  const { paid = 0 } = db.prepare(
+    'SELECT COALESCE(SUM(amount_satang), 0) AS paid FROM payments WHERE invoice_id = ?'
+  ).get(invoiceId);
+  const { withheld = 0 } = db.prepare(
+    'SELECT COALESCE(SUM(wht_satang), 0) AS withheld FROM wht_certificates WHERE invoice_id = ?'
+  ).get(invoiceId);
+  const payableSatang = num(inv.payable_satang);
+  const settledSatang = num(paid) + num(withheld);
+  return {
+    payableSatang,
+    paidSatang: num(paid),
+    withheldSatang: num(withheld),
+    settledSatang,
+    outstandingSatang: Math.max(0, payableSatang - settledSatang),
+    settled: settledSatang >= payableSatang,
+  };
+}
+
+/** Record a bank payment against an issued invoice. */
+export function recordPayment(db, invoiceId, { paidOn, amountSatang, method = 'transfer', reference = '', note = '', actor = 'agent' }) {
+  return tx(db, () => {
+    const inv = db.prepare('SELECT status, number FROM invoices WHERE id = ?').get(invoiceId);
+    if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+    if (inv.status === 'draft') throw new Error(`invoice ${inv.number} is still a draft — issue it before recording payment`);
+    if (inv.status === 'cancelled') throw new Error(`invoice ${inv.number} is cancelled`);
+    const amount = Number(amountSatang);
+    if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error(`invalid payment amount: ${amountSatang}`);
+
+    const before = invoiceBalance(db, invoiceId);
+    if (amount > before.outstandingSatang) {
+      throw new Error(
+        `payment of ${amount} satang exceeds the ${before.outstandingSatang} satang outstanding on ${inv.number} `
+        + `(payable ${before.payableSatang}, already settled ${before.settledSatang})`
+      );
+    }
+    const info = db.prepare(`
+      INSERT INTO payments (invoice_id, paid_on, amount_satang, method, reference, note, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(invoiceId, str(paidOn) || todayBkk(), amount, str(method) || 'transfer', str(reference), str(note), actor);
+
+    const after = invoiceBalance(db, invoiceId);
+    if (after.settled && inv.status === 'issued') markInvoiceStatus(db, invoiceId, 'paid', actor);
+    audit(db, actor, 'payment.record', 'invoice', invoiceId, { amountSatang: amount, outstanding: after.outstandingSatang });
+    return { id: Number(info.lastInsertRowid), balance: after };
+  });
+}
+
+/**
+ * Record a withholding-tax certificate RECEIVED from a customer.
+ *
+ * This is tax already remitted to the Revenue Department on our behalf — an
+ * asset, credited against PND 50/51, never a liability. base_satang is the NET
+ * (pre-VAT) amount the customer withheld on.
+ */
+export function recordWhtCertificate(db, { invoiceId = null, paymentId = null, certNumber = '', issuedOn, pndForm = 'PND53', baseSatang, whtSatang, ratePercent = '', payerName = '', payerTaxId = '', filePath = '', note = '', actor = 'agent' }) {
+  return tx(db, () => {
+    if (invoiceId != null) {
+      const inv = db.prepare('SELECT status, number FROM invoices WHERE id = ?').get(invoiceId);
+      if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+      if (inv.status === 'draft') throw new Error(`invoice ${inv.number} is still a draft`);
+    }
+    const base = Number(baseSatang);
+    const wht = Number(whtSatang);
+    if (!Number.isSafeInteger(base) || base < 0) throw new Error(`invalid WHT base: ${baseSatang}`);
+    if (!Number.isSafeInteger(wht) || wht < 0) throw new Error(`invalid WHT amount: ${whtSatang}`);
+    if (wht > base) throw new Error(`WHT ${wht} exceeds its base ${base} — the base is the NET, pre-VAT amount`);
+
+    const info = db.prepare(`
+      INSERT INTO wht_certificates (
+        invoice_id, payment_id, cert_number, issued_on, pnd_form,
+        base_satang, wht_satang, rate_percent, payer_name, payer_tax_id,
+        file_path, note, created_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(invoiceId, paymentId, str(certNumber), str(issuedOn) || todayBkk(), str(pndForm) || 'PND53',
+      base, wht, str(ratePercent), str(payerName), str(payerTaxId), str(filePath), str(note), actor);
+
+    let balance = null;
+    if (invoiceId != null) {
+      balance = invoiceBalance(db, invoiceId);
+      const inv = db.prepare('SELECT status FROM invoices WHERE id = ?').get(invoiceId);
+      if (balance.settled && inv.status === 'issued') markInvoiceStatus(db, invoiceId, 'paid', actor);
+    }
+    audit(db, actor, 'wht.record', 'invoice', invoiceId ?? '', { whtSatang: wht, baseSatang: base, pndForm });
+    return { id: Number(info.lastInsertRowid), balance };
+  });
+}
+
+/** Full invoice document — camelCase, shared by template/API/CLI. */
+export function buildInvoiceDocument(db, invoiceId) {
+  const inv = db.prepare('SELECT * FROM invoices WHERE id = ?').get(invoiceId);
+  if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+  const clientRow = db.prepare('SELECT * FROM clients WHERE id = ?').get(inv.client_id);
+  const lines = db.prepare(
+    'SELECT * FROM invoice_lines WHERE invoice_id = ? ORDER BY position, id'
+  ).all(invoiceId);
+  const settings = getSettings(db, '');
+  const quotation = inv.quotation_id
+    ? db.prepare('SELECT number FROM quotations WHERE id = ?').get(inv.quotation_id)
+    : null;
+
+  // Totals are READ, never recomputed — these are the frozen filed figures.
+  const totals = {
+    subtotalSatang: num(inv.subtotal_satang),
+    discountSatang: num(inv.discount_satang),
+    netSatang: num(inv.net_satang),
+    vatRate: str(inv.vat_rate_percent),
+    vatSatang: num(inv.vat_satang),
+    grandSatang: num(inv.grand_satang),
+    whtRate: str(inv.wht_rate_percent),
+    whtSatang: num(inv.wht_satang),
+    whtMode: str(inv.wht_mode),
+    payableSatang: num(inv.payable_satang),
+    currency: str(inv.currency) || 'THB',
+  };
+  if (inv.fx_rate && totals.currency !== 'THB') {
+    totals.thbPayableSatang = fxToThb(totals.payableSatang, inv.fx_rate);
+  }
+
+  return {
+    invoice: {
+      id: inv.id,
+      number: str(inv.number),
+      status: str(inv.status),
+      lang: str(inv.lang) || 'en',
+      currency: totals.currency,
+      issueDate: str(inv.issue_date),
+      dueDate: str(inv.due_date),
+      branchCode: str(inv.branch_code),
+      quotationId: inv.quotation_id ?? null,
+      quotationNumber: quotation ? str(quotation.number) : '',
+      fxBase: str(inv.fx_base),
+      fxRate: str(inv.fx_rate),
+      fxAsOf: str(inv.fx_as_of),
+      notes: str(inv.notes),
+    },
+    client: clientRow ? {
+      id: clientRow.id,
+      name: str(clientRow.name),
+      nameTh: str(clientRow.name_th),
+      address: str(clientRow.address),
+      addressTh: str(clientRow.address_th),
+      taxId: str(clientRow.tax_id),
+      contact: str(clientRow.contact),
+      email: str(clientRow.email),
+      phone: str(clientRow.phone),
+    } : null,
+    lines: lines.map((l) => ({
+      position: l.position,
+      kind: str(l.kind),
+      descriptionEn: str(l.description_en),
+      descriptionTh: str(l.description_th),
+      qtyMilli: num(l.qty_milli),
+      qty: num(l.qty_milli) / 1000,
+      unit: str(l.unit),
+      unitSatang: num(l.unit_satang),
+      discountSatang: num(l.discount_satang),
+      subtotalSatang: lineSubtotal(l.qty_milli, l.unit_satang),
+    })),
+    totals,
+    balance: invoiceBalance(db, invoiceId),
+    payments: db.prepare('SELECT * FROM payments WHERE invoice_id = ? ORDER BY paid_on, id').all(invoiceId).map((p) => ({
+      id: p.id,
+      paidOn: str(p.paid_on),
+      amountSatang: num(p.amount_satang),
+      method: str(p.method),
+      reference: str(p.reference),
+      note: str(p.note),
+    })),
+    whtCertificates: db.prepare('SELECT * FROM wht_certificates WHERE invoice_id = ? ORDER BY issued_on, id').all(invoiceId).map((w) => ({
+      id: w.id,
+      certNumber: str(w.cert_number),
+      issuedOn: str(w.issued_on),
+      pndForm: str(w.pnd_form),
+      baseSatang: num(w.base_satang),
+      whtSatang: num(w.wht_satang),
+      ratePercent: str(w.rate_percent),
+      payerName: str(w.payer_name),
+      payerTaxId: str(w.payer_tax_id),
+    })),
+    issuer: {
+      name: settings['company.name'] ?? '',
+      nameTh: settings['company.name_th'] ?? '',
+      address: settings['company.address'] ?? '',
+      addressTh: settings['company.address_th'] ?? '',
+      taxId: settings['company.tax_id'] ?? '',
+      phone: settings['company.phone'] ?? '',
+      email: settings['company.email'] ?? '',
+      website: settings['company.website'] ?? '',
+      logoPath: settings['company.logo_path'] ?? '',
+      branchEn: settings['company.branch_en'] ?? 'Head Office',
+      branchTh: settings['company.branch_th'] ?? '',
+    },
+    bank: {
+      name: settings['bank.name'] ?? '',
+      nameTh: settings['bank.name_th'] ?? '',
+      accountName: settings['bank.account_name'] ?? '',
+      accountNumber: settings['bank.account_number'] ?? '',
+      branch: settings['bank.branch'] ?? '',
+      swift: settings['bank.swift'] ?? '',
+    },
+    terms: {
+      bodyEn: settings['invoice.terms_en'] ?? '',
+      bodyTh: settings['invoice.terms_th'] ?? '',
+      paymentEn: settings['quote.payment_terms_en'] ?? '',
+      paymentTh: settings['quote.payment_terms_th'] ?? '',
+    },
+    generatedAt: new Date().toISOString(),
+  };
+}

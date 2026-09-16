@@ -1,13 +1,11 @@
 // quotes/tests/quote.test.mjs — totals engine, numbering, snapshots.
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { openDb, getSettings, setSetting, auditLog } from '../lib/db.mjs';
+import { openDb, getSettings } from '../lib/db.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
   saveRevision, markStatus,
 } from '../lib/quote.mjs';
-
-const SETTINGS = getSettings; // placeholder to keep import shape visible
 
 function seedDb() {
   const db = openDb(':memory:');

@@ -210,7 +210,8 @@ if (isMain) {
   const app = createApp();
   const server = createServer((req, res) => app.handle(req, res));
   server.listen(PORT, '127.0.0.1', () => {
-    console.log(`quotes server listening on http://127.0.0.1:${PORT} (db: ${process.env.QUOTES_DB_PATH ?? DB_PATH})`);
+    const actual = server.address().port; // PORT may be 0 (ephemeral, used by smoke)
+    console.log(`quotes server listening on http://127.0.0.1:${actual} (db: ${process.env.QUOTES_DB_PATH ?? DB_PATH})`);
   });
   const shutdown = () => { server.close(() => { app.close(); process.exit(0); }); };
   process.on('SIGTERM', shutdown);

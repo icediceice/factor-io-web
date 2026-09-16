@@ -43,6 +43,39 @@ const num = (v) => (v == null ? 0 : Number(v));
 const str = (v) => (v == null ? '' : String(v));
 
 /**
+ * A stored accounting date must be a REAL calendar day.
+ *
+ * This guard lives at the accounting boundary rather than in lib/money.mjs
+ * because it is the accounting side that cannot tolerate a phantom date: a
+ * quotation's valid_until being a day off is cosmetic, while an invoice's
+ * issue_date IS the VAT tax point printed on a legal document and the key the
+ * PP 30 worksheet groups by.
+ *
+ * The round-trip is the whole test. A plain regex accepts '2026-02-31', which
+ * then rots in three directions at once: the PDF prints "31 February 2026",
+ * addDaysBkk() feeds it to Date.UTC() which silently rolls it forward so the
+ * due date is computed off a day that never existed, and pp30Monthly groups it
+ * into 2026-02 by string prefix. Comparing the parts back out of the Date is
+ * what catches the roll-over.
+ */
+export function assertAccountingDate(value, field) {
+  const s = str(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    throw new Error(`${field} must be a YYYY-MM-DD date, got '${s}'`);
+  }
+  const [y, m, d] = s.split('-').map(Number);
+  if (y < 1900 || y > 2999) throw new Error(`${field} year ${y} is out of range`);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) {
+    throw new Error(`${field} '${s}' is not a real calendar date`);
+  }
+  return s;
+}
+
+/** Blank means "today in Bangkok"; anything else must be a real date. */
+const accountingDate = (value, field) => (str(value) ? assertAccountingDate(value, field) : todayBkk());
+
+/**
  * Totals from snapshotted lines + EXPLICIT rates.
  *
  * Deliberately does NOT take a settings object: the caller must have already

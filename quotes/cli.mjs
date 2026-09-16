@@ -306,7 +306,7 @@ async function main() {
       const r = await call('POST', `/api/invoices/${id}/payments`, body);
       if (flags.json) return asJson(r);
       const b = r.balance;
-      console.log(`${r.invoice.number}: recorded ${money(body.amount ? Number(String(body.amount).replace('.', '')) : 0)}`.replace(/recorded .*/, `recorded payment`));
+      console.log(`${r.invoice.number}: payment recorded — cash ${money(b.paidSatang)}, withheld ${money(b.withheldSatang)}`);
       console.log(`  outstanding ${money(b.outstandingSatang)}${b.settled ? ' — SETTLED' : ''}  [${r.invoice.status}]`);
       return;
     }

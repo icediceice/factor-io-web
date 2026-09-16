@@ -15,6 +15,8 @@
 // THESE ARE WORKSHEETS, NOT FILINGS. Nothing here submits anything to the
 // Revenue Department; the output is meant to be read and transcribed.
 
+import { invoiceBalance } from './invoice.mjs';
+
 const num = (v) => (v == null ? 0 : Number(v));
 const pad2 = (n) => String(n).padStart(2, '0');
 

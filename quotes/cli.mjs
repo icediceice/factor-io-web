@@ -219,6 +219,203 @@ async function main() {
       console.log(`${out} written (${buf.length} bytes)`);
       return;
     }
+    // ---- pipeline shortcuts -------------------------------------------
+    case 'propose':
+    case 'accept':
+    case 'decline': {
+      const id = needId(positional, 0, 'quotation id');
+      const target = { propose: 'proposed', accept: 'accepted', decline: 'declined' }[cmd];
+      const r = await call('POST', `/api/quotations/${id}/status`, { status: target });
+      if (flags.json) return asJson(r);
+      console.log(`${r.quotation.number} -> ${r.status}`);
+      return;
+    }
+
+    // ---- invoices ------------------------------------------------------
+    case 'invoice': {
+      const qid = needId(positional, 0, 'quotation id');
+      const body = { quotation_id: qid };
+      if (flags.lang) body.lang = flags.lang;
+      if (flags.date) body.issue_date = flags.date;
+      if (flags.notes) body.notes = flags.notes;
+      const r = await call('POST', '/api/invoices', body);
+      if (flags.json) return asJson(r);
+      console.log(`draft invoice ${r.invoice.number} (id ${r.invoice.id}) from ${r.invoice.quotationNumber}`);
+      console.log(`  payable ${money(r.totals.payableSatang)} — rates are frozen when you run: quotes inv-issue ${r.invoice.id}`);
+      return;
+    }
+    case 'invoices': {
+      const qs = [];
+      if (flags.status) qs.push(`status=${encodeURIComponent(flags.status)}`);
+      if (flags.month) qs.push(`month=${encodeURIComponent(flags.month)}`);
+      const { invoices } = await call('GET', `/api/invoices${qs.length ? `?${qs.join('&')}` : ''}`);
+      if (flags.json) return asJson({ invoices });
+      if (!invoices.length) return console.log('no invoices');
+      for (const i of [...invoices].reverse()) {
+        console.log(`${i.id}  ${i.number}  ${String(i.status).padEnd(10)} ${i.issue_date || '(unissued)'}  ${money(i.payable_satang)}`);
+      }
+      return;
+    }
+    case 'inv-show': {
+      const id = needId(positional, 0, 'invoice id');
+      const doc = await call('GET', `/api/invoices/${id}`);
+      if (flags.json) return asJson(doc);
+      const i = doc.invoice;
+      console.log(`${i.number} [${i.status}]  issued ${i.issueDate || '—'}  due ${i.dueDate || '—'}  (${i.lang}, ${i.currency})`);
+      if (i.quotationNumber) console.log(`from quotation: ${i.quotationNumber}`);
+      console.log(`client: ${doc.client?.name ?? '—'}${doc.client?.taxId ? `  (tax ${doc.client.taxId})` : ''}`);
+      for (const l of doc.lines) {
+        console.log(`  ${l.position}. [${l.kind}] ${l.descriptionEn}`);
+        console.log(`     ${l.qty} ${l.unit} x ${money(l.unitSatang)}${l.discountSatang ? ` - ${money(l.discountSatang)}` : ''} = ${money(l.subtotalSatang)}`);
+      }
+      const t = doc.totals;
+      console.log(`  net ${money(t.netSatang)}  VAT ${t.vatRate}% ${money(t.vatSatang)}  grand ${money(t.grandSatang)}`);
+      console.log(`  WHT ${t.whtRate}% (${t.whtMode}) ${money(t.whtSatang)}   PAYABLE ${money(t.payableSatang)}`);
+      const b = doc.balance;
+      console.log(`  settled ${money(b.settledSatang)} of ${money(b.payableSatang)} (cash ${money(b.paidSatang)} + withheld ${money(b.withheldSatang)}) — outstanding ${money(b.outstandingSatang)}`);
+      for (const p of doc.payments) console.log(`   paid  ${p.paidOn}  ${money(p.amountSatang)}  ${p.method}${p.reference ? ` ref ${p.reference}` : ''}`);
+      for (const w of doc.wht_certificates) console.log(`   wht   ${w.issuedOn}  ${money(w.whtSatang)}  ${w.pndForm}${w.certNumber ? ` #${w.certNumber}` : ''}`);
+      return;
+    }
+    case 'inv-issue': {
+      const id = needId(positional, 0, 'invoice id');
+      const body = {};
+      if (flags.date) body.issue_date = flags.date;
+      const r = await call('POST', `/api/invoices/${id}/issue`, body);
+      if (flags.json) return asJson(r);
+      console.log(`issued ${r.invoice.number} — tax point ${r.invoice.issueDate}, due ${r.invoice.dueDate}`);
+      console.log(`  FROZEN: VAT ${r.totals.vatRate}% = ${money(r.totals.vatSatang)}, WHT ${r.totals.whtRate}% = ${money(r.totals.whtSatang)}`);
+      console.log(`  payable ${money(r.totals.payableSatang)}`);
+      return;
+    }
+    case 'inv-status': {
+      const id = needId(positional, 0, 'invoice id');
+      const status = need({ status: positional[1] }, 'status', 'draft|issued|paid|cancelled');
+      const r = await call('POST', `/api/invoices/${id}/status`, { status });
+      if (flags.json) return asJson(r);
+      console.log(`${r.invoice.number} -> ${r.invoice.status}`);
+      return;
+    }
+    case 'pay': {
+      const id = needId(positional, 0, 'invoice id');
+      const body = { amount: need(flags, 'amount', 'decimal THB amount') };
+      if (flags.date) body.paid_on = flags.date;
+      if (flags.method) body.method = flags.method;
+      if (flags.ref) body.reference = flags.ref;
+      if (flags.note) body.note = flags.note;
+      const r = await call('POST', `/api/invoices/${id}/payments`, body);
+      if (flags.json) return asJson(r);
+      const b = r.balance;
+      console.log(`${r.invoice.number}: recorded ${money(body.amount ? Number(String(body.amount).replace('.', '')) : 0)}`.replace(/recorded .*/, `recorded payment`));
+      console.log(`  outstanding ${money(b.outstandingSatang)}${b.settled ? ' — SETTLED' : ''}  [${r.invoice.status}]`);
+      return;
+    }
+    case 'wht-add': {
+      const id = needId(positional, 0, 'invoice id');
+      const body = {
+        base: need(flags, 'base', 'NET (pre-VAT) amount withheld on'),
+        wht: need(flags, 'wht', 'withheld amount'),
+      };
+      if (flags.cert) body.cert_number = flags.cert;
+      if (flags.date) body.issued_on = flags.date;
+      if (flags.form) body.pnd_form = flags.form;
+      if (flags.rate) body.rate_percent = flags.rate;
+      if (flags.payer) body.payer_name = flags.payer;
+      if (flags.payer_tax_id) body.payer_tax_id = flags.payer_tax_id;
+      const r = await call('POST', `/api/invoices/${id}/wht`, body);
+      if (flags.json) return asJson(r);
+      const b = r.balance;
+      console.log(`${r.invoice.number}: certificate recorded — withheld total ${money(b.withheldSatang)}`);
+      console.log(`  outstanding ${money(b.outstandingSatang)}${b.settled ? ' — SETTLED' : ''}  [${r.invoice.status}]`);
+      return;
+    }
+    case 'inv-pdf': {
+      const id = needId(positional, 0, 'invoice id');
+      const lang = flags.lang === 'th' ? 'th' : 'en';
+      const res = await fetch(`${URL_BASE}/api/invoices/${id}/pdf?lang=${lang}`, {
+        headers: TOKEN ? { authorization: `Bearer ${TOKEN}` } : {},
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? `HTTP ${res.status}`);
+      }
+      const buf = Buffer.from(await res.arrayBuffer());
+      const out = flags.o ?? `invoice-${id}-${lang}.pdf`;
+      const { writeFile } = await import('node:fs/promises');
+      await writeFile(out, buf);
+      if (flags.json) return asJson({ file: out, bytes: buf.length });
+      console.log(`${out} written (${buf.length} bytes)`);
+      return;
+    }
+
+    // ---- reports (worksheets to transcribe, never a filing) -------------
+    case 'report': {
+      const kind = positional[0];
+      const year = flags.year ?? String(new Date().getFullYear());
+      if (kind === 'pp30') {
+        const month = need(flags, 'month', '1-12');
+        const { report: r } = await call('GET', `/api/reports/pp30?year=${year}&month=${month}`);
+        if (flags.json) return asJson(r);
+        console.log(`PP 30 output worksheet — ${r.period}  (${r.invoiceCount} invoice(s))`);
+        console.log(`  file by ${r.dueOn.paper} on paper, ${r.dueOn.efiling} e-filing`);
+        console.log(`  VAT-able sales   ${money(r.vatableNetSatang)}`);
+        console.log(`  OUTPUT VAT       ${money(r.outputVatSatang)}`);
+        if (r.zeroRatedOrExemptSatang) {
+          console.log(`  zero-rated/exempt ${money(r.zeroRatedOrExemptSatang)}  ** classify by hand: these occupy different PP 30 boxes **`);
+        }
+        console.log(`  total sales      ${money(r.totalSalesSatang)}`);
+        console.log('  input VAT: not tracked — expenses are out of scope, so this is NOT the amount to remit');
+        return;
+      }
+      if (kind === 'income') {
+        const { report: r } = await call('GET', `/api/reports/income?year=${year}`);
+        if (flags.json) return asJson(r);
+        console.log(`Income ${r.year} (${r.basis})`);
+        for (const m of r.months) {
+          if (!m.invoiceCount) continue;
+          console.log(`  ${m.period}  ${String(m.invoiceCount).padStart(3)} inv   net ${money(m.netSatang).padStart(16)}   VAT ${money(m.vatSatang)}`);
+        }
+        console.log(`  TOTAL net ${money(r.totalNetSatang)}   VAT ${money(r.totalVatSatang)}   WHT noted ${money(r.totalWhtSatang)}`);
+        return;
+      }
+      if (kind === 'wht') {
+        const qs = [];
+        if (flags.from) qs.push(`from=${flags.from}`);
+        if (flags.to) qs.push(`to=${flags.to}`);
+        const { report: r } = await call('GET', `/api/reports/wht${qs.length ? `?${qs.join('&')}` : ''}`);
+        if (flags.json) return asJson(r);
+        console.log(`WHT certificates received ${r.from} .. ${r.to}  (${r.count})`);
+        for (const c of r.certificates) {
+          console.log(`  ${c.issuedOn}  ${c.pndForm.padEnd(6)} ${money(c.whtSatang).padStart(14)}  on ${money(c.baseSatang)}  ${c.invoiceNumber}${c.payerName ? `  ${c.payerName}` : ''}`);
+        }
+        console.log(`  TOTAL creditable ${money(r.totalWhtSatang)}`);
+        return;
+      }
+      if (kind === 'pnd') {
+        const half = flags.half ? `&half=${flags.half}` : '';
+        const { report: r } = await call('GET', `/api/reports/pnd?year=${year}${half}`);
+        if (flags.json) return asJson(r);
+        console.log(`${r.form} — ${r.periodFrom} .. ${r.periodTo}`);
+        console.log(`  revenue           ${money(r.revenueSatang)}  (${r.invoiceCount} invoices, ${r.basis})`);
+        console.log(`  creditable WHT    ${money(r.creditableWhtSatang)}`);
+        console.log('  expenses / taxable profit: not tracked — this is a revenue summary, not a return');
+        return;
+      }
+      if (kind === 'pipeline') {
+        const { report: r } = await call('GET', `/api/reports/pipeline${flags.year ? `?year=${flags.year}` : ''}`);
+        if (flags.json) return asJson(r);
+        console.log('PIPELINE (forecast — never income)');
+        console.log(`  proposed ${r.pipeline.proposedCount}   accepted ${r.pipeline.acceptedCount}   declined ${r.pipeline.declinedCount}`);
+        console.log('RECOGNISED INCOME');
+        console.log(`  ${money(r.recognisedIncome.netSatang)} net across ${r.recognisedIncome.invoiceCount} invoice(s) — ${r.recognisedIncome.basis}`);
+        console.log(`  outstanding receivable ${money(r.outstandingReceivableSatang)}`);
+        return;
+      }
+      console.error('report kinds: pp30 --month N | income | wht [--from --to] | pnd [--half 1|2] | pipeline');
+      process.exit(1);
+      return;
+    }
+
     default:
       console.error(`unknown command: ${cmd ?? '(none)'}`);
       console.error('commands: list new show line-add line-rm issue status revisions clients client-add settings set pdf');

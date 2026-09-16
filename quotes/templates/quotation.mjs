@@ -162,7 +162,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
   table.lines .desc .alt { display:block; color:var(--muted); font-size:8.5pt; }
   table.lines .kind { font-size:8pt; color:var(--muted); }
   table.totals { margin-left:auto; margin-top:10pt; border-collapse:collapse; min-width:78mm; }
-  table.totals td { padding:4pt 8pt; font-size:10pt; }
+  table.totals td { padding:3pt 8pt; font-size:10pt; }
   table.totals .lbl { color:var(--muted); text-align:right; }
   table.totals .num { text-align:right; font-variant-numeric:tabular-nums; min-width:26mm; }
   table.totals tr.grand td { border-top:1.5pt solid var(--ink); font-weight:750; font-size:11.5pt; padding-top:7pt; }

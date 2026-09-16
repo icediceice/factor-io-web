@@ -116,7 +116,7 @@ describe('request authentication lanes', () => {
   });
 
   test('allowlisted-out email with a VALID signature is still refused', () => {
-    const token = signSession('outsider@evil.example', SECRET, 3600, now);
+    const token = signSession('outsider@evil.example', SECRET, 3600);
     const r = authenticate(req({ cookie: `quotes_session=${token}` }), cfg);
     assert.deepEqual(r, { email: '', lane: null });
   });

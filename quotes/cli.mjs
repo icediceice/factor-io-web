@@ -60,13 +60,14 @@ function parseArgs(argv) {
 }
 
 async function call(method, path, body) {
+  const sendsJson = method === 'POST' || method === 'PUT';
   const res = await fetch(URL_BASE + path, {
     method,
     headers: {
-      ...(body ? { 'content-type': 'application/json' } : {}),
+      ...(sendsJson ? { 'content-type': 'application/json' } : {}),
       ...(TOKEN ? { authorization: `Bearer ${TOKEN}` } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await res.text();
   let json;

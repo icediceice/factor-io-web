@@ -23,10 +23,13 @@ WorkingDirectory=/home/ice/.factor-quotes
 EnvironmentFile=/home/ice/.factor-quotes/.env
 # NODE_ENV=production makes the boot gate refuse unless tailscaled whois works
 # and QUOTES_ALLOWED_EMAILS is non-empty.
+# Required in /home/ice/.factor-quotes/.env:
+#   QUOTES_AUTH_MODE=tailscale
+#   QUOTES_BIND=127.0.0.1,100.111.93.20
+# Keeping these in the env file makes the documented loopback-only rollback
+# effective without editing or reinstalling the unit.
 Environment=NODE_ENV=production
 Environment=QUOTES_PORT=8787
-Environment=QUOTES_AUTH_MODE=tailscale
-Environment=QUOTES_BIND=127.0.0.1,100.111.93.20
 ExecStart=/usr/bin/env node /home/ice/.factor-quotes/server.mjs
 Restart=on-failure
 RestartSec=3

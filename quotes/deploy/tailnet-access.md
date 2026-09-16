@@ -28,6 +28,13 @@ whois`; client-supplied `Tailscale-User-*` headers are ignored. Lookup errors,
 timeouts, malformed responses, non-tailnet peers and logins outside the
 allowlist are denied.
 
+Bearer-agent requests are authenticated before the human lane, so the loopback
+listener remains available to the local CLI. In tailscale mode, an unauthenticated
+loopback request is denied because loopback has no Tailscale whois identity.
+State-changing browser requests must come from the app's own origin, and API
+`POST`/`PUT` bodies must use `application/json`; this prevents another web page
+from spending the operator's ambient tailnet identity.
+
 ## Verification
 
 From an allowlisted tailnet device, open:
@@ -45,5 +52,6 @@ and no connection reaches the process.
 
 Delete the DNS A record and set `QUOTES_BIND=127.0.0.1`, then restart the user
 service. This immediately removes tailnet access while preserving the local
-CLI and database. Restoring public access is a separate change: use
+CLI and database; the human UI is intentionally unavailable on loopback in
+tailscale mode. Restoring public access is a separate change: use
 `QUOTES_AUTH_MODE=oauth` and provide every OAuth setting listed in the README.

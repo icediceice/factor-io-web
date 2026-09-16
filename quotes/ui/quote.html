@@ -62,7 +62,7 @@ function linesCard() {
 }
 
 function renderLines() {
-  const box = docCard.querySelector('#lines');
+  const box = document.querySelector('#lines'); // lives in linesCard(), a sibling of docCard
   if (!doc.lines.length) { box.innerHTML = '<div class="empty">No lines yet.</div>'; }
   else {
     box.innerHTML = `<table class="list"><thead><tr>

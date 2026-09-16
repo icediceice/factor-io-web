@@ -254,7 +254,7 @@ export function markInvoiceStatus(db, invoiceId, status, actor = 'agent') {
  * so it settles the invoice exactly as cash does.
  */
 export function invoiceBalance(db, invoiceId) {
-  const inv = db.prepare('SELECT payable_satang FROM invoices WHERE id = ?').get(invoiceId);
+  const inv = db.prepare('SELECT payable_satang, wht_mode FROM invoices WHERE id = ?').get(invoiceId);
   if (!inv) throw new Error(`invoice ${invoiceId} not found`);
   const { paid = 0 } = db.prepare(
     'SELECT COALESCE(SUM(amount_satang), 0) AS paid FROM payments WHERE invoice_id = ?'
@@ -263,11 +263,29 @@ export function invoiceBalance(db, invoiceId) {
     'SELECT COALESCE(SUM(wht_satang), 0) AS withheld FROM wht_certificates WHERE invoice_id = ?'
   ).get(invoiceId);
   const payableSatang = num(inv.payable_satang);
-  const settledSatang = num(paid) + num(withheld);
+  const paidSatang = num(paid);
+  const withheldSatang = num(withheld);
+
+  // Whether a withholding certificate SETTLES anything depends entirely on the
+  // mode the invoice was frozen with, and getting this wrong under-reports
+  // receivables in silence:
+  //   memo   — payable is the FULL grand total. The customer lawfully transfers
+  //            grand - wht and hands over the certificate for the difference,
+  //            so the certificate is what closes the gap. Count it.
+  //   deduct — payable ALREADY equals grand - wht. The withholding was removed
+  //            from the invoice face, so counting the certificate again pays
+  //            the same 3% twice and can flip an invoice to 'paid' while real
+  //            cash is still outstanding. Do NOT count it.
+  // withheldSatang stays reported in both modes: it is a genuine PND credit,
+  // and reports.whtRegister reads wht_certificates directly regardless.
+  const creditsSettlement = str(inv.wht_mode) !== 'deduct';
+  const settledSatang = paidSatang + (creditsSettlement ? withheldSatang : 0);
+
   return {
     payableSatang,
-    paidSatang: num(paid),
-    withheldSatang: num(withheld),
+    paidSatang,
+    withheldSatang,
+    whtMode: str(inv.wht_mode),
     settledSatang,
     outstandingSatang: Math.max(0, payableSatang - settledSatang),
     settled: settledSatang >= payableSatang,

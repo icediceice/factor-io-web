@@ -3,10 +3,11 @@
 // except where a fetch is the only possible source of data.
 
 export const api = async (method, path, body) => {
+  const sendsJson = method === 'POST' || method === 'PUT';
   const res = await fetch(`/api${path}`, {
     method,
-    headers: body ? { 'content-type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
+    headers: sendsJson ? { 'content-type': 'application/json' } : undefined,
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);

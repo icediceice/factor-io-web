@@ -130,6 +130,7 @@ describe('request authentication lanes', () => {
 describe('production boot gate', () => {
   const base = {
     NODE_ENV: 'production',
+    QUOTES_AUTH_MODE: 'oauth',
     QUOTES_SESSION_SECRET: 'p'.repeat(48),
     QUOTES_GOOGLE_CLIENT_ID: 'cid',
     QUOTES_GOOGLE_CLIENT_SECRET: 'csecret',
@@ -137,15 +138,15 @@ describe('production boot gate', () => {
     QUOTES_ALLOWED_EMAILS: 'op@factor-io.com',
   };
 
-  test('fully configured production env passes', () => {
-    assert.doesNotThrow(() => assertProductionConfig({ ...base }));
+  test('fully configured oauth production env passes', async () => {
+    await assert.doesNotReject(() => assertProductionConfig({ ...base }));
   });
 
-  test('missing pieces REFUSE with the named list — never a dev sentinel', () => {
+  test('oauth missing pieces REFUSE with the named list — never a dev sentinel', async () => {
     for (const drop of ['QUOTES_SESSION_SECRET', 'QUOTES_GOOGLE_CLIENT_ID', 'QUOTES_GOOGLE_CLIENT_SECRET', 'QUOTES_PUBLIC_URL', 'QUOTES_ALLOWED_EMAILS']) {
       const env = { ...base };
       delete env[drop];
-      assert.throws(() => assertProductionConfig(env), (err) => {
+      await assert.rejects(() => assertProductionConfig(env), (err) => {
         assert.match(err.message, /refusing production start/);
         assert.match(err.message, new RegExp(drop));
         return true;
@@ -153,11 +154,29 @@ describe('production boot gate', () => {
     }
   });
 
-  test('short secret refuses', () => {
-    assert.throws(() => assertProductionConfig({ ...base, QUOTES_SESSION_SECRET: 'short' }), /QUOTES_SESSION_SECRET/);
+  test('short oauth secret refuses', async () => {
+    await assert.rejects(() => assertProductionConfig({ ...base, QUOTES_SESSION_SECRET: 'short' }), /QUOTES_SESSION_SECRET/);
   });
 
-  test('dev mode (no NODE_ENV=production) never throws', () => {
-    assert.doesNotThrow(() => assertProductionConfig({}));
+  test('tailscale mode needs only allowlist and working whois', async () => {
+    const env = { NODE_ENV: 'production', QUOTES_AUTH_MODE: 'tailscale', QUOTES_ALLOWED_EMAILS: 'op@factor-io.com' };
+    await assert.doesNotReject(() => assertProductionConfig(env, { whoisAvailableImpl: async () => true }));
+    await assert.rejects(
+      () => assertProductionConfig({ ...env, QUOTES_ALLOWED_EMAILS: '' }, { whoisAvailableImpl: async () => true }),
+      /QUOTES_ALLOWED_EMAILS/,
+    );
+    await assert.rejects(
+      () => assertProductionConfig(env, { whoisAvailableImpl: async () => false }),
+      /working Tailscale whois/,
+    );
+  });
+
+  test('production refuses an unset or unknown auth mode', async () => {
+    await assert.rejects(() => assertProductionConfig({ NODE_ENV: 'production' }), /QUOTES_AUTH_MODE/);
+    await assert.rejects(() => assertProductionConfig({ NODE_ENV: 'production', QUOTES_AUTH_MODE: 'open' }), /QUOTES_AUTH_MODE/);
+  });
+
+  test('dev mode (no NODE_ENV=production) never throws', async () => {
+    await assert.doesNotReject(() => assertProductionConfig({}));
   });
 });

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quotation · Factor I/O</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<script type="module">
+import { api, fmtSatang, el, toast, statusChip, renderShell } from './app.js';
+
+const id = new URLSearchParams(location.search).get('id');
+if (!id) { document.body.textContent = 'Missing ?id='; throw new Error('missing id'); }
+
+let doc = null;
+let main = null;
+
+function headerCard() {
+  const q = doc.quotation;
+  return el(`<section class="card">
+    <div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:baseline">
+      <h2 style="margin:0"><span class="mono">${q.number}</span> ${statusChip(q.status)}</h2>
+      <div class="row-actions" style="margin:0">
+        ${q.status === 'draft' ? `<button id="issue">Issue (snapshot rev)</button>` : ''}
+        ${q.status === 'draft' ? `<button id="delete" class="danger">Delete draft</button>` : ''}
+        <a class="button" href="/api/quotations/${q.id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>
+        <a class="button" href="/api/quotations/${q.id}/pdf?lang=th" target="_blank" rel="noopener">PDF ไทย</a>
+      </div>
+    </div>
+    <dl class="kv" style="margin-top:14px">
+      <dt>Client</dt><dd>${doc.client?.name ?? '—'}</dd>
+      <dt>Language / currency</dt><dd>${q.lang} · ${q.currency}${q.fxRate ? ` (1 ${q.fxBase || 'USD'} = ${q.fxRate} THB)` : ''}</dd>
+      <dt>Issue date</dt><dd>${q.issueDate}</dd>
+      <dt>Valid until</dt><dd>${q.validUntil}</dd>
+      ${q.notes ? `<dt>Notes</dt><dd>${q.notes}</dd>` : ''}
+    </dl>
+  </section>`);
+}
+
+function linesCard() {
+  const frozen = doc.quotation.status !== 'draft';
+  return el(`<section class="card">
+    <h2>Lines ${frozen ? '<span class="muted">(issued — read only)</span>' : ''}</h2>
+    <div id="lines"></div>
+    ${frozen ? '' : `
+    <form id="addLine" style="margin-top:16px">
+      <div class="grid">
+        <label>Type
+          <select name="kind"><option value="service">Service</option><option value="hardware">Hardware</option></select>
+        </label>
+        <label>Quantity <input name="qty" required placeholder="0.5" inputmode="decimal"></label>
+        <label>Unit <input name="unit" placeholder="day"></label>
+        <label>Unit price (THB) <input name="unit_price" required placeholder="35000.00" inputmode="decimal"></label>
+        <label>Discount (satang) <input name="discount_satang" value="0" inputmode="numeric"></label>
+      </div>
+      <label>Description (EN) <input name="description_en" required></label>
+      <label>Description (TH) <input name="description_th" placeholder="คำอธิบายภาษาไทย (ถ้ามี)"></label>
+      <div class="row-actions"><button type="submit">Add line</button></div>
+    </form>`}
+  </section>`);
+}
+
+function renderLines() {
+  const box = docCard.querySelector('#lines');
+  if (!doc.lines.length) { box.innerHTML = '<div class="empty">No lines yet.</div>'; }
+  else {
+    box.innerHTML = `<table class="list"><thead><tr>
+      <th>#</th><th>Description</th><th>Type</th><th class="num">Qty</th><th>Unit</th><th class="num">Unit price</th><th class="num">Discount</th><th class="num">Subtotal</th><th></th>
+    </tr></thead><tbody>
+      ${doc.lines.map((l) => `<tr>
+        <td>${l.position}</td>
+        <td><strong>${l.descriptionEn}</strong>${l.descriptionTh ? `<br><span class="muted">${l.descriptionTh}</span>` : ''}</td>
+        <td>${l.kind}</td>
+        <td class="num">${l.qty}</td>
+        <td>${l.unit}</td>
+        <td class="num">${fmtSatang(l.unitSatang)}</td>
+        <td class="num">${l.discountSatang ? `−${fmtSatang(l.discountSatang)}` : '—'}</td>
+        <td class="num">${fmtSatang(l.subtotalSatang)}</td>
+        <td>${doc.quotation.status === 'draft' ? `<button class="quiet" data-del="${l.id}">Remove</button>` : ''}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+    for (const b of box.querySelectorAll('[data-del]')) {
+      b.addEventListener('click', async () => {
+        try { await refresh(api('DELETE', `/quotations/${id}/lines/${b.dataset.del}`)); }
+        catch (e) { toast(e.message, 'error'); }
+      });
+    }
+  }
+  const t = doc.totals;
+  docCard.querySelector('#totals').innerHTML = `<table class="totals">
+    <tr class="memo"><td class="lbl">Subtotal</td><td class="num">${fmtSatang(t.subtotalSatang)}</td></tr>
+    ${t.discountSatang ? `<tr class="memo"><td class="lbl">Discount</td><td class="num">−${fmtSatang(t.discountSatang)}</td></tr>` : ''}
+    <tr><td class="lbl">Net</td><td class="num">${fmtSatang(t.netSatang)}</td></tr>
+    <tr><td class="lbl">VAT ${t.vatRate}%</td><td class="num">${fmtSatang(t.vatSatang)}</td></tr>
+    <tr class="grand"><td class="lbl">Grand total</td><td class="num">${fmtSatang(t.grandSatang)}</td></tr>
+    ${t.whtSatang ? `<tr${t.whtMode === 'deduct' ? '' : ' class="memo"'}><td class="lbl">WHT ${t.whtRate}% (${t.whtMode})</td><td class="num">${t.whtMode === 'deduct' ? '−' : ''}${fmtSatang(t.whtSatang)}</td></tr>` : ''}
+    <tr class="payable"><td class="lbl">Total payable</td><td class="num">${fmtSatang(t.payableSatang)}</td></tr>
+  </table>`;
+}
+
+let docCard = null;
+
+function renderAll() {
+  main.innerHTML = '';
+  docCard = el('<div></div>');
+  const h = headerCard();
+  docCard.append(el('<section class="card"><h2>Totals</h2><div id="totals"></div></section>'));
+  main.append(h, docCard, linesCard());
+  bindHeader(h);
+  renderLines();
+}
+
+function bindHeader(h) {
+  const issue = h.querySelector('#issue');
+  if (issue) issue.addEventListener('click', async () => {
+    try { await refresh(api('POST', `/quotations/${id}/issue`)); toast('Issued — revision snapshot written'); }
+    catch (e) { toast(e.message, 'error'); }
+  });
+  const del = h.querySelector('#delete');
+  if (del) del.addEventListener('click', async () => {
+    try { await api('DELETE', `/quotations/${id}`); location.href = 'index.html'; }
+    catch (e) { toast(e.message, 'error'); }
+  });
+}
+
+async function refresh(promise) {
+  const data = await promise;
+  doc = data.quotation ? data : await api('GET', `/quotations/${id}`);
+  renderAll();
+}
+
+main = renderShell('quote.html', `Quotation`, 'Edit lines while the quotation is a draft; issuing freezes an immutable snapshot and enables the PDF links.');
+
+try { await refresh(api('GET', `/quotations/${id}`)); }
+catch (e) { main.append(el(`<div class="card"><div class="empty">${e.message}</div></div>`)); }
+
+// wire the add-line form after render (it lives inside linesCard)
+document.addEventListener('submit', async (e) => {
+  if (e.target.id !== 'addLine') return;
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const body = {
+    kind: f.get('kind'),
+    description_en: f.get('description_en'),
+    description_th: f.get('description_th'),
+    qty: f.get('qty'),
+    unit_price: f.get('unit_price'),
+    discount_satang: Number(f.get('discount_satang') || 0),
+  };
+  if (f.get('unit')) body.unit = f.get('unit');
+  try { await refresh(api('POST', `/quotations/${id}/lines`, body)); toast('Line added'); }
+  catch (err) { toast(err.message, 'error'); }
+});
+</script>
+</body>
+</html>

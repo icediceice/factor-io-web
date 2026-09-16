@@ -344,7 +344,7 @@ export function createApi(db) {
               String(merged.unit), merged.unit_satang, Math.max(0, Math.min(merged.discount_satang, 99999999999)), lineId);
             audit(db, actor, 'line.update', 'quotation', id, { line_id: lineId, fields: Object.keys(body) });
           });
-          return json(200, { line: db.prepare('SELECT * FROM quotation_lines WHERE id = ?').get(lineId), quotation: buildQuoteDocument(db, id) });
+          return json(200, docEnvelope(buildQuoteDocument(db, id), { line: db.prepare('SELECT * FROM quotation_lines WHERE id = ?').get(lineId) }));
         }
         if (method === 'DELETE' && seg[3]) {
           const lineId = Number(seg[3]);

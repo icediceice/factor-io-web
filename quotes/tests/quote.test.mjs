@@ -101,7 +101,7 @@ describe('documents and revisions', () => {
     assert.equal(doc.totals.grandSatang, 46277500);
     assert.equal(doc.issuer.taxId, '');            // seeded placeholder, settings-owned
     assert.equal(typeof doc.terms.paymentEn, 'string');
-    assert.ok(doc.validUntil > doc.issueDate);
+    assert.ok(doc.quotation.validUntil > doc.quotation.issueDate);
   });
 
   test('markStatus(issued) writes an immutable snapshot + audit row', () => {

@@ -41,7 +41,7 @@ export function findChromium() {
  *  tmpdir. NEVER /tmp — snap Chromium cannot write there (see header). */
 function tempRoot() {
   const under = process.env.QUOTES_TMPDIR
-    ?? process.env.HOME && join(process.env.HOME, '.cache', 'quotes-pdf')
+    ?? (process.env.HOME ? join(process.env.HOME, '.cache', 'quotes-pdf') : null)
     ?? join(process.cwd(), 'tmp');
   return under;
 }

@@ -143,8 +143,8 @@ describe('http auth boundary (createApp actorFor lanes)', () => {
     QUOTES_AGENT_TOKEN: 'agent-secret-token',
   };
 
-  function fakeReq({ method = 'GET', url = '/', headers = {}, remote = '10.0.0.9' } = {}) {
-    return { method, url, headers, socket: { remoteAddress: remote } };
+  function fakeReq({ method = 'GET', url = '/', headers = {}, remote = '10.0.0.9', body = {} } = {}) {
+    return { method, url, headers, body, socket: { remoteAddress: remote } };
   }
   const fakeRes = () => {
     const res = { statusCode: 0, headers: {}, body: '' };

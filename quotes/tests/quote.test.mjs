@@ -113,10 +113,12 @@ describe('documents and revisions', () => {
     assert.equal(rev, 1);
     const snap = db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=? AND rev=1').get(qid);
     assert.deepEqual(JSON.parse(snap.snapshotJson), JSON.parse(before));
-    db.prepare("UPDATE quotation_lines SET unit_satang = 1 WHERE quotation_id = ?").run(qid);
-    assert.equal(JSON.stringify(buildQuoteDocument(db, qid)), before.replace(/3500000/g, '3500000')); // doc rebuilt, live rows changed
+    db.prepare("UPDATE quotation_lines SET unit_satang = 999 WHERE quotation_id = ?").run(qid);
+    const afterMutation = JSON.stringify(buildQuoteDocument(db, qid));
+    assert.notEqual(afterMutation, before);              // live doc follows the rows
     const row = db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=? AND rev=1').get(qid);
-    assert.equal(row.snapshotJson, snap.snapshotJson);   // snapshot untouched
+    assert.equal(row.snapshot_json, snap.snapshot_json); // snapshot immutable
+    assert.deepEqual(JSON.parse(row.snapshot_json), JSON.parse(before));
     const audits = db.prepare("SELECT * FROM audit_log WHERE entity='quotation' AND entity_id=?").all(String(qid));
     assert.equal(audits.length, 1);
     assert.equal(audits[0].actor, 'op@factor-io.com');

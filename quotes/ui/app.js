@@ -41,6 +41,8 @@ export const statusChip = (s) => `<span class="status status-${s}">${s}</span>`;
 
 const navLinks = [
   ['/quotes', 'Quotations', 'index.html'],
+  ['/quotes/invoices', 'Invoices', 'invoices.html'],
+  ['/quotes/reports', 'Reports', 'reports.html'],
   ['/quotes/clients', 'Clients', 'clients.html'],
   ['/quotes/catalog', 'Catalog', 'catalog.html'],
   ['/quotes/settings', 'Settings', 'settings.html'],

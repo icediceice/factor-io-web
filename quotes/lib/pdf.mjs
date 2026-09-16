@@ -40,10 +40,12 @@ export function findChromium() {
 /** Snap-safe temp root: QUOTES_TMPDIR, else $HOME/.cache, else the project
  *  tmpdir. NEVER /tmp — snap Chromium cannot write there (see header). */
 function tempRoot() {
-  const under = process.env.QUOTES_TMPDIR
-    ?? (process.env.HOME ? join(process.env.HOME, '.cache', 'quotes-pdf') : null)
+  // NOTE: snap Chromium's home plug denies HIDDEN directories (.cache etc.)
+  // and denies everything outside $HOME, so the only reliable default is a
+  // visible folder in the user's home.
+  return process.env.QUOTES_TMPDIR
+    ?? (process.env.HOME ? join(process.env.HOME, 'quotes-tmp') : null)
     ?? join(process.cwd(), 'tmp');
-  return under;
 }
 
 /** Render one HTML string to PDF. Returns { buffer, chromium, pages? }.

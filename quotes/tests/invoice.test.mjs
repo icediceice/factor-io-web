@@ -80,6 +80,18 @@ describe('invoice creation and the tax point', () => {
     assert.notEqual(after.lines[0].descriptionEn, 'MUTATED');
   });
 
+  test('snapshotted lines are numbered from 1 — a tax invoice never shows line 0', () => {
+    const { db, qid } = seedAccepted({ lines: [
+      { kind: 'service', desc: 'A', qty: 1000, unit: 100000, disc: 0 },
+      { kind: 'service', desc: 'B', qty: 1000, unit: 200000, disc: 0 },
+      { kind: 'hardware', desc: 'C', qty: 1000, unit: 300000, disc: 0 },
+    ] });
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    issueInvoice(db, id, {});
+    const positions = buildInvoiceDocument(db, id).lines.map((l) => l.position);
+    assert.deepEqual(positions, [1, 2, 3]);
+  });
+
   test('issue_date is the tax point and drives the due date from settings', () => {
     const { db, qid } = seedAccepted();
     const { id } = createInvoiceFromQuotation(db, qid, {});

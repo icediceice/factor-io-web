@@ -51,6 +51,12 @@ Layout:
 6. **Install the service** (see deploy/factor-quotes.service header):
    daemon-reload, `systemctl --user enable --now factor-quotes`.
 7. **Install the nginx vhost** (deploy/nginx-quotes.conf) and the
+   **cloudflared ingress** (deploy/cloudflared-quotes.yml), then reload both.
+8. **First sign-in**: open https://quotes.factor-io.com, sign in with an
+   allowlisted Google account, and fill in Settings (company block, tax IDs,
+   VAT/WHT rates, bank details, terms). Every business fact is a settings
+   row — no code edits, ever.
+
 ## Environment
 
 | Key | Required | Meaning |
@@ -90,36 +96,9 @@ superseding quote.
 - **Every issued quotation writes an immutable revision snapshot**; every
   mutation writes an audit row naming the actor (email or "agent").
 - **Sessions deliberately do NOT share the board cookie** — own OAuth client,
-  own host-only cookie (`quotes_session`), own allowlist (with board fallback).
-- Thai PDFs need a Thai font on the host: `fonts-tlwg-*` (Loma) is present on
-  light-worker; the deploy box must have it or TH renders with fallback glyphs.
-| `QUOTES_CHROMIUM` | no | Chromium binary (auto-probes chromium-browser, chromium, google-chrome) |
-
-## Agent usage (terminal)
-
-    export QUOTES_URL=https://quotes.factor-io.com QUOTES_AGENT_TOKEN=...
-    node quotes/cli.mjs list
-    node quotes/cli.mjs client-add --name "Acme" --tax-id 0105558000000
-    node quotes/cli.mjs new --client 1 --lang th
-    node quotes/cli.mjs line-add 1 --kind service --desc "Workshop" --qty 0.5 --price 35000.00
-    node quotes/cli.mjs issue 1
-    node quotes/cli.mjs pdf 1 --lang th -o quote.pdf
-    node quotes/cli.mjs set vat.rate_percent 8
-
-Every command accepts `--json` for the raw API envelope. Money crosses the
-boundary as decimal STRINGS; quantities as decimal strings ("0.5" = half a
-day). Issued quotations are frozen — corrections mean a new draft or a
-superseding quote.
-
-## Design notes
-
-- **Money is integer satang everywhere**; rounding happens once per derived
-  number, half-up, at the satang boundary. Tests pin the boundaries.
-- **Every issued quotation writes an immutable revision snapshot**; every
-  mutation writes an audit row naming the actor (email or "agent").
-- **Sessions deliberately do NOT share the board cookie** — own OAuth client,
   own host-only cookie (`quotes_session`), own allowlist (board fallback).
 - Thai PDFs need a Thai font on the host: `fonts-tlwg-*` (Loma) is present on
+  light-worker; the deploy box must have it or TH renders fallback glyphs.
   light-worker; the deploy box must have it or TH renders fallback glyphs.
    **cloudflared ingress** (deploy/cloudflared-quotes.yml), then reload both.
 8. **First sign-in**: open https://quotes.factor-io.com, sign in with an

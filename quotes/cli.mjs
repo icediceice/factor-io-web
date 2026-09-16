@@ -418,7 +418,10 @@ async function main() {
 
     default:
       console.error(`unknown command: ${cmd ?? '(none)'}`);
-      console.error('commands: list new show line-add line-rm issue status revisions clients client-add settings set pdf');
+      console.error('quotations: list new show line-add line-rm issue status propose accept decline revisions');
+      console.error('invoices:   invoice invoices inv-show inv-issue inv-status pay wht-add inv-pdf');
+      console.error('reports:    report pp30 --month N | report income | report wht | report pnd | report pipeline');
+      console.error('other:      clients client-add settings set pdf');
       process.exit(1);
   }
 }

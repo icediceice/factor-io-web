@@ -66,6 +66,14 @@ export function createApp(env = process.env) {
           if (req.method !== 'GET') return sendJson(res, 405, { error: 'GET only' });
           return pdfRoute(res, Number(pdfMatch[1]), url.searchParams.get('lang'));
         }
+        // ...and the rendered TAX INVOICE. Intercepted here, before readBody
+        // and before the JSON api(), for the same reason as the quotation:
+        // this route answers with binary, not an envelope.
+        const invPdfMatch = path.match(/^\/api\/invoices\/(\d+)\/pdf$/);
+        if (invPdfMatch) {
+          if (req.method !== 'GET') return sendJson(res, 405, { error: 'GET only' });
+          return invoicePdfRoute(res, Number(invPdfMatch[1]), url.searchParams.get('lang'));
+        }
         const body = await readBody(req);
         const reply = await api({
           method: req.method,

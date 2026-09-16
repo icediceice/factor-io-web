@@ -244,7 +244,7 @@ export function createApi(db) {
         audit(db, actor, 'quotation.create', 'quotation', id, { number, client_id: clientId });
         return buildQuoteDocument(db, id);
       });
-      return json(201, { quotation: doc });
+      return json(201, docEnvelope(doc));
     }
 
     if (seg[0] === 'quotations' && seg[1]) {

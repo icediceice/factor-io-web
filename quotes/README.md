@@ -222,5 +222,17 @@ document has no tax point.
   mutation writes an audit row naming the actor (email or "agent").
 - **Sessions deliberately do NOT share the board cookie** — own OAuth client,
   own host-only cookie (`quotes_session`), own allowlist (board fallback).
-- Thai PDFs need a Thai font on the host: `fonts-tlwg-*` (Loma) is present on
-  light-worker; the deploy box must have it or TH renders fallback glyphs.
+- **Filed figures must never move.** Quotations read settings live; invoices
+  copy them once at issue. Any new report reads stored invoice columns — if
+  you find yourself importing settings into `lib/reports.mjs`, stop.
+- **Nulls are not zeros** in the reports. Anything this system cannot know
+  (input VAT, expenses, taxable profit, zero-rated vs exempt) is `null` or an
+  explicit flag. Filling those with `0` would put a false number on a return.
+- Thai PDFs need a Thai font on the host: `fonts-tlwg-*` (Loma). Verified on
+  light-worker — `Loma.otf` is installed and Chromium embeds it (plus
+  `Loma-Bold`) in the TH PDF. Note that **`Noto Sans Thai` is NOT installed**
+  there, so `'Loma'` being first in the template font stack is load-bearing,
+  not decorative. Without a Thai font the document renders fallback glyphs.
+  (To check which fonts a produced PDF really embeds, inflate its streams
+  first — a raw `/BaseFont` byte scan under-reports, because Chromium puts
+  font dictionaries inside compressed object streams.)

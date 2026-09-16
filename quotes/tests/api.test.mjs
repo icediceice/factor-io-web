@@ -4,7 +4,7 @@ import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { openDb } from '../lib/db.mjs';
 import { createApi } from '../api.mjs';
-import { createApp } from '../server.mjs';
+import { bindAddresses, createApp } from '../server.mjs';
 
 function boot() {
   const db = openDb(':memory:');
@@ -131,6 +131,7 @@ describe('quotation flow', () => {
 describe('http auth boundary (createApp actorFor lanes)', () => {
   const env = {
     QUOTES_DB_PATH: ':memory:',
+    QUOTES_AUTH_MODE: 'oauth',
     QUOTES_SESSION_SECRET: 't'.repeat(48),
     QUOTES_GOOGLE_CLIENT_ID: 'cid',
     QUOTES_GOOGLE_CLIENT_SECRET: 'cs',
@@ -200,5 +201,71 @@ describe('http auth boundary (createApp actorFor lanes)', () => {
       assert.equal(res.statusCode, 302);
       assert.match(res.headers.Location, /^\/auth\/login\?return_to=%2Fquotes$/);
     } finally { app.close(); }
+  });
+
+  test('tailscale mode trusts whois, not a client-supplied identity header', async () => {
+    const app = createApp({
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    }, { tailnetWhoisImpl: async () => 'outsider@evil.example' });
+    try {
+      const res = fakeRes();
+      await app.handle(fakeReq({
+        url: '/api/clients', remote: '100.83.80.43',
+        headers: { 'tailscale-user-login': 'real@factor-io.com' },
+      }), res);
+      assert.equal(res.statusCode, 403);
+    } finally { app.close(); }
+  });
+
+  test('allowlisted tailnet whois identity is admitted', async () => {
+    const app = createApp({
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    }, { tailnetWhoisImpl: async () => 'real@factor-io.com' });
+    try {
+      const res = fakeRes();
+      await app.handle(fakeReq({ url: '/api/clients', remote: '100.83.80.43' }), res);
+      assert.equal(res.statusCode, 200);
+    } finally { app.close(); }
+  });
+
+  test('non-tailnet peers and failed whois are refused with 403', async () => {
+    const tailEnv = {
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    };
+    for (const [remote, lookup] of [['10.0.0.9', async () => 'real@factor-io.com'], ['100.83.80.43', async () => '']]) {
+      const app = createApp(tailEnv, { tailnetWhoisImpl: lookup });
+      try {
+        const res = fakeRes();
+        await app.handle(fakeReq({ url: '/api/clients', remote }), res);
+        assert.equal(res.statusCode, 403);
+      } finally { app.close(); }
+    }
+  });
+
+  test('tailscale mode disables OAuth routes and reports auth mode on health', async () => {
+    const app = createApp({
+      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
+    });
+    try {
+      for (const url of ['/auth/login', '/auth/callback', '/auth/logout']) {
+        const res = fakeRes();
+        await app.handle(fakeReq({ url, remote: '100.83.80.43' }), res);
+        assert.equal(res.statusCode, 404);
+        assert.match(res.body, /handled by the tailnet/);
+      }
+      const health = fakeRes();
+      await app.handle(fakeReq({ url: '/healthz' }), health);
+      assert.equal(JSON.parse(health.body).authMode, 'tailscale');
+    } finally { app.close(); }
+  });
+
+  test('listener binds accept only loopback and tailnet addresses', () => {
+    assert.deepEqual(bindAddresses('127.0.0.1, 100.111.93.20,127.0.0.1'), ['127.0.0.1', '100.111.93.20']);
+    assert.throws(() => bindAddresses('0.0.0.0'), /neither loopback nor tailnet/);
+    assert.throws(() => bindAddresses('192.168.1.100'), /neither loopback nor tailnet/);
   });
 });

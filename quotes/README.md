@@ -149,6 +149,29 @@ invoice says 10,700.00 and the certificate for 300.00 settles the remainder; in
 the certificate in `deduct` mode would mark an invoice paid while cash is still
 owed.
 
+A certificate recorded **against an invoice** is capped by that invoice's own
+frozen figures: the bases of all its certificates cannot exceed `net_satang`,
+and the withheld amounts cannot exceed `wht_satang`. Several partial
+certificates are fine — only the total is capped. Two consequences worth
+knowing before the error message surprises you:
+
+- Entering the same certificate twice is **refused**, not summed. Without that
+  cap a retried API call or a double form submit would claim twice the tax
+  credit on the PND, and in `memo` mode would quietly shrink the outstanding
+  balance on an invoice that still has cash owed against it.
+- A customer who withholds 3% of the **VAT-inclusive** total (321.00 on the
+  example above instead of 300.00) is refused too. That is their arithmetic
+  error to correct; crediting it would overstate the claim.
+
+A certificate with no invoice attached is uncapped — it represents withholding
+on income this system did not invoice.
+
+Every stored accounting date — invoice issue date, payment date, certificate
+date — must be a real calendar day. `2026-02-31` is rejected rather than
+normalised, because the issue date **is** the VAT tax point: it is printed on
+the tax invoice, it drives the due date, and it is the key the PP 30 worksheet
+groups by. A blank date still means today in Bangkok.
+
 ### Reports are worksheets, never a filing channel
 
 Nothing in this system submits anything to the Revenue Department. The reports

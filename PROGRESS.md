@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-11 (infrastructure-first bilingual consulting website)
+> Last updated: 2026-09-16 (quotes/ accounting v1 — invoices, frozen tax rates, PP 30 / PND worksheets)
 
 ## Current Focus
 

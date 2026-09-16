@@ -174,9 +174,9 @@ export function renderQuotationHtml(doc, lang = 'en') {
   .block .sub { color:var(--muted); }
   ol.terms { margin:0; padding-inline-start:14pt; font-size:8.5pt; color:var(--muted); line-height:1.7; }
   ol.terms li { margin-bottom:3pt; }
-  .sign { display:flex; gap:40pt; margin-top:26pt; }
-  .sign div { flex:1; border-top:.75pt solid var(--line); padding-top:6pt; font-size:8.5pt; color:var(--muted); text-align:center; }
-  footer { margin-top:20pt; border-top:.5pt solid var(--line); padding-top:7pt;
+  .sign { display:flex; gap:40pt; margin-top:16pt; }
+  .sign div { flex:1; border-top:.75pt solid var(--line); padding-top:5pt; font-size:8.5pt; color:var(--muted); text-align:center; }
+  footer { margin-top:12pt; border-top:.5pt solid var(--line); padding-top:6pt;
            font:7.5pt/1.6 var(--mono); color:var(--muted);
            display:flex; justify-content:space-between; }
 </style>

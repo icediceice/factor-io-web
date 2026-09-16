@@ -2,6 +2,9 @@
 // both auth lanes, the audit trail on every mutation, unauthenticated rejects.
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { openDb } from '../lib/db.mjs';
 import { createApi } from '../api.mjs';
 import { bindAddresses, createApp } from '../server.mjs';
@@ -218,16 +221,31 @@ describe('http auth boundary (createApp actorFor lanes)', () => {
     } finally { app.close(); }
   });
 
-  test('allowlisted tailnet whois identity is admitted', async () => {
+  test('allowlisted tailnet whois identity is admitted and becomes the audit actor', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'quotes-tailnet-test-'));
+    const dbPath = join(dir, 'quotes.db');
     const app = createApp({
-      QUOTES_DB_PATH: ':memory:', QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_DB_PATH: dbPath, QUOTES_AUTH_MODE: 'tailscale',
       QUOTES_ALLOWED_EMAILS: 'real@factor-io.com',
     }, { tailnetWhoisImpl: async () => 'real@factor-io.com' });
     try {
       const res = fakeRes();
-      await app.handle(fakeReq({ url: '/api/clients', remote: '100.83.80.43' }), res);
-      assert.equal(res.statusCode, 200);
-    } finally { app.close(); }
+      await app.handle(fakeReq({
+        method: 'POST', url: '/api/clients', remote: '100.83.80.43',
+        headers: { 'tailscale-user-login': 'forged@evil.example' },
+        body: { name: 'Tailnet Client' },
+      }), res);
+      assert.equal(res.statusCode, 201);
+    } finally {
+      app.close();
+    }
+    const check = openDb(dbPath);
+    try {
+      assert.equal(check.prepare('SELECT actor FROM audit_log ORDER BY id DESC LIMIT 1').get().actor, 'real@factor-io.com');
+    } finally {
+      check.close();
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   test('non-tailnet peers and failed whois are refused with 403', async () => {

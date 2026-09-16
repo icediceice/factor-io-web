@@ -2,3 +2,8 @@
 # EDCR transient state
 .claude/active-plan.md
 *.zip
+
+# Factor IO quotation ledger — commercial data never enters git
+quotes/data/
+quotes/node_modules/
+quotes/tmp/

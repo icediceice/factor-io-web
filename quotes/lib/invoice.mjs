@@ -379,16 +379,65 @@ export function recordPayment(db, invoiceId, { paidOn, amountSatang, method = 't
  */
 export function recordWhtCertificate(db, { invoiceId = null, paymentId = null, certNumber = '', issuedOn, pndForm = 'PND53', baseSatang, whtSatang, ratePercent = '', payerName = '', payerTaxId = '', filePath = '', note = '', actor = 'agent' }) {
   return tx(db, () => {
-    if (invoiceId != null) {
-      const inv = db.prepare('SELECT status, number FROM invoices WHERE id = ?').get(invoiceId);
-      if (!inv) throw new Error(`invoice ${invoiceId} not found`);
-      if (inv.status === 'draft') throw new Error(`invoice ${inv.number} is still a draft`);
-    }
     const base = Number(baseSatang);
     const wht = Number(whtSatang);
     if (!Number.isSafeInteger(base) || base < 0) throw new Error(`invalid WHT base: ${baseSatang}`);
     if (!Number.isSafeInteger(wht) || wht < 0) throw new Error(`invalid WHT amount: ${whtSatang}`);
     if (wht > base) throw new Error(`WHT ${wht} exceeds its base ${base} — the base is the NET, pre-VAT amount`);
+
+    if (invoiceId != null) {
+      const inv = db.prepare(
+        'SELECT status, number, net_satang, wht_satang FROM invoices WHERE id = ?'
+      ).get(invoiceId);
+      if (!inv) throw new Error(`invoice ${invoiceId} not found`);
+      if (inv.status === 'draft') throw new Error(`invoice ${inv.number} is still a draft`);
+      if (inv.status === 'cancelled') throw new Error(`invoice ${inv.number} is cancelled`);
+      if (paymentId != null) {
+        const pay = db.prepare('SELECT invoice_id FROM payments WHERE id = ?').get(paymentId);
+        if (!pay) throw new Error(`payment ${paymentId} not found`);
+        if (Number(pay.invoice_id) !== Number(invoiceId)) {
+          throw new Error(`payment ${paymentId} belongs to another invoice`);
+        }
+      }
+
+      // AN INVOICE-BOUND CERTIFICATE CANNOT EXCEED WHAT THE INVOICE SUPPORTS.
+      // Per-row validation alone (wht <= base) lets the SAME certificate be
+      // entered twice — an API retry, a double form submit, one entry from the
+      // CLI and one from the UI. Nothing downstream can tell the copies apart:
+      // reports.whtRegister sums these rows straight into the PND credit, so a
+      // duplicated 300.00 certificate claims 600.00 of tax paid on our behalf
+      // that no issued invoice backs. In memo mode invoiceBalance also counts
+      // certificates as settlement, so the same duplicate quietly shrinks the
+      // outstanding balance and can close an invoice with real cash still owed.
+      //
+      // The caps are the invoice's own FROZEN figures, so they cannot drift
+      // when settings change. Several PARTIAL certificates remain legal — they
+      // are summed, and only the total is capped. A certificate withheld on the
+      // VAT-inclusive amount by mistake (3% of grand, not of net) exceeds the
+      // cap and is refused on purpose: that is the customer's error to fix, and
+      // silently crediting it would overstate the PND claim.
+      const sums = db.prepare(`
+        SELECT COALESCE(SUM(base_satang), 0) AS base_so_far,
+               COALESCE(SUM(wht_satang), 0)  AS wht_so_far
+        FROM wht_certificates WHERE invoice_id = ?
+      `).get(invoiceId);
+      const baseSoFar = num(sums.base_so_far);
+      const whtSoFar = num(sums.wht_so_far);
+      const baseCap = num(inv.net_satang);
+      const whtCap = num(inv.wht_satang);
+      if (baseSoFar + base > baseCap) {
+        throw new Error(
+          `WHT base ${base} satang exceeds the ${Math.max(0, baseCap - baseSoFar)} satang remaining on ${inv.number} `
+          + `(invoice net ${baseCap}, already certified ${baseSoFar})`
+        );
+      }
+      if (whtSoFar + wht > whtCap) {
+        throw new Error(
+          `WHT ${wht} satang exceeds the ${Math.max(0, whtCap - whtSoFar)} satang remaining on ${inv.number} `
+          + `(invoice withholding ${whtCap}, already certified ${whtSoFar})`
+        );
+      }
+    }
 
     const info = db.prepare(`
       INSERT INTO wht_certificates (

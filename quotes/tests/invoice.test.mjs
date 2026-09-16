@@ -320,3 +320,133 @@ describe('invoice document envelope', () => {
     assert.ok(Array.isArray(doc.whtCertificates));
   });
 });
+
+describe('withholding certificates cannot exceed the invoice', () => {
+  // Worked example throughout: net 10,000,000 satang (100,000.00 THB),
+  // VAT 7% = 700,000, WHT 3% of the NET = 300,000.
+  function issued() {
+    const { db, qid } = seedAccepted();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    issueInvoice(db, id, {});
+    return { db, id };
+  }
+
+  test('THE DUPLICATE: the same certificate entered twice is refused', () => {
+    const { db, id } = issued();
+    recordWhtCertificate(db, { invoiceId: id, baseSatang: 10000000, whtSatang: 300000 });
+    // An API retry or a second form submit posts the identical figures again.
+    assert.throws(
+      () => recordWhtCertificate(db, { invoiceId: id, baseSatang: 10000000, whtSatang: 300000 }),
+      /exceeds the 0 satang remaining/,
+    );
+    // The PND credit register must still show exactly one certificate's worth.
+    const total = db.prepare('SELECT SUM(wht_satang) t FROM wht_certificates WHERE invoice_id = ?').get(id).t;
+    assert.equal(total, 300000);
+  });
+
+  test('PARTIAL certificates are still legal and sum to the frozen figure', () => {
+    const { db, id } = issued();
+    recordWhtCertificate(db, { invoiceId: id, baseSatang: 6000000, whtSatang: 180000 });
+    recordWhtCertificate(db, { invoiceId: id, baseSatang: 4000000, whtSatang: 120000 });
+    assert.equal(invoiceBalance(db, id).withheldSatang, 300000);
+    // ...and the next satang over the frozen total is refused.
+    assert.throws(
+      () => recordWhtCertificate(db, { invoiceId: id, baseSatang: 1, whtSatang: 1 }),
+      /exceeds the 0 satang remaining/,
+    );
+  });
+
+  test('withholding computed on the VAT-INCLUSIVE amount is refused, not credited', () => {
+    const { db, id } = issued();
+    // 3% of the grand 10,700,000 = 321,000 — a common customer-side error.
+    assert.throws(
+      () => recordWhtCertificate(db, { invoiceId: id, baseSatang: 10700000, whtSatang: 321000 }),
+      /WHT base 10700000 satang exceeds the 10000000 satang remaining/,
+    );
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM wht_certificates').get().c, 0);
+  });
+
+  test('a duplicate cannot silently settle a memo-mode invoice', () => {
+    const { db, id } = issued();
+    assert.equal(invoiceBalance(db, id).payableSatang, 10700000);   // memo: full grand total
+    recordWhtCertificate(db, { invoiceId: id, baseSatang: 10000000, whtSatang: 300000 });
+    assert.throws(() => recordWhtCertificate(db, { invoiceId: id, baseSatang: 10000000, whtSatang: 300000 }), /remaining/);
+    // Outstanding is still the real cash the customer owes: 10,700,000 - 300,000.
+    assert.equal(invoiceBalance(db, id).outstandingSatang, 10400000);
+    assert.equal(db.prepare('SELECT status s FROM invoices WHERE id=?').get(id).s, 'issued');
+  });
+
+  test('a cancelled invoice accrues no certificates', () => {
+    const { db, id } = issued();
+    markInvoiceStatus(db, id, 'cancelled', 'op@x.io');
+    assert.throws(() => recordWhtCertificate(db, { invoiceId: id, baseSatang: 100, whtSatang: 3 }), /cancelled/);
+  });
+
+  test("a certificate cannot be linked to a payment that is not this invoice's", () => {
+    const { db, id } = issued();
+    const pay = recordPayment(db, id, { amountSatang: 100000 });
+    assert.equal(typeof pay.id, 'number');
+    assert.throws(
+      () => recordWhtCertificate(db, { invoiceId: id, paymentId: 9999, baseSatang: 100, whtSatang: 3 }),
+      /payment 9999 not found/,
+    );
+    // The invoice's own payment is accepted as the link.
+    const ok = recordWhtCertificate(db, { invoiceId: id, paymentId: pay.id, baseSatang: 100, whtSatang: 3 });
+    assert.equal(typeof ok.id, 'number');
+  });
+
+  test('a STANDALONE certificate (no invoice) is still accepted uncapped', () => {
+    const { db } = issued();
+    const r = recordWhtCertificate(db, { baseSatang: 50000000, whtSatang: 1500000, payerName: 'Other Customer' });
+    assert.equal(typeof r.id, 'number');
+    assert.equal(r.balance, null);
+  });
+});
+
+describe('accounting dates must be real calendar days', () => {
+  test('an impossible day is refused at creation, not normalised into the file', () => {
+    const { db, qid } = seedAccepted();
+    assert.throws(
+      () => createInvoiceFromQuotation(db, qid, { issueDate: '2026-02-31' }),
+      /issue_date '2026-02-31' is not a real calendar date/,
+    );
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM invoices').get().c, 0);
+  });
+
+  test('a real leap day passes and its due date is computed from it', () => {
+    const { db, qid } = seedAccepted();
+    const { id } = createInvoiceFromQuotation(db, qid, { issueDate: '2028-02-29' });
+    const row = db.prepare('SELECT issue_date, due_date FROM invoices WHERE id = ?').get(id);
+    assert.equal(row.issue_date, '2028-02-29');
+    assert.equal(row.due_date, '2028-03-30');   // +30 days, terms default
+  });
+
+  test('a non-leap 29 February is refused', () => {
+    const { db, qid } = seedAccepted();
+    assert.throws(() => createInvoiceFromQuotation(db, qid, { issueDate: '2026-02-29' }), /not a real calendar date/);
+  });
+
+  test('a malformed date is refused by shape', () => {
+    const { db, qid } = seedAccepted();
+    assert.throws(() => createInvoiceFromQuotation(db, qid, { issueDate: '16/09/2026' }), /must be a YYYY-MM-DD date/);
+    assert.throws(() => createInvoiceFromQuotation(db, qid, { issueDate: '2026-9-16' }), /must be a YYYY-MM-DD date/);
+  });
+
+  test('issuing, paying and certifying all refuse an impossible date', () => {
+    const { db, qid } = seedAccepted();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    assert.throws(() => issueInvoice(db, id, { issueDate: '2026-13-01' }), /not a real calendar date/);
+    issueInvoice(db, id, {});
+    assert.throws(() => recordPayment(db, id, { paidOn: '2026-04-31', amountSatang: 100 }), /paid_on .* not a real calendar date/);
+    assert.throws(
+      () => recordWhtCertificate(db, { invoiceId: id, issuedOn: '2026-06-31', baseSatang: 100, whtSatang: 3 }),
+      /issued_on .* not a real calendar date/,
+    );
+  });
+
+  test('a blank date still means today in Bangkok', () => {
+    const { db, qid } = seedAccepted();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    assert.match(db.prepare('SELECT issue_date d FROM invoices WHERE id=?').get(id).d, /^\d{4}-\d{2}-\d{2}$/);
+  });
+});

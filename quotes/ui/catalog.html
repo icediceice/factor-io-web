@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalog · Factor I/O</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<script type="module">
+import { api, fmtSatang, el, toast, renderShell } from './app.js';
+
+const main = renderShell('catalog.html', 'Catalog', 'Reusable service and hardware items. Prices seed new quotation lines; every value stays editable per quote.');
+
+const listCard = el('<section class="card"><h2>Items</h2><div id="list"><div class="empty">Loading…</div></div></section>');
+const formCard = el(`<section class="card"><h2>New item</h2>
+  <form id="new">
+    <div class="grid">
+      <label>Type
+        <select name="kind"><option value="service">Service</option><option value="hardware">Hardware</option></select>
+      </label>
+      <label>SKU <input name="sku"></label>
+      <label>Unit <input name="unit" placeholder="day"></label>
+      <label>Unit price (THB) <input name="unit_price" required placeholder="35000.00" inputmode="decimal"></label>
+    </div>
+    <div class="grid">
+      <label>Name (EN) <input name="name_en" required></label>
+      <label>ชื่อ (TH) <input name="name_th"></label>
+    </div>
+    <label>Description <textarea name="description" rows="2"></textarea></label>
+    <div class="row-actions"><button type="submit">Add item</button></div>
+  </form>
+</section>`);
+
+main.append(listCard, formCard);
+
+async function load() {
+  const { items } = await api('GET', '/catalog');
+  const box = listCard.querySelector('#list');
+  box.innerHTML = items.length ? `<table class="list"><thead><tr>
+      <th>Item</th><th>Type</th><th>Unit</th><th class="num">Unit price</th><th>Status</th><th></th>
+    </tr></thead><tbody>
+    ${items.map((i) => `<tr>
+      <td><strong>${i.name_en}</strong>${i.name_th ? `<br><span class="muted">${i.name_th}</span>` : ''}${i.sku ? ` <span class="mono muted">${i.sku}</span>` : ''}</td>
+      <td>${i.kind}</td>
+      <td>${i.unit}</td>
+      <td class="num">${fmtSatang(i.unit_satang)}</td>
+      <td>${i.active ? 'active' : '<span class="muted">inactive</span>'}</td>
+      <td><button class="quiet" data-toggle="${i.id}" data-active="${i.active ? 1 : 0}">${i.active ? 'Deactivate' : 'Activate'}</button></td>
+    </tr>`).join('')}
+  </tbody></table>` : '<div class="empty">Catalog is empty.</div>';
+  for (const b of box.querySelectorAll('[data-toggle]')) {
+    b.addEventListener('click', async () => {
+      try {
+        await api('PUT', `/catalog/${b.dataset.toggle}`, { active: b.dataset.active === '1' ? false : true });
+        load();
+      } catch (e) { toast(e.message, 'error'); }
+    });
+  }
+}
+
+formCard.querySelector('#new').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target).entries());
+  try { await api('POST', '/catalog', body); toast('Item added'); e.target.reset(); load(); }
+  catch (err) { toast(err.message, 'error'); }
+});
+
+load().catch((e) => toast(e.message, 'error'));
+</script>
+</body>
+</html>

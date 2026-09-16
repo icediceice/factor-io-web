@@ -1,20 +1,21 @@
 # Factor I/O Quotation System
 
 A self-contained Node service for authoring and issuing Factor I/O
-quotations: a Google-authenticated web app for the human, a Chromium-rendered
+quotations: a tailnet-authenticated web app for the human, a Chromium-rendered
 bilingual (EN/TH) A4 PDF as the end product, and a REST API + CLI for the
 agent. **Zero runtime dependencies** — node:sqlite, node:http, headless
 Chromium.
 
 Layout:
 
-    server.mjs            HTTP adapter (OAuth lanes, static UI, PDF endpoint)
+    server.mjs            HTTP adapter (tailnet/OAuth lanes, UI, PDF endpoint)
     api.mjs               pure REST router (settings, clients, catalog,
                           quotations, lines, revisions)
     cli.mjs               agent terminal driver (--json everywhere)
     smoke.mjs             end-to-end smoke run against a real server process
     lib/db.mjs            SQLite storage, forward-only migrations, audit log
-    lib/auth.mjs          HMAC sessions + Google OAuth + agent bearer lane
+    lib/auth.mjs          auth modes, OAuth sessions + agent bearer lane
+    lib/tailnet.mjs       fail-closed Tailscale whois identity adapter
     lib/money.mjs         satang integer arithmetic (no floats, ever)
     lib/quote.mjs         totals engine, settings-driven numbering, snapshots
     lib/invoice.mjs       tax invoices: frozen rates, payments, WHT certs
@@ -25,7 +26,7 @@ Layout:
     ui/                   human screens (quotations, editor, invoices,
                           invoice, reports, clients, catalog, settings)
     tests/                node --test suite
-    deploy/               systemd user unit, nginx vhost, cloudflared ingress
+    deploy/               systemd user unit and tailnet access runbook
 
 ## Run locally (dev)
 
@@ -40,45 +41,56 @@ Layout:
 
 ## Operator install (light-worker, production)
 
-1. **Create the Google OAuth client** (console action, operator only):
-   type "Web application", authorised redirect URI
-   `https://quotes.factor-io.com/auth/callback`.
-2. **Generate a session secret**: `openssl rand -base64 48`.
-3. **Choose an agent token**: `openssl rand -hex 32` — this is what the CLI
+1. **Create a DNS-only A record**: `quotes.factor-io.com` →
+   `100.111.93.20`. It must be grey-cloud/unproxied: Cloudflare proxying would
+   reintroduce a public path.
+2. **Choose an agent token**: `openssl rand -hex 32` — this is what the CLI
    sends as `QUOTES_AGENT_TOKEN`.
-4. **Deploy the code**: rsync `quotes/` to `/home/ice/.factor-quotes/`
+3. **Deploy the code**: rsync `quotes/` to `/home/ice/.factor-quotes/`
    (exclude `data/`, `node_modules/`; it has none).
-5. **Create `/home/ice/.factor-quotes/.env` (0600)** — see "Environment"
-   below. `NODE_ENV=production` makes the boot gate REFUSE to start
-   half-configured instead of falling into the dev lane.
-6. **Install the service** (see deploy/factor-quotes.service header):
+4. **Create `/home/ice/.factor-quotes/.env` (0600)** — set
+   `QUOTES_AUTH_MODE=tailscale`,
+   `QUOTES_BIND=127.0.0.1,100.111.93.20`, the allowlist and agent token. See
+   "Environment" below. `NODE_ENV=production` makes the boot gate refuse when
+   tailscaled whois or the allowlist is unavailable.
+5. **Install the service** (see deploy/factor-quotes.service header):
    daemon-reload, `systemctl --user enable --now factor-quotes`.
-7. **Install the nginx vhost** (deploy/nginx-quotes.conf) and the
-   **cloudflared ingress** (deploy/cloudflared-quotes.yml), then reload both.
-8. **First sign-in**: open https://quotes.factor-io.com, sign in with an
-   allowlisted Google account, and fill in Settings (company block, tax IDs,
-   VAT/WHT rates, bank details, terms). Every business fact is a settings
-   row — no code edits, ever.
+6. **First use**: from an allowlisted tailnet device open
+   `http://quotes.factor-io.com` and fill in Settings (company block, tax IDs,
+   VAT/WHT rates, bank details, terms). Every business fact is a settings row.
+   There is intentionally no TLS: the Tailscale WireGuard path is encrypted,
+   at the accepted cost of no browser padlock or secure-context APIs.
+
+Full boundary checks and rollback are in `deploy/tailnet-access.md`.
+
+### If this service ever goes public
+
+Set `QUOTES_AUTH_MODE=oauth` and provide `QUOTES_SESSION_SECRET` (at least 32
+bytes), `QUOTES_GOOGLE_CLIENT_ID`, `QUOTES_GOOGLE_CLIENT_SECRET`,
+`QUOTES_PUBLIC_URL` and `QUOTES_ALLOWED_EMAILS`. A public listener, TLS and
+ingress would require a new reviewed deployment design; none are shipped here.
 
 ## Environment
 
 | Key | Required | Meaning |
 |---|---|---|
 | `QUOTES_DB_PATH` | no | SQLite file (default `<app>/data/quotes.db`) |
-| `QUOTES_PORT` | no | Listen port (default 8787, loopback only) |
+| `QUOTES_PORT` | no | Listen port (default 8787) |
+| `QUOTES_BIND` | no | Comma-separated loopback/tailnet addresses (default `127.0.0.1`; wildcard and LAN binds refuse) |
 | `NODE_ENV` | prod | `production` enables the boot gate |
-| `QUOTES_SESSION_SECRET` | prod | ≥32 bytes; HMAC-signs session cookies |
-| `QUOTES_GOOGLE_CLIENT_ID` | prod | Own OAuth client (NOT the board's) |
-| `QUOTES_GOOGLE_CLIENT_SECRET` | prod | Pair of the above |
-| `QUOTES_PUBLIC_URL` | prod | e.g. `https://quotes.factor-io.com` (redirect URI base) |
-| `QUOTES_ALLOWED_EMAILS` | prod | Comma-separated allowlist; falls back to the board's `LIGHT_BOARD_ALLOWED_EMAIL(S)` so the same accounts work |
+| `QUOTES_AUTH_MODE` | prod | Explicitly `tailscale` or `oauth`; no production default |
+| `QUOTES_SESSION_SECRET` | oauth | ≥32 bytes; HMAC-signs session cookies |
+| `QUOTES_GOOGLE_CLIENT_ID` | oauth | Own OAuth client (NOT the board's) |
+| `QUOTES_GOOGLE_CLIENT_SECRET` | oauth | Pair of the above |
+| `QUOTES_PUBLIC_URL` | oauth | Redirect URI base for public OAuth mode |
+| `QUOTES_ALLOWED_EMAILS` | prod | Comma-separated allowlist; required in both modes |
 | `QUOTES_AGENT_TOKEN` | agent | Bearer token for the CLI/agent lane (actor "agent" in the audit log) |
 | `QUOTES_TMPDIR` | no | PDF scratch dir (default `$HOME/quotes-tmp` — snap Chromium cannot write /tmp or hidden dirs) |
 | `QUOTES_CHROMIUM` | no | Chromium binary (auto-probes chromium-browser, chromium, google-chrome) |
 
 ## Agent usage (terminal)
 
-    export QUOTES_URL=https://quotes.factor-io.com QUOTES_AGENT_TOKEN=...
+    export QUOTES_URL=http://127.0.0.1:8787 QUOTES_AGENT_TOKEN=...
     node quotes/cli.mjs list
     node quotes/cli.mjs client-add --name "Acme" --tax-id 0105558000000
     node quotes/cli.mjs new --client 1 --lang th
@@ -243,8 +255,8 @@ document has no tax point.
   number, half-up, at the satang boundary. Tests pin the boundaries.
 - **Every issued quotation writes an immutable revision snapshot**; every
   mutation writes an audit row naming the actor (email or "agent").
-- **Sessions deliberately do NOT share the board cookie** — own OAuth client,
-  own host-only cookie (`quotes_session`), own allowlist (board fallback).
+- **Tailnet mode has no browser session** — identity comes from tailscaled
+  whois of the socket peer. OAuth remains available only as an explicit mode.
 - **Filed figures must never move.** Quotations read settings live; invoices
   copy them once at issue. Any new report reads stored invoice columns — if
   you find yourself importing settings into `lib/reports.mjs`, stop.

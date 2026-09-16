@@ -1,48 +1,50 @@
 // quotes/lib/quote.mjs — totals engine, settings-driven numbering, snapshots.
 //
-// Every business fact comes from the settings table via getSettings(db, ''):
-// VAT rate, WHT rate and application mode, currency, FX, number format.
-// Nothing here names a rate, a company, or a format literal.
+// Contract boundary: DB rows are snake_case (SQL), the DOCUMENT object that
+// this module builds is camelCase — it is the single payload consumed by the
+// template renderer, the API responses, the CLI --json output and the
+// immutable revision snapshots. Every business fact comes from settings via
+// getSettings(db): no rate, format, company fact or currency is literal here.
 
 import { tx, getSettings, audit } from './db.mjs';
 import {
   lineSubtotal, vatOf, whtOf, fxToThb, todayBkk, addDaysBkk,
 } from './money.mjs';
 
-/**
- * Compute document totals from lines [{qtyMilli, unitSatang, discountSatang}]
- * and the settings map. All values are satang integers.
- */
+/** Totals for lines [{qtyMilli, unitSatang, discountSatang}] + settings. */
 export function computeTotals(lines, settings) {
-  let subtotal = 0;
-  let discountTotal = 0;
+  let subtotalSatang = 0;
+  let discountSatang = 0;
   for (const line of lines) {
     const sub = lineSubtotal(line.qtyMilli, line.unitSatang);
-    const discount = Math.min(Math.max(0, line.discountSatang | 0), sub);
-    subtotal += sub;
-    discountTotal += discount;
+    const disc = Math.min(Math.max(0, Number(line.discountSatang) || 0), sub);
+    subtotalSatang += sub;
+    discountSatang += disc;
   }
-  const net = subtotal - discountTotal;
+  const netSatang = subtotalSatang - discountSatang;
   const vatRate = settings['vat.rate_percent'] ?? '0';
-  const vat = vatOf(net, vatRate);
-  const grand = net + vat;
+  const vatSatang = vatOf(netSatang, vatRate);
+  const grandSatang = netSatang + vatSatang;
   const whtRate = settings['wht.rate_percent'] ?? '0';
-  const wht = whtOf(net, whtRate);
+  const whtSatang = whtOf(netSatang, whtRate);
   const whtMode = (settings['wht.apply'] ?? 'memo') === 'deduct' ? 'deduct' : 'memo';
-  const payable = whtMode === 'deduct' ? grand - wht : grand;
+  const payableSatang = whtMode === 'deduct' ? grandSatang - whtSatang : grandSatang;
   const currency = settings['currency.code'] ?? 'THB';
-  const totals = { subtotal, discountTotal, net, vatRate, vat, grand, whtRate, wht, whtMode, payable, currency };
-  if ((settings['fx.rate'] ?? '') !== '' && currency !== 'THB') {
-    totals.thb = fxToThb(payable, settings['fx.rate']);
+  const totals = {
+    subtotalSatang, discountSatang, netSatang, vatRate, vatSatang,
+    grandSatang, whtRate, whtSatang, whtMode, payableSatang, currency,
+  };
+  const fxRate = settings['fx.rate'] ?? '';
+  if (fxRate !== '' && currency !== 'THB') {
+    totals.thbPayableSatang = fxToThb(payableSatang, fxRate);
   }
   return totals;
 }
 
 /**
  * Allocate the next quote number from settings['quote.number_format'].
- * Supported tokens: {YYYY} {MM} {DD} {SEQ:n}. The prefix (format minus the
- * SEQ token) keys a monotonic counter, so numbers are never reused even if a
- * draft is deleted. Allocation happens in its own transaction.
+ * Tokens: {YYYY} {MM} {DD} {SEQ:n}. The prefix (format minus SEQ) keys a
+ * monotonic counter — numbers are never reused, even if a quote is deleted.
  */
 export function allocateQuoteNumber(db, settings, nowMs = Date.now()) {
   const fmt = settings['quote.number_format'] ?? 'QT-{YYYY}{MM}-{SEQ:4}';
@@ -63,11 +65,14 @@ export function allocateQuoteNumber(db, settings, nowMs = Date.now()) {
   });
 }
 
-/** Full document: the single payload the template, snapshot and API share. */
+const num = (v) => (v == null ? 0 : Number(v));
+const str = (v) => (v == null ? '' : String(v));
+
+/** Full quotation document — camelCase, shared by template/API/CLI/snapshot. */
 export function buildQuoteDocument(db, quotationId) {
-  const quotation = db.prepare('SELECT * FROM quotations WHERE id = ?').get(quotationId);
-  if (!quotation) throw new Error(`quotation ${quotationId} not found`);
-  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(quotation.client_id);
+  const q = db.prepare('SELECT * FROM quotations WHERE id = ?').get(quotationId);
+  if (!q) throw new Error(`quotation ${quotationId} not found`);
+  const clientRow = db.prepare('SELECT * FROM clients WHERE id = ?').get(q.client_id);
   const lines = db.prepare(
     'SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id'
   ).all(quotationId);
@@ -77,64 +82,75 @@ export function buildQuoteDocument(db, quotationId) {
     settings,
   );
   const validityDays = Number(settings['quote.validity_days'] ?? '15');
-  const issueDate = quotation.issue_date || todayBkk();
+  const issueDate = str(q.issue_date) || todayBkk();
   return {
     quotation: {
-      id: quotation.id,
-      number: quotation.number,
-      status: quotation.status,
-      lang: quotation.lang,
-      issue_date: issueDate,
-      valid_until: quotation.valid_until || addDaysBkk(issueDate, validityDays),
-      currency: quotation.currency,
-      fx_base: quotation.fx_base,
-      fx_rate: quotation.fx_rate,
-      fx_as_of: quotation.fx_as_of,
-      notes: quotation.notes,
+      id: q.id,
+      number: str(q.number),
+      status: str(q.status),
+      lang: str(q.lang) || 'en',
+      currency: str(q.currency) || 'THB',
+      issueDate,
+      validUntil: str(q.valid_until) || addDaysBkk(issueDate, validityDays),
+      fxBase: str(q.fx_base),
+      fxRate: str(q.fx_rate),
+      fxAsOf: str(q.fx_as_of),
+      notes: str(q.notes),
     },
-    client,
+    client: clientRow ? {
+      id: clientRow.id,
+      name: str(clientRow.name),
+      nameTh: str(clientRow.name_th),
+      address: str(clientRow.address),
+      addressTh: str(clientRow.address_th),
+      taxId: str(clientRow.tax_id),
+      contact: str(clientRow.contact),
+      email: str(clientRow.email),
+      phone: str(clientRow.phone),
+    } : null,
     lines: lines.map((l) => ({
       position: l.position,
-      kind: l.kind,
-      description_en: l.description_en,
-      description_th: l.description_th,
-      qty: l.qty_milli / 1000,
-      unit: l.unit,
-      unit_satang: l.unit_satang,
-      discount_satang: l.discount_satang,
-      subtotal_satang: lineSubtotal(l.qty_milli, l.unit_satang),
+      kind: str(l.kind),
+      descriptionEn: str(l.description_en),
+      descriptionTh: str(l.description_th),
+      qtyMilli: num(l.qty_milli),
+      qty: num(l.qty_milli) / 1000,
+      unit: str(l.unit),
+      unitSatang: num(l.unit_satang),
+      discountSatang: num(l.discount_satang),
+      subtotalSatang: lineSubtotal(l.qty_milli, l.unit_satang),
     })),
     totals,
     issuer: {
       name: settings['company.name'] ?? '',
-      name_th: settings['company.name_th'] ?? '',
+      nameTh: settings['company.name_th'] ?? '',
       address: settings['company.address'] ?? '',
-      address_th: settings['company.address_th'] ?? '',
-      tax_id: settings['company.tax_id'] ?? '',
+      addressTh: settings['company.address_th'] ?? '',
+      taxId: settings['company.tax_id'] ?? '',
       phone: settings['company.phone'] ?? '',
       email: settings['company.email'] ?? '',
       website: settings['company.website'] ?? '',
-      logo_path: settings['company.logo_path'] ?? '',
+      logoPath: settings['company.logo_path'] ?? '',
     },
     bank: {
       name: settings['bank.name'] ?? '',
-      name_th: settings['bank.name_th'] ?? '',
-      account_name: settings['bank.account_name'] ?? '',
-      account_number: settings['bank.account_number'] ?? '',
+      nameTh: settings['bank.name_th'] ?? '',
+      accountName: settings['bank.account_name'] ?? '',
+      accountNumber: settings['bank.account_number'] ?? '',
       branch: settings['bank.branch'] ?? '',
       swift: settings['bank.swift'] ?? '',
     },
     terms: {
-      payment_en: settings['quote.payment_terms_en'] ?? '',
-      payment_th: settings['quote.payment_terms_th'] ?? '',
-      body_en: settings['quote.terms_en'] ?? '',
-      body_th: settings['quote.terms_th'] ?? '',
+      paymentEn: settings['quote.payment_terms_en'] ?? '',
+      paymentTh: settings['quote.payment_terms_th'] ?? '',
+      bodyEn: settings['quote.terms_en'] ?? '',
+      bodyTh: settings['quote.terms_th'] ?? '',
     },
-    generated_at: new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
   };
 }
 
-/** Append an immutable revision snapshot. rev is monotonic per quotation. */
+/** Append an immutable revision snapshot; rev is monotonic per quotation. */
 export function saveRevision(db, quotationId, doc, actor) {
   return tx(db, () => {
     const { next } = db.prepare(
@@ -147,7 +163,7 @@ export function saveRevision(db, quotationId, doc, actor) {
   });
 }
 
-/** Set status with an audit row; issued quotes snapshot at the same instant. */
+/** Transition status with an audit row; issuing snapshots the document. */
 export function markStatus(db, quotationId, status, actor) {
   const allowed = ['draft', 'issued', 'superseded', 'cancelled'];
   if (!allowed.includes(status)) throw new Error(`invalid status: ${status}`);

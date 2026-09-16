@@ -106,17 +106,26 @@ describe('documents and revisions', () => {
 
   test('markStatus(issued) writes an immutable snapshot + audit row', () => {
     const { db, qid } = seedDb();
-    const before = JSON.stringify(buildQuoteDocument(db, qid));
     const { rev } = markStatus(db, qid, 'issued', 'op@factor-io.com');
     assert.equal(rev, 1);
     const snap = db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=? AND rev=1').get(qid);
-    assert.deepEqual(JSON.parse(snap.snapshot_json), JSON.parse(before));
-    db.prepare("UPDATE quotation_lines SET unit_satang = 999 WHERE quotation_id = ?").run(qid);
+    const snapshot = JSON.parse(snap.snapshot_json);
+    // the snapshot records the state AT ISSUE, including the new status
+    assert.equal(snapshot.quotation.status, 'issued');
+    // totals in the snapshot equal an independent computation from the rows
+    const lines = db.prepare('SELECT * FROM quotation_lines WHERE quotation_id=? ORDER BY position').all(qid);
+    const expected = computeTotals(
+      lines.map((l) => ({ qtyMilli: l.qty_milli, unitSatang: l.unit_satang, discountSatang: l.discount_satang })),
+      getSettings(db, ''),
+    );
+    assert.deepEqual(snapshot.totals, expected);
+    assert.equal(snapshot.client.name, 'Acme Ltd');
+    // live document follows row changes; the stored snapshot does not move
+    db.prepare('UPDATE quotation_lines SET unit_satang = 999 WHERE quotation_id = ?').run(qid);
     const afterMutation = JSON.stringify(buildQuoteDocument(db, qid));
-    assert.notEqual(afterMutation, before);              // live doc follows the rows
+    assert.notEqual(afterMutation, snap.snapshot_json);
     const row = db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=? AND rev=1').get(qid);
-    assert.equal(row.snapshot_json, snap.snapshot_json); // snapshot immutable
-    assert.deepEqual(JSON.parse(row.snapshot_json), JSON.parse(before));
+    assert.equal(row.snapshot_json, snap.snapshot_json); // byte-identical
     const audits = db.prepare("SELECT * FROM audit_log WHERE entity='quotation' AND entity_id=?").all(String(qid));
     assert.equal(audits.length, 1);
     assert.equal(audits[0].actor, 'op@factor-io.com');

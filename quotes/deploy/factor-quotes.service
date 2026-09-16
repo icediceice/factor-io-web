@@ -1,0 +1,48 @@
+# Factor IO quotation system — systemd USER unit for light-worker.
+# Modelled on ai-proxy/deploy/factor-quotes.service (the working precedent).
+#
+# Install (operator):
+#   mkdir -p ~/.config/systemd/user
+#   cp quotes/deploy/factor-quotes.service ~/.config/systemd/user/
+#   rsync -a quotes/ ~/.factor-quotes/ --exclude data --exclude node_modules
+#   create ~/.factor-quotes/.env (0600) — see quotes/README.md for every key
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now factor-quotes
+#
+# The unit runs as a USER service (no root), listens on 127.0.0.1:8787 and is
+# fronted by nginx + cloudflared exactly like ai.factor-io.com.
+
+[Unit]
+Description=Factor IO quotation system — authenticated web app, Chromium-rendered PDF, agent REST + CLI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ice/.factor-quotes
+EnvironmentFile=/home/ice/.factor-quotes/.env
+# NODE_ENV=production makes the boot gate REFUSE to start half-configured
+# (missing OAuth client, weak secret, empty allowlist) instead of silently
+# falling into the loopback dev lane.
+Environment=NODE_ENV=production
+Environment=QUOTES_PORT=8787
+ExecStart=/usr/bin/env node /home/ice/.factor-quotes/server.mjs
+Restart=on-failure
+RestartSec=3
+
+# Hardening: the only writable path the app needs is its SQLite data directory.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ReadWritePaths=/home/ice/.factor-quotes/data
+
+[Install]
+WantedBy=default.target
+# Hardening: the only writable path the app needs is its SQLite data directory.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ReadWritePaths=/home/ice/.factor-quotes/data
+
+[Install]
+WantedBy=default.target

@@ -16,6 +16,7 @@
 // fallback to the board allowlist so the SAME accounts work without retyping.
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { whoisAvailable } from './tailnet.mjs';
 
 export const SESSION_TTL_S = 7 * 24 * 60 * 60; // 7 days
 export const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -83,26 +84,37 @@ export function emailAllowed(email, list) {
 }
 
 export function readProductionEnv(env = process.env) {
+  const mode = (env.QUOTES_AUTH_MODE ?? '').trim().toLowerCase()
+    || (env.NODE_ENV === 'production' ? '' : 'oauth');
   const secret = env.QUOTES_SESSION_SECRET ?? '';
   const clientId = env.QUOTES_GOOGLE_CLIENT_ID ?? '';
   const clientSecret = env.QUOTES_GOOGLE_CLIENT_SECRET ?? '';
   const agentToken = env.QUOTES_AGENT_TOKEN ?? '';
   const publicUrl = (env.QUOTES_PUBLIC_URL ?? '').replace(/\/+$/, '');
   const list = allowlistFromEnv(env);
-  return { secret, clientId, clientSecret, agentToken, publicUrl, list };
+  return { mode, secret, clientId, clientSecret, agentToken, publicUrl, list };
 }
 
 /** Boot gate: in production the app must refuse to start half-configured
  *  rather than silently falling through to a dev sentinel. */
-export function assertProductionConfig(env = process.env) {
+export async function assertProductionConfig(env = process.env, options = {}) {
   if (env.NODE_ENV !== 'production') return;
-  const { secret, clientId, clientSecret, publicUrl } = readProductionEnv(env);
+  const { mode, secret, clientId, clientSecret, publicUrl, list } = readProductionEnv(env);
   const missing = [];
-  if (secret.length < 32) missing.push('QUOTES_SESSION_SECRET (>= 32 bytes)');
-  if (!clientId) missing.push('QUOTES_GOOGLE_CLIENT_ID');
-  if (!clientSecret) missing.push('QUOTES_GOOGLE_CLIENT_SECRET');
-  if (!publicUrl) missing.push('QUOTES_PUBLIC_URL');
-  if (allowlistFromEnv(env).length === 0) missing.push('QUOTES_ALLOWED_EMAILS');
+  if (mode !== 'tailscale' && mode !== 'oauth') {
+    missing.push('QUOTES_AUTH_MODE (tailscale or oauth)');
+  } else if (mode === 'tailscale') {
+    if (list.length === 0) missing.push('QUOTES_ALLOWED_EMAILS');
+    if (missing.length === 0 && !await (options.whoisAvailableImpl ?? whoisAvailable)()) {
+      missing.push('working Tailscale whois');
+    }
+  } else {
+    if (secret.length < 32) missing.push('QUOTES_SESSION_SECRET (>= 32 bytes)');
+    if (!clientId) missing.push('QUOTES_GOOGLE_CLIENT_ID');
+    if (!clientSecret) missing.push('QUOTES_GOOGLE_CLIENT_SECRET');
+    if (!publicUrl) missing.push('QUOTES_PUBLIC_URL');
+    if (list.length === 0) missing.push('QUOTES_ALLOWED_EMAILS');
+  }
   if (missing.length) {
     throw new Error(`refusing production start, missing: ${missing.join(', ')}`);
   }
@@ -171,6 +183,7 @@ export function authenticate(req, cfg) {
     }
     return { email: '', lane: null };
   }
+  if ((cfg.mode ?? 'oauth') !== 'oauth') return { email: '', lane: null };
   const email = verifySession(cookieValue(req.headers.cookie ?? '', 'quotes_session'), cfg.secret);
   if (email && emailAllowed(email, cfg.list)) return { email, lane: 'human' };
   return { email: '', lane: null };

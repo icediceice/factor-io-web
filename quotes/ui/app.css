@@ -1,0 +1,58 @@
+/* quotes/ui/app.css — quotation app screens on the site's Engineering Field Guide tokens */
+:root{color-scheme:light;--paper:#f4f3ed;--white:#fff;--ink:#172d2a;--muted:#4b605b;--accent:#006a57;--tint:#e2ede5;--line:#bdc9c1;--focus:#a64b00;--font:Inter,"Noto Sans Thai","Loma",Tahoma,system-ui,sans-serif;--mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai","Loma",monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 var(--font)}
+a{color:var(--accent)}
+.site-header{background:var(--paper);border-bottom:1px solid var(--line)}
+.header-inner{width:min(1200px,calc(100% - 48px));margin:auto;display:flex;align-items:center;gap:24px;min-height:72px;flex-wrap:wrap}
+.brand{font-size:18px;letter-spacing:.06em;font-weight:750;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;min-height:44px}
+.brand span{font-family:var(--mono);color:var(--accent)}
+#main-nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+#main-nav a{display:flex;align-items:center;min-height:44px;padding:6px 12px;font-size:14px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+#main-nav a[aria-current=page]{color:var(--ink);border-color:var(--accent)}
+#main-nav a:hover{color:var(--accent)}
+.wrap{width:min(1200px,calc(100% - 48px));margin:28px auto 64px}
+h1{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 22px;max-width:70ch}
+.card{background:var(--white);border:1px solid var(--line);padding:20px 22px;margin-bottom:22px}
+.card h2{font-size:1.05rem;margin:0 0 14px}
+table.list{width:100%;border-collapse:collapse;font-size:14.5px}
+table.list th{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:8px 10px}
+table.list td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top}
+table.list td.num,table.list th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.list tr:hover td{background:var(--tint)}
+.mono{font-family:var(--mono);font-size:.92em}
+.muted{color:var(--muted)}
+.status{display:inline-block;padding:2px 9px;border:1px solid var(--line);font:11.5px var(--mono)}
+.status-issued{border-color:var(--accent);color:var(--accent);background:var(--tint)}
+.status-draft{color:var(--muted)}
+.status-cancelled,.status-superseded{color:var(--focus);border-color:var(--focus)}
+label{display:block;font-size:13.5px;font-weight:600;margin-bottom:14px}
+input,select,textarea{display:block;width:100%;min-height:44px;margin-top:5px;background:var(--white);color:var(--ink);border:1px solid var(--muted);border-radius:2px;padding:9px 11px;font:15px/1.5 var(--font)}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--focus);outline-offset:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 18px}
+button,.button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:9px 18px;background:var(--accent);color:var(--white);border:1px solid var(--accent);border-radius:3px;font-size:14.5px;font-weight:600;cursor:pointer;text-decoration:none}
+button:hover,.button:hover{background:var(--ink);border-color:var(--ink)}
+button.quiet{background:transparent;color:var(--accent);border-color:transparent}
+button.quiet:hover{color:var(--ink);background:var(--tint)}
+button.danger{background:transparent;color:var(--focus);border-color:var(--focus)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--white);padding:12px 22px;font-size:14.5px;display:none;max-width:min(90vw,560px)}
+.toast[data-kind=error]{background:var(--focus)}
+.toast[data-kind=ok]{background:var(--accent)}
+.empty{color:var(--muted);padding:26px 0;text-align:center}
+.totals{margin-left:auto;min-width:300px;border-collapse:collapse;font-size:15px}
+.totals td{padding:5px 10px}
+.totals .lbl{color:var(--muted);text-align:right}
+.totals .num{text-align:right;font-variant-numeric:tabular-nums}
+.totals tr.grand td{border-top:1.5px solid var(--ink);font-weight:750;font-size:16.5px}
+.totals tr.payable td{font-weight:700;color:var(--accent)}
+.totals tr.memo td{color:var(--muted);font-size:12.5px}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:4px 16px;font-size:14.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+@media(max-width:700px){.wrap{width:calc(100% - 32px)}.kv{grid-template-columns:1fr}.totals{min-width:0;width:100%}}
+.kv dd{margin:0}
+@media(max-width:700px){.wrap{width:calc(100% - 32px)}.kv{grid-template-columns:1fr}.totals{min-width:0;width:100%}}

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice · Factor I/O</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<script type="module">
+import { api, fmtSatang, el, toast, statusChip, renderShell } from './app.js';
+
+const id = Number(new URLSearchParams(location.search).get('id'));
+const main = renderShell('invoices.html', 'Invoice', '');
+if (!Number.isInteger(id)) {
+  main.append(el('<section class="card"><div class="empty">No invoice id in the URL.</div></section>'));
+  throw new Error('no id');
+}
+
+const headCard = el('<section class="card" id="head"><div class="empty">Loading…</div></section>');
+const linesCard = el('<section class="card" id="lines"></section>');
+const settleCard = el('<section class="card" id="settle"></section>');
+const whtCard = el('<section class="card" id="wht"></section>');
+main.append(headCard, linesCard, settleCard, whtCard);
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+let doc = null;
+
+async function load() {
+  doc = await api('GET', `/invoices/${id}`);
+  renderHead();
+  renderLines();
+  renderSettlement();
+  renderWht();
+}
+
+function renderHead() {
+  const { invoice: i, client, totals } = doc;
+  document.title = `${i.number} · Factor I/O`;
+  main.querySelector('h1').textContent = i.number;
+  main.querySelector('.sub').innerHTML = i.status === 'draft'
+    ? 'This invoice is still a <strong>draft</strong>. Its rates are provisional — they are frozen at the moment you issue it, and the issue date becomes the tax point.'
+    : `Issued ${esc(i.issueDate)}. The rates below are <strong>frozen</strong> onto this invoice: changing them in Settings will not move these figures.`;
+
+  const isDraft = i.status === 'draft';
+  headCard.innerHTML = `
+    <h2>${esc(i.number)} ${statusChip(i.status)}</h2>
+    <div class="grid">
+      <dl class="kv">
+        <dt>Client</dt><dd>${esc(client?.name ?? '—')}</dd>
+        <dt>Tax ID</dt><dd class="mono">${esc(client?.taxId) || '<span class="muted">none on file</span>'}</dd>
+        <dt>From quotation</dt><dd>${i.quotationId ? `<a class="mono" href="quote.html?id=${i.quotationId}">${esc(i.quotationNumber)}</a>` : '<span class="muted">none</span>'}</dd>
+      </dl>
+      <dl class="kv">
+        <dt>Tax point (issued)</dt><dd class="mono">${esc(i.issueDate) || '<span class="muted">not issued yet</span>'}</dd>
+        <dt>Due</dt><dd class="mono">${esc(i.dueDate) || '—'}</dd>
+        <dt>Branch</dt><dd class="mono">${esc(i.branchCode) || '—'}</dd>
+        <dt>VAT rate</dt><dd class="mono">${esc(totals.vatRate)}%${isDraft ? ' <span class="muted">(provisional)</span>' : ' <span class="muted">(frozen)</span>'}</dd>
+        <dt>Withholding</dt><dd class="mono">${esc(totals.whtRate)}% — ${esc(totals.whtMode)}</dd>
+      </dl>
+    </div>
+    <div class="row-actions">
+      ${isDraft ? '<button id="issue">Issue this invoice</button>' : ''}
+      <a class="button quiet" href="/api/invoices/${id}/pdf?lang=en" target="_blank" rel="noopener">PDF (EN)</a>
+      <a class="button quiet" href="/api/invoices/${id}/pdf?lang=th" target="_blank" rel="noopener">PDF (ไทย)</a>
+      ${i.status !== 'cancelled' && i.status !== 'paid' ? '<button id="cancel" class="danger">Cancel invoice</button>' : ''}
+      ${isDraft ? '<button id="delete" class="danger">Delete draft</button>' : ''}
+    </div>
+    ${isDraft ? `<label style="margin-top:14px;max-width:320px">Issue date (blank = today)
+      <input id="issue_date" type="date"></label>` : ''}`;
+
+  headCard.querySelector('#issue')?.addEventListener('click', async () => {
+    const d = headCard.querySelector('#issue_date')?.value;
+    try {
+      await api('POST', `/invoices/${id}/issue`, d ? { issue_date: d } : {});
+      toast('Issued — rates and totals are now frozen');
+      await load();
+    } catch (e) { toast(e.message, 'error'); }
+  });
+  headCard.querySelector('#cancel')?.addEventListener('click', async () => {
+    if (!confirm('Cancel this invoice? The number is kept so the series has no gap, but the document is void.')) return;
+    try {
+      await api('POST', `/invoices/${id}/status`, { status: 'cancelled' });
+      toast('Invoice cancelled');
+      await load();
+    } catch (e) { toast(e.message, 'error'); }
+  });
+  headCard.querySelector('#delete')?.addEventListener('click', async () => {
+    if (!confirm('Delete this draft invoice? Only a draft can be deleted.')) return;
+    try {
+      await api('DELETE', `/invoices/${id}`);
+      toast('Draft deleted');
+      location.href = 'invoices.html';
+    } catch (e) { toast(e.message, 'error'); }
+  });
+}
+
+function renderLines() {
+  const { lines, totals } = doc;
+  const cur = totals.currency;
+  linesCard.innerHTML = `
+    <h2>Lines <span class="muted" style="font-weight:400;font-size:13px">snapshotted from the quotation</span></h2>
+    <table class="list"><thead><tr>
+      <th>#</th><th>Description</th><th>Type</th><th class="num">Qty</th><th>Unit</th>
+      <th class="num">Unit price</th><th class="num">Discount</th><th class="num">Amount</th>
+    </tr></thead><tbody>
+      ${lines.map((l) => `<tr>
+        <td class="mono muted">${l.position}</td>
+        <td>${esc(l.descriptionEn)}${l.descriptionTh ? `<br><span class="muted">${esc(l.descriptionTh)}</span>` : ''}</td>
+        <td class="muted">${esc(l.kind)}</td>
+        <td class="num">${l.qty}</td>
+        <td class="muted">${esc(l.unit)}</td>
+        <td class="num">${fmtSatang(l.unitSatang, cur)}</td>
+        <td class="num muted">${l.discountSatang ? `−${fmtSatang(l.discountSatang, cur)}` : '—'}</td>
+        <td class="num">${fmtSatang(l.subtotalSatang - (l.discountSatang || 0), cur)}</td>
+      </tr>`).join('')}
+    </tbody></table>
+    <table class="totals">
+      <tr class="memo"><td class="lbl">Subtotal</td><td class="num">${fmtSatang(totals.subtotalSatang, cur)}</td></tr>
+      ${totals.discountSatang ? `<tr class="memo"><td class="lbl">Total discount</td><td class="num">−${fmtSatang(totals.discountSatang, cur)}</td></tr>` : ''}
+      <tr><td class="lbl">Net (VAT base)</td><td class="num">${fmtSatang(totals.netSatang, cur)}</td></tr>
+      <tr><td class="lbl">VAT ${esc(totals.vatRate)}%</td><td class="num">${fmtSatang(totals.vatSatang, cur)}</td></tr>
+      <tr class="grand"><td class="lbl">Grand total</td><td class="num">${fmtSatang(totals.grandSatang, cur)}</td></tr>
+      ${totals.whtSatang ? `<tr class="memo"><td class="lbl">Withholding ${esc(totals.whtRate)}% (${esc(totals.whtMode)})</td><td class="num">${totals.whtMode === 'deduct' ? '−' : ''}${fmtSatang(totals.whtSatang, cur)}</td></tr>` : ''}
+      <tr class="payable"><td class="lbl">Total payable</td><td class="num">${fmtSatang(totals.payableSatang, cur)}</td></tr>
+    </table>`;
+}
+
+function renderSettlement() {
+  const { balance: b, payments, totals, invoice: i } = doc;
+  const cur = totals.currency;
+  // In 'memo' mode the customer transfers less and hands over a certificate,
+  // so the certificate closes the gap. In 'deduct' mode the withholding was
+  // already taken off the invoice face, so only cash can settle it.
+  const certCounts = b.whtMode !== 'deduct';
+  settleCard.innerHTML = `
+    <h2>Settlement</h2>
+    <table class="totals" style="margin:0 0 18px">
+      <tr><td class="lbl">Payable</td><td class="num">${fmtSatang(b.payableSatang, cur)}</td></tr>
+      <tr><td class="lbl">Cash received</td><td class="num">${fmtSatang(b.paidSatang, cur)}</td></tr>
+      ${b.withheldSatang ? `<tr class="memo"><td class="lbl">Withheld at source${certCounts ? '' : ' (already deducted — not a settlement)'}</td><td class="num">${fmtSatang(b.withheldSatang, cur)}</td></tr>` : ''}
+      <tr class="${b.settled ? 'payable' : 'grand'}"><td class="lbl">${b.settled ? 'Settled in full' : 'Outstanding'}</td><td class="num">${b.settled ? '—' : fmtSatang(b.outstandingSatang, cur)}</td></tr>
+    </table>
+    ${payments.length ? `<table class="list"><thead><tr>
+        <th>Paid on</th><th class="num">Amount</th><th>Method</th><th>Reference</th><th></th>
+      </tr></thead><tbody>
+      ${payments.map((p) => `<tr>
+        <td class="mono">${esc(p.paidOn)}</td>
+        <td class="num">${fmtSatang(p.amountSatang, cur)}</td>
+        <td class="muted">${esc(p.method) || '—'}</td>
+        <td class="muted">${esc(p.reference) || ''}</td>
+        <td><button class="quiet danger" data-del-pay="${p.id}">Reverse</button></td>
+      </tr>`).join('')}
+    </tbody></table>` : '<div class="empty">No payments recorded.</div>'}
+    ${i.status === 'draft'
+      ? '<p class="muted" style="margin-top:14px">A draft cannot take a payment — issue it first.</p>'
+      : `<form id="pay" style="margin-top:18px">
+      <h2>Record a payment</h2>
+      <div class="grid">
+        <label>Amount (${esc(cur)})<input name="amount" required inputmode="decimal" pattern="\\d+(\\.\\d{1,2})?" placeholder="10400.00"></label>
+        <label>Paid on<input name="paid_on" type="date"></label>
+        <label>Method<input name="method" placeholder="transfer"></label>
+        <label>Reference<input name="reference" placeholder="bank ref"></label>
+      </div>
+      <div class="row-actions"><button type="submit">Record payment</button></div>
+    </form>`}`;
+
+  settleCard.querySelectorAll('[data-del-pay]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Reverse this payment?')) return;
+      try {
+        await api('DELETE', `/invoices/${id}/payments/${btn.dataset.delPay}`);
+        toast('Payment reversed');
+        await load();
+      } catch (e) { toast(e.message, 'error'); }
+    });
+  });
+  settleCard.querySelector('#pay')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    try {
+      await api('POST', `/invoices/${id}/payments`, {
+        amount: f.get('amount'),
+        paid_on: f.get('paid_on') || undefined,
+        method: f.get('method') || undefined,
+        reference: f.get('reference') || undefined,
+      });
+      toast('Payment recorded');
+      await load();
+    } catch (err) { toast(err.message, 'error'); }
+  });
+}
+
+function renderWht() {
+  const certs = doc.wht_certificates ?? [];
+  const cur = doc.totals.currency;
+  whtCard.innerHTML = `
+    <h2>Withholding tax certificates received</h2>
+    <p class="sub">Each certificate the customer hands over is a tax credit you claim against the company's own income tax. Withholding is calculated on the <strong>net</strong> (pre-VAT) base, never on the VAT-inclusive total.</p>
+    ${certs.length ? `<table class="list"><thead><tr>
+        <th>Cert no.</th><th>Issued</th><th>Form</th><th class="num">Base</th><th class="num">Withheld</th><th>Payer</th>
+      </tr></thead><tbody>
+      ${certs.map((w) => `<tr>
+        <td class="mono">${esc(w.certNumber) || '—'}</td>
+        <td class="mono">${esc(w.issuedOn)}</td>
+        <td class="mono">${esc(w.pndForm)}</td>
+        <td class="num">${fmtSatang(w.baseSatang, cur)}</td>
+        <td class="num">${fmtSatang(w.whtSatang, cur)}<span class="muted mono"> ${esc(w.ratePercent)}%</span></td>
+        <td>${esc(w.payerName) || '—'}<br><span class="muted mono">${esc(w.payerTaxId) || ''}</span></td>
+      </tr>`).join('')}
+    </tbody></table>` : '<div class="empty">No certificates recorded against this invoice.</div>'}
+    <form id="addwht" style="margin-top:18px">
+      <div class="grid">
+        <label>Certificate no.<input name="cert_number" placeholder="WHT-0001"></label>
+        <label>Issued on<input name="issued_on" type="date"></label>
+        <label>PND form
+          <select name="pnd_form">
+            <option value="PND53">PND 53 (paid by a company)</option>
+            <option value="PND3">PND 3 (paid by an individual)</option>
+            <option value="PND54">PND 54 (paid from abroad)</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>Base amount, pre-VAT (${esc(cur)})<input name="base" required inputmode="decimal" pattern="\\d+(\\.\\d{1,2})?" placeholder="10000.00"></label>
+        <label>Amount withheld (${esc(cur)})<input name="wht" required inputmode="decimal" pattern="\\d+(\\.\\d{1,2})?" placeholder="300.00"></label>
+        <label>Rate %<input name="rate_percent" inputmode="decimal" placeholder="3"></label>
+        <label>Payer name<input name="payer_name"></label>
+        <label>Payer tax ID<input name="payer_tax_id" inputmode="numeric"></label>
+      </div>
+      <div class="row-actions"><button type="submit">Record certificate</button></div>
+    </form>`;
+
+  whtCard.querySelector('#addwht').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const body = {};
+    for (const [k, v] of f.entries()) if (String(v).trim()) body[k] = v;
+    try {
+      await api('POST', `/invoices/${id}/wht`, body);
+      toast('Certificate recorded');
+      await load();
+    } catch (err) { toast(err.message, 'error'); }
+  });
+}
+
+load().catch((e) => {
+  headCard.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  toast(e.message, 'error');
+});
+</script>
+</body>
+</html>

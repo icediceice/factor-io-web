@@ -322,7 +322,7 @@ export function createApi(db) {
             audit(db, actor, 'line.add', 'quotation', id, { line_id: lid, kind, qty_milli: qtyMilli, unit_satang: unitSatang });
             return lid;
           });
-          return json(201, { line: db.prepare('SELECT * FROM quotation_lines WHERE id = ?').get(lineId), quotation: buildQuoteDocument(db, id) });
+          return json(201, docEnvelope(buildQuoteDocument(db, id), { line: db.prepare('SELECT * FROM quotation_lines WHERE id = ?').get(lineId) }));
         }
         if (method === 'PUT' && seg[3]) {
           const lineId = Number(seg[3]);

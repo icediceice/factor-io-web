@@ -283,7 +283,7 @@ export function createApi(db) {
             db.prepare(`UPDATE quotations SET ${sets.join(', ')}, updated_at=datetime('now') WHERE id = ?`).run(...args, id);
             audit(db, actor, 'quotation.update', 'quotation', id, { fields: Object.keys(body) });
           });
-          return json(200, { quotation: buildQuoteDocument(db, id) });
+          return json(200, docEnvelope(buildQuoteDocument(db, id)));
         }
         if (method === 'DELETE') {
           if (row.status !== 'draft') throw bad('only draft quotations can be deleted');

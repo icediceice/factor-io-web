@@ -60,8 +60,7 @@ export function createApp(env = process.env) {
           body,
           actor: identity.email,
         });
-        for (const [k, v] of Object.entries(reply.headers)) res.setHeader(k, v);
-        res.statusCode = reply.status;
+        res.writeHead(reply.status, reply.headers);
         return res.end(reply.body);
       }
 

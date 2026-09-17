@@ -69,8 +69,17 @@ export function computeTotals(lines, settings, termMonths = 0) {
     else oneTimeSatang += net;
 
     const section = String(line.section ?? '');
-    if (!sectionNet.has(section)) { sectionOrder.push(section); sectionNet.set(section, 0); }
+    if (!sectionNet.has(section)) {
+      sectionOrder.push(section);
+      sectionNet.set(section, 0);
+      sectionGross.set(section, 0);
+    }
     sectionNet.set(section, sectionNet.get(section) + net);
+    // Gross too, because the printed AMOUNT column is gross (per-line discount
+    // is aggregated in the totals block, not shown per line). A section
+    // subtotal printed under that column must match what the reader can add up
+    // by hand, or the whole document looks like it cannot do arithmetic.
+    sectionGross.set(section, sectionGross.get(section) + sub);
   }
 
   const netSatang = subtotalSatang - discountSatang;

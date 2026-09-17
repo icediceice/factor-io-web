@@ -106,6 +106,97 @@ boundary as decimal STRINGS; quantities as decimal strings ("0.5" = half a
 day). Issued quotations are frozen — corrections mean a new draft or a
 superseding quote.
 
+## Proposing anything: line types, billing periods, sections and options
+
+A quotation is not limited to services and hardware. **The line-type vocabulary
+is a settings row, not code.**
+
+### The `line.kinds` setting
+
+`line.kinds` holds a JSON array of `{code, en, th}`. It ships with nine types —
+`service`, `hardware`, `software`, `license`, `subscription`, `support`,
+`training`, `cloud`, `expense` — and `GET /api/line-kinds` publishes the live
+list alongside the billing periods, so the browser selects, the CLI and any
+agent all build their options from the same source the server validates
+against. Run `node quotes/cli.mjs kinds` to see it.
+
+**Adding a type is a settings edit, not a deploy.** A `code` must match
+`^[a-z0-9][a-z0-9_-]{0,30}$`, because it reaches HTML attributes, CLI flags and
+query strings:
+
+    node quotes/cli.mjs settings          # read line.kinds, add an entry
+    node quotes/cli.mjs set line.kinds '[{"code":"service","en":"Service","th":"บริการ"}, ...]'
+
+An unknown kind is **refused**, never coerced. A code with no label still
+renders — the raw code is the fallback — so a half-finished settings edit
+degrades the label rather than emptying the document.
+
+### Billing period and the contract total
+
+Each line carries `billing_period`: `once`, `monthly`, `quarterly` or `yearly`.
+Unlike `kind` this stays a closed set, because the totals engine branches on it;
+a new cadence needs a migration, not a settings edit. Set the quotation's
+`term_months` and a mixed proposal reads:
+
+    One-time                  ฿3,534,000.00
+    Recurring per year          ฿482,000.00
+    Recurring per month          ฿85,000.00
+    ...
+    Total payable             ฿4,388,070.00
+    Contract total (36 months) ฿8,040,000.00
+
+**The invariant that matters:** `subtotal`, `discount`, `net`, `vat`, `wht` and
+`payable` mean exactly what they always meant — **one cycle, non-optional lines
+only.** The contract total is a MEMO printed below the payable and visually
+separated from it. It carries **no VAT**, it is never what the quotation asks to
+be paid now, and it never reaches an invoice. It is `null` rather than `0` when
+there is no term or nothing recurring, so a plain one-off quotation renders
+exactly as it did before any of this existed.
+
+The arithmetic is integer-exact: the satang figure is multiplied by the month
+count *first* and divided last, so no per-line float ever accumulates.
+
+### Sections
+
+Give lines a `section` and the document groups them under a heading with a
+subtotal. Grouping is by **first appearance, never sorted** — the operator
+controls the running order of a proposal through line position, and re-sorting
+would silently override that. With no line carrying a section, the output is
+the same flat table it has always been.
+
+A section subtotal matches the **gross** AMOUNT column above it, not the net,
+because the aggregate discount appears once in the totals block. A subtotal a
+reader cannot add up by hand makes the whole document look like it cannot do
+arithmetic.
+
+### Optional lines
+
+`--optional` prices a line on the document and excludes it from **everything
+payable** — subtotal, VAT, WHT, the payable and the contract total. Options
+print with an `[OPTION]` marker instead of a line number, and their combined
+value is reported on its own row under a note saying it is not included.
+
+When the customer takes one, it is billed as an **ordinary** line:
+
+    node quotes/cli.mjs invoice 12          # options are dropped
+    # via the API, to take one:
+    POST /api/invoices { "quotation_id": 12, "include_optional_line_ids": [47] }
+
+`invoice_lines` deliberately has **no `optional` column**. A billed line is not
+optional, so nothing downstream can exclude it from a filed total. Selecting a
+line that is not optional, or not on that quotation, is refused; so is invoicing
+a quotation whose every line is an untaken option — that is an error, not a
+zero.
+
+### CLI
+
+    node quotes/cli.mjs kinds
+    node quotes/cli.mjs new --client 1 --term 36
+    node quotes/cli.mjs line-add 1 --kind software --desc "Platform licence" \
+        --qty 1 --price 480000.00 --period yearly --section Software
+    node quotes/cli.mjs line-add 1 --kind training --desc "Workshop" \
+        --qty 2 --price 45000.00 --section Services --optional
+
 ## Accounting: quotation → tax invoice → settlement
 
 The lifecycle, and the only legal moves between states:

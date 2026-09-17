@@ -330,7 +330,7 @@ export function renderInvoiceHtml(doc, lang = 'en') {
     <thead>
       <tr>
         <th class="pos">#</th><th>${esc(t.item)}</th><th>${esc(t.kind)}</th>
-        <th class="num">${esc(t.qty)}</th><th>${esc(t.unit)}</th>
+        <th class="num">${esc(t.qty)}</th><th>${esc(t.unit)}</th>${anyRecurring ? `<th>${esc(t.period)}</th>` : ''}
         <th class="num">${esc(t.unitPrice)}</th>
         <th class="num">${esc(t.lineDiscount)}</th>
         <th class="num">${esc(t.amount)}</th>

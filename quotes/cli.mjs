@@ -7,11 +7,20 @@
 // rejects floats by design.
 //
 //   quotes list
-//   quotes new --client 1 [--lang th] [--notes "..."] [--date 2026-09-20]
+//   quotes new --client 1 [--lang th] [--notes "..."] [--date 2026-09-20] [--term 36]
 //   quotes show 12
-//   quotes line-add 12 --kind service --desc "Workshop" --qty 0.5 \
-//                     --price 35000.00 [--unit day] [--desc-th "..."] [--discount 0]
+//   quotes kinds                          # the live --kind / --period vocabulary
+//   quotes line-add 12 --kind software --desc "Platform licence" --qty 1 \
+//                     --price 480000.00 [--unit year] [--desc-th "..."] [--discount 0] \
+//                     [--period once|monthly|quarterly|yearly] [--section Software] [--optional]
 //   quotes line-rm 12 3
+//
+// --kind takes ANY code in the line.kinds setting (service, hardware, software,
+// license, subscription, support, training, cloud, expense out of the box) —
+// run `quotes kinds` for the live list rather than assuming a fixed pair.
+// --optional prices a line on the document but excludes it from every total.
+// --term sets the contract length that extends recurring lines into a contract
+// total; that total is a memo and carries no VAT.
 //   quotes issue 12
 //   quotes status 12 cancelled
 //   quotes clients | client-add "Acme" --tax-id ...

@@ -535,6 +535,7 @@ describe('billing period, section, optional and term on the API', () => {
     assert.equal(doc.kindLabels.cloud, 'Cloud');
     assert.equal(doc.lines[0].billingPeriod, 'once');
   });
+});
 
 // ---------------------------------------------------------------------------
 // Revise in place. The old contract was "issued is frozen"; the new one is

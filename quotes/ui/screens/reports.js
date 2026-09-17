@@ -88,7 +88,7 @@ function pp30() {
         <dt>Filing deadline</dt><dd class="mono">${esc(r.dueOn.paper)} on paper · ${esc(r.dueOn.efiling)} by e-filing</dd>
         <dt>Invoices in period</dt><dd>${esc(String(r.invoiceCount))}</dd>
       </dl>
-      <table class="totals" style="margin:0 0 18px 0">
+      <table class="totals m0 mb-5">
         <tr><td class="lbl">Total sales (net)</td><td class="num">${money(r.totalSalesSatang)}</td></tr>
         <tr><td class="lbl">Sales subject to VAT</td><td class="num">${money(r.vatableNetSatang)}</td></tr>
         <tr class="payable"><td class="lbl">Output VAT</td><td class="num">${money(r.outputVatSatang)}</td></tr>
@@ -205,7 +205,7 @@ function wht() {
     const { report: r } = await api('GET', `/reports/wht?from=${f.get('from')}&to=${f.get('to')}`);
     const forms = Object.entries(r.byForm);
     card.querySelector('[data-out]').innerHTML = `
-      <table class="totals" style="margin:0 0 18px 0">
+      <table class="totals m0 mb-5">
         <tr class="grand"><td class="lbl">Total creditable</td><td class="num">${money(r.totalWhtSatang)}</td></tr>
         <tr class="memo"><td class="lbl">On a base of</td><td class="num">${money(r.totalBaseSatang)}</td></tr>
         ${forms.map(([k, v]) => `<tr class="memo"><td class="lbl">${esc(k)}</td><td class="num">${money(v)}</td></tr>`).join('')}

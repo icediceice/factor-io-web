@@ -307,7 +307,7 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
   .wb:not([data-selected=true]) .wb-detail{display:none}
   .wb-detail{padding:var(--s4) var(--s3)}
   .kv{grid-template-columns:1fr;gap:0 0}
-  .kv dt{margin-top:var(--s3);font-size:12.5px}
+  .kv dt{margin-top:var(--s3);font-size:var(--t-sm)}
   .totals{min-width:0;width:100%}
   .grid{grid-template-columns:1fr}
   /* The position strip stays ONE row and scrolls sideways. Letting auto-fit

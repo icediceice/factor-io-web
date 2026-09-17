@@ -111,13 +111,15 @@ export function confirmAction({
     </dialog>`);
     document.body.append(dlg);
     const done = (v) => { dlg.close(); dlg.remove(); resolve(v); };
-    dlg.querySelector('[data-act=cancel]').addEventListener('click', () => done(false));
+    const cancelBtn = dlg.querySelector('[data-act=cancel]');
+    if (cancelBtn) cancelBtn.addEventListener('click', () => done(false));
     dlg.querySelector('[data-act=ok]').addEventListener('click', () => done(true));
     // Escape and the backdrop both mean no. A destructive dialog must never
     // resolve true by accident.
     dlg.addEventListener('cancel', (e) => { e.preventDefault(); done(false); });
     dlg.showModal();
-    dlg.querySelector('[data-act=cancel]').focus();
+    // Cancel takes focus, so Enter is safe on a destructive dialog.
+    (cancelBtn ?? dlg.querySelector('[data-act=ok]')).focus();
   });
 }
 

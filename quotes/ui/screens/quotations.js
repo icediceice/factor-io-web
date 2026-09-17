@@ -60,9 +60,13 @@ export async function mount(main) {
     if (Array.isArray(v.billing_periods) && v.billing_periods.length) vocab.billingPeriods = v.billing_periods;
   } catch { toast('Using the built-in type list — /line-kinds is unavailable', 'error'); }
 
-  const statsCard = el(`<section class="card">
-    <h2>Position</h2>
-    <div id="stats" class="stat-row"><div class="empty">Loading…</div></div>
+  // A STRIP, not a card deck. These three figures were three full-height
+  // bordered cards under an <h2>, which measured 396px of chrome before the
+  // first quotation — past the 359px fold bar for a dense operator screen, so
+  // the rail the operator actually came for started below the fold. The
+  // numbers are real (/reports/pipeline) and they stay; the packaging goes.
+  const statsCard = el(`<section aria-label="Position">
+    <div id="stats" class="stat-row posbar"><div class="empty">Loading…</div></div>
   </section>`);
   main.append(statsCard);
 

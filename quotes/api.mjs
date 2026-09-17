@@ -347,25 +347,28 @@ export function createApi(db) {
           return json(200, { lines });
         }
         if (method === 'POST') {
-          const kind = body.kind === 'hardware' ? 'hardware' : body.kind === 'service' ? 'service' : null;
-          if (!kind) throw bad('kind must be "service" or "hardware"');
+          const kind = kindOf(db, body);
+          const billingPeriod = periodOf(body);
           const descEn = needStr(body, 'description_en', { max: 1000 });
           const qtyMilli = qtyMilliOf(body);
           const unitSatang = unitSatangOf(body);
           const discount = Number(body.discount_satang ?? 0);
           if (!Number.isSafeInteger(discount) || discount < 0) throw bad('discount_satang must be a non-negative integer');
+          const optional = body.optional === true || body.optional === 1 || body.optional === '1' ? 1 : 0;
+          const section = optStr(body, 'section', { max: 100 });
           const { position } = db.prepare(
             'SELECT COALESCE(MAX(position), 0) + 1 AS position FROM quotation_lines WHERE quotation_id = ?'
           ).get(id);
           const lineId = tx(db, () => {
             const { lastInsertRowid: lid } = db.prepare(
               `INSERT INTO quotation_lines
-                 (quotation_id, position, kind, description_en, description_th, qty_milli, unit, unit_satang, discount_satang, catalog_id)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                 (quotation_id, position, kind, description_en, description_th, qty_milli, unit, unit_satang, discount_satang,
+                  billing_period, section, optional, catalog_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
             ).run(id, position, kind, descEn, optStr(body, 'description_th'),
-              qtyMilli, optStr(body, 'unit', { max: 30 }) || (kind === 'service' ? 'day' : 'unit'),
-              unitSatang, discount, body.catalog_id ?? null);
-            audit(db, actor, 'line.add', 'quotation', id, { line_id: lid, kind, qty_milli: qtyMilli, unit_satang: unitSatang });
+              qtyMilli, optStr(body, 'unit', { max: 30 }) || defaultUnitFor(kind, billingPeriod),
+              unitSatang, discount, billingPeriod, section, optional, body.catalog_id ?? null);
+            audit(db, actor, 'line.add', 'quotation', id, { line_id: lid, kind, billing_period: billingPeriod, optional, qty_milli: qtyMilli, unit_satang: unitSatang });
             return lid;
           });
           return json(201, docEnvelope(buildQuoteDocument(db, id), { line: db.prepare('SELECT * FROM quotation_lines WHERE id = ?').get(lineId) }));

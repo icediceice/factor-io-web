@@ -187,7 +187,7 @@ export function buildQuoteDocument(db, quotationId) {
   );
   const validityDays = Number(settings['quote.validity_days'] ?? '15');
   const issueDate = str(q.issue_date) || todayBkk();
-  return {
+  const doc = {
     quotation: {
       id: q.id,
       number: str(q.number),

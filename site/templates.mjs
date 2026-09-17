@@ -98,9 +98,12 @@ function section(c, s) {
   if (s.kind === 'architecture') detail = topology(c);
   else if (s.kind === 'demo') detail = demo(c);
   else if (s.kind === 'contact') detail = contact(c);
+  else if (s.kind === 'questions') detail = questions(c, s);
+  else if (s.kind === 'routes') detail = routeSplit(c, s);
+  else if (s.kind === 'process') detail = processSteps(c, s);
   else if (s.kind === 'founder') detail = `<div class="founder-links">${link(config.linkedin, 'LinkedIn ↗')}${link(config.github, 'GitHub ↗')}${link(routePath(c.locale, 'about'), c.pages.about.nav)}</div>`;
   else if (s.items.length) {
-    const tag = ['flow', 'ledger'].includes(s.kind) ? 'ol' : 'ul';
+    const tag = s.kind === 'ledger' ? 'ol' : 'ul';
     detail = `<${tag} class="items ${s.kind}">${s.items.map((item, i) => `<li><span class="item-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><div><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></div></li>`).join('')}</${tag}>`;
   }
   return `<section id="${s.id}" class="content-section section-${s.kind}" aria-labelledby="${s.id}-title"><div class="section-heading"><p class="kicker">${esc(s.kicker)}</p><h2 id="${s.id}-title">${esc(s.title)}</h2><p>${esc(s.body)}</p></div>${detail}</section>`;

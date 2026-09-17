@@ -219,15 +219,21 @@ export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', l
     const insLine = db.prepare(`
       INSERT INTO invoice_lines (
         invoice_id, position, kind, description_en, description_th,
-        qty_milli, unit, unit_satang, discount_satang
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        qty_milli, unit, unit_satang, discount_satang, billing_period, section
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     // Positions are renumbered 1..n rather than copied: the source quotation
-    // may have gaps after line edits, and this is a customer-facing legal
-    // document where the first line must read 1, not 0 and not 7.
+    // may have gaps after line edits — and now also after optional lines are
+    // dropped — and this is a customer-facing legal document where the first
+    // line must read 1, not 0 and not 7.
+    //
+    // billing_period and section are COPIED, never re-read from the quotation
+    // later: the invoice is a frozen snapshot that must still render correctly
+    // years after the quotation it came from was edited or deleted.
     for (const [i, l] of srcLines.entries()) {
       insLine.run(invoiceId, i + 1, l.kind, l.description_en, l.description_th,
-        l.qty_milli, l.unit, l.unit_satang, l.discount_satang);
+        l.qty_milli, l.unit, l.unit_satang, l.discount_satang,
+        l.billing_period ?? 'once', l.section ?? '');
     }
 
     audit(db, actor, 'invoice.create', 'invoice', invoiceId, { number, quotationId, lines: srcLines.length });

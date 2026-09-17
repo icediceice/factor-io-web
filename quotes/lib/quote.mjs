@@ -10,7 +10,7 @@ import { tx, getSettings, audit } from './db.mjs';
 import {
   lineSubtotal, vatOf, whtOf, fxToThb, todayBkk, addDaysBkk, roundSatang,
 } from './money.mjs';
-import { PERIOD_MONTHS } from './kinds.mjs';
+import { PERIOD_MONTHS, labelMap } from './kinds.mjs';
 
 /**
  * Totals for lines [{qtyMilli, unitSatang, discountSatang, billingPeriod,

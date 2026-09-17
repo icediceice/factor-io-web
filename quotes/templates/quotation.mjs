@@ -49,6 +49,7 @@ const T = {
     period: 'Billing',
     option: 'OPTION',
     optionsNote: 'Options shown are not included in the totals below.',
+    optionsTotal: 'Options (not included)',
     oneTime: 'One-time',
     recurring: 'Recurring',
     contract: 'Contract total',

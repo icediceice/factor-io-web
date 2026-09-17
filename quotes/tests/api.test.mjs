@@ -676,4 +676,3 @@ describe('revise in place (the PDF guard, over http)', () => {
     } finally { app.close(); }
   });
 });
-});

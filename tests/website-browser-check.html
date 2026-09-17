@@ -6,7 +6,7 @@
 <pre id="report" role="status">Ready.</pre><div id="stage"></div>
 <script type="module">
 const report = document.querySelector('#report'), stage = document.querySelector('#stage'), run = document.querySelector('#run');
-const pages = ['', 'services/', 'platform/', 'governance/', 'how-we-work/', 'about/', 'contact/'];
+const pages = ['', 'services/', 'about/', 'contact/'];
 const frameAt = async (path, width, noScript = false) => {
   const frame = document.createElement('iframe'); frame.width = width; frame.title = `${path} at ${width}px`;
   if (noScript) frame.setAttribute('sandbox', 'allow-same-origin');

@@ -74,7 +74,10 @@ export function mountWorkbench(main, spec) {
     return items.filter((it) => {
       for (const f of filters) {
         const want = vals[f.name];
-        if (want && String(f.valueOf ? f.valueOf(it) : it[f.name] ?? '') !== want) return false;
+        // `pick`, never `valueOf` — EVERY object inherits Object.prototype
+        // .valueOf, so a `f.valueOf ? …` test is always true and would compare
+        // against the filter object itself rather than the item's field.
+        if (want && String((f.pick ? f.pick(it) : it[f.name]) ?? '') !== want) return false;
       }
       if (!q) return true;
       return spec.matches ? spec.matches(it, q) : true;

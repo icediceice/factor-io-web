@@ -377,3 +377,156 @@ describe('http auth boundary (createApp actorFor lanes)', () => {
     assert.throws(() => bindAddresses('192.168.1.100'), /neither loopback nor tailnet/);
   });
 });
+
+describe('the line vocabulary is data, not code', () => {
+  test('GET /line-kinds publishes the list the server validates against', async () => {
+    const { call } = boot();
+    const r = await call('GET', '/line-kinds');
+    assert.equal(r.status, 200);
+    const v = JSON.parse(r.body);
+    const codes = v.kinds.map((k) => k.code);
+    // The seeded vocabulary keeps the original pair and adds the rest.
+    for (const c of ['service', 'hardware', 'software', 'license', 'subscription',
+                     'support', 'training', 'cloud', 'expense']) {
+      assert.ok(codes.includes(c), `missing kind ${c}`);
+    }
+    // Every entry must be usable as a label in both languages.
+    for (const k of v.kinds) { assert.equal(typeof k.en, 'string'); assert.equal(typeof k.th, 'string'); }
+    assert.deepEqual(v.billing_periods.map((p) => p.code), ['once', 'monthly', 'quarterly', 'yearly']);
+  });
+
+  test('a kind added to the setting is accepted WITHOUT a code change', async () => {
+    const { call } = boot();
+    const current = JSON.parse(JSON.parse((await call('GET', '/settings')).body).settings['line.kinds']);
+    current.push({ code: 'datacenter', en: 'Datacenter', th: 'ศูนย์ข้อมูล' });
+    await call('PUT', '/settings', { body: { settings: { 'line.kinds': JSON.stringify(current) } } });
+    const r = await call('POST', '/catalog', { body: { kind: 'datacenter', name_en: 'Rack space', unit_price: '9000.00' } });
+    assert.equal(r.status, 201);
+    assert.equal(JSON.parse(r.body).item.kind, 'datacenter');
+  });
+
+  test('an unknown kind is REFUSED, never coerced to service', async () => {
+    const { call } = boot();
+    // This silently rewrote the kind to 'service' before the vocabulary opened
+    // up, which corrupted the row without any error reaching the operator.
+    const r = await call('POST', '/catalog', { body: { kind: 'nonsense', name_en: 'x', unit_price: '1.00' } });
+    assert.equal(r.status, 400);
+    const c = await call('POST', '/catalog', { body: { kind: 'service', name_en: 'y', unit_price: '1.00' } });
+    const id = JSON.parse(c.body).item.id;
+    const u = await call('PUT', `/catalog/${id}`, { body: { kind: 'nonsense' } });
+    assert.equal(u.status, 400);
+    assert.equal(JSON.parse((await call('GET', `/catalog/${id}`)).body).item.kind, 'service');
+  });
+
+  test('the default unit follows the kind and the period instead of always being a day', async () => {
+    const { call } = boot();
+    const seen = {};
+    for (const [kind, period] of [['service', 'once'], ['hardware', 'once'], ['support', 'monthly'], ['software', 'yearly']]) {
+      const r = await call('POST', '/catalog', { body: { kind, billing_period: period, name_en: `${kind}-${period}`, unit_price: '1.00' } });
+      seen[`${kind}/${period}`] = JSON.parse(r.body).item.unit;
+    }
+    assert.deepEqual(seen, {
+      'service/once': 'day',       // effort is still sold by the day
+      'hardware/once': 'unit',     // ...but a box is not
+      'support/monthly': 'month',
+      'software/yearly': 'year',
+    });
+  });
+});
+
+describe('billing period, section, optional and term on the API', () => {
+  /** A draft quotation with a client, ready for lines. */
+  async function draft(call) {
+    const c = await call('POST', '/clients', { body: { name: 'Acme Ltd' } });
+    const clientId = JSON.parse(c.body).client.id;
+    const q = await call('POST', '/quotations', { body: { client_id: clientId } });
+    return JSON.parse(q.body).quotation.id;
+  }
+
+  test('a line round-trips its period, section and optional flag', async () => {
+    const { call } = boot();
+    const id = await draft(call);
+    const r = await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'software', billing_period: 'yearly', section: 'Software', optional: true,
+      description_en: 'Platform licence', qty: '1', unit_price: '480000.00',
+    } });
+    assert.equal(r.status, 201);
+    const line = JSON.parse(r.body).line;
+    assert.equal(line.kind, 'software');
+    assert.equal(line.billing_period, 'yearly');
+    assert.equal(line.section, 'Software');
+    assert.equal(line.optional, 1);
+    assert.equal(line.unit, 'year');
+  });
+
+  test('an unknown billing period is refused', async () => {
+    const { call } = boot();
+    const id = await draft(call);
+    const r = await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'service', billing_period: 'fortnightly',
+      description_en: 'x', qty: '1', unit_price: '1.00',
+    } });
+    assert.equal(r.status, 400);
+  });
+
+  test("a line's kind can now be corrected on PUT instead of delete-and-re-add", async () => {
+    const { call } = boot();
+    const id = await draft(call);
+    const a = await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'service', description_en: 'Licence, mis-typed', qty: '1', unit_price: '100.00',
+    } });
+    const lineId = JSON.parse(a.body).line.id;
+    const u = await call('PUT', `/quotations/${id}/lines/${lineId}`, { body: { kind: 'license', optional: true } });
+    assert.equal(u.status, 200);
+    const line = JSON.parse(u.body).line;
+    assert.equal(line.kind, 'license');
+    assert.equal(line.optional, 1);
+    // Untouched fields survive the merge.
+    assert.equal(line.description_en, 'Licence, mis-typed');
+  });
+
+  test('term_months is validated as an integer in 0..600 and drives the contract total', async () => {
+    const { call } = boot();
+    const id = await draft(call);
+    await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'support', billing_period: 'monthly', description_en: 'On-call', qty: '1', unit_price: '85000.00',
+    } });
+    assert.equal((await call('PUT', `/quotations/${id}`, { body: { term_months: 601 } })).status, 400);
+    assert.equal((await call('PUT', `/quotations/${id}`, { body: { term_months: -1 } })).status, 400);
+    assert.equal((await call('PUT', `/quotations/${id}`, { body: { term_months: 1.5 } })).status, 400);
+    const ok = await call('PUT', `/quotations/${id}`, { body: { term_months: 36 } });
+    assert.equal(ok.status, 200);
+    const t = JSON.parse(ok.body).totals;
+    assert.equal(t.termMonths, 36);
+    assert.equal(t.recurringSatang.monthly, 8500000);
+    assert.equal(t.contractTotalSatang, 8500000 * 36);
+    // The payable is still ONE cycle — the term never inflates what is owed now.
+    assert.equal(t.netSatang, 8500000);
+  });
+
+  test('an optional line is priced on the document but excluded from the payable', async () => {
+    const { call } = boot();
+    const id = await draft(call);
+    await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'hardware', description_en: 'Appliance', qty: '1', unit_price: '100000.00',
+    } });
+    const r = await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'training', optional: true, description_en: 'Workshop', qty: '2', unit_price: '45000.00',
+    } });
+    const t = JSON.parse(r.body).totals;
+    assert.equal(t.netSatang, 10000000);        // the appliance only
+    assert.equal(t.optionalSatang, 9000000);    // 2 x 45,000.00, reported separately
+    assert.equal(t.vatSatang, 700000);          // VAT never touches an option
+  });
+
+  test('the document envelope carries the labels the renderer needs', async () => {
+    const { call } = boot();
+    const id = await draft(call);
+    await call('POST', `/quotations/${id}/lines`, { body: {
+      kind: 'cloud', description_en: 'DR capacity', qty: '1', unit_price: '18000.00',
+    } });
+    const doc = JSON.parse((await call('GET', `/quotations/${id}`)).body);
+    assert.equal(doc.kindLabels.cloud, 'Cloud');
+    assert.equal(doc.lines[0].billingPeriod, 'once');
+  });
+});

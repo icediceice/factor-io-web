@@ -390,6 +390,64 @@ document has no tax point.
     node cli.mjs inv-pdf 1 --lang th -o invoice.pdf
     node cli.mjs report pp30 --year 2026 --month 9
     node cli.mjs report income --year 2026
+## The operator UI
+
+Eight screens under `ui/`, plain ES modules with no build step, served by
+`server.mjs` behind the auth mode you configured. `ui/app.css` is the whole
+design system and its header comment is the stamp: macrostructure, density,
+depth, gate score and what was measured.
+
+| Screen | Shape | What it is for |
+|---|---|---|
+| `index.html` (+ `quote.html`) | Workbench | The quotation list and detail in one view — pick from the rail, work the record on the right |
+| `clients.html` | Workbench | Client list, full edit, and that client's quotations and invoices |
+| `catalog.html` | Ledger | Line-item catalogue, edited inline |
+| `invoices.html` (+ `invoice.html`) | Workbench | Invoices, payments and WHT certificates |
+| `reports.html`, `settings.html` | Stacked Sections | Read-down worksheets with anchored section nav |
+
+Things worth knowing before you change it:
+
+- **Every colour, space and type size is a token** in the `:root` block at the
+  top of `app.css`. If you need a value with no token, lift it into the block
+  first. There are no inline `style="…"` attributes anywhere in `ui/` — the
+  sixteen that used to exist became the `.m0 / .mt-* / .w-form` utilities.
+- **Deleting a quotation is allowed at any status**; the one thing that blocks
+  it is an invoice referencing it, and the refusal names that invoice. Cancel
+  is offered alongside as the non-destructive retirement, because deleting
+  CASCADEs the revision snapshots — the only record of what the customer was
+  sent. The confirm dialog says so by name and by count.
+- **Interaction states are a contract**, not decoration: eight states on every
+  interactive element. Where one does not apply — success on a form field —
+  `app.css` says which and why rather than staying silent.
+
+### Looking at it, and measuring it
+
+`server.mjs` redirects un-cookied UI requests to `/auth/login`, so the app
+cannot be opened headlessly; and the screens are ES modules, which Chrome
+refuses to import from a `file://` origin. Both problems are solved by a
+harness that is **test scaffolding and never deployed**:
+
+```sh
+node tests/ui-harness-server.mjs 8799     # real ui/ + real API, :memory: DB, no auth
+# then open:
+#   http://127.0.0.1:8799/index.html                 the screens themselves
+#   http://127.0.0.1:8799/tests/ui-harness.html      the measurement report
+```
+
+It binds loopback only, opens a throwaway in-memory database, refuses to start
+under `NODE_ENV=production`, and seeds `tests/ui-fixture.mjs` **through the real
+API** — five clients including a deliberately over-long Thai company name, a
+quotation in every status the rail colours, an invoice with a payment and a WHT
+certificate, and an invoiced quotation whose delete is meant to be refused.
+Every page it serves carries an injected banner saying the data is invented, so
+no screenshot can travel without its caption.
+
+`tests/ui-harness.html` loads each screen in an iframe at 390/768/1440, waits
+for the DOM to go quiet, and measures overflow, contrast, tap targets, type
+scale, row density, rail capacity and where the work region starts.
+`?w=1440x900&run=all` runs the lot without touching a control. The last full
+run was **0 fail across 8 screens × 3 widths**; the warnings that remain are
+argued in `.interface-design/log.json` rather than silenced.
 
 ## Design notes
 

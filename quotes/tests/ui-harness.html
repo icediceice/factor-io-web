@@ -191,8 +191,15 @@ function measure(win) {
   const detail = [];
 
   // --- horizontal overflow -------------------------------------------------
+  // Two exclusions, both deliberate rather than convenient:
+  //   .sr-only clips to 1px BY DESIGN — that is what makes it screen-reader
+  //     only, so reporting it as lost content is noise.
+  //   <select> ellipsises a long option instead of losing it, and its width is
+  //     the author's choice; the native control is not overflowing its box.
+  // Everything else that cannot show its own content still fails.
   const pageOver = doc.documentElement.scrollWidth - doc.documentElement.clientWidth;
   const clipped = all.filter((el) => {
+    if (el.tagName === 'SELECT' || el.closest('.sr-only')) return false;
     const cs = win.getComputedStyle(el);
     if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return false; // scrolling on purpose
     return el.scrollWidth - el.clientWidth > 1 && el.clientWidth > 0;

@@ -250,18 +250,18 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
 .dlg-actions{display:flex;gap:var(--s2);justify-content:flex-end;flex-wrap:wrap;padding:var(--s3) var(--s5) var(--s5)}
 
 /* ------------------------------------------------------------- feedback --- */
-.banner{padding:10px var(--s3);border:1px solid var(--line);margin-bottom:var(--s4);font-size:13.5px;background:var(--white)}
+.banner{padding:var(--s3);border:1px solid var(--line);margin-bottom:var(--s4);font-size:var(--t-md);background:var(--white)}
 .banner[data-tone=warn]{border-color:var(--focus);color:var(--focus)}
 .banner[data-tone=danger]{border-color:var(--danger);color:var(--danger)}
 .banner[data-tone=info]{border-color:var(--accent);background:var(--tint)}
 .banner strong{font-weight:700}
-.toast{position:fixed;left:50%;bottom:var(--s5);transform:translateX(-50%);background:var(--ink);color:var(--white);padding:var(--s3) var(--s5);font-size:14px;display:none;max-width:min(92vw,560px);z-index:70;border-radius:var(--r-btn)}
+.toast{position:fixed;left:50%;bottom:var(--s5);transform:translateX(-50%);background:var(--ink);color:var(--white);padding:var(--s3) var(--s5);font-size:var(--t-base);display:none;max-width:min(92vw,560px);z-index:70;border-radius:var(--r-btn)}
 .toast[data-kind=error]{background:var(--danger)}
 .toast[data-kind=ok]{background:var(--accent)}
-.empty{color:var(--muted);padding:var(--s6) var(--s4);text-align:center;font-size:14px}
-.empty strong{display:block;color:var(--ink);font-size:15px;margin-bottom:var(--s1)}
+.empty{color:var(--muted);padding:var(--s6) var(--s4);text-align:center;font-size:var(--t-base)}
+.empty strong{display:block;color:var(--ink);font-size:var(--t-lg);margin-bottom:var(--s1)}
 /* Loading is a labelled placeholder, never an invented number. */
-.skeleton{color:transparent;background:linear-gradient(var(--tint),var(--tint));border-radius:2px;display:inline-block;min-width:60px;height:1em}
+.skeleton{color:transparent;background:linear-gradient(var(--tint),var(--tint));border-radius:var(--r-input);display:inline-block;min-width:60px;height:1em}
 
 /* ---------------------------------------------------------------- totals -- */
 .totals{margin-left:auto;min-width:var(--w-field);border-collapse:collapse;font-size:var(--t-base)}

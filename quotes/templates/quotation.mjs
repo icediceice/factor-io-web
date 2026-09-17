@@ -160,25 +160,31 @@ export function renderQuotationHtml(doc, lang = 'en') {
   } else {
     // GROSS, to match the AMOUNT column printed above it — the aggregate
     // discount appears once in the totals block, as it always has.
-    const sectionNet = new Map((totals.sections ?? []).map((s) => [s.name, s.subtotalSatang ?? s.netSatang]));
-    const chunks = [];
-    let current = null;
-    for (const [i, l] of lines.entries()) {
+    const sectionGross = new Map((totals.sections ?? []).map((s) => [s.name, s.subtotalSatang ?? s.netSatang]));
+    // Group by section NAME, never by contiguous run. computeTotals folds every
+    // line of a section into ONE entry (quote.mjs:computeTotals), so a section
+    // whose lines are not adjacent would print its header twice and the FULL
+    // section subtotal under each half — a figure that looks right and is
+    // double the truth. A Map iterates in insertion order, which is the same
+    // first-appearance order computeTotals assigns.
+    const groups = new Map();
+    for (const l of lines) {
       const name = l.section ?? '';
-      if (name !== current) {
-        current = name;
-        if (name !== '') {
-          chunks.push(`
-      <tr class="sec"><td colspan="${cols}">${esc(name)}</td></tr>`);
-        }
-      }
-      chunks.push(rowFor(l));
-      // Close the group when the NEXT line starts a different section.
-      const next = lines[i + 1];
-      const isLastOfSection = !next || (next.section ?? '') !== name;
-      if (name !== '' && isLastOfSection && sectionNet.has(name)) {
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(l);
+    }
+    const chunks = [];
+    for (const [name, group] of groups) {
+      if (name !== '') {
         chunks.push(`
-      <tr class="secsum"><td colspan="${cols - 1}">${esc(t.sectionTotal)} — ${esc(name)}</td><td class="num">${money(sectionNet.get(name))}</td></tr>`);
+      <tr class="sec"><td colspan="${cols}">${esc(name)}</td></tr>`);
+      }
+      for (const l of group) chunks.push(rowFor(l));
+      // A section holding nothing but optional lines has no totals entry — it
+      // is in no total by design — so it prints its rows and no subtotal.
+      if (name !== '' && sectionGross.has(name)) {
+        chunks.push(`
+      <tr class="secsum"><td colspan="${cols - 1}">${esc(t.sectionTotal)} — ${esc(name)}</td><td class="num">${money(sectionGross.get(name))}</td></tr>`);
       }
     }
     lineRows = chunks.join('\n');

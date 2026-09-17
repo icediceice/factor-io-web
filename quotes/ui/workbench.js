@@ -98,11 +98,13 @@ export function mountWorkbench(main, spec) {
     listBox.innerHTML = shown.map((it) => {
       const r = spec.rowOf(it);
       const isSel = String(r.id) === String(selected);
+      // title carries the full name, because .r-name ellipsises to one line to
+      // keep the rail at its density floor.
       return `<a class="rail-item" role="listitem" href="?id=${encodeURIComponent(r.id)}"
         data-id="${esc(r.id)}" data-status="${esc(r.status ?? '')}"${isSel ? ' aria-current="true"' : ''}>
         <span class="r1">
           <span class="r-no mono">${esc(r.number ?? '')}</span>
-          <span class="r-name">${esc(r.name ?? '')}</span>
+          <span class="r-name" title="${esc(r.name ?? '')}">${esc(r.name ?? '')}</span>
         </span>
         <span class="r2">
           <span>${esc(r.meta ?? '')}</span>

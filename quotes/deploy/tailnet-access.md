@@ -39,7 +39,7 @@ from spending the operator's ambient tailnet identity.
 
 From an allowlisted tailnet device, open:
 
-    http://quotes.factor-io.com
+    http://quotes.factor-io.com:8787
 
 Create or edit a record and confirm `audit_log.actor` contains the Tailscale
 login, not `dev` or `agent`. Send a forged `Tailscale-User-Login` header and

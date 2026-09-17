@@ -318,7 +318,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
       ${issuer.logoPath ? `<img class="logo" src="${esc(issuer.logoPath)}" alt="">` : ''}
       <h1>${esc(t.title)}</h1>
       <div class="meta">
-        ${esc(t.number)} <b>${esc(q.number)}</b><br>
+        ${esc(t.number)} <b>${esc(q.number)}</b>${revisionNote}<br>
         ${esc(t.date)} <b>${esc(fmtDate(q.issueDate, lang))}</b><br>
         ${esc(t.valid)} <b>${esc(fmtDate(q.validUntil, lang))}</b>
       </div>

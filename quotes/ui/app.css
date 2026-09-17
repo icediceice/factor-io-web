@@ -200,6 +200,13 @@ button.sm,.button.sm{min-height:36px;padding:var(--s1) 10px;font-size:13px}
 .row-actions{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;margin-top:var(--s4)}
 .row-actions.tight{margin-top:0}
 .toolbar{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:var(--s4)}
+/* The toolbar's own heading sits on the rule, not above it — .card h2's bottom
+   margin would otherwise knock the controls out of line. Was an inline
+   style="margin:0", which put a layout decision outside the system. */
+.toolbar>h2{margin:0}
+/* A search input that takes the room left over, rather than a hard-coded
+   min-width that cannot yield at 390. */
+input.grow{min-width:220px;flex:1 1 220px}
 
 /* ---------------------------------------------------------------- dialog -- */
 /* The one element allowed to float. It earns it with a scrim and a 2px accent

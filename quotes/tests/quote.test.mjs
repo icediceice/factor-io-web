@@ -172,6 +172,23 @@ describe('computeTotals', () => {
     assert.equal(t.sections[1].netSatang, 2000000);
     assert.equal(t.sections.reduce((a, s) => a + s.netSatang, 0), t.netSatang);
   });
+
+  test('a section subtotal matches the gross AMOUNT column a reader adds up', () => {
+    // The printed AMOUNT column is GROSS (per-line discount is aggregated once
+    // in the totals block, not shown per line). A section subtotal printed
+    // under that column must therefore be gross too — printing the net figure
+    // made the visible arithmetic wrong by exactly the discount, which is the
+    // kind of error a customer notices before we do.
+    const t = computeTotals([
+      { qtyMilli: 3000, unitSatang: 89000000, discountSatang: 0, section: 'Hardware' },
+      { qtyMilli: 1000, unitSatang: 24000000, discountSatang: 400000, section: 'Hardware' },
+    ], settings);
+    const s = t.sections[0];
+    assert.equal(s.subtotalSatang, 267000000 + 24000000, 'gross must equal the column sum');
+    assert.equal(s.netSatang, s.subtotalSatang - 400000);
+    assert.equal(t.sections.reduce((a, x) => a + x.subtotalSatang, 0), t.subtotalSatang);
+    assert.equal(t.sections.reduce((a, x) => a + x.netSatang, 0), t.netSatang);
+  });
 });
 
 describe('allocateQuoteNumber', () => {

@@ -264,6 +264,10 @@ function bindHeader(h) {
 async function refresh(promise) {
   const data = await promise;
   doc = data.quotation ? data : await api('GET', `/quotations/${id}`);
+  // Advisory: a failed revisions read must not take the page down with it —
+  // the quotation itself has already loaded and is what the operator came for.
+  try { revisions = (await api('GET', `/quotations/${id}/revisions`)).revisions ?? []; }
+  catch { revisions = []; }
   renderAll();
 }
 

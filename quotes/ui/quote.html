@@ -159,7 +159,7 @@ function renderLines() {
         <td class="num">${fmtSatang(l.unitSatang)}</td>
         <td class="num">${l.discountSatang ? `−${fmtSatang(l.discountSatang)}` : '—'}</td>
         <td class="num">${fmtSatang(l.subtotalSatang)}</td>
-        <td>${doc.quotation.status === 'draft' ? `<button class="quiet" data-del="${l.id}">Remove</button>` : ''}</td>
+        <td>${doc.quotation.status === 'draft' || revising ? `<button class="quiet" data-del="${l.id}">Remove</button>` : ''}</td>
       </tr>`).join('')}
     </tbody></table>`;
     for (const b of box.querySelectorAll('[data-del]')) {

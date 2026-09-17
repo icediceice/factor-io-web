@@ -267,11 +267,14 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     head.querySelector('[data-kv]').innerHTML = headerFields(q, unlocked);
     host.append(head);
 
-    /* ---- totals ---- */
-    host.append(totalsCard());
-
-    /* ---- lines ---- */
+    /* ---- lines, THEN totals ---- */
+    // Totals used to come first, which read backwards — a grand total above
+    // the lines it is computed from — and left a wide empty gulf beside the
+    // right-aligned totals block in a full-width pane. Lines first fills that
+    // width with the thing being edited and puts the figure where the eye
+    // already expects it: under the rows, like the PDF this screen produces.
     host.append(linesCard(unlocked, editable, kindLabel));
+    host.append(totalsCard());
 
     /* ---- revisions ---- */
     host.append(revisionsCard());

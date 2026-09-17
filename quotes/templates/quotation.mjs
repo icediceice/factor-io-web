@@ -50,6 +50,7 @@ const T = {
     option: 'OPTION',
     optionsNote: 'Options shown are not included in the totals below.',
     optionsTotal: 'Options (not included)',
+    revision: 'Rev.',
     oneTime: 'One-time',
     recurring: 'Recurring',
     contract: 'Contract total',

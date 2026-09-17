@@ -273,6 +273,13 @@ export function renderQuotationHtml(doc, lang = 'en') {
   table.totals tr.payable td { font-weight:750; color:var(--accent); }
   table.totals tr.memo td { color:var(--muted); font-size:8.5pt; }
   table.totals tr.fx td { font-size:8.5pt; color:var(--muted); border-top:.5pt solid var(--line); }
+  /* Contract total sits below the payable behind a rule: it is a forecast of
+     spend across the term, not an amount due, and must never read as one. */
+  table.totals tr.contract td { border-top:.75pt solid var(--line); padding-top:6pt;
+                                font-size:9.5pt; font-weight:600; }
+  table.totals tr.contract .lbl { color:var(--accent); }
+  table.totals tr.opts td { font-size:8.5pt; font-style:italic; }
+  .optnote { margin:8pt 0 0; font-size:8pt; color:var(--muted); font-style:italic; }
   .blocks { display:flex; gap:16pt; margin-top:11pt; }
   .block { flex:1; border-top:1.5pt solid var(--accent); padding-top:7pt; }
   .block h2 { font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 6pt; }

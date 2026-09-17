@@ -335,6 +335,12 @@ export function createApi(db) {
           const sets = [];
           const args = [];
           for (const f of fields) if (body[f] != null) { sets.push(`${f} = ?`); args.push(String(body[f])); }
+          // term_months is numeric, not a string field: it drives arithmetic.
+          if (body.term_months != null) {
+            const t = Number(body.term_months);
+            if (!Number.isSafeInteger(t) || t < 0 || t > 600) throw bad('term_months must be an integer between 0 and 600 (0 = no term stated)');
+            sets.push('term_months = ?'); args.push(t);
+          }
           if (body.client_id != null) {
             const cid = Number(body.client_id);
             if (!db.prepare('SELECT id FROM clients WHERE id = ?').get(cid)) throw missing('client');

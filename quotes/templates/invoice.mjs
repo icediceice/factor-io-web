@@ -259,6 +259,10 @@ export function renderInvoiceHtml(doc, lang = 'en') {
   table.lines .desc .alt { display:block; color:var(--muted); font-size:8.5pt; }
   table.lines .kind { font-size:8pt; color:var(--muted); }
   table.lines .disc { color:var(--muted); font-size:8.5pt; }
+  table.lines .period { font-size:8pt; color:var(--muted); font-family:var(--mono); white-space:nowrap; }
+  table.lines tr.sec td { background:var(--tint); border-bottom:.5pt solid var(--line);
+                          font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+                          color:var(--accent); padding:6pt; }
   table.totals { margin-left:auto; margin-top:10pt; border-collapse:collapse; min-width:82mm; }
   table.totals td { padding:3pt 8pt; font-size:10pt; }
   table.totals .lbl { color:var(--muted); text-align:right; }

@@ -564,6 +564,10 @@ export function buildInvoiceDocument(db, invoiceId) {
       section: str(l.section),
     })),
     totals,
+    // Resolved at render time from the current vocabulary; an unknown code
+    // still prints as itself, so a filed invoice never loses its type column
+    // because the operator later tidied the line.kinds setting.
+    kindLabels: labelMap(settings, str(inv.lang) || 'en'),
     balance: invoiceBalance(db, invoiceId),
     payments: db.prepare('SELECT * FROM payments WHERE invoice_id = ? ORDER BY paid_on, id').all(invoiceId).map((p) => ({
       id: p.id,

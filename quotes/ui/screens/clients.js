@@ -102,7 +102,7 @@ async function renderClient(id, host, reloadList) {
   /* ---- identity + edit ---- */
   const card = el(`<section class="card">
     <div class="toolbar">
-      <h2 style="margin:0">${esc(client.name)}${client.name_th ? ` <span class="muted">${esc(client.name_th)}</span>` : ''}</h2>
+      <h2>${esc(client.name)}${client.name_th ? ` <span class="muted">${esc(client.name_th)}</span>` : ''}</h2>
       <div class="row-actions tight">
         <button class="danger" data-act="delete"${blocked ? ' aria-disabled="true" disabled' : ''}>Delete client</button>
       </div>

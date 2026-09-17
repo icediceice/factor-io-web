@@ -403,7 +403,16 @@ $('#all').onclick = () => run(SCREENS);
 sel.onchange = () => { const s = SCREENS.find((x) => x.id === sel.value); const [w, h] = $('#width').value.split('x').map(Number); loadScreen(s, w, h); };
 $('#width').onchange = () => sel.onchange();
 
-sel.onchange();
+// ?w=390x844&run=all — a width run is a URL, so it is reproducible and can be
+// driven without reaching into a native <select>.
+const q = new URLSearchParams(location.search);
+const wantW = q.get('w');
+if (wantW && [...$('#width').options].some((o) => o.value === wantW)) $('#width').value = wantW;
+if (q.get('screen') && SCREENS.some((s) => s.id === q.get('screen'))) sel.value = q.get('screen');
+
+if (q.get('run') === 'all') run(SCREENS);
+else if (q.get('run')) run([SCREENS.find((s) => s.id === sel.value)]);
+else sel.onchange();
 </script>
 </body>
 </html>

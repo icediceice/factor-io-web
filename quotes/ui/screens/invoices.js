@@ -51,7 +51,7 @@ export async function mount(main) {
         // Built from the invoices themselves, so the filter can only ever offer
         // a month that actually has something in it.
         options: [['', 'Any month']],
-        valueOf: (i) => String(i.issue_date ?? '').slice(0, 7),
+        pick: (i) => String(i.issue_date ?? '').slice(0, 7),
       },
     ],
     emptyHtml: '<div class="empty"><strong>No invoices yet</strong>Raise one from an accepted quotation below.</div>',

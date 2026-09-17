@@ -144,18 +144,43 @@ export function allocateInvoiceNumber(db, settings, nowMs = Date.now()) {
  * figure on an invoice. Totals stored here are PROVISIONAL — issueInvoice()
  * recomputes and freezes them, because the tax point is the issue date and the
  * rate that applies is the rate on that date, not on the date of drafting.
+ *
+ * OPTIONAL lines are NOT invoiced. A quotation may show options the customer
+ * never bought, and billing one would be a real-money error, so the default is
+ * to leave every optional line out. Pass includeOptionalLineIds with the ids of
+ * the options the customer actually took; those are billed as ordinary lines
+ * (there is no 'optional' column on invoice_lines — see migration 5).
+ *
+ * The filtered set is computed ONCE and used for BOTH the totals and the line
+ * inserts. Filtering in only one of those places is the specific bug this
+ * shape exists to prevent: it produces an invoice whose stored totals disagree
+ * with the lines printed on it, and nothing downstream would catch it.
  */
-export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', lang, issueDate, notes = '' } = {}) {
+export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', lang, issueDate, notes = '', includeOptionalLineIds = [] } = {}) {
   return tx(db, () => {
     const q = db.prepare('SELECT * FROM quotations WHERE id = ?').get(quotationId);
     if (!q) throw new Error(`quotation ${quotationId} not found`);
     if (q.status !== 'accepted') {
       throw new Error(`quotation ${q.number} is '${q.status}' — only an accepted quotation can be invoiced`);
     }
-    const srcLines = db.prepare(
+    const allLines = db.prepare(
       'SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id'
     ).all(quotationId);
-    if (srcLines.length === 0) throw new Error(`quotation ${q.number} has no lines to invoice`);
+    if (allLines.length === 0) throw new Error(`quotation ${q.number} has no lines to invoice`);
+
+    const takenOptions = new Set((includeOptionalLineIds ?? []).map(Number));
+    // Reject an id that is not an option on THIS quotation rather than
+    // silently ignoring it: a caller naming the wrong line means the operator
+    // believes they are billing something they are not.
+    for (const id of takenOptions) {
+      const line = allLines.find((l) => l.id === id);
+      if (!line) throw new Error(`line ${id} is not on quotation ${q.number}`);
+      if (!line.optional) throw new Error(`line ${id} on ${q.number} is not optional; it is billed already`);
+    }
+    const srcLines = allLines.filter((l) => !l.optional || takenOptions.has(l.id));
+    if (srcLines.length === 0) {
+      throw new Error(`quotation ${q.number} has no billable lines — every line is optional and none were selected`);
+    }
 
     const settings = getSettings(db, '');
     const number = allocateInvoiceNumber(db, settings);

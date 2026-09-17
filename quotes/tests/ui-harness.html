@@ -249,19 +249,29 @@ function measure(win) {
   }
 
   // --- tap targets ---------------------------------------------------------
+  // WCAG 2.2 SC 2.5.8 exempts an INLINE target — a link sitting in a sentence
+  // or a run of text, where the line box sets the height and enlarging it would
+  // wreck the paragraph. Those are counted and shown SEPARATELY rather than
+  // silently dropped, so the exemption is visible and arguable instead of a
+  // threshold quietly lowered until the screen passed.
   const targets = all.filter((el) =>
     /^(A|BUTTON|SELECT|TEXTAREA)$/.test(el.tagName) ||
     (el.tagName === 'INPUT' && !/^(hidden)$/.test(el.type)));
-  let belowAA = 0; let belowSystem = 0; let smallest = Infinity; let smallestEl = null;
+  const inlineExempt = (el, win2) =>
+    el.tagName === 'A' && win2.getComputedStyle(el).display === 'inline';
+  let belowAA = 0; let belowSystem = 0; let inlineSmall = 0;
+  let smallest = Infinity; let smallestEl = null;
   for (const el of targets) {
     const r = el.getBoundingClientRect();
     const m = Math.min(r.width, r.height);
+    if (m < 24 && inlineExempt(el, win)) { inlineSmall++; continue; }
     if (m < smallest) { smallest = m; smallestEl = el; }
     if (m < 24) belowAA++; else if (m < 44) belowSystem++;
   }
   out.push(row('Targets ≥24px (AA)', belowAA === 0 ? 'PASS' : 'FAIL',
-    `${belowAA} under · min ${targets.length ? smallest.toFixed(0) : '—'}px`));
+    `${belowAA} under · min ${Number.isFinite(smallest) ? smallest.toFixed(0) : '—'}px`));
   out.push(row('Targets ≥44px (system)', belowSystem === 0 ? 'PASS' : 'WARN', `${belowSystem} between 24 and 44`));
+  out.push(row('· inline-exempt (2.5.8)', 'PASS', inlineSmall));
   if (smallestEl && smallest < 44) detail.push('smallest target: ' + sig(smallestEl));
 
   // --- type scale ----------------------------------------------------------

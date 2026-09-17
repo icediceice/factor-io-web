@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-16 (quotes/ tailnet-only identity and ingress boundary)
+> Last updated: 2026-09-17 (quotes/ generalized to any product type: open line kinds, billing periods, sections, optional lines)
 
 ## Current Focus
 

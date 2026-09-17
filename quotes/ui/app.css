@@ -3,7 +3,10 @@
  * system: quotes/.interface-design/system.md — NOT the repo-root system.md, which governs
  *         the TCO calculator's dark instrument panel.
  * tokens: Engineering Field Guide (assets/site.css:17), plus --danger for destructive actions
- * gates: 51/54 · exceptions T5 · N2 · A4, argued in quotes/.interface-design/log.json
+ * gates: 51/54 · exceptions T5 · N2 · A4, argued in the 2026-09-17 entry of the
+ *        repo-root .interface-design/log.json — one design history for the whole
+ *        repo, which is what a later light-design run reads to diversify against.
+ *        (The SYSTEM is per-app and stays at quotes/; only the LOG is shared.)
  * critique: H4 D4 S4 O5 R4 P4 · data: live API only (the fixture label belongs to
  *           tests/ui-harness-server.mjs and cannot reach a deployed page)
  * measured: 8 screens × 390/768/1440, 0 fail — tests/ui-harness.html

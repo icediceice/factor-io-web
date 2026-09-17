@@ -345,6 +345,39 @@ describe('revise in place', () => {
     assert.equal(q.revisionStale, false, 're-issuing clears the drift');
   });
 
+  test('every document line carries its own row id, and the id stays out of the digest', () => {
+    const { db, qid } = seedDb();
+    const doc = buildQuoteDocument(db, qid);
+    assert.ok(doc.lines.length > 0, 'fixture must have lines for this to prove anything');
+
+    // Without this the document is read-only by accident: the UI renders a
+    // Remove/Edit control per line, addresses it as /lines/${l.id}, and every
+    // one of them resolves to /lines/undefined -> "line not found".
+    const rowIds = db.prepare('SELECT id FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id')
+      .all(qid).map((r) => r.id);
+    assert.deepEqual(doc.lines.map((l) => l.id), rowIds);
+    for (const l of doc.lines) assert.ok(Number.isInteger(l.id) && l.id > 0, 'a line id must be addressable');
+
+    // The id identifies the ROW, not the document a customer reads, so it must
+    // not enter the digest — otherwise this very field would mark every issued
+    // quotation as drifted from its own snapshot.
+    const stripped = { ...doc, lines: doc.lines.map(({ id, ...rest }) => rest) };
+    assert.equal(canonicalDocDigest(stripped), canonicalDocDigest(doc));
+  });
+
+  test('adding line ids does not strand an already-issued quotation behind a re-issue', () => {
+    const { db, qid } = seedDb();
+    markStatus(db, qid, 'issued', 'op@x.io');
+    // The snapshot on disk was written by the PREVIOUS projection, which had no
+    // line ids at all. A document built by the current one must still match it.
+    const stored = JSON.parse(
+      db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=? ORDER BY rev DESC LIMIT 1').get(qid).snapshot_json
+    );
+    stored.lines = stored.lines.map(({ id, ...rest }) => rest); // simulate a pre-change snapshot
+    assert.equal(canonicalDocDigest(stored), canonicalDocDigest(buildQuoteDocument(db, qid)));
+    assert.equal(buildQuoteDocument(db, qid).quotation.revisionStale, false);
+  });
+
   test('the digest counts what the operator authored, not the settings or the clock', () => {
     const { db, qid } = seedDb();
     const before = canonicalDocDigest(buildQuoteDocument(db, qid));

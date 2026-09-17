@@ -222,6 +222,23 @@ export function createApi(db) {
       }
     }
 
+    // ---------- line kinds (the configurable vocabulary) ----------
+    // Read-only projection of the line.kinds setting, so the browser selects
+    // and any external caller build their options from the same source the
+    // server validates against, instead of shipping their own copy.
+    if (path === '/line-kinds' && method === 'GET') {
+      const settings = getSettings(db, '');
+      return json(200, {
+        kinds: parseKinds(settings),
+        billing_periods: [
+          { code: 'once', en: 'One-time', th: 'ครั้งเดียว' },
+          { code: 'monthly', en: 'Monthly', th: 'รายเดือน' },
+          { code: 'quarterly', en: 'Quarterly', th: 'รายไตรมาส' },
+          { code: 'yearly', en: 'Yearly', th: 'รายปี' },
+        ],
+      });
+    }
+
     // ---------- catalog ----------
     if (path === '/catalog') {
       if (method === 'GET') {

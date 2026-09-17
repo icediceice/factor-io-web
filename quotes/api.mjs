@@ -365,7 +365,10 @@ export function createApi(db) {
             sets.push('client_id = ?'); args.push(cid);
           }
           if (!sets.length) throw bad('no editable fields in body');
-          if (row.status !== 'draft') throw bad('only draft quotations are editable; issue a revision instead');
+          // Was 'only draft quotations are editable' — which named a revision
+          // flow nothing implemented. An issued or proposed quotation is now
+          // genuinely correctable; re-issuing it snapshots the correction.
+          { const why = editRefusal(row.status); if (why) throw bad(why); }
           tx(db, () => {
             db.prepare(`UPDATE quotations SET ${sets.join(', ')}, updated_at=datetime('now') WHERE id = ?`).run(...args, id);
             audit(db, actor, 'quotation.update', 'quotation', id, { fields: Object.keys(body) });

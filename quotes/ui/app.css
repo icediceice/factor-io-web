@@ -130,9 +130,9 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 .section-label{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
 
 /* ---------------------------------------------------------------- tables -- */
-table.list{width:100%;border-collapse:collapse;font-size:14px}
-table.list th{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:var(--s2) var(--s3);white-space:nowrap}
-table.list td{border-bottom:1px solid var(--line);padding:9px var(--s3);vertical-align:top}
+table.list{width:100%;border-collapse:collapse;font-size:var(--t-base)}
+table.list th{font:var(--t-xs)/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:2px solid var(--ink);padding:var(--s2) var(--s3);white-space:nowrap}
+table.list td{border-bottom:1px solid var(--line);padding:var(--s2) var(--s3);vertical-align:top}
 table.list td.num,table.list th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 table.list tbody tr:hover td{background:var(--tint)}
 table.list tr[data-optional=true] td{color:var(--muted)}
@@ -141,16 +141,16 @@ table.list td.actions{text-align:right;white-space:nowrap;width:1%}
 .mono{font-family:var(--mono);font-size:.92em}
 .num{font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
-.meta{font-size:12.5px;color:var(--muted)}
+.meta{font-size:var(--t-sm);color:var(--muted)}
 
 /* An editable row keeps its column alignment; the table must not jump. */
 tr.editing td{background:var(--tint);vertical-align:middle}
-tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:13.5px;padding:var(--s1) var(--s2)}
+tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:var(--t-md);padding:var(--s1) var(--s2)}
 
 /* --------------------------------------------------------------- statuses -- */
 /* Colour AND border style, never colour alone. Pipeline states are dashed
    (provisional); money-bearing states are solid or filled. */
-.status{display:inline-block;padding:1px 8px;border:1px solid var(--line);font:11.5px var(--mono);white-space:nowrap;border-radius:var(--r-btn)}
+.status{display:inline-block;padding:var(--s1) var(--s2);border:1px solid var(--line);font:var(--t-xs) var(--mono);white-space:nowrap;border-radius:var(--r-btn)}
 .status-draft{color:var(--muted);border-style:dotted}
 .status-issued{border-color:var(--accent);color:var(--accent);background:var(--tint)}
 .status-proposed{color:var(--ink);border-color:var(--ink);border-style:dashed}

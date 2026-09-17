@@ -263,15 +263,80 @@ export function buildQuoteDocument(db, quotationId) {
   };
 }
 
+/** A stable string over ONLY the operator-controlled content of a document.
+ *
+ *  This is what decides whether an issued quotation still matches the revision
+ *  that was snapshotted for it. What is deliberately NOT in here matters as
+ *  much as what is:
+ *
+ *  - generatedAt: a clock. Including it would make every document differ from
+ *    its own snapshot the instant it was rebuilt.
+ *  - issuer / bank / terms / vatRate / whtRate / currency formatting: these are
+ *    settings, and quotation totals have ALWAYS recomputed live from settings.
+ *    Counting them would mark every issued quotation stale the moment a VAT
+ *    rate changed, and block its PDF — a settings edit must never do that.
+ *  - validUntil: derived from issueDate plus quote.validity_days, so it is a
+ *    setting in disguise. issueDate itself IS counted, which is the part the
+ *    operator actually controls.
+ *  - revision / revisionStale: written by the snapshot itself; counting them
+ *    would make a document differ from its own snapshot by construction. */
+export function canonicalDocDigest(doc) {
+  const q = doc?.quotation ?? {};
+  return JSON.stringify({
+    lang: q.lang ?? '',
+    currency: q.currency ?? '',
+    issueDate: q.issueDate ?? '',
+    notes: q.notes ?? '',
+    termMonths: q.termMonths ?? 0,
+    fxBase: q.fxBase ?? '',
+    fxRate: q.fxRate ?? '',
+    fxAsOf: q.fxAsOf ?? '',
+    clientId: doc?.client?.id ?? null,
+    lines: (doc?.lines ?? []).map((l) => [
+      l.position, l.kind ?? '', l.descriptionEn ?? '', l.descriptionTh ?? '',
+      l.qtyMilli ?? 0, l.unit ?? '', l.unitSatang ?? 0, l.discountSatang ?? 0,
+      l.billingPeriod ?? 'once', l.section ?? '', l.optional ? 1 : 0,
+    ]),
+  });
+}
+
+/** The latest snapshot's number, and whether the live document has moved away
+ *  from it. revision 0 means never issued — a draft cannot be stale because
+ *  there is nothing yet for it to disagree with. */
+export function revisionState(db, quotationId, doc) {
+  const row = db.prepare(
+    'SELECT rev, snapshot_json FROM quotation_revisions WHERE quotation_id = ? ORDER BY rev DESC LIMIT 1'
+  ).get(quotationId);
+  if (!row) return { revision: 0, revisionStale: false };
+  let revisionStale;
+  try {
+    revisionStale = canonicalDocDigest(JSON.parse(row.snapshot_json)) !== canonicalDocDigest(doc);
+  } catch {
+    // An unreadable snapshot is treated as "cannot prove it still matches",
+    // which is the safe direction: the operator is asked to re-issue.
+    revisionStale = true;
+  }
+  return { revision: Number(row.rev), revisionStale };
+}
+
 /** Append an immutable revision snapshot; rev is monotonic per quotation. */
 export function saveRevision(db, quotationId, doc, actor) {
   return tx(db, () => {
     const { next } = db.prepare(
       'SELECT COALESCE(MAX(rev), 0) + 1 AS next FROM quotation_revisions WHERE quotation_id = ?'
     ).get(quotationId);
+    // The document was built BEFORE this number existed (markStatus calls
+    // buildQuoteDocument, then this), so it still carries the PREVIOUS
+    // revision. Stamp the real one in, or rendering an old snapshot years
+    // later prints a number that is off by one. Copied, not mutated in place,
+    // so the caller's document object is left alone.
+    const snapshot = {
+      ...doc,
+      quotation: { ...(doc?.quotation ?? {}), revision: next, revisionStale: false },
+    };
     db.prepare(
       'INSERT INTO quotation_revisions (quotation_id, rev, snapshot_json, actor) VALUES (?, ?, ?, ?)'
-    ).run(quotationId, next, JSON.stringify(doc), actor);
+    ).run(quotationId, next, JSON.stringify(snapshot), actor);
     return next;
   });
 }

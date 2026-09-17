@@ -23,6 +23,7 @@
 // carries its own visible discount figure. Do not collapse that column.
 
 import { formatMoney, formatEnDate, formatThaiDate } from '../lib/money.mjs';
+import { PERIOD_LABELS } from '../lib/kinds.mjs';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

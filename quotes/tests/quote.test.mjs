@@ -272,6 +272,103 @@ describe('documents and revisions', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Revise in place. An issued quotation is no longer frozen: it can be corrected
+// and re-issued under the SAME number, and the revision list is the audit
+// trail. These tests fix that contract — what may be edited, what counts as an
+// edit, and what a stored revision remembers about itself.
+describe('revise in place', () => {
+  test('the editable set is draft, issued and proposed; everything else refuses WITH a reason', () => {
+    assert.deepEqual(EDITABLE_STATUSES, ['draft', 'issued', 'proposed']);
+    for (const s of EDITABLE_STATUSES) assert.equal(editRefusal(s), null);
+    // The refusal is read by an operator mid-task, so it has to say why THIS
+    // status is final and where the way forward is — not merely that it is.
+    for (const s of ['accepted', 'invoiced', 'paid', 'declined', 'superseded', 'cancelled']) {
+      const why = editRefusal(s);
+      assert.match(why, /can no longer be edited/);
+      assert.match(why, /re-issue/);
+    }
+    assert.match(editRefusal('accepted'), /accepted/);
+    assert.match(editRefusal('invoiced'), /invoiced/);
+    assert.match(editRefusal('paid'), /invoiced and paid/);
+    // An ALLOWLIST, not a blocklist: a status nobody anticipated is refused,
+    // and the message still names it rather than going vague.
+    assert.match(editRefusal('archived'), /its status is archived/);
+    assert.ok(editRefusal(undefined));
+    assert.ok(editRefusal(null));
+  });
+
+  test('correcting an issued quotation records rev 2 under the SAME number', () => {
+    const { db, qid } = seedDb();
+    markStatus(db, qid, 'issued', 'op@x.io');
+    // The correction an operator actually makes: a price that was wrong when
+    // the quotation went out.
+    db.prepare('UPDATE quotation_lines SET unit_satang = 3600000 WHERE quotation_id = ? AND position = 1').run(qid);
+    assert.equal(saveRevision(db, qid, buildQuoteDocument(db, qid), 'op@x.io'), 2);
+
+    const rows = db.prepare(
+      'SELECT rev, snapshot_json FROM quotation_revisions WHERE quotation_id=? ORDER BY rev'
+    ).all(qid);
+    assert.equal(rows.length, 2);
+    const snaps = rows.map((r) => JSON.parse(r.snapshot_json));
+    // Each stored snapshot is stamped with its own rev and is never stale:
+    // anything handed this JSON downstream must know which revision it holds
+    // without the row it came from.
+    assert.deepEqual(snaps.map((s) => s.quotation.revision), [1, 2]);
+    assert.deepEqual(snaps.map((s) => s.quotation.revisionStale), [false, false]);
+    // Rev 1 still holds what was sent; rev 2 holds the correction.
+    assert.equal(snaps[0].lines[0].unitSatang, 3500000);
+    assert.equal(snaps[1].lines[0].unitSatang, 3600000);
+    // Same document throughout — the number not moving IS the feature.
+    assert.equal(snaps[0].quotation.number, snaps[1].quotation.number);
+  });
+
+  test('buildQuoteDocument reports the revision and whether the document has drifted', () => {
+    const { db, qid } = seedDb();
+    // Never issued: there is nothing to have drifted from.
+    assert.equal(buildQuoteDocument(db, qid).quotation.revision, 0);
+    assert.equal(buildQuoteDocument(db, qid).quotation.revisionStale, false);
+
+    markStatus(db, qid, 'issued', 'op@x.io');
+    let q = buildQuoteDocument(db, qid).quotation;
+    assert.equal(q.revision, 1);
+    assert.equal(q.revisionStale, false);
+
+    db.prepare('UPDATE quotation_lines SET description_en = ? WHERE quotation_id = ? AND position = 1')
+      .run('Architecture consulting (revised scope)', qid);
+    q = buildQuoteDocument(db, qid).quotation;
+    assert.equal(q.revisionStale, true, 'an edited line must drift from its snapshot');
+    assert.equal(q.revision, 1, 'drift never invents a revision that was not issued');
+
+    saveRevision(db, qid, buildQuoteDocument(db, qid), 'op@x.io');
+    q = buildQuoteDocument(db, qid).quotation;
+    assert.equal(q.revision, 2);
+    assert.equal(q.revisionStale, false, 're-issuing clears the drift');
+  });
+
+  test('the digest counts what the operator authored, not the settings or the clock', () => {
+    const { db, qid } = seedDb();
+    const before = canonicalDocDigest(buildQuoteDocument(db, qid));
+
+    // Rebuilding the same rows is not an edit — generatedAt moves on every
+    // build and must never register as one.
+    assert.equal(canonicalDocDigest(buildQuoteDocument(db, qid)), before);
+
+    // A settings change moves the TOTALS but not the document the operator
+    // authored. DELIBERATE TRADE: counting settings would mark every open
+    // quotation edited the moment a VAT rate or an address changed, stranding
+    // each one behind a re-issue. The cost is that a rate change after issue
+    // is not flagged as drift.
+    db.prepare("UPDATE settings SET value = '10' WHERE key = 'vat.rate_percent'").run();
+    assert.notEqual(buildQuoteDocument(db, qid).totals.vatSatang, 3027500);
+    assert.equal(canonicalDocDigest(buildQuoteDocument(db, qid)), before);
+
+    // What the operator writes DOES count.
+    db.prepare('UPDATE quotation_lines SET qty_milli = 6000 WHERE quotation_id=? AND position=1').run(qid);
+    assert.notEqual(canonicalDocDigest(buildQuoteDocument(db, qid)), before);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Migration proof. Plan step 5 promised BOTH installation paths, and only one
 // of them is interesting: a fresh DB never exercises migration 3's quotations
 // rebuild. That rebuild is a one-way door — DROP TABLE with foreign keys ON

@@ -172,9 +172,9 @@ function openV2Db() {
 }
 
 describe('migrations', () => {
-  test('a fresh database lands on user_version 4', () => {
+  test('a fresh database lands on user_version 5', () => {
     const db = openDb(':memory:');
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 4);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 5);
     // Migration 4's seeds are present and are the accounting keys, not stubs.
     const s = getSettings(db, '');
     assert.equal(s['invoice.number_format'], 'INV-{YYYY}{MM}-{SEQ:4}');

@@ -184,6 +184,8 @@ export function buildQuoteDocument(db, quotationId) {
       fxRate: str(q.fx_rate),
       fxAsOf: str(q.fx_as_of),
       notes: str(q.notes),
+      // 0 means no term was stated; the document then shows no contract total.
+      termMonths: num(q.term_months),
     },
     client: clientRow ? {
       id: clientRow.id,

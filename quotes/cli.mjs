@@ -153,17 +153,40 @@ async function main() {
     case 'line-add': {
       const id = needId(positional, 0, 'quotation id');
       const body = {
-        kind: need(flags, 'kind', 'service|hardware'),
+        // The vocabulary is operator-editable, so the CLI does not carry a copy
+        // of it: `quotes kinds` prints the live list and the server rejects
+        // anything not on it. Naming a closed pair here would teach the old
+        // constraint back.
+        kind: need(flags, 'kind', 'line type — run `quotes kinds` for the list'),
         description_en: need(flags, 'desc', 'english description'),
         qty: need(flags, 'qty', 'decimal quantity'),
         unit_price: need(flags, 'price', 'decimal THB price'),
       };
-      if (flags['desc-th']) body.description_th = flags['desc-th'];
+      // parseArgs normalises --desc-th to desc_th, so the old flags['desc-th']
+      // lookup never matched and every CLI Thai description was silently
+      // dropped. Both spellings are accepted now.
+      const descTh = flags.desc_th ?? flags['desc-th'];
+      if (descTh && descTh !== true) body.description_th = String(descTh);
       if (flags.unit) body.unit = flags.unit;
+      if (flags.period) body.billing_period = flags.period;
+      if (flags.section) body.section = flags.section;
+      if (flags.optional) body.optional = true;
       if (flags.discount !== undefined) body.discount_satang = Number(flags.discount);
       const r = await call('POST', `/api/quotations/${id}/lines`, body);
       if (flags.json) return asJson(r);
-      console.log(`line ${r.line.id} added; payable now ${money(r.totals.payableSatang)}`);
+      const opt = r.line.optional ? ' [OPTION — excluded from totals]' : '';
+      console.log(`line ${r.line.id} added${opt}; payable now ${money(r.totals.payableSatang)}`);
+      return;
+    }
+    case 'kinds': {
+      // Prints the live vocabulary the server validates against, so an operator
+      // never has to guess what --kind accepts.
+      const v = await call('GET', '/api/line-kinds');
+      if (flags.json) return asJson(v);
+      console.log('line types (--kind):');
+      for (const k of v.kinds) console.log(`  ${String(k.code).padEnd(14)} ${k.en}${k.th ? ` / ${k.th}` : ''}`);
+      console.log('billing periods (--period):');
+      for (const p of v.billing_periods) console.log(`  ${String(p.code).padEnd(14)} ${p.en}${p.th ? ` / ${p.th}` : ''}`);
       return;
     }
     case 'line-rm': {

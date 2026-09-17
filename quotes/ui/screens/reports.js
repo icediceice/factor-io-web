@@ -73,7 +73,7 @@ function pp30() {
   const card = el(`<section class="card">
     <h2>PP 30 — monthly VAT (output side)</h2>
     <p class="meta">Output VAT only. This system does not track purchases, so input VAT and the net payable are left blank on purpose rather than shown as zero — a zero there would be a false statement on a return.</p>
-    <form class="grid" style="max-width:520px">
+    <form class="grid w-form">
       <label>Period<input name="month" type="month" value="${thisMonth}"></label>
     </form>
     <div data-out><div class="empty">Loading…</div></div>
@@ -120,7 +120,7 @@ function income() {
   const card = el(`<section class="card">
     <h2>Income by month</h2>
     <p class="meta">Accrual basis: income is recognised on the tax-invoice date, not when the cash arrives.</p>
-    <form class="grid" style="max-width:520px">
+    <form class="grid w-form">
       <label>Year<input name="year" type="number" min="2000" max="2999" value="${now.getFullYear()}"></label>
     </form>
     <div data-out><div class="empty">Loading…</div></div>
@@ -156,7 +156,7 @@ function pnd() {
   const card = el(`<section class="card">
     <h2>PND 50 / 51 — corporate income tax</h2>
     <p class="meta">Revenue and creditable withholding only. Expenses are out of scope, so taxable profit cannot be computed here.</p>
-    <form class="grid" style="max-width:520px">
+    <form class="grid w-form">
       <label>Year<input name="year" type="number" min="2000" max="2999" value="${now.getFullYear()}"></label>
       <label>Period
         <select name="half">
@@ -194,7 +194,7 @@ function wht() {
   const card = el(`<section class="card">
     <h2>Withholding tax credit register</h2>
     <p class="meta">Certificates received from customers. Each one is tax already paid on the company's behalf — a credit against the PND liability, never a cost.</p>
-    <form class="grid" style="max-width:520px">
+    <form class="grid w-form">
       <label>From<input name="from" type="date" value="${now.getFullYear()}-01-01"></label>
       <label>To<input name="to" type="date" value="${now.getFullYear()}-12-31"></label>
     </form>

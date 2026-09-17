@@ -158,8 +158,16 @@ export function buildQuoteDocument(db, quotationId) {
   ).all(quotationId);
   const settings = getSettings(db, '');
   const totals = computeTotals(
-    lines.map((l) => ({ qtyMilli: l.qty_milli, unitSatang: l.unit_satang, discountSatang: l.discount_satang })),
+    lines.map((l) => ({
+      qtyMilli: l.qty_milli,
+      unitSatang: l.unit_satang,
+      discountSatang: l.discount_satang,
+      billingPeriod: str(l.billing_period) || 'once',
+      section: str(l.section),
+      optional: !!l.optional,
+    })),
     settings,
+    num(q.term_months),
   );
   const validityDays = Number(settings['quote.validity_days'] ?? '15');
   const issueDate = str(q.issue_date) || todayBkk();

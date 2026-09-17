@@ -524,6 +524,34 @@ describe('the line vocabulary is data, not code', () => {
     assert.equal(JSON.parse((await call('GET', `/catalog/${id}`)).body).item.kind, 'service');
   });
 
+  test('PUT /catalog/:id changes the unit price the catalog editor sends', async () => {
+    const { call } = boot();
+    // REGRESSION: the handler read the price off `{...row, ...body}`, and the
+    // row always supplies unit_satang, so a PUT carrying unit_price (which is
+    // what the catalog screen's inline editor sends) returned 200 while writing
+    // the OLD price back. The editable catalog could not edit its own price.
+    const c = await call('POST', '/catalog', { body: { kind: 'service', name_en: 'Rate card', unit_price: '1200.00' } });
+    const id = JSON.parse(c.body).item.id;
+
+    const u = await call('PUT', `/catalog/${id}`, { body: { name_en: 'Rate card', kind: 'service', unit_price: '1550.50' } });
+    assert.equal(u.status, 200);
+    assert.equal(JSON.parse(u.body).item.unit_satang, 155050);
+    assert.equal(JSON.parse((await call('GET', `/catalog/${id}`)).body).item.unit_satang, 155050);
+
+    // unit_satang is the other accepted spelling and must work the same way.
+    await call('PUT', `/catalog/${id}`, { body: { unit_satang: 99900 } });
+    assert.equal(JSON.parse((await call('GET', `/catalog/${id}`)).body).item.unit_satang, 99900);
+
+    // A toggle that mentions no price at all must LEAVE the price alone — this
+    // is the case the old `merged` read got right and the fix must not lose.
+    await call('PUT', `/catalog/${id}`, { body: { active: false } });
+    assert.equal(JSON.parse((await call('GET', `/catalog/${id}`)).body).item.unit_satang, 99900);
+
+    // Both spellings at once stays a 400: unitSatangOf is the single validator.
+    const both = await call('PUT', `/catalog/${id}`, { body: { unit_price: '1.00', unit_satang: 100 } });
+    assert.equal(both.status, 400);
+  });
+
   test('the default unit follows the kind and the period instead of always being a day', async () => {
     const { call } = boot();
     const seen = {};

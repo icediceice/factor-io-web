@@ -28,10 +28,24 @@ function topology(c) {
   </figure>`;
 }
 
-function progression(c) {
-  const p = c.progression;
-  return `<section class="progress-section" aria-labelledby="progress-title"><div class="section-heading"><h2 id="progress-title">${esc(p.title)}</h2><p>${esc(p.body)}</p></div>
-    <ol class="progression">${p.steps.map((s, i) => `<li${i === 3 ? ' class="human-step"' : ''}><span aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${esc(s)}</li>`).join('')}</ol></section>`;
+// The production section is a question board, not a card grid: the argument is that these
+// four questions get settled during design, so the questions stay the loudest thing in it.
+function questions(c, s) {
+  return `<ol class="items questions">${s.items.map(item => `<li><span class="question-mark" aria-hidden="true">?</span>
+    <div><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></div></li>`).join('')}</ol>`;
+}
+
+// Split Monitor: two halves answering ONE question about two subjects. The shared question is
+// printed above both marks so the DIFFERENCE (who holds the customer relationship) is what the
+// reader sees, rather than two unrelated panels that happen to sit side by side.
+function routeSplit(c, s) {
+  return `<ul class="items routes">${s.items.map(item => `<li><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p>
+    <p class="route-mark"><span>${esc(c.ui.routeMark)}</span>${esc(item.mark)}</p></li>`).join('')}</ul>`;
+}
+
+function processSteps(c, s) {
+  return `<ol class="items process">${s.items.map((item, i) => `<li><span class="item-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+    <div><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></div></li>`).join('')}</ol>`;
 }
 
 function demo(c) {

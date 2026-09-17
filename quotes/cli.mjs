@@ -168,6 +168,14 @@ async function main() {
       const q = doc.quotation;
       console.log(`${q.number} [${q.status}]  ${q.issueDate} -> ${q.validUntil}  (${q.lang}, ${q.currency})`);
       console.log(`client: ${doc.client?.name ?? '—'}`);
+      // A quotation corrected in place KEEPS its number, so the revision — and
+      // whether the document has drifted from it — is the only way to tell from
+      // a terminal what the client is actually holding.
+      if (q.revision) {
+        console.log(`revision: ${q.revision}${q.revisionStale
+          ? `  EDITED SINCE — run \`quotes issue ${q.id}\` to record it as revision ${q.revision + 1} (the PDF is refused until then)`
+          : ''}`);
+      }
       if (q.termMonths) console.log(`term: ${q.termMonths} months`);
       let section = null;
       for (const l of doc.lines) {

@@ -129,8 +129,15 @@ async function main() {
       if (flags.notes) body.notes = flags.notes;
       if (flags.date) body.issue_date = flags.date;
       const { quotation } = await call('POST', '/api/quotations', body);
+      // term_months is not accepted by the create route — it is an edit on the
+      // draft, so --term is applied as a follow-up PUT rather than silently
+      // ignored.
+      if (flags.term !== undefined && flags.term !== true) {
+        await call('PUT', `/api/quotations/${quotation.id}`, { term_months: Number(flags.term) });
+      }
       if (flags.json) return asJson({ quotation });
-      console.log(`created ${quotation.number} (id ${quotation.id}, ${quotation.status})`);
+      const term = flags.term !== undefined && flags.term !== true ? `, term ${Number(flags.term)}m` : '';
+      console.log(`created ${quotation.number} (id ${quotation.id}, ${quotation.status}${term})`);
       return;
     }
     case 'show': {

@@ -114,22 +114,48 @@ export function mountWorkbench(main, spec) {
     }).join('');
   }
 
+  // A FRESH detail node every render, never a cleared one.
+  //
+  // The screen modules delegate their line / payment / WHT handlers to this
+  // host, because the cards inside it are rebuilt on every draw and the host is
+  // the only stable anchor (screens/quotations.js:579). Each of those listeners
+  // closes over the record id it was installed for. Clearing innerHTML empties
+  // the box but leaves the listeners ON it, so they accumulated: reloadAll()
+  // after any edit re-runs detailOf and installs another set, and selecting A
+  // then B left A's handlers live underneath B's DOM.
+  //
+  // That is the operator's original complaint, arriving by a second route: the
+  // next Remove click ran BOTH closures, so the line was deleted once and then
+  // deleted again — and the second call is the "Line not found" they saw. The
+  // add-line and payment forms had the same shape, one gesture posting twice.
+  //
+  // Replacing the NODE takes its listeners with it. It also fixes the slow-
+  // response race for free: a render that resolves late writes into a node that
+  // is already detached, so it cannot prepend controls into the current record.
+  function freshDetail() {
+    const next = el('<div class="wb-detail" data-detail></div>');
+    detailBox.replaceWith(next);
+    detailBox = next;
+    return next;
+  }
+
   async function renderDetail() {
     wb.dataset.selected = selected ? 'true' : 'false';
+    const host = freshDetail();
     if (!selected) {
-      detailBox.innerHTML = `<div class="empty"><strong>Nothing selected</strong>Pick a ${esc(noun)} from the list to work on it.</div>`;
+      host.innerHTML = `<div class="empty"><strong>Nothing selected</strong>Pick a ${esc(noun)} from the list to work on it.</div>`;
       return;
     }
-    detailBox.innerHTML = '<div class="empty">Loading…</div>';
+    host.innerHTML = '<div class="empty">Loading…</div>';
     try {
-      await spec.detailOf(selected, detailBox);
+      await spec.detailOf(selected, host);
       // On a phone the rail is hidden once something is selected, so the way
       // back has to be on the record itself.
       const back = el('<button type="button" class="secondary sm back-to-list">← All ' + esc(noun) + 's</button>');
       back.addEventListener('click', () => select(null));
-      detailBox.prepend(back);
+      host.prepend(back);
     } catch (e) {
-      detailBox.innerHTML = `<div class="empty"><strong>Could not open this ${esc(noun)}</strong>${esc(e.message)}</div>`;
+      host.innerHTML = `<div class="empty"><strong>Could not open this ${esc(noun)}</strong>${esc(e.message)}</div>`;
     }
   }
 

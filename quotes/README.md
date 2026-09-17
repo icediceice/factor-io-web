@@ -390,6 +390,7 @@ document has no tax point.
     node cli.mjs inv-pdf 1 --lang th -o invoice.pdf
     node cli.mjs report pp30 --year 2026 --month 9
     node cli.mjs report income --year 2026
+
 ## The operator UI
 
 Eight screens under `ui/`, plain ES modules with no build step, served by

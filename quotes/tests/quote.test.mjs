@@ -7,6 +7,8 @@ import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
   saveRevision, markStatus,
 } from '../lib/quote.mjs';
+import { renderQuotationHtml } from '../templates/quotation.mjs';
+import { formatMoney } from '../lib/money.mjs';
 
 function seedDb() {
   const db = openDb(':memory:');

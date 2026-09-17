@@ -283,7 +283,11 @@ function measure(win) {
   let belowAA = 0; let belowSystem = 0; let inlineSmall = 0;
   let smallest = Infinity; let smallestEl = null;
   for (const el of targets) {
-    const r = el.getBoundingClientRect();
+    // An input wrapped in a <label> is activated by clicking the label, so the
+    // LABEL is the target. Measuring the 18px checkbox inside a 44px label
+    // reports a failure the operator can never experience.
+    const box = el.closest('label') ?? el;
+    const r = box.getBoundingClientRect();
     const m = Math.min(r.width, r.height);
     if (m < 24 && inlineExempt(el, win)) { inlineSmall++; continue; }
     if (m < smallest) { smallest = m; smallestEl = el; }

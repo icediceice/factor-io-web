@@ -19,8 +19,20 @@
   --mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai","Loma",monospace;
   /* Spacing scale. Every margin/padding below references one of these. */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:28px; --s7:40px;
+  /* Type scale. Seven steps, no half-pixels. The sheet used to carry 11.5,
+     12.5 and 13.5px in nine rules — sizes that mean "a bit smaller than the
+     one above", which is a decision taken per-rule instead of once. The only
+     declaration allowed to sit outside this scale is h1, which is fluid. */
+  --t-xs:11px; --t-sm:12px; --t-md:13px; --t-base:14px; --t-lg:15px;
+  --t-xl:17px; --t-2xl:22px;
   --r-input:2px; --r-btn:3px;
-  --rail-w:330px;
+  --rail-w:328px;
+  /* The header's own height. 76px, 84px and 96px were scattered through the
+     sticky offsets below as bare numbers, each silently depending on it. */
+  --header-h:60px;
+  /* The one translucent value in the sheet. It exists because a modal scrim
+     has to dim what is behind it — nothing else here floats. */
+  --scrim:rgba(23,45,42,.42);
   /* Measures. A form column wider than this stops being scannable; a single
      date or amount field wider than this just looks broken. */
   --w-form:520px; --w-field:320px;

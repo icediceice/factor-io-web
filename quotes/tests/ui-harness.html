@@ -279,18 +279,52 @@ function measure(win) {
     .filter(Boolean).sort((a, b) => a - b);
   const spread = sizes.length ? sizes[sizes.length - 1] / sizes[0] : 1;
   out.push(row('Type scale spread', spread >= 1.4 ? 'PASS' : 'FAIL', `${spread.toFixed(2)}× (${sizes.join('/')})`));
-  const tiny = texts.filter((el) => parseFloat(win.getComputedStyle(el).fontSize) < 12).length;
-  out.push(row('Text ≥12px', tiny === 0 ? 'PASS' : 'WARN', `${tiny} under`));
+  const tinyEls = texts.filter((el) => parseFloat(win.getComputedStyle(el).fontSize) < 12);
+  out.push(row('Text ≥12px', tinyEls.length === 0 ? 'PASS' : 'WARN', `${tinyEls.length} under`));
+  if (tinyEls.length) detail.push('under 12px: ' + tinyEls.slice(0, 6).map(sig).join('  |  '));
 
   // --- density -------------------------------------------------------------
-  const rails = doc.querySelectorAll('.rail-item').length;
+  // Informational: a settings or report screen has no list by design, so an
+  // empty count is not a defect. What IS a defect is rows that exist in the
+  // DOM but sit outside their own scroll box — the rail reporting "8 of 8"
+  // while the operator can see one and a half of them.
+  const rails = [...doc.querySelectorAll('.rail-item')];
   const rows = doc.querySelectorAll('tbody tr').length;
-  out.push(row('Rows rendered', (rails + rows) > 0 ? 'PASS' : 'WARN', `${rails} rail · ${rows} table`));
+  out.push(row('Rows rendered', 'PASS', `${rails.length} rail · ${rows} table`));
+
+  const rail = doc.querySelector('.wb-rail');
+  if (rail && rails.length) {
+    const rr = rail.getBoundingClientRect();
+    const seen = rails.filter((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top >= rr.top - 1 && r.bottom <= rr.bottom + 1;
+    }).length;
+    // A rail exists to be scanned. Showing fewer than 6 of what it holds is a
+    // failure of the macrostructure, not a scrolling preference.
+    const want = Math.min(rails.length, 6);
+    out.push(row('Rail rows visible', seen >= want ? 'PASS' : 'FAIL',
+      `${seen} of ${rails.length} · rail ${Math.round(rr.height)}px`));
+  }
+
+  // --- the fold ------------------------------------------------------------
+  // DENSITY 7 (.interface-design/system.md): the primary work region has to
+  // begin in the top third, not below a band of summary cards.
+  const work = doc.querySelector('.wb, .stack, main table');
+  if (work) {
+    const top = Math.round(work.getBoundingClientRect().top + win.scrollY);
+    const bar = Math.round(win.innerHeight * 0.4);
+    out.push(row('Work starts above', top <= bar ? 'PASS' : 'FAIL', `${top}px (bar ${bar}px)`));
+  }
 
   // --- honest empties ------------------------------------------------------
-  const err = [...doc.querySelectorAll('.error, .banner')].filter((el) => visible(el, win));
-  out.push(row('Error banners', err.length === 0 ? 'PASS' : 'WARN', err.length));
-  if (err.length) detail.push('banners: ' + err.slice(0, 3).map((e) => e.textContent.trim().slice(0, 90)).join(' | '));
+  // .banner is an EXPLANATION the screen means to show (a draft invoice saying
+  // its rates are provisional). Only .error is a failure; counting both made a
+  // correct screen look broken.
+  const err = [...doc.querySelectorAll('.error')].filter((el) => visible(el, win));
+  const banners = [...doc.querySelectorAll('.banner')].filter((el) => visible(el, win));
+  out.push(row('Error states', err.length === 0 ? 'PASS' : 'FAIL', err.length));
+  out.push(row('· explanatory banners', 'PASS', banners.length));
+  if (err.length) detail.push('errors: ' + err.slice(0, 3).map((e) => e.textContent.trim().slice(0, 90)).join(' | '));
 
   return { out, detail };
 }

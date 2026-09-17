@@ -390,6 +390,13 @@ export function createApi(db) {
           const lines = db.prepare('SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id').all(id);
           return json(200, { lines });
         }
+        // READING lines is always allowed; CHANGING them is not. Until this
+        // guard existed these three routes had NO status check whatsoever —
+        // only ui/quote.html hid the buttons — so any CLI or agent call could
+        // rewrite the lines of an issued, accepted or even invoiced quotation.
+        // The PDF renders from live lines, so the customer's document could
+        // change after issue with nothing recording that it had.
+        { const why = editRefusal(row.status); if (why) throw bad(why); }
         if (method === 'POST') {
           const kind = kindOf(db, body);
           const billingPeriod = periodOf(body);

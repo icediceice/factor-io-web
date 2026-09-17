@@ -149,20 +149,54 @@ export function renderInvoiceHtml(doc, lang = 'en') {
 
   // [5] description, value AND quantity — plus the separately-shown discount
   // that section 3.1 requires for it to leave the VAT base.
-  const lineRows = lines.map((l) => `
+  // Type labels come from the invoice document, which resolved them from the
+  // vocabulary AT RAISE TIME — an invoice must keep reading the way it read
+  // when it was filed, even if the setting changes afterwards.
+  const kindLabels = doc.kindLabels ?? {};
+  const kindLabel = (l) => esc(kindLabels[l.kind] ?? t[l.kind] ?? l.kind);
+  const periodLabels = PERIOD_LABELS[lang] ?? PERIOD_LABELS.en;
+  const anyRecurring = lines.some((l) => (l.billingPeriod ?? 'once') !== 'once');
+  const anySection = lines.some((l) => (l.section ?? '') !== '');
+  const cols = anyRecurring ? 9 : 8;
+
+  // NOTE: no contract total and no recurring split anywhere on this document.
+  // A tax invoice states what is being billed NOW; the term-extended figure is
+  // a quotation memo and putting it here would misstate the VAT base.
+  const rowFor = (l) => `
       <tr>
         <td class="pos">${l.position}</td>
         <td class="desc">
           <strong>${lineName(l)}</strong>
           ${l.descriptionEn && lang === 'th' && l.descriptionTh ? `<span class="alt">${esc(l.descriptionEn)}</span>` : ''}
         </td>
-        <td class="kind">${t[l.kind] ?? esc(l.kind)}</td>
+        <td class="kind">${kindLabel(l)}</td>
         <td class="num qty">${esc(l.qty)}</td>
-        <td class="unit">${esc(l.unit)}</td>
+        <td class="unit">${esc(l.unit)}</td>${anyRecurring ? `
+        <td class="period">${esc(periodLabels[l.billingPeriod ?? 'once'] ?? '')}</td>` : ''}
         <td class="num">${money(l.unitSatang)}</td>
         <td class="num disc">${l.discountSatang ? `−${money(l.discountSatang)}` : '—'}</td>
         <td class="num">${money(l.subtotalSatang - (l.discountSatang || 0))}</td>
-      </tr>`).join('\n');
+      </tr>`;
+
+  let lineRows;
+  if (!anySection) {
+    lineRows = lines.map(rowFor).join('\n');
+  } else {
+    const chunks = [];
+    let current = null;
+    for (const l of lines) {
+      const name = l.section ?? '';
+      if (name !== current) {
+        current = name;
+        if (name !== '') {
+          chunks.push(`
+      <tr class="sec"><td colspan="${cols}">${esc(name)}</td></tr>`);
+        }
+      }
+      chunks.push(rowFor(l));
+    }
+    lineRows = chunks.join('\n');
+  }
 
   const fxRow = totals.thbPayableSatang != null && inv.currency !== 'THB' ? `
       <tr class="fx"><td class="lbl">${esc(t.thbEquiv)} ${esc(inv.fxRate)}${inv.fxAsOf ? `, ${esc(t.asOf)} ${esc(fmtDate(inv.fxAsOf, lang))}` : ''})</td>

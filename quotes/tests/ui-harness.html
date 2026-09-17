@@ -325,19 +325,23 @@ function measure(win) {
   const rows = doc.querySelectorAll('tbody tr').length;
   out.push(row('Rows rendered', 'PASS', `${rails.length} rail · ${rows} table`));
 
-  // This check applies to the TWO-COLUMN Workbench only. Below the breakpoint
-  // the rail either becomes the whole page (a phone list is meant to scroll —
-  // demanding every row fit the viewport would be a desktop bar applied to a
-  // phone) or is hidden entirely once a record is open, which is the intended
-  // collapse. Both are reported as scoped-out rather than quietly passed.
+  // These two checks apply to the TWO-COLUMN Workbench only. Below the
+  // breakpoint the rail either becomes the whole page (a phone list is meant
+  // to scroll — demanding every row fit the viewport would be a desktop bar
+  // applied to a phone) or is hidden entirely once a record is open, which is
+  // the intended collapse. Both are reported as scoped-out, never quietly
+  // passed.
   const rail = doc.querySelector('.wb-rail');
   const wbBox = doc.querySelector('.wb');
+  const rr = rail?.getBoundingClientRect();
+  const twoCol = !!(rail && wbBox && rr.height > 0
+    && rr.width < wbBox.getBoundingClientRect().width * 0.8);
+  const scopedOut = rr && rr.height === 0
+    ? 'n/a — rail collapsed (record open)' : 'n/a — single column';
+
   if (rail && rails.length && wbBox) {
-    const rr = rail.getBoundingClientRect();
-    const twoCol = rr.height > 0 && rr.width < wbBox.getBoundingClientRect().width * 0.8;
     if (!twoCol) {
-      out.push(row('Rail rows visible', 'PASS',
-        rr.height === 0 ? 'n/a — rail collapsed (record open)' : 'n/a — single column'));
+      out.push(row('Rail rows visible', 'PASS', scopedOut));
     } else {
       const seen = rails.filter((el) => onScreen(el, win)).length;
       // A rail exists to be scanned. Showing fewer than 6 of what it holds is
@@ -354,19 +358,23 @@ function measure(win) {
   // — a fixture with 8 records cannot show 12, so this measures how many the
   // rail has ROOM for at the current row height.
   //
-  // Same scoping as the check above, for the same reason: with a record open
-  // at 390 the rail is display:none BY DESIGN, its rows measure 0px, and the
-  // division produced a FAIL reading "NaN rows · 0px each" — an instrument
-  // reporting a defect in a layout rule that is working.
+  // Scoped to two columns for the same reason as the check above, and this one
+  // was measuring something meaningless outside it: at 768 the rail's
+  // max-height is `none`, so its box is its own CONTENT height, and the
+  // capacity figure became "how tall is this rail's create-form footer"
+  // divided by the row height. The invoices rail, holding two records, scored
+  // 11 and failed; the quotations rail, with a larger footer, scored 16 and
+  // passed. Neither number said anything about density. With a record open the
+  // rail is display:none and the division returned "NaN rows · 0px each".
   if (rail && rails.length) {
-    const rowH = rails[0].getBoundingClientRect().height;
-    if (rowH === 0) {
-      out.push(row('Rail capacity ≥12 rows', 'PASS', 'n/a — rail collapsed (record open)'));
+    if (!twoCol) {
+      out.push(row('Rail capacity ≥12 rows', 'PASS', scopedOut));
     } else {
+      const rowH = rails[0].getBoundingClientRect().height;
       const head = doc.querySelector('.rail-head');
       const count = doc.querySelector('.rail-count');
       const chrome = (head?.getBoundingClientRect().height ?? 0) + (count?.getBoundingClientRect().height ?? 0);
-      const capacity = Math.floor((rail.getBoundingClientRect().height - chrome) / rowH);
+      const capacity = Math.floor((rr.height - chrome) / rowH);
       out.push(row('Rail capacity ≥12 rows', capacity >= 12 ? 'PASS' : 'FAIL',
         `${capacity} rows · ${Math.round(rowH)}px each`));
     }

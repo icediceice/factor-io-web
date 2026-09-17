@@ -31,7 +31,7 @@ export async function loadContent() {
     for (const page of Object.values(c.pages)) {
       const ids = page.sections.map(s => s.id);
       if (new Set(ids).size !== ids.length || ids.some(id => !/^[a-z][a-z0-9-]*$/.test(id))) throw new Error('Invalid section ids');
-      for (const s of page.sections) if (!['statement', 'cards', 'ledger', 'exceptions', 'founder', 'architecture', 'flow', 'demo', 'contact'].includes(s.kind)) throw new Error(`Unknown section kind ${s.kind}`);
+      for (const s of page.sections) if (!['statement', 'cards', 'ledger', 'exceptions', 'founder', 'architecture', 'questions', 'routes', 'process', 'demo', 'contact'].includes(s.kind)) throw new Error(`Unknown section kind ${s.kind}`);
     }
     content[locale] = c;
   }

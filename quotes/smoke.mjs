@@ -120,6 +120,61 @@ try {
     if (process.env.SMOKE_KEEP) await writeFile(join(DB, `smoke-${lang}.pdf`), buf);
   }
 
+  // ---- a MIXED proposal: hardware + software + support, sections, an option
+  // and a contract term. Kept as its own quotation so the accounting chain
+  // below keeps asserting the same frozen figures it always has.
+  const kinds = await call('GET', '/api/line-kinds');
+  ok('line vocabulary is published for clients to build selects from',
+    kinds.status === 200 && ['software', 'support', 'training', 'cloud']
+      .every((c) => kinds.json.kinds.some((k) => k.code === c)),
+    (kinds.json.kinds ?? []).map((k) => k.code).join(','));
+
+  const mix = await call('POST', '/api/quotations', { client_id: client.json.client.id, lang: 'en' });
+  const mixId = mix.json.quotation.id;
+  const mixLines = [
+    { kind: 'hardware', billing_period: 'once', section: 'Hardware', description_en: 'Appliance', qty: '1', unit_price: '2000000.00' },
+    { kind: 'software', billing_period: 'yearly', section: 'Software', description_en: 'Platform licence', qty: '1', unit_price: '480000.00' },
+    { kind: 'support', billing_period: 'monthly', section: 'Services', description_en: 'Managed operations', qty: '1', unit_price: '85000.00' },
+    { kind: 'training', billing_period: 'once', section: 'Services', description_en: 'Workshop', qty: '2', unit_price: '45000.00', optional: true },
+  ];
+  let mixLast;
+  for (const body of mixLines) mixLast = await call('POST', `/api/quotations/${mixId}/lines`, body);
+  ok('mixed-type lines accepted (software, support, training)', mixLast.status === 201, mixLast.json?.error);
+
+  const termed = await call('PUT', `/api/quotations/${mixId}`, { term_months: 36 });
+  const mt = termed.json.totals;
+  // one-time 2,000,000.00 | yearly 480,000.00 | monthly 85,000.00
+  // net for ONE cycle = 2,565,000.00 -> VAT 7% = 179,550.00 -> grand 2,744,550.00
+  ok('one-time and recurring are split by period',
+    mt.oneTimeSatang === 200000000 && mt.recurringSatang.yearly === 48000000 && mt.recurringSatang.monthly === 8500000,
+    `once ${mt.oneTimeSatang} yearly ${mt.recurringSatang?.yearly} monthly ${mt.recurringSatang?.monthly}`);
+  ok('the payable is ONE cycle and excludes the option',
+    mt.netSatang === 256500000 && mt.vatSatang === 17955000 && mt.grandSatang === 274455000,
+    `net ${mt.netSatang} vat ${mt.vatSatang} grand ${mt.grandSatang}`);
+  // 200,000,000 + (8,500,000 x 36) + (48,000,000 x 36 / 12) = 650,000,000
+  ok('contract total extends recurring across the term, exact in satang',
+    mt.contractTotalSatang === 650000000, `contract ${mt.contractTotalSatang}`);
+  ok('the option is priced separately and never enters a total',
+    mt.optionalSatang === 9000000, `options ${mt.optionalSatang}`);
+  ok('sections carry the GROSS figure a reader adds up from the amount column',
+    mt.sections.map((s) => `${s.name}=${s.subtotalSatang}`).join(' ')
+      === 'Hardware=200000000 Software=48000000 Services=8500000',
+    mt.sections.map((s) => `${s.name}=${s.subtotalSatang}`).join(' '));
+
+  // ...and the option must not survive into a tax invoice.
+  for (const s of ['issued', 'proposed', 'accepted']) await call('POST', `/api/quotations/${mixId}/status`, { status: s });
+  const mixInv = await call('POST', '/api/invoices', { quotation_id: mixId, issue_date: '2026-09-15' });
+  const mixInvLines = mixInv.json.lines.map((l) => l.descriptionEn);
+  ok('the untaken option is absent from the invoice',
+    mixInv.status === 201 && !mixInvLines.includes('Workshop') && mixInvLines.length === 3,
+    mixInvLines.join(' | '));
+  ok('the invoice bills one cycle — the 36-month term never multiplies it',
+    mixInv.json.totals.netSatang === 256500000, `net ${mixInv.json.totals.netSatang}`);
+  ok('billing period and section are snapshotted onto the invoice lines',
+    mixInv.json.lines.map((l) => `${l.billingPeriod}/${l.section}`).join(' ')
+      === 'once/Hardware yearly/Software monthly/Services',
+    mixInv.json.lines.map((l) => `${l.billingPeriod}/${l.section}`).join(' '));
+
   // ---- accounting: pipeline -> invoice -> settlement -> PP 30 ----------
   const qid = q.json.quotation.id;
   const proposed = await call('POST', `/api/quotations/${qid}/status`, { status: 'proposed' });

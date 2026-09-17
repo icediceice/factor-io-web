@@ -215,16 +215,17 @@ export function createApi(db) {
         return json(200, { items });
       }
       if (method === 'POST') {
-        const kind = body.kind === 'hardware' ? 'hardware' : body.kind === 'service' ? 'service' : null;
-        if (!kind) throw bad('kind must be "service" or "hardware"');
+        const kind = kindOf(db, body);
+        const billingPeriod = periodOf(body);
         const name = needStr(body, 'name_en', { max: 300 });
         const unitSatang = unitSatangOf(body);
         const row = tx(db, () => {
           const { lastInsertRowid: id } = db.prepare(
-            `INSERT INTO catalog_items (kind, sku, name_en, name_th, description, unit, unit_satang, active)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO catalog_items (kind, sku, name_en, name_th, description, unit, unit_satang, billing_period, section, active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           ).run(kind, optStr(body, 'sku', { max: 100 }), name, optStr(body, 'name_th'),
             optStr(body, 'description'), optStr(body, 'unit', { max: 30 }) || 'day', unitSatang,
+            billingPeriod, optStr(body, 'section', { max: 100 }),
             body.active === false ? 0 : 1);
           audit(db, actor, 'catalog.create', 'catalog_item', id, { kind, name });
           return db.prepare('SELECT * FROM catalog_items WHERE id = ?').get(id);

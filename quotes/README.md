@@ -1,6 +1,6 @@
-# Factor I/O Quotation System
+# Factor IO Quotation System
 
-A self-contained Node service for authoring and issuing Factor I/O
+A self-contained Node service for authoring and issuing Factor IO
 quotations: a tailnet-authenticated web app for the human, a Chromium-rendered
 bilingual (EN/TH) A4 PDF as the end product, and a REST API + CLI for the
 agent. **Zero runtime dependencies** — node:sqlite, node:http, headless

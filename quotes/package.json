@@ -2,7 +2,7 @@
   "name": "factor-io-quotes",
   "version": "0.1.0",
   "private": true,
-  "description": "Factor I/O quotation system — authenticated web app, Chromium-rendered PDF, agent-drivable REST + CLI. Zero runtime dependencies.",
+  "description": "Factor IO quotation system — authenticated web app, Chromium-rendered PDF, agent-drivable REST + CLI. Zero runtime dependencies.",
   "type": "module",
   "engines": {
     "node": ">=22.5.0"

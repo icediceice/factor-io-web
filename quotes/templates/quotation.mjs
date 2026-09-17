@@ -204,7 +204,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
       <tr class="contract"><td class="lbl">${esc(t.contract)} (${esc(totals.termMonths)} ${esc(t.months)})</td><td class="num">${money(totals.contractTotalSatang)}</td></tr>` : '';
 
   const optionRow = totals.optionalSatang ? `
-      <tr class="memo opts"><td class="lbl">${esc(t.option)}</td><td class="num">${money(totals.optionalSatang)}</td></tr>` : '';
+      <tr class="memo opts"><td class="lbl">${esc(t.optionsTotal)}</td><td class="num">${money(totals.optionalSatang)}</td></tr>` : '';
 
   const fxRow = totals.thbPayableSatang != null && q.currency !== 'THB' ? `
       <tr class="fx"><td></td><td class="lbl">${esc(t.thbEquiv)} ${esc(q.fxRate)}${q.fxAsOf ? `, ${esc(t.asOf)} ${esc(fmtDate(q.fxAsOf, lang))}` : ''})</td>

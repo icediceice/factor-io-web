@@ -474,12 +474,31 @@ export function createApi(db) {
       // Those are CLIENT errors — without this mapping they escape as a 500,
       // which tells the caller the server broke when in fact they asked for a
       // move the state machine forbids.
+      // Issue AND re-issue. A first issue moves draft -> issued and snapshots.
+      // A RE-issue only snapshots: it is how a correction to an already-issued
+      // quotation is recorded, and it deliberately leaves the status alone.
+      //
+      // It cannot be markStatus('issued') in that case, because TRANSITIONS
+      // allows issued -> issued but NOT proposed -> issued (quote.mjs) — and a
+      // proposed quotation, sitting with the customer, is exactly the one whose
+      // bad information gets noticed. Walking it back to 'issued' would undo a
+      // pipeline step that really happened, so the snapshot is taken directly
+      // and the audit says 'quotation.revision', which is what actually changed.
       if (seg[2] === 'issue' && method === 'POST') {
         const count = db.prepare('SELECT COUNT(*) c FROM quotation_lines WHERE quotation_id = ?').get(id).c;
         if (!count) throw bad('cannot issue a quotation with no lines');
-        let result;
-        try { result = markStatus(db, id, 'issued', actor); } catch (e) { throw bad(e.message); }
-        return json(200, docEnvelope(buildQuoteDocument(db, id), { status: result.status, rev: result.rev }));
+        if (row.status === 'draft') {
+          let result;
+          try { result = markStatus(db, id, 'issued', actor); } catch (e) { throw bad(e.message); }
+          return json(200, docEnvelope(buildQuoteDocument(db, id), { status: result.status, rev: result.rev }));
+        }
+        { const why = editRefusal(row.status); if (why) throw bad(why); }
+        const rev = tx(db, () => {
+          const next = saveRevision(db, id, buildQuoteDocument(db, id), actor);
+          audit(db, actor, 'quotation.revision', 'quotation', id, { rev: next, status: row.status });
+          return next;
+        });
+        return json(200, docEnvelope(buildQuoteDocument(db, id), { status: String(row.status), rev }));
       }
 
       if (seg[2] === 'status' && method === 'POST') {

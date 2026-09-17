@@ -106,7 +106,15 @@ const server = createServer(async (req, res) => {
     const file = normalize(join(root, rel));
     if (!file.startsWith(root)) { res.writeHead(403); return res.end('forbidden'); }
     const data = await readFile(file);
-    res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
+    const type = MIME[extname(file)] ?? 'application/octet-stream';
+    // Screens get the fixture label; /tests/* (the measurement page itself)
+    // does not, or it would measure the harness's own chrome.
+    if (extname(file) === '.html' && !underTests) {
+      const html = data.toString('utf8').replace(/<body[^>]*>/i, (m) => m + FIXTURE_LABEL);
+      res.writeHead(200, { 'content-type': type });
+      return res.end(html);
+    }
+    res.writeHead(200, { 'content-type': type });
     return res.end(data);
   } catch (e) {
     res.writeHead(e.code === 'ENOENT' ? 404 : 500, { 'content-type': 'text/plain; charset=utf-8' });

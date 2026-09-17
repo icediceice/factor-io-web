@@ -340,6 +340,31 @@ function measure(win) {
     }
   }
 
+  // --- shape density floors (slop gates N1 · N2 · N3) ----------------------
+  // Workbench: the rail must SHOW AT LEAST 12 ROWS without scrolling at 900px
+  // ("a list that shows 5 fat rows has failed the shape"). Capacity, not count
+  // — a fixture with 8 records cannot show 12, so this measures how many the
+  // rail has ROOM for at the current row height.
+  if (rail && rails.length) {
+    const rowH = rails[0].getBoundingClientRect().height;
+    const head = doc.querySelector('.rail-head');
+    const count = doc.querySelector('.rail-count');
+    const chrome = (head?.getBoundingClientRect().height ?? 0) + (count?.getBoundingClientRect().height ?? 0);
+    const capacity = Math.floor((rail.getBoundingClientRect().height - chrome) / rowH);
+    out.push(row('Rail capacity ≥12 rows', capacity >= 12 ? 'PASS' : 'FAIL',
+      `${capacity} rows · ${Math.round(rowH)}px each`));
+  }
+  // Ledger: 25+ rows at 1440×900, row height 32–40px, cell padding under 24px.
+  const bodyRows = [...doc.querySelectorAll('tbody tr')].filter((r) => visible(r, win));
+  if (bodyRows.length) {
+    const hs = bodyRows.map((r) => r.getBoundingClientRect().height).sort((a, b) => a - b);
+    const med = hs[Math.floor(hs.length / 2)];
+    const cell = bodyRows[0].querySelector('td');
+    const pad = cell ? parseFloat(win.getComputedStyle(cell).paddingTop) : 0;
+    out.push(row('Row height 32–40px', med >= 32 && med <= 40 ? 'PASS' : 'WARN', `median ${Math.round(med)}px`));
+    out.push(row('Cell padding <24px', pad < 24 ? 'PASS' : 'FAIL', `${Math.round(pad)}px`));
+  }
+
   // --- the fold ------------------------------------------------------------
   // DENSITY 7 (.interface-design/system.md): the primary work region begins in
   // the top third, not below a band of summary cards.

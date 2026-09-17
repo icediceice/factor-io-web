@@ -137,16 +137,25 @@ async function main() {
       if (flags.lang) body.lang = flags.lang;
       if (flags.notes) body.notes = flags.notes;
       if (flags.date) body.issue_date = flags.date;
-      const { quotation } = await call('POST', '/api/quotations', body);
       // term_months is not accepted by the create route — it is an edit on the
-      // draft, so --term is applied as a follow-up PUT rather than silently
-      // ignored.
-      if (flags.term !== undefined && flags.term !== true) {
-        await call('PUT', `/api/quotations/${quotation.id}`, { term_months: Number(flags.term) });
+      // draft — so --term is applied as a follow-up PUT. Validate FIRST: a bad
+      // value must not leave an orphan draft behind that the PUT then refuses.
+      const hasTerm = flags.term !== undefined && flags.term !== true;
+      const term = hasTerm ? Number(flags.term) : 0;
+      if (hasTerm && (!Number.isSafeInteger(term) || term < 0 || term > 600)) {
+        console.error('--term must be a whole number of months between 0 and 600 (0 = no term stated)');
+        process.exit(1);
+      }
+      let { quotation } = await call('POST', '/api/quotations', body);
+      if (hasTerm) {
+        // Keep the PUT's document as the final state. Printing the POST copy
+        // reported termMonths 0 while the server had stored the term — --json
+        // is meant to be what the server holds, not what it held a call ago.
+        ({ quotation } = await call('PUT', `/api/quotations/${quotation.id}`, { term_months: term }));
       }
       if (flags.json) return asJson({ quotation });
-      const term = flags.term !== undefined && flags.term !== true ? `, term ${Number(flags.term)}m` : '';
-      console.log(`created ${quotation.number} (id ${quotation.id}, ${quotation.status}${term})`);
+      const termNote = quotation.termMonths ? `, term ${quotation.termMonths}m` : '';
+      console.log(`created ${quotation.number} (id ${quotation.id}, ${quotation.status}${termNote})`);
       return;
     }
     case 'show': {

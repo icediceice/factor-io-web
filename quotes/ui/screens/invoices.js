@@ -176,7 +176,7 @@ async function renderInvoice(id, host, reloadList) {
           <dt>Withholding</dt><dd class="mono">${esc(totals.whtRate)}% — ${esc(totals.whtMode)}</dd>
         </dl>
       </div>
-      ${isDraft ? `<label style="max-width:320px;margin-top:12px">Issue date
+      ${isDraft ? `<label class="w-field mt-3">Issue date
         <input data-issue-date type="date"><span class="hint">Blank = today.</span></label>` : ''}
     </section>`));
 

@@ -124,7 +124,15 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 .rail-item{display:block;padding:var(--s2) var(--s4) var(--s2) calc(var(--s4) - 3px);border-bottom:1px solid var(--line);border-left:3px solid var(--line);text-decoration:none;color:var(--ink);background:var(--white);line-height:1.35}
 .rail-item:hover{background:var(--tint)}
 .rail-item[aria-current=true]{background:var(--tint);border-left-color:var(--accent);border-left-width:3px}
-.rail-item .r1{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between}
+/* NOT space-between, which is what the first build used and what looking at a
+   screenshot — rather than measuring one — caught. Pushing the client name to
+   the right edge left it starting at a different x on every row: "Mekong
+   Analytics" hard right, "Andaman Cloud Services…" almost touching the quote
+   number. The names are the thing an operator scans down, and they had no
+   column. The reference numbers are fixed-width mono, so left-aligning the
+   name straight after them gives one. .r2 below keeps space-between: a status
+   belongs at the left edge and money belongs right-aligned. */
+.rail-item .r1{display:flex;gap:var(--s2);align-items:baseline}
 .rail-item .r-no{font-family:var(--mono);font-size:var(--t-md);font-weight:600;white-space:nowrap}
 /* ONE line, ellipsised. A wrapping client name made rows 74px and capped the
    rail at 7 records against a floor of 12 — the rail's job is scanning, and a

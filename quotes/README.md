@@ -56,7 +56,7 @@ Layout:
 5. **Install the service** (see deploy/factor-quotes.service header):
    daemon-reload, `systemctl --user enable --now factor-quotes`.
 6. **First use**: from an allowlisted tailnet device open
-   `http://quotes.factor-io.com` and fill in Settings (company block, tax IDs,
+   `http://quotes.factor-io.com:8787` and fill in Settings (company block, tax IDs,
    VAT/WHT rates, bank details, terms). Every business fact is a settings row.
    There is intentionally no TLS: the Tailscale WireGuard path is encrypted,
    at the accepted cost of no browser padlock or secure-context APIs.

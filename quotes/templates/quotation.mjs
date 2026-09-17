@@ -46,6 +46,16 @@ const T = {
     signature: 'Authorised signature',
     page: 'Page',
     asOf: 'as of',
+    period: 'Billing',
+    option: 'OPTION',
+    optionsNote: 'Options shown are not included in the totals below.',
+    oneTime: 'One-time',
+    recurring: 'Recurring',
+    contract: 'Contract total',
+    months: 'months',
+    sectionTotal: 'Subtotal',
+    // Fallback labels for the two kinds that predate the configurable
+    // vocabulary; every other label now arrives on doc.kindLabels.
     service: 'Service',
     hardware: 'Hardware',
   },

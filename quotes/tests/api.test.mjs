@@ -159,6 +159,82 @@ describe('quotation flow', () => {
     assert.equal(removed.status, 200);
     assert.equal(JSON.parse(removed.body).lines.length, 0);
   });
+
+  // Helper: walk a quotation all the way to 'accepted' through the real routes.
+  async function acceptedQuote(call) {
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Acme' } })).body).client;
+    const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
+    await call('POST', `/quotations/${q.id}/lines`, {
+      body: { kind: 'service', description_en: 'Work', qty: '1', unit_price: '1000.00' },
+    });
+    await call('POST', `/quotations/${q.id}/issue`);
+    await call('POST', `/quotations/${q.id}/status`, { body: { status: 'proposed' } });
+    await call('POST', `/quotations/${q.id}/status`, { body: { status: 'accepted' } });
+    return { client, q };
+  }
+
+  test('an issued quotation can be deleted, and the audit says what it cost', async () => {
+    const { db, call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } })).body).client;
+    const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
+    await call('POST', `/quotations/${q.id}/lines`, {
+      body: { kind: 'service', description_en: 'Work', qty: '1', unit_price: '1000.00' },
+    });
+    await call('POST', `/quotations/${q.id}/issue`);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_revisions').get().c, 1);
+
+    const r = await call('DELETE', `/quotations/${q.id}`);
+    assert.equal(r.status, 200);
+    // The destroyed snapshot count is REPORTED, not hidden: deleting an issued
+    // quotation throws away the record of what the customer was sent.
+    assert.equal(JSON.parse(r.body).revisions_destroyed, 1);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations').get().c, 0);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_revisions').get().c, 0);
+
+    const detail = JSON.parse(db.prepare(
+      "SELECT detail FROM audit_log WHERE action='quotation.delete' ORDER BY id DESC"
+    ).get().detail);
+    assert.equal(detail.status, 'issued');
+    assert.equal(detail.revisions_destroyed, 1);
+  });
+
+  test('a quotation an invoice was raised from is refused, and the refusal names the invoice', async () => {
+    const { db, call } = boot();
+    const { q } = await acceptedQuote(call);
+    const inv = JSON.parse((await call('POST', '/invoices', { body: { quotation_id: q.id } })).body).invoice;
+
+    const r = await call('DELETE', `/quotations/${q.id}`);
+    assert.equal(r.status, 400);
+    const { error } = JSON.parse(r.body);
+    assert.match(error, new RegExp(inv.number), 'the operator must be told WHICH invoice blocks this');
+    assert.match(error, /cancel/i, 'and what to do instead');
+
+    // The guard exists because invoices.quotation_id has no ON DELETE rule —
+    // the row must still be there, pointing at a quotation that still exists.
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations WHERE id = ?').get(q.id).c, 1);
+    assert.equal(db.prepare('SELECT quotation_id FROM invoices WHERE id = ?').get(inv.id).quotation_id, q.id);
+  });
+
+  test('GET /quotations?include=totals carries a payable figure per row; the plain list still does not', async () => {
+    const { call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } })).body).client;
+    const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
+    await call('POST', `/quotations/${q.id}/lines`, {
+      body: { kind: 'service', description_en: 'Work', qty: '2', unit_price: '1000.00' },
+    });
+
+    const plain = JSON.parse((await call('GET', '/quotations')).body).quotations[0];
+    assert.equal(plain.totals, undefined, 'the cheap row read the CLI depends on must not change shape');
+
+    const rich = JSON.parse((await call('GET', '/quotations', { query: { include: 'totals' } })).body).quotations[0];
+    assert.equal(rich.line_count, 1);
+    assert.equal(rich.revision, 0);
+    assert.equal(rich.totals.currency, 'THB');
+    assert.ok(rich.totals.payableSatang > 0);
+    // Same figure the detail document reports — one source, two renderings.
+    const doc = JSON.parse((await call('GET', `/quotations/${q.id}`)).body);
+    assert.equal(rich.totals.payableSatang, doc.totals.payableSatang);
+  });
 });
 
 describe('http auth boundary (createApp actorFor lanes)', () => {

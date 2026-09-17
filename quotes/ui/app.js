@@ -88,7 +88,12 @@ export const statusChip = (s) => `<span class="status status-${esc(s)}">${esc(s)
  *
  * @returns {Promise<boolean>} true when the operator confirmed.
  */
-export function confirmAction({ title, body = '', consequences = [], confirmLabel = 'Delete', tone = 'danger' }) {
+export function confirmAction({
+  title, body = '', consequences = [], confirmLabel = 'Delete', tone = 'danger',
+  // An acknowledgement has nothing to cancel: it reports a refusal the server
+  // already made. It gets one button, and never claims anything is permanent.
+  acknowledge = false,
+}) {
   return new Promise((resolve) => {
     const dlg = el(`<dialog class="confirm" data-tone="${esc(tone)}">
       <form method="dialog" class="dlg-body">
@@ -97,11 +102,11 @@ export function confirmAction({ title, body = '', consequences = [], confirmLabe
         ${consequences.length
           ? `<ul>${consequences.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>`
           : ''}
-        <p class="consequence">This cannot be undone.</p>
+        ${tone === 'danger' && !acknowledge ? '<p class="consequence">This cannot be undone.</p>' : ''}
       </form>
       <div class="dlg-actions">
-        <button type="button" class="secondary" data-act="cancel">Cancel</button>
-        <button type="button" class="${tone === 'danger' ? 'danger-solid' : ''}" data-act="ok">${esc(confirmLabel)}</button>
+        ${acknowledge ? '' : '<button type="button" class="secondary" data-act="cancel">Cancel</button>'}
+        <button type="button" class="${tone === 'danger' ? 'danger-solid' : 'secondary'}" data-act="ok">${esc(confirmLabel)}</button>
       </div>
     </dialog>`);
     document.body.append(dlg);

@@ -159,7 +159,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
     const sectionNet = new Map((totals.sections ?? []).map((s) => [s.name, s.netSatang]));
     const chunks = [];
     let current = null;
-    for (const l of lines) {
+    for (const [i, l] of lines.entries()) {
       const name = l.section ?? '';
       if (name !== current) {
         current = name;
@@ -170,7 +170,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
       }
       chunks.push(rowFor(l));
       // Close the group when the NEXT line starts a different section.
-      const next = lines[lines.indexOf(l) + 1];
+      const next = lines[i + 1];
       const isLastOfSection = !next || (next.section ?? '') !== name;
       if (name !== '' && isLastOfSection && sectionNet.has(name)) {
         chunks.push(`

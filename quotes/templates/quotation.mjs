@@ -180,6 +180,28 @@ export function renderQuotationHtml(doc, lang = 'en') {
     lineRows = chunks.join('\n');
   }
 
+  // The one-time / recurring split only earns its space when the proposal
+  // actually mixes them; a plain one-off quote shows the totals block it
+  // always showed.
+  const periodLong = PERIOD_LABELS_LONG[lang] ?? PERIOD_LABELS_LONG.en;
+  const splitRows = totals.hasRecurring ? [
+    totals.oneTimeSatang
+      ? `<tr class="memo"><td class="lbl">${esc(t.oneTime)}</td><td class="num">${money(totals.oneTimeSatang)}</td></tr>`
+      : '',
+    ...['monthly', 'quarterly', 'yearly']
+      .filter((p) => totals.recurringSatang?.[p])
+      .map((p) => `<tr class="memo"><td class="lbl">${esc(t.recurring)} ${esc(periodLong[p])}</td><td class="num">${money(totals.recurringSatang[p])}</td></tr>`),
+  ].filter(Boolean).join('\n    ') : '';
+
+  // The contract total is a MEMO: it is spend across the term, carries no VAT
+  // and is never what this quotation asks to be paid now. It is rendered
+  // BELOW the payable, visually separated, so the two cannot be confused.
+  const contractRow = totals.contractTotalSatang != null ? `
+      <tr class="contract"><td class="lbl">${esc(t.contract)} (${esc(totals.termMonths)} ${esc(t.months)})</td><td class="num">${money(totals.contractTotalSatang)}</td></tr>` : '';
+
+  const optionRow = totals.optionalSatang ? `
+      <tr class="memo opts"><td class="lbl">${esc(t.option)}</td><td class="num">${money(totals.optionalSatang)}</td></tr>` : '';
+
   const fxRow = totals.thbPayableSatang != null && q.currency !== 'THB' ? `
       <tr class="fx"><td></td><td class="lbl">${esc(t.thbEquiv)} ${esc(q.fxRate)}${q.fxAsOf ? `, ${esc(t.asOf)} ${esc(fmtDate(q.fxAsOf, lang))}` : ''})</td>
       <td class="num">${esc(formatMoney(totals.thbPayableSatang, { symbol: '฿', code: 'THB' }))}</td></tr>` : '';

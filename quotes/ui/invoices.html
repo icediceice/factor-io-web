@@ -8,125 +8,13 @@
 </head>
 <body>
 <script type="module">
-import { api, fmtSatang, el, toast, statusChip, renderShell } from './app.js';
+import { renderShell, toast } from './app.js';
+import { mount } from './screens/invoices.js';
 
 const main = renderShell('invoices.html', 'Tax invoices',
   'Raising an invoice freezes the VAT and withholding rates onto it. The issue date is the tax point — it is the date the income is recognised and the date the VAT falls into a PP 30 period.');
 
-const filterCard = el(`<section class="card">
-  <h2>Invoices</h2>
-  <form id="filters" class="grid">
-    <label>Status
-      <select name="status">
-        <option value="">All</option>
-        <option value="draft">Draft</option>
-        <option value="issued">Issued</option>
-        <option value="paid">Paid</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
-    </label>
-    <label>Month (tax point)
-      <input name="month" type="month">
-    </label>
-  </form>
-  <div id="list"><div class="empty">Loading…</div></div>
-</section>`);
-
-const newCard = el(`<section class="card">
-  <h2>Raise an invoice</h2>
-  <p class="sub">Only an <strong>accepted</strong> quotation can be invoiced. The lines are snapshotted, so editing the quotation afterwards cannot move a figure on the invoice.</p>
-  <form id="new">
-    <div class="grid">
-      <label>Accepted quotation
-        <select name="quotation_id" required><option value="">Loading…</option></select>
-      </label>
-      <label>Language
-        <select name="lang"><option value="">Same as quotation</option><option value="en">English</option><option value="th">ไทย</option></select>
-      </label>
-      <label>Issue date (blank = today, set on issue)
-        <input name="issue_date" type="date">
-      </label>
-    </div>
-    <label>Notes
-      <textarea name="notes" rows="2" placeholder="Reference, PO number…"></textarea>
-    </label>
-    <div class="row-actions"><button type="submit">Create draft invoice</button></div>
-  </form>
-</section>`);
-
-main.append(filterCard, newCard);
-
-let clientIndex = new Map();
-
-async function loadClients() {
-  const { clients } = await api('GET', '/clients');
-  clientIndex = new Map(clients.map((c) => [c.id, c.name]));
-  return clients;
-}
-
-async function loadList() {
-  const f = new FormData(filterCard.querySelector('#filters'));
-  const params = new URLSearchParams();
-  if (f.get('status')) params.set('status', f.get('status'));
-  if (f.get('month')) params.set('month', f.get('month'));
-  const qs = params.toString() ? `?${params}` : '';
-  const { invoices } = await api('GET', `/invoices${qs}`);
-  const box = filterCard.querySelector('#list');
-  if (!invoices.length) {
-    box.innerHTML = '<div class="empty">No invoices match — raise one from an accepted quotation below.</div>';
-    return;
-  }
-  box.innerHTML = `<table class="list"><thead><tr>
-      <th>No.</th><th>Client</th><th>Status</th><th>Tax point</th><th>Due</th>
-      <th class="num">Net</th><th class="num">VAT</th><th class="num">Payable</th><th></th>
-    </tr></thead><tbody>
-    ${invoices.map((i) => `<tr>
-      <td class="mono"><a href="invoice.html?id=${i.id}">${i.number}</a></td>
-      <td>${clientIndex.get(i.client_id) ?? `client #${i.client_id}`}</td>
-      <td>${statusChip(i.status)}</td>
-      <td class="mono">${i.issue_date ?? '<span class="muted">not issued</span>'}</td>
-      <td class="mono muted">${i.due_date ?? ''}</td>
-      <td class="num">${fmtSatang(i.net_satang, i.currency)}</td>
-      <td class="num">${fmtSatang(i.vat_satang, i.currency)}<span class="muted mono"> ${i.vat_rate_percent || '—'}%</span></td>
-      <td class="num">${fmtSatang(i.payable_satang, i.currency)}</td>
-      <td><a class="button quiet" href="invoice.html?id=${i.id}">Open</a></td>
-    </tr>`).join('')}
-  </tbody></table>`;
-}
-
-async function loadAcceptedQuotations(select) {
-  const { quotations } = await api('GET', '/quotations');
-  const accepted = quotations.filter((q) => q.status === 'accepted');
-  select.innerHTML = accepted.length
-    ? accepted.reverse().map((q) => `<option value="${q.id}">${q.number} — ${clientIndex.get(q.client_id) ?? `client #${q.client_id}`}</option>`).join('')
-    : '<option value="">— no accepted quotation waiting to be invoiced —</option>';
-}
-
-filterCard.querySelector('#filters').addEventListener('change', () => {
-  loadList().catch((e) => toast(e.message, 'error'));
-});
-
-newCard.querySelector('#new').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const f = new FormData(e.target);
-  if (!f.get('quotation_id')) return toast('Pick an accepted quotation first', 'error');
-  try {
-    const body = { quotation_id: Number(f.get('quotation_id')), notes: f.get('notes') };
-    if (f.get('lang')) body.lang = f.get('lang');
-    if (f.get('issue_date')) body.issue_date = f.get('issue_date');
-    const { invoice } = await api('POST', '/invoices', body);
-    toast(`Created ${invoice.number} as a draft`);
-    location.href = `invoice.html?id=${invoice.id}`;
-  } catch (err) { toast(err.message, 'error'); }
-});
-
-(async () => {
-  await loadClients();
-  await Promise.all([
-    loadList(),
-    loadAcceptedQuotations(newCard.querySelector('select[name=quotation_id]')),
-  ]);
-})().catch((e) => toast(e.message, 'error'));
+mount(main).catch((e) => toast(e.message, 'error'));
 </script>
 </body>
 </html>

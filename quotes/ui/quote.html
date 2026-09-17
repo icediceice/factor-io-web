@@ -244,7 +244,7 @@ async function refresh(promise) {
   renderAll();
 }
 
-main = renderShell('quote.html', `Quotation`, 'Edit lines while the quotation is a draft; issuing freezes an immutable snapshot and enables the PDF links.');
+main = renderShell('quote.html', `Quotation`, 'Issuing writes an immutable revision snapshot. A quotation that has gone out can still be corrected — press Revise, fix it, then re-issue to record the correction as the next revision. Accepted onwards is final.');
 
 try { await refresh(api('GET', `/quotations/${id}`)); }
 catch (e) { main.append(el(`<div class="card"><div class="empty">${e.message}</div></div>`)); }

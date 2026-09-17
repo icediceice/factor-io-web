@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Invoice · Factor I/O</title>
+<title>Invoice · Factor IO</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -45,7 +45,7 @@ async function load() {
 
 function renderHead() {
   const { invoice: i, client, totals } = doc;
-  document.title = `${i.number} · Factor I/O`;
+  document.title = `${i.number} · Factor IO`;
   main.querySelector('h1').textContent = i.number;
   main.querySelector('.sub').innerHTML = i.status === 'draft'
     ? 'This invoice is still a <strong>draft</strong>. Its rates are provisional — they are frozen at the moment you issue it, and the issue date becomes the tax point.'

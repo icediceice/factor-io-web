@@ -140,9 +140,9 @@ async function runAll() {
       const frame = await frameAt(`/${locale}/${page}`, width);
       const result = measure(frame,width); result.failures.push(...await interactions(frame,page));
       results.push({ path:`/${locale}/${page}`, width, ...result });
-      report.textContent = `Running ${results.length}/42\n` + JSON.stringify(results.filter(r=>r.failures.length),null,2);
+      report.textContent = `Running ${results.length}/24\n` + JSON.stringify(results.filter(r=>r.failures.length),null,2);
     }
-    const noJs = await frameAt('/th/governance/',390,true);
+    const noJs = await frameAt('/th/services/',390,true);
     const noJsPass = noJs.contentDocument.documentElement.lang === 'th' && noJs.contentDocument.querySelector('.static-explanation').textContent.includes('182') && noJs.contentDocument.querySelector('#main-nav').getBoundingClientRect().height > 0;
     const failed = results.filter(r=>r.failures.length);
     report.textContent = `${failed.length || !noJsPass ? 'FAIL' : 'PASS'} · ${results.length} layout cases · no-JS Thai ${noJsPass ? 'PASS' : 'FAIL'}\n${JSON.stringify(results,null,2)}`;

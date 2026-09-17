@@ -8,62 +8,13 @@
 </head>
 <body>
 <script type="module">
-import { api, el, toast, renderShell } from './app.js';
+import { renderShell, toast } from './app.js';
+import { mount } from './screens/settings.js';
 
-const main = renderShell('settings.html', 'Settings', 'Every business fact the system uses. Change a value here and the next quotation — and its PDF — reflects it. No code edits, ever.');
+const main = renderShell('settings.html', 'Settings',
+  'Every business fact the system uses. Change a value here and the next quotation — and its PDF — reflects it. No code edits, ever.');
 
-const GROUPS = [
-  ['Company', ['company.name', 'company.name_th', 'company.address', 'company.address_th', 'company.tax_id', 'company.phone', 'company.email', 'company.website', 'company.logo_path']],
-  ['Tax', ['vat.rate_percent', 'wht.rate_percent', 'wht.apply']],
-  ['Quotation', ['quote.number_format', 'quote.validity_days', 'quote.payment_terms_en', 'quote.payment_terms_th', 'quote.terms_en', 'quote.terms_th']],
-  ['Currency & FX', ['currency.code', 'currency.symbol', 'fx.base', 'fx.rate', 'fx.as_of']],
-  ['Bank', ['bank.name', 'bank.name_th', 'bank.account_name', 'bank.account_number', 'bank.branch', 'bank.swift']],
-];
-
-const HINTS = {
-  'vat.rate_percent': 'Percent, e.g. 7 or 7.5 — applied to the net (post-discount) amount',
-  'wht.rate_percent': 'Withholding tax percent, e.g. 3 — calculated on net, pre-VAT',
-  'wht.apply': '"memo" (show only) or "deduct" (subtract from payable)',
-  'quote.number_format': 'Tokens: {YYYY} {MM} {DD} {SEQ:n} — e.g. QT-{YYYY}{MM}-{SEQ:4}',
-  'quote.validity_days': 'Days a quotation stays valid',
-  'fx.rate': 'THB per 1 base unit, e.g. 36.50 — used for the THB-equivalent line on foreign-currency quotes',
-  'company.logo_path': 'Optional: file:// or https:// URL of a logo for the PDF header',
-};
-
-const formCard = el('<section class="card"><form id="settings"><div id="groups"></div>' +
-  '<div class="row-actions"><button type="submit">Save all</button></div></form></section>');
-main.append(formCard);
-
-const inputs = {};
-
-for (const [title, keys] of GROUPS) {
-  const g = el(`<fieldset style="border:1px solid var(--line);padding:14px 16px 4px;margin:0 0 18px">
-    <legend style="font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:0 6px">${title}</legend></fieldset>`);
-  for (const key of keys) {
-    const hint = HINTS[key] ?? '';
-    const row = el(`<label style="font-weight:400;font-size:13px;color:var(--muted)"><span class="mono" style="color:var(--ink)">${key}</span>
-      <input data-key="${key}">
-      ${hint ? `<span style="display:block;font-size:12px;margin-top:2px">${hint}</span>` : ''}
-    </label>`);
-    inputs[key] = row.querySelector('input');
-    g.append(row);
-  }
-  formCard.querySelector('#groups').append(g);
-}
-
-async function load() {
-  const { settings } = await api('GET', '/settings');
-  for (const [k, input] of Object.entries(inputs)) input.value = settings[k] ?? '';
-}
-
-formCard.querySelector('#settings').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const values = Object.fromEntries(Object.entries(inputs).map(([k, i]) => [k, i.value]));
-  try { await api('PUT', '/settings', { settings: values }); toast('Settings saved — new quotations use them immediately'); }
-  catch (err) { toast(err.message, 'error'); }
-});
-
-load().catch((e) => toast(e.message, 'error'));
+mount(main).catch((e) => toast(e.message, 'error'));
 </script>
 </body>
 </html>

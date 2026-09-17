@@ -218,7 +218,7 @@ button[aria-busy=true]::after{content:"…";font-family:var(--mono)}
    already written correctly; these now match it. */
 button.secondary,.button.secondary{background:transparent;color:var(--accent);border-color:var(--muted)}
 button.secondary:hover,.button.secondary:hover{background:var(--tint);color:var(--ink);border-color:var(--ink)}
-button.quiet,.button.quiet{background:transparent;color:var(--accent);border-color:transparent;font-weight:600;padding:var(--s2) 10px}
+button.quiet,.button.quiet{background:transparent;color:var(--accent);border-color:transparent;font-weight:600;padding:var(--s2) var(--s3)}
 button.quiet:hover,.button.quiet:hover{color:var(--ink);background:var(--tint);border-color:transparent}
 button.danger,.button.danger{background:transparent;color:var(--danger);border-color:var(--danger)}
 button.danger:hover,.button.danger:hover{background:var(--danger);color:var(--white);border-color:var(--danger)}

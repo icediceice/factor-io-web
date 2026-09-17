@@ -19,7 +19,21 @@ import { extname, join, normalize, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openDb } from '../lib/db.mjs';
 import { createApi } from '../api.mjs';
-import { seedFixture } from './ui-fixture.mjs';
+import { seedFixture, FIXTURE_NOTE } from './ui-fixture.mjs';
+
+// D-gate (data honesty). Every screen this harness serves is showing SEEDED
+// records — plausible Thai company names and eight-figure hardware prices that
+// are not anyone's real ledger. A screenshot travels without its caption, so
+// the label has to be IN the pixels: it is injected server-side into every
+// page, it cannot be forgotten on one screen, and it cannot leak into the real
+// app because this file is never deployed. Its own styles are inline here for
+// the same reason — the strip must survive even if app.css is what broke.
+const FIXTURE_LABEL = `<style>
+[data-fixture-label]{position:sticky;top:0;z-index:90;margin:0;padding:6px 16px;
+  text-align:center;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.06em;background:#a64b00;color:#fff}
+</style>
+<p data-fixture-label>${FIXTURE_NOTE}</p>`;
 
 if (process.env.NODE_ENV === 'production') {
   throw new Error('ui-harness-server is test scaffolding and must never run in production');

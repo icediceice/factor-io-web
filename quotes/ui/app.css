@@ -139,6 +139,18 @@ tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:13.5px;pad
 .stat .value{font-family:var(--mono);font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-top:var(--s1);font-variant-numeric:tabular-nums}
 .stat .note{font-size:12.5px;color:var(--muted);margin-top:var(--s1)}
 
+/* Position strip — the same three figures as a single ruled band above a
+   Workbench, so the rail starts above the fold. One row, cells divided by the
+   grid's own rules rather than by three separate boxes. The lead figure keeps
+   its emphasis as a 3px accent edge instead of a 2px box. */
+.stat-row.posbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0;border:1px solid var(--line);background:var(--white);margin-bottom:var(--s5)}
+.posbar .stat{border:0;border-left:1px solid var(--line);padding:var(--s2) var(--s4);display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s1) var(--s2)}
+.posbar .stat:first-child{border-left:0}
+.posbar .stat.lead{border-left:3px solid var(--accent)}
+.posbar .stat .label{flex:1 1 100%}
+.posbar .stat .value{font-size:1.05rem;margin-top:0}
+.posbar .stat .note{margin-top:0;font-size:11.5px}
+
 /* ----------------------------------------------------------------- forms -- */
 label{display:block;font-size:13px;font-weight:600;margin-bottom:var(--s3)}
 label.inline{display:inline-flex;align-items:center;gap:var(--s2);font-weight:400;margin:0;min-height:44px}

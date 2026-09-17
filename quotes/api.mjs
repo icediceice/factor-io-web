@@ -46,6 +46,23 @@ const kindOf = (db, body, { required = true, fallback = null } = {}) => {
   return code;
 };
 
+/**
+ * The unit to use when the caller did not name one.
+ *
+ * Was `kind === 'service' ? 'day' : 'unit'`, which cannot survive an open
+ * vocabulary — 'software' and 'training' are neither. A recurring line is
+ * billed per period, so the period names the unit; otherwise effort-shaped
+ * work is quoted in days and everything else in units. The operator can always
+ * override by sending `unit` explicitly; this only fills a blank.
+ */
+const EFFORT_KINDS = new Set(['service', 'support', 'training']);
+function defaultUnitFor(kind, billingPeriod) {
+  if (billingPeriod === 'monthly') return 'month';
+  if (billingPeriod === 'quarterly') return 'quarter';
+  if (billingPeriod === 'yearly') return 'year';
+  return EFFORT_KINDS.has(kind) ? 'day' : 'unit';
+}
+
 /** Validate an optional billing_period, defaulting to 'once'. */
 const periodOf = (body, fallback = 'once') => {
   if (body?.billing_period == null || body.billing_period === '') return fallback;

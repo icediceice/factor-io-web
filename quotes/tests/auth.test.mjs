@@ -158,12 +158,21 @@ describe('production boot gate', () => {
     await assert.rejects(() => assertProductionConfig({ ...base, QUOTES_SESSION_SECRET: 'short' }), /QUOTES_SESSION_SECRET/);
   });
 
-  test('tailscale mode needs only allowlist and working whois', async () => {
-    const env = { NODE_ENV: 'production', QUOTES_AUTH_MODE: 'tailscale', QUOTES_ALLOWED_EMAILS: 'op@factor-io.com' };
+  test('tailscale mode needs email and host allowlists plus working whois', async () => {
+    const env = {
+      NODE_ENV: 'production',
+      QUOTES_AUTH_MODE: 'tailscale',
+      QUOTES_ALLOWED_EMAILS: 'op@factor-io.com',
+      QUOTES_ALLOWED_HOSTS: 'quotes.factor-io.com:8787,127.0.0.1:8787',
+    };
     await assert.doesNotReject(() => assertProductionConfig(env, { whoisAvailableImpl: async () => true }));
     await assert.rejects(
       () => assertProductionConfig({ ...env, QUOTES_ALLOWED_EMAILS: '' }, { whoisAvailableImpl: async () => true }),
       /QUOTES_ALLOWED_EMAILS/,
+    );
+    await assert.rejects(
+      () => assertProductionConfig({ ...env, QUOTES_ALLOWED_HOSTS: '' }, { whoisAvailableImpl: async () => true }),
+      /QUOTES_ALLOWED_HOSTS/,
     );
     await assert.rejects(
       () => assertProductionConfig(env, { whoisAvailableImpl: async () => false }),

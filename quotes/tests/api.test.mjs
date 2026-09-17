@@ -535,4 +535,144 @@ describe('billing period, section, optional and term on the API', () => {
     assert.equal(doc.kindLabels.cloud, 'Cloud');
     assert.equal(doc.lines[0].billingPeriod, 'once');
   });
+
+// ---------------------------------------------------------------------------
+// Revise in place. The old contract was "issued is frozen"; the new one is
+// "issued is correctable, accepted onwards is final, and a correction that has
+// not been re-issued cannot be handed to a customer as a PDF". These pin all
+// three, because between them they are the only thing standing between an
+// operator and a document whose printed revision number means nothing.
+describe('revise in place (guards)', () => {
+  /** A quotation with one line, issued as rev 1. */
+  async function issued(call) {
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Acme Ltd' } })).body).client;
+    const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
+    await call('POST', `/quotations/${q.id}/lines`, {
+      body: { kind: 'service', description_en: 'Discovery', qty: '1', unit_price: '35000.00' },
+    });
+    await call('POST', `/quotations/${q.id}/issue`);
+    return q;
+  }
+
+  test('an accepted quotation refuses every edit route, and says why', async () => {
+    const { db, call } = boot();
+    const q = await issued(call);
+    await call('POST', `/quotations/${q.id}/status`, { body: { status: 'accepted' } });
+
+    const put = await call('PUT', `/quotations/${q.id}`, { body: { notes: 'too late' } });
+    assert.equal(put.status, 400);
+    assert.match(JSON.parse(put.body).error, /can no longer be edited/);
+    assert.match(JSON.parse(put.body).error, /accepted/);
+
+    // The header is not the only way in — all three line routes are guarded,
+    // or an operator could rewrite the priced lines of a quotation an invoice
+    // is about to be raised from.
+    const add = await call('POST', `/quotations/${q.id}/lines`, {
+      body: { kind: 'service', description_en: 'Extra', qty: '1', unit_price: '1.00' },
+    });
+    assert.equal(add.status, 400);
+    assert.equal((await call('PUT', `/quotations/${q.id}/lines/1`, { body: { discount_satang: 1 } })).status, 400);
+    assert.equal((await call('DELETE', `/quotations/${q.id}/lines/1`)).status, 400);
+
+    // Refused means refused: no row moved and no revision was invented.
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotation_lines WHERE quotation_id=?').get(q.id).c, 1);
+    assert.equal(db.prepare('SELECT MAX(rev) r FROM quotation_revisions WHERE quotation_id=?').get(q.id).r, 1);
+    assert.equal(db.prepare('SELECT discount_satang d FROM quotation_lines WHERE id=1').get().d, 0);
+
+    // ...including re-issue itself, which is what would otherwise let an
+    // accepted quotation be rewritten and re-snapshotted after the fact.
+    const reissue = await call('POST', `/quotations/${q.id}/issue`);
+    assert.equal(reissue.status, 400);
+    assert.match(JSON.parse(reissue.body).error, /accepted/);
+  });
+
+  test('an invoiced quotation refuses edits for its own reason', async () => {
+    const { call } = boot();
+    const q = await issued(call);
+    await call('POST', `/quotations/${q.id}/status`, { body: { status: 'accepted' } });
+    await call('POST', `/quotations/${q.id}/status`, { body: { status: 'invoiced' } });
+    const put = await call('PUT', `/quotations/${q.id}`, { body: { notes: 'no' } });
+    assert.equal(put.status, 400);
+    assert.match(JSON.parse(put.body).error, /invoiced/);
+  });
+
+  test('a proposed quotation is still correctable and re-issues to rev 2', async () => {
+    const { call } = boot();
+    const q = await issued(call);
+    await call('POST', `/quotations/${q.id}/status`, { body: { status: 'proposed' } });
+    const put = await call('PUT', `/quotations/${q.id}`, { body: { notes: 'the term was wrong' } });
+    assert.equal(put.status, 200);
+    assert.equal(JSON.parse(put.body).quotation.revisionStale, true);
+    // proposed has no transition back to issued (TRANSITIONS in quote.mjs), so
+    // /issue snapshots WITHOUT moving the status — otherwise a corrected
+    // proposal could never be re-issued and its PDF would be stranded.
+    const re = await call('POST', `/quotations/${q.id}/issue`);
+    assert.equal(re.status, 200);
+    assert.equal(JSON.parse(re.body).rev, 2);
+    assert.equal(JSON.parse(re.body).quotation.status, 'proposed');
+    assert.equal(JSON.parse(re.body).quotation.revisionStale, false);
+  });
+});
+
+describe('revise in place (the PDF guard, over http)', () => {
+  const env = {
+    QUOTES_DB_PATH: ':memory:',
+    QUOTES_AUTH_MODE: 'oauth',
+    QUOTES_SESSION_SECRET: 't'.repeat(48),
+    QUOTES_GOOGLE_CLIENT_ID: 'cid',
+    QUOTES_GOOGLE_CLIENT_SECRET: 'cs',
+    QUOTES_PUBLIC_URL: 'https://quotes.factor-io.com',
+    QUOTES_ALLOWED_EMAILS: 'op@factor-io.com',
+    QUOTES_AGENT_TOKEN: 'agent-secret-token',
+  };
+  const send = async (app, method, url, body) => {
+    const res = { statusCode: 0, headers: {}, body: '' };
+    res.writeHead = (s, h) => { res.statusCode = s; Object.assign(res.headers, h ?? {}); };
+    res.end = (b) => { res.body = b ?? ''; return res; };
+    await app.handle({
+      method, url, body: body ?? {}, socket: { remoteAddress: '10.0.0.9' },
+      headers: { authorization: 'Bearer agent-secret-token', 'content-type': 'application/json' },
+    }, res);
+    return res;
+  };
+
+  test('an edited issued quotation refuses its PDF until it is re-issued', async () => {
+    const app = createApp(env);
+    try {
+      const client = JSON.parse((await send(app, 'POST', '/api/clients', { name: 'Acme Ltd' })).body).client;
+      const q = JSON.parse((await send(app, 'POST', '/api/quotations', { client_id: client.id })).body).quotation;
+      await send(app, 'POST', `/api/quotations/${q.id}/lines`, {
+        kind: 'service', description_en: 'Discovery', qty: '1', unit_price: '35000.00',
+      });
+
+      // A draft has no snapshot to disagree with, so the guard's condition
+      // cannot fire and its PDF is never in the guard's way.
+      const asDraft = JSON.parse((await send(app, 'GET', `/api/quotations/${q.id}`)).body).quotation;
+      assert.equal(asDraft.status, 'draft');
+      assert.equal(asDraft.revision, 0);
+      assert.equal(asDraft.revisionStale, false);
+
+      assert.equal(JSON.parse((await send(app, 'POST', `/api/quotations/${q.id}/issue`)).body).rev, 1);
+      await send(app, 'PUT', `/api/quotations/${q.id}`, { notes: 'the client address was wrong' });
+
+      const blocked = await send(app, 'GET', `/api/quotations/${q.id}/pdf?lang=en`);
+      assert.equal(blocked.statusCode, 409);
+      // The guard answers BEFORE the renderer, so this holds whether or not the
+      // machine running the suite has a Chromium — and the message has to name
+      // the way out, not merely refuse.
+      assert.match(blocked.body, /edited since revision 1/);
+      assert.match(blocked.body, /re-issue/);
+
+      // Re-issuing records rev 2 and clears exactly the flag the guard reads.
+      // The PDF is not requested again here on purpose: that would launch
+      // Chromium and make a unit test depend on the machine it runs on.
+      assert.equal(JSON.parse((await send(app, 'POST', `/api/quotations/${q.id}/issue`)).body).rev, 2);
+      const after = JSON.parse((await send(app, 'GET', `/api/quotations/${q.id}`)).body).quotation;
+      assert.equal(after.revision, 2);
+      assert.equal(after.revisionStale, false);
+      assert.equal(after.status, 'issued');   // a correction is not a new status
+      assert.equal(after.number, q.number);   // and never a new number
+    } finally { app.close(); }
+  });
+});
 });

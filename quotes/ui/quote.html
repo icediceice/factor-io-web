@@ -141,6 +141,29 @@ function linesCard() {
   </section>`);
 }
 
+// The revision history IS the audit trail for a quotation corrected in place:
+// the number never changes, so this list is the only record of what went out,
+// when, and on whose authority. GET /quotations/:id/revisions has existed
+// since snapshots were introduced and was never surfaced anywhere.
+let revisions = [];
+
+function revisionsCard() {
+  const rows = revisions.length
+    ? `<table class="list"><thead><tr><th>Rev</th><th>Recorded</th><th>By</th><th></th></tr></thead><tbody>
+      ${revisions.map((r) => `<tr>
+        <td class="mono">${r.rev}</td>
+        <td class="mono">${r.created_at} <span class="muted">UTC</span></td>
+        <td>${r.actor}</td>
+        <td><a href="/api/quotations/${id}/revisions/${r.rev}" target="_blank" rel="noopener">snapshot</a></td>
+      </tr>`).join('')}
+    </tbody></table>`
+    : '<div class="empty">Not issued yet — issuing writes Rev. 1.</div>';
+  return el(`<section class="card">
+    <h2>Revisions</h2>
+    ${rows}
+  </section>`);
+}
+
 function renderLines() {
   const box = document.querySelector('#lines'); // lives in linesCard(), a sibling of docCard
   if (!doc.lines.length) { box.innerHTML = '<div class="empty">No lines yet.</div>'; }

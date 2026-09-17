@@ -1,69 +1,256 @@
-/* quotes/ui/app.css — quotation app screens on the site's Engineering Field Guide tokens */
-:root{color-scheme:light;--paper:#f4f3ed;--white:#fff;--ink:#172d2a;--muted:#4b605b;--accent:#006a57;--tint:#e2ede5;--line:#bdc9c1;--focus:#a64b00;--font:Inter,"Noto Sans Thai","Loma",Tahoma,system-ui,sans-serif;--mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai","Loma",monospace}
+/* light-design · macrostructure: Workbench / Ledger (Stacked Sections on reports+settings)
+ * density: dense-balanced · depth: borders-only (one exception: the confirm dialog scrim)
+ * system: quotes/.interface-design/system.md — NOT the repo-root system.md, which governs
+ *         the TCO calculator's dark instrument panel.
+ * tokens: Engineering Field Guide (assets/site.css:17), plus --danger for destructive actions
+ * gates: pending (stamped at P5) · data: live API only
+ */
+
+/* ---------------------------------------------------------------- tokens -- */
+:root{
+  color-scheme:light;
+  --paper:#f4f3ed; --white:#fff; --ink:#172d2a; --muted:#4b605b;
+  --accent:#006a57; --tint:#e2ede5; --line:#bdc9c1; --focus:#a64b00;
+  /* Destructive. Same hue family as --focus so no third colour enters the
+     system, dark enough to clear AA as text on paper and as a fill under
+     white text (7.7:1 both ways). */
+  --danger:#8c3b00;
+  --font:Inter,"Noto Sans Thai","Loma",Tahoma,system-ui,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai","Loma",monospace;
+  /* Spacing scale. Every margin/padding below references one of these. */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:28px; --s7:40px;
+  --r-input:2px; --r-btn:3px;
+  --rail-w:330px;
+}
+
+/* ------------------------------------------------------------------ base -- */
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 var(--font)}
-a{color:var(--accent)}
-.site-header{background:var(--paper);border-bottom:1px solid var(--line)}
-.header-inner{width:min(1200px,calc(100% - 48px));margin:auto;display:flex;align-items:center;gap:24px;min-height:72px;flex-wrap:wrap}
-.brand{font-size:18px;letter-spacing:.06em;font-weight:750;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;min-height:44px}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 var(--font)}
+a{color:var(--accent);text-underline-offset:3px}
+button,input,textarea,select{font:inherit}
+h1,h2,h3,p,dl,dd,figure{margin:0}
+/* One focus treatment for the entire app. :focus-visible, so a mouse click
+   does not paint a ring but every keyboard path does. Never overridden. */
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;left:16px;top:-100px;z-index:60;background:var(--white);padding:var(--s3);border:1px solid var(--muted)}
+.skip:focus{top:10px}
+
+/* ---------------------------------------------------------------- header -- */
+.site-header{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.header-inner{width:min(1560px,calc(100% - var(--s7)));margin:auto;display:flex;align-items:center;gap:var(--s6);min-height:60px;flex-wrap:wrap}
+.brand{font-size:17px;letter-spacing:.06em;font-weight:750;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
 .brand span{font-family:var(--mono);color:var(--accent)}
-#main-nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
-#main-nav a{display:flex;align-items:center;min-height:44px;padding:6px 12px;font-size:14px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
-#main-nav a[aria-current=page]{color:var(--ink);border-color:var(--accent)}
-#main-nav a:hover{color:var(--accent)}
-.wrap{width:min(1200px,calc(100% - 48px));margin:28px auto 64px}
-h1{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em;margin:0 0 6px}
-.sub{color:var(--muted);margin:0 0 22px;max-width:70ch}
-.card{background:var(--white);border:1px solid var(--line);padding:20px 22px;margin-bottom:22px;overflow-x:auto}
-.card h2{font-size:1.05rem;margin:0 0 14px}
-table.list{width:100%;border-collapse:collapse;font-size:14.5px}
-table.list th{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:8px 10px}
-table.list td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top}
+#main-nav{display:flex;gap:2px;align-items:center;flex-wrap:wrap}
+#main-nav a{display:flex;align-items:center;min-height:44px;padding:var(--s1) var(--s3);font-size:14px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+#main-nav a[aria-current=page]{color:var(--ink);border-color:var(--accent);font-weight:600}
+#main-nav a:hover{color:var(--accent);background:var(--tint)}
+.header-inner [data-auth-actions]{margin-left:auto}
+
+/* ---------------------------------------------------------------- layout -- */
+.wrap{width:min(1560px,calc(100% - var(--s7)));margin:var(--s5) auto var(--s7)}
+h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(--s1);font-weight:600}
+.sub{color:var(--muted);margin:0 0 var(--s5);max-width:78ch;font-size:14px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);flex-wrap:wrap}
+
+/* Workbench: rail feeds detail. One grid, two ruled columns, no shadow. */
+.wb{display:grid;grid-template-columns:var(--rail-w) minmax(0,1fr);gap:0;border:1px solid var(--line);background:var(--white);min-height:60vh}
+.wb-rail{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 150px);position:sticky;top:76px;align-self:start}
+.wb-list{overflow-y:auto;flex:1;min-height:0}
+.wb-detail{min-width:0;padding:var(--s5);overflow-x:auto}
+.wb-detail>section.card:first-child{margin-top:0}
+
+/* Rail row — the atomic unit of every list. Ruled, not boxed. The left bar
+   encodes status by colour AND style so it survives greyscale. */
+.rail-item{display:block;padding:10px 14px 10px 11px;border-bottom:1px solid var(--line);border-left:3px solid var(--line);text-decoration:none;color:var(--ink);background:var(--white)}
+.rail-item:hover{background:var(--tint)}
+.rail-item[aria-current=true]{background:var(--tint);border-left-color:var(--accent);border-left-width:3px}
+.rail-item .r1{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between}
+.rail-item .r-no{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap}
+.rail-item .r-name{font-size:14px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.rail-item .r2{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rail-item .r-amt{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rail-item[data-status=draft]{border-left-color:var(--line)}
+.rail-item[data-status=issued],.rail-item[data-status=invoiced]{border-left-color:var(--accent)}
+.rail-item[data-status=proposed],.rail-item[data-status=accepted]{border-left-color:var(--accent);border-left-style:dashed}
+.rail-item[data-status=paid]{border-left-color:var(--accent);border-left-width:5px}
+.rail-item[data-status=declined],.rail-item[data-status=cancelled],.rail-item[data-status=superseded]{border-left-color:var(--focus);border-left-style:dotted}
+
+/* Rail toolbar: search + filters. Sticky so filtering never scrolls away. */
+.rail-head{padding:var(--s3);border-bottom:1px solid var(--line);background:var(--white);display:grid;gap:var(--s2)}
+.rail-head input[type=search],.rail-head select{min-height:40px;margin:0}
+.rail-count{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:var(--s2)}
+.rail-foot{padding:var(--s3);border-top:1px solid var(--line)}
+.filters{display:flex;gap:var(--s2);flex-wrap:wrap}
+.filters label{margin:0;flex:1 1 120px;min-width:0}
+
+/* ----------------------------------------------------------------- cards -- */
+.card{background:var(--white);border:1px solid var(--line);padding:18px 20px;margin-bottom:var(--s5)}
+.card:last-child{margin-bottom:0}
+.wb-detail .card{border-width:0 0 1px 0;padding:0 0 var(--s5);margin-bottom:var(--s5);background:transparent}
+.wb-detail .card:last-child{border-bottom:0;padding-bottom:0}
+.card h2{font-size:15px;margin:0 0 var(--s3);font-weight:600;display:flex;gap:var(--s2);align-items:baseline;flex-wrap:wrap}
+.card h2 .muted{font-weight:400;font-size:13px}
+.section-label{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
+
+/* ---------------------------------------------------------------- tables -- */
+table.list{width:100%;border-collapse:collapse;font-size:14px}
+table.list th{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:var(--s2) var(--s3);white-space:nowrap}
+table.list td{border-bottom:1px solid var(--line);padding:9px var(--s3);vertical-align:top}
 table.list td.num,table.list th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-table.list tr:hover td{background:var(--tint)}
+table.list tbody tr:hover td{background:var(--tint)}
+table.list tr[data-optional=true] td{color:var(--muted)}
+table.list td.actions{text-align:right;white-space:nowrap;width:1%}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mono{font-family:var(--mono);font-size:.92em}
+.num{font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
-.status{display:inline-block;padding:2px 9px;border:1px solid var(--line);font:11.5px var(--mono)}
+.meta{font-size:12.5px;color:var(--muted)}
+
+/* An editable row keeps its column alignment; the table must not jump. */
+tr.editing td{background:var(--tint);vertical-align:middle}
+tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:13.5px;padding:var(--s1) var(--s2)}
+
+/* --------------------------------------------------------------- statuses -- */
+/* Colour AND border style, never colour alone. Pipeline states are dashed
+   (provisional); money-bearing states are solid or filled. */
+.status{display:inline-block;padding:1px 8px;border:1px solid var(--line);font:11.5px var(--mono);white-space:nowrap;border-radius:var(--r-btn)}
+.status-draft{color:var(--muted);border-style:dotted}
 .status-issued{border-color:var(--accent);color:var(--accent);background:var(--tint)}
-.status-draft{color:var(--muted)}
-.status-cancelled,.status-superseded,.status-declined{color:var(--focus);border-color:var(--focus)}
-/* Pipeline stages read as provisional; only money-bearing states get the solid
-   accent fill, so 'proposed' can never be mistaken for 'paid' at a glance. */
 .status-proposed{color:var(--ink);border-color:var(--ink);border-style:dashed}
 .status-accepted{color:var(--accent);border-color:var(--accent);border-style:dashed}
 .status-invoiced{border-color:var(--accent);color:var(--accent);background:var(--tint)}
-.status-paid{background:var(--accent);color:var(--white);border-color:var(--accent)}
-/* Dashboard: pipeline and recognised income must never share a visual weight. */
-.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
-.stat{border:1px solid var(--line);padding:14px 16px;background:var(--white)}
+.status-paid{background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600}
+.status-cancelled,.status-superseded,.status-declined{color:var(--focus);border-color:var(--focus);border-style:dotted}
+
+/* ----------------------------------------------------------------- stats -- */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--s4)}
+.stat{border:1px solid var(--line);padding:var(--s3) var(--s4);background:var(--white)}
 .stat.lead{border-color:var(--accent);border-width:2px}
 .stat .label{font:11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.stat .value{font-size:1.6rem;font-weight:750;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums}
-.stat .note{font-size:12.5px;color:var(--muted);margin-top:4px}
-label{display:block;font-size:13.5px;font-weight:600;margin-bottom:14px}
-input,select,textarea{display:block;width:100%;min-height:44px;margin-top:5px;background:var(--white);color:var(--ink);border:1px solid var(--muted);border-radius:2px;padding:9px 11px;font:15px/1.5 var(--font)}
-textarea{resize:vertical}
-input:focus,select:focus,textarea:focus{outline:3px solid var(--focus);outline-offset:1px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 18px}
-button,.button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:9px 18px;background:var(--accent);color:var(--white);border:1px solid var(--accent);border-radius:3px;font-size:14.5px;font-weight:600;cursor:pointer;text-decoration:none}
-button:hover,.button:hover{background:var(--ink);border-color:var(--ink)}
-button.quiet{background:transparent;color:var(--accent);border-color:transparent}
-button.quiet:hover{color:var(--ink);background:var(--tint)}
-button.danger{background:transparent;color:var(--focus);border-color:var(--focus)}
-button:disabled{opacity:.55;cursor:not-allowed}
-.row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--white);padding:12px 22px;font-size:14.5px;display:none;max-width:min(90vw,560px)}
-.toast[data-kind=error]{background:var(--focus)}
+.stat .value{font-family:var(--mono);font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-top:var(--s1);font-variant-numeric:tabular-nums}
+.stat .note{font-size:12.5px;color:var(--muted);margin-top:var(--s1)}
+
+/* ----------------------------------------------------------------- forms -- */
+label{display:block;font-size:13px;font-weight:600;margin-bottom:var(--s3)}
+label.inline{display:inline-flex;align-items:center;gap:var(--s2);font-weight:400;margin:0;min-height:44px}
+label.inline input{width:auto;min-height:0;margin:0}
+/* Control boundaries use --muted (6.8:1), never --line (1.7:1) — WCAG 1.4.11
+   wants 3:1 on the edge of anything you can operate. */
+input,select,textarea{display:block;width:100%;min-height:44px;margin-top:var(--s1);background:var(--white);color:var(--ink);border:1px solid var(--muted);border-radius:var(--r-input);padding:var(--s2) 10px;font:14px/1.5 var(--font)}
+input[inputmode=numeric],input[inputmode=decimal],input[type=date],input[type=month]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+textarea{resize:vertical;min-height:66px}
+input:hover,select:hover,textarea:hover{border-color:var(--ink)}
+input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed;background:var(--paper)}
+input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:var(--danger);border-width:2px}
+.field-error{display:block;color:var(--danger);font-size:12.5px;font-weight:400;margin-top:var(--s1)}
+.hint{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 var(--s4)}
+fieldset{border:1px solid var(--line);padding:var(--s4) var(--s4) var(--s1);margin:0 0 var(--s5);min-width:0}
+legend{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:0 var(--s1)}
+
+/* --------------------------------------------------------------- buttons -- */
+button,.button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);padding:var(--s2) var(--s4);background:var(--accent);color:var(--white);border:1px solid var(--accent);border-radius:var(--r-btn);font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}
+button:hover,.button:hover{background:var(--ink);border-color:var(--ink);color:var(--white)}
+button:active,.button:active{transform:translateY(1px)}
+button:disabled,.button[aria-disabled=true]{opacity:.55;cursor:not-allowed;transform:none}
+button:disabled:hover{background:var(--accent);border-color:var(--accent)}
+/* Loading keeps the control's box so the layout cannot jump. */
+button[aria-busy=true]{pointer-events:none;opacity:.8}
+button[aria-busy=true]::after{content:"…";font-family:var(--mono)}
+button.secondary{background:transparent;color:var(--accent);border-color:var(--muted)}
+button.secondary:hover{background:var(--tint);color:var(--ink);border-color:var(--ink)}
+button.quiet,.button.quiet{background:transparent;color:var(--accent);border-color:transparent;font-weight:600;padding:var(--s2) 10px}
+button.quiet:hover,.button.quiet:hover{color:var(--ink);background:var(--tint);border-color:transparent}
+button.danger{background:transparent;color:var(--danger);border-color:var(--danger)}
+button.danger:hover{background:var(--danger);color:var(--white);border-color:var(--danger)}
+button.danger-solid{background:var(--danger);color:var(--white);border-color:var(--danger)}
+button.danger-solid:hover{background:var(--ink);border-color:var(--ink)}
+button.sm,.button.sm{min-height:36px;padding:var(--s1) 10px;font-size:13px}
+.row-actions{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;margin-top:var(--s4)}
+.row-actions.tight{margin-top:0}
+.toolbar{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:var(--s4)}
+
+/* ---------------------------------------------------------------- dialog -- */
+/* The one element allowed to float. It earns it with a scrim and a 2px accent
+   border — not a drop shadow, which would make every bordered card look broken. */
+dialog.confirm{border:2px solid var(--accent);border-radius:var(--r-btn);padding:0;max-width:min(520px,calc(100vw - var(--s7)));background:var(--white);color:var(--ink)}
+dialog.confirm::backdrop{background:rgba(23,45,42,.42)}
+dialog.confirm[data-tone=danger]{border-color:var(--danger)}
+.dlg-body{padding:var(--s5)}
+.dlg-body h2{font-size:16px;margin:0 0 var(--s3)}
+.dlg-body p{margin:0 0 var(--s3);font-size:14px;color:var(--ink)}
+.dlg-body p.consequence{color:var(--danger);font-weight:600}
+.dlg-body ul{margin:0 0 var(--s3);padding-left:var(--s5);font-size:14px;color:var(--muted)}
+.dlg-actions{display:flex;gap:var(--s2);justify-content:flex-end;flex-wrap:wrap;padding:var(--s3) var(--s5) var(--s5)}
+
+/* ------------------------------------------------------------- feedback --- */
+.banner{padding:10px var(--s3);border:1px solid var(--line);margin-bottom:var(--s4);font-size:13.5px;background:var(--white)}
+.banner[data-tone=warn]{border-color:var(--focus);color:var(--focus)}
+.banner[data-tone=danger]{border-color:var(--danger);color:var(--danger)}
+.banner[data-tone=info]{border-color:var(--accent);background:var(--tint)}
+.banner strong{font-weight:700}
+.toast{position:fixed;left:50%;bottom:var(--s5);transform:translateX(-50%);background:var(--ink);color:var(--white);padding:var(--s3) var(--s5);font-size:14px;display:none;max-width:min(92vw,560px);z-index:70;border-radius:var(--r-btn)}
+.toast[data-kind=error]{background:var(--danger)}
 .toast[data-kind=ok]{background:var(--accent)}
-.empty{color:var(--muted);padding:26px 0;text-align:center}
-.totals{margin-left:auto;min-width:300px;border-collapse:collapse;font-size:15px}
-.totals td{padding:5px 10px}
+.empty{color:var(--muted);padding:var(--s6) var(--s4);text-align:center;font-size:14px}
+.empty strong{display:block;color:var(--ink);font-size:15px;margin-bottom:var(--s1)}
+/* Loading is a labelled placeholder, never an invented number. */
+.skeleton{color:transparent;background:linear-gradient(var(--tint),var(--tint));border-radius:2px;display:inline-block;min-width:60px;height:1em}
+
+/* ---------------------------------------------------------------- totals -- */
+.totals{margin-left:auto;min-width:320px;border-collapse:collapse;font-size:14px}
+.totals td{padding:var(--s1) 10px}
 .totals .lbl{color:var(--muted);text-align:right}
-.totals .num{text-align:right;font-variant-numeric:tabular-nums}
-.totals tr.grand td{border-top:1.5px solid var(--ink);font-weight:750;font-size:16.5px}
+.totals .num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap}
+.totals tr.grand td{border-top:1.5px solid var(--ink);font-weight:700;font-size:17px;padding-top:var(--s2)}
 .totals tr.payable td{font-weight:700;color:var(--accent)}
 .totals tr.memo td{color:var(--muted);font-size:12.5px}
-.kv{display:grid;grid-template-columns:170px 1fr;gap:4px 16px;font-size:14.5px}
+
+/* ------------------------------------------------------------------- kv --- */
+.kv{display:grid;grid-template-columns:168px minmax(0,1fr);gap:var(--s1) var(--s4);font-size:14px}
 .kv dt{color:var(--muted)}
-.kv dd{margin:0}
-@media(max-width:700px){.wrap{width:calc(100% - 32px)}.kv{grid-template-columns:1fr}.totals{min-width:0;width:100%}}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.kv dd .mono{font-variant-numeric:tabular-nums}
+
+/* ------------------------------------------- stacked sections (reports) --- */
+.stack{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--s7);align-items:start}
+.snav{position:sticky;top:76px;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.snav a{padding:var(--s2) var(--s3);font-size:13.5px;color:var(--muted);text-decoration:none;border-left:2px solid transparent;margin-left:-1px;min-height:40px;display:flex;align-items:center}
+.snav a:hover{color:var(--accent);background:var(--tint)}
+.snav a[aria-current=true]{color:var(--ink);font-weight:600;border-left-color:var(--accent)}
+.stack-body{min-width:0}
+.stack-body>section{scroll-margin-top:84px}
+
+/* ------------------------------------------------------------ responsive -- */
+@media(max-width:1100px){
+  :root{--rail-w:280px}
+  .stack{grid-template-columns:1fr;gap:var(--s4)}
+  .snav{flex-direction:row;overflow-x:auto;border-left:0;border-bottom:1px solid var(--line);position:static}
+  .snav a{border-left:0;border-bottom:2px solid transparent;margin:0;white-space:nowrap}
+  .snav a[aria-current=true]{border-left-color:transparent;border-bottom-color:var(--accent)}
+}
+@media(max-width:860px){
+  .wrap{width:calc(100% - var(--s4));margin-top:var(--s4)}
+  .header-inner{width:calc(100% - var(--s4));gap:var(--s3);padding:var(--s2) 0}
+  .header-inner [data-auth-actions]{margin-left:0}
+  /* The Workbench collapses to one column: the rail IS the page until something
+     is selected, then the detail replaces it and offers a way back. */
+  .wb{grid-template-columns:1fr;border-left:0;border-right:0}
+  .wb-rail{border-right:0;border-bottom:1px solid var(--line);position:static;max-height:none}
+  .wb[data-selected=true] .wb-rail{display:none}
+  .wb:not([data-selected=true]) .wb-detail{display:none}
+  .wb-detail{padding:var(--s4) var(--s3)}
+  .kv{grid-template-columns:1fr;gap:0 0}
+  .kv dt{margin-top:var(--s3);font-size:12.5px}
+  .totals{min-width:0;width:100%}
+  .grid{grid-template-columns:1fr}
+}
+.back-to-list{display:none}
+@media(max-width:860px){.back-to-list{display:inline-flex;margin-bottom:var(--s3)}}
+
+/* Motion is feedback only, and it is all optional. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  button:active,.button:active{transform:none}
+}

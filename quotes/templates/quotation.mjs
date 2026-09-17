@@ -227,6 +227,22 @@ export function renderQuotationHtml(doc, lang = 'en') {
   table.lines .desc strong { font-weight:600; }
   table.lines .desc .alt { display:block; color:var(--muted); font-size:8.5pt; }
   table.lines .kind { font-size:8pt; color:var(--muted); }
+  table.lines .period { font-size:8pt; color:var(--muted); font-family:var(--mono); white-space:nowrap; }
+  /* Section band: a quiet rule, not a heavy fill — the document already has
+     enough structure and a solid bar would fight the totals block. */
+  table.lines tr.sec td { background:var(--tint); border-bottom:.5pt solid var(--line);
+                          font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+                          color:var(--accent); padding:6pt; }
+  table.lines tr.secsum td { font-size:8.5pt; color:var(--muted); padding-top:4pt; padding-bottom:6pt;
+                             border-bottom:.75pt solid var(--line); }
+  table.lines tr.secsum td:first-child { text-align:right; font-style:italic; }
+  /* An option is priced but owed by nobody: mute it and strike the amount so
+     it cannot be mistaken for part of the total. */
+  table.lines tr.opt td { color:var(--muted); }
+  table.lines tr.opt .pos { color:var(--muted); }
+  table.lines .optflag { font:6.5pt/1 var(--mono); letter-spacing:.1em; border:.5pt solid var(--line);
+                         padding:1pt 3pt; margin-left:3pt; vertical-align:1pt; }
+  table.lines .optamt { font-style:italic; }
   table.totals { margin-left:auto; margin-top:10pt; border-collapse:collapse; min-width:78mm; }
   table.totals td { padding:3pt 8pt; font-size:10pt; }
   table.totals .lbl { color:var(--muted); text-align:right; }

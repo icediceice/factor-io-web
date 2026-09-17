@@ -29,7 +29,11 @@ import { seedFixture, FIXTURE_NOTE } from './ui-fixture.mjs';
 // app because this file is never deployed. Its own styles are inline here for
 // the same reason — the strip must survive even if app.css is what broke.
 const FIXTURE_LABEL = `<style>
-[data-fixture-label]{position:sticky;top:0;z-index:90;margin:0;padding:6px 16px;
+/* Static, not sticky: the app's own header is sticky at top:0, and a second
+   sticky strip would either cover it or shift every sticky offset below it —
+   changing the very geometry the harness exists to measure. Screens are
+   captured from the top, so a strip in the flow is in every screenshot. */
+[data-fixture-label]{margin:0;padding:6px 16px;
   text-align:center;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
   letter-spacing:.06em;background:#a64b00;color:#fff}
 </style>

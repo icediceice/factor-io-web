@@ -288,11 +288,22 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
      describe off the screen. */
   .stat-row.posbar{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);overflow-x:auto}
   /* A Ledger toolbar at 390 stacked title, toggle and search into three rows.
-     Title on its own line, controls sharing the next one. */
+     Title on its own line, controls sharing the next one. The search must be
+     allowed to SHRINK here — its 220px floor is what forced the third row.
+     Note: no flex-wrap:nowrap. Forcing one line here made the quotation and
+     invoice detail headers — which are also .toolbar — overflow their card at
+     390 (measured: 2 clipped elements). A toolbar must always be free to wrap. */
   .toolbar{gap:var(--s2) var(--s3)}
   .toolbar>h2{flex:1 1 100%}
-  .toolbar .row-actions{flex:1 1 100%;flex-wrap:nowrap}
+  .toolbar .row-actions{flex:1 1 100%}
   .toolbar .row-actions input[type=search]{flex:1 1 auto;min-width:0}
+
+  /* Records first. The Position strip is ambient context ABOUT the list, so on
+     a single column it belongs after the thing it describes rather than
+     between the operator and their work. Nothing is hidden — only reordered. */
+  main:has(.posbar){display:flex;flex-direction:column}
+  main:has(.posbar)>*{order:1}
+  main:has(.posbar)>section[aria-label=Position]{order:2;margin-top:var(--s5)}
 }
 .back-to-list{display:none}
 @media(max-width:860px){.back-to-list{display:inline-flex;margin-bottom:var(--s3)}}

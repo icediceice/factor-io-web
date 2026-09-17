@@ -13,17 +13,42 @@ import { api, fmtSatang, el, toast, statusChip, renderShell } from './app.js';
 const id = new URLSearchParams(location.search).get('id');
 if (!id) { document.body.textContent = 'Missing ?id='; throw new Error('missing id'); }
 
+// The line vocabulary is operator-editable (the line.kinds setting), so the
+// form asks the server for it instead of shipping its own copy — the select
+// and the validation then always agree. The fallback is the pair that existed
+// before the vocabulary opened up: a settings or network fault degrades the
+// form to service|hardware rather than leaving an empty select.
+const FALLBACK_KINDS = [{ code: 'service', en: 'Service' }, { code: 'hardware', en: 'Hardware' }];
+const FALLBACK_PERIODS = [
+  { code: 'once', en: 'One-time' }, { code: 'monthly', en: 'Monthly' },
+  { code: 'quarterly', en: 'Quarterly' }, { code: 'yearly', en: 'Yearly' },
+];
+const vocab = { kinds: FALLBACK_KINDS, billingPeriods: FALLBACK_PERIODS };
+try {
+  const v = await api('GET', '/line-kinds');
+  if (Array.isArray(v.kinds) && v.kinds.length) vocab.kinds = v.kinds;
+  if (Array.isArray(v.billing_periods) && v.billing_periods.length) vocab.billingPeriods = v.billing_periods;
+} catch { toast('Using the built-in type list — /line-kinds is unavailable', 'error'); }
+
+const opts = (list) => list.map((k) => `<option value="${k.code}">${k.en ?? k.code}</option>`).join('');
+
 let doc = null;
 let main = null;
 
+// Labels come from the same settings row the PDF renders from; the raw code is
+// the fallback so a kind added without a label still reads as something.
+const kindLabel = (code) => doc.kindLabels?.[code] ?? code;
+const periodLabel = (code) => (code && code !== 'once' ? `/${code.replace(/ly$/, '')}` : 'once');
+
 function headerCard() {
   const q = doc.quotation;
+  const draft = q.status === 'draft';
   return el(`<section class="card">
     <div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:baseline">
       <h2 style="margin:0"><span class="mono">${q.number}</span> ${statusChip(q.status)}</h2>
       <div class="row-actions" style="margin:0">
-        ${q.status === 'draft' ? `<button id="issue">Issue (snapshot rev)</button>` : ''}
-        ${q.status === 'draft' ? `<button id="delete" class="danger">Delete draft</button>` : ''}
+        ${draft ? `<button id="issue">Issue (snapshot rev)</button>` : ''}
+        ${draft ? `<button id="delete" class="danger">Delete draft</button>` : ''}
         <a class="button" href="/api/quotations/${q.id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>
         <a class="button" href="/api/quotations/${q.id}/pdf?lang=th" target="_blank" rel="noopener">PDF ไทย</a>
       </div>
@@ -33,6 +58,15 @@ function headerCard() {
       <dt>Language / currency</dt><dd>${q.lang} · ${q.currency}${q.fxRate ? ` (1 ${q.fxBase || 'USD'} = ${q.fxRate} THB)` : ''}</dd>
       <dt>Issue date</dt><dd>${q.issueDate}</dd>
       <dt>Valid until</dt><dd>${q.validUntil}</dd>
+      <dt>Contract term</dt><dd>${draft
+        ? `<form id="term" style="display:inline-flex;gap:8px;align-items:baseline">
+             <input name="term_months" value="${q.termMonths ?? 0}" inputmode="numeric" style="width:5em">
+             <span class="muted">months</span>
+             <button type="submit" class="quiet">Set</button>
+           </form>`
+        : (q.termMonths ? `${q.termMonths} months` : '<span class="muted">not stated</span>')}
+        <div class="muted" style="font-size:.85em">Extends recurring lines into a contract total. 0 = no term stated.</div>
+      </dd>
       ${q.notes ? `<dt>Notes</dt><dd>${q.notes}</dd>` : ''}
     </dl>
   </section>`);
@@ -47,12 +81,19 @@ function linesCard() {
     <form id="addLine" style="margin-top:16px">
       <div class="grid">
         <label>Type
-          <select name="kind"><option value="service">Service</option><option value="hardware">Hardware</option></select>
+          <select name="kind">${opts(vocab.kinds)}</select>
+        </label>
+        <label>Billing
+          <select name="billing_period">${opts(vocab.billingPeriods)}</select>
         </label>
         <label>Quantity <input name="qty" required placeholder="0.5" inputmode="decimal"></label>
-        <label>Unit <input name="unit" placeholder="day"></label>
+        <label>Unit <input name="unit" placeholder="auto"></label>
         <label>Unit price (THB) <input name="unit_price" required placeholder="35000.00" inputmode="decimal"></label>
         <label>Discount (satang) <input name="discount_satang" value="0" inputmode="numeric"></label>
+      </div>
+      <div class="grid">
+        <label>Section <input name="section" placeholder="Hardware"></label>
+        <label style="align-self:end"><input type="checkbox" name="optional" value="1"> Optional (priced, excluded from totals)</label>
       </div>
       <label>Description (EN) <input name="description_en" required></label>
       <label>Description (TH) <input name="description_th" placeholder="คำอธิบายภาษาไทย (ถ้ามี)"></label>
@@ -66,12 +107,14 @@ function renderLines() {
   if (!doc.lines.length) { box.innerHTML = '<div class="empty">No lines yet.</div>'; }
   else {
     box.innerHTML = `<table class="list"><thead><tr>
-      <th>#</th><th>Description</th><th>Type</th><th class="num">Qty</th><th>Unit</th><th class="num">Unit price</th><th class="num">Discount</th><th class="num">Subtotal</th><th></th>
+      <th>#</th><th>Description</th><th>Type</th><th>Billing</th><th>Section</th><th class="num">Qty</th><th>Unit</th><th class="num">Unit price</th><th class="num">Discount</th><th class="num">Subtotal</th><th></th>
     </tr></thead><tbody>
-      ${doc.lines.map((l) => `<tr>
-        <td>${l.position}</td>
-        <td><strong>${l.descriptionEn}</strong>${l.descriptionTh ? `<br><span class="muted">${l.descriptionTh}</span>` : ''}</td>
-        <td>${l.kind}</td>
+      ${doc.lines.map((l) => `<tr${l.optional ? ' class="muted"' : ''}>
+        <td>${l.optional ? '○' : l.position}</td>
+        <td><strong>${l.descriptionEn}</strong>${l.optional ? ' <span class="mono">[OPTION]</span>' : ''}${l.descriptionTh ? `<br><span class="muted">${l.descriptionTh}</span>` : ''}</td>
+        <td>${kindLabel(l.kind)}</td>
+        <td>${periodLabel(l.billingPeriod)}</td>
+        <td>${l.section || '—'}</td>
         <td class="num">${l.qty}</td>
         <td>${l.unit}</td>
         <td class="num">${fmtSatang(l.unitSatang)}</td>
@@ -88,7 +131,17 @@ function renderLines() {
     }
   }
   const t = doc.totals;
+  // The split, the contract total and the options line each appear only when
+  // they carry a figure, so a plain one-off quotation shows the totals block
+  // it has always shown.
+  const split = t.hasRecurring ? [
+    t.oneTimeSatang ? `<tr class="memo"><td class="lbl">One-time</td><td class="num">${fmtSatang(t.oneTimeSatang)}</td></tr>` : '',
+    ...['monthly', 'quarterly', 'yearly']
+      .filter((p) => t.recurringSatang?.[p])
+      .map((p) => `<tr class="memo"><td class="lbl">Recurring ${p}</td><td class="num">${fmtSatang(t.recurringSatang[p])}</td></tr>`),
+  ].filter(Boolean).join('') : '';
   docCard.querySelector('#totals').innerHTML = `<table class="totals">
+    ${split}
     <tr class="memo"><td class="lbl">Subtotal</td><td class="num">${fmtSatang(t.subtotalSatang)}</td></tr>
     ${t.discountSatang ? `<tr class="memo"><td class="lbl">Discount</td><td class="num">−${fmtSatang(t.discountSatang)}</td></tr>` : ''}
     <tr><td class="lbl">Net</td><td class="num">${fmtSatang(t.netSatang)}</td></tr>
@@ -96,6 +149,8 @@ function renderLines() {
     <tr class="grand"><td class="lbl">Grand total</td><td class="num">${fmtSatang(t.grandSatang)}</td></tr>
     ${t.whtSatang ? `<tr${t.whtMode === 'deduct' ? '' : ' class="memo"'}><td class="lbl">WHT ${t.whtRate}% (${t.whtMode})</td><td class="num">${t.whtMode === 'deduct' ? '−' : ''}${fmtSatang(t.whtSatang)}</td></tr>` : ''}
     <tr class="payable"><td class="lbl">Total payable</td><td class="num">${fmtSatang(t.payableSatang)}</td></tr>
+    ${t.contractTotalSatang != null ? `<tr class="payable"><td class="lbl">Contract total (${t.termMonths} months)</td><td class="num">${fmtSatang(t.contractTotalSatang)}</td></tr>` : ''}
+    ${t.optionalSatang ? `<tr class="memo"><td class="lbl">Options (not included)</td><td class="num">${fmtSatang(t.optionalSatang)}</td></tr>` : ''}
   </table>`;
 }
 
@@ -135,20 +190,30 @@ main = renderShell('quote.html', `Quotation`, 'Edit lines while the quotation is
 try { await refresh(api('GET', `/quotations/${id}`)); }
 catch (e) { main.append(el(`<div class="card"><div class="empty">${e.message}</div></div>`)); }
 
-// wire the add-line form after render (it lives inside linesCard)
+// wire the forms after render (they live inside cards renderAll() rebuilds)
 document.addEventListener('submit', async (e) => {
+  if (e.target.id === 'term') {
+    e.preventDefault();
+    const months = new FormData(e.target).get('term_months');
+    try { await refresh(api('PUT', `/quotations/${id}`, { term_months: Number(months) })); toast('Contract term saved'); }
+    catch (err) { toast(err.message, 'error'); }
+    return;
+  }
   if (e.target.id !== 'addLine') return;
   e.preventDefault();
   const f = new FormData(e.target);
   const body = {
     kind: f.get('kind'),
+    billing_period: f.get('billing_period'),
     description_en: f.get('description_en'),
     description_th: f.get('description_th'),
     qty: f.get('qty'),
     unit_price: f.get('unit_price'),
     discount_satang: Number(f.get('discount_satang') || 0),
+    optional: f.get('optional') === '1',
   };
   if (f.get('unit')) body.unit = f.get('unit');
+  if (f.get('section')) body.section = f.get('section');
   try { await refresh(api('POST', `/quotations/${id}/lines`, body)); toast('Line added'); }
   catch (err) { toast(err.message, 'error'); }
 });

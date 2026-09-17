@@ -11,7 +11,6 @@ import {
   lineSubtotal, vatOf, whtOf, fxToThb, todayBkk, addDaysBkk,
 } from './money.mjs';
 
-/** Totals for lines [{qtyMilli, unitSatang, discountSatang}] + settings. */
 /**
  * Totals for lines [{qtyMilli, unitSatang, discountSatang, billingPeriod,
  * section, optional}] + settings, optionally over a contract term.

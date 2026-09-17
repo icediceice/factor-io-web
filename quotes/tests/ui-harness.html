@@ -348,7 +348,15 @@ function measure(win) {
   // desktop can spend 40% of its height on a page header and still show a
   // dozen records, whereas a 390×844 phone spends the same header on a third
   // of the pixels. Half the viewport is the phone equivalent of the same rule.
-  const work = doc.querySelector('.wb, .stack, main table');
+  // The work REGION, not the first table. For a Workbench that is .wb, which
+  // contains the rail's search; for a Ledger it is the card holding the
+  // toolbar AND the table, because a search field above the rows is work too.
+  // Measuring the <table> alone charged a Ledger for its own filter controls.
+  let work = doc.querySelector('.wb, .stack');
+  if (!work) {
+    const t = doc.querySelector('main table');
+    work = t ? (t.closest('section.card') ?? t) : null;
+  }
   if (work) {
     const top = Math.round(work.getBoundingClientRect().top + win.scrollY);
     const frac = win.innerWidth >= 1024 ? 0.4 : 0.5;

@@ -19,11 +19,17 @@
   --mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai","Loma",monospace;
   /* Spacing scale. Every margin/padding below references one of these. */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:28px; --s7:40px;
-  /* Type scale. Seven steps, no half-pixels. The sheet used to carry 11.5,
-     12.5 and 13.5px in nine rules — sizes that mean "a bit smaller than the
-     one above", which is a decision taken per-rule instead of once. The only
-     declaration allowed to sit outside this scale is h1, which is fluid. */
-  --t-xs:11px; --t-sm:12px; --t-md:13px; --t-base:14px; --t-lg:15px;
+  /* Type scale. Six steps, no half-pixels and nothing under 12px. The sheet
+     used to carry 11, 11.5, 12.5 and 13.5px in fourteen rules — sizes that
+     mean "a bit smaller than the one above", which is a decision taken
+     per-rule instead of once. 11px went with them: it was only ever used for
+     the uppercase mono micro-labels (column heads, .section-label, the status
+     pill, the stat captions), and measuring found fourteen of them under the
+     12px floor across four screens. One step up costs a Ledger row nothing —
+     row height is set by the cell's controls, not by its column head — and it
+     removed the whole class of finding rather than documenting an exception.
+     The only declaration allowed outside this scale is h1, which is fluid. */
+  --t-sm:12px; --t-md:13px; --t-base:14px; --t-lg:15px;
   --t-xl:17px; --t-2xl:22px;
   --r-input:2px; --r-btn:3px;
   --rail-w:328px;

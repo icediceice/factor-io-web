@@ -309,7 +309,10 @@ export function renderQuotationHtml(doc, lang = 'en') {
     </tbody>
   </table>
 
+  ${anyOptional ? `<p class="optnote">${esc(t.optionsNote)}</p>` : ''}
+
   <table class="totals">
+    ${splitRows}
     <tr class="memo"><td class="lbl">${esc(t.subtotal)}</td><td class="num">${money(totals.subtotalSatang)}</td></tr>
     ${totals.discountSatang ? `<tr class="memo"><td class="lbl">${esc(t.discount)}</td><td class="num">−${money(totals.discountSatang)}</td></tr>` : ''}
     <tr><td class="lbl">${esc(t.net)}</td><td class="num">${money(totals.netSatang)}</td></tr>

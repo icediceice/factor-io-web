@@ -50,7 +50,8 @@ Layout:
    (exclude `data/`, `node_modules/`; it has none).
 4. **Create `/home/ice/.factor-quotes/.env` (0600)** — set
    `QUOTES_AUTH_MODE=tailscale`,
-   `QUOTES_BIND=127.0.0.1,100.111.93.20`, the allowlist and agent token. See
+   `QUOTES_BIND=127.0.0.1,100.111.93.20`, the email and Host allowlists, and
+   agent token. See
    "Environment" below. `NODE_ENV=production` makes the boot gate refuse when
    tailscaled whois or the allowlist is unavailable.
 5. **Install the service** (see deploy/factor-quotes.service header):
@@ -79,6 +80,7 @@ ingress would require a new reviewed deployment design; none are shipped here.
 | `QUOTES_BIND` | no | Comma-separated loopback/tailnet addresses (default `127.0.0.1`; wildcard and LAN binds refuse) |
 | `NODE_ENV` | prod | `production` enables the boot gate |
 | `QUOTES_AUTH_MODE` | prod | Explicitly `tailscale` or `oauth`; no production default |
+| `QUOTES_ALLOWED_HOSTS` | tailscale | Comma-separated exact Host headers, including port; production refuses an empty list |
 | `QUOTES_SESSION_SECRET` | oauth | ≥32 bytes; HMAC-signs session cookies |
 | `QUOTES_GOOGLE_CLIENT_ID` | oauth | Own OAuth client (NOT the board's) |
 | `QUOTES_GOOGLE_CLIENT_SECRET` | oauth | Pair of the above |

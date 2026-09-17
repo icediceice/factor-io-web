@@ -462,7 +462,12 @@ describe('a pre-migration-5 quotation renders exactly as it always did', () => {
     assert.equal(html.includes('class="secsum"'), false);
     assert.equal(html.includes('class="period"'), false);
     assert.equal(html.includes('class="opt"'), false);
-    assert.equal(html.includes('class="memo"'), false);
+    // (class="memo" is NOT checked — it has always styled the Subtotal,
+    // Discount and WHT rows, long before this change.)
+    assert.equal(html.includes('One-time'), false);
+    assert.equal(html.includes('Recurring'), false);
+    assert.equal(html.includes('Contract total'), false);
+    assert.equal(html.includes('Options (not included)'), false);
 
     // Rows stay in position order, one per line.
     assert.equal((html.match(/<td class="pos">/g) ?? []).length, 3);

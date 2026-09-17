@@ -132,6 +132,7 @@ export function refusal(message) {
     consequences: [],
     confirmLabel: 'OK',
     tone: 'warn',
+    acknowledge: true,
   });
 }
 

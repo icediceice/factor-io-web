@@ -25,6 +25,14 @@ main.append(headCard, linesCard, settleCard, whtCard);
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+// Labels come from the invoice envelope, which reads the same line.kinds
+// setting the document renders from; the raw code is the fallback so a kind
+// added without a label still reads as something.
+const kindLabel = (code) => doc?.kindLabels?.[code] ?? code;
+// A tax invoice bills ONE cycle, so this column states the cadence the line
+// was sold on — it is never multiplied into the amounts on this page.
+const periodLabel = (code) => (code && code !== 'once' ? `/${String(code).replace(/ly$/, '')}` : 'once');
+
 let doc = null;
 
 async function load() {

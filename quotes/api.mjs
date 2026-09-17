@@ -22,6 +22,37 @@ import {
 import {
   pp30Monthly, incomeByMonth, whtRegister, pndSummary, pipelineSummary,
 } from './lib/reports.mjs';
+import { parseKinds, isValidKind, kindCodes, normalisePeriod } from './lib/kinds.mjs';
+
+/**
+ * Validate a line/catalog `kind` against the operator-configured vocabulary.
+ *
+ * This replaced three hardcoded service|hardware checks. One of them (catalog
+ * PUT) did not reject an unknown kind at all — it silently coerced anything
+ * unrecognised to 'service', quietly rewriting the operator's data. Rejecting
+ * is the whole point, so there is no coercing path here.
+ */
+const kindOf = (db, body, { required = true, fallback = null } = {}) => {
+  const raw = body?.kind;
+  if (raw == null || raw === '') {
+    if (required && fallback == null) throw bad(`kind is required — one of: ${kindCodes(getSettings(db, 'line.')).join(', ')}`);
+    return fallback;
+  }
+  const settings = getSettings(db, 'line.');
+  const code = String(raw).trim();
+  if (!isValidKind(settings, code)) {
+    throw bad(`kind '${code}' is not in the configured vocabulary — one of: ${kindCodes(settings).join(', ')}. Add it by editing the line.kinds setting.`);
+  }
+  return code;
+};
+
+/** Validate an optional billing_period, defaulting to 'once'. */
+const periodOf = (body, fallback = 'once') => {
+  if (body?.billing_period == null || body.billing_period === '') return fallback;
+  const p = normalisePeriod(body.billing_period);
+  if (p == null) throw bad("billing_period must be one of: once, monthly, quarterly, yearly");
+  return p;
+};
 
 const json = (status, body, headers = {}) => ({
   status,

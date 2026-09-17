@@ -138,7 +138,7 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
    rail at 7 records against a floor of 12 — the rail's job is scanning, and a
    list of five fat rows has failed the shape. The full name is never lost: it
    is the row's title attribute and the first line of the detail pane. */
-.rail-item .r-name{font-size:var(--t-base);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail-item .r-name{flex:1 1 auto;font-size:var(--t-base);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* margin-top:0, not 2px: the 1.35 line-height already separates the two lines,
    and an off-scale 2px on every row is 2px the rail cannot spend on records. */
 .rail-item .r2{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between;color:var(--muted);font-size:var(--t-sm);margin-top:0}

@@ -44,6 +44,7 @@ const T = {
     at: 'Attn',
     item: 'Description',
     kind: 'Type',
+    period: 'Billing',
     qty: 'Qty',
     unit: 'Unit',
     unitPrice: 'Unit price',

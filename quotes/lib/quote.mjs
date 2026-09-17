@@ -261,6 +261,12 @@ export function buildQuoteDocument(db, quotationId) {
     kindLabels: labelMap(settings, str(q.lang) || 'en'),
     generatedAt: new Date().toISOString(),
   };
+  // Computed from the finished document, because "has this drifted from its
+  // snapshot?" is a question about the document a reader would see, not about
+  // the rows underneath it. Attached to the quotation so the template, the
+  // API, the UI and the CLI all read the same two fields.
+  Object.assign(doc.quotation, revisionState(db, quotationId, doc));
+  return doc;
 }
 
 /** A stable string over ONLY the operator-controlled content of a document.

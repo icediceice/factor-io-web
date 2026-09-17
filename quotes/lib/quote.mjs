@@ -12,15 +12,66 @@ import {
 } from './money.mjs';
 
 /** Totals for lines [{qtyMilli, unitSatang, discountSatang}] + settings. */
-export function computeTotals(lines, settings) {
+/**
+ * Totals for lines [{qtyMilli, unitSatang, discountSatang, billingPeriod,
+ * section, optional}] + settings, optionally over a contract term.
+ *
+ * THE INVARIANT THIS FUNCTION PROTECTS, and the reason it is worth reading
+ * before changing: subtotal / discount / net / VAT / WHT / payable keep the
+ * exact meaning they have always had — what the customer pays for ONE cycle of
+ * this quotation as entered. Two rules follow from that and neither is
+ * optional:
+ *
+ *   - OPTIONAL lines are excluded from every one of those figures. An option
+ *     the customer has not taken is not money they owe, so quoting it must not
+ *     move the payable. It is reported separately as optionalSatang.
+ *
+ *   - The CONTRACT TOTAL is a memo and carries NO VAT. It is the sum of the
+ *     one-time work plus the recurring charges extended over termMonths, which
+ *     is a forecast of spend across the term, not a taxable amount and not
+ *     anything an invoice may inherit. VAT is charged per invoice, per cycle,
+ *     at the rate in force on that invoice's tax point.
+ *
+ * A quotation with no optional lines, no periods and no term therefore
+ * produces byte-identical totals to the pre-existing implementation.
+ */
+export function computeTotals(lines, settings, termMonths = 0) {
   let subtotalSatang = 0;
   let discountSatang = 0;
+  let optionalSatang = 0;
+  let oneTimeSatang = 0;
+  const recurringSatang = { monthly: 0, quarterly: 0, yearly: 0 };
+  const sectionOrder = [];
+  const sectionNet = new Map();
+
   for (const line of lines) {
     const sub = lineSubtotal(line.qtyMilli, line.unitSatang);
     const disc = Math.min(Math.max(0, Number(line.discountSatang) || 0), sub);
+    const net = sub - disc;
+
+    // Optional lines are shown to the customer and priced individually, but
+    // they are not part of anything this quotation asks to be paid.
+    if (line.optional) {
+      optionalSatang += net;
+      continue;
+    }
+
     subtotalSatang += sub;
     discountSatang += disc;
+
+    const period = line.billingPeriod ?? 'once';
+    if (period === 'once') oneTimeSatang += net;
+    else if (period in recurringSatang) recurringSatang[period] += net;
+    // An unrecognised period cannot reach here: the DB CHECK and the API both
+    // reject one. If it somehow did, counting it as one-time is the safe
+    // failure — it lands in a visible total rather than vanishing.
+    else oneTimeSatang += net;
+
+    const section = String(line.section ?? '');
+    if (!sectionNet.has(section)) { sectionOrder.push(section); sectionNet.set(section, 0); }
+    sectionNet.set(section, sectionNet.get(section) + net);
   }
+
   const netSatang = subtotalSatang - discountSatang;
   const vatRate = settings['vat.rate_percent'] ?? '0';
   const vatSatang = vatOf(netSatang, vatRate);
@@ -30,10 +81,39 @@ export function computeTotals(lines, settings) {
   const whtMode = (settings['wht.apply'] ?? 'memo') === 'deduct' ? 'deduct' : 'memo';
   const payableSatang = whtMode === 'deduct' ? grandSatang - whtSatang : grandSatang;
   const currency = settings['currency.code'] ?? 'THB';
+
+  const term = Number.isSafeInteger(Number(termMonths)) && Number(termMonths) > 0
+    ? Number(termMonths) : 0;
+  const hasRecurring = recurringSatang.monthly > 0
+    || recurringSatang.quarterly > 0
+    || recurringSatang.yearly > 0;
+
   const totals = {
     subtotalSatang, discountSatang, netSatang, vatRate, vatSatang,
     grandSatang, whtRate, whtSatang, whtMode, payableSatang, currency,
+    oneTimeSatang,
+    recurringSatang,
+    hasRecurring,
+    optionalSatang,
+    termMonths: term,
+    // Sections in FIRST-APPEARANCE order, never sorted: the operator controls
+    // the running order of a proposal by line position, and re-sorting here
+    // would silently override that.
+    sections: sectionOrder.map((name) => ({ name, netSatang: sectionNet.get(name) })),
   };
+
+  // Contract total: one-time work plus each recurring charge extended across
+  // the term. Integer-safe by construction — multiply the satang figure by the
+  // month count FIRST and divide last, so no per-line float ever accumulates.
+  // Null (not 0) when there is no term or nothing recurring, so the caller can
+  // distinguish "not applicable" from "genuinely zero" and omit the row.
+  totals.contractTotalSatang = (term > 0 && hasRecurring)
+    ? oneTimeSatang
+      + roundSatang((recurringSatang.monthly * term) / PERIOD_MONTHS.monthly)
+      + roundSatang((recurringSatang.quarterly * term) / PERIOD_MONTHS.quarterly)
+      + roundSatang((recurringSatang.yearly * term) / PERIOD_MONTHS.yearly)
+    : null;
+
   const fxRate = settings['fx.rate'] ?? '';
   if (fxRate !== '' && currency !== 'THB') {
     totals.thbPayableSatang = fxToThb(payableSatang, fxRate);

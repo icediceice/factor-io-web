@@ -50,7 +50,7 @@ const navLinks = [
 ];
 
 export function renderShell(active, title, subtitle) {
-  document.title = `${title} · Factor I/O Quotes`;
+  document.title = `${title} · Factor IO Quotes`;
   // `active` wins over the URL so a detail page can light up its section:
   // invoice.html asks for 'invoices.html', quote.html for 'index.html'.
   const here = active || location.pathname.split('/').pop() || 'index.html';

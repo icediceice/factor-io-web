@@ -239,7 +239,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     /* ---- header ---- */
     const head = el(`<section class="card">
       <div class="toolbar">
-        <h2 style="margin:0">
+        <h2>
           <span class="mono">${esc(q.number)}</span> ${statusChip(q.status)}
           ${q.revision >= 2 ? `<span class="mono muted">Rev. ${q.revision}</span>` : ''}
         </h2>

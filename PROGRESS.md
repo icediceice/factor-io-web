@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-17 (quotes/ operator UI: quotation delete exists, lines and clients are editable, all 8 screens measured at 0 fail)
+> Last updated: 2026-09-17 (marketing site: four routes, EN/TH copy rewrite, three routes retired to redirect stubs)
 
 ## Current Focus
 

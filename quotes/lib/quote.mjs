@@ -284,6 +284,40 @@ export const QUOTATION_STATUSES = [
   'invoiced', 'paid', 'superseded', 'cancelled',
 ];
 
+/** The statuses in which a quotation's CONTENT may still be changed.
+ *
+ *  'issued' and 'proposed' are in the list on purpose: a quotation that has
+ *  gone out with bad information has to be correctable, and re-issuing it
+ *  takes a fresh revision snapshot (markStatus below treats issued -> issued
+ *  as legal precisely so it can). The revision list is the audit trail.
+ *
+ *  'accepted' onwards is NOT editable and must not become editable: it is what
+ *  invoice.mjs:createInvoiceFromQuotation snapshots its lines from, so editing
+ *  it would silently restate a deal the customer already agreed to, and could
+ *  disagree with an invoice already raised. declined/superseded/cancelled are
+ *  closed. */
+export const EDITABLE_STATUSES = ['draft', 'issued', 'proposed'];
+
+/** Why this quotation may not be edited, or null when it may be.
+ *
+ *  Returns a SENTENCE, not a boolean, because the caller's only useful reply to
+ *  the operator is what is wrong and what to do instead. HTTP status mapping
+ *  stays in api.mjs — nothing in this module knows about transport. */
+export function editRefusal(status) {
+  const s = String(status ?? '');
+  if (EDITABLE_STATUSES.includes(s)) return null;
+  const reason = {
+    accepted: 'it has been accepted and is what an invoice is raised from',
+    invoiced: 'it has been invoiced',
+    paid: 'it has been invoiced and paid',
+    declined: 'it was declined',
+    superseded: 'it has been superseded',
+    cancelled: 'it was cancelled',
+  }[s] ?? `its status is ${s}`;
+  return `this quotation can no longer be edited because ${reason}`
+    + ' (editable while draft, issued or proposed; correct an issued quotation and re-issue it to record a new revision)';
+}
+
 /** Legal moves. The pipeline runs draft -> issued -> proposed -> accepted and
  *  then hands off to the invoice side; 'invoiced' and 'paid' are driven by
  *  lib/invoice.mjs as invoices are raised and settled, never set by hand.

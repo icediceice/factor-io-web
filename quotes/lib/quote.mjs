@@ -43,6 +43,7 @@ export function computeTotals(lines, settings, termMonths = 0) {
   const recurringSatang = { monthly: 0, quarterly: 0, yearly: 0 };
   const sectionOrder = [];
   const sectionNet = new Map();
+  const sectionGross = new Map();
 
   for (const line of lines) {
     const sub = lineSubtotal(line.qtyMilli, line.unitSatang);

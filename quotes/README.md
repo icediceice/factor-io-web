@@ -448,7 +448,10 @@ for the DOM to go quiet, and measures overflow, contrast, tap targets, type
 scale, row density, rail capacity and where the work region starts.
 `?w=1440x900&run=all` runs the lot without touching a control. The last full
 run was **0 fail across 8 screens × 3 widths**; the warnings that remain are
-argued in `.interface-design/log.json` rather than silenced.
+argued in the 2026-09-17 entry of the repo-root `.interface-design/log.json`
+rather than silenced. That log is repo-wide on purpose — it is what a later
+light-design run reads to avoid repeating a shape — while the design *system*
+this app is built on is its own, at `quotes/.interface-design/system.md`.
 
 ## Design notes
 

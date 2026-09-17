@@ -119,19 +119,66 @@ export function renderQuotationHtml(doc, lang = 'en') {
   const vatLabel = `${t.vat} ${esc(totals.vatRate)}%`;
   const whtLabel = totals.whtMode === 'deduct' ? t.whtDeduct : t.whtMemo;
 
-  const lineRows = lines.map((l) => `
-      <tr>
-        <td class="pos">${l.position}</td>
+  // Kind labels come from the document (built from the line.kinds setting), so
+  // the vocabulary is operator-editable. The T-table entries for service and
+  // hardware remain as a fallback for a document built before kindLabels
+  // existed, and the raw code is the last resort so an unknown kind still
+  // prints something rather than an empty cell.
+  const kindLabels = doc.kindLabels ?? {};
+  const kindLabel = (l) => esc(kindLabels[l.kind] ?? t[l.kind] ?? l.kind);
+  const periodLabels = PERIOD_LABELS[lang] ?? PERIOD_LABELS.en;
+  const anyRecurring = lines.some((l) => (l.billingPeriod ?? 'once') !== 'once');
+  const anyOptional = lines.some((l) => l.optional);
+  const anySection = lines.some((l) => (l.section ?? '') !== '');
+  // Column count for a full-width header/subtotal row: 7 normally, 8 when the
+  // billing column is present.
+  const cols = anyRecurring ? 8 : 7;
+
+  const rowFor = (l) => `
+      <tr${l.optional ? ' class="opt"' : ''}>
+        <td class="pos">${l.optional ? '○' : l.position}</td>
         <td class="desc">
-          <strong>${lineName(l)}</strong>
+          <strong>${lineName(l)}</strong>${l.optional ? ` <span class="optflag">${esc(t.option)}</span>` : ''}
           ${l.descriptionEn && lang === 'th' && l.descriptionTh ? `<span class="alt">${esc(l.descriptionEn)}</span>` : ''}
         </td>
-        <td class="kind">${t[l.kind] ?? esc(l.kind)}</td>
+        <td class="kind">${kindLabel(l)}</td>
         <td class="num qty">${esc(l.qty)}</td>
-        <td class="unit">${esc(l.unit)}</td>
+        <td class="unit">${esc(l.unit)}</td>${anyRecurring ? `
+        <td class="period">${esc(periodLabels[l.billingPeriod ?? 'once'] ?? '')}</td>` : ''}
         <td class="num">${money(l.unitSatang)}</td>
-        <td class="num">${money(l.subtotalSatang)}</td>
-      </tr>`).join('\n');
+        <td class="num${l.optional ? ' optamt' : ''}">${money(l.subtotalSatang)}</td>
+      </tr>`;
+
+  // Grouping is applied ONLY when at least one line names a section. With no
+  // sections the output is the same flat sequence of rows it has always been,
+  // which is what keeps existing quotations rendering unchanged.
+  let lineRows;
+  if (!anySection) {
+    lineRows = lines.map(rowFor).join('\n');
+  } else {
+    const sectionNet = new Map((totals.sections ?? []).map((s) => [s.name, s.netSatang]));
+    const chunks = [];
+    let current = null;
+    for (const l of lines) {
+      const name = l.section ?? '';
+      if (name !== current) {
+        current = name;
+        if (name !== '') {
+          chunks.push(`
+      <tr class="sec"><td colspan="${cols}">${esc(name)}</td></tr>`);
+        }
+      }
+      chunks.push(rowFor(l));
+      // Close the group when the NEXT line starts a different section.
+      const next = lines[lines.indexOf(l) + 1];
+      const isLastOfSection = !next || (next.section ?? '') !== name;
+      if (name !== '' && isLastOfSection && sectionNet.has(name)) {
+        chunks.push(`
+      <tr class="secsum"><td colspan="${cols - 1}">${esc(t.sectionTotal)} — ${esc(name)}</td><td class="num">${money(sectionNet.get(name))}</td></tr>`);
+      }
+    }
+    lineRows = chunks.join('\n');
+  }
 
   const fxRow = totals.thbPayableSatang != null && q.currency !== 'THB' ? `
       <tr class="fx"><td></td><td class="lbl">${esc(t.thbEquiv)} ${esc(q.fxRate)}${q.fxAsOf ? `, ${esc(t.asOf)} ${esc(fmtDate(q.fxAsOf, lang))}` : ''})</td>

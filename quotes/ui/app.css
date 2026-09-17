@@ -55,8 +55,18 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 
 /* Workbench: rail feeds detail. One grid, two ruled columns, no shadow. */
 .wb{display:grid;grid-template-columns:var(--rail-w) minmax(0,1fr);gap:0;border:1px solid var(--line);background:var(--white);min-height:60vh}
-.wb-rail{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 150px);position:sticky;top:76px;align-self:start}
-.wb-list{overflow-y:auto;flex:1;min-height:0}
+/* The rail is ONE scroll region, not a stack of competing ones.
+   It used to be a flex column where .wb-list was `flex:1;min-height:0` and the
+   create form below it sat at its natural height. When the two together
+   exceeded max-height, the list was the only item allowed to shrink — so it
+   collapsed to a sliver and the operator saw 1 of 8 quotations (measured) in a
+   748px-tall rail. Scrolling the rail as a whole keeps the list at its full
+   height, puts the records first, and leaves exactly one scrollbar. */
+.wb-rail{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 150px);position:sticky;top:76px;align-self:start;overflow-y:auto}
+.wb-list{flex:0 0 auto}
+/* Search and filters stay reachable while the records scroll under them. */
+.rail-head{position:sticky;top:0;z-index:2;background:var(--white)}
+.rail-foot{flex:0 0 auto}
 .wb-detail{min-width:0;padding:var(--s5);overflow-x:auto}
 .wb-detail>section.card:first-child{margin-top:0}
 

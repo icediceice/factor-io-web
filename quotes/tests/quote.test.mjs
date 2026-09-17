@@ -216,7 +216,7 @@ describe('migrations', () => {
 
     migrate(db);
 
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 4);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 5);
     // Ids, numbers and statuses all preserved — a rebuild that renumbered rows
     // would silently detach every child row and every stored revision.
     const after = db.prepare('SELECT id, number, status, lang, notes FROM quotations ORDER BY id').all();

@@ -21,7 +21,23 @@
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:28px; --s7:40px;
   --r-input:2px; --r-btn:3px;
   --rail-w:330px;
+  /* Measures. A form column wider than this stops being scannable; a single
+     date or amount field wider than this just looks broken. */
+  --w-form:520px; --w-field:320px;
 }
+
+/* Spacing utilities — the ONLY sanctioned way to nudge a margin from markup.
+   These replaced 16 inline style="margin:…" declarations carrying 12/14/18px,
+   none of which were on the --s scale. An inline value is a spacing decision
+   made outside the system, and it is how a scale quietly stops being one.
+   .m0 is declared FIRST so a later .mt-*/.mb-* still wins over it. */
+.m0{margin:0}
+.mt-3{margin-top:var(--s3)}
+.mt-4{margin-top:var(--s4)}
+.mt-5{margin-top:var(--s5)}
+.mb-5{margin-bottom:var(--s5)}
+.w-form{max-width:var(--w-form)}
+.w-field{max-width:var(--w-field)}
 
 /* ------------------------------------------------------------------ base -- */
 *{box-sizing:border-box}

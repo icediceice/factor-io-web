@@ -47,7 +47,12 @@ export async function mount(main) {
     const obs = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (!e.isIntersecting) continue;
-        for (const a of links) a.toggleAttribute('aria-current', a.hash === `#${e.target.id}`);
+        // setAttribute, not toggleAttribute: toggleAttribute writes aria-current=""
+        // which the CSS selector [aria-current=true] would never match.
+        for (const a of links) {
+          if (a.hash === `#${e.target.id}`) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        }
       }
     }, { rootMargin: '-84px 0px -70% 0px' });
     for (const s of sections) obs.observe(document.getElementById(s.id));

@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-17 (quotes/ generalized to any product type: open line kinds, billing periods, sections, optional lines)
+> Last updated: 2026-09-17 (quotes/ revise-in-place: an issued quotation is corrected under the same number and re-issued as the next revision)
 
 ## Current Focus
 

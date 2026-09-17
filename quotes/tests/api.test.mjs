@@ -92,9 +92,15 @@ describe('quotation flow', () => {
     assert.deepEqual(audits.map((a) => a.action), ['quotation.create', 'line.add', 'line.add', 'quotation.status']);
     assert.ok(audits.every((a) => a.actor === 'op@factor-io.com'));
 
-    // issued quotes are frozen: line edits and header edits refuse
-    const frozen = await call('PUT', `/quotations/${q.id}`, { body: { notes: 'nope' } });
-    assert.equal(frozen.status, 400);
+    // An issued quotation is CORRECTABLE — this assertion used to require a
+    // 400 here, back when the only answer to bad information on an issued
+    // quotation was "you cannot fix it". Editing one is now the supported
+    // flow; what replaces the old guarantee is that the edit makes the
+    // document stale until it is re-issued, and that accepted-onwards is
+    // genuinely final (both covered in the revise-in-place suite below).
+    const corrected = await call('PUT', `/quotations/${q.id}`, { body: { notes: 'corrected after issue' } });
+    assert.equal(corrected.status, 200);
+    assert.equal(JSON.parse(corrected.body).quotation.revisionStale, true);
   });
 
   test('line update recalculates; discount is clamped to the line subtotal', async () => {

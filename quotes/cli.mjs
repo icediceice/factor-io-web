@@ -258,7 +258,10 @@ async function main() {
       const id = needId(positional, 0, 'quotation id');
       const r = await call('POST', `/api/quotations/${id}/issue`);
       if (flags.json) return asJson(r);
-      console.log(`issued ${r.quotation.number}: revision ${r.rev}, payable ${money(r.totals.payableSatang)}`);
+      // The same endpoint both issues a draft and records a correction to an
+      // already-issued quotation, so say which one happened.
+      const verb = r.rev > 1 ? 're-issued' : 'issued';
+      console.log(`${verb} ${r.quotation.number}: revision ${r.rev}, payable ${money(r.totals.payableSatang)}`);
       return;
     }
     case 'status': {

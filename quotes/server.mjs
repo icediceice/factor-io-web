@@ -72,6 +72,10 @@ export function createApp(env = process.env, options = {}) {
 
   async function handle(req, res) {
     try {
+      if (auth.cfg.mode === 'tailscale' && auth.cfg.hosts.length
+          && !auth.cfg.hosts.includes(String(req.headers.host ?? '').toLowerCase())) {
+        return sendJson(res, 403, { error: 'forbidden' });
+      }
       const url = new URL(req.url, `http://${req.headers.host ?? 'localhost'}`);
       const path = url.pathname;
 

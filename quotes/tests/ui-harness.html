@@ -353,14 +353,23 @@ function measure(win) {
   // ("a list that shows 5 fat rows has failed the shape"). Capacity, not count
   // — a fixture with 8 records cannot show 12, so this measures how many the
   // rail has ROOM for at the current row height.
+  //
+  // Same scoping as the check above, for the same reason: with a record open
+  // at 390 the rail is display:none BY DESIGN, its rows measure 0px, and the
+  // division produced a FAIL reading "NaN rows · 0px each" — an instrument
+  // reporting a defect in a layout rule that is working.
   if (rail && rails.length) {
     const rowH = rails[0].getBoundingClientRect().height;
-    const head = doc.querySelector('.rail-head');
-    const count = doc.querySelector('.rail-count');
-    const chrome = (head?.getBoundingClientRect().height ?? 0) + (count?.getBoundingClientRect().height ?? 0);
-    const capacity = Math.floor((rail.getBoundingClientRect().height - chrome) / rowH);
-    out.push(row('Rail capacity ≥12 rows', capacity >= 12 ? 'PASS' : 'FAIL',
-      `${capacity} rows · ${Math.round(rowH)}px each`));
+    if (rowH === 0) {
+      out.push(row('Rail capacity ≥12 rows', 'PASS', 'n/a — rail collapsed (record open)'));
+    } else {
+      const head = doc.querySelector('.rail-head');
+      const count = doc.querySelector('.rail-count');
+      const chrome = (head?.getBoundingClientRect().height ?? 0) + (count?.getBoundingClientRect().height ?? 0);
+      const capacity = Math.floor((rail.getBoundingClientRect().height - chrome) / rowH);
+      out.push(row('Rail capacity ≥12 rows', capacity >= 12 ? 'PASS' : 'FAIL',
+        `${capacity} rows · ${Math.round(rowH)}px each`));
+    }
   }
   // Ledger: 25+ rows at 1440×900, row height 32–40px, cell padding under 24px.
   // `table.list`, not every tbody: the quotation detail also carries a .totals

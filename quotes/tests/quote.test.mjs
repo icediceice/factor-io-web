@@ -248,6 +248,79 @@ describe('migrations', () => {
   test('migrating an already-current database is a no-op', () => {
     const db = openDb(':memory:');
     migrate(db);
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 4);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 5);
+  });
+
+  // -------------------------------------------------------------------------
+  // Migration 5 rebuilds THREE tables to drop a CHECK. The risk is not that it
+  // fails loudly — migrate() would roll back — but that it succeeds while
+  // quietly losing a row, a foreign key, a created_at or an index.
+  // -------------------------------------------------------------------------
+  test('migration 5 opens the kind vocabulary without losing data', () => {
+    const db = new DatabaseSync(':memory:');
+    db.exec('PRAGMA foreign_keys = ON;');
+    for (const m of MIGRATIONS.filter((m) => m.version <= 4)) {
+      db.exec(m.sql);
+      db.exec(`PRAGMA user_version = ${m.version};`);
+    }
+
+    db.prepare(`INSERT INTO clients (name) VALUES ('Acme')`).run();
+    db.prepare(`INSERT INTO catalog_items (kind, sku, name_en, unit, unit_satang)
+                VALUES ('hardware', 'NX-3170', 'Node', 'unit', 89000000)`).run();
+    db.prepare(`INSERT INTO quotations (number, client_id, status) VALUES ('QT-A', 1, 'accepted')`).run();
+    db.prepare(`INSERT INTO quotation_lines
+                  (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, discount_satang, catalog_id)
+                VALUES (1, 1, 'hardware', 'Node', 3000, 'unit', 89000000, 500000, 1)`).run();
+    db.prepare(`INSERT INTO invoices (number, quotation_id, client_id, status, issue_date, net_satang)
+                VALUES ('INV-A', 1, 1, 'issued', '2026-09-17', 26700000)`).run();
+    db.prepare(`INSERT INTO invoice_lines
+                  (invoice_id, position, kind, description_en, qty_milli, unit, unit_satang, discount_satang)
+                VALUES (1, 1, 'hardware', 'Node', 3000, 'unit', 89000000, 500000)`).run();
+    const createdAtBefore = db.prepare('SELECT created_at FROM quotation_lines WHERE id = 1').get().created_at;
+
+    migrate(db);
+
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 5);
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check;').all(), []);
+
+    const line = db.prepare('SELECT * FROM quotation_lines WHERE id = 1').get();
+    assert.equal(line.unit_satang, 89000000);
+    assert.equal(line.discount_satang, 500000);
+    // The FK that pointed at the table we dropped and recreated.
+    assert.equal(line.catalog_id, 1);
+    // A rebuild that let the column default fire would stamp 'now' instead.
+    assert.equal(line.created_at, createdAtBefore);
+    // New columns arrive with the defaults that preserve existing behaviour.
+    assert.equal(line.billing_period, 'once');
+    assert.equal(line.section, '');
+    assert.equal(line.optional, 0);
+    assert.equal(db.prepare('SELECT term_months FROM quotations WHERE id = 1').get().term_months, 0);
+
+    // An invoice line is never optional, so that column must NOT exist.
+    const invLine = db.prepare('SELECT * FROM invoice_lines WHERE id = 1').get();
+    assert.ok(!('optional' in invLine), 'invoice_lines must not carry an optional column');
+    assert.equal(invLine.billing_period, 'once');
+
+    // Indexes are dropped with their table — prove both were recreated.
+    const idx = db.prepare(
+      `SELECT name FROM sqlite_master WHERE type='index' AND name IN ('idx_lines_quotation','idx_invoice_lines')`
+    ).all();
+    assert.equal(idx.length, 2);
+
+    // THE POINT OF THE WHOLE MIGRATION: a kind that was previously impossible.
+    db.prepare(`INSERT INTO quotation_lines
+                  (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, billing_period, section)
+                VALUES (1, 2, 'software', 'NCI Ultimate', 3000, 'node', 5400000, 'yearly', 'Software')`).run();
+    assert.equal(db.prepare(`SELECT kind FROM quotation_lines WHERE position = 2`).get().kind, 'software');
+
+    // billing_period stays CLOSED on purpose — the totals math branches on it.
+    assert.throws(() => db.prepare(`INSERT INTO quotation_lines
+                  (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, billing_period)
+                VALUES (1, 3, 'software', 'Bad', 1000, 'unit', 100, 'fortnightly')`).run());
+
+    // The vocabulary itself is a settings row, not code.
+    const kinds = JSON.parse(getSettings(db, '')['line.kinds']);
+    assert.ok(Array.isArray(kinds) && kinds.length >= 9);
+    assert.ok(kinds.some((k) => k.code === 'software' && k.th === 'ซอฟต์แวร์'));
   });
 });

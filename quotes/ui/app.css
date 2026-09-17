@@ -224,7 +224,7 @@ button.danger,.button.danger{background:transparent;color:var(--danger);border-c
 button.danger:hover,.button.danger:hover{background:var(--danger);color:var(--white);border-color:var(--danger)}
 button.danger-solid,.button.danger-solid{background:var(--danger);color:var(--white);border-color:var(--danger)}
 button.danger-solid:hover,.button.danger-solid:hover{background:var(--ink);border-color:var(--ink)}
-button.sm,.button.sm{min-height:36px;padding:var(--s1) 10px;font-size:13px}
+button.sm,.button.sm{min-height:36px;padding:var(--s1) var(--s3);font-size:var(--t-md)}
 .row-actions{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;margin-top:var(--s4)}
 .row-actions.tight{margin-top:0}
 .toolbar{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:var(--s4)}

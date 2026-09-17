@@ -102,13 +102,15 @@ function renderLines() {
   linesCard.innerHTML = `
     <h2>Lines <span class="muted" style="font-weight:400;font-size:13px">snapshotted from the quotation</span></h2>
     <table class="list"><thead><tr>
-      <th>#</th><th>Description</th><th>Type</th><th class="num">Qty</th><th>Unit</th>
+      <th>#</th><th>Description</th><th>Type</th><th>Billing</th><th>Section</th><th class="num">Qty</th><th>Unit</th>
       <th class="num">Unit price</th><th class="num">Discount</th><th class="num">Amount</th>
     </tr></thead><tbody>
       ${lines.map((l) => `<tr>
         <td class="mono muted">${l.position}</td>
         <td>${esc(l.descriptionEn)}${l.descriptionTh ? `<br><span class="muted">${esc(l.descriptionTh)}</span>` : ''}</td>
-        <td class="muted">${esc(l.kind)}</td>
+        <td class="muted">${esc(kindLabel(l.kind))}</td>
+        <td class="muted">${esc(periodLabel(l.billingPeriod))}</td>
+        <td class="muted">${esc(l.section) || '—'}</td>
         <td class="num">${l.qty}</td>
         <td class="muted">${esc(l.unit)}</td>
         <td class="num">${fmtSatang(l.unitSatang, cur)}</td>

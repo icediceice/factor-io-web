@@ -532,6 +532,11 @@ export function createApi(db) {
           lang: optStr(body, 'lang', { max: 2 }),
           issueDate: optStr(body, 'issue_date', { max: 10 }),
           notes: optStr(body, 'notes'),
+          // Optional lines are omitted by default; name the ids of the options
+          // the customer actually took to bill them.
+          includeOptionalLineIds: Array.isArray(body.include_optional_line_ids)
+            ? body.include_optional_line_ids.map(Number).filter(Number.isInteger)
+            : [],
         });
       } catch (e) { throw bad(e.message); }
       return json(201, invEnvelope(buildInvoiceDocument(db, created.id)));

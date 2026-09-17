@@ -154,7 +154,12 @@ tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:13.5px;pad
 /* ----------------------------------------------------------------- forms -- */
 label{display:block;font-size:13px;font-weight:600;margin-bottom:var(--s3)}
 label.inline{display:inline-flex;align-items:center;gap:var(--s2);font-weight:400;margin:0;min-height:44px}
+/* The LABEL carries the 44px hit area (2.5.8 is satisfied by clicking the
+   text), but a native 13px checkbox is still a 13px thing to aim at and to
+   see. Size the control itself; accent-color keeps the checked state on the
+   system accent without painting a custom control. */
 label.inline input{width:auto;min-height:0;margin:0}
+label.inline input[type=checkbox],label.inline input[type=radio]{width:18px;height:18px;accent-color:var(--accent)}
 /* Control boundaries use --muted (6.8:1), never --line (1.7:1) — WCAG 1.4.11
    wants 3:1 on the edge of anything you can operate. */
 input,select,textarea{display:block;width:100%;min-height:44px;margin-top:var(--s1);background:var(--white);color:var(--ink);border:1px solid var(--muted);border-radius:var(--r-input);padding:var(--s2) 10px;font:14px/1.5 var(--font)}

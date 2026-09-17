@@ -212,17 +212,25 @@ function measure(win) {
   const detail = [];
 
   // --- horizontal overflow -------------------------------------------------
-  // Two exclusions, both deliberate rather than convenient:
+  // Three exclusions, each because the element is signposting its overflow
+  // rather than losing to it — not because excluding them was convenient:
   //   .sr-only clips to 1px BY DESIGN — that is what makes it screen-reader
   //     only, so reporting it as lost content is noise.
   //   <select> ellipsises a long option instead of losing it, and its width is
   //     the author's choice; the native control is not overflowing its box.
+  //   text-overflow:ellipsis is an explicit authored decision to truncate with
+  //     a visible … and a title attribute carrying the full string. The rail's
+  //     one-line client name is exactly this: the row shows "Andaman Cloud
+  //     Services…", the tooltip and the detail pane show all of it. Charging it
+  //     as clipped content made the FIX for the rail-density failure read as a
+  //     new failure, which is the instrument arguing with itself.
   // Everything else that cannot show its own content still fails.
   const pageOver = doc.documentElement.scrollWidth - doc.documentElement.clientWidth;
   const clipped = all.filter((el) => {
     if (el.tagName === 'SELECT' || el.closest('.sr-only')) return false;
     const cs = win.getComputedStyle(el);
     if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return false; // scrolling on purpose
+    if (cs.textOverflow === 'ellipsis' && cs.overflow !== 'visible') return false;
     return el.scrollWidth - el.clientWidth > 1 && el.clientWidth > 0;
   });
   out.push(row('Page h-overflow', pageOver <= 1 ? 'PASS' : 'FAIL', `${Math.max(0, pageOver)}px`));

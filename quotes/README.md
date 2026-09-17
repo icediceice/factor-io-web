@@ -103,8 +103,47 @@ ingress would require a new reviewed deployment design; none are shipped here.
 
 Every command accepts `--json` for the raw API envelope. Money crosses the
 boundary as decimal STRINGS; quantities as decimal strings ("0.5" = half a
-day). Issued quotations are frozen — corrections mean a new draft or a
-superseding quote.
+day).
+
+## Correcting a quotation that has already gone out
+
+Information is sometimes wrong only once the document is in front of someone.
+An issued quotation is therefore **correctable in place**: it keeps its number,
+and each issue writes the next revision.
+
+    node quotes/cli.mjs show 1             # revision: 1
+    node quotes/cli.mjs line-rm 1 3        # fix whatever was wrong
+    node quotes/cli.mjs show 1             # revision: 1  EDITED SINCE ...
+    node quotes/cli.mjs issue 1            # re-issued QT-...: revision 2
+    node quotes/cli.mjs revisions 1        # the audit trail
+
+The rules, all enforced server-side in `lib/quote.mjs:editRefusal`:
+
+- **Editable while `draft`, `issued` or `proposed`.** From `accepted` onwards
+  the quotation is what an invoice is raised from, so every edit route refuses
+  with a reason naming that status. `declined`, `superseded` and `cancelled`
+  refuse too.
+- **Editing does not change the status.** A correction is not a new sales
+  stage, and `proposed` has no transition back to `issued` — so re-issuing a
+  proposed quotation snapshots it *without* moving it.
+- **An edited quotation is stale until it is re-issued**, and while it is stale
+  its **PDF is refused with 409**. A revision number printed on a document
+  nobody can reproduce is worse than no revision number. `revisionStale` on the
+  quotation envelope is what the UI banner, the CLI and that guard all read.
+- **Drift means what the operator wrote** — lines, client, dates, notes, term,
+  FX. A settings change (a VAT rate, the company address) moves the totals but
+  is deliberately NOT drift: counting it would strand every open quotation
+  behind a re-issue. The cost is that a rate changed after issue is not
+  flagged.
+- **The number never moves.** The revision list (`GET
+  /quotations/:id/revisions`, `quotes revisions <id>`, and the Revisions card
+  in the UI) is the audit trail: each row is rev, timestamp and actor, and each
+  stored snapshot is stamped with its own revision number.
+- Revision 2 and up prints beside the number on the PDF — `Rev. 2` in English,
+  `ฉบับแก้ไขครั้งที่ 2` in Thai.
+
+A superseding quotation with a NEW number is still the right move when the
+scope itself changed; revising is for correcting the same offer.
 
 ## Proposing anything: line types, billing periods, sections and options
 

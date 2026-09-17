@@ -134,8 +134,14 @@ export const MIGRATIONS = [
     // operator edits via the settings screen/API — none lives in code.
     sql: `
       INSERT INTO settings (key, value, updated_by) VALUES
-        ('company.name',      'Factor I/O Co., Ltd.', 'seed'),
-        ('company.name_th',   'แฟคเตอร์ ไอ/โอ จำกัด', 'seed'),
+        -- The LEGAL name, not the brand. site/config.mjs:4 is the authority for
+        -- the English ('Factor I O Co., Ltd.'); the Thai is the registered name
+        -- as given by the operator. It differs from the old seed by a CONSONANT
+        -- (แฟคเคอร์, not แฟคเตอร์) as well as the slash — do not normalise it
+        -- back. Revenue Code s.86/4 makes this a mandatory particular of every
+        -- tax invoice, so it is a compliance value, not a label.
+        ('company.name',      'Factor I O Co., Ltd.', 'seed'),
+        ('company.name_th',   'แฟคเคอร์ ไอ โอ จำกัด', 'seed'),
         ('company.address',   '', 'seed'),
         ('company.address_th','', 'seed'),
         ('company.tax_id',    '', 'seed'),

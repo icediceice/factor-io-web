@@ -341,7 +341,7 @@ export function renderQuotationHtml(doc, lang = 'en') {
     <tr><td class="lbl">${esc(vatLabel)}</td><td class="num">${money(totals.vatSatang)}</td></tr>
     <tr class="grand"><td class="lbl">${esc(t.grand)}</td><td class="num">${money(totals.grandSatang)}</td></tr>
     ${totals.whtSatang ? `<tr${totals.whtMode === 'deduct' ? '' : ' class="memo"'}><td class="lbl">${esc(whtLabel)} ${esc(totals.whtRate)}%</td><td class="num">${totals.whtMode === 'deduct' ? '−' : ''}${money(totals.whtSatang)}</td></tr>` : ''}
-    <tr class="payable"><td class="lbl">${esc(t.payable)}</td><td class="num">${money(totals.payableSatang)}</td></tr>${fxRow}
+    <tr class="payable"><td class="lbl">${esc(t.payable)}</td><td class="num">${money(totals.payableSatang)}</td></tr>${fxRow}${contractRow}${optionRow}
   </table>
 
   <div class="blocks">

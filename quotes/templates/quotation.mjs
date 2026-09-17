@@ -6,6 +6,7 @@
 // Nothing here names a company, a rate, or a currency. lang: 'en' | 'th'.
 
 import { formatMoney, formatEnDate, formatThaiDate } from '../lib/money.mjs';
+import { PERIOD_LABELS, PERIOD_LABELS_LONG } from '../lib/kinds.mjs';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

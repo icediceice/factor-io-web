@@ -136,7 +136,7 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
    filtering stays put while the records move under it. */
 .rail-head{padding:var(--s3);border-bottom:1px solid var(--line);background:var(--white);display:grid;gap:var(--s2);position:sticky;top:0;z-index:2}
 .rail-head input[type=search],.rail-head select{min-height:40px;margin:0}
-.rail-count{font:var(--t-xs) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:var(--s2)}
+.rail-count{font:var(--t-sm) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:var(--s2)}
 .rail-foot{padding:var(--s3);border-top:1px solid var(--line)}
 .filters{display:flex;gap:var(--s2);flex-wrap:wrap}
 .filters label{margin:0;flex:1 1 120px;min-width:0}
@@ -148,11 +148,11 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 .wb-detail .card:last-child{border-bottom:0;padding-bottom:0}
 .card h2{font-size:var(--t-lg);margin:0 0 var(--s3);font-weight:600;display:flex;gap:var(--s2);align-items:baseline;flex-wrap:wrap}
 .card h2 .muted{font-weight:400;font-size:var(--t-md)}
-.section-label{font:var(--t-xs) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
+.section-label{font:var(--t-sm) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
 
 /* ---------------------------------------------------------------- tables -- */
 table.list{width:100%;border-collapse:collapse;font-size:var(--t-base)}
-table.list th{font:var(--t-xs)/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:2px solid var(--ink);padding:var(--s2) var(--s3);white-space:nowrap}
+table.list th{font:var(--t-sm)/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:left;color:var(--muted);border-bottom:2px solid var(--ink);padding:var(--s2) var(--s3);white-space:nowrap}
 table.list td{border-bottom:1px solid var(--line);padding:var(--s2) var(--s3);vertical-align:top}
 table.list td.num,table.list th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 table.list tbody tr:hover td{background:var(--tint)}
@@ -171,7 +171,7 @@ tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:var(--t-md
 /* --------------------------------------------------------------- statuses -- */
 /* Colour AND border style, never colour alone. Pipeline states are dashed
    (provisional); money-bearing states are solid or filled. */
-.status{display:inline-block;padding:var(--s1) var(--s2);border:1px solid var(--line);font:var(--t-xs) var(--mono);white-space:nowrap;border-radius:var(--r-btn)}
+.status{display:inline-block;padding:var(--s1) var(--s2);border:1px solid var(--line);font:var(--t-sm) var(--mono);white-space:nowrap;border-radius:var(--r-btn)}
 .status-draft{color:var(--muted);border-style:dotted}
 .status-issued{border-color:var(--accent);color:var(--accent);background:var(--tint)}
 .status-proposed{color:var(--ink);border-color:var(--ink);border-style:dashed}
@@ -184,7 +184,7 @@ tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:var(--t-md
 .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(192px,1fr));gap:var(--s4)}
 .stat{border:1px solid var(--line);padding:var(--s3) var(--s4);background:var(--white)}
 .stat.lead{border-color:var(--accent);border-width:2px}
-.stat .label{font:var(--t-xs)/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat .label{font:var(--t-sm)/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .stat .value{font-family:var(--mono);font-size:var(--t-2xl);font-weight:700;letter-spacing:-.02em;margin-top:var(--s1);font-variant-numeric:tabular-nums}
 .stat .note{font-size:var(--t-sm);color:var(--muted);margin-top:var(--s1)}
 
@@ -198,7 +198,7 @@ tr.editing input,tr.editing select{min-height:36px;margin:0;font-size:var(--t-md
 .posbar .stat.lead{border-left:3px solid var(--accent)}
 .posbar .stat .label{flex:1 1 100%}
 .posbar .stat .value{font-size:var(--t-xl);margin-top:0}
-.posbar .stat .note{margin-top:0;font-size:var(--t-xs)}
+.posbar .stat .note{margin-top:0;font-size:var(--t-sm)}
 
 /* ----------------------------------------------------------------- forms -- */
 label{display:block;font-size:var(--t-md);font-weight:600;margin-bottom:var(--s3)}
@@ -221,7 +221,7 @@ input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{b
 .hint{display:block;font-size:var(--t-sm);color:var(--muted);font-weight:400;margin-top:var(--s1)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(208px,1fr));gap:0 var(--s4)}
 fieldset{border:1px solid var(--line);padding:var(--s4) var(--s4) var(--s1);margin:0 0 var(--s5);min-width:0}
-legend{font:var(--t-xs) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:0 var(--s1)}
+legend{font:var(--t-sm) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:0 var(--s1)}
 
 /* --------------------------------------------------------------- buttons -- */
 button,.button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);padding:var(--s2) var(--s4);background:var(--accent);color:var(--white);border:1px solid var(--accent);border-radius:var(--r-btn);font-size:var(--t-base);font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}

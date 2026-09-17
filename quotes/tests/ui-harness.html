@@ -363,7 +363,11 @@ function measure(win) {
       `${capacity} rows · ${Math.round(rowH)}px each`));
   }
   // Ledger: 25+ rows at 1440×900, row height 32–40px, cell padding under 24px.
-  const bodyRows = [...doc.querySelectorAll('tbody tr')].filter((r) => visible(r, win));
+  // `table.list`, not every tbody: the quotation detail also carries a .totals
+  // table, whose seven 30px summary rows outnumbered the line items and pulled
+  // the median under the floor. A totals block is a summary, not a ledger, and
+  // measuring it as one made a correct screen look like a density failure.
+  const bodyRows = [...doc.querySelectorAll('table.list tbody tr')].filter((r) => visible(r, win));
   if (bodyRows.length) {
     const hs = bodyRows.map((r) => r.getBoundingClientRect().height).sort((a, b) => a - b);
     const med = hs[Math.floor(hs.length / 2)];

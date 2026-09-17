@@ -10,18 +10,40 @@
 <script type="module">
 import { api, fmtSatang, el, toast, renderShell } from './app.js';
 
-const main = renderShell('catalog.html', 'Catalog', 'Reusable service and hardware items. Prices seed new quotation lines; every value stays editable per quote.');
+// Same contract as the quotation form: the type list is operator-editable via
+// the line.kinds setting, so it is fetched rather than hardcoded, and it falls
+// back to the original pair if /line-kinds cannot be reached.
+const FALLBACK_KINDS = [{ code: 'service', en: 'Service' }, { code: 'hardware', en: 'Hardware' }];
+const FALLBACK_PERIODS = [
+  { code: 'once', en: 'One-time' }, { code: 'monthly', en: 'Monthly' },
+  { code: 'quarterly', en: 'Quarterly' }, { code: 'yearly', en: 'Yearly' },
+];
+const vocab = { kinds: FALLBACK_KINDS, billingPeriods: FALLBACK_PERIODS };
+try {
+  const v = await api('GET', '/line-kinds');
+  if (Array.isArray(v.kinds) && v.kinds.length) vocab.kinds = v.kinds;
+  if (Array.isArray(v.billing_periods) && v.billing_periods.length) vocab.billingPeriods = v.billing_periods;
+} catch { toast('Using the built-in type list — /line-kinds is unavailable', 'error'); }
+
+const opts = (list) => list.map((k) => `<option value="${k.code}">${k.en ?? k.code}</option>`).join('');
+const kindLabel = (code) => vocab.kinds.find((k) => k.code === code)?.en ?? code;
+
+const main = renderShell('catalog.html', 'Catalog', 'Reusable items of any type — services, hardware, software, licences, support. Prices and billing periods seed new quotation lines; every value stays editable per quote.');
 
 const listCard = el('<section class="card"><h2>Items</h2><div id="list"><div class="empty">Loading…</div></div></section>');
 const formCard = el(`<section class="card"><h2>New item</h2>
   <form id="new">
     <div class="grid">
       <label>Type
-        <select name="kind"><option value="service">Service</option><option value="hardware">Hardware</option></select>
+        <select name="kind">${opts(vocab.kinds)}</select>
+      </label>
+      <label>Billing
+        <select name="billing_period">${opts(vocab.billingPeriods)}</select>
       </label>
       <label>SKU <input name="sku"></label>
-      <label>Unit <input name="unit" placeholder="day"></label>
+      <label>Unit <input name="unit" placeholder="auto"></label>
       <label>Unit price (THB) <input name="unit_price" required placeholder="35000.00" inputmode="decimal"></label>
+      <label>Section <input name="section" placeholder="Hardware"></label>
     </div>
     <div class="grid">
       <label>Name (EN) <input name="name_en" required></label>
@@ -38,11 +60,13 @@ async function load() {
   const { items } = await api('GET', '/catalog');
   const box = listCard.querySelector('#list');
   box.innerHTML = items.length ? `<table class="list"><thead><tr>
-      <th>Item</th><th>Type</th><th>Unit</th><th class="num">Unit price</th><th>Status</th><th></th>
+      <th>Item</th><th>Type</th><th>Billing</th><th>Section</th><th>Unit</th><th class="num">Unit price</th><th>Status</th><th></th>
     </tr></thead><tbody>
     ${items.map((i) => `<tr>
       <td><strong>${i.name_en}</strong>${i.name_th ? `<br><span class="muted">${i.name_th}</span>` : ''}${i.sku ? ` <span class="mono muted">${i.sku}</span>` : ''}</td>
-      <td>${i.kind}</td>
+      <td>${kindLabel(i.kind)}</td>
+      <td>${i.billing_period && i.billing_period !== 'once' ? `/${i.billing_period.replace(/ly$/, '')}` : 'once'}</td>
+      <td>${i.section || '—'}</td>
       <td>${i.unit}</td>
       <td class="num">${fmtSatang(i.unit_satang)}</td>
       <td>${i.active ? 'active' : '<span class="muted">inactive</span>'}</td>
@@ -61,7 +85,11 @@ async function load() {
 
 formCard.querySelector('#new').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const body = Object.fromEntries(new FormData(e.target).entries());
+  // Empty strings are dropped so the server applies its own defaults — an
+  // empty unit becomes the one that suits the kind and period, not ''.
+  const body = Object.fromEntries(
+    [...new FormData(e.target).entries()].filter(([, v]) => String(v) !== '')
+  );
   try { await api('POST', '/catalog', body); toast('Item added'); e.target.reset(); load(); }
   catch (err) { toast(err.message, 'error'); }
 });

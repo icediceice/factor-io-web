@@ -37,10 +37,10 @@ export async function mount(main) {
 
   const listCard = el(`<section class="card">
     <div class="toolbar">
-      <h2 style="margin:0">Items</h2>
+      <h2>Items</h2>
       <div class="row-actions tight">
         <label class="inline"><input type="checkbox" data-toggle-inactive checked> Show inactive</label>
-        <input type="search" data-q placeholder="Search the catalog…" style="min-width:220px">
+        <input type="search" data-q class="grow" placeholder="Search the catalog…">
       </div>
     </div>
     <div data-list><div class="empty">Loading…</div></div>

@@ -239,6 +239,10 @@ export function buildQuoteDocument(db, quotationId) {
       bodyEn: settings['quote.terms_en'] ?? '',
       bodyTh: settings['quote.terms_th'] ?? '',
     },
+    // Resolved type labels travel WITH the document so a revision snapshot
+    // still renders its original vocabulary even if the operator later edits
+    // or removes a kind from the line.kinds setting.
+    kindLabels: labelMap(settings, str(q.lang) || 'en'),
     generatedAt: new Date().toISOString(),
   };
 }

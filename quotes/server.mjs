@@ -187,6 +187,19 @@ export function createApp(env = process.env, options = {}) {
   async function pdfRoute(res, quotationId, lang) {
     try {
       const doc = buildQuoteDocument(db, quotationId);
+      // A PDF the operator can hand a customer must correspond to a stored
+      // revision, or the revision number on it means nothing. Refused ONLY
+      // where re-issuing is possible: a draft has no snapshot to disagree
+      // with, and an accepted-or-later quotation can no longer be
+      // re-snapshotted, so refusing that one would strand any quotation that
+      // drifted while the line routes were still unguarded.
+      const q = doc.quotation;
+      if (q.revisionStale && (q.status === 'issued' || q.status === 'proposed')) {
+        return sendJson(res, 409, {
+          error: `this quotation has been edited since revision ${q.revision}`
+            + ' — re-issue it to record the correction as a new revision, then download the PDF',
+        });
+      }
       const { buffer, filename, chromium } = await renderQuotationPdf(doc, lang === 'th' ? 'th' : 'en');
       res.writeHead(200, {
         'content-type': 'application/pdf',

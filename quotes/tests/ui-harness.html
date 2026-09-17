@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quotes UI — measurement harness</title>
+<style>
+  :root {
+    --bg:#101214; --panel:#181b1e; --line:#2b3034; --ink:#e6e9ec; --dim:#9aa3ab;
+    --pass:#4fb477; --warn:#d69a2a; --fail:#e0664f; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:13px/1.5 system-ui,sans-serif; }
+  .note { background:#3a2c0c; color:#f3d98b; border-bottom:1px solid #5a4614;
+          padding:8px 14px; font-weight:600; position:sticky; top:0; z-index:5; }
+  .bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+         padding:10px 14px; border-bottom:1px solid var(--line); background:var(--panel); }
+  .bar label { color:var(--dim); }
+  select, button { font:inherit; background:#22272b; color:var(--ink);
+                   border:1px solid var(--line); border-radius:4px; padding:5px 9px; }
+  button { cursor:pointer; }
+  button[disabled] { opacity:.5; cursor:default; }
+  main { display:grid; grid-template-columns:minmax(0,1fr) 520px; gap:0; height:calc(100vh - 92px); }
+  .stage { overflow:auto; padding:14px; background:#0b0d0e; }
+  iframe { border:1px solid var(--line); background:#fff; display:block; }
+  .report { overflow:auto; border-left:1px solid var(--line); padding:14px; background:var(--panel); }
+  h2 { font-size:13px; margin:0 0 8px; letter-spacing:.04em; text-transform:uppercase; color:var(--dim); }
+  table { border-collapse:collapse; width:100%; font-family:var(--mono); font-size:12px; }
+  th, td { text-align:left; padding:3px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--dim); font-weight:600; }
+  td.n { text-align:right; font-variant-numeric:tabular-nums; }
+  .PASS { color:var(--pass); } .WARN { color:var(--warn); } .FAIL { color:var(--fail); }
+  .detail { color:var(--dim); font-family:var(--mono); font-size:11px;
+            white-space:pre-wrap; margin:4px 0 14px; }
+  .run { margin:0 0 10px; font-family:var(--mono); font-size:12px; color:var(--dim); }
+</style>
+</head>
+<body>
+
+<!-- Gate D: the label is ON SCREEN, because a screenshot carries no source. -->
+<div class="note" id="note">Fixture data — invented for UI measurement. Not real clients, quotations or tax figures.</div>
+
+<div class="bar">
+  <label for="screen">Screen</label>
+  <select id="screen"></select>
+  <label for="width">Width</label>
+  <select id="width">
+    <option value="390x844">390 × 844 — phone</option>
+    <option value="768x1024">768 × 1024 — tablet</option>
+    <option value="1440x900" selected>1440 × 900 — desktop</option>
+  </select>
+  <button id="measure">Measure this</button>
+  <button id="all">Measure all screens at this width</button>
+  <span id="status" class="run"></span>
+</div>
+
+<main>
+  <div class="stage"><iframe id="frame" title="screen under test"></iframe></div>
+  <div class="report" id="report"><h2>Report</h2><p class="detail">Pick a screen and press Measure.</p></div>
+</main>
+
+<script type="module">
+/* quotes/tests/ui-harness.html — renders each screen in a same-origin iframe at
+ * a fixed viewport size and MEASURES it in-page.
+ *
+ * It measures in-page rather than through the browser tool's eval because eval
+ * is not available in this environment; the numbers are therefore printed into
+ * the DOM so a screenshot of this page IS the measurement record.
+ *
+ * Thresholds, and where they come from:
+ *   contrast    WCAG 2.1 SC 1.4.3 — 4.5:1 body text, 3:1 for >=24px or >=18.66px bold
+ *   boundaries  WCAG 2.1 SC 1.4.11 — 3:1 for the edge of a control
+ *   targets     WCAG 2.2 SC 2.5.8 AA is 24x24 (FAIL below); .interface-design/
+ *               system.md asks for 44 (WARN between the two, not a failure)
+ *   overflow    content wider than its own clipping box, i.e. text the operator
+ *               cannot read at that width
+ */
+
+const SCREENS = [
+  { id: 'quotations', label: 'Quotations (list)', url: 'index.html' },
+  { id: 'quote', label: 'Quotation (detail)', url: 'quote.html', needs: 'quotation' },
+  { id: 'clients', label: 'Clients', url: 'clients.html' },
+  { id: 'catalog', label: 'Catalog', url: 'catalog.html' },
+  { id: 'invoices', label: 'Invoices (list)', url: 'invoices.html' },
+  { id: 'invoice', label: 'Invoice (detail)', url: 'invoice.html', needs: 'invoice' },
+  { id: 'reports', label: 'Reports', url: 'reports.html' },
+  { id: 'settings', label: 'Settings', url: 'settings.html' },
+];
+
+const $ = (s) => document.querySelector(s);
+const frame = $('#frame');
+const report = $('#report');
+const statusEl = $('#status');
+
+/* Resolve the ids the detail screens need from the live fixture, so the
+ * harness never hard-codes a row id that a fixture edit would invalidate. */
+const ids = {};
+{
+  const q = await (await fetch('/api/quotations')).json();
+  const i = await (await fetch('/api/invoices')).json();
+  ids.quotation = q.quotations?.[q.quotations.length - 1]?.id;
+  ids.invoice = i.invoices?.[0]?.id;
+}
+
+const sel = $('#screen');
+for (const s of SCREENS) {
+  const o = document.createElement('option');
+  o.value = s.id; o.textContent = s.label; sel.append(o);
+}
+
+const urlFor = (s) => (s.needs ? `${s.url}?id=${ids[s.needs]}` : s.url);
+
+/* ------------------------------------------------------------- loading -- */
+
+function loadScreen(s, w, h) {
+  return new Promise((resolve) => {
+    frame.style.width = `${w}px`;
+    frame.style.height = `${h}px`;
+    frame.onload = async () => {
+      const win = frame.contentWindow;
+      try { await win.document.fonts.ready; } catch { /* fonts API absent */ }
+      // The screens fetch their data after load. Settle until the DOM stops
+      // changing for 400ms, capped, rather than guessing a fixed delay.
+      await quiet(win.document, 400, 6000);
+      resolve(win);
+    };
+    frame.src = urlFor(s);
+  });
+}
+
+function quiet(doc, idleMs, capMs) {
+  return new Promise((resolve) => {
+    let timer = setTimeout(done, idleMs);
+    const cap = setTimeout(done, capMs);
+    const obs = new MutationObserver(() => {
+      clearTimeout(timer); timer = setTimeout(done, idleMs);
+    });
+    obs.observe(doc.documentElement, { childList: true, subtree: true, characterData: true });
+    function done() { clearTimeout(timer); clearTimeout(cap); obs.disconnect(); resolve(); }
+  });
+}
+
+/* ------------------------------------------------------------- colour -- */
+
+const rgb = (s) => {
+  const m = String(s).match(/-?[\d.]+/g);
+  return m ? { r: +m[0], g: +m[1], b: +m[2], a: m.length > 3 ? +m[3] : 1 } : null;
+};
+const lum = ({ r, g, b }) => {
+  const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+};
+const ratio = (a, b) => {
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+const over = (fg, bg) => ({            // flatten a translucent colour onto its backdrop
+  r: fg.r * fg.a + bg.r * (1 - fg.a),
+  g: fg.g * fg.a + bg.g * (1 - fg.a),
+  b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1,
+});
+
+function effectiveBg(el, win) {
+  let node = el;
+  let acc = null;
+  while (node && node.nodeType === 1) {
+    const c = rgb(win.getComputedStyle(node).backgroundColor);
+    if (c && c.a > 0) {
+      acc = acc ? over(acc, c) : c;
+      if (acc.a >= 1 || c.a >= 1) return acc.a >= 1 ? acc : over(acc, { r: 255, g: 255, b: 255, a: 1 });
+    }
+    node = node.parentElement;
+  }
+  return acc ? over(acc, { r: 255, g: 255, b: 255, a: 1 }) : { r: 255, g: 255, b: 255, a: 1 };
+}
+
+const visible = (el, win) => {
+  const cs = win.getComputedStyle(el);
+  if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+};
+
+/* ------------------------------------------------------------ measures -- */
+
+function measure(win) {
+  const doc = win.document;
+  const all = [...doc.body.querySelectorAll('*')].filter((el) => visible(el, win));
+  const out = [];
+  const detail = [];
+
+  // --- horizontal overflow -------------------------------------------------
+  const pageOver = doc.documentElement.scrollWidth - doc.documentElement.clientWidth;
+  const clipped = all.filter((el) => {
+    const cs = win.getComputedStyle(el);
+    if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return false; // scrolling on purpose
+    return el.scrollWidth - el.clientWidth > 1 && el.clientWidth > 0;
+  });
+  out.push(row('Page h-overflow', pageOver <= 1 ? 'PASS' : 'FAIL', `${Math.max(0, pageOver)}px`));
+  out.push(row('Clipped elements', clipped.length === 0 ? 'PASS' : 'FAIL', clipped.length));
+  if (clipped.length) detail.push('clipped: ' + clipped.slice(0, 6).map(sig).join('  |  '));
+
+  // --- text contrast -------------------------------------------------------
+  const texts = all.filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  let worst = { r: 99, el: null };
+  const lowText = [];
+  for (const el of texts) {
+    const cs = win.getComputedStyle(el);
+    const fg = rgb(cs.color); if (!fg) continue;
+    const bg = effectiveBg(el, win);
+    const r = ratio(fg.a < 1 ? over(fg, bg) : fg, bg);
+    const size = parseFloat(cs.fontSize);
+    const bold = (parseInt(cs.fontWeight, 10) || 400) >= 700;
+    const need = size >= 24 || (bold && size >= 18.66) ? 3 : 4.5;
+    if (r < worst.r) worst = { r, el };
+    if (r < need) lowText.push({ el, r, need });
+  }
+  out.push(row('Text contrast', lowText.length === 0 ? 'PASS' : 'FAIL',
+    `${lowText.length} under · worst ${worst.r.toFixed(2)}:1`));
+  if (lowText.length) {
+    detail.push('low contrast: ' + lowText.slice(0, 6)
+      .map((x) => `${sig(x.el)} ${x.r.toFixed(2)}<${x.need}`).join('  |  '));
+  }
+
+  // --- control boundaries, WCAG 1.4.11 ------------------------------------
+  const controls = all.filter((el) => /^(BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName));
+  const lowEdge = [];
+  for (const el of controls) {
+    const cs = win.getComputedStyle(el);
+    const bw = parseFloat(cs.borderTopWidth) || 0;
+    const bc = rgb(cs.borderTopColor);
+    if (!bw || !bc || bc.a === 0) continue;                 // no drawn edge to judge
+    const bg = effectiveBg(el.parentElement ?? el, win);
+    const r = ratio(bc.a < 1 ? over(bc, bg) : bc, bg);
+    if (r < 3) lowEdge.push({ el, r });
+  }
+  out.push(row('Control edges ≥3:1', lowEdge.length === 0 ? 'PASS' : 'FAIL',
+    `${lowEdge.length} of ${controls.length} under`));
+  if (lowEdge.length) {
+    detail.push('weak edges: ' + lowEdge.slice(0, 6).map((x) => `${sig(x.el)} ${x.r.toFixed(2)}`).join('  |  '));
+  }
+
+  // --- tap targets ---------------------------------------------------------
+  const targets = all.filter((el) =>
+    /^(A|BUTTON|SELECT|TEXTAREA)$/.test(el.tagName) ||
+    (el.tagName === 'INPUT' && !/^(hidden)$/.test(el.type)));
+  let belowAA = 0; let belowSystem = 0; let smallest = Infinity; let smallestEl = null;
+  for (const el of targets) {
+    const r = el.getBoundingClientRect();
+    const m = Math.min(r.width, r.height);
+    if (m < smallest) { smallest = m; smallestEl = el; }
+    if (m < 24) belowAA++; else if (m < 44) belowSystem++;
+  }
+  out.push(row('Targets ≥24px (AA)', belowAA === 0 ? 'PASS' : 'FAIL',
+    `${belowAA} under · min ${targets.length ? smallest.toFixed(0) : '—'}px`));
+  out.push(row('Targets ≥44px (system)', belowSystem === 0 ? 'PASS' : 'WARN', `${belowSystem} between 24 and 44`));
+  if (smallestEl && smallest < 44) detail.push('smallest target: ' + sig(smallestEl));
+
+  // --- type scale ----------------------------------------------------------
+  const sizes = [...new Set(texts.map((el) => Math.round(parseFloat(win.getComputedStyle(el).fontSize))))]
+    .filter(Boolean).sort((a, b) => a - b);
+  const spread = sizes.length ? sizes[sizes.length - 1] / sizes[0] : 1;
+  out.push(row('Type scale spread', spread >= 1.4 ? 'PASS' : 'FAIL', `${spread.toFixed(2)}× (${sizes.join('/')})`));
+  const tiny = texts.filter((el) => parseFloat(win.getComputedStyle(el).fontSize) < 12).length;
+  out.push(row('Text ≥12px', tiny === 0 ? 'PASS' : 'WARN', `${tiny} under`));
+
+  // --- density -------------------------------------------------------------
+  const rails = doc.querySelectorAll('.rail-item').length;
+  const rows = doc.querySelectorAll('tbody tr').length;
+  out.push(row('Rows rendered', (rails + rows) > 0 ? 'PASS' : 'WARN', `${rails} rail · ${rows} table`));
+
+  // --- honest empties ------------------------------------------------------
+  const err = [...doc.querySelectorAll('.error, .banner')].filter((el) => visible(el, win));
+  out.push(row('Error banners', err.length === 0 ? 'PASS' : 'WARN', err.length));
+  if (err.length) detail.push('banners: ' + err.slice(0, 3).map((e) => e.textContent.trim().slice(0, 90)).join(' | '));
+
+  return { out, detail };
+}
+
+const sig = (el) => {
+  const cls = (el.className && typeof el.className === 'string')
+    ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '';
+  const t = (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 22);
+  return `${el.tagName.toLowerCase()}${cls}${t ? `["${t}"]` : ''}`;
+};
+const row = (name, verdict, value) => ({ name, verdict, value });
+
+/* -------------------------------------------------------------- render -- */
+
+function render(blocks) {
+  report.innerHTML = '<h2>Report</h2>';
+  for (const b of blocks) {
+    const h = document.createElement('p');
+    h.className = 'run';
+    const fails = b.out.filter((r) => r.verdict === 'FAIL').length;
+    const warns = b.out.filter((r) => r.verdict === 'WARN').length;
+    h.textContent = `${b.title}  —  ${fails} fail, ${warns} warn`;
+    report.append(h);
+
+    const t = document.createElement('table');
+    t.innerHTML = '<tr><th>check</th><th>verdict</th><th>value</th></tr>' + b.out.map((r) =>
+      `<tr><td>${r.name}</td><td class="${r.verdict}">${r.verdict}</td><td class="n">${r.value}</td></tr>`).join('');
+    report.append(t);
+
+    if (b.detail.length) {
+      const d = document.createElement('p');
+      d.className = 'detail';
+      d.textContent = b.detail.join('\n');
+      report.append(d);
+    }
+  }
+}
+
+async function run(list) {
+  const [w, h] = $('#width').value.split('x').map(Number);
+  const blocks = [];
+  for (const s of list) {
+    statusEl.textContent = `measuring ${s.label} at ${w}×${h} …`;
+    const win = await loadScreen(s, w, h);
+    const m = measure(win);
+    blocks.push({ title: `${s.label} · ${w}×${h}`, ...m });
+    render(blocks);
+  }
+  statusEl.textContent = `done · ${list.length} screen(s) at ${w}×${h}`;
+}
+
+$('#measure').onclick = () => run([SCREENS.find((s) => s.id === sel.value)]);
+$('#all').onclick = () => run(SCREENS);
+sel.onchange = () => { const s = SCREENS.find((x) => x.id === sel.value); const [w, h] = $('#width').value.split('x').map(Number); loadScreen(s, w, h); };
+$('#width').onchange = () => sel.onchange();
+
+sel.onchange();
+</script>
+</body>
+</html>

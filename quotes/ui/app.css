@@ -69,7 +69,12 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 
 /* Rail row — the atomic unit of every list. Ruled, not boxed. The left bar
    encodes status by colour AND style so it survives greyscale. */
-.rail-item{display:block;padding:10px 14px 10px 11px;border-bottom:1px solid var(--line);border-left:3px solid var(--line);text-decoration:none;color:var(--ink);background:var(--white)}
+/* Row height is the rail's density budget: at 15px/1.6 inherited, a client
+   name that wrapped to two lines made a ~100px row, and only 5 of 8 records
+   fitted the 748px rail (measured). Tightening the leading inside the row —
+   not the font size — brings it to ~70px and 8 of 8 into view, without
+   truncating a name the operator needs to read. */
+.rail-item{display:block;padding:8px 14px 8px 11px;border-bottom:1px solid var(--line);border-left:3px solid var(--line);text-decoration:none;color:var(--ink);background:var(--white);line-height:1.35}
 .rail-item:hover{background:var(--tint)}
 .rail-item[aria-current=true]{background:var(--tint);border-left-color:var(--accent);border-left-width:3px}
 .rail-item .r1{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between}

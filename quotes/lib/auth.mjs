@@ -92,19 +92,24 @@ export function readProductionEnv(env = process.env) {
   const agentToken = env.QUOTES_AGENT_TOKEN ?? '';
   const publicUrl = (env.QUOTES_PUBLIC_URL ?? '').replace(/\/+$/, '');
   const list = allowlistFromEnv(env);
-  return { mode, secret, clientId, clientSecret, agentToken, publicUrl, list };
+  const hosts = (env.QUOTES_ALLOWED_HOSTS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return { mode, secret, clientId, clientSecret, agentToken, publicUrl, list, hosts };
 }
 
 /** Boot gate: in production the app must refuse to start half-configured
  *  rather than silently falling through to a dev sentinel. */
 export async function assertProductionConfig(env = process.env, options = {}) {
   if (env.NODE_ENV !== 'production') return;
-  const { mode, secret, clientId, clientSecret, publicUrl, list } = readProductionEnv(env);
+  const { mode, secret, clientId, clientSecret, publicUrl, list, hosts } = readProductionEnv(env);
   const missing = [];
   if (mode !== 'tailscale' && mode !== 'oauth') {
     missing.push('QUOTES_AUTH_MODE (tailscale or oauth)');
   } else if (mode === 'tailscale') {
     if (list.length === 0) missing.push('QUOTES_ALLOWED_EMAILS');
+    if (hosts.length === 0) missing.push('QUOTES_ALLOWED_HOSTS');
     if (missing.length === 0 && !await (options.whoisAvailableImpl ?? whoisAvailable)()) {
       missing.push('working Tailscale whois');
     }

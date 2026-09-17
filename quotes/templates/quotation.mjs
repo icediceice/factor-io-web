@@ -209,6 +209,15 @@ export function renderQuotationHtml(doc, lang = 'en') {
   const contractRow = totals.contractTotalSatang != null ? `
       <tr class="contract"><td class="lbl">${esc(t.contract)} (${esc(totals.termMonths)} ${esc(t.months)})</td><td class="num">${money(totals.contractTotalSatang)}</td></tr>` : '';
 
+  // Revision 1 prints NOTHING. A first issue is not "Rev. 1" to a customer,
+  // and printing it on every quotation would change the look of every document
+  // already sent. From 2 onward it is the only way the customer can tell two
+  // documents bearing the SAME number apart — which is the trade that revising
+  // in place accepts, so this marking is what makes it honest.
+  const revisionNote = Number(q.revision) >= 2
+    ? ` <span class="rev">${esc(t.revision)} ${esc(q.revision)}</span>`
+    : '';
+
   const optionRow = totals.optionalSatang ? `
       <tr class="memo opts"><td class="lbl">${esc(t.optionsTotal)}</td><td class="num">${money(totals.optionalSatang)}</td></tr>` : '';
 

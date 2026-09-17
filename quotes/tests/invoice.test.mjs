@@ -450,3 +450,115 @@ describe('accounting dates must be real calendar days', () => {
     assert.match(db.prepare('SELECT issue_date d FROM invoices WHERE id=?').get(id).d, /^\d{4}-\d{2}-\d{2}$/);
   });
 });
+
+// An optional line is a PROPOSAL, not a sale. It must be visible and priced on
+// the quotation, absent from everything payable, and absent from the invoice
+// unless the customer actually took it — at which point it is billed as an
+// ordinary line, because a billed option is no longer optional.
+describe('optional lines and the widened vocabulary reaching invoices', () => {
+  /** An accepted quotation mixing kinds, periods, sections and options. */
+  function seedMixed() {
+    const db = openDb(':memory:');
+    db.prepare(`INSERT INTO clients (name) VALUES ('Acme Ltd')`).run();
+    const { lastInsertRowid: qid } = db.prepare(
+      `INSERT INTO quotations (number, client_id, lang, term_months) VALUES (?, 1, 'en', 36)`
+    ).run('QT-202609-0009');
+    const add = db.prepare(
+      `INSERT INTO quotation_lines
+         (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, discount_satang,
+          billing_period, section, optional)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`
+    );
+    add.run(qid, 1, 'hardware', 'Appliance', 1000, 'unit', 200000000, 'once', 'Hardware', 0);
+    add.run(qid, 2, 'software', 'Platform licence', 1000, 'year', 48000000, 'yearly', 'Software', 0);
+    add.run(qid, 3, 'support', 'On-call', 1000, 'month', 8500000, 'monthly', 'Services', 0);
+    add.run(qid, 4, 'training', 'Workshop', 2000, 'day', 4500000, 'once', 'Services', 1);
+    add.run(qid, 5, 'cloud', 'DR capacity', 1000, 'month', 1800000, 'monthly', 'Services', 1);
+    markStatus(db, qid, 'issued', 'op@x.io');
+    markStatus(db, qid, 'proposed', 'op@x.io');
+    markStatus(db, qid, 'accepted', 'op@x.io');
+    return { db, qid };
+  }
+
+  test('kinds outside the original service|hardware pair survive the whole path', () => {
+    const { db, qid } = seedMixed();
+    const { id } = createInvoiceFromQuotation(db, qid, { actor: 'op@x.io' });
+    issueInvoice(db, id, { actor: 'op@x.io', issueDate: '2026-09-15' });
+    const kinds = buildInvoiceDocument(db, id).lines.map((l) => l.kind);
+    assert.deepEqual(kinds, ['hardware', 'software', 'support']);
+  });
+
+  test('billing period and section are snapshotted onto the invoice line', () => {
+    const { db, qid } = seedMixed();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    const lines = buildInvoiceDocument(db, id).lines;
+    assert.deepEqual(lines.map((l) => l.billingPeriod), ['once', 'yearly', 'monthly']);
+    assert.deepEqual(lines.map((l) => l.section), ['Hardware', 'Software', 'Services']);
+  });
+
+  test('an untaken option never reaches the invoice', () => {
+    const { db, qid } = seedMixed();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    const descs = buildInvoiceDocument(db, id).lines.map((l) => l.descriptionEn);
+    assert.ok(!descs.includes('Workshop'));
+    assert.ok(!descs.includes('DR capacity'));
+  });
+
+  test('the invoice bills ONE cycle — the 36-month term never multiplies a figure', () => {
+    const { db, qid } = seedMixed();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    const t = buildInvoiceDocument(db, id).totals;
+    // 2,000,000.00 + 480,000.00 + 85,000.00 = 2,565,000.00 THB, options excluded.
+    assert.equal(t.subtotalSatang, 256500000);
+    assert.equal(t.netSatang, 256500000);
+    // Nothing on an invoice may carry a contract or recurring projection.
+    assert.equal(t.contractTotalSatang, undefined);
+    assert.equal(t.recurringSatang, undefined);
+  });
+
+  test('a taken option is billed as an ordinary line, in position order', () => {
+    const { db, qid } = seedMixed();
+    const optionId = db.prepare(
+      `SELECT id FROM quotation_lines WHERE quotation_id = ? AND description_en = 'Workshop'`
+    ).get(qid).id;
+    const { id } = createInvoiceFromQuotation(db, qid, { includeOptionalLineIds: [optionId] });
+    const doc = buildInvoiceDocument(db, id);
+    assert.deepEqual(doc.lines.map((l) => l.descriptionEn),
+      ['Appliance', 'Platform licence', 'On-call', 'Workshop']);
+    // 2,565,000.00 + (2 x 45,000.00) = 2,655,000.00
+    assert.equal(doc.totals.netSatang, 265500000);
+    // invoice_lines deliberately has no `optional` column: a billed line is not
+    // optional, so nothing downstream can exclude it from a filed total.
+    const cols = db.prepare('PRAGMA table_info(invoice_lines)').all().map((c) => c.name);
+    assert.ok(!cols.includes('optional'));
+  });
+
+  test('selecting a line that is not optional, or not on the quotation, is refused', () => {
+    const { db, qid } = seedMixed();
+    const billed = db.prepare(
+      `SELECT id FROM quotation_lines WHERE quotation_id = ? AND description_en = 'Appliance'`
+    ).get(qid).id;
+    assert.throws(() => createInvoiceFromQuotation(db, qid, { includeOptionalLineIds: [billed] }),
+      /is not optional; it is billed already/);
+    assert.throws(() => createInvoiceFromQuotation(db, qid, { includeOptionalLineIds: [999999] }),
+      /is not on quotation/);
+  });
+
+  test('a quotation of nothing but untaken options is refused, not silently zero', () => {
+    const db = openDb(':memory:');
+    db.prepare(`INSERT INTO clients (name) VALUES ('C')`).run();
+    const { lastInsertRowid: qid } = db.prepare(
+      `INSERT INTO quotations (number, client_id) VALUES ('QT-OPT', 1)`
+    ).run();
+    db.prepare(
+      `INSERT INTO quotation_lines
+         (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, optional)
+       VALUES (?, 1, 'training', 'Workshop', 1000, 'day', 4500000, 1)`
+    ).run(qid);
+    markStatus(db, qid, 'issued', 'op@x.io');
+    markStatus(db, qid, 'proposed', 'op@x.io');
+    markStatus(db, qid, 'accepted', 'op@x.io');
+    assert.throws(() => createInvoiceFromQuotation(db, qid, {}),
+      /every line is optional and none were selected/);
+  });
+});

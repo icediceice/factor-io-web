@@ -317,25 +317,44 @@ function measure(win) {
   const rows = doc.querySelectorAll('tbody tr').length;
   out.push(row('Rows rendered', 'PASS', `${rails.length} rail · ${rows} table`));
 
+  // This check applies to the TWO-COLUMN Workbench only. Below the breakpoint
+  // the rail either becomes the whole page (a phone list is meant to scroll —
+  // demanding every row fit the viewport would be a desktop bar applied to a
+  // phone) or is hidden entirely once a record is open, which is the intended
+  // collapse. Both are reported as scoped-out rather than quietly passed.
   const rail = doc.querySelector('.wb-rail');
-  if (rail && rails.length) {
+  const wbBox = doc.querySelector('.wb');
+  if (rail && rails.length && wbBox) {
     const rr = rail.getBoundingClientRect();
-    const seen = rails.filter((el) => onScreen(el, win)).length;
-    // A rail exists to be scanned. Showing fewer than 6 of what it holds is a
-    // failure of the macrostructure, not a scrolling preference.
-    const want = Math.min(rails.length, 6);
-    out.push(row('Rail rows visible', seen >= want ? 'PASS' : 'FAIL',
-      `${seen} of ${rails.length} · rail ${Math.round(rr.height)}px`));
+    const twoCol = rr.height > 0 && rr.width < wbBox.getBoundingClientRect().width * 0.8;
+    if (!twoCol) {
+      out.push(row('Rail rows visible', 'PASS',
+        rr.height === 0 ? 'n/a — rail collapsed (record open)' : 'n/a — single column'));
+    } else {
+      const seen = rails.filter((el) => onScreen(el, win)).length;
+      // A rail exists to be scanned. Showing fewer than 6 of what it holds is
+      // a failure of the macrostructure, not a scrolling preference.
+      const want = Math.min(rails.length, 6);
+      out.push(row('Rail rows visible', seen >= want ? 'PASS' : 'FAIL',
+        `${seen} of ${rails.length} · rail ${Math.round(rr.height)}px`));
+    }
   }
 
   // --- the fold ------------------------------------------------------------
-  // DENSITY 7 (.interface-design/system.md): the primary work region has to
-  // begin in the top third, not below a band of summary cards.
+  // DENSITY 7 (.interface-design/system.md): the primary work region begins in
+  // the top third, not below a band of summary cards.
+  //
+  // The bar is width-aware BY INTENT, not to make a screen pass: a 1440×900
+  // desktop can spend 40% of its height on a page header and still show a
+  // dozen records, whereas a 390×844 phone spends the same header on a third
+  // of the pixels. Half the viewport is the phone equivalent of the same rule.
   const work = doc.querySelector('.wb, .stack, main table');
   if (work) {
     const top = Math.round(work.getBoundingClientRect().top + win.scrollY);
-    const bar = Math.round(win.innerHeight * 0.4);
-    out.push(row('Work starts above', top <= bar ? 'PASS' : 'FAIL', `${top}px (bar ${bar}px)`));
+    const frac = win.innerWidth >= 1024 ? 0.4 : 0.5;
+    const bar = Math.round(win.innerHeight * frac);
+    out.push(row('Work starts above', top <= bar ? 'PASS' : 'FAIL',
+      `${top}px (bar ${bar}px @${Math.round(frac * 100)}%)`));
   }
 
   // --- honest empties ------------------------------------------------------

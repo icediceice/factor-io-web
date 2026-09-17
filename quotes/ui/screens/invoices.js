@@ -148,7 +148,7 @@ async function renderInvoice(id, host, reloadList) {
 
     host.append(el(`<section class="card">
       <div class="toolbar">
-        <h2 style="margin:0"><span class="mono">${esc(i.number)}</span> ${statusChip(i.status)}</h2>
+        <h2><span class="mono">${esc(i.number)}</span> ${statusChip(i.status)}</h2>
         <div class="row-actions tight">
           ${isDraft ? '<button data-act="issue">Issue this invoice</button>' : ''}
           <a class="button secondary" href="/api/invoices/${id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>

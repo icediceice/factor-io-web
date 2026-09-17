@@ -105,9 +105,16 @@ function headerCard() {
 }
 
 function linesCard() {
-  const frozen = doc.quotation.status !== 'draft';
+  const q = doc.quotation;
+  const editable = EDITABLE.includes(q.status);
+  // Locked is no longer the same as "not a draft": an issued or proposed
+  // quotation is correctable, it just waits for an explicit Revise first.
+  const frozen = !(q.status === 'draft' || revising);
+  const note = !editable
+    ? '<span class="muted">(final — this quotation can no longer be edited)</span>'
+    : (frozen ? '<span class="muted">(issued — press Revise to correct)</span>' : '');
   return el(`<section class="card">
-    <h2>Lines ${frozen ? '<span class="muted">(issued — read only)</span>' : ''}</h2>
+    <h2>Lines ${note}</h2>
     <div id="lines"></div>
     ${frozen ? '' : `
     <form id="addLine" style="margin-top:16px">

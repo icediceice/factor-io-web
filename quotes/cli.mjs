@@ -21,7 +21,10 @@
 // --optional prices a line on the document but excludes it from every total.
 // --term sets the contract length that extends recurring lines into a contract
 // total; that total is a memo and carries no VAT.
-//   quotes issue 12
+//   quotes issue 12                       # first issue = rev 1; run it AGAIN on an
+//                                         # issued or proposed quotation to record a
+//                                         # correction as the next revision
+//   quotes revisions 12                   # what went out, when, and on whose authority
 //   quotes status 12 cancelled
 //   quotes clients | client-add "Acme" --tax-id ...
 //   quotes settings                       # all settings

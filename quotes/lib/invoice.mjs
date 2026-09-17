@@ -560,6 +560,8 @@ export function buildInvoiceDocument(db, invoiceId) {
       unitSatang: num(l.unit_satang),
       discountSatang: num(l.discount_satang),
       subtotalSatang: lineSubtotal(l.qty_milli, l.unit_satang),
+      billingPeriod: str(l.billing_period) || 'once',
+      section: str(l.section),
     })),
     totals,
     balance: invoiceBalance(db, invoiceId),

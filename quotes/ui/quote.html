@@ -40,25 +40,57 @@ let main = null;
 const kindLabel = (code) => doc.kindLabels?.[code] ?? code;
 const periodLabel = (code) => (code && code !== 'once' ? `/${code.replace(/ly$/, '')}` : 'once');
 
+// The statuses in which the server will accept a change — quote.mjs
+// EDITABLE_STATUSES. Held as a literal because the page has no other reason to
+// ask the server, and a mismatch degrades safely: the server is the authority
+// and refuses anything this list wrongly allows.
+const EDITABLE = ['draft', 'issued', 'proposed'];
+
+// An issued quotation is editable but NOT edited by accident: the fields stay
+// locked behind an explicit Revise click. Module state, so it survives the
+// re-render that follows every save, and resets when the page is reloaded.
+let revising = false;
+
 function headerCard() {
   const q = doc.quotation;
   const draft = q.status === 'draft';
+  const editable = EDITABLE.includes(q.status);
+  const unlocked = draft || revising;
+  const stale = !!q.revisionStale;
+  const nextRev = (q.revision || 0) + 1;
+  // The server refuses the PDF of an issued or proposed quotation that no
+  // longer matches its snapshot, so the link is not offered as though it would
+  // work — the operator is pointed at the re-issue that fixes it instead.
+  const pdfBlocked = stale && editable && !draft;
   return el(`<section class="card">
     <div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:baseline">
-      <h2 style="margin:0"><span class="mono">${q.number}</span> ${statusChip(q.status)}</h2>
+      <h2 style="margin:0"><span class="mono">${q.number}</span> ${statusChip(q.status)}${
+        q.revision >= 2 ? ` <span class="mono muted">Rev. ${q.revision}</span>` : ''}</h2>
       <div class="row-actions" style="margin:0">
         ${draft ? `<button id="issue">Issue (snapshot rev)</button>` : ''}
         ${draft ? `<button id="delete" class="danger">Delete draft</button>` : ''}
-        <a class="button" href="/api/quotations/${q.id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>
-        <a class="button" href="/api/quotations/${q.id}/pdf?lang=th" target="_blank" rel="noopener">PDF ไทย</a>
+        ${editable && !draft && !revising ? `<button id="revise">Revise</button>` : ''}
+        ${!draft && revising ? `<button id="lock" class="quiet">Done editing</button>` : ''}
+        ${stale && editable ? `<button id="reissue">Re-issue as Rev. ${nextRev}</button>` : ''}
+        ${pdfBlocked
+          ? `<span class="muted">PDF available after re-issue</span>`
+          : `<a class="button" href="/api/quotations/${q.id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>
+        <a class="button" href="/api/quotations/${q.id}/pdf?lang=th" target="_blank" rel="noopener">PDF ไทย</a>`}
       </div>
     </div>
+    ${stale ? `<div style="margin-top:14px;padding:10px 12px;border:1px solid var(--focus);color:var(--focus)">
+      Edited since <b>Rev. ${q.revision}</b>. Re-issue to record the correction as Rev. ${nextRev} —
+      until then this quotation does not match any stored revision and its PDF is unavailable.
+    </div>` : ''}
     <dl class="kv" style="margin-top:14px">
       <dt>Client</dt><dd>${doc.client?.name ?? '—'}</dd>
       <dt>Language / currency</dt><dd>${q.lang} · ${q.currency}${q.fxRate ? ` (1 ${q.fxBase || 'USD'} = ${q.fxRate} THB)` : ''}</dd>
       <dt>Issue date</dt><dd>${q.issueDate}</dd>
       <dt>Valid until</dt><dd>${q.validUntil}</dd>
-      <dt>Contract term</dt><dd>${draft
+      <dt>Revision</dt><dd>${q.revision
+        ? `Rev. ${q.revision}${stale ? ' <span class="muted">— edited since</span>' : ''}`
+        : '<span class="muted">not issued yet</span>'}</dd>
+      <dt>Contract term</dt><dd>${unlocked
         ? `<form id="term" style="display:inline-flex;gap:8px;align-items:baseline">
              <input name="term_months" value="${q.termMonths ?? 0}" inputmode="numeric" style="width:5em">
              <span class="muted">months</span>

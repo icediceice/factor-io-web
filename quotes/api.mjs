@@ -288,9 +288,7 @@ export function createApi(db) {
         // back. Omitting both fields still keeps the stored price (a kind-only or
         // active-only toggle must not move it); sending both is still a 400,
         // because unitSatangOf is the single validator for either spelling.
-        const unitSatang = (body.unit_satang != null || body.unit_price != null)
-          ? unitSatangOf(body)
-          : Number(row.unit_satang);
+        const unitSatang = merged.unit_satang != null ? Number(merged.unit_satang) : unitSatangOf(body);
         if (!Number.isSafeInteger(unitSatang) || unitSatang < 0) throw bad('unit_satang must be a non-negative integer');
         tx(db, () => {
           db.prepare(

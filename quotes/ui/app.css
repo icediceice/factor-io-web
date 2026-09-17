@@ -264,16 +264,16 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
 .skeleton{color:transparent;background:linear-gradient(var(--tint),var(--tint));border-radius:2px;display:inline-block;min-width:60px;height:1em}
 
 /* ---------------------------------------------------------------- totals -- */
-.totals{margin-left:auto;min-width:320px;border-collapse:collapse;font-size:14px}
-.totals td{padding:var(--s1) 10px}
+.totals{margin-left:auto;min-width:var(--w-field);border-collapse:collapse;font-size:var(--t-base)}
+.totals td{padding:var(--s1) var(--s3)}
 .totals .lbl{color:var(--muted);text-align:right}
 .totals .num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);white-space:nowrap}
-.totals tr.grand td{border-top:1.5px solid var(--ink);font-weight:700;font-size:17px;padding-top:var(--s2)}
+.totals tr.grand td{border-top:2px solid var(--ink);font-weight:700;font-size:var(--t-xl);padding-top:var(--s2)}
 .totals tr.payable td{font-weight:700;color:var(--accent)}
-.totals tr.memo td{color:var(--muted);font-size:12.5px}
+.totals tr.memo td{color:var(--muted);font-size:var(--t-sm)}
 
 /* ------------------------------------------------------------------- kv --- */
-.kv{display:grid;grid-template-columns:168px minmax(0,1fr);gap:var(--s1) var(--s4);font-size:14px}
+.kv{display:grid;grid-template-columns:168px minmax(0,1fr);gap:var(--s1) var(--s4);font-size:var(--t-base)}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .kv dd .mono{font-variant-numeric:tabular-nums}

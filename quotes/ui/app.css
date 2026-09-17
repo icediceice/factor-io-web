@@ -78,7 +78,10 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
    collapsed to a sliver and the operator saw 1 of 8 quotations (measured) in a
    748px-tall rail. Scrolling the rail as a whole keeps the list at its full
    height, puts the records first, and leaves exactly one scrollbar. */
-.wb-rail{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 150px);position:sticky;top:76px;align-self:start;overflow-y:auto}
+/* 100vh − 96px, not − 150px: the rail is sticky at top:76px, so the old figure
+   left 74px of viewport unused below it. A Workbench rail must show 12 rows at
+   900px tall (macrostructures.md) and it was reaching 7. */
+.wb-rail{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 96px);position:sticky;top:76px;align-self:start;overflow-y:auto}
 .wb-list{flex:0 0 auto}
 .wb-detail{min-width:0;padding:var(--s5);overflow-x:auto}
 .wb-detail>section.card:first-child{margin-top:0}

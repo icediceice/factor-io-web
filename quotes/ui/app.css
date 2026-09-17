@@ -83,8 +83,9 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 .rail-item[data-status=paid]{border-left-color:var(--accent);border-left-width:5px}
 .rail-item[data-status=declined],.rail-item[data-status=cancelled],.rail-item[data-status=superseded]{border-left-color:var(--focus);border-left-style:dotted}
 
-/* Rail toolbar: search + filters. Sticky so filtering never scrolls away. */
-.rail-head{padding:var(--s3);border-bottom:1px solid var(--line);background:var(--white);display:grid;gap:var(--s2)}
+/* Rail toolbar: search + filters. Sticky WITHIN the rail's own scroll, so
+   filtering stays put while the records move under it. */
+.rail-head{padding:var(--s3);border-bottom:1px solid var(--line);background:var(--white);display:grid;gap:var(--s2);position:sticky;top:0;z-index:2}
 .rail-head input[type=search],.rail-head select{min-height:40px;margin:0}
 .rail-count{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:var(--s2)}
 .rail-foot{padding:var(--s3);border-top:1px solid var(--line)}

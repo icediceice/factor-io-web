@@ -395,7 +395,15 @@ function measure(win) {
     work = t ? (t.closest('section.card') ?? t) : null;
   }
   if (work) {
-    const top = Math.round(work.getBoundingClientRect().top + win.scrollY);
+    // Discount the harness's OWN fixture strip. It is injected above <body>'s
+    // first child by ui-harness-server.mjs so no screenshot can travel without
+    // its caption — but it is ~26px the real app does not spend, and charging
+    // the page for it turned the quotation detail at 390 into a 442px-vs-421px
+    // failure that does not exist outside this harness. The instrument must not
+    // measure itself.
+    const label = doc.querySelector('[data-fixture-label]');
+    const offset = label ? label.getBoundingClientRect().height : 0;
+    const top = Math.round(work.getBoundingClientRect().top + win.scrollY - offset);
     const frac = win.innerWidth >= 1024 ? 0.4 : 0.5;
     const bar = Math.round(win.innerHeight * frac);
     out.push(row('Work starts above', top <= bar ? 'PASS' : 'FAIL',

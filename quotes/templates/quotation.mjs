@@ -156,7 +156,9 @@ export function renderQuotationHtml(doc, lang = 'en') {
   if (!anySection) {
     lineRows = lines.map(rowFor).join('\n');
   } else {
-    const sectionNet = new Map((totals.sections ?? []).map((s) => [s.name, s.netSatang]));
+    // GROSS, to match the AMOUNT column printed above it — the aggregate
+    // discount appears once in the totals block, as it always has.
+    const sectionNet = new Map((totals.sections ?? []).map((s) => [s.name, s.subtotalSatang ?? s.netSatang]));
     const chunks = [];
     let current = null;
     for (const [i, l] of lines.entries()) {

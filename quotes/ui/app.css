@@ -98,7 +98,11 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 .rail-item[aria-current=true]{background:var(--tint);border-left-color:var(--accent);border-left-width:3px}
 .rail-item .r1{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between}
 .rail-item .r-no{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap}
-.rail-item .r-name{font-size:14px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+/* ONE line, ellipsised. A wrapping client name made rows 74px and capped the
+   rail at 7 records against a floor of 12 — the rail's job is scanning, and a
+   list of five fat rows has failed the shape. The full name is never lost: it
+   is the row's title attribute and the first line of the detail pane. */
+.rail-item .r-name{font-size:14px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rail-item .r2{display:flex;gap:var(--s2);align-items:baseline;justify-content:space-between;color:var(--muted);font-size:12.5px;margin-top:2px}
 .rail-item .r-amt{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .rail-item[data-status=draft]{border-left-color:var(--line)}

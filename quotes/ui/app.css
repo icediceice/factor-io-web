@@ -227,6 +227,14 @@ textarea{resize:vertical;min-height:64px}
 input:hover,select:hover,textarea:hover{border-color:var(--ink)}
 input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed;background:var(--paper)}
 input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:var(--danger);border-width:2px}
+/* T1 wants all eight states, and success is the one a FIELD here does not get.
+   It is deliberate, not an omission: nothing in this app validates a field on
+   blur, so a green tick would only ever mean "you typed something", which is
+   noise on every field of a long form. Success is reported where it actually
+   happens — .toast[data-kind=ok] when the write lands, and the record itself
+   redrawing with the new value. The other seven states are all above: default,
+   :hover, :focus-visible (global), disabled, [aria-invalid] + .field-error,
+   and loading via button[aria-busy]. */
 .field-error{display:block;color:var(--danger);font-size:var(--t-sm);font-weight:400;margin-top:var(--s1)}
 .hint{display:block;font-size:var(--t-sm);color:var(--muted);font-weight:400;margin-top:var(--s1)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(208px,1fr));gap:0 var(--s4)}

@@ -147,14 +147,35 @@ async function main() {
       const q = doc.quotation;
       console.log(`${q.number} [${q.status}]  ${q.issueDate} -> ${q.validUntil}  (${q.lang}, ${q.currency})`);
       console.log(`client: ${doc.client?.name ?? '—'}`);
+      if (q.termMonths) console.log(`term: ${q.termMonths} months`);
+      let section = null;
       for (const l of doc.lines) {
-        console.log(`  ${l.position}. [${l.kind}] ${l.descriptionEn}${l.descriptionTh ? ` / ${l.descriptionTh}` : ''}`);
+        if ((l.section ?? '') !== section) {
+          section = l.section ?? '';
+          if (section) console.log(`  -- ${section} --`);
+        }
+        const period = l.billingPeriod && l.billingPeriod !== 'once' ? ` ${l.billingPeriod}` : '';
+        const marker = l.optional ? 'o.' : `${l.position}.`;
+        console.log(`  ${marker} [${l.kind}${period}] ${l.descriptionEn}${l.descriptionTh ? ` / ${l.descriptionTh}` : ''}${l.optional ? '  (OPTION)' : ''}`);
         console.log(`     ${l.qty} ${l.unit} x ${money(l.unitSatang)}${l.discountSatang ? ` - ${money(l.discountSatang)}` : ''} = ${money(l.subtotalSatang)}`);
       }
       const t = doc.totals;
+      // The split only earns a line when the quotation actually mixes one-time
+      // and recurring charges; a plain one-off quote prints what it always did.
+      if (t.hasRecurring) {
+        if (t.oneTimeSatang) console.log(`  one-time ${money(t.oneTimeSatang)}`);
+        for (const p of ['monthly', 'quarterly', 'yearly']) {
+          if (t.recurringSatang?.[p]) console.log(`  recurring ${p} ${money(t.recurringSatang[p])}`);
+        }
+      }
       console.log(`  subtotal ${money(t.subtotalSatang)}  discount -${money(t.discountSatang)}  net ${money(t.netSatang)}`);
       console.log(`  VAT ${t.vatRate}% ${money(t.vatSatang)}  grand ${money(t.grandSatang)}  WHT ${t.whtRate}% (${t.whtMode}) ${money(t.whtSatang)}`);
       console.log(`  PAYABLE ${money(t.payableSatang)}`);
+      // A MEMO, never a payable: spend across the term, carrying no VAT.
+      if (t.contractTotalSatang != null) {
+        console.log(`  contract total (${t.termMonths} months, memo, no VAT) ${money(t.contractTotalSatang)}`);
+      }
+      if (t.optionalSatang) console.log(`  options (not included) ${money(t.optionalSatang)}`);
       return;
     }
     case 'line-add': {

@@ -109,7 +109,13 @@ export function computeTotals(lines, settings, termMonths = 0) {
     // Sections in FIRST-APPEARANCE order, never sorted: the operator controls
     // the running order of a proposal by line position, and re-sorting here
     // would silently override that.
-    sections: sectionOrder.map((name) => ({ name, netSatang: sectionNet.get(name) })),
+    // subtotalSatang is what the printed AMOUNT column adds up to; netSatang is
+    // that less the per-line discounts. The template prints the former.
+    sections: sectionOrder.map((name) => ({
+      name,
+      subtotalSatang: sectionGross.get(name),
+      netSatang: sectionNet.get(name),
+    })),
   };
 
   // Contract total: one-time work plus each recurring charge extended across

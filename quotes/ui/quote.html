@@ -223,7 +223,7 @@ function renderAll() {
   docCard = el('<div></div>');
   const h = headerCard();
   docCard.append(el('<section class="card"><h2>Totals</h2><div id="totals"></div></section>'));
-  main.append(h, docCard, linesCard());
+  main.append(h, docCard, linesCard(), revisionsCard());
   bindHeader(h);
   renderLines();
 }

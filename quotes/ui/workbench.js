@@ -53,7 +53,7 @@ export function mountWorkbench(main, spec) {
 
   const listBox = wb.querySelector('[data-list]');
   const countBox = wb.querySelector('[data-count]');
-  const detailBox = wb.querySelector('[data-detail]');
+  let detailBox = wb.querySelector('[data-detail]');
   const search = wb.querySelector('#wb-q');
   if (spec.aside) {
     const host = wb.querySelector('[data-aside]');

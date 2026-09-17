@@ -107,7 +107,9 @@ for (const s of SCREENS) {
   o.value = s.id; o.textContent = s.label; sel.append(o);
 }
 
-const urlFor = (s) => (s.needs ? `${s.url}?id=${ids[s.needs]}` : s.url);
+// Absolute: this page lives at /tests/, so a relative 'index.html' would ask
+// the server for /tests/index.html, which is not where the screens are.
+const urlFor = (s) => (s.needs ? `/${s.url}?id=${ids[s.needs]}` : `/${s.url}`);
 
 /* ------------------------------------------------------------- loading -- */
 

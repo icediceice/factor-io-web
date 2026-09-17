@@ -160,9 +160,11 @@ test('flowchart stages never claim an approval or a human wait that did not happ
   assert.deepEqual(flowStates(d), ['pass', 'pass', 'deny', 'wait', 'idle']);
 });
 
+// The approval illustration moved from the retired /governance/ route onto the services
+// page, where AI governance is one of the four services rather than a product of its own.
 test('governance flowchart renders one node per declared stage, in both locales', () => {
   for (const locale of ['en', 'th']) {
-    const html = output.get(outputPath(locale, 'governance')), d = content[locale].demo;
+    const html = output.get(outputPath(locale, 'services')), d = content[locale].demo;
     assert.equal(d.stages.length, 5);
     assert.equal((html.match(/class="flow-node"/g) || []).length, d.stages.length);
     for (const label of d.stages) assert.ok(html.includes(esc(label)), `${locale}: missing stage ${label}`);

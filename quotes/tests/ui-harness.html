@@ -175,6 +175,27 @@ function effectiveBg(el, win) {
   return acc ? over(acc, { r: 255, g: 255, b: 255, a: 1 }) : { r: 255, g: 255, b: 255, a: 1 };
 }
 
+/** Is this element FULLY on screen — not merely inside its named container?
+ *  A row scrolled out of an inner list still has a rect inside the outer rail,
+ *  so testing against the rail alone reports rows the operator cannot see as
+ *  visible. This intersects every ancestor that clips, then the viewport. */
+function onScreen(el, win) {
+  const r = el.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) return false;
+  let box = { top: 0, left: 0, right: win.innerWidth, bottom: win.innerHeight };
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    const cs = win.getComputedStyle(p);
+    if (cs.overflowY === 'visible' && cs.overflowX === 'visible') continue;
+    const pr = p.getBoundingClientRect();
+    box = {
+      top: Math.max(box.top, pr.top), left: Math.max(box.left, pr.left),
+      right: Math.min(box.right, pr.right), bottom: Math.min(box.bottom, pr.bottom),
+    };
+  }
+  return r.top >= box.top - 1 && r.bottom <= box.bottom + 1
+      && r.left >= box.left - 1 && r.right <= box.right + 1;
+}
+
 const visible = (el, win) => {
   const cs = win.getComputedStyle(el);
   if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;

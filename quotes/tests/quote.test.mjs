@@ -71,6 +71,107 @@ describe('computeTotals', () => {
     const t2 = computeTotals(LINES, { ...settings, 'wht.rate_percent': '1' });
     assert.equal(t2.whtSatang, 432500);
   });
+
+  // -------------------------------------------------------------------------
+  // THE REGRESSION THAT MATTERS: lines carrying none of the new fields must
+  // produce exactly the figures they produced before those fields existed.
+  // Every assertion above this point is that proof for the legacy shape; these
+  // add the shape where the new fields are present but neutral.
+  // -------------------------------------------------------------------------
+  test('new fields at their defaults change no existing figure', () => {
+    const before = computeTotals(LINES, settings);
+    const after = computeTotals(
+      LINES.map((l) => ({ ...l, billingPeriod: 'once', section: '', optional: false })),
+      settings,
+      0,
+    );
+    for (const k of ['subtotalSatang', 'discountSatang', 'netSatang', 'vatSatang',
+      'grandSatang', 'whtSatang', 'payableSatang']) {
+      assert.equal(after[k], before[k], `${k} drifted`);
+    }
+    assert.equal(after.contractTotalSatang, null);
+    assert.equal(after.optionalSatang, 0);
+    assert.equal(after.hasRecurring, false);
+  });
+
+  test('an optional line is priced but excluded from everything payable', () => {
+    const withOption = computeTotals(
+      [...LINES, { qtyMilli: 2000, unitSatang: 4500000, discountSatang: 0, optional: true }],
+      settings,
+    );
+    const plain = computeTotals(LINES, settings);
+    assert.equal(withOption.netSatang, plain.netSatang);
+    assert.equal(withOption.vatSatang, plain.vatSatang);
+    assert.equal(withOption.payableSatang, plain.payableSatang);
+    assert.equal(withOption.subtotalSatang, plain.subtotalSatang);
+    // ...but it is still quoted to the customer.
+    assert.equal(withOption.optionalSatang, 9000000);
+  });
+
+  test('a quotation of nothing but options owes nothing', () => {
+    const t = computeTotals(
+      [{ qtyMilli: 1000, unitSatang: 5000000, discountSatang: 0, optional: true }], settings, 12);
+    assert.equal(t.netSatang, 0);
+    assert.equal(t.vatSatang, 0);
+    assert.equal(t.payableSatang, 0);
+    assert.equal(t.optionalSatang, 5000000);
+  });
+
+  test('recurring lines bucket by period and the term extends them', () => {
+    // 2,670,000 once + 482,000/yr + 85,000/mo over 36 months.
+    const t = computeTotals([
+      { qtyMilli: 3000, unitSatang: 89000000, discountSatang: 0, billingPeriod: 'once', section: 'Hardware' },
+      { qtyMilli: 3000, unitSatang: 5400000, discountSatang: 0, billingPeriod: 'yearly', section: 'Software' },
+      { qtyMilli: 1000, unitSatang: 32000000, discountSatang: 0, billingPeriod: 'yearly', section: 'Software' },
+      { qtyMilli: 1000, unitSatang: 8500000, discountSatang: 0, billingPeriod: 'monthly', section: 'Services' },
+    ], settings, 36);
+
+    assert.equal(t.oneTimeSatang, 267000000);
+    assert.equal(t.recurringSatang.yearly, 48200000);
+    assert.equal(t.recurringSatang.monthly, 8500000);
+    assert.equal(t.recurringSatang.quarterly, 0);
+    assert.equal(t.hasRecurring, true);
+    assert.equal(t.termMonths, 36);
+    // 2,670,000 + 482,000*3 + 85,000*36 = 2,670,000 + 1,446,000 + 3,060,000
+    assert.equal(t.contractTotalSatang, 717600000);
+
+    // The payable is ONE cycle, not the contract — this is the invariant that
+    // keeps VAT correct and stops a 36-month figure reaching an invoice.
+    assert.equal(t.netSatang, 267000000 + 48200000 + 8500000);
+    assert.ok(t.contractTotalSatang > t.grandSatang);
+    assert.equal(t.vatSatang, Math.round(t.netSatang * 7 / 100));
+  });
+
+  test('a term with nothing recurring yields no contract total', () => {
+    const t = computeTotals(
+      [{ qtyMilli: 1000, unitSatang: 5000000, discountSatang: 0, billingPeriod: 'once' }], settings, 36);
+    assert.equal(t.contractTotalSatang, null);
+  });
+
+  test('a term that does not divide the period stays exact in satang', () => {
+    // 10,000/yr over 18 months = 15,000 exactly, and never a float.
+    const t = computeTotals(
+      [{ qtyMilli: 1000, unitSatang: 1000000, discountSatang: 0, billingPeriod: 'yearly' }], settings, 18);
+    assert.equal(t.contractTotalSatang, 1500000);
+    assert.ok(Number.isSafeInteger(t.contractTotalSatang));
+    // 100,000/quarter over 7 months is 233,333.33 — must land on an integer.
+    const q = computeTotals(
+      [{ qtyMilli: 1000, unitSatang: 10000000, discountSatang: 0, billingPeriod: 'quarterly' }], settings, 7);
+    assert.ok(Number.isSafeInteger(q.contractTotalSatang));
+  });
+
+  test('sections keep first-appearance order and sum to net', () => {
+    const t = computeTotals([
+      { qtyMilli: 1000, unitSatang: 1000000, discountSatang: 0, section: 'Zulu' },
+      { qtyMilli: 1000, unitSatang: 2000000, discountSatang: 0, section: 'Alpha' },
+      { qtyMilli: 1000, unitSatang: 3000000, discountSatang: 0, section: 'Zulu' },
+    ], settings);
+    // NOT sorted: the operator's line order is the running order of the proposal.
+    assert.deepEqual(t.sections.map((s) => s.name), ['Zulu', 'Alpha']);
+    assert.equal(t.sections[0].netSatang, 4000000);
+    assert.equal(t.sections[1].netSatang, 2000000);
+    assert.equal(t.sections.reduce((a, s) => a + s.netSatang, 0), t.netSatang);
+  });
 });
 
 describe('allocateQuoteNumber', () => {

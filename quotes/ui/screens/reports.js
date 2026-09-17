@@ -83,7 +83,7 @@ function pp30() {
     const [year, month] = v.split('-').map(Number);
     const { report: r } = await api('GET', `/reports/pp30?year=${year}&month=${month}`);
     card.querySelector('[data-out]').innerHTML = `
-      <dl class="kv" style="margin-bottom:18px">
+      <dl class="kv mb-5">
         <dt>Period</dt><dd class="mono">${esc(r.period)}</dd>
         <dt>Filing deadline</dt><dd class="mono">${esc(r.dueOn.paper)} on paper · ${esc(r.dueOn.efiling)} by e-filing</dd>
         <dt>Invoices in period</dt><dd>${esc(String(r.invoiceCount))}</dd>
@@ -173,7 +173,7 @@ function pnd() {
     const half = f.get('half') ? `&half=${f.get('half')}` : '';
     const { report: r } = await api('GET', `/reports/pnd?year=${f.get('year')}${half}`);
     card.querySelector('[data-out]').innerHTML = `
-      <dl class="kv" style="margin-bottom:18px">
+      <dl class="kv mb-5">
         <dt>Form</dt><dd>${esc(r.form)}</dd>
         <dt>Period</dt><dd class="mono">${esc(r.periodFrom)} → ${esc(r.periodTo)}</dd>
         <dt>Invoices</dt><dd>${esc(String(r.invoiceCount))}</dd>

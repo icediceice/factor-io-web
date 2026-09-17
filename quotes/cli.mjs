@@ -271,7 +271,13 @@ async function main() {
     }
     case 'revisions': {
       const id = needId(positional, 0, 'quotation id');
-      return asJson(await call('GET', `/api/quotations/${id}/revisions`));
+      const r = await call('GET', `/api/quotations/${id}/revisions`);
+      if (flags.json) return asJson(r);
+      if (!r.revisions.length) { console.log('no revisions — this quotation has not been issued'); return; }
+      // created_at is stored as UTC datetime('now'); print it as stored rather
+      // than guessing a local zone the server never recorded.
+      for (const v of r.revisions) console.log(`rev ${String(v.rev).padStart(2)}  ${v.created_at} UTC  ${v.actor}`);
+      return;
     }
     case 'clients': {
       const { clients } = await call('GET', '/api/clients');

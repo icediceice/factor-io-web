@@ -394,20 +394,32 @@ export function createApi(db) {
           const lineId = Number(seg[3]);
           const line = db.prepare('SELECT * FROM quotation_lines WHERE id = ? AND quotation_id = ?').get(lineId, id);
           if (!line) throw missing('line');
+          // kind was previously ABSENT from this merge, so a line's type could
+          // not be corrected after creation even while the quotation was still
+          // a draft — the operator had to delete the line and re-add it. With
+          // an open vocabulary that matters more, so kind joins the merge.
           const merged = {
+            kind: kindOf(db, body, { fallback: String(line.kind) }),
             description_en: body.description_en ?? line.description_en,
             description_th: body.description_th ?? line.description_th,
             qty_milli: body.qty_milli != null || body.qty != null ? qtyMilliOf(body) : line.qty_milli,
             unit: body.unit ?? line.unit,
             unit_satang: body.unit_satang != null || body.unit_price != null ? unitSatangOf(body) : line.unit_satang,
             discount_satang: body.discount_satang != null ? Number(body.discount_satang) : line.discount_satang,
+            billing_period: periodOf(body, String(line.billing_period ?? 'once')),
+            section: body.section != null ? String(body.section).trim().slice(0, 100) : line.section,
+            optional: body.optional != null
+              ? (body.optional === true || body.optional === 1 || body.optional === '1' ? 1 : 0)
+              : line.optional,
           };
           tx(db, () => {
             db.prepare(
-              `UPDATE quotation_lines SET description_en=?, description_th=?, qty_milli=?, unit=?, unit_satang=?, discount_satang=?
+              `UPDATE quotation_lines SET kind=?, description_en=?, description_th=?, qty_milli=?, unit=?, unit_satang=?, discount_satang=?,
+               billing_period=?, section=?, optional=?
                WHERE id = ?`
-            ).run(String(merged.description_en), String(merged.description_th), merged.qty_milli,
-              String(merged.unit), merged.unit_satang, Math.max(0, Math.min(merged.discount_satang, 99999999999)), lineId);
+            ).run(String(merged.kind), String(merged.description_en), String(merged.description_th), merged.qty_milli,
+              String(merged.unit), merged.unit_satang, Math.max(0, Math.min(merged.discount_satang, 99999999999)),
+              String(merged.billing_period), String(merged.section ?? ''), merged.optional ? 1 : 0, lineId);
             audit(db, actor, 'line.update', 'quotation', id, { line_id: lineId, fields: Object.keys(body) });
           });
           return json(200, docEnvelope(buildQuoteDocument(db, id), { line: db.prepare('SELECT * FROM quotation_lines WHERE id = ?').get(lineId) }));

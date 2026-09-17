@@ -215,6 +215,13 @@ export function buildQuoteDocument(db, quotationId) {
       phone: str(clientRow.phone),
     } : null,
     lines: lines.map((l) => ({
+      // The row's own id. Without it the document is READ-ONLY by accident:
+      // every UI line carries no address, so removing or correcting one sends
+      // /lines/undefined and the server answers "line not found" for a line
+      // that is plainly on the screen. It is deliberately NOT part of
+      // canonicalDocDigest's field list, so adding it cannot make an already
+      // issued quotation disagree with its own snapshot.
+      id: l.id,
       position: l.position,
       kind: str(l.kind),
       descriptionEn: str(l.description_en),

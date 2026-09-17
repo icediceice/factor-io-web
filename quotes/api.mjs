@@ -314,6 +314,30 @@ export function createApi(db) {
       if (query.client_id) { clauses.push('client_id = ?'); args.push(Number(query.client_id)); }
       const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
       const rows = db.prepare(`SELECT * FROM quotations ${where} ORDER BY id DESC`).all(...args);
+      // include=totals is OPT-IN so the plain list stays the cheap row read the
+      // CLI and every existing caller already rely on. The list screen needs a
+      // payable figure per row, and fetching it by building each document in a
+      // separate request was one HTTP round trip per quotation — the totals
+      // column filled in visibly, row by row, on every page load.
+      if (String(query.include ?? '').split(',').includes('totals')) {
+        return json(200, {
+          quotations: rows.map((q) => {
+            const doc = buildQuoteDocument(db, q.id);
+            return {
+              ...q,
+              revision: doc.quotation.revision,
+              revision_stale: doc.quotation.revisionStale,
+              line_count: doc.lines.length,
+              totals: {
+                currency: doc.totals.currency,
+                netSatang: doc.totals.netSatang,
+                grandSatang: doc.totals.grandSatang,
+                payableSatang: doc.totals.payableSatang,
+              },
+            };
+          }),
+        });
+      }
       return json(200, { quotations: rows });
     }
     if (path === '/quotations' && method === 'POST') {

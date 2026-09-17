@@ -464,10 +464,16 @@ describe('a pre-migration-5 quotation renders exactly as it always did', () => {
     assert.equal(html.includes('class="opt"'), false);
     // (class="memo" is NOT checked — it has always styled the Subtotal,
     // Discount and WHT rows, long before this change.)
-    assert.equal(html.includes('One-time'), false);
-    assert.equal(html.includes('Recurring'), false);
-    assert.equal(html.includes('Contract total'), false);
-    assert.equal(html.includes('Options (not included)'), false);
+    // Assert against the BODY, not the whole file: the <style> block carries
+    // comments naming these rows, so a substring check over the raw HTML would
+    // match the stylesheet and prove nothing about what is printed.
+    const body = html.slice(html.indexOf('</style>'));
+    assert.equal(body.includes('One-time'), false);
+    assert.equal(body.includes('Recurring'), false);
+    assert.equal(body.includes('Contract total'), false);
+    assert.equal(body.includes('Options (not included)'), false);
+    assert.equal(body.includes('<tr class="contract">'), false);
+    assert.equal(body.includes('<tr class="memo opts">'), false);
 
     // Rows stay in position order, one per line.
     assert.equal((html.match(/<td class="pos">/g) ?? []).length, 3);

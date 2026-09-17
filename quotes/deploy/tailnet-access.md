@@ -20,6 +20,7 @@ The service configuration is:
     QUOTES_AUTH_MODE=tailscale
     QUOTES_BIND=127.0.0.1,100.111.93.20
     QUOTES_ALLOWED_EMAILS=icediceice@gmail.com
+    QUOTES_ALLOWED_HOSTS=quotes.factor-io.com:8787,100.111.93.20:8787,127.0.0.1:8787
     QUOTES_AGENT_TOKEN=<random bearer token for loopback CLI use>
 
 At boot, the production gate proves local tailscaled status and self-whois.
@@ -31,9 +32,11 @@ allowlist are denied.
 Bearer-agent requests are authenticated before the human lane, so the loopback
 listener remains available to the local CLI. In tailscale mode, an unauthenticated
 loopback request is denied because loopback has no Tailscale whois identity.
-State-changing browser requests must come from the app's own origin, and API
-`POST`/`PUT` bodies must use `application/json`; this prevents another web page
-from spending the operator's ambient tailnet identity.
+Every request must carry an exact Host from `QUOTES_ALLOWED_HOSTS`, binding the
+ambient tailnet identity to an operator-controlled name and blocking DNS
+rebinding reads as well as writes. State-changing browser requests must also
+come from the app's own origin, and API `POST`/`PUT` bodies must use
+`application/json`.
 
 ## Verification
 

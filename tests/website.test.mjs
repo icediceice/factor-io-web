@@ -237,7 +237,14 @@ test('real static server handles locale directories, redirects, HEAD, missing pa
   for (const locale of ['en', 'th']) for (const page of routes) {
     const response = await fetch(base + routePath(locale, page)); assert.equal(response.status, 200); assert.equal(await response.text(), output.get(outputPath(locale, page)));
   }
-  const redirect = await fetch(`${base}/th/governance?test=1`, { redirect: 'manual' }); assert.equal(redirect.status, 301); assert.equal(redirect.headers.get('location'), '/th/governance/?test=1');
+  const redirect = await fetch(`${base}/th/services?test=1`, { redirect: 'manual' }); assert.equal(redirect.status, 301); assert.equal(redirect.headers.get('location'), '/th/services/?test=1');
+  // Retired routes are hand-written stubs, not generated output: they must still resolve rather than 404.
+  for (const path of ['/en/platform/', '/en/governance/', '/en/how-we-work/', '/th/platform/', '/th/governance/', '/th/how-we-work/']) {
+    const stub = await fetch(base + path); assert.equal(stub.status, 200, path);
+    const body = await stub.text();
+    assert.match(body, /<meta http-equiv="refresh"/, path);
+    assert.match(body, /content="noindex, follow"/, path);
+  }
   const head = await fetch(`${base}/en/`, { method: 'HEAD' }); assert.equal(head.status, 200); assert.equal(await head.text(), '');
   assert.equal((await fetch(`${base}/not-a-route/`)).status, 404);
   assert.equal((await fetch(`${base}/en/`, { method: 'POST' })).status, 405);

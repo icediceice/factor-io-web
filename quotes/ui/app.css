@@ -188,14 +188,19 @@ button:disabled:hover{background:var(--accent);border-color:var(--accent)}
 /* Loading keeps the control's box so the layout cannot jump. */
 button[aria-busy=true]{pointer-events:none;opacity:.8}
 button[aria-busy=true]::after{content:"…";font-family:var(--mono)}
-button.secondary{background:transparent;color:var(--accent);border-color:var(--muted)}
-button.secondary:hover{background:var(--tint);color:var(--ink);border-color:var(--ink)}
+/* Each variant must name BOTH <button> and <a class="button">. These were
+   button-only, so every link styled as a secondary or destructive action —
+   the two PDF links on a quotation, among others — fell through to the filled
+   primary rule and shouted alongside the real primary action. .quiet was
+   already written correctly; these now match it. */
+button.secondary,.button.secondary{background:transparent;color:var(--accent);border-color:var(--muted)}
+button.secondary:hover,.button.secondary:hover{background:var(--tint);color:var(--ink);border-color:var(--ink)}
 button.quiet,.button.quiet{background:transparent;color:var(--accent);border-color:transparent;font-weight:600;padding:var(--s2) 10px}
 button.quiet:hover,.button.quiet:hover{color:var(--ink);background:var(--tint);border-color:transparent}
-button.danger{background:transparent;color:var(--danger);border-color:var(--danger)}
-button.danger:hover{background:var(--danger);color:var(--white);border-color:var(--danger)}
-button.danger-solid{background:var(--danger);color:var(--white);border-color:var(--danger)}
-button.danger-solid:hover{background:var(--ink);border-color:var(--ink)}
+button.danger,.button.danger{background:transparent;color:var(--danger);border-color:var(--danger)}
+button.danger:hover,.button.danger:hover{background:var(--danger);color:var(--white);border-color:var(--danger)}
+button.danger-solid,.button.danger-solid{background:var(--danger);color:var(--white);border-color:var(--danger)}
+button.danger-solid:hover,.button.danger-solid:hover{background:var(--ink);border-color:var(--ink)}
 button.sm,.button.sm{min-height:36px;padding:var(--s1) 10px;font-size:13px}
 .row-actions{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;margin-top:var(--s4)}
 .row-actions.tight{margin-top:0}

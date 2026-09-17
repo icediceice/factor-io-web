@@ -247,6 +247,10 @@ The lifecycle, and the only legal moves between states:
 `accepted` is what unlocks invoicing. Illegal jumps (`draft → paid`, going
 backwards) are refused by `lib/quote.mjs` and surface as HTTP 400, not 500.
 
+`issued → issued` is deliberate and is how a correction is recorded: it takes
+another snapshot without moving the state. Editing is allowed up to and
+including `proposed` — see "Correcting a quotation that has already gone out".
+
 ### The tax point is the invoice issue date
 
 Income is recognised on **accrual**, dated by the tax invoice's `issue_date` —

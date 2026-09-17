@@ -216,7 +216,7 @@ async function renderInvoice(id, host, reloadList) {
     const certCounts = b.whtMode !== 'deduct';
     host.append(el(`<section class="card">
       <h2>Settlement</h2>
-      <table class="totals" style="margin:0 0 18px">
+      <table class="totals m0 mb-5">
         <tr><td class="lbl">Payable</td><td class="num">${fmtSatang(b.payableSatang, cur)}</td></tr>
         <tr><td class="lbl">Cash received</td><td class="num">${fmtSatang(b.paidSatang, cur)}</td></tr>
         ${b.withheldSatang ? `<tr class="memo"><td class="lbl">Withheld at source${certCounts ? '' : ' (already deducted — not a settlement)'}</td><td class="num">${fmtSatang(b.withheldSatang, cur)}</td></tr>` : ''}

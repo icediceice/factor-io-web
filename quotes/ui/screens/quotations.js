@@ -252,8 +252,23 @@ async function renderQuote(id, host, reloadList, reloadStats) {
             ? '<span class="meta">PDF available after re-issue</span>'
             : `<a class="button secondary" href="/api/quotations/${q.id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>
                <a class="button secondary" href="/api/quotations/${q.id}/pdf?lang=th" target="_blank" rel="noopener">PDF ไทย</a>`}
-          ${(MOVES[q.status] ?? []).map(([s, label]) =>
-            `<button class="${s === 'cancelled' || s === 'declined' ? 'danger' : 'secondary'}" data-move="${s}">${esc(label)}</button>`).join('')}
+          ${(() => {
+            // Exactly one primary per screen: the natural FORWARD move for this
+            // status — Mark proposed on an issued quote, Accept on a proposed
+            // one. Everything else is secondary, and retiring moves are
+            // destructive-styled. With every move rendered 'secondary' the row
+            // had no focal point at all; with the PDF links wrongly filled it
+            // had two. A retiring move is NEVER promoted to primary, so a
+            // status whose only move is Cancel simply has no primary here
+            // (a draft's primary is its Issue button).
+            const moves = MOVES[q.status] ?? [];
+            const retiring = (s) => s === 'cancelled' || s === 'declined';
+            const lead = moves.find(([s]) => !retiring(s))?.[0];
+            return moves.map(([s, label]) => {
+              const cls = retiring(s) ? 'danger' : (s === lead ? '' : 'secondary');
+              return `<button${cls ? ` class="${cls}"` : ''} data-move="${s}">${esc(label)}</button>`;
+            }).join('');
+          })()}
           ${q.status === 'accepted' ? '<a class="button quiet" href="invoices.html">Raise invoice</a>' : ''}
           <button class="danger" data-act="delete">Delete</button>
         </div>

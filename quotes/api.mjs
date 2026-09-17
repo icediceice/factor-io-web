@@ -240,15 +240,22 @@ export function createApi(db) {
       if (method === 'GET') return json(200, { item: row });
       if (method === 'PUT') {
         const merged = { ...row, ...body };
-        const kind = merged.kind === 'hardware' ? 'hardware' : 'service';
+        // Was: `merged.kind === 'hardware' ? 'hardware' : 'service'` — which
+        // silently REWROTE any unrecognised kind to 'service' instead of
+        // refusing it. kindOf rejects; the row's existing kind is the fallback
+        // when the body simply does not mention kind.
+        const kind = kindOf(db, body, { fallback: String(row.kind) });
+        const billingPeriod = periodOf(body, String(row.billing_period ?? 'once'));
         const unitSatang = merged.unit_satang != null ? Number(merged.unit_satang) : unitSatangOf(body);
         if (!Number.isSafeInteger(unitSatang) || unitSatang < 0) throw bad('unit_satang must be a non-negative integer');
         tx(db, () => {
           db.prepare(
-            `UPDATE catalog_items SET kind=?, sku=?, name_en=?, name_th=?, description=?, unit=?, unit_satang=?, active=?,
+            `UPDATE catalog_items SET kind=?, sku=?, name_en=?, name_th=?, description=?, unit=?, unit_satang=?,
+             billing_period=?, section=?, active=?,
              updated_at=datetime('now') WHERE id=?`
           ).run(kind, String(merged.sku ?? ''), String(merged.name_en ?? row.name_en), String(merged.name_th ?? ''),
-            String(merged.description ?? ''), String(merged.unit ?? 'day'), unitSatang, merged.active === false ? 0 : 1, id);
+            String(merged.description ?? ''), String(merged.unit ?? 'day'), unitSatang,
+            billingPeriod, String(merged.section ?? ''), merged.active === false ? 0 : 1, id);
           audit(db, actor, 'catalog.update', 'catalog_item', id, { fields: Object.keys(body) });
         });
         return json(200, { item: db.prepare('SELECT * FROM catalog_items WHERE id = ?').get(id) });

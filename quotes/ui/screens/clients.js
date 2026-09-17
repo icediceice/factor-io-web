@@ -195,6 +195,7 @@ async function renderClient(id, host, reloadList) {
           body: err.message,
           confirmLabel: 'OK',
           tone: 'warn',
+          acknowledge: true,
         });
       }
     });

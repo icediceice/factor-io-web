@@ -234,8 +234,8 @@ async function renderInvoice(id, host, reloadList) {
         </tr>`).join('')}
       </tbody></table></div>` : '<div class="empty">No payments recorded.</div>'}
       ${i.status === 'draft'
-        ? '<p class="meta" style="margin-top:14px">A draft cannot take a payment — issue it first.</p>'
-        : `<form data-form="pay" style="margin-top:18px">
+        ? '<p class="meta mt-4">A draft cannot take a payment — issue it first.</p>'
+        : `<form data-form="pay" class="mt-5">
         <p class="section-label">Record a payment</p>
         <div class="grid">
           <label>Amount (${esc(cur)})<input name="amount" required inputmode="decimal" pattern="\\d+(\\.\\d{1,2})?" placeholder="10400.00"></label>

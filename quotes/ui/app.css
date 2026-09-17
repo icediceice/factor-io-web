@@ -41,7 +41,7 @@
 
 /* ------------------------------------------------------------------ base -- */
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 var(--font)}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--t-lg)/1.6 var(--font)}
 a{color:var(--accent);text-underline-offset:3px}
 button,input,textarea,select{font:inherit}
 h1,h2,h3,p,dl,dd,figure{margin:0}
@@ -49,24 +49,27 @@ h1,h2,h3,p,dl,dd,figure{margin:0}
    does not paint a ring but every keyboard path does. Never overridden. */
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.skip{position:fixed;left:16px;top:-100px;z-index:60;background:var(--white);padding:var(--s3);border:1px solid var(--muted)}
-.skip:focus{top:10px}
+.skip{position:fixed;left:var(--s4);top:-100px;z-index:60;background:var(--white);padding:var(--s3);border:1px solid var(--muted)}
+.skip:focus{top:var(--s3)}
 
 /* ---------------------------------------------------------------- header -- */
 .site-header{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
-.header-inner{width:min(1560px,calc(100% - var(--s7)));margin:auto;display:flex;align-items:center;gap:var(--s6);min-height:60px;flex-wrap:wrap}
-.brand{font-size:17px;letter-spacing:.06em;font-weight:750;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
+.header-inner{width:min(1560px,calc(100% - var(--s7)));margin:auto;display:flex;align-items:center;gap:var(--s6);min-height:var(--header-h);flex-wrap:wrap}
+.brand{font-size:var(--t-xl);letter-spacing:.06em;font-weight:750;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
 .brand span{font-family:var(--mono);color:var(--accent)}
-#main-nav{display:flex;gap:2px;align-items:center;flex-wrap:wrap}
-#main-nav a{display:flex;align-items:center;min-height:44px;padding:var(--s1) var(--s3);font-size:14px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+#main-nav{display:flex;gap:var(--s1);align-items:center;flex-wrap:wrap}
+#main-nav a{display:flex;align-items:center;min-height:44px;padding:var(--s1) var(--s3);font-size:var(--t-base);color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
 #main-nav a[aria-current=page]{color:var(--ink);border-color:var(--accent);font-weight:600}
 #main-nav a:hover{color:var(--accent);background:var(--tint)}
 .header-inner [data-auth-actions]{margin-left:auto}
 
 /* ---------------------------------------------------------------- layout -- */
 .wrap{width:min(1560px,calc(100% - var(--s7)));margin:var(--s5) auto var(--s7)}
+/* The ONE fluid size in the sheet, and the only type declaration that is not a
+   --t token: a page title should scale with the viewport, the body text of an
+   operator tool should not. Its bounds are the scale's top two steps. */
 h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(--s1);font-weight:600}
-.sub{color:var(--muted);margin:0 0 var(--s5);max-width:78ch;font-size:14px}
+.sub{color:var(--muted);margin:0 0 var(--s5);max-width:78ch;font-size:var(--t-base)}
 .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);flex-wrap:wrap}
 
 /* Workbench: rail feeds detail. One grid, two ruled columns, no shadow. */

@@ -165,7 +165,11 @@ table.list tbody tr:hover td{background:var(--tint)}
 table.list tr[data-optional=true] td{color:var(--muted)}
 table.list td.actions{text-align:right;white-space:nowrap;width:1%}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.mono{font-family:var(--mono);font-size:.92em}
+/* Mono glyphs run wide, so .92em keeps a monospaced figure optically level
+   with the sans text beside it. The max() is the floor: on a --t-sm parent
+   that multiplier lands at 11.04px, which is how a "7%" on the Reports screen
+   ended up as the one piece of text under 12px (measured). */
+.mono{font-family:var(--mono);font-size:max(var(--t-sm),.92em)}
 .num{font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
 .meta{font-size:var(--t-sm);color:var(--muted)}

@@ -263,7 +263,7 @@ async function renderInvoice(id, host, reloadList) {
           <td>${esc(w.payerName) || '—'}<br><span class="muted mono">${esc(w.payerTaxId) || ''}</span></td>
         </tr>`).join('')}
       </tbody></table></div>` : '<div class="empty">No certificates recorded against this invoice.</div>'}
-      <form data-form="wht" style="margin-top:18px">
+      <form data-form="wht" class="mt-5">
         <p class="section-label">Record a certificate</p>
         <div class="grid">
           <label>Certificate no.<input name="cert_number" placeholder="WHT-0001" class="mono"></label>

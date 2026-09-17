@@ -331,6 +331,141 @@ export const MIGRATIONS = [
         ('company.branch_en',         'Head Office', 'seed');
     `,
   },
+  {
+    version: 5,
+    name: 'generalized-line-types',
+    // Opens the quotation up to ANY product type — software, licences,
+    // subscriptions, support, training — instead of just service|hardware.
+    //
+    // Three things happen here and two of them are easy to get wrong:
+    //
+    //   1. `kind` stops being a closed CHECK. The vocabulary moves to the
+    //      settings row 'line.kinds', because every other business fact in
+    //      this system is already a settings row the operator owns (see the
+    //      header of this file). SQLite cannot drop a CHECK in place, so each
+    //      of the three tables carrying it is rebuilt with the 12-step
+    //      procedure migrate() already wraps: foreign_keys OFF outside the
+    //      transaction, one transaction per migration, foreign_key_check
+    //      before COMMIT.
+    //
+    //   2. `billing_period` KEEPS a closed CHECK, and that is deliberate — it
+    //      is not an inconsistency with (1). computeTotals BRANCHES on this
+    //      value, so an unrecognised period would fall out of every recurring
+    //      bucket and silently understate a multi-year contract. `kind` only
+    //      ever selects a display label, so a typo there is cosmetic.
+    //
+    //   3. invoice_lines gains billing_period and section but deliberately NOT
+    //      `optional`. A tax invoice bills what the customer agreed to buy: an
+    //      option they declined is never copied in, and one they accepted
+    //      arrives as an ordinary line. An 'optional' column on a filed
+    //      invoice could only ever be 0, and would invite the reader to
+    //      believe otherwise.
+    //
+    // Rebuild order note: dropping catalog_items leaves quotation_lines
+    // momentarily referencing a missing table, and modern SQLite reparses the
+    // whole schema during ALTER TABLE ... RENAME. This was probed directly
+    // before writing the migration — the rename survives, foreign_key_check
+    // stays clean and the REFERENCES clause is preserved — so no
+    // legacy_alter_table workaround is needed.
+    sql: `
+      -- catalog_items: open kind, plus a default period/section so a
+      -- catalogued subscription seeds a recurring line without re-typing it.
+      CREATE TABLE catalog_items_new (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        kind           TEXT NOT NULL,
+        sku            TEXT NOT NULL DEFAULT '',
+        name_en        TEXT NOT NULL,
+        name_th        TEXT NOT NULL DEFAULT '',
+        description    TEXT NOT NULL DEFAULT '',
+        unit           TEXT NOT NULL DEFAULT 'day',
+        unit_satang    INTEGER NOT NULL CHECK (unit_satang >= 0),
+        billing_period TEXT NOT NULL DEFAULT 'once'
+                       CHECK (billing_period IN ('once','monthly','quarterly','yearly')),
+        section        TEXT NOT NULL DEFAULT '',
+        active         INTEGER NOT NULL DEFAULT 1,
+        created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO catalog_items_new
+        (id, kind, sku, name_en, name_th, description, unit, unit_satang, active, created_at, updated_at)
+        SELECT id, kind, sku, name_en, name_th, description, unit, unit_satang, active, created_at, updated_at
+        FROM catalog_items;
+      DROP TABLE catalog_items;
+      ALTER TABLE catalog_items_new RENAME TO catalog_items;
+
+      -- quotation_lines: open kind; billing_period feeds the recurring
+      -- buckets; section groups the printed table; optional shows the line to
+      -- the customer while excluding it from every total.
+      CREATE TABLE quotation_lines_new (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        quotation_id    INTEGER NOT NULL REFERENCES quotations(id) ON DELETE CASCADE,
+        position        INTEGER NOT NULL DEFAULT 0,
+        kind            TEXT NOT NULL,
+        description_en  TEXT NOT NULL,
+        description_th  TEXT NOT NULL DEFAULT '',
+        qty_milli       INTEGER NOT NULL CHECK (qty_milli > 0),
+        unit            TEXT NOT NULL DEFAULT 'day',
+        unit_satang     INTEGER NOT NULL CHECK (unit_satang >= 0),
+        discount_satang INTEGER NOT NULL DEFAULT 0 CHECK (discount_satang >= 0),
+        billing_period  TEXT NOT NULL DEFAULT 'once'
+                        CHECK (billing_period IN ('once','monthly','quarterly','yearly')),
+        section         TEXT NOT NULL DEFAULT '',
+        optional        INTEGER NOT NULL DEFAULT 0 CHECK (optional IN (0,1)),
+        catalog_id      INTEGER REFERENCES catalog_items(id),
+        created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO quotation_lines_new
+        (id, quotation_id, position, kind, description_en, description_th,
+         qty_milli, unit, unit_satang, discount_satang, catalog_id, created_at)
+        SELECT id, quotation_id, position, kind, description_en, description_th,
+               qty_milli, unit, unit_satang, discount_satang, catalog_id, created_at
+        FROM quotation_lines;
+      DROP TABLE quotation_lines;
+      ALTER TABLE quotation_lines_new RENAME TO quotation_lines;
+      CREATE INDEX idx_lines_quotation ON quotation_lines(quotation_id, position);
+
+      -- invoice_lines: same open kind. The period and section are COPIED at
+      -- raise time, never re-read from the quotation, so a PDF re-rendered
+      -- years later still shows what was actually filed.
+      CREATE TABLE invoice_lines_new (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_id      INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+        position        INTEGER NOT NULL DEFAULT 0,
+        kind            TEXT NOT NULL,
+        description_en  TEXT NOT NULL,
+        description_th  TEXT NOT NULL DEFAULT '',
+        qty_milli       INTEGER NOT NULL CHECK (qty_milli > 0),
+        unit            TEXT NOT NULL DEFAULT 'day',
+        unit_satang     INTEGER NOT NULL CHECK (unit_satang >= 0),
+        discount_satang INTEGER NOT NULL DEFAULT 0 CHECK (discount_satang >= 0),
+        billing_period  TEXT NOT NULL DEFAULT 'once'
+                        CHECK (billing_period IN ('once','monthly','quarterly','yearly')),
+        section         TEXT NOT NULL DEFAULT '',
+        created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO invoice_lines_new
+        (id, invoice_id, position, kind, description_en, description_th,
+         qty_milli, unit, unit_satang, discount_satang, created_at)
+        SELECT id, invoice_id, position, kind, description_en, description_th,
+               qty_milli, unit, unit_satang, discount_satang, created_at
+        FROM invoice_lines;
+      DROP TABLE invoice_lines;
+      ALTER TABLE invoice_lines_new RENAME TO invoice_lines;
+      CREATE INDEX idx_invoice_lines ON invoice_lines(invoice_id, position);
+
+      -- The contract term is one fact about the WHOLE proposal, not about a
+      -- line, so it lives on the quotation. 0 means no term was stated, and
+      -- then no contract total is shown at all.
+      ALTER TABLE quotations ADD COLUMN term_months INTEGER NOT NULL DEFAULT 0;
+
+      -- The vocabulary itself: operator-editable like every other business
+      -- fact here, so adding a product type is a settings edit, not a deploy.
+      INSERT INTO settings (key, value, updated_by) VALUES
+        ('line.kinds',
+         '[{"code":"service","en":"Service","th":"บริการ"},{"code":"hardware","en":"Hardware","th":"ฮาร์ดแวร์"},{"code":"software","en":"Software","th":"ซอฟต์แวร์"},{"code":"license","en":"License","th":"ไลเซนส์"},{"code":"subscription","en":"Subscription","th":"ค่าบริการรายงวด"},{"code":"support","en":"Support","th":"บริการสนับสนุน"},{"code":"training","en":"Training","th":"การฝึกอบรม"},{"code":"cloud","en":"Cloud","th":"คลาวด์"},{"code":"expense","en":"Expense","th":"ค่าใช้จ่าย"}]',
+         'seed');
+    `,
+  },
 ];
 
 export function openDb(path) {

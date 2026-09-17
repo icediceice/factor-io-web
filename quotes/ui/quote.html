@@ -216,6 +216,26 @@ function bindHeader(h) {
     try { await api('DELETE', `/quotations/${id}`); location.href = 'index.html'; }
     catch (e) { toast(e.message, 'error'); }
   });
+  // Revise and Done editing only move the page's own lock. Nothing is sent:
+  // the quotation's status does not change because it is being corrected.
+  const revise = h.querySelector('#revise');
+  if (revise) revise.addEventListener('click', () => {
+    revising = true;
+    renderAll();
+    toast('Editing unlocked — re-issue when the correction is done');
+  });
+  const lock = h.querySelector('#lock');
+  if (lock) lock.addEventListener('click', () => { revising = false; renderAll(); });
+  const reissue = h.querySelector('#reissue');
+  if (reissue) reissue.addEventListener('click', async () => {
+    try {
+      const res = await refresh(api('POST', `/quotations/${id}/issue`));
+      revising = false;
+      renderAll();
+      toast(`Re-issued — revision ${doc.quotation.revision} recorded`);
+      return res;
+    } catch (e) { toast(e.message, 'error'); }
+  });
 }
 
 async function refresh(promise) {

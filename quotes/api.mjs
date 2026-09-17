@@ -259,7 +259,7 @@ export function createApi(db) {
             `INSERT INTO catalog_items (kind, sku, name_en, name_th, description, unit, unit_satang, billing_period, section, active)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           ).run(kind, optStr(body, 'sku', { max: 100 }), name, optStr(body, 'name_th'),
-            optStr(body, 'description'), optStr(body, 'unit', { max: 30 }) || 'day', unitSatang,
+            optStr(body, 'description'), optStr(body, 'unit', { max: 30 }) || defaultUnitFor(kind, billingPeriod), unitSatang,
             billingPeriod, optStr(body, 'section', { max: 100 }),
             body.active === false ? 0 : 1);
           audit(db, actor, 'catalog.create', 'catalog_item', id, { kind, name });

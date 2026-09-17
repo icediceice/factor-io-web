@@ -444,3 +444,106 @@ describe('migrations', () => {
     assert.ok(kinds.some((k) => k.code === 'software' && k.th === 'ซอฟต์แวร์'));
   });
 });
+
+// The backward-compatibility assertion the whole migration rests on. Every
+// quotation written before migration 5 has billing_period 'once', a blank
+// section, optional 0 and term_months 0 — those defaults must be INVISIBLE on
+// the rendered document, or migrating silently redesigned every quote already
+// sent to a customer.
+describe('a pre-migration-5 quotation renders exactly as it always did', () => {
+  const money = (s) => formatMoney(s, { symbol: '฿', code: 'THB' });
+
+  test('no section anywhere: a flat table, no grouping or billing furniture', () => {
+    const { db, qid } = seedDb();
+    const html = renderQuotationHtml(buildQuoteDocument(db, qid), 'en');
+
+    // None of the new furniture may appear.
+    assert.equal(html.includes('<tr class="sec">'), false);
+    assert.equal(html.includes('class="secsum"'), false);
+    assert.equal(html.includes('class="period"'), false);
+    assert.equal(html.includes('class="opt"'), false);
+    assert.equal(html.includes('class="memo"'), false);
+
+    // Rows stay in position order, one per line.
+    assert.equal((html.match(/<td class="pos">/g) ?? []).length, 3);
+    assert.ok(html.indexOf('Architecture consulting') < html.indexOf('Half-day review'));
+    assert.ok(html.indexOf('Half-day review') < html.indexOf('Edge server'));
+
+    // And the legacy figures are untouched: gross 442,500.00, discount
+    // 10,000.00, net 432,500.00 — the same arithmetic as before migration 5.
+    assert.ok(html.includes(money(44250000)));
+    assert.ok(html.includes(money(1000000)));
+    assert.ok(html.includes(money(43250000)));
+  });
+
+  test('the migration-5 defaults do not reach the document object either', () => {
+    const { db, qid } = seedDb();
+    const doc = buildQuoteDocument(db, qid);
+    assert.equal(doc.quotation.termMonths, 0);
+    assert.equal(doc.totals.contractTotalSatang, null);
+    assert.equal(doc.totals.optionalSatang, 0);
+    assert.equal(doc.totals.hasRecurring, false);
+    assert.equal(doc.totals.oneTimeSatang, doc.totals.netSatang);
+    for (const l of doc.lines) {
+      assert.equal(l.billingPeriod, 'once');
+      assert.equal(l.section, '');
+      assert.equal(l.optional, false);
+    }
+  });
+});
+
+// computeTotals folds every line of a section into ONE entry, so the template
+// must group by section NAME. Rendering contiguous runs instead printed the
+// header twice and the FULL section subtotal under each half — a figure that
+// adds up to nothing on the page and is double the truth.
+describe('section subtotals when a section name repeats out of order', () => {
+  const money = (s) => formatMoney(s, { symbol: '฿', code: 'THB' });
+
+  function seedInterleaved() {
+    const db = openDb(':memory:');
+    db.prepare(`INSERT INTO clients (name) VALUES ('Acme Ltd')`).run();
+    db.prepare(`INSERT INTO quotations (number, client_id, lang) VALUES ('QT-202609-0009', 1, 'en')`).run();
+    const add = db.prepare(
+      `INSERT INTO quotation_lines
+         (quotation_id, position, kind, description_en, qty_milli, unit, unit_satang, billing_period, section, optional)
+       VALUES (1, ?, ?, ?, 1000, 'unit', ?, ?, ?, ?)`
+    );
+    add.run(1, 'software', 'Platform licence', 40000000, 'yearly', 'Software', 0);
+    add.run(2, 'service', 'Installation', 15000000, 'once', 'Services', 0);
+    add.run(3, 'software', 'Analytics module', 25000000, 'yearly', 'Software', 0);
+    add.run(4, 'training', 'Operator course', 9000000, 'once', 'Options', 1);
+    return db;
+  }
+
+  test('each section prints one header and one subtotal equal to ITS gross', () => {
+    const html = renderQuotationHtml(buildQuoteDocument(seedInterleaved(), 1), 'en');
+
+    assert.equal((html.match(/<tr class="sec"><td colspan="\d+">Software<\/td><\/tr>/g) ?? []).length, 1);
+    assert.equal((html.match(/<tr class="sec"><td colspan="\d+">Services<\/td><\/tr>/g) ?? []).length, 1);
+    assert.equal((html.match(/class="secsum"/g) ?? []).length, 2);
+
+    // 400,000 + 250,000 in one Software subtotal — NOT 650,000 printed twice.
+    assert.ok(html.includes(money(65000000)));
+    assert.ok(html.includes(money(15000000)));
+
+    // Both Software lines sit above their single subtotal, and the whole
+    // Software group precedes the Services header.
+    const softwareSubtotal = html.indexOf('— Software');
+    assert.ok(html.indexOf('Platform licence') < softwareSubtotal);
+    assert.ok(html.indexOf('Analytics module') < softwareSubtotal);
+    assert.ok(softwareSubtotal < html.indexOf('>Services<'));
+  });
+
+  test('an all-optional section shows its rows and no subtotal', () => {
+    const doc = buildQuoteDocument(seedInterleaved(), 1);
+    // computeTotals never saw the optional line, so Options has no entry...
+    assert.equal(doc.totals.sections.some((s) => s.name === 'Options'), false);
+    assert.equal(doc.totals.optionalSatang, 9000000);
+    // ...and the page prints the header and the row, but no subtotal for it.
+    const html = renderQuotationHtml(doc, 'en');
+    assert.ok(html.includes('Operator course'));
+    assert.equal(html.includes('— Options'), false);
+    // The option is in no payable figure.
+    assert.equal(doc.totals.subtotalSatang, 80000000);
+  });
+});

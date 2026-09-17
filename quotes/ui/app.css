@@ -275,6 +275,17 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
   .kv dt{margin-top:var(--s3);font-size:12.5px}
   .totals{min-width:0;width:100%}
   .grid{grid-template-columns:1fr}
+  /* The position strip stays ONE row and scrolls sideways. Letting auto-fit
+     stack it into three full-width cells cost ~150px of a 844px phone before
+     the first record — the ambient figures would have pushed the work they
+     describe off the screen. */
+  .stat-row.posbar{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);overflow-x:auto}
+  /* A Ledger toolbar at 390 stacked title, toggle and search into three rows.
+     Title on its own line, controls sharing the next one. */
+  .toolbar{gap:var(--s2) var(--s3)}
+  .toolbar>h2{flex:1 1 100%}
+  .toolbar .row-actions{flex:1 1 100%;flex-wrap:nowrap}
+  .toolbar .row-actions input[type=search]{flex:1 1 auto;min-width:0}
 }
 .back-to-list{display:none}
 @media(max-width:860px){.back-to-list{display:inline-flex;margin-bottom:var(--s3)}}

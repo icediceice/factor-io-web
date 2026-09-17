@@ -295,10 +295,7 @@ function measure(win) {
   const rail = doc.querySelector('.wb-rail');
   if (rail && rails.length) {
     const rr = rail.getBoundingClientRect();
-    const seen = rails.filter((el) => {
-      const r = el.getBoundingClientRect();
-      return r.top >= rr.top - 1 && r.bottom <= rr.bottom + 1;
-    }).length;
+    const seen = rails.filter((el) => onScreen(el, win)).length;
     // A rail exists to be scanned. Showing fewer than 6 of what it holds is a
     // failure of the macrostructure, not a scrolling preference.
     const want = Math.min(rails.length, 6);

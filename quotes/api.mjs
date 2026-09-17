@@ -510,6 +510,7 @@ export function createApi(db) {
       issuer: doc.issuer,
       bank: doc.bank,
       terms: doc.terms,
+      kindLabels: doc.kindLabels,
       ...extra,
     });
 

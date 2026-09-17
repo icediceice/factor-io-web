@@ -135,6 +135,30 @@ describe('quotation flow', () => {
     const q2 = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
     assert.notEqual(q2.number, q.number); // counters never reuse a number
   });
+
+  test('a line can be removed and corrected using the id the document hands out', async () => {
+    // The reported symptom: every Remove/Edit control answered "line not found"
+    // because GET /quotations/:id served lines with no id, so the UI addressed
+    // /lines/undefined. This drives the API exactly as the screen does.
+    const { call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } })).body).client;
+    const q = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
+    await call('POST', `/quotations/${q.id}/lines`, {
+      body: { kind: 'service', description_en: 'Consulting', qty: '2', unit_price: '1000.00' },
+    });
+
+    const doc = JSON.parse((await call('GET', `/quotations/${q.id}`)).body);
+    const lineId = doc.lines[0].id;
+    assert.ok(Number.isInteger(lineId), 'the document must hand the UI an addressable line id');
+
+    const edited = await call('PUT', `/quotations/${q.id}/lines/${lineId}`, { body: { description_en: 'Consulting (revised)' } });
+    assert.equal(edited.status, 200);
+    assert.equal(JSON.parse(edited.body).lines[0].descriptionEn, 'Consulting (revised)');
+
+    const removed = await call('DELETE', `/quotations/${q.id}/lines/${lineId}`);
+    assert.equal(removed.status, 200);
+    assert.equal(JSON.parse(removed.body).lines.length, 0);
+  });
 });
 
 describe('http auth boundary (createApp actorFor lanes)', () => {

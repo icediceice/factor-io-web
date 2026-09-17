@@ -22,10 +22,11 @@ Type=simple
 WorkingDirectory=/home/ice/.factor-quotes
 EnvironmentFile=/home/ice/.factor-quotes/.env
 # NODE_ENV=production makes the boot gate refuse unless tailscaled whois works
-# and QUOTES_ALLOWED_EMAILS is non-empty.
+# and both QUOTES_ALLOWED_EMAILS and QUOTES_ALLOWED_HOSTS are non-empty.
 # Required in /home/ice/.factor-quotes/.env:
 #   QUOTES_AUTH_MODE=tailscale
 #   QUOTES_BIND=127.0.0.1,100.111.93.20
+#   QUOTES_ALLOWED_HOSTS=quotes.factor-io.com:8787,100.111.93.20:8787,127.0.0.1:8787
 # Keeping these in the env file makes the documented loopback-only rollback
 # effective without editing or reinstalling the unit.
 Environment=NODE_ENV=production

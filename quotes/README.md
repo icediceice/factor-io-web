@@ -352,6 +352,12 @@ deliberately honest about what they cannot know:
 | `tax.branch_code` | `00000` | Head office; frozen onto each invoice |
 | `tax.fiscal_year_end` | `12-31` | |
 | `company.branch_th` / `company.branch_en` | สำนักงานใหญ่ / Head Office | Printed on the document |
+| `company.name` / `company.name_th` | Factor I O Co., Ltd. / แฟคเคอร์ ไอ โอ จำกัด | The **registered legal name**, a mandatory particular of every tax invoice (Revenue Code s.86/4) |
+
+The brand is written **Factor IO** (no slash) everywhere it appears as a brand;
+the legal name is `Factor I O Co., Ltd.` / `แฟคเคอร์ ไอ โอ จำกัด`. They are
+different strings for different purposes, and the Thai is the registered name
+as given by the operator — do not normalise it.
 
 Existing `vat.rate_percent`, `wht.rate_percent` and `wht.apply` keep their
 meaning — they are simply *copied* onto an invoice at issue instead of being

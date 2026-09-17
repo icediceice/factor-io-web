@@ -121,13 +121,13 @@ h1{font-size:clamp(1.35rem,2.4vw,1.75rem);letter-spacing:-.02em;margin:0 0 var(-
 .filters label{margin:0;flex:1 1 120px;min-width:0}
 
 /* ----------------------------------------------------------------- cards -- */
-.card{background:var(--white);border:1px solid var(--line);padding:18px 20px;margin-bottom:var(--s5)}
+.card{background:var(--white);border:1px solid var(--line);padding:var(--s5);margin-bottom:var(--s5)}
 .card:last-child{margin-bottom:0}
 .wb-detail .card{border-width:0 0 1px 0;padding:0 0 var(--s5);margin-bottom:var(--s5);background:transparent}
 .wb-detail .card:last-child{border-bottom:0;padding-bottom:0}
-.card h2{font-size:15px;margin:0 0 var(--s3);font-weight:600;display:flex;gap:var(--s2);align-items:baseline;flex-wrap:wrap}
-.card h2 .muted{font-weight:400;font-size:13px}
-.section-label{font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
+.card h2{font-size:var(--t-lg);margin:0 0 var(--s3);font-weight:600;display:flex;gap:var(--s2);align-items:baseline;flex-wrap:wrap}
+.card h2 .muted{font-weight:400;font-size:var(--t-md)}
+.section-label{font:var(--t-xs) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
 
 /* ---------------------------------------------------------------- tables -- */
 table.list{width:100%;border-collapse:collapse;font-size:var(--t-base)}

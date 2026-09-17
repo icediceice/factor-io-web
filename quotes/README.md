@@ -88,7 +88,7 @@ ingress would require a new reviewed deployment design; none are shipped here.
 | `QUOTES_ALLOWED_EMAILS` | prod | Comma-separated allowlist; required in both modes |
 | `QUOTES_AGENT_TOKEN` | agent | Bearer token for the CLI/agent lane (actor "agent" in the audit log) |
 | `QUOTES_TMPDIR` | no | PDF scratch dir (default `$HOME/quotes-tmp` — snap Chromium cannot write /tmp or hidden dirs) |
-| `QUOTES_CHROMIUM` | no | Chromium binary (auto-probes chromium-browser, chromium, google-chrome) |
+| `QUOTES_CHROMIUM` | **yes, under systemd** | Chromium binary (auto-probes chromium-browser, chromium, google-chrome). **A snap Chromium cannot run under the systemd unit at all** — `NoNewPrivileges=yes` makes snap-confine fail on `cap_dac_override`, and `PrivateTmp=yes`+`ProtectSystem=full` make it refuse as "not confined". If `/usr/bin/chromium-browser` is a snap wrapper, every PDF route answers 503 "no Chromium binary found"; point this at a real Chrome/Chromium binary instead. |
 
 ## Agent usage (terminal)
 

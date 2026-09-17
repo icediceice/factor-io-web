@@ -95,6 +95,7 @@ const docEnvelope = (doc, extra = {}) => ({
   issuer: doc.issuer,
   bank: doc.bank,
   terms: doc.terms,
+  kindLabels: doc.kindLabels,
   ...extra,
 });
 

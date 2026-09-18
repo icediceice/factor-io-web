@@ -165,5 +165,4 @@ export function bindNavigation(doc) {
 if (typeof document !== 'undefined') {
   bindNavigation(document);
   document.querySelectorAll('[data-demo]').forEach(bindDemo);
-  document.querySelectorAll('[data-contact]').forEach(bindContact);
 }

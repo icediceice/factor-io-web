@@ -10,7 +10,9 @@ const link = (href, label, cls = 'text-link') => {
 
 export function renderJsonLd() {
   return `<script type="application/ld+json">${json({ '@context': 'https://schema.org', '@graph': [
-    { '@type': 'Organization', '@id': `${config.origin}/#organization`, name: config.name, legalName: config.legalName, url: `${config.origin}/`, email: config.email, description: config.organizationDescription, founder: { '@id': `${config.origin}/#founder` } },
+    { '@type': 'Organization', '@id': `${config.origin}/#organization`, name: config.name, legalName: config.legalName, url: `${config.origin}/`, email: config.email, telephone: config.phone, taxID: config.registration,
+      address: { '@type': 'PostalAddress', streetAddress: config.address.street, addressLocality: config.address.locality, addressRegion: config.address.region, postalCode: config.address.postalCode, addressCountry: config.address.country },
+      description: config.organizationDescription, founder: { '@id': `${config.origin}/#founder` } },
     { '@type': 'Person', '@id': `${config.origin}/#founder`, name: config.founder, jobTitle: config.role, description: config.founderDescription, worksFor: { '@id': `${config.origin}/#organization` }, sameAs: [config.linkedin, config.github] },
   ] })}</script>`;
 }

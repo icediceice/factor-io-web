@@ -208,9 +208,14 @@ test('the email address survives as the secondary channel, wrapped in its edge o
 });
 
 test('the deleted draft form leaves nothing behind: no form, no draft panel, no mailto composition', async () => {
+  // Contact carried the only form on the site; the services demo keeps its own
+  // revision input, which this change never touched. Scope the form assertion to
+  // the contact pages and the dead wiring assertion to every page.
+  for (const locale of ['en', 'th']) {
+    assert.doesNotMatch(output.get(`${locale}/contact/index.html`), /<form|<textarea|<input\b|<button/);
+  }
   for (const html of output.values()) {
-    assert.doesNotMatch(html, /<form|<textarea|<input\b(?![^>]*data-)/);
-    assert.doesNotMatch(html, /draft-panel|form-status|data-contact|email-draft/);
+    assert.doesNotMatch(html, /draft-panel|form-status|data-contact|email-draft|data-copy-draft|data-mail/);
   }
   const script = await read('assets/site.js');
   assert.doesNotMatch(script, /prepareMailDraft|copyDraft|MAILTO_LIMIT|bindContact/);

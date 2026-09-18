@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-17 (marketing site: four routes, EN/TH copy rewrite, three routes retired to redirect stubs)
+> Last updated: 2026-09-18 (About `independence` softened: positioning moved off "not for a vendor")
 
 ## Current Focus
 

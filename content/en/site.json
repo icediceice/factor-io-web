@@ -26,11 +26,9 @@
     "static": "A restart of production/payment-api by workflow-agent-17, which is authorized only for staging/*, is refused. A human approval naming that target, the restart operation and revision 182 permits that one request and nothing else. Identity and permissions come from the execution layer, never from what the model claims about itself."
   },
   "contact": {
-    "title": "Prepare a conversation, not a ticket.", "intro": "This form prepares an email on your device. Nothing is sent to a server. You choose whether to open your email app and send it.",
-    "name": "Name", "email": "Your email", "company": "Company (optional)", "workflow": "What you are working on", "hint": "Describe the environment you have now, the outcome you want and any limits we should know about. Please leave out credentials, personal records and confidential production data.",
-    "prepare": "Prepare email", "draft": "Your complete email draft", "open": "Open email app", "copy": "Copy draft", "prepared": "Draft prepared on your device — not sent. Read it through, then send it yourself from your email app.",
-    "long": "This draft is too long to open reliably through an email-app link. Copy the complete text below into an email to admin@factor-io.com. Nothing has been shortened or sent.",
-    "copied": "Draft copied. Nothing has been sent.", "copyFailed": "Copy is unavailable. The draft is selected below; copy it manually.", "changed": "Your details changed. Prepare a new draft before you use it.", "invalid": "Check the required fields and use a valid email address.", "subject": "Project enquiry / enterprise AI, Kubernetes & governance", "fallback": "Prefer your own email app? Write directly to", "nojs": "Preparing the email needs JavaScript. You can still contact us directly at the address below.", "privacy": "Read how website enquiries are handled."
+    "title": "Talk to us on LINE.", "intro": "LINE is the quickest way to reach us. Send a short note about what you are working on and what you already have running — we will reply there.",
+    "lineAction": "Add Factor IO on LINE", "qrAlt": "LINE QR code for Factor IO. Scan it in the LINE app to start a conversation.", "qrCaption": "Scan from another device, or tap the button above on your phone.", "lineIdLabel": "LINE ID",
+    "fallback": "Prefer email? Write directly to", "privacy": "Read how enquiries are handled."
   },
   "pages": {
     "home": {

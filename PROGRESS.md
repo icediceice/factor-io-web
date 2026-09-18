@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-18 (About `independence` softened: positioning moved off "not for a vendor")
+> Last updated: 2026-09-18 (contact is a LINE conversation; the email draft form and its JS subsystem deleted)
 
 ## Current Focus
 

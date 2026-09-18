@@ -8,7 +8,7 @@ import { renderPage, esc } from '../site/templates.mjs';
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const hash = value => createHash('sha256').update(value).digest('hex');
-export const assetNames = ['site.css', 'site.js', 'favicon.svg'];
+export const assetNames = ['site.css', 'site.js', 'favicon.svg', 'line-qr.jpg'];
 
 export function assertParity(a, b, path = 'content') {
   if (Array.isArray(a)) {

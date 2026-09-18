@@ -135,6 +135,14 @@ async function interactions(frame, page) {
     }
     const mail = doc.querySelector('.contact-direct a[href^="mailto:"]');
     if (!mail) failures.push('direct email address missing from contact');
+    else if (action) {
+      // The primary action must paint above the secondary channel at every width.
+      // At <=760px .contact-layout is one column, so this is literally the first
+      // thing a visitor on a phone can tap. Geometry, not DOM order: the node test
+      // covers the source order, this covers what grid-template-areas actually did.
+      const top = action.getBoundingClientRect().top, mailTop = mail.getBoundingClientRect().top;
+      if (!(top < mailTop)) failures.push(`LINE action paints below the email fallback (${Math.round(top)} vs ${Math.round(mailTop)})`);
+    }
     if (doc.querySelector('form')) failures.push('a form survived on the contact page');
   }
   return failures;

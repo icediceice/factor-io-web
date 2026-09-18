@@ -1,5 +1,4 @@
 // Local progressive enhancement only. No fetch, persistence, inference or submission.
-export const MAILTO_LIMIT = 1800;
 const targets = new Set(['production/payment-api', 'staging/payment-api', 'production/reporting-api']);
 const validRequest = r => targets.has(r.target) && r.operation === 'restart' && Number.isSafeInteger(r.revision) && r.revision >= 1 && r.revision <= 999999;
 const sameRequest = (a, b) => !!a && a.target === b.target && a.operation === b.operation && a.revision === b.revision;

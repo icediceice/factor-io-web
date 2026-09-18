@@ -2,6 +2,7 @@
 export const config = {
   origin: 'https://studio.factor-io.com', updated: '2026-09-11', name: 'Factor IO',
   legalName: 'Factor I O Co., Ltd.', email: 'admin@factor-io.com',
+  lineId: 'icediceice', lineUrl: 'https://line.me/ti/p/~icediceice',
   founder: 'Thanat Manasakool', role: 'Founder & Principal Engineer',
   linkedin: 'https://www.linkedin.com/in/thanat-manasakool-3101905a/', github: 'https://github.com/icediceice',
   founderDescription: "Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners.",

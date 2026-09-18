@@ -2,6 +2,12 @@
 export const config = {
   origin: 'https://studio.factor-io.com', updated: '2026-09-11', name: 'Factor IO',
   legalName: 'Factor I O Co., Ltd.', email: 'admin@factor-io.com',
+  // Registered particulars. The registration number doubles as the tax identification
+  // number under Thai law, and the address romanisation is reproduced exactly as the
+  // operator supplied it — never normalised to RTGS, for the same reason the Thai
+  // registered name is not normalised (see quotes/lib/db.mjs seed-settings).
+  registration: '0105562205512', phone: '+66928887155', phoneDisplay: '+66 92 888 7155',
+  address: { street: '88/57 Sethasiri Punyainthra', locality: 'Bang Chan, Klong Sam Wa', region: 'Bangkok', postalCode: '10510', country: 'TH' },
   lineId: 'icediceice', lineUrl: 'https://line.me/ti/p/~icediceice',
   founder: 'Thanat Manasakool', role: 'Founder & Principal Engineer',
   linkedin: 'https://www.linkedin.com/in/thanat-manasakool-3101905a/', github: 'https://github.com/icediceice',
@@ -15,6 +21,6 @@ export const config = {
     { path: '/privacy.html', updated: '2026-09-11' },
   ],
 };
-export const routes = ['home', 'services', 'about', 'contact'];
+export const routes = ['home', 'services', 'about', 'profile', 'contact'];
 export const routePath = (locale, page) => `/${locale}/${page === 'home' ? '' : `${page}/`}`;
 export const outputPath = (locale, page) => `${routePath(locale, page).slice(1)}index.html`;

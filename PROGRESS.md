@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-18 (contact is a LINE conversation; the email draft form and its JS subsystem deleted)
+> Last updated: 2026-09-18 (platform-first repositioning: Kubernetes and infrastructure lead, AI named as the specialisation)
 
 ## Current Focus
 

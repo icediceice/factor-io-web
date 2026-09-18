@@ -189,43 +189,38 @@ test('vendor product framing is gone while the founder employment history is pre
   assert.match(config.founderDescription, /Red Hat and Nutanix/);
 });
 
-const values = { name: 'Test Engineer', email: 'test@example.com', company: 'Example', workflow: 'A staging migration.' };
-test('short contact draft safely encodes subject/body; preparation never means delivery', () => {
-  const result = prepareMailDraft({ ...values, workflow: 'A & B? #1\n<unsafe> + = 100%' }, content.en.contact, config.email);
-  assert.ok(result.mailto); const url = new URL(result.mailto);
-  assert.equal(url.searchParams.get('subject'), content.en.contact.subject);
-  assert.equal(url.searchParams.get('body'), result.body);
-  assert.ok(result.text.includes('<unsafe>'));
-  assert.equal(result.encodedLength, result.mailto.length);
+test('both contact pages lead with LINE: the profile link, the QR with a cache-busting hash, and the LINE id', () => {
+  for (const locale of ['en', 'th']) {
+    const html = output.get(`${locale}/contact/index.html`);
+    assert.ok(html.includes(`href="${config.lineUrl}"`), `${locale} contact is missing the LINE profile link`);
+    const img = html.match(/<img src="\/assets\/line-qr\.jpg\?v=([0-9a-f]{12})"[^>]*>/);
+    assert.ok(img, `${locale} contact is missing the QR image with a content hash`);
+    assert.match(img[0], /alt="[^"]+"/);
+    assert.ok(html.includes(config.lineId), `${locale} contact is missing the LINE id`);
+  }
 });
 
-test('Thai, emoji and long drafts retain all text and use fallback over the complete URI budget', () => {
-  const workflow = 'ตรวจสอบระบบก่อนไปใช้งานจริง 🚦\n'.repeat(40);
-  const result = prepareMailDraft({ ...values, workflow }, content.th.contact, config.email);
-  assert.equal(result.mailto, null); assert.ok(result.encodedLength > MAILTO_LIMIT); assert.ok(result.text.endsWith(workflow));
-  const base = prepareMailDraft({ ...values, workflow: 'x' }, content.en.contact, config.email);
-  const exact = prepareMailDraft({ ...values, workflow: 'x'.repeat(MAILTO_LIMIT - base.encodedLength + 1) }, content.en.contact, config.email);
-  assert.equal(exact.encodedLength, MAILTO_LIMIT); assert.ok(exact.mailto);
-  const over = prepareMailDraft({ ...values, workflow: 'x'.repeat(MAILTO_LIMIT - base.encodedLength + 2) }, content.en.contact, config.email);
-  assert.equal(over.encodedLength, MAILTO_LIMIT + 1); assert.equal(over.mailto, null);
+test('the email address survives as the secondary channel, wrapped in its edge opt-out markers', () => {
+  for (const locale of ['en', 'th']) {
+    const html = output.get(`${locale}/contact/index.html`);
+    assert.ok(html.includes(`<!--email_off--><a href="mailto:${config.email}">${config.email}</a><!--/email_off-->`));
+  }
 });
 
-test('contact rejects missing, invalid, oversized and malformed inputs without silently shortening', () => {
-  for (const patch of [{ name: ' ' }, { email: 'bad' }, { email: 'a@b.com\nBcc:x@y.com' }, { workflow: '' }, { workflow: 'x'.repeat(4001) }, { company: 'x'.repeat(161) }, { workflow: '\ud800' }]) assert.ok(prepareMailDraft({ ...values, ...patch }, content.en.contact, config.email).error);
-});
-
-test('clipboard denial preserves selectable full draft', async () => {
-  const textarea = { value: 'งาน Infrastructure', focus() { this.focused = true; }, select() { this.selected = true; } };
-  assert.equal(await copyDraft(textarea, { writeText: async () => { throw new Error('denied'); } }), false);
-  assert.equal(textarea.focused, true); assert.equal(textarea.selected, true); assert.equal(textarea.value, 'งาน Infrastructure');
-  let received; assert.equal(await copyDraft(textarea, { writeText: async text => { received = text; } }), true); assert.equal(received, textarea.value);
-});
-
-test('no-JS contact has a direct address and form stays hidden until handlers attach; no background network/storage', async () => {
-  const html = output.get('th/contact/index.html'); assert.match(html, /<form hidden>/); assert.ok(html.includes(`mailto:${config.email}`)); assert.match(html, /<noscript>/);
+test('the deleted draft form leaves nothing behind: no form, no draft panel, no mailto composition', async () => {
+  for (const html of output.values()) {
+    assert.doesNotMatch(html, /<form|<textarea|<input\b(?![^>]*data-)/);
+    assert.doesNotMatch(html, /draft-panel|form-status|data-contact|email-draft/);
+  }
   const script = await read('assets/site.js');
+  assert.doesNotMatch(script, /prepareMailDraft|copyDraft|MAILTO_LIMIT|bindContact/);
   assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|document\.cookie|\.submit\(/);
-  assert.ok(script.indexOf("form.addEventListener('submit'") < script.indexOf('form.hidden = false'));
+  const css = await read('assets/site.css');
+  assert.doesNotMatch(css, /\.field-row|\.draft-panel|\.email-draft|\.form-status|\.hint\{/);
+});
+
+test('the LINE url is built from the configured id, so the QR and the link can never name different accounts', () => {
+  assert.equal(config.lineUrl, `https://line.me/ti/p/~${config.lineId}`);
 });
 
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {

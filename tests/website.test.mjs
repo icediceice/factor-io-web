@@ -36,7 +36,7 @@ test('published comparison allows only removal of exact opt-out comments, not ob
 });
 
 test('all committed output matches deterministic generation with no wall-clock dependency', async () => {
-  assert.equal(output.size, 10);
+  assert.equal(output.size, 12);
   for (const [path, bytes] of output) assert.equal(await read(path), bytes, path);
   const OldDate = globalThis.Date;
   try {

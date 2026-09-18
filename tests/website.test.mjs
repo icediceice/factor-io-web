@@ -217,6 +217,44 @@ test('the platform leads: Kubernetes heads both ledgers, the focus statement shi
   }
 });
 
+// The company profile is the page a client's procurement or vendor-registration process is
+// sent to, so the particulars on it are compliance values rather than copy. Two of them are
+// load-bearing in a way nothing else in the repo records: the registration number doubles as
+// the tax ID under Thai law, and the registered Thai name differs from the old seed by a
+// CONSONANT (แฟคเคอร์, not แฟกเตอร์/แฟคเตอร์) — quotes/lib/db.mjs seed-settings calls that a
+// Revenue Code s.86/4 mandatory particular and says do not normalise it back. A copy edit
+// that "tidies" either one produces a profile that fails vendor registration, silently.
+test('the company profile carries the registered particulars verbatim, in both locales and in the schema', () => {
+  const registration = '0105562205512', registeredThaiName = 'แฟคเคอร์ ไอ โอ จำกัด';
+  assert.ok(routes.includes('profile'), 'profile is not a route');
+  for (const locale of ['en', 'th']) {
+    const facts = content[locale].pages.profile.sections.find(s => s.id === 'registration');
+    assert.ok(facts, `${locale}: the profile has no registration section`);
+    assert.equal(facts.kind, 'exceptions', `${locale}: registration must stay an existing section kind`);
+    const html = output.get(outputPath(locale, 'profile'));
+    for (const value of [registration, registeredThaiName, '88/57', '10510', '+66 92 888 7155', config.email, config.lineId]) {
+      assert.ok(facts.items.some(i => i.body.includes(value)), `${locale}: the registration section omits ${value}`);
+      assert.ok(html.includes(esc(value)), `${locale}: the rendered profile omits ${value}`);
+    }
+    // The superseded spellings must never reappear on the page or in the source.
+    for (const wrong of ['แฟกเตอร์', 'แฟคเตอร์']) assert.ok(!html.includes(wrong), `${locale}: profile uses the superseded legal name ${wrong}`);
+    // Deliberately absent: the operator excluded both from publication.
+    assert.doesNotMatch(html, /registered capital|ทุนจดทะเบียน|date of incorporation|วันที่จดทะเบียน/i);
+  }
+  // No page anywhere may carry a Thai legal name that contradicts the registered one.
+  for (const [path, html] of output) for (const wrong of ['แฟกเตอร์', 'แฟคเตอร์']) {
+    assert.ok(!html.includes(wrong), `${path}: superseded Thai legal name ${wrong}`);
+  }
+  // The same particulars are the Organization's structured identity on every page.
+  const org = schema(output.get('index.html')).find(n => n['@type'] === 'Organization');
+  assert.equal(org.taxID, registration);
+  assert.equal(org.telephone, config.phone);
+  assert.equal(org.address['@type'], 'PostalAddress');
+  assert.equal(org.address.postalCode, '10510');
+  assert.equal(org.address.addressCountry, 'TH');
+  assert.equal(org.address.addressLocality, config.address.locality);
+});
+
 test('both contact pages lead with LINE: the profile link, the QR with a cache-busting hash, and the LINE id', () => {
   for (const locale of ['en', 'th']) {
     const html = output.get(`${locale}/contact/index.html`);

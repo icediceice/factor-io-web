@@ -41,5 +41,6 @@ Thai equivalents use /th/ with matching page paths and explicit authored content
 
 ## Optional
 
-- [Contact](mailto:admin@factor-io.com): Commissioned builds, consulting, partnerships and press.
+- [Contact on LINE](https://line.me/ti/p/~icediceice): Primary channel — LINE ID icediceice. Commissioned builds, consulting, partnerships and press.
+- [Contact by email](mailto:admin@factor-io.com): Secondary channel for the same enquiries.
 - [Discord community](https://discord.gg/5d75Mevrfh): Discussion and support.

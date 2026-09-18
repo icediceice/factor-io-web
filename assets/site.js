@@ -26,34 +26,6 @@ export function createDemo() {
   };
 }
 
-export function prepareMailDraft(values, copy, recipient) {
-  const bounds = { name: 100, email: 254, company: 160, workflow: 4000 };
-  for (const [key, max] of Object.entries(bounds)) {
-    if (typeof values[key] !== 'string' || values[key].length > max || (key !== 'company' && !values[key].trim())) return { error: key };
-  }
-  const email = values.email.trim();
-  const emailPattern = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
-  if (!emailPattern.test(email)) return { error: 'email' };
-  if (!emailPattern.test(recipient) || /[?&#]/.test(recipient)) return { error: 'recipient' };
-  // Keep every supplied workflow character. Never trim or shorten a long draft.
-  const body = `${copy.name}: ${values.name}\n${copy.email}: ${email}\n${copy.company}: ${values.company}\n\n${copy.workflow}:\n${values.workflow}`;
-  let uri;
-  try { uri = `mailto:${recipient}?subject=${encodeURIComponent(copy.subject)}&body=${encodeURIComponent(body)}`; }
-  catch { return { error: 'workflow' }; }
-  return { body, text: `To: ${recipient}\nSubject: ${copy.subject}\n\n${body}`, mailto: uri.length <= MAILTO_LIMIT ? uri : null, encodedLength: uri.length };
-}
-
-export async function copyDraft(textarea, clipboard) {
-  try {
-    if (!clipboard?.writeText) throw new Error('clipboard unavailable');
-    await clipboard.writeText(textarea.value);
-    return true;
-  } catch {
-    textarea.focus(); textarea.select();
-    return false;
-  }
-}
-
 // The chart is emphasis, never the argument: every status line is set SYNCHRONOUSLY
 // in the handler, and only node states are staged. Nothing on a timer may touch
 // .demo-status, or a pending frame from a previous click could overwrite the verdict

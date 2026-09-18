@@ -1,5 +1,5 @@
 {
-  "locale": "en", "updated": "2026-09-17",
+  "locale": "en", "updated": "2026-09-18",
   "ui": {
     "skip": "Skip to content", "menu": "Menu", "nav": "Main navigation", "language": "Language", "home": "Factor IO home",
     "primary": "Talk about your project", "secondary": "Work with us as a partner", "learn": "See the services in detail", "privacy": "Privacy", "resources": "Engineering resources", "calculator": "Local AI cost calculator", "tools": "light-tools · open source", "footer": "Enterprise AI, Kubernetes and governance. Thailand.",

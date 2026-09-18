@@ -53,7 +53,7 @@ Four routes carry the whole specification: Home, Services, About, Contact. The i
 | 22 Technical requirements | Static `.mjs` export, semantic HTML, progressive contact, metadata |
 | 23 SEO | Per-language titles/descriptions/alternates, sitemap; Thai review hold disclosed |
 | 24 Claims | Config/provenance rules above, no fabricated quantitative proof |
-| 25 First impression | Home hero: infra/SI experience, integration and governed AI, with the topology figure |
+| 25 First impression | Home hero: Kubernetes and infrastructure first, AI named as the specialisation, with the topology figure; restated outright in Home `focus` |
 
 ### Retired routes
 

@@ -77,15 +77,15 @@ function demo(c) {
 
 function contact(c, asset = () => '') {
   const d = c.contact;
-  return `<div class="contact-layout"><div class="contact-aside"><h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p>
-    <p class="contact-direct">${esc(d.fallback)}<br><!--email_off--><a href="mailto:${config.email}">${config.email}</a><!--/email_off--></p>
-    ${link('/privacy.html#website-enquiries', d.privacy)}</div>
+  return `<div class="contact-layout"><div class="contact-aside"><h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p></div>
     <div class="line-card">
     <a class="button line-action" href="${config.lineUrl}" rel="noopener">${esc(d.lineAction)}</a>
     <figure class="line-qr"><img src="${asset('line-qr.jpg')}" width="663" height="663" alt="${esc(d.qrAlt)}" loading="lazy" decoding="async">
     <figcaption>${esc(d.qrCaption)}</figcaption></figure>
     <p class="line-id">${esc(d.lineIdLabel)} <code>${esc(config.lineId)}</code></p>
-    </div></div>`;
+    </div>
+    <div class="contact-fallback"><p class="contact-direct">${esc(d.fallback)}<br><!--email_off--><a href="mailto:${config.email}">${config.email}</a><!--/email_off--></p>
+    ${link('/privacy.html#website-enquiries', d.privacy)}</div></div>`;
 }
 
 function section(c, s, asset) {

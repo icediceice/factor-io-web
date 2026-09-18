@@ -31,7 +31,7 @@ Dates are editorial source fields, never the build clock. Sitemap retains root, 
 
 ## Specification coverage
 
-Four routes carry the whole specification: Home, Services, About, Contact. The ids below are the literal `sections[].id` values in `content/{en,th}/site.json` — read them there before assuming a location, because this table is prose and the JSON is the contract.
+Five routes carry the whole specification: Home, Services, About, Profile, Contact. The specification itself is covered by the first four; Profile carries no specification section of its own — it is the entity page a procurement process is sent to, and it restates Home and Services material alongside the registered particulars. The ids below are the literal `sections[].id` values in `content/{en,th}/site.json` — read them there before assuming a location, because this table is prose and the JSON is the contract.
 
 | Section | Implementation location |
 | --- | --- |

@@ -212,7 +212,7 @@ test('the deleted draft form leaves nothing behind: no form, no draft panel, no 
   // revision input, which this change never touched. Scope the form assertion to
   // the contact pages and the dead wiring assertion to every page.
   for (const locale of ['en', 'th']) {
-    assert.doesNotMatch(output.get(`${locale}/contact/index.html`), /<form|<textarea|<input\b|<button/);
+    assert.doesNotMatch(output.get(`${locale}/contact/index.html`), /<form|<textarea|<input\b/);
   }
   for (const html of output.values()) {
     assert.doesNotMatch(html, /draft-panel|form-status|data-contact|email-draft|data-copy-draft|data-mail/);

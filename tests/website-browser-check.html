@@ -120,19 +120,22 @@ async function interactions(frame, page) {
     click('[data-reset]');
   }
   if (page === 'contact/') {
-    const root = doc.querySelector('[data-contact]'), form = root.querySelector('form');
-    if (form.hidden) failures.push('form failed to initialize');
-    const data = { name:'Test Engineer', email:'test@example.com', company:'Synthetic fixture', workflow:'Infrastructure review' };
-    for (const [key,value] of Object.entries(data)) input(form.elements.namedItem(key), value);
-    form.requestSubmit(); if (root.querySelector('.draft-panel').hidden) failures.push('draft not prepared');
-    const long = 'ตรวจสอบระบบก่อนย้ายไป Production 🚦\n'.repeat(60);
-    input(form.elements.namedItem('workflow'), long);
-    if (!root.querySelector('.draft-panel').hidden || root.querySelector('[data-mail]').hasAttribute('href')) failures.push('stale draft survived input');
-    form.requestSubmit();
-    if (!root.querySelector('.email-draft').value.endsWith(long)) failures.push('long Thai draft truncated');
-    if (!root.querySelector('[data-mail]').hidden || root.querySelector('[data-mail]').hasAttribute('href')) failures.push('oversized mailto offered');
-    input(form.elements.namedItem('email'), 'invalid'); form.requestSubmit();
-    if (!root.querySelector('.draft-panel').hidden) failures.push('invalid email prepared');
+    // LINE replaced the draft form. Nothing here needs JavaScript, so the fixture
+    // checks that the rendered channel is actually reachable and visible.
+    const card = doc.querySelector('.line-card');
+    if (!card) { failures.push('LINE card missing'); return failures; }
+    const action = card.querySelector('a.line-action'), qr = card.querySelector('.line-qr img');
+    if (!action || !/^https:\/\/line\.me\/ti\/p\/~/.test(action.getAttribute('href') || '')) failures.push('LINE profile link missing or malformed');
+    if (!qr) failures.push('LINE QR image missing');
+    else {
+      if (!(qr.getAttribute('alt') || '').trim()) failures.push('LINE QR has no alt text');
+      if (qr.naturalWidth === 0) failures.push('LINE QR failed to load');
+      const box = qr.getBoundingClientRect();
+      if (box.width < 120) failures.push(`LINE QR rendered too small to scan: ${Math.round(box.width)}px`);
+    }
+    const mail = doc.querySelector('.contact-direct a[href^="mailto:"]');
+    if (!mail) failures.push('direct email address missing from contact');
+    if (doc.querySelector('form')) failures.push('a form survived on the contact page');
   }
   return failures;
 }

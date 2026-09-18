@@ -189,6 +189,34 @@ test('vendor product framing is gone while the founder employment history is pre
   assert.match(config.founderDescription, /Red Hat and Nutanix/);
 });
 
+// The site had drifted off its own research spec: docs/service-offer-spec.md:102 argues the
+// platform LEADS ("every AI conversation in an enterprise eventually becomes a Kubernetes
+// conversation") while every page led with Enterprise AI. The ordering is the argument, so
+// pin it — the ledger numerals come from array position in templates.mjs, which means a
+// reordered items array silently renumbers the page with nothing else to notice.
+test('the platform leads: Kubernetes heads both ledgers, the focus statement ships, and no hero names AI first', () => {
+  for (const locale of ['en', 'th']) {
+    const c = content[locale];
+    for (const [page, id] of [['home', 'services'], ['services', 'offer']]) {
+      const ledger = c.pages[page].sections.find(s => s.id === id);
+      assert.ok(ledger, `${locale}/${page}: no ${id} ledger`);
+      assert.equal(ledger.items.length, 4, `${locale}/${page}: ${id} is no longer four services`);
+      assert.match(ledger.items[0].title, /Kubernetes/, `${locale}/${page}: ${id} does not lead with Kubernetes`);
+    }
+    const focus = c.pages.home.sections[0];
+    assert.equal(focus.id, 'focus', `${locale}: the focus statement is not the first home section`);
+    assert.equal(focus.kind, 'statement', `${locale}: focus must stay a statement — it carries no item list`);
+    assert.equal(focus.items.length, 0);
+    const html = output.get(outputPath(locale, 'home'));
+    assert.ok(html.includes('id="focus"'), `${locale}: focus section missing from the rendered home page`);
+    assert.ok(html.includes(esc(focus.title)), `${locale}: focus title missing from the rendered home page`);
+    // Kubernetes must be named before AI in the hero, in both locales.
+    const hero = `${c.pages.home.headline} ${c.pages.home.lede}`;
+    assert.ok(hero.includes('Kubernetes'), `${locale}: the hero never names Kubernetes`);
+    assert.ok(hero.indexOf('Kubernetes') < hero.indexOf('AI'), `${locale}: the hero names AI before Kubernetes`);
+  }
+});
+
 test('both contact pages lead with LINE: the profile link, the QR with a cache-busting hash, and the LINE id', () => {
   for (const locale of ['en', 'th']) {
     const html = output.get(`${locale}/contact/index.html`);

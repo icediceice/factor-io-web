@@ -93,11 +93,11 @@ function contact(c) {
     </div></div>`;
 }
 
-function section(c, s) {
+function section(c, s, asset) {
   let detail = '';
   if (s.kind === 'architecture') detail = topology(c);
   else if (s.kind === 'demo') detail = demo(c);
-  else if (s.kind === 'contact') detail = contact(c);
+  else if (s.kind === 'contact') detail = contact(c, asset);
   else if (s.kind === 'questions') detail = questions(c, s);
   else if (s.kind === 'routes') detail = routeSplit(c, s);
   else if (s.kind === 'process') detail = processSteps(c, s);

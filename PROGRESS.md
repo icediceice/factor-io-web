@@ -1,7 +1,13 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-18 (platform-first repositioning: Kubernetes and infrastructure lead, AI named as the specialisation)
+> Last updated: 2026-09-18 (company profile page added at /profile/; registered Thai legal name reconciled)
+
+## Current Focus
+
+**The site has a company profile page (2026-09-18).** A client asked for one, so `/en/profile/` and `/th/profile/` were added as a fifth route — `routes` in `site/config.mjs` is now `home, services, about, profile, contact`. It is written for a procurement or vendor-registration process rather than for a reader browsing the site, so it deliberately restates services, leadership, delivery and independence in compressed form and adds the one thing no other page carried: the **registered particulars**. Seven sections (`company`, `registration`, `practice`, `leadership`, `engagement-model`, `delivery`, `standing`), all built from section kinds that already existed at `scripts/build-site.mjs:34`, so no template, CSS or new `kind` was introduced and known issue 6 below is not touched. Adding a route re-sequenced the eyebrows: Contact moved from `03` to `04` in both locales.
+
+**The particulars are compliance values, not copy — treat them as such when editing.** `0105562205512` is simultaneously the company registration number and the tax ID under Thai law, so one value answers both fields on a form. The registered Thai name is `บริษัท แฟคเคอร์ ไอ โอ จำกัด`, and the consonant matters: `แฟคเคอร์`, never `แฟกเตอร์` or `แฟคเตอร์`. `quotes/lib/db.mjs` seed-settings calls that a Revenue Code s.86/4 mandatory particular and says do not normalise it back — **the About page had been carrying `แฟกเตอร์` and was corrected in this change**, because a site showing two different legal names is what vendor registration rejects. The address romanisation `Klong Sam Wa` (RTGS would be `Khlong Sam Wa`) is reproduced exactly as the operator supplied it, on the same principle. The same particulars are now `taxID`, `telephone` and a `PostalAddress` on the Organization node of every page's JSON-LD. **Date of incorporation and registered capital are deliberately unpublished** on the operator's explicit instruction, and the test asserts their absence so restoring them has to be deliberate. The operator was told before publication that this page is crawler-indexed in a way the DBD registry is not, and chose to proceed.
 
 ## Current Focus
 

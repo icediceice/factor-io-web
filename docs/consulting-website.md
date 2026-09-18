@@ -30,7 +30,7 @@ Four routes carry the whole specification: Home, Services, About, Contact. The i
 | Section | Implementation location |
 | --- | --- |
 | 1 Objective | Home hero; Services `offer` |
-| 2 Core positioning | Home hero lede; Home `services` |
+| 2 Core positioning | Home hero lede; Home `focus` (the explicit platform/specialisation statement); Home `services` |
 | 3 Reasoning versus execution | Services `architecture`, Services `governance` |
 | 4 Human-centered progression | Home `process` |
 | 5 Homepage | Home hero with the topology figure, two CTAs, full semantic content |

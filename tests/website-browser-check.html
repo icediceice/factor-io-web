@@ -161,7 +161,6 @@ async function runAll() {
       // Derived, never hard-coded: a stale denominator is how a route change hides missing coverage.
       report.textContent = `Running ${results.length}/${total}\n` + JSON.stringify(results.filter(r=>r.failures.length),null,2);
     }
-    }
     const noJs = await frameAt('/th/services/',390,true);
     const noJsPass = noJs.contentDocument.documentElement.lang === 'th' && noJs.contentDocument.querySelector('.static-explanation').textContent.includes('182') && noJs.contentDocument.querySelector('#main-nav').getBoundingClientRect().height > 0;
     const failed = results.filter(r=>r.failures.length);

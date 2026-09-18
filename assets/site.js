@@ -111,46 +111,6 @@ export function bindDemo(root) {
   return model;
 }
 
-export function bindContact(root) {
-  const copy = JSON.parse(root.dataset.copy), form = root.querySelector('form');
-  const status = root.querySelector('.form-status'), panel = root.querySelector('.draft-panel');
-  const textarea = root.querySelector('.email-draft'), mail = root.querySelector('[data-mail]');
-  let version = 0;
-  form.addEventListener('input', () => {
-    version++;
-    for (const field of form.elements) if (field.setCustomValidity) field.setCustomValidity('');
-    const hadDraft = !panel.hidden;
-    panel.hidden = true; mail.hidden = true; mail.removeAttribute('href'); textarea.value = '';
-    status.textContent = hadDraft ? copy.changed : '';
-  });
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    if (!form.reportValidity()) return;
-    const values = Object.fromEntries(['name', 'email', 'company', 'workflow'].map(key => [key, form.elements.namedItem(key).value]));
-    const result = prepareMailDraft(values, copy, root.dataset.recipient);
-    version++;
-    if (result.error) {
-      panel.hidden = true; mail.hidden = true; mail.removeAttribute('href'); textarea.value = '';
-      status.textContent = copy.invalid;
-      const field = form.elements.namedItem(result.error);
-      if (field) { field.setCustomValidity(copy.invalid); field.reportValidity(); }
-      return;
-    }
-    textarea.value = result.text; panel.hidden = false;
-    mail.hidden = !result.mailto;
-    if (result.mailto) mail.href = result.mailto; else mail.removeAttribute('href');
-    status.textContent = result.mailto ? copy.prepared : copy.long;
-    textarea.focus();
-  });
-  root.querySelector('[data-copy-draft]').addEventListener('click', async () => {
-    const snapshot = version;
-    const copied = await copyDraft(textarea, globalThis.navigator?.clipboard);
-    if (snapshot === version) status.textContent = copied ? copy.copied : copy.copyFailed;
-  });
-  // Form is not exposed until its preventDefault handler is installed.
-  form.hidden = false;
-}
-
 export function bindNavigation(doc) {
   const toggle = doc.querySelector('.menu-toggle'), nav = doc.querySelector('#main-nav');
   if (!toggle || !nav) return;

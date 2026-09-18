@@ -94,7 +94,7 @@
       ]
     },
     "contact": {
-      "nav": "Contact", "title": "Discuss an enterprise AI, Kubernetes or governance project", "description": "Contact Factor IO about enterprise AI, Kubernetes and infrastructure, knowledge systems or AI governance. The email is prepared on your device and nothing is sent automatically.", "eyebrow": "03 / CONTACT", "headline": "What are you working on?", "lede": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk.",
+      "nav": "Contact", "title": "Discuss an enterprise AI, Kubernetes or governance project", "description": "Contact Factor IO about enterprise AI, Kubernetes and infrastructure, knowledge systems or AI governance. Reach us on LINE, or by email.", "eyebrow": "03 / CONTACT", "headline": "What are you working on?", "lede": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk.",
       "sections": [
         { "id": "enquiry", "kind": "contact", "kicker": "Start a technical conversation", "title": "You do not need the architecture worked out.", "body": "Bring the business problem, the data you have and the constraints you are under. We can work through the model, platform and integration decisions together. If you have a customer opportunity that needs an architect, say so and we will pick up the partner route.", "items": [] }
       ]

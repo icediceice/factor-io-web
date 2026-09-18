@@ -224,8 +224,34 @@ test('the deleted draft form leaves nothing behind: no form, no draft panel, no 
   assert.doesNotMatch(css, /\.field-row|\.draft-panel|\.email-draft|\.form-status|\.hint\{/);
 });
 
-test('the LINE url is built from the configured id, so the QR and the link can never name different accounts', () => {
+test('the LINE url is built from the configured id, so the link and the displayed id can never name different accounts', () => {
+  // This binds the URL to the ID and nothing more. line-qr.jpg is an opaque
+  // operator asset -- nothing here decodes it, so a replaced QR stays green
+  // even if it encodes a different account. That check is manual by design.
   assert.equal(config.lineUrl, `https://line.me/ti/p/~${config.lineId}`);
+});
+
+test('contact leads with LINE: the primary action precedes the email fallback in both locales', () => {
+  // At <=760px .contact-layout is one column, so DOM order is reading and focus
+  // order. Email coming first would invert the point of the page on the exact
+  // device where tapping the LINE link actually opens the app.
+  for (const locale of ['en', 'th']) {
+    const html = output.get(`${locale}/contact/index.html`);
+    const action = html.indexOf('class="button line-action"');
+    const fallback = html.indexOf('class="contact-direct"');
+    assert.ok(action > -1, `${locale} contact is missing the LINE action`);
+    assert.ok(fallback > -1, `${locale} contact is missing the email fallback`);
+    assert.ok(action < fallback, `${locale} contact puts the email fallback before the LINE action`);
+  }
+});
+
+test('the llms.txt contact route describes LINE, not the deleted email draft', async () => {
+  // The channel change updated the Optional links but left this primary route
+  // summary selling a workflow that no longer exists.
+  const bullet = (await read('llms.txt')).split('\n').find(l => l.startsWith('- [Contact]('));
+  assert.ok(bullet, 'llms.txt has no Contact route bullet');
+  assert.ok(bullet.includes(config.lineUrl), 'the Contact bullet does not name the LINE url');
+  assert.doesNotMatch(bullet, /draft/i);
 });
 
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {

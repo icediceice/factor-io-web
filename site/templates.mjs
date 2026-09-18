@@ -75,21 +75,16 @@ function demo(c) {
   </div>`;
 }
 
-function contact(c) {
+function contact(c, asset = () => '') {
   const d = c.contact;
-  return `<div class="contact-layout"><div class="contact-aside"><h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p><p>${esc(c.ui.contactNote)}</p>
-    <p>${esc(d.fallback)}<br>${link(`mailto:${config.email}`, config.email)}</p>${link('/privacy.html#website-enquiries', d.privacy)}<noscript><p>${esc(d.nojs)}</p></noscript></div>
-    <div data-contact data-copy="${esc(JSON.stringify(d))}" data-recipient="${esc(config.email)}">
-    <form hidden>
-      <div class="field-row"><label>${esc(d.name)} <span aria-hidden="true">*</span><input name="name" autocomplete="name" maxlength="100" required></label>
-      <label>${esc(d.email)} <span aria-hidden="true">*</span><input name="email" type="email" autocomplete="email" maxlength="254" required></label></div>
-      <label>${esc(d.company)}<input name="company" autocomplete="organization" maxlength="160"></label>
-      <label>${esc(d.workflow)} <span aria-hidden="true">*</span><textarea name="workflow" rows="6" maxlength="4000" required aria-describedby="workflow-hint"></textarea></label>
-      <p id="workflow-hint" class="hint">${esc(d.hint)}</p><button type="submit">${esc(d.prepare)}</button>
-    </form>
-    <p class="form-status" role="status" aria-live="polite"></p>
-    <div class="draft-panel" hidden><label>${esc(d.draft)}<textarea class="email-draft" rows="12" readonly></textarea></label>
-    <div class="actions"><a class="button" data-mail hidden>${esc(d.open)}</a><button class="secondary" type="button" data-copy-draft>${esc(d.copy)}</button></div></div>
+  return `<div class="contact-layout"><div class="contact-aside"><h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p>
+    <p class="contact-direct">${esc(d.fallback)}<br><!--email_off--><a href="mailto:${config.email}">${config.email}</a><!--/email_off--></p>
+    ${link('/privacy.html#website-enquiries', d.privacy)}</div>
+    <div class="line-card">
+    <a class="button line-action" href="${config.lineUrl}" rel="noopener">${esc(d.lineAction)}</a>
+    <figure class="line-qr"><img src="${asset('line-qr.jpg')}" width="663" height="663" alt="${esc(d.qrAlt)}" loading="lazy" decoding="async">
+    <figcaption>${esc(d.qrCaption)}</figcaption></figure>
+    <p class="line-id">${esc(d.lineIdLabel)} <code>${esc(config.lineId)}</code></p>
     </div></div>`;
 }
 

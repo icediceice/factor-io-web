@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789712355486",
-  "generated_at": "2026-09-18T06:19:15.486Z",
-  "snapshot_digest": "61dee9e3fcad81f5",
+  "refresh_id": "refresh-1789799009392",
+  "generated_at": "2026-09-19T06:23:29.392Z",
+  "snapshot_digest": "68a56f376a1fa591",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-61dee9e3fcad81f5.json",
-      "digest": "61dee9e3fcad81f5",
-      "bytes": 3123547
+      "path": "catalog-68a56f376a1fa591.json",
+      "digest": "68a56f376a1fa591",
+      "bytes": 3128019
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "4305ef4491ee3834",
+      "digest": "d895f823831563e0",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-18T06:19:15.486Z",
-      "last_success_at": "2026-09-18T06:19:15.486Z",
-      "expires_at": "2026-09-21T06:19:15.486Z",
-      "root_digest": "86f75e189d3b01d5",
-      "record_count": 427,
+      "observed_at": "2026-09-19T06:23:29.392Z",
+      "last_success_at": "2026-09-19T06:23:29.392Z",
+      "expires_at": "2026-09-22T06:23:29.392Z",
+      "root_digest": "2849cb2ca4a102ca",
+      "record_count": 429,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-18T06:19:15.486Z",
-      "last_success_at": "2026-09-18T06:19:15.486Z",
-      "expires_at": "2026-09-21T06:19:15.486Z",
-      "root_digest": "72387aec76c2d945",
-      "record_count": 3388,
+      "observed_at": "2026-09-19T06:23:29.392Z",
+      "last_success_at": "2026-09-19T06:23:29.392Z",
+      "expires_at": "2026-09-22T06:23:29.392Z",
+      "root_digest": "1b7636957b9d36fa",
+      "record_count": 3389,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-17T00:00:00.000Z",
-      "last_success_at": "2026-09-18T06:19:37.831Z",
-      "expires_at": "2026-09-24T23:59:59.999Z",
-      "root_digest": "4305ef4491ee3834",
+      "observed_at": "2026-09-18T00:00:00.000Z",
+      "last_success_at": "2026-09-19T06:23:51.342Z",
+      "expires_at": "2026-09-25T23:59:59.999Z",
+      "root_digest": "d895f823831563e0",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -9227,8 +9227,31 @@
       ]
     },
     {
+      "id": "litellm:dashscope/qwen3.8-flash",
+      "name": "dashscope/qwen3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:dashscope/qwen3.8-max",
       "name": "dashscope/qwen3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:dashscope/qwen3.8-omni-flash",
+      "name": "dashscope/qwen3.8-omni-flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -17170,7 +17193,7 @@
       "id": "litellm:gmi/google/gemini-3-pro-preview",
       "name": "gmi/google/gemini-3-pro-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -30413,8 +30436,31 @@
       ]
     },
     {
+      "id": "litellm:qwen_ai_platform/qwen3.8-flash",
+      "name": "qwen_ai_platform/qwen3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:qwen_ai_platform/qwen3.8-max",
       "name": "qwen_ai_platform/qwen3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:qwen_ai_platform/qwen3.8-omni-flash",
+      "name": "qwen_ai_platform/qwen3.8-omni-flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -31006,7 +31052,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000"
       ]
     },
     {
@@ -34299,7 +34347,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -34309,7 +34358,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read",
+        "cache_read|>200000"
       ]
     },
     {
@@ -41427,6 +41480,16 @@
       ]
     },
     {
+      "id": "openrouter:prism-ml/ternary-bonsai-2-27b",
+      "name": "PrismML: Ternary Bonsai 2 27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen-2.5-72b-instruct",
       "name": "Qwen2.5 72B Instruct",
       "tariff": "token",
@@ -42630,6 +42693,17 @@
       ]
     },
     {
+      "id": "openrouter:z-ai/glm-5.3-flashx",
+      "name": "Z.ai: GLM 5.3 FlashX",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:z-ai/glm-5.3:batch",
       "name": "Z.ai: GLM 5.3 (batch)",
       "tariff": "token",
@@ -43510,6 +43584,11 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:azure_ai/FLUX.2-flex",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
         "offer": "litellm:azure_ai/MAI-Image-2.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -44069,6 +44148,36 @@
       },
       {
         "offer": "litellm:deepgram/nova-phonecall",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/nova-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/nova-3-multilingual",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/redact",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/keyterm",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/detect_entities",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/diarize",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
       },
@@ -46238,6 +46347,11 @@
         "mode": "audio_speech"
       },
       {
+        "offer": "litellm:transcribe/StartTranscriptionJob",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
         "offer": "litellm:aws_polly/standard",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
@@ -47181,6 +47295,16 @@
         "offer": "litellm:xai/grok-imagine-video-1.5-preview",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:xai/grok-voice-transcribe-1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:xai/grok-voice-transcribe-2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
       },
       {
         "offer": "litellm:low/1024-x-1024/grok-imagine-image-2.0",

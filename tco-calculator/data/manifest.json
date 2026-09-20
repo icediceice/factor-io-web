@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789799009392",
-  "generated_at": "2026-09-19T06:23:29.392Z",
-  "snapshot_digest": "68a56f376a1fa591",
+  "refresh_id": "refresh-1789885234323",
+  "generated_at": "2026-09-20T06:20:34.323Z",
+  "snapshot_digest": "90d36971651f5dbf",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-68a56f376a1fa591.json",
-      "digest": "68a56f376a1fa591",
-      "bytes": 3128019
+      "path": "catalog-90d36971651f5dbf.json",
+      "digest": "90d36971651f5dbf",
+      "bytes": 3130776
     },
     "fx": {
       "kind": "external",
@@ -21,28 +21,28 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-19T06:23:29.392Z",
-      "last_success_at": "2026-09-19T06:23:29.392Z",
-      "expires_at": "2026-09-22T06:23:29.392Z",
-      "root_digest": "2849cb2ca4a102ca",
-      "record_count": 429,
+      "observed_at": "2026-09-20T06:20:34.323Z",
+      "last_success_at": "2026-09-20T06:20:34.323Z",
+      "expires_at": "2026-09-23T06:20:34.323Z",
+      "root_digest": "06654140b5b7dee0",
+      "record_count": 428,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-19T06:23:29.392Z",
-      "last_success_at": "2026-09-19T06:23:29.392Z",
-      "expires_at": "2026-09-22T06:23:29.392Z",
-      "root_digest": "1b7636957b9d36fa",
-      "record_count": 3389,
+      "observed_at": "2026-09-20T06:20:34.323Z",
+      "last_success_at": "2026-09-20T06:20:34.323Z",
+      "expires_at": "2026-09-23T06:20:34.323Z",
+      "root_digest": "ed2c5e36a558bcc3",
+      "record_count": 3391,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-09-18T00:00:00.000Z",
-      "last_success_at": "2026-09-19T06:23:51.342Z",
+      "last_success_at": "2026-09-20T06:20:54.916Z",
       "expires_at": "2026-09-25T23:59:59.999Z",
       "root_digest": "d895f823831563e0",
       "record_count": 1,
@@ -27763,6 +27763,16 @@
       ]
     },
     {
+      "id": "litellm:openrouter/prism-ml/ternary-bonsai-2-27b",
+      "name": "openrouter/prism-ml/ternary-bonsai-2-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:openrouter/qwen/qwen-2.5-72b-instruct",
       "name": "openrouter/qwen/qwen-2.5-72b-instruct",
       "tariff": "token",
@@ -29090,6 +29100,17 @@
     {
       "id": "litellm:openrouter/z-ai/glm-5.3-flash:batch",
       "name": "openrouter/z-ai/glm-5.3-flash:batch",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/z-ai/glm-5.3-flashx",
+      "name": "openrouter/z-ai/glm-5.3-flashx",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -38635,7 +38656,7 @@
       "id": "openrouter:deepseek/deepseek-v4-flash-0731:free",
       "name": "DeepSeek: DeepSeek V4 Flash 0731 (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -39838,17 +39859,6 @@
       "name": "Mistral Large 2407",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:mistralai/mistral-large-2512",
-      "name": "Mistral: Mistral Large 3 2512",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -41839,7 +41849,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -42175,16 +42186,6 @@
       "name": "Sao10K: Llama 3.3 Euryale 70B",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:stealth/union-alpha",
-      "name": "Union Alpha",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"

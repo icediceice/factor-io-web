@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789885234323",
-  "generated_at": "2026-09-20T06:20:34.323Z",
-  "snapshot_digest": "90d36971651f5dbf",
+  "refresh_id": "refresh-1789970555789",
+  "generated_at": "2026-09-21T06:02:35.789Z",
+  "snapshot_digest": "f05846df492afcf1",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-90d36971651f5dbf.json",
-      "digest": "90d36971651f5dbf",
-      "bytes": 3130776
+      "path": "catalog-f05846df492afcf1.json",
+      "digest": "f05846df492afcf1",
+      "bytes": 3130713
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-20T06:20:34.323Z",
-      "last_success_at": "2026-09-20T06:20:34.323Z",
-      "expires_at": "2026-09-23T06:20:34.323Z",
+      "observed_at": "2026-09-21T06:02:35.789Z",
+      "last_success_at": "2026-09-21T06:02:35.789Z",
+      "expires_at": "2026-09-24T06:02:35.789Z",
       "root_digest": "06654140b5b7dee0",
       "record_count": 428,
       "missing_streak": 0
@@ -31,9 +31,9 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-20T06:20:34.323Z",
-      "last_success_at": "2026-09-20T06:20:34.323Z",
-      "expires_at": "2026-09-23T06:20:34.323Z",
+      "observed_at": "2026-09-21T06:02:35.789Z",
+      "last_success_at": "2026-09-21T06:02:35.789Z",
+      "expires_at": "2026-09-24T06:02:35.789Z",
       "root_digest": "ed2c5e36a558bcc3",
       "record_count": 3391,
       "missing_streak": 0
@@ -42,7 +42,7 @@
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-09-18T00:00:00.000Z",
-      "last_success_at": "2026-09-20T06:20:54.916Z",
+      "last_success_at": "2026-09-21T06:02:57.355Z",
       "expires_at": "2026-09-25T23:59:59.999Z",
       "root_digest": "d895f823831563e0",
       "record_count": 1,
@@ -17184,16 +17184,6 @@
       "name": "gmi/google/gemini-3-flash-preview",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:gmi/google/gemini-3-pro-preview",
-      "name": "gmi/google/gemini-3-pro-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -44376,6 +44366,36 @@
         "offer": "litellm:fal_ai/fal-ai/bytedance/dreamina/v3.1/text-to-image",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
       },
       {
         "offer": "litellm:fal_ai/fal-ai/ideogram/v3",

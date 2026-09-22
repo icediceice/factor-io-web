@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1789970555789",
-  "generated_at": "2026-09-21T06:02:35.789Z",
-  "snapshot_digest": "f05846df492afcf1",
+  "refresh_id": "refresh-1790057423618",
+  "generated_at": "2026-09-22T06:10:23.618Z",
+  "snapshot_digest": "1630b9d3d53eeb84",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-f05846df492afcf1.json",
-      "digest": "f05846df492afcf1",
-      "bytes": 3130713
+      "path": "catalog-1630b9d3d53eeb84.json",
+      "digest": "1630b9d3d53eeb84",
+      "bytes": 3167486
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "d895f823831563e0",
+      "digest": "263930afb825ceef",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-21T06:02:35.789Z",
-      "last_success_at": "2026-09-21T06:02:35.789Z",
-      "expires_at": "2026-09-24T06:02:35.789Z",
-      "root_digest": "06654140b5b7dee0",
-      "record_count": 428,
+      "observed_at": "2026-09-22T06:10:23.618Z",
+      "last_success_at": "2026-09-22T06:10:23.618Z",
+      "expires_at": "2026-09-25T06:10:23.618Z",
+      "root_digest": "76c8caf5c1086290",
+      "record_count": 427,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-21T06:02:35.789Z",
-      "last_success_at": "2026-09-21T06:02:35.789Z",
-      "expires_at": "2026-09-24T06:02:35.789Z",
-      "root_digest": "ed2c5e36a558bcc3",
-      "record_count": 3391,
+      "observed_at": "2026-09-22T06:10:23.618Z",
+      "last_success_at": "2026-09-22T06:10:23.618Z",
+      "expires_at": "2026-09-25T06:10:23.618Z",
+      "root_digest": "46b6360478056c9b",
+      "record_count": 3429,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-18T00:00:00.000Z",
-      "last_success_at": "2026-09-21T06:02:57.355Z",
-      "expires_at": "2026-09-25T23:59:59.999Z",
-      "root_digest": "d895f823831563e0",
+      "observed_at": "2026-09-21T00:00:00.000Z",
+      "last_success_at": "2026-09-22T06:10:49.137Z",
+      "expires_at": "2026-09-28T23:59:59.999Z",
+      "root_digest": "263930afb825ceef",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -6060,6 +6060,16 @@
       ]
     },
     {
+      "id": "litellm:bedrock/ap-northeast-1/qwen.qwen3-next-80b-a3b",
+      "name": "bedrock/ap-northeast-1/qwen.qwen3-next-80b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/ap-south-1/deepseek.v3.2",
       "name": "bedrock/ap-south-1/deepseek.v3.2",
       "tariff": "token",
@@ -6140,8 +6150,28 @@
       ]
     },
     {
+      "id": "litellm:bedrock/ap-south-1/qwen.qwen3-next-80b-a3b",
+      "name": "bedrock/ap-south-1/qwen.qwen3-next-80b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/ap-southeast-2/minimax.minimax-m2.5",
       "name": "bedrock/ap-southeast-2/minimax.minimax-m2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/ap-southeast-2/qwen.qwen3-next-80b-a3b",
+      "name": "bedrock/ap-southeast-2/qwen.qwen3-next-80b-a3b",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -6400,6 +6430,16 @@
       ]
     },
     {
+      "id": "litellm:bedrock/eu-west-1/qwen.qwen3-next-80b-a3b",
+      "name": "bedrock/eu-west-1/qwen.qwen3-next-80b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/eu-west-2/meta.llama3-70b-instruct-v1:0",
       "name": "bedrock/eu-west-2/meta.llama3-70b-instruct-v1:0",
       "tariff": "token",
@@ -6442,6 +6482,16 @@
     {
       "id": "litellm:bedrock/eu-west-2/qwen.qwen3-coder-next",
       "name": "bedrock/eu-west-2/qwen.qwen3-coder-next",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/eu-west-2/qwen.qwen3-next-80b-a3b",
+      "name": "bedrock/eu-west-2/qwen.qwen3-next-80b-a3b",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -6584,6 +6634,16 @@
     {
       "id": "litellm:bedrock/sa-east-1/qwen.qwen3-coder-next",
       "name": "bedrock/sa-east-1/qwen.qwen3-coder-next",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/sa-east-1/qwen.qwen3-next-80b-a3b",
+      "name": "bedrock/sa-east-1/qwen.qwen3-next-80b-a3b",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -7467,6 +7527,21 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/anthropic.claude-haiku-4-5",
+      "name": "bedrock_mantle/anthropic.claude-haiku-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -11686,6 +11761,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -11708,6 +11784,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -11741,6 +11818,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -12170,6 +12248,16 @@
       "state": "active",
       "meters": [
         "op_video_second",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:fal_ai/fal-ai/moondream3-preview/query",
+      "name": "fal_ai/fal-ai/moondream3-preview/query",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
         "output"
       ]
     },
@@ -15000,6 +15088,20 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/deepseek-v4-pro-0813",
+      "name": "fireworks_ai/deepseek-v4-pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/deepseek-v4p1-flash",
       "name": "fireworks_ai/deepseek-v4p1-flash",
       "tariff": "token",
@@ -15083,6 +15185,20 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/glm-5p3",
+      "name": "fireworks_ai/glm-5p3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/glm-5p3-fast",
       "name": "fireworks_ai/glm-5p3-fast",
       "tariff": "token",
@@ -15091,6 +15207,20 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/glm-5p3-flash",
+      "name": "fireworks_ai/glm-5p3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
       ]
     },
     {
@@ -17009,6 +17139,18 @@
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:global.moonshotai.kimi-k3",
+      "name": "global.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
         "cache_read",
         "input",
         "output"
@@ -21131,6 +21273,18 @@
       ]
     },
     {
+      "id": "litellm:moonshotai.kimi-k3",
+      "name": "moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:morph/morph-v3-fast",
       "name": "morph/morph-v3-fast",
       "tariff": "token",
@@ -24733,6 +24887,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -24786,6 +24941,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -26358,11 +26514,33 @@
       ]
     },
     {
+      "id": "litellm:openrouter/nex-agi/nex-n2.5-mini",
+      "name": "openrouter/nex-agi/nex-n2.5-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:openrouter/nex-agi/nex-n2.5-mini:free",
       "name": "openrouter/nex-agi/nex-n2.5-mini:free",
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/nex-agi/nex-n2.5-pro",
+      "name": "openrouter/nex-agi/nex-n2.5-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -28518,7 +28696,7 @@
       "id": "litellm:openrouter/stealth/union-alpha",
       "name": "openrouter/stealth/union-alpha",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28861,6 +29039,20 @@
       ]
     },
     {
+      "id": "litellm:openrouter/x-ai/grok-4.7",
+      "name": "openrouter/x-ai/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
       "id": "litellm:openrouter/x-ai/grok-build-0.1",
       "name": "openrouter/x-ai/grok-build-0.1",
       "tariff": "token",
@@ -28908,6 +29100,39 @@
         "output",
         "cache_write",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/xiaomi/mimo-v2.6-flash",
+      "name": "openrouter/xiaomi/mimo-v2.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/xiaomi/mimo-v2.6-pro",
+      "name": "openrouter/xiaomi/mimo-v2.6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/xiaomi/mimo-v2.6-pro-ultraspeed",
+      "name": "openrouter/xiaomi/mimo-v2.6-pro-ultraspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -33833,6 +34058,18 @@
       ]
     },
     {
+      "id": "litellm:us.moonshotai.kimi-k3",
+      "name": "us.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us.openai.gpt-5.6-luna",
       "name": "us.openai.gpt-5.6-luna",
       "tariff": "token",
@@ -37418,7 +37655,23 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-0309",
+      "name": "xai/grok-4.20-0309",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37432,7 +37685,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37446,7 +37700,38 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta",
+      "name": "xai/grok-4.20-beta",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta-0309",
+      "name": "xai/grok-4.20-beta-0309",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37460,7 +37745,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37474,7 +37760,173 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta-latest",
+      "name": "xai/grok-4.20-beta-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta-latest-non-reasoning",
+      "name": "xai/grok-4.20-beta-latest-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta-latest-reasoning",
+      "name": "xai/grok-4.20-beta-latest-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta-non-reasoning",
+      "name": "xai/grok-4.20-beta-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-beta-reasoning",
+      "name": "xai/grok-4.20-beta-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-experimental-beta-0304",
+      "name": "xai/grok-4.20-experimental-beta-0304",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-experimental-beta-0304-non-reasoning",
+      "name": "xai/grok-4.20-experimental-beta-0304-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-experimental-beta-0304-reasoning",
+      "name": "xai/grok-4.20-experimental-beta-0304-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-experimental-beta-latest",
+      "name": "xai/grok-4.20-experimental-beta-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-experimental-beta-non-reasoning-latest",
+      "name": "xai/grok-4.20-experimental-beta-non-reasoning-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-experimental-beta-reasoning-latest",
+      "name": "xai/grok-4.20-experimental-beta-reasoning-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37488,7 +37940,23 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-non-reasoning-gv2",
+      "name": "xai/grok-4.20-non-reasoning-gv2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37502,7 +37970,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37516,7 +37985,23 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.20-reasoning-gv2",
+      "name": "xai/grok-4.20-reasoning-gv2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "input|>200000",
+        "output|>200000",
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37530,7 +38015,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37541,6 +38027,7 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "image_in_tok",
         "input",
         "input|>200000",
         "output",
@@ -37555,6 +38042,7 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "image_in_tok",
         "input",
         "input|>200000",
         "output",
@@ -37569,6 +38057,7 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "image_in_tok",
         "input",
         "input|>200000",
         "output",
@@ -37583,6 +38072,7 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "image_in_tok",
         "input",
         "input|>200000",
         "output",
@@ -37597,6 +38087,22 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "image_in_tok",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.7",
+      "name": "xai/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "image_in_tok",
         "input",
         "input|>200000",
         "output",
@@ -37614,7 +38120,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37625,6 +38132,7 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "image_in_tok",
         "input",
         "input|>200000",
         "output",
@@ -37642,7 +38150,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37656,7 +38165,8 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
       ]
     },
     {
@@ -37670,7 +38180,30 @@
         "output",
         "input|>200000",
         "output|>200000",
-        "cache_read|>200000"
+        "cache_read|>200000",
+        "image_in_tok"
+      ]
+    },
+    {
+      "id": "litellm:xiaomi_mimo/mimo-v2.6-flash",
+      "name": "xiaomi_mimo/mimo-v2.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:xiaomi_mimo/mimo-v2.6-pro",
+      "name": "xiaomi_mimo/mimo-v2.6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -38087,7 +38620,7 @@
       "id": "openrouter:anthropic/claude-opus-4",
       "name": "Anthropic: Claude Opus 4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -38640,16 +39173,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:deepseek/deepseek-v4-flash-0731:free",
-      "name": "DeepSeek: DeepSeek V4 Flash 0731 (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -39771,7 +40294,7 @@
       "id": "openrouter:minimax/minimax-m3:batch",
       "name": "MiniMax: MiniMax M3 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -40061,7 +40584,7 @@
       "id": "openrouter:moonshotai/kimi-k3:batch",
       "name": "MoonshotAI: Kimi K3 (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -40089,6 +40612,17 @@
       ]
     },
     {
+      "id": "openrouter:nex-agi/nex-n2.5-mini",
+      "name": "Nex AGI: Nex-N2.5-Mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:nex-agi/nex-n2.5-mini:free",
       "name": "Nex AGI: Nex-N2.5-Mini (free)",
       "tariff": "token",
@@ -40096,6 +40630,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:nex-agi/nex-n2.5-pro",
+      "name": "Nex AGI: Nex-N2.5-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40145,7 +40690,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -41153,7 +41699,7 @@
       "id": "openrouter:openai/gpt-oss-120b:batch",
       "name": "OpenAI: gpt-oss-120b (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -41868,7 +42414,7 @@
       "id": "openrouter:qwen/qwen3.5-9b:batch",
       "name": "Qwen: Qwen3.5-9B (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -42011,7 +42557,7 @@
       "id": "openrouter:qwen/qwen3.8-2.4t-a95b:batch",
       "name": "Qwen: Qwen3.8 2.4T A95B (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -42343,7 +42889,7 @@
       "id": "openrouter:thinkingmachines/inkling:batch",
       "name": "Thinking Machines: Inkling (batch)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -42486,6 +43032,18 @@
       ]
     },
     {
+      "id": "openrouter:x-ai/grok-4.7",
+      "name": "SpaceXAI: Grok 4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:x-ai/grok-build-0.1",
       "name": "SpaceXAI: Grok Build 0.1",
       "tariff": "token",
@@ -42511,6 +43069,39 @@
     {
       "id": "openrouter:xiaomi/mimo-v2.5-pro",
       "name": "Xiaomi: MiMo-V2.5-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:xiaomi/mimo-v2.6-flash",
+      "name": "Xiaomi: MiMo-V2.6-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:xiaomi/mimo-v2.6-pro",
+      "name": "Xiaomi: MiMo-V2.6-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:xiaomi/mimo-v2.6-pro-ultraspeed",
+      "name": "Xiaomi: MiMo-V2.6-Pro-UltraSpeed",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -42767,7 +43358,7 @@
       {
         "offer": "openrouter:~x-ai/grok-latest",
         "rule": "alias_skipped",
-        "target": "x-ai/grok-4.6"
+        "target": "x-ai/grok-4.7"
       },
       {
         "offer": "openrouter:~anthropic/claude-fable-latest",
@@ -43093,6 +43684,11 @@
         "offer": "litellm:azure/codex-mini",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-image-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       },
       {
         "offer": "litellm:azure_ai/codex-mini",
@@ -43586,6 +44182,11 @@
       },
       {
         "offer": "litellm:azure_ai/MAI-Image-2.5-Flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:azure_ai/MAI-Image-2.5-Pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
       },
@@ -44383,6 +44984,16 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:fal_ai/minimax/h3/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:fal_ai/bytedance/seedance-2.0/text-to-video",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -44719,6 +45330,646 @@
       },
       {
         "offer": "litellm:fal_ai/high/3840-x-2160/openai/gpt-image-2/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-768/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1024/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1536/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1920-x-1080/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/2560-x-1440/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/3840-x-2160/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-768/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1024/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1536/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1920-x-1080/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/2560-x-1440/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/3840-x-2160/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-768/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1024/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1536/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1920-x-1080/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/2560-x-1440/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/3840-x-2160/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-768/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1024/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1536/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1920-x-1080/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/2560-x-1440/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/3840-x-2160/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-768/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1024/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1536/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1920-x-1080/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/2560-x-1440/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/3840-x-2160/openai/gpt-image-2.5/flare/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-768/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1024/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1536/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1920-x-1080/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/2560-x-1440/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/3840-x-2160/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-768/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1024/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1536/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1920-x-1080/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/2560-x-1440/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/3840-x-2160/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-768/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1024/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1536/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1920-x-1080/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/2560-x-1440/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/3840-x-2160/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-768/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1024/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1536/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1920-x-1080/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/2560-x-1440/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/3840-x-2160/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-768/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1024/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1536/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1920-x-1080/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/2560-x-1440/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/3840-x-2160/openai/gpt-image-2.5/flare/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-768/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1024/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1536/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1920-x-1080/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/2560-x-1440/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/3840-x-2160/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-768/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1024/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1536/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1920-x-1080/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/2560-x-1440/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/3840-x-2160/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-768/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1024/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1536/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1920-x-1080/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/2560-x-1440/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/3840-x-2160/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-768/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1024/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1536/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1920-x-1080/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/2560-x-1440/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/3840-x-2160/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-768/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1024/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1536/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1920-x-1080/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/2560-x-1440/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/3840-x-2160/openai/gpt-image-2.5/sunburst/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-768/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1024/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1024-x-1536/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/1920-x-1080/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/2560-x-1440/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/low/3840-x-2160/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-768/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1024/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1024-x-1536/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/1920-x-1080/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/2560-x-1440/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/medium/3840-x-2160/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-768/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1024/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1024-x-1536/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/1920-x-1080/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/2560-x-1440/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/high/3840-x-2160/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-768/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1024/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1024-x-1536/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/1920-x-1080/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/2560-x-1440/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xhigh/3840-x-2160/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-768/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1024/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1024-x-1536/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/1920-x-1080/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/2560-x-1440/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/max/3840-x-2160/openai/gpt-image-2.5/sunburst/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/trellis",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/trellis-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora-depth",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
       },
@@ -47638,6 +48889,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:openrouter/typesafe/jev-1.13",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:typesafe/jev-1.13.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
@@ -47651,6 +48907,21 @@
         "offer": "litellm:typesafe/jev-preview",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:xai/grok-4.20-multi-agent-experimental-beta-0304",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:xai/grok-4.20-multi-agent-experimental-beta-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       }
     ],
     "source_errors": {

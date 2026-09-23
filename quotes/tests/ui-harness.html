@@ -536,9 +536,16 @@ async function checkQuoteInteractions() {
     const notes = dialog.querySelector('[name="notes"]');
     notes.value = 'Unsaved fixture note';
     const template = doc.querySelector('[data-sow-template]');
-    template.value = 'nkp';
-    click('[data-add-sow]');
-    await until(() => !!doc.querySelector('[data-edit-sow]'));
+    if (template) {
+      template.value = 'nkp';
+      click('[data-add-sow]');
+      await until(() => !!doc.querySelector('[data-edit-sow]'));
+    } else {
+      click('button[data-edit]');
+      await until(() => !!doc.querySelector('button[data-save]'));
+      click('button[data-save]');
+      await until(() => !doc.querySelector('button[data-save]'));
+    }
     check('Open details survives record redraw', dialog.open && notes.value === 'Unsaved fixture note');
     dialog.close();
 

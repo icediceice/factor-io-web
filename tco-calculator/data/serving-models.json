@@ -2,7 +2,7 @@
   "schema": "factor-io.tco-serving-models/1.0.0",
   "note": "Inputs for the serving roofline (SPEC v0.3 §6.6). Decode is memory-bandwidth bound, so what a GPU delivers is a FUNCTION of the model being served — size, context, attention architecture and quantization — not a constant per accelerator. This file supplies the three tables that function needs. It ships NO throughput figures: every tok/s the calculator prints is derived from the formula and labelled at the point of use, so there is no unlabelled benchmark hiding in a data file.",
   "provenance": {
-    "observed": "2026-09-22",
+    "observed": "2026-09-23",
     "owner": "site author",
     "re_verify_before": "2026-12-01"
   },
@@ -209,23 +209,22 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 48 linear + 16 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-23: 48 linear + 16 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/Qwen/Qwen3.8-27B",
       "config_url": "https://huggingface.co/Qwen/Qwen3.8-27B/resolve/main/config.json",
       "model_type": "qwen3_5_text",
-      "hub_downloads": "7153238",
-      "hub_likes": "15984",
-      "observed_at": "2026-09-22",
+      "hub_downloads": "7079646",
+      "hub_likes": "16084",
+      "observed_at": "2026-09-23",
       "resolved_from": [
         "prism-ml/Ternary-Bonsai-2-27B-gguf",
         "Altworld/Hemmingway-1",
         "prism-ml/Ternary-Bonsai-2-27B-mlx-2bit",
         "dealignai/Bonsai-2-27B-Ternary-CRACK-GGUF",
         "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
-        "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
-        "dealignai/Bonsai-2-27B-1bit-CRACK-GGUF",
         "incoai/Qwen3.8-27B-Splash",
-        "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
+        "dealignai/Bonsai-2-27B-1bit-CRACK-GGUF",
+        "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
         "BoldingBuilds/Ternary-Bonsai-2-27B-Abliterated-PTQ1_0-GGUF"
       ],
       "base_resolution": [
@@ -275,10 +274,11 @@
           "truncated": false
         },
         {
-          "derivative_id": "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
-          "hops": 1,
+          "derivative_id": "incoai/Qwen3.8-27B-Splash",
+          "hops": 2,
           "path": [
-            "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
+            "incoai/Qwen3.8-27B-Splash",
+            "incoai/Qwen3.8-27B-DFlash2",
             "Qwen/Qwen3.8-27B"
           ],
           "truncated": false
@@ -293,20 +293,10 @@
           "truncated": false
         },
         {
-          "derivative_id": "incoai/Qwen3.8-27B-Splash",
-          "hops": 2,
-          "path": [
-            "incoai/Qwen3.8-27B-Splash",
-            "incoai/Qwen3.8-27B-DFlash2",
-            "Qwen/Qwen3.8-27B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
+          "derivative_id": "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
           "hops": 1,
           "path": [
-            "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
+            "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
             "Qwen/Qwen3.8-27B"
           ],
           "truncated": false
@@ -343,42 +333,13 @@
           "qk_rope_head_dim": 64
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 40 mla layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-23: 40 mla layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B",
       "config_url": "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B/resolve/main/config.json",
       "model_type": "xing4_0",
-      "hub_downloads": "18394",
-      "hub_likes": "1172",
-      "observed_at": "2026-09-22"
-    },
-    {
-      "id": "minicpm5-2b",
-      "label": "MiniCPM5-2B — dense, full attention",
-      "family": "openbmb",
-      "architecture": "full",
-      "params_b": "2.52",
-      "active_params_b": "2.52",
-      "active_params_basis": "dense",
-      "context_default": 32768,
-      "context_max": 131072,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "full",
-          "layers": 42,
-          "kv_heads": 2,
-          "head_dim": 128,
-          "tensors": 2
-        }
-      ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 42 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B",
-      "config_url": "https://huggingface.co/openbmb/MiniCPM5-2B/resolve/main/config.json",
-      "model_type": "llama",
-      "hub_downloads": "460533",
-      "hub_likes": "1643",
-      "observed_at": "2026-09-22"
+      "hub_downloads": "30627",
+      "hub_likes": "1429",
+      "observed_at": "2026-09-23"
     },
     {
       "id": "aliceai-foundation-80b-a3b-base",
@@ -406,13 +367,13 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 36 linear + 12 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-23: 36 linear + 12 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/yandex/AliceAI-Foundation-80B-A3B-Base",
       "config_url": "https://huggingface.co/yandex/AliceAI-Foundation-80B-A3B-Base/resolve/main/config.json",
       "model_type": "alice_ai",
-      "hub_downloads": "676",
-      "hub_likes": "220",
-      "observed_at": "2026-09-22"
+      "hub_downloads": "1516",
+      "hub_likes": "279",
+      "observed_at": "2026-09-23"
     },
     {
       "id": "qwen3-5-9b",
@@ -440,13 +401,13 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 24 linear + 8 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-23: 24 linear + 8 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/Qwen/Qwen3.5-9B",
       "config_url": "https://huggingface.co/Qwen/Qwen3.5-9B/resolve/main/config.json",
       "model_type": "qwen3_5_text",
-      "hub_downloads": "9307599",
-      "hub_likes": "2008",
-      "observed_at": "2026-09-22",
+      "hub_downloads": "9498290",
+      "hub_likes": "2017",
+      "observed_at": "2026-09-23",
       "resolved_from": [
         "TokenRhythm/NeoHorse-1-9B"
       ],
@@ -457,6 +418,158 @@
           "path": [
             "TokenRhythm/NeoHorse-1-9B",
             "Qwen/Qwen3.5-9B"
+          ],
+          "truncated": false
+        }
+      ]
+    },
+    {
+      "id": "minicpm5-2b",
+      "label": "MiniCPM5-2B — dense, full attention",
+      "family": "openbmb",
+      "architecture": "full",
+      "params_b": "2.52",
+      "active_params_b": "2.52",
+      "active_params_basis": "dense",
+      "context_default": 32768,
+      "context_max": 131072,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "full",
+          "layers": 42,
+          "kv_heads": 2,
+          "head_dim": 128,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-09-23: 42 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B",
+      "config_url": "https://huggingface.co/openbmb/MiniCPM5-2B/resolve/main/config.json",
+      "model_type": "llama",
+      "hub_downloads": "508950",
+      "hub_likes": "1666",
+      "observed_at": "2026-09-23"
+    },
+    {
+      "id": "glm-5-3",
+      "label": "GLM-5.3 — MLA latent cache, MoE",
+      "family": "zai-org",
+      "architecture": "mla",
+      "params_b": "753.33",
+      "active_params_b": "41.09",
+      "active_params_basis": "derived",
+      "context_default": 32768,
+      "context_max": 1048576,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "mla",
+          "layers": 78,
+          "kv_lora_rank": 512,
+          "qk_rope_head_dim": 64
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-09-23: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (752.683B vs 753.33B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/zai-org/GLM-5.3",
+      "config_url": "https://huggingface.co/zai-org/GLM-5.3/resolve/main/config.json",
+      "model_type": "glm_moe_dsa",
+      "hub_downloads": "1039477",
+      "hub_likes": "1908",
+      "observed_at": "2026-09-23",
+      "resolved_from": [
+        "AikidoSec/altar-1",
+        "dealignai/GLM-5.3-CYBERSECURITY-FP8"
+      ],
+      "base_resolution": [
+        {
+          "derivative_id": "AikidoSec/altar-1",
+          "hops": 2,
+          "path": [
+            "AikidoSec/altar-1",
+            "cyankiwi/GLM-5.3-AWQ-INT4",
+            "zai-org/GLM-5.3"
+          ],
+          "truncated": false
+        },
+        {
+          "derivative_id": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+          "hops": 2,
+          "path": [
+            "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+            "JANGQ-AI/GLM-5.3-FP8",
+            "zai-org/GLM-5.3"
+          ],
+          "truncated": false
+        }
+      ]
+    },
+    {
+      "id": "qwen3-6-35b-a3b",
+      "label": "Qwen3.6-35B-A3B — linear/GDN hybrid, MoE",
+      "family": "qwen",
+      "architecture": "hybrid",
+      "params_b": "35.95",
+      "active_params_b": "3",
+      "active_params_basis": "declared",
+      "context_default": 32768,
+      "context_max": 262144,
+      "kv_bytes_per_token_bf16_expected": null,
+      "basis": "derived",
+      "groups": [
+        {
+          "kind": "linear",
+          "layers": 30,
+          "state_bytes_per_seq": null
+        },
+        {
+          "kind": "full",
+          "layers": 10,
+          "kv_heads": 2,
+          "head_dim": 256,
+          "tensors": 2
+        }
+      ],
+      "note": "Derived from the repository's own config.json on 2026-09-23: 30 linear + 10 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
+      "config_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B/resolve/main/config.json",
+      "model_type": "qwen3_5_moe_text",
+      "hub_downloads": "3247184",
+      "hub_likes": "2862",
+      "observed_at": "2026-09-23",
+      "resolved_from": [
+        "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
+        "empero-ai/Qwen3.8-35B-A3B-Distill",
+        "Edge0/Edge0-35B-A3B-preview"
+      ],
+      "base_resolution": [
+        {
+          "derivative_id": "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
+          "hops": 2,
+          "path": [
+            "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
+            "empero-ai/Qwen3.8-35B-A3B-Distill",
+            "Qwen/Qwen3.6-35B-A3B"
+          ],
+          "truncated": false
+        },
+        {
+          "derivative_id": "empero-ai/Qwen3.8-35B-A3B-Distill",
+          "hops": 1,
+          "path": [
+            "empero-ai/Qwen3.8-35B-A3B-Distill",
+            "Qwen/Qwen3.6-35B-A3B"
+          ],
+          "truncated": false
+        },
+        {
+          "derivative_id": "Edge0/Edge0-35B-A3B-preview",
+          "hops": 1,
+          "path": [
+            "Edge0/Edge0-35B-A3B-preview",
+            "Qwen/Qwen3.6-35B-A3B"
           ],
           "truncated": false
         }
@@ -491,17 +604,27 @@
           "tensors": 2
         }
       ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 27 sliding + 9 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
+      "note": "Derived from the repository's own config.json on 2026-09-23: 27 sliding + 9 full layers. Parameter total is the Hub's safetensors index; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
       "source_url": "https://huggingface.co/XHToken/Spark-X2.5-4B",
       "config_url": "https://huggingface.co/XHToken/Spark-X2.5-4B/resolve/main/config.json",
       "model_type": "spark2_5",
-      "hub_downloads": "31628",
-      "hub_likes": "1302",
-      "observed_at": "2026-09-22",
+      "hub_downloads": "32538",
+      "hub_likes": "1311",
+      "observed_at": "2026-09-23",
       "resolved_from": [
+        "peculiar-ragdoll/Sharp-Spark-X2.5-4B-GGUF",
         "XHToken/Spark-X2.5-4B-GGUF"
       ],
       "base_resolution": [
+        {
+          "derivative_id": "peculiar-ragdoll/Sharp-Spark-X2.5-4B-GGUF",
+          "hops": 1,
+          "path": [
+            "peculiar-ragdoll/Sharp-Spark-X2.5-4B-GGUF",
+            "XHToken/Spark-X2.5-4B"
+          ],
+          "truncated": false
+        },
         {
           "derivative_id": "XHToken/Spark-X2.5-4B-GGUF",
           "hops": 1,
@@ -512,163 +635,6 @@
           "truncated": false
         }
       ]
-    },
-    {
-      "id": "qwen3-6-35b-a3b",
-      "label": "Qwen3.6-35B-A3B — linear/GDN hybrid, MoE",
-      "family": "qwen",
-      "architecture": "hybrid",
-      "params_b": "35.95",
-      "active_params_b": "3",
-      "active_params_basis": "declared",
-      "context_default": 32768,
-      "context_max": 262144,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "linear",
-          "layers": 30,
-          "state_bytes_per_seq": null
-        },
-        {
-          "kind": "full",
-          "layers": 10,
-          "kv_heads": 2,
-          "head_dim": 256,
-          "tensors": 2
-        }
-      ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 30 linear + 10 full layers. Parameter total is the Hub's safetensors index; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
-      "config_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B/resolve/main/config.json",
-      "model_type": "qwen3_5_moe_text",
-      "hub_downloads": "3273841",
-      "hub_likes": "2851",
-      "observed_at": "2026-09-22",
-      "resolved_from": [
-        "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
-        "Edge0/Edge0-35B-A3B-preview",
-        "empero-ai/Qwen3.8-35B-A3B-Distill"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
-          "hops": 2,
-          "path": [
-            "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
-            "empero-ai/Qwen3.8-35B-A3B-Distill",
-            "Qwen/Qwen3.6-35B-A3B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "Edge0/Edge0-35B-A3B-preview",
-          "hops": 1,
-          "path": [
-            "Edge0/Edge0-35B-A3B-preview",
-            "Qwen/Qwen3.6-35B-A3B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "empero-ai/Qwen3.8-35B-A3B-Distill",
-          "hops": 1,
-          "path": [
-            "empero-ai/Qwen3.8-35B-A3B-Distill",
-            "Qwen/Qwen3.6-35B-A3B"
-          ],
-          "truncated": false
-        }
-      ]
-    },
-    {
-      "id": "glm-5-3",
-      "label": "GLM-5.3 — MLA latent cache, MoE",
-      "family": "zai-org",
-      "architecture": "mla",
-      "params_b": "753.33",
-      "active_params_b": "41.09",
-      "active_params_basis": "derived",
-      "context_default": 32768,
-      "context_max": 1048576,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "mla",
-          "layers": 78,
-          "kv_lora_rank": 512,
-          "qk_rope_head_dim": 64
-        }
-      ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 78 mla layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (752.683B vs 753.33B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/zai-org/GLM-5.3",
-      "config_url": "https://huggingface.co/zai-org/GLM-5.3/resolve/main/config.json",
-      "model_type": "glm_moe_dsa",
-      "hub_downloads": "1005740",
-      "hub_likes": "1900",
-      "observed_at": "2026-09-22",
-      "resolved_from": [
-        "AikidoSec/altar-1",
-        "dealignai/GLM-5.3-CYBERSECURITY-FP8"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "AikidoSec/altar-1",
-          "hops": 2,
-          "path": [
-            "AikidoSec/altar-1",
-            "cyankiwi/GLM-5.3-AWQ-INT4",
-            "zai-org/GLM-5.3"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
-          "hops": 2,
-          "path": [
-            "dealignai/GLM-5.3-CYBERSECURITY-FP8",
-            "JANGQ-AI/GLM-5.3-FP8",
-            "zai-org/GLM-5.3"
-          ],
-          "truncated": false
-        }
-      ]
-    },
-    {
-      "id": "nex-n2-5-mini",
-      "label": "Nex-N2.5-mini — linear/GDN hybrid, MoE",
-      "family": "nex-agi",
-      "architecture": "hybrid",
-      "params_b": "35.11",
-      "active_params_b": "2.82",
-      "active_params_basis": "derived",
-      "context_default": 32768,
-      "context_max": 262144,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "linear",
-          "layers": 30,
-          "state_bytes_per_seq": null
-        },
-        {
-          "kind": "full",
-          "layers": 10,
-          "kv_heads": 2,
-          "head_dim": 256,
-          "tensors": 2
-        }
-      ],
-      "note": "Derived from the repository's own config.json on 2026-09-22: 30 linear + 10 full layers. Parameter total is the Hub's safetensors index; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (34.83B vs 35.107B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/nex-agi/Nex-N2.5-mini",
-      "config_url": "https://huggingface.co/nex-agi/Nex-N2.5-mini/resolve/main/config.json",
-      "model_type": "qwen3_5_moe_text",
-      "hub_downloads": "8494",
-      "hub_likes": "840",
-      "observed_at": "2026-09-22"
     },
     {
       "id": "qwen3-8b",
@@ -800,7 +766,7 @@
       "observed_at": "2026-08-29"
     }
   ],
-  "derived_note": "The rows tagged basis:\"derived\" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on 2026-09-22, ranked by trendingScore. Third-party derivatives resolve to their named main-lab base for up to three hops, and the best derivative trendingScore credits that base's ordering. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.",
+  "derived_note": "The rows tagged basis:\"derived\" above were generated by scripts/build-serving-models.mjs from the Hugging Face Hub on 2026-09-23, ranked by trendingScore. Third-party derivatives resolve to their named main-lab base for up to three hops, and the best derivative trendingScore credits that base's ordering. Their layer groups and parameter counts come from each repository's own config.json and safetensors index — NOT from a benchmark and NOT from the model name. They carry no kv_bytes_per_token_bf16_expected because no independently published per-token figure exists for them; the hand-curated rows that follow keep theirs, and the test suite falsifies the engine's layer-group arithmetic against those four.",
   "skipped": [
     {
       "id": "prism-ml/Ternary-Bonsai-2-27B-gguf",
@@ -833,8 +799,8 @@
       "detail": null
     },
     {
-      "id": "dealignai/DeepSeek-V4.1-Flash-UNCENSORED-FP8",
-      "reason": "pipeline_tag is \"image-text-to-text\", not text-generation",
+      "id": "AikidoSec/altar-1",
+      "reason": "derivative repo (base_model:quantized:cyankiwi/GLM-5.3-AWQ-INT4)",
       "detail": null
     },
     {
@@ -848,22 +814,12 @@
       "detail": null
     },
     {
-      "id": "Edge0/Edge0-35B-A3B-preview",
-      "reason": "derivative repo (base_model:adapter:Qwen/Qwen3.6-35B-A3B)",
-      "detail": null
-    },
-    {
-      "id": "AikidoSec/altar-1",
-      "reason": "derivative repo (base_model:quantized:cyankiwi/GLM-5.3-AWQ-INT4)",
-      "detail": null
-    },
-    {
-      "id": "Agnes-AI/Agnes-3.0-Flash",
+      "id": "dealignai/DeepSeek-V4.1-Flash-UNCENSORED-FP8",
       "reason": "pipeline_tag is \"image-text-to-text\", not text-generation",
       "detail": null
     },
     {
-      "id": "openbmb/MiniCPM5-2B-GGUF",
+      "id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
@@ -873,7 +829,7 @@
       "detail": null
     },
     {
-      "id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+      "id": "openbmb/MiniCPM5-2B-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
@@ -883,13 +839,8 @@
       "detail": null
     },
     {
-      "id": "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
-      "reason": "GGUF container — a re-upload of another repo's weights",
-      "detail": null
-    },
-    {
-      "id": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
-      "reason": "derivative repo (base_model:quantized:JANGQ-AI/GLM-5.3-FP8)",
+      "id": "incoai/Qwen3.8-27B-Splash",
+      "reason": "derivative repo (base_model:quantized:incoai/Qwen3.8-27B-DFlash2)",
       "detail": null
     },
     {
@@ -898,13 +849,28 @@
       "detail": null
     },
     {
+      "id": "Agnes-AI/Agnes-3.0-Flash",
+      "reason": "pipeline_tag is \"image-text-to-text\", not text-generation",
+      "detail": null
+    },
+    {
       "id": "empero-ai/Qwen3.8-35B-A3B-Distill",
       "reason": "derivative repo (base_model:finetune:Qwen/Qwen3.6-35B-A3B)",
       "detail": null
     },
     {
-      "id": "incoai/Qwen3.8-27B-Splash",
-      "reason": "derivative repo (base_model:quantized:incoai/Qwen3.8-27B-DFlash2)",
+      "id": "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "peculiar-ragdoll/Sharp-Spark-X2.5-4B-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "BreezeBlue/Breeze-TTS-2",
+      "reason": "pipeline_tag is \"text-to-speech\", not text-generation",
       "detail": null
     },
     {
@@ -913,7 +879,17 @@
       "detail": null
     },
     {
-      "id": "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
+      "id": "BoldingBuilds/Ternary-Bonsai-2-27B-Abliterated-PTQ1_0-GGUF",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "Edge0/Edge0-35B-A3B-preview",
+      "reason": "derivative repo (base_model:adapter:Qwen/Qwen3.6-35B-A3B)",
+      "detail": null
+    },
+    {
+      "id": "XHToken/Spark-X2.5-4B-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
@@ -923,22 +899,12 @@
       "detail": null
     },
     {
-      "id": "XHToken/Spark-X2.5-4B-GGUF",
-      "reason": "GGUF container — a re-upload of another repo's weights",
-      "detail": null
-    },
-    {
-      "id": "BoldingBuilds/Ternary-Bonsai-2-27B-Abliterated-PTQ1_0-GGUF",
-      "reason": "GGUF container — a re-upload of another repo's weights",
+      "id": "dealignai/GLM-5.3-CYBERSECURITY-FP8",
+      "reason": "derivative repo (base_model:quantized:JANGQ-AI/GLM-5.3-FP8)",
       "detail": null
     },
     {
       "id": "Qwen/Qwen2.5-1.5B-Instruct",
-      "reason": "sliding_window is set but no layer_types says WHICH layers slide — retention is not derivable",
-      "detail": null
-    },
-    {
-      "id": "XiaomiMiMo/MiMo-V2.6-Flash-RL",
       "reason": "sliding_window is set but no layer_types says WHICH layers slide — retention is not derivable",
       "detail": null
     },
@@ -948,18 +914,13 @@
       "detail": null
     },
     {
-      "id": "Cactus-Compute/needle3",
-      "reason": "no safetensors index — the Hub publishes no parameter count for this repo",
+      "id": "XiaomiMiMo/MiMo-V2.6-Flash-RL",
+      "reason": "sliding_window is set but no layer_types says WHICH layers slide — retention is not derivable",
       "detail": null
     },
     {
-      "id": "audnai/penclaw-GLM-5.3-abliterated",
-      "reason": "gated repo — config.json returned HTTP 401",
-      "detail": "https://huggingface.co/audnai/penclaw-GLM-5.3-abliterated/resolve/main/config.json"
-    },
-    {
-      "id": "deepseek-ai/DeepSeek-V4.1-Flash",
-      "reason": "qk_rope_head_dim without kv_lora_rank — not classic MLA, cache width is not derivable from this config",
+      "id": "Cactus-Compute/needle3",
+      "reason": "no safetensors index — the Hub publishes no parameter count for this repo",
       "detail": null
     },
     {
@@ -968,9 +929,14 @@
       "detail": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json"
     },
     {
-      "id": "IFM/K2-Horizon-7B",
-      "reason": "mixture of experts whose active parameter count is not derivable — the geometry model does not reproduce the published total",
-      "detail": "geometry 3.563B vs published 8.999B"
+      "id": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "reason": "qk_rope_head_dim without kv_lora_rank — not classic MLA, cache width is not derivable from this config",
+      "detail": null
+    },
+    {
+      "id": "audnai/penclaw-GLM-5.3-abliterated",
+      "reason": "gated repo — config.json returned HTTP 401",
+      "detail": "https://huggingface.co/audnai/penclaw-GLM-5.3-abliterated/resolve/main/config.json"
     },
     {
       "id": "Qwen/Qwen3.6-27B",
@@ -978,9 +944,14 @@
       "detail": "duplicate serving shape"
     },
     {
-      "id": "openai-community/gpt2",
-      "reason": "0.137B parameters is below the --min-params-b floor of 0.5B",
+      "id": "paradigma-inc/limite-1b-violetto",
+      "reason": "sliding_window is set but no layer_types says WHICH layers slide — retention is not derivable",
       "detail": null
+    },
+    {
+      "id": "IFM/K2-Horizon-7B",
+      "reason": "mixture of experts whose active parameter count is not derivable — the geometry model does not reproduce the published total",
+      "detail": "geometry 3.563B vs published 8.999B"
     },
     {
       "id": "Qwen/Qwen3.8-Flash-Next",
@@ -1007,36 +978,19 @@
         "prism-ml/Ternary-Bonsai-2-27B-mlx-2bit",
         "dealignai/Bonsai-2-27B-Ternary-CRACK-GGUF",
         "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
-        "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
-        "dealignai/Bonsai-2-27B-1bit-CRACK-GGUF",
         "incoai/Qwen3.8-27B-Splash",
-        "0bserverx/Qwen3.8-27B-Heretic-Abliterated-Uncensored-GGUF",
+        "dealignai/Bonsai-2-27B-1bit-CRACK-GGUF",
+        "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
         "BoldingBuilds/Ternary-Bonsai-2-27B-Abliterated-PTQ1_0-GGUF"
       ],
-      "credited_trending_score": 1621
+      "credited_trending_score": 1740
     },
     {
       "base_id": "Qwen/Qwen3.5-9B",
       "derivative_ids": [
         "TokenRhythm/NeoHorse-1-9B"
       ],
-      "credited_trending_score": 194
-    },
-    {
-      "base_id": "XHToken/Spark-X2.5-4B",
-      "derivative_ids": [
-        "XHToken/Spark-X2.5-4B-GGUF"
-      ],
-      "credited_trending_score": 119
-    },
-    {
-      "base_id": "Qwen/Qwen3.6-35B-A3B",
-      "derivative_ids": [
-        "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
-        "Edge0/Edge0-35B-A3B-preview",
-        "empero-ai/Qwen3.8-35B-A3B-Distill"
-      ],
-      "credited_trending_score": 116
+      "credited_trending_score": 193
     },
     {
       "base_id": "zai-org/GLM-5.3",
@@ -1044,7 +998,24 @@
         "AikidoSec/altar-1",
         "dealignai/GLM-5.3-CYBERSECURITY-FP8"
       ],
-      "credited_trending_score": 83
+      "credited_trending_score": 140
+    },
+    {
+      "base_id": "Qwen/Qwen3.6-35B-A3B",
+      "derivative_ids": [
+        "empero-ai/Qwen3.8-35B-A3B-Distill-GGUF",
+        "empero-ai/Qwen3.8-35B-A3B-Distill",
+        "Edge0/Edge0-35B-A3B-preview"
+      ],
+      "credited_trending_score": 126
+    },
+    {
+      "base_id": "XHToken/Spark-X2.5-4B",
+      "derivative_ids": [
+        "peculiar-ragdoll/Sharp-Spark-X2.5-4B-GGUF",
+        "XHToken/Spark-X2.5-4B-GGUF"
+      ],
+      "credited_trending_score": 94
     }
   ]
 }

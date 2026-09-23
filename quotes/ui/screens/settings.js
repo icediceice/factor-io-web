@@ -129,7 +129,10 @@ export async function mount(main) {
     const selected = templates.find((template) => template.code === chosenCode);
     const host = sowEditor.querySelector('[data-template-editor]');
     host.replaceChildren();
-    if (selected) mountSowEditor(host, selected.sow);
+    if (selected) mountSowEditor(host, selected.sow, { onChange: () => {
+      const json = sowEditor.querySelector('[data-template-json]');
+      if (document.activeElement !== json) json.value = JSON.stringify(templates, null, 2);
+    } });
     sowEditor.querySelector('[data-template-json]').value = JSON.stringify(templates, null, 2);
   }
   try {

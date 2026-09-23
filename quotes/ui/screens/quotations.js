@@ -162,6 +162,14 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   let revising = false;
   let editingLine = null;
   let previewJson = '';
+  let aiText = '';
+  let aiMessage = '';
+  let section = 'overview';
+  let scopeDraft = null;
+  const surface = el('<div class="quote-surface"></div>');
+  const detailsDialog = el('<dialog class="quote-edit-dialog" aria-label="Edit quotation details"></dialog>');
+  const scopeDialog = el('<dialog class="quote-edit-dialog" aria-label="Edit statement of work"></dialog>');
+  host.append(surface, detailsDialog, scopeDialog);
 
   const kindLabel = (code) => doc.kindLabels?.[code] ?? code;
 

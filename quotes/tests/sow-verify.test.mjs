@@ -43,6 +43,19 @@ test('create: a zero-quantity initial line is refused with a JSON-path 400 and c
   assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations').get().c, 0);
 });
 
+test('an unchanged quotation issued with a blank issue date can still be accepted on a later day', async () => {
+  const { db, call } = fixture();
+  const id = await draft(call); // no issue_date: the document falls back to todayBkk()
+  assert.equal(db.prepare('SELECT issue_date FROM quotations WHERE id=?').get(id).issue_date, '');
+  assert.equal((await call('POST', `/quotations/${id}/issue`)).status, 200);
+  // Simulate the calendar moving on: the snapshot was taken "yesterday".
+  const row = db.prepare('SELECT snapshot_json FROM quotation_revisions WHERE quotation_id=?').get(id);
+  const snap = JSON.parse(row.snapshot_json); snap.quotation.issueDate = '2000-01-01';
+  db.prepare('UPDATE quotation_revisions SET snapshot_json=? WHERE quotation_id=?').run(JSON.stringify(snap), id);
+  const accepted = await call('POST', `/quotations/${id}/status`, { status: 'accepted' });
+  assert.equal(accepted.status, 200, JSON.stringify(accepted.error));
+});
+
 test('legacy accepted quotation whose content drifted from its revision cannot be invoiced', async () => {
   const { db, call } = fixture();
   const id = await draft(call);

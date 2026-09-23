@@ -8,6 +8,7 @@
 // details cannot be committed along with a VAT change you were sure about.
 
 import { api, el, esc, toast, withBusy } from '../app.js';
+import { mountSowEditor } from '../sow-editor.js';
 
 // [key, label, hint]
 const GROUPS = [

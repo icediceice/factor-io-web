@@ -50,6 +50,29 @@ describe('clients + catalog', () => {
     assert.equal((await call('GET', `/clients/${id}`)).status, 404);
   });
 
+  test('client deletion refuses a retained invoice after its source quotation is removed', async () => {
+    const { db, call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Test client' } })).body).client;
+    const quote = JSON.parse((await call('POST', '/quotations', { body: { client_id: client.id } })).body).quotation;
+    db.prepare("INSERT INTO invoices (number, client_id, quotation_id, status) VALUES (?, ?, ?, 'cancelled')")
+      .run('INV-TEST-1', client.id, quote.id);
+    assert.equal((await call('DELETE', `/quotations/${quote.id}`)).status, 200);
+    const refusal = await call('DELETE', `/clients/${client.id}`);
+    assert.equal(refusal.status, 400);
+    assert.match(JSON.parse(refusal.body).error, /INV-TEST-1/);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM clients WHERE id=?').get(client.id).c, 1);
+  });
+
+  test('client deletion points to a removable draft invoice', async () => {
+    const { db, call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Draft invoice client' } })).body).client;
+    db.prepare("INSERT INTO invoices (number, client_id, status) VALUES (?, ?, 'draft')")
+      .run('INV-DRAFT-1', client.id);
+    const refusal = await call('DELETE', `/clients/${client.id}`);
+    assert.equal(refusal.status, 400);
+    assert.match(JSON.parse(refusal.body).error, /delete draft invoice.*INV-DRAFT-1/i);
+  });
+
   test('catalog accepts satang int or price string, refuses floats and duals', async () => {
     const { call } = boot();
     const a = await call('POST', '/catalog', { body: { kind: 'service', name_en: 'Advisory', unit: 'day', unit_price: '35000.00' } });

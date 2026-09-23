@@ -230,6 +230,19 @@ export function createApi(db) {
       }
     }
 
+    if (path === '/sow-templates') {
+      if (method === 'GET') return json(200, { templates: parseTemplates(getSettings(db, '')['sow.templates']) });
+      if (method === 'PUT') {
+        let templates;
+        try { templates = parseTemplates(JSON.stringify(body.templates)); } catch (e) { throw bad(e.message); }
+        tx(db, () => {
+          setSetting(db, 'sow.templates', JSON.stringify(templates), actor);
+          audit(db, actor, 'sow.templates.update', 'settings', 'sow.templates', { count: templates.length });
+        });
+        return json(200, { templates });
+      }
+    }
+
     // ---------- clients ----------
     if (path === '/clients') {
       if (method === 'GET') {

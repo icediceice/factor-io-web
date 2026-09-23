@@ -523,6 +523,72 @@ export function createApi(db) {
         }
       }
 
+      if (seg[2] === 'sow' && method === 'PUT') {
+        const why = editRefusal(row.status);
+        if (why) throw bad(why);
+        let sow;
+        try { sow = validateSow(body.sow); } catch (e) { throw bad(e.message); }
+        tx(db, () => {
+          db.prepare("UPDATE quotations SET sow_json=?, updated_at=datetime('now') WHERE id=?").run(sow ? JSON.stringify(sow) : '', id);
+          audit(db, actor, 'quotation.sow', 'quotation', id, { modules: sow?.modules.length ?? 0 });
+        });
+        return json(200, docEnvelope(buildQuoteDocument(db, id)));
+      }
+      if (seg[2] === 'draft.json' && method === 'GET') {
+        if (row.status !== 'draft') throw bad('AI draft export is available for draft quotations only');
+        const doc = buildQuoteDocument(db, id);
+        return json(200, { schema: 'factor-quote-draft', version: 1, quotation_id: id,
+          base_digest: quoteDigest(doc),
+          header: { lang: row.lang, currency: row.currency, issue_date: row.issue_date,
+            notes: row.notes, term_months: Number(row.term_months) },
+          sow: doc.sow,
+          lines: doc.lines.map((line) => ({ kind: line.kind, description_en: line.descriptionEn,
+            description_th: line.descriptionTh, qty: milliToDecimal(line.qtyMilli), unit: line.unit,
+            unit_price: satangToDecimal(line.unitSatang), discount_satang: line.discountSatang,
+            billing_period: line.billingPeriod, section: line.section, optional: line.optional })) });
+      }
+      if (seg[2] === 'draft' && method === 'POST') {
+        if (row.status !== 'draft') throw bad('AI draft import is available for draft quotations only');
+        const errors = [];
+        hasOnly(body, DRAFT_KEYS, '', errors);
+        if (body.schema !== 'factor-quote-draft') errors.push({ path: 'schema', message: 'must be factor-quote-draft' });
+        if (body.version !== 1) errors.push({ path: 'version', message: 'must be 1' });
+        if (Number(body.quotation_id) !== id) errors.push({ path: 'quotation_id', message: 'does not match this quotation' });
+        const current = buildQuoteDocument(db, id);
+        if (body.base_digest !== quoteDigest(current)) return json(409, { error: 'quotation changed since export; export a fresh AI draft' });
+        const header = body.header;
+        const headerOk = hasOnly(header, HEADER_KEYS, 'header', errors);
+        if (headerOk) {
+          if (!['en', 'th'].includes(header.lang)) errors.push({ path: 'header.lang', message: 'must be en or th' });
+          if (typeof header.currency !== 'string' || !/^[A-Z]{3}$/.test(header.currency)) errors.push({ path: 'header.currency', message: 'must be a three-letter currency code' });
+          if (typeof header.issue_date !== 'string' || (header.issue_date && !/^\\d{4}-\\d{2}-\\d{2}$/.test(header.issue_date))) errors.push({ path: 'header.issue_date', message: 'must be YYYY-MM-DD or blank' });
+          if (typeof header.notes !== 'string' || header.notes.length > 5000) errors.push({ path: 'header.notes', message: 'must be text up to 5000 characters' });
+          if (!Number.isInteger(header.term_months) || header.term_months < 0 || header.term_months > 600) errors.push({ path: 'header.term_months', message: 'must be an integer from 0 to 600' });
+        }
+        let sow = null;
+        try { sow = validateSow(body.sow); } catch (e) { errors.push({ path: 'sow', message: e.message }); }
+        const lines = checkedLines(db, body.lines, errors);
+        if (!lines.length) errors.push({ path: 'lines', message: 'add at least one priced line' });
+        if (errors.length) return json(400, { error: 'AI draft needs correction', errors });
+        const dryRun = query.dry_run === '1';
+        const PREVIEW = Symbol('preview');
+        try {
+          return tx(db, () => {
+            db.prepare('DELETE FROM quotation_lines WHERE quotation_id=?').run(id);
+            insertCheckedLines(db, id, lines);
+            db.prepare(`UPDATE quotations SET lang=?, currency=?, issue_date=?, notes=?, term_months=?, sow_json=?, updated_at=datetime('now') WHERE id=?`)
+              .run(header.lang, header.currency, header.issue_date, header.notes, header.term_months, sow ? JSON.stringify(sow) : '', id);
+            const doc = buildQuoteDocument(db, id);
+            if (dryRun) throw { marker: PREVIEW, doc };
+            audit(db, actor, 'quotation.import', 'quotation', id, { lines: lines.length, base_digest: body.base_digest, source: 'ai-json' });
+            return json(200, { preview: false, ...docEnvelope(doc) });
+          });
+        } catch (e) {
+          if (e?.marker === PREVIEW) return json(200, { preview: true, ...docEnvelope(e.doc) });
+          throw e;
+        }
+      }
+
       if (seg[2] === 'lines') {
         if (method === 'GET') {
           const lines = db.prepare('SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id').all(id);

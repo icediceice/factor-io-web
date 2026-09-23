@@ -651,7 +651,11 @@ async function renderQuote(id, host, reloadList, reloadStats) {
           if (aiText !== submitted) return;
           previewJson = submitted;
           aiMessage = `Ready to apply: ${response.lines.length} lines · ${fmtSatang(response.totals.payableSatang)} payable. Review the SOW and prices above.`;
-        } catch (error) { previewJson = ''; aiMessage = error.message; }
+        } catch (error) {
+          if (aiText !== submitted) return;
+          previewJson = '';
+          aiMessage = error.message;
+        }
         syncAi();
       });
       if (action === 'apply') {

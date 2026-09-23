@@ -141,6 +141,54 @@ function qtyMilliOf(body) {
   throw bad('quantity required: qty_milli (integer) or qty (decimal string)');
 }
 
+const quoteDigest = (doc) => createHash('sha256').update(canonicalDocDigest(doc)).digest('hex');
+const hasOnly = (obj, allowed, path, errors) => {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) { errors.push({ path, message: 'must be an object' }); return false; }
+  for (const k of Object.keys(obj)) if (!allowed.includes(k)) errors.push({ path: path ? `${path}.${k}` : k, message: 'field is not supported' });
+  return true;
+};
+const DRAFT_KEYS = ['schema', 'version', 'quotation_id', 'base_digest', 'header', 'sow', 'lines'];
+const HEADER_KEYS = ['lang', 'currency', 'issue_date', 'notes', 'term_months'];
+const LINE_KEYS = ['kind', 'description_en', 'description_th', 'qty', 'unit', 'unit_price', 'discount_satang', 'billing_period', 'section', 'optional'];
+function checkedLines(db, value, errors) {
+  if (!Array.isArray(value) || value.length > 100) { errors.push({ path: 'lines', message: 'must be an array of at most 100 lines' }); return []; }
+  return value.map((line, i) => {
+    const path = `lines[${i}]`;
+    if (!hasOnly(line, LINE_KEYS, path, errors)) return null;
+    const out = {};
+    const check = (key, fn) => { try { out[key] = fn(); } catch (e) { errors.push({ path: `${path}.${key}`, message: e.message }); } };
+    check('kind', () => kindOf(db, line));
+    check('billing_period', () => periodOf(line));
+    check('description_en', () => needStr(line, 'description_en', { max: 1000 }));
+    check('description_th', () => optStr(line, 'description_th', { max: 1000 }));
+    check('qty_milli', () => parseMilli(line.qty));
+    check('unit_satang', () => {
+      if (line.unit_price == null) throw new Error('explicit unit_price is required before import');
+      return parseSatang(line.unit_price);
+    });
+    check('unit', () => optStr(line, 'unit', { max: 30 }));
+    check('section', () => optStr(line, 'section', { max: 100 }));
+    check('discount_satang', () => {
+      const n = Number(line.discount_satang ?? 0);
+      if (!Number.isSafeInteger(n) || n < 0) throw new Error('must be a non-negative integer');
+      return n;
+    });
+    check('optional', () => {
+      if (line.optional != null && typeof line.optional !== 'boolean') throw new Error('must be a boolean');
+      return line.optional ? 1 : 0;
+    });
+    return out;
+  });
+}
+function insertCheckedLines(db, id, lines) {
+  const stmt = db.prepare(`INSERT INTO quotation_lines
+    (quotation_id, position, kind, description_en, description_th, qty_milli, unit, unit_satang, discount_satang, billing_period, section, optional)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  lines.forEach((line, i) => stmt.run(id, i + 1, line.kind, line.description_en, line.description_th,
+    line.qty_milli, line.unit || defaultUnitFor(line.kind, line.billing_period), line.unit_satang,
+    line.discount_satang, line.billing_period, line.section, line.optional));
+}
+
 export function createApi(db) {
   async function route(req) {
     try {

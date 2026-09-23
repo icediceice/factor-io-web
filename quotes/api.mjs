@@ -554,8 +554,6 @@ export function createApi(db) {
         if (body.schema !== 'factor-quote-draft') errors.push({ path: 'schema', message: 'must be factor-quote-draft' });
         if (body.version !== 1) errors.push({ path: 'version', message: 'must be 1' });
         if (Number(body.quotation_id) !== id) errors.push({ path: 'quotation_id', message: 'does not match this quotation' });
-        const current = buildQuoteDocument(db, id);
-        if (body.base_digest !== quoteDigest(current)) return json(409, { error: 'quotation changed since export; export a fresh AI draft' });
         const header = body.header;
         const headerOk = hasOnly(header, HEADER_KEYS, 'header', errors);
         if (headerOk) {

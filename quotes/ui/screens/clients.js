@@ -180,7 +180,7 @@ async function renderClient(id, host, reloadList) {
     if (!btn || btn.disabled) return;
     const ok = await confirmAction({
       title: `Delete ${client.name}?`,
-      body: 'They have no quotations, so nothing points at this record.',
+      body: 'This client has no quotations or tax invoices. Delete their client record?',
       consequences: ['The client record, including their tax ID and addresses'],
       confirmLabel: 'Delete client',
     });

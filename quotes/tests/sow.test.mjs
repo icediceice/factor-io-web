@@ -28,6 +28,34 @@ async function draft(call) {
   return created.quotation.id;
 }
 
+test('detailed starters validate and migration upgrades only the untouched legacy seed', () => {
+  assert.equal(JSON.stringify(LEGACY_SOW_TEMPLATES_V1).length, 11846);
+  assert.deepEqual(parseTemplates(JSON.stringify(DEFAULT_SOW_TEMPLATES)), DEFAULT_SOW_TEMPLATES);
+  const oldDb = () => {
+    const db = new DatabaseSync(':memory:');
+    for (const migration of MIGRATIONS.filter((entry) => entry.version <= 8)) {
+      db.exec(migration.sql);
+      db.exec(`PRAGMA user_version = ${migration.version}`);
+    }
+    return db;
+  };
+  const untouched = oldDb();
+  assert.equal(untouched.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
+    JSON.stringify(LEGACY_SOW_TEMPLATES_V1));
+  migrate(untouched);
+  assert.equal(untouched.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
+    JSON.stringify(DEFAULT_SOW_TEMPLATES));
+  assert.equal(untouched.prepare('PRAGMA user_version').get().user_version, MIGRATIONS.at(-1).version);
+
+  const customized = oldDb();
+  const customValue = JSON.stringify([{ ...LEGACY_SOW_TEMPLATES_V1[0], titleEn: 'Operator scope' }]);
+  customized.prepare("UPDATE settings SET value=? WHERE key='sow.templates'").run(customValue);
+  migrate(customized);
+  assert.equal(customized.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value, customValue);
+  assert.equal(getSettings(openDb(':memory:'), '')['sow.templates'], JSON.stringify(DEFAULT_SOW_TEMPLATES));
+});
+
+
 test('SOW templates are editable data and optional Kubernetes services start excluded', async () => {
   const { db, call } = fixture();
   const response = await call('GET', '/sow-templates');

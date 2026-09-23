@@ -482,6 +482,29 @@ export const MIGRATIONS = [
         ('sow.templates', '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}', 'seed');
     `,
   },
+  {
+    version: 7,
+    name: 'freeze-quotation-issue-dates',
+    sql: `
+      -- Earlier issue flows froze today's date in a revision but left the row
+      -- blank, making the live document drift on the next Bangkok day. Only
+      -- backfill from the latest readable snapshot with a date-shaped value.
+      WITH latest AS (
+        SELECT quotation_id,
+          CASE WHEN json_valid(snapshot_json)
+            THEN json_extract(snapshot_json, '$.quotation.issueDate')
+            ELSE NULL END AS snapshot_date,
+          ROW_NUMBER() OVER (PARTITION BY quotation_id ORDER BY rev DESC) AS rn
+        FROM quotation_revisions
+      )
+      UPDATE quotations SET issue_date = latest.snapshot_date
+      FROM latest
+      WHERE quotations.id = latest.quotation_id
+        AND latest.rn = 1
+        AND quotations.issue_date = ''
+        AND latest.snapshot_date GLOB '????-??-??';
+    `,
+  },
 ];
 
 export function openDb(path) {

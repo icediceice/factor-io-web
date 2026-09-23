@@ -10,7 +10,7 @@
 // parseMilli reject JS floats by design.
 
 import { openDb, tx, getSettings, setSetting, audit } from './lib/db.mjs';
-import { parseSatang, parseMilli, milliToDecimal } from './lib/money.mjs';
+import { parseSatang, parseMilli, milliToDecimal, satangToDecimal } from './lib/money.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
   saveRevision, markStatus, editRefusal,

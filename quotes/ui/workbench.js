@@ -212,6 +212,7 @@ export function mountWorkbench(main, spec) {
 
   async function refresh({ keepSelection = true } = {}) {
     items = await spec.load();
+    spec.onLoad?.(items);
     if (!keepSelection) selected = null;
     // A record that has just been deleted must not leave the detail pane
     // showing a ghost.

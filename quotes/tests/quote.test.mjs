@@ -423,7 +423,7 @@ function openV2Db() {
 }
 
 describe('migrations', () => {
-  test('a fresh database lands on user_version 5', () => {
+  test('a fresh database lands on user_version 7', () => {
     const db = openDb(':memory:');
     assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 7);
     // Migration 4's seeds are present and are the accounting keys, not stubs.
@@ -437,7 +437,7 @@ describe('migrations', () => {
     assert.equal(db.prepare(`SELECT status FROM quotations WHERE number='QT-X'`).get().status, 'proposed');
   });
 
-  test('a POPULATED v2 database upgrades to 5 with every row and status intact', () => {
+  test('a POPULATED v2 database upgrades to 7 with every row and status intact', () => {
     const db = openV2Db();
     assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 2);
 

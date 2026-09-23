@@ -479,7 +479,7 @@ export const MIGRATIONS = [
     sql: `
       ALTER TABLE quotations ADD COLUMN sow_json TEXT NOT NULL DEFAULT '';
       INSERT INTO settings (key, value, updated_by) VALUES
-        ('sow.templates', '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}', 'seed');
+        ('sow.templates', '${JSON.stringify(LEGACY_SOW_TEMPLATES_V1).replaceAll("'", "''")}', 'seed');
     `,
   },
   {

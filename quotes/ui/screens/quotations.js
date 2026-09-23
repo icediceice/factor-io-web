@@ -200,6 +200,14 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     return result;
   }
 
+  function syncAi() {
+    const card = surface.querySelector('.ai-draft');
+    if (!card) return;
+    card.querySelector('[data-ai-json]').value = aiText;
+    card.querySelector('[data-ai-result]').textContent = aiMessage;
+    card.querySelector('[data-ai="apply"]').disabled = !previewJson || previewJson !== aiText;
+  }
+
   function showSection() {
     for (const panel of surface.querySelectorAll('[data-quote-section]')) panel.hidden = panel.dataset.quoteSection !== section;
     for (const link of surface.querySelectorAll('[data-quote-nav]')) {

@@ -306,12 +306,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     stack.querySelector('[data-section-body]').append(...Object.values(sections));
     surface.append(stack);
     showSection();
-    if (q.status === 'draft') {
-      const area = ai.querySelector('[data-ai-json]');
-      area.value = aiText;
-      ai.querySelector('[data-ai-result]').textContent = aiMessage;
-      ai.querySelector('[data-ai="apply"]').disabled = !previewJson || previewJson !== aiText;
-    }
+    if (q.status === 'draft') syncAi();
     bind(head);
   }
 

@@ -340,12 +340,8 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
 .stack-body{min-width:0}
 .stack-body>section{scroll-margin-top:calc(var(--header-h) + var(--s6))}
 
-/* Guided quotation and scoped AI exchange. The create action is visible above
-   the workbench; the editor keeps the same paper, rules and teal hierarchy. */
-.quote-launch{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);background:var(--tint);border:1px solid var(--accent);padding:var(--s3) var(--s4);margin:var(--s4) 0}
-.quote-launch>div{display:grid;gap:var(--s1)}
-.quote-launch strong{font-size:var(--t-base);font-weight:600}
-.quote-launch .section-label{margin:0}
+/* The create action shares the page heading, leaving the workbench above the fold. */
+.quote-launch{white-space:nowrap}
 .quote-wizard{width:min(880px,calc(100% - var(--s4)));max-height:calc(100vh - var(--s7));overflow:auto;background:var(--paper);color:var(--ink);border:2px solid var(--accent);padding:0;box-shadow:none}
 .quote-wizard::backdrop{background:var(--scrim)}
 .studio-head{background:var(--white);border-bottom:1px solid var(--line);padding:var(--s5)}

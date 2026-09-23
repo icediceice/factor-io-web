@@ -403,6 +403,57 @@ export function editRefusal(status) {
     + ' (editable while draft, issued or proposed; correct an issued quotation and re-issue it to record a new revision)';
 }
 
+export class QuotationDeleteRefusal extends Error {}
+
+/** Remove a quotation only after every linked invoice is void. Preserve each
+ * invoice's source number before unlinking it, within the same transaction. */
+export function deleteQuotation(db, quotationId, { actor = 'agent', expect = null } = {}) {
+  return tx(db, () => {
+    const row = db.prepare('SELECT id, number, status FROM quotations WHERE id = ?').get(quotationId);
+    if (!row) throw new QuotationDeleteRefusal(`quotation ${quotationId} not found`);
+    const invoices = db.prepare(
+      'SELECT id, number, status, source_quotation_number FROM invoices WHERE quotation_id = ? ORDER BY id'
+    ).all(quotationId);
+
+    if (expect) {
+      const actual = invoices.map(({ number, status }) => ({ number, status }));
+      if (row.id !== expect.id || row.number !== expect.number
+          || JSON.stringify(actual) !== JSON.stringify(expect.invoices)) {
+        throw new QuotationDeleteRefusal(`cleanup identity mismatch for ${expect.number}`);
+      }
+    }
+
+    const active = invoices.filter(({ status }) => status !== 'cancelled');
+    if (active.length) {
+      throw new QuotationDeleteRefusal(
+        `quotation ${row.number} cannot be deleted because tax invoice ${active.map((i) => i.number).join(', ')} is not cancelled`
+        + ' (cancel the invoice first, or cancel this quotation instead of deleting it)'
+      );
+    }
+
+    const revisions = db.prepare(
+      'SELECT COUNT(*) c FROM quotation_revisions WHERE quotation_id = ?'
+    ).get(quotationId).c;
+    for (const invoice of invoices) {
+      if (invoice.source_quotation_number && invoice.source_quotation_number !== row.number) {
+        throw new QuotationDeleteRefusal(`invoice ${invoice.number} has a different saved source quotation`);
+      }
+      db.prepare(
+        'UPDATE invoices SET source_quotation_number = ?, quotation_id = NULL WHERE id = ?'
+      ).run(row.number, invoice.id);
+      audit(db, actor, 'invoice.unlink', 'invoice', invoice.id, {
+        number: invoice.number, source_quotation_number: row.number, quotation_id: row.id,
+      });
+    }
+    db.prepare('DELETE FROM quotations WHERE id = ?').run(quotationId);
+    const unlinked_invoices = invoices.map(({ number }) => number);
+    audit(db, actor, 'quotation.delete', 'quotation', quotationId, {
+      number: row.number, status: row.status, revisions_destroyed: revisions, unlinked_invoices,
+    });
+    return { ok: true, number: row.number, revisions_destroyed: revisions, unlinked_invoices };
+  });
+}
+
 /** Legal moves. The pipeline runs draft -> issued -> proposed -> accepted and
  *  then hands off to the invoice side; 'invoiced' and 'paid' are driven by
  *  lib/invoice.mjs as invoices are raised and settled, never set by hand.

@@ -218,6 +218,9 @@ export function createApi(db) {
         const applied = tx(db, () => {
           for (const [k, v] of Object.entries(entries)) {
             if (typeof v !== 'string' && typeof v !== 'number') throw bad(`setting ${k} must be a string`);
+            if (k === 'sow.templates') {
+              try { parseTemplates(String(v)); } catch (e) { throw bad(e.message); }
+            }
             setSetting(db, k, String(v), actor);
           }
           audit(db, actor, 'settings.update', 'settings', '', Object.keys(entries));

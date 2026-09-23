@@ -204,15 +204,15 @@ export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', l
 
     const info = db.prepare(`
       INSERT INTO invoices (
-        number, quotation_id, client_id, status, lang, currency,
+        number, quotation_id, source_quotation_number, client_id, status, lang, currency,
         issue_date, due_date, branch_code,
         vat_rate_percent, wht_rate_percent, wht_mode,
         subtotal_satang, discount_satang, net_satang, vat_satang,
         grand_satang, wht_satang, payable_satang,
         fx_base, fx_rate, fx_as_of, notes, created_by
-      ) VALUES (?, ?, ?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      number, quotationId, q.client_id, str(lang) || q.lang || 'en', q.currency || 'THB',
+      number, quotationId, q.number, q.client_id, str(lang) || q.lang || 'en', q.currency || 'THB',
       issue, addDaysBkk(issue, termsDays), settings['tax.branch_code'] ?? '00000',
       totals.vatRate, totals.whtRate, totals.whtMode,
       totals.subtotalSatang, totals.discountSatang, totals.netSatang, totals.vatSatang,
@@ -537,7 +537,7 @@ export function buildInvoiceDocument(db, invoiceId) {
       dueDate: str(inv.due_date),
       branchCode: str(inv.branch_code),
       quotationId: inv.quotation_id ?? null,
-      quotationNumber: quotation ? str(quotation.number) : '',
+      quotationNumber: str(inv.source_quotation_number) || (quotation ? str(quotation.number) : ''),
       fxBase: str(inv.fx_base),
       fxRate: str(inv.fx_rate),
       fxAsOf: str(inv.fx_as_of),

@@ -515,7 +515,7 @@ describe('migrations', () => {
     db.prepare("INSERT INTO invoices (number, client_id) VALUES ('INV-UNLINKED', 1)").run();
     migrate(db);
     assert.equal(db.prepare('PRAGMA user_version').get().user_version, 8);
-    assert.deepEqual(db.prepare('SELECT number, source_quotation_number FROM invoices ORDER BY id').all(), [
+    assert.deepEqual(db.prepare('SELECT number, source_quotation_number FROM invoices ORDER BY id').all().map((r) => ({ ...r })), [
       { number: 'INV-LINKED', source_quotation_number: 'QT-OLD' },
       { number: 'INV-UNLINKED', source_quotation_number: '' },
     ]);

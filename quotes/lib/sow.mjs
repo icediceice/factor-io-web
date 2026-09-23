@@ -30,7 +30,7 @@ const kube = (code, titleEn, titleTh, install, prerequisite) => ({
     exclusions: [pair('Application migration and ongoing operation are excluded unless selected and priced')],
   },
 });
-export const DEFAULT_SOW_TEMPLATES = [
+export const LEGACY_SOW_TEMPLATES_V1 = [
   {
     code: 'os-install', titleEn: 'OS installation', titleTh: 'ติดตั้งระบบปฏิบัติการ',
     sow: { version: 1, summary: pair('Operating system installation and handover', 'ติดตั้งระบบปฏิบัติการและส่งมอบ'),

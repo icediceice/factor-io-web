@@ -10,7 +10,7 @@
 // parseMilli reject JS floats by design.
 
 import { openDb, tx, getSettings, setSetting, audit } from './lib/db.mjs';
-import { parseSatang, parseMilli, milliToDecimal, satangToDecimal } from './lib/money.mjs';
+import { parseSatang, parseMilli, milliToDecimal, satangToDecimal, lineSubtotal } from './lib/money.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
   saveRevision, markStatus, editRefusal,
@@ -162,7 +162,11 @@ function checkedLines(db, value, errors) {
     check('billing_period', () => periodOf(line));
     check('description_en', () => needStr(line, 'description_en', { max: 1000 }));
     check('description_th', () => optStr(line, 'description_th', { max: 1000 }));
-    check('qty_milli', () => parseMilli(line.qty));
+    check('qty_milli', () => {
+      const qty = parseMilli(line.qty);
+      if (qty <= 0) throw new Error('must be greater than zero');
+      return qty;
+    });
     check('unit_satang', () => {
       if (line.unit_price == null) throw new Error('explicit unit_price is required before import');
       return parseSatang(line.unit_price);
@@ -178,6 +182,10 @@ function checkedLines(db, value, errors) {
       if (line.optional != null && typeof line.optional !== 'boolean') throw new Error('must be a boolean');
       return line.optional ? 1 : 0;
     });
+    if (out.qty_milli != null && out.unit_satang != null) {
+      try { lineSubtotal(out.qty_milli, out.unit_satang); }
+      catch (e) { errors.push({ path: `${path}.unit_price`, message: e.message }); }
+    }
     return out;
   });
 }

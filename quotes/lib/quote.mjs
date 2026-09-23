@@ -11,6 +11,7 @@ import {
   lineSubtotal, vatOf, whtOf, fxToThb, todayBkk, addDaysBkk, roundSatang,
 } from './money.mjs';
 import { PERIOD_MONTHS, labelMap } from './kinds.mjs';
+import { parseSow, canonicalSow } from './sow.mjs';
 
 /**
  * Totals for lines [{qtyMilli, unitSatang, discountSatang, billingPeriod,

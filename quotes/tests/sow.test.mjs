@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { openDb, getSettings } from '../lib/db.mjs';
+import { DatabaseSync } from 'node:sqlite';
+import { openDb, getSettings, MIGRATIONS, migrate } from '../lib/db.mjs';
+import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, parseTemplates } from '../lib/sow.mjs';
 import { createApi } from '../api.mjs';
 import { renderQuotationHtml } from '../templates/quotation.mjs';
 import { buildQuoteDocument } from '../lib/quote.mjs';

@@ -105,7 +105,7 @@ export async function mount(main) {
         ['declined', 'Declined'], ['cancelled', 'Cancelled'], ['superseded', 'Superseded'],
       ],
     }],
-    emptyHtml: '<div class="empty"><strong>No quotations yet</strong>Create the first one below.</div>',
+    emptyHtml: '<div class="empty"><strong>No quotations yet</strong>Use Create SOW + quotation above to make the first draft.</div>',
     detailOf: (id, host) => renderQuote(id, host, () => wbApi.reloadList(), () => loadStats(statsCard)),
     onLoad: () => wizard.refreshClients(),
   });

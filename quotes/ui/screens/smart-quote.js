@@ -62,12 +62,7 @@ export function mountSmartQuote(main, getWorkbench, getClients, vocab) {
     try { templates = (await api('GET', '/sow-templates')).templates ?? []; fresh(); dialog.showModal(); }
     catch (e) { toast(e.message, 'error'); }
   });
-  dialog.addEventListener('input', (e) => {
-    if (e.target.matches('[data-summary]') && state.sow) state.sow.summary.en = e.target.value;
-  });
-  dialog.addEventListener('change', (e) => {
-    if (e.target.matches('[data-module]') && state.sow) state.sow.modules[Number(e.target.dataset.module)].included = e.target.checked;
-  });
+
   dialog.addEventListener('submit', (e) => {
     if (!e.target.matches('[data-add-line]')) return;
     e.preventDefault();

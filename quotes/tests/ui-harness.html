@@ -98,6 +98,7 @@ const ids = {};
   const q = await (await fetch('/api/quotations')).json();
   const i = await (await fetch('/api/invoices')).json();
   ids.quotation = q.quotations?.[q.quotations.length - 1]?.id;
+  ids.quotationDraft = q.quotations?.find((item) => item.status === 'draft')?.id;
   ids.invoice = i.invoices?.[0]?.id;
 }
 
@@ -494,6 +495,71 @@ $('#all').onclick = () => run(SCREENS);
 sel.onchange = () => { const s = SCREENS.find((x) => x.id === sel.value); const [w, h] = $('#width').value.split('x').map(Number); loadScreen(s, w, h); };
 $('#width').onchange = () => sel.onchange();
 
+async function checkQuoteInteractions() {
+  const [w, h] = $('#width').value.split('x').map(Number);
+  const checks = [];
+  const check = (name, passes) => checks.push(row(name, passes ? 'PASS' : 'FAIL', passes ? 'ok' : 'unexpected state'));
+  const until = async (condition) => {
+    for (let n = 0; n < 100; n++) {
+      if (condition()) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    throw Error('Fixture interaction timed out');
+  };
+  try {
+    if (!ids.quotationDraft) throw Error('No draft quotation in fixture');
+    const win = await loadScreen({ url: 'quote.html', needs: 'quotationDraft' }, w, h);
+    const doc = win.document;
+    const click = (selector) => doc.querySelector(selector)?.click();
+    click('[data-quote-nav="ai"]');
+    click('[data-ai="export"]');
+    await until(() => doc.querySelector('[data-ai-json]')?.value.includes('base_digest'));
+    const exported = doc.querySelector('[data-ai-json]').value;
+    const originalFetch = win.fetch.bind(win);
+    let release;
+    win.fetch = (input, init) => String(input).includes('/draft?dry_run=1')
+      ? new Promise((resolve) => { release = () => resolve(originalFetch(input, init)); })
+      : originalFetch(input, init);
+    click('[data-ai="preview"]');
+    await until(() => !!release);
+    click('[data-quote-nav="overview"]');
+    release();
+    await until(() => !doc.querySelector('[data-ai="apply"]')?.disabled);
+    click('[data-quote-nav="ai"]');
+    check('AI preview survives section switch',
+      doc.querySelector('[data-ai-json]').value === exported && !doc.querySelector('[data-ai="apply"]').disabled);
+    win.fetch = originalFetch;
+
+    click('[data-quote-nav="overview"]');
+    click('[data-edit-details]');
+    const dialog = doc.querySelector('dialog[aria-label="Edit quotation details"]');
+    const notes = dialog.querySelector('[name="notes"]');
+    notes.value = 'Unsaved fixture note';
+    const template = doc.querySelector('[data-sow-template]');
+    template.value = 'nkp';
+    click('[data-add-sow]');
+    await until(() => !!doc.querySelector('[data-edit-sow]'));
+    check('Open details survives record redraw', dialog.open && notes.value === 'Unsaved fixture note');
+    dialog.close();
+
+    click('[data-quote-nav="scope"]');
+    click('[data-edit-sow]');
+    const scopeDialog = doc.querySelector('dialog[aria-label="Edit statement of work"]');
+    const summary = scopeDialog.querySelector('[data-summary="en"]');
+    check('Populated SOW opens in editor', scopeDialog.open && !!summary.value &&
+      scopeDialog.querySelectorAll('.sow-work-module').length > 0);
+    summary.value = 'Fixture scope change';
+    summary.dispatchEvent(new Event('input', { bubbles: true }));
+    click('dialog[aria-label="Edit statement of work"] button[type="submit"]');
+    await until(() => doc.querySelector('[data-quote-section="scope"]')?.textContent.includes('Fixture scope change'));
+    check('Edited SOW saves', !scopeDialog.open);
+  } catch (error) {
+    checks.push(row('Fixture interaction', 'FAIL', error.message));
+  }
+  render([{ title: `Quotation interactions · ${w}×${h}`, out: checks, detail: [] }]);
+  statusEl.textContent = `done · quotation interactions at ${w}×${h}`;
+}
+
 // ?w=390x844&run=all — a width run is a URL, so it is reproducible and can be
 // driven without reaching into a native <select>.
 const q = new URLSearchParams(location.search);
@@ -501,7 +567,8 @@ const wantW = q.get('w');
 if (wantW && [...$('#width').options].some((o) => o.value === wantW)) $('#width').value = wantW;
 if (q.get('screen') && SCREENS.some((s) => s.id === q.get('screen'))) sel.value = q.get('screen');
 
-if (q.get('run') === 'all') run(SCREENS);
+if (q.get('interaction') === 'quote') checkQuoteInteractions();
+else if (q.get('run') === 'all') run(SCREENS);
 else if (q.get('run')) run([SCREENS.find((s) => s.id === sel.value)]);
 else sel.onchange();
 </script>

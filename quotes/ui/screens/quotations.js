@@ -49,6 +49,15 @@ const satangToPrice = (n) => (Number(n || 0) / 100).toFixed(2);
 
 let clients = [];
 let catalog = [];
+function fillClientOptions() {
+  const select = document.querySelector('#new select[name="client_id"]');
+  if (!select) return;
+  const prior = select.value;
+  select.innerHTML = clients.length
+    ? `<option value="">Choose a client…</option>${clients.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}`
+    : '<option value="">— add a client first —</option>';
+  if (clients.some((c) => String(c.id) === prior)) select.value = prior;
+}
 const clientName = (id) => clients.find((c) => c.id === id)?.name ?? `client #${id}`;
 
 /* ------------------------------------------------------------------ boot -- */

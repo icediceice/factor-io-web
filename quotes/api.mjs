@@ -561,7 +561,7 @@ export function createApi(db) {
         if (headerOk) {
           if (!['en', 'th'].includes(header.lang)) errors.push({ path: 'header.lang', message: 'must be en or th' });
           if (typeof header.currency !== 'string' || !/^[A-Z]{3}$/.test(header.currency)) errors.push({ path: 'header.currency', message: 'must be a three-letter currency code' });
-          if (typeof header.issue_date !== 'string' || (header.issue_date && !/^\\d{4}-\\d{2}-\\d{2}$/.test(header.issue_date))) errors.push({ path: 'header.issue_date', message: 'must be YYYY-MM-DD or blank' });
+          if (typeof header.issue_date !== 'string' || (header.issue_date && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(header.issue_date))) errors.push({ path: 'header.issue_date', message: 'must be YYYY-MM-DD or blank' });
           if (typeof header.notes !== 'string' || header.notes.length > 5000) errors.push({ path: 'header.notes', message: 'must be text up to 5000 characters' });
           if (!Number.isInteger(header.term_months) || header.term_months < 0 || header.term_months > 600) errors.push({ path: 'header.term_months', message: 'must be an integer from 0 to 600' });
         }

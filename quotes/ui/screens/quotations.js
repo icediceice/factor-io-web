@@ -254,26 +254,34 @@ async function renderQuote(id, host, reloadList, reloadStats) {
         Edited since <strong>Rev. ${q.revision}</strong>. Re-issue to record the correction as Rev. ${nextRev} —
         until then this quotation does not match any stored revision and its PDF is unavailable.
       </div>` : ''}
-      <dl class="kv" data-kv></dl>
     </section>`);
-    head.querySelector('[data-kv]').innerHTML = headerFields(q, unlocked);
-    host.append(head);
+    surface.append(head);
 
-    host.append(sowCard(unlocked));
-    if (q.status === 'draft') host.append(aiCard());
-
-    /* ---- lines, THEN totals ---- */
-    // Totals used to come first, which read backwards — a grand total above
-    // the lines it is computed from — and left a wide empty gulf beside the
-    // right-aligned totals block in a full-width pane. Lines first fills that
-    // width with the thing being edited and puts the figure where the eye
-    // already expects it: under the rows, like the PDF this screen produces.
-    host.append(linesCard(unlocked, editable, kindLabel));
-    host.append(totalsCard());
-
-    /* ---- revisions ---- */
-    host.append(revisionsCard());
-
+    const overview = el(`<section data-quote-section="overview"><div class="card"><div class="toolbar"><h2>Overview</h2>
+      ${unlocked ? '<button type="button" class="secondary sm" data-edit-details>Edit details</button>' : ''}</div>
+      <dl class="kv">${headerFields(q, false)}</dl></div></section>`);
+    const scope = el('<section data-quote-section="scope"></section>');
+    scope.append(sowCard(unlocked));
+    const pricing = el('<section data-quote-section="pricing"></section>');
+    pricing.append(linesCard(unlocked, editable, kindLabel), totalsCard());
+    const history = el('<section data-quote-section="history"></section>');
+    history.append(revisionsCard());
+    const ai = el('<section data-quote-section="ai"></section>');
+    if (q.status === 'draft') ai.append(aiCard());
+    const sections = { overview, scope, pricing, history, ai };
+    if (q.status !== 'draft' && section === 'ai') section = 'overview';
+    const stack = el(`<div class="stack quote-stack"><nav class="snav" aria-label="Quotation sections">
+      ${Object.entries({ overview: 'Overview', scope: 'Scope of work', pricing: 'Pricing & lines', history: 'History', ...(q.status === 'draft' ? { ai: 'AI exchange' } : {}) }).map(([key, label]) => `<a href="#${key}" data-quote-nav="${key}">${label}</a>`).join('')}
+      </nav><div class="stack-body" data-section-body></div></div>`);
+    stack.querySelector('[data-section-body]').append(...Object.values(sections));
+    surface.append(stack);
+    showSection();
+    if (q.status === 'draft') {
+      const area = ai.querySelector('[data-ai-json]');
+      area.value = aiText;
+      ai.querySelector('[data-ai-result]').textContent = aiMessage;
+      ai.querySelector('[data-ai="apply"]').disabled = !previewJson || previewJson !== aiText;
+    }
     bind(head);
   }
 

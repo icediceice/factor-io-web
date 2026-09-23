@@ -233,6 +233,7 @@ export function createApi(db) {
     if (path === '/sow-templates') {
       if (method === 'GET') return json(200, { templates: parseTemplates(getSettings(db, '')['sow.templates']) });
       if (method === 'PUT') {
+        if (!Array.isArray(body.templates)) throw bad('templates must be an array');
         let templates;
         try { templates = parseTemplates(JSON.stringify(body.templates)); } catch (e) { throw bad(e.message); }
         tx(db, () => {

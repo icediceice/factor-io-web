@@ -2,7 +2,11 @@
 import { esc } from './app.js';
 
 export function mountSowEditor(container, sow, { onChange = () => {}, readOnly = false } = {}) {
-  const changed = () => onChange(sow);
+  const changed = () => {
+    const json = container.querySelector('[data-json]');
+    if (json && document.activeElement !== json) json.value = JSON.stringify(sow, null, 2);
+    onChange(sow);
+  };
   const pairRow = (pair, kind, index) => `<div class="sow-text-row">
     <label>English<textarea rows="2" data-kind="${kind}" data-index="${index}" data-lang="en">${esc(pair.en)}</textarea></label>
     <label>ไทย<textarea rows="2" data-kind="${kind}" data-index="${index}" data-lang="th">${esc(pair.th ?? '')}</textarea></label>

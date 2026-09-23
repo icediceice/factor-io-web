@@ -28,6 +28,16 @@ Layout:
     tests/                node --test suite
     deploy/               systemd user unit and tailnet access runbook
 
+## SOW and AI assisted quotations
+
+Use **Create SOW + quotation** on the Quotations screen. Select a client and an OS installation, OpenShift, NKP, or upstream Kubernetes engagement. The starting SOW includes only installation; optional services such as ingress, storage, identity, observability, backup, security, GitOps and support must be selected explicitly. Add at least one priced line, review, then create the draft. The number is allocated only at final creation. Edit the SOW or line prices in the draft; **Delete** removes an unwanted draft after confirmation. Issued corrections require **Revise** and **Re-issue** before acceptance or PDF download.
+
+In Settings, **SOW engagement templates** stores operator-editable JSON. Templates are starting points: changing one does not rewrite existing quotations. Each quotation keeps its own SOW and issued revision. The PDF renders included modules, assumptions and exclusions before the pricing table.
+
+A draft's **Export JSON** button produces schema `factor-quote-draft` version 1, including `quotation_id` and `base_digest`. Copy or download it for a model, ask for a complete JSON object with the same schema/id/digest, and paste the response into **AI JSON**. The model must supply explicit decimal-string `qty` and `unit_price` for every line. **Preview import** validates the response and shows the calculated total without saving; **Apply to draft** saves it only if the quotation has not changed since export. The import cannot alter client, status, issue or number. Review scope and prices before issuing.
+
+Before deploying a schema update, run `node deploy/backup-quotes.mjs`. It uses `QUOTES_DB_PATH` when set, otherwise the installed service database if present. The script makes an online SQLite backup in `data/backups/` beside the database and verifies its integrity. Preserve `data/` and `.env` while copying a release.
+
 ## Run locally (dev)
 
     cd quotes

@@ -10,7 +10,7 @@ function fixture() {
   const api = createApi(db);
   const call = async (method, path, body = {}, query = {}) => {
     const r = await api({ method, path, body, query, actor: 'sow-test' });
-    return { status: r.status, ...JSON.parse(r.body) };
+    return { ...JSON.parse(r.body), status: r.status };
   };
   return { db, call };
 }

@@ -48,6 +48,133 @@ export const LEGACY_SOW_TEMPLATES_V1 = [
   kube('vanilla-kube', 'Upstream Kubernetes', 'Kubernetes', 'Install upstream Kubernetes with supported lifecycle tooling', 'Customer supplies compute, networking, DNS, load balancing and CSI-compatible storage'),
 ];
 
+// Version two is a proposal starting point. Quantities, versions, support terms and
+// site choices are deliberately absent until the operator confirms them.
+const optionalKubeV2 = [
+  module('network', 'Network integration', 'เครือข่าย', [
+    'Record approved node, pod and service address ranges, DNS records and firewall paths in the design.',
+    'Configure the selected network provider and demonstrate pod-to-pod, pod-to-service and external connectivity.']),
+  module('ingress', 'Ingress and load balancing', 'Ingress และ Load Balancer', [
+    'Configure the agreed ingress controller, routing entry points and certificate source.',
+    'Connect the approved load-balancing method and validate access to a representative service.']),
+  module('storage', 'Persistent storage', 'ระบบจัดเก็บข้อมูล', [
+    'Install the supported CSI driver and define storage classes, volume policy and default class as agreed.',
+    'Provision, expand or restore a representative persistent volume where the driver supports it.']),
+  module('identity', 'Identity and access', 'ตัวตนและสิทธิ์', [
+    'Integrate the agreed identity provider and map administrator and application roles.',
+    'Validate sign-in and least-privilege access with representative user accounts.']),
+  module('registry', 'Image registry', 'ทะเบียนอิมเมจ', [
+    'Connect the approved image registry, credentials and trust chain.',
+    'Deploy a sample image and verify image pull behavior from each required network segment.']),
+  module('observability', 'Monitoring and logging', 'การติดตามและบันทึก', [
+    'Connect cluster metrics, health alerts and the agreed log destination.',
+    'Demonstrate one alert and trace a sample workload event into the collected logs.']),
+  module('backup', 'Backup and restore', 'สำรองและกู้คืน', [
+    'Confirm protected resources, destination, retention and restore ownership with the customer.',
+    'Configure the selected backup integration and complete a documented test restore.']),
+  module('security', 'Security controls', 'ความปลอดภัย', [
+    'Apply approved admission, namespace and workload access policies.',
+    'Validate a permitted workload and a denied action; document exceptions for customer review.']),
+  module('gitops', 'GitOps delivery', 'GitOps', [
+    'Connect the approved source repository and deployment controller to a nonproduction workload.',
+    'Demonstrate a reviewed change, reconciliation and rollback path.']),
+  module('upgrade', 'Upgrade planning', 'วางแผนอัปเกรด', [
+    'Record supported version path, prerequisites, maintenance window and rollback decision points.',
+    'Produce an upgrade runbook and review it with the operations team.']),
+  module('ha_dr', 'Availability and recovery', 'HA และ DR', [
+    'Document failure domains, recovery responsibilities and agreed recovery objectives.',
+    'Exercise one agreed node or component failure and record the observed recovery.']),
+  module('gpu', 'GPU workloads', 'การใช้ GPU', [
+    'Confirm compatible GPU hardware, drivers and workload scheduling requirements.',
+    'Install the selected device integration and validate a representative GPU workload.']),
+  module('airgap', 'Disconnected deployment', 'ติดตั้งแบบไม่เชื่อมต่อ', [
+    'List and stage required images, packages and trust material in the approved internal locations.',
+    'Validate installation and a sample workload without public registry access.']),
+  module('support', 'Post implementation support', 'บริการหลังติดตั้ง', [
+    'Agree the support channel, coverage window, response target and handoff owner before inclusion.',
+    'Record incident intake and escalation steps in the operations runbook.']),
+];
+const kubeV2 = (code, titleEn, titleTh, platformSteps, assumptions) => ({
+  code, titleEn, titleTh,
+  sow: {
+    version: 1,
+    summary: pair(`Design, implement and hand over a ${titleEn} platform for the customer-approved environment and workloads.`, `ออกแบบ ติดตั้ง และส่งมอบ ${titleTh}`),
+    modules: [
+      module('discovery', 'Preparation and design', 'เตรียมงานและออกแบบ', [
+        'Hold a project kickoff to confirm stakeholders, delivery method, access, change approvals and success criteria.',
+        'Review compute, network, storage, identity and security prerequisites with customer owners; record gaps and decisions.',
+        'Produce a deployment design and implementation plan for customer approval before configuration begins.'], true),
+      module('implementation', `${titleEn} implementation`, `ติดตั้ง ${titleTh}`, platformSteps, true),
+      module('validation', 'Validation and acceptance', 'ทดสอบและรับมอบ', [
+        'Run platform health, node scheduling, networking and storage checks against the approved design.',
+        'Deploy and remove a representative workload; record test results, open issues and remediation owners.',
+        'Walk through the acceptance checklist with customer stakeholders and capture sign-off or exceptions.'], true),
+      module('handover', 'Operational handover', 'ส่งมอบการดำเนินงาน', [
+        'Deliver as-built architecture, configuration inventory, access handover and standard operating procedures.',
+        'Conduct an operator walkthrough covering routine health checks, common failures and escalation paths.'], true),
+      ...optionalKubeV2,
+    ],
+    assumptions: [pair('Customer supplies approved infrastructure, network access, credentials and required platform entitlements before implementation.'), ...assumptions.map((text) => pair(text))],
+    exclusions: [pair('Application migration, workload refactoring and ongoing operations require separate scope and pricing.'),
+      pair('Hardware procurement and changes to systems outside the approved platform design are excluded.')],
+  },
+});
+export const DEFAULT_SOW_TEMPLATES = [
+  {
+    code: 'os-install', titleEn: 'OS installation', titleTh: 'ติดตั้งระบบปฏิบัติการ',
+    sow: {
+      version: 1,
+      summary: pair('Install and hand over the customer-approved server operating system on the agreed target hosts.', 'ติดตั้งระบบปฏิบัติการและส่งมอบ'),
+      modules: [
+        module('discovery', 'Preparation and design', 'เตรียมงานและออกแบบ', [
+          'Confirm target hosts, approved OS edition, deployment method, naming, access and change window.',
+          'Review CPU, memory, disk, network, licensing and backup prerequisites; record any gaps.',
+          'Agree a validation checklist and rollback owner before installation.'], true),
+        module('installation', 'OS implementation', 'ติดตั้งระบบปฏิบัติการ', [
+          'Install the approved image and configure hostname, time source, network interfaces and storage layout.',
+          'Configure approved administrator access, package sources and baseline services.',
+          'Record deviations from the design and obtain approval before applying them.'], true),
+        module('validation', 'Validation and acceptance', 'ทดสอบและรับมอบ', [
+          'Verify boot, network reachability, name resolution, time synchronization and administrator access.',
+          'Review installation evidence and outstanding issues against the agreed checklist.'], true),
+        module('handover', 'Operational handover', 'ส่งมอบการดำเนินงาน', [
+          'Provide an as-built host inventory, configuration summary and recovery or rebuild notes.',
+          'Walk the customer team through routine checks and the access handover.'], true),
+        module('hardening', 'Security baseline', 'ความปลอดภัย', [
+          'Apply the customer-approved patch and security baseline, documenting exceptions.',
+          'Validate administrative access and agreed security controls after the change.']),
+        module('monitoring', 'Monitoring integration', 'การติดตามระบบ', [
+          'Connect the host to the selected monitoring platform and configure approved alerts.',
+          'Trigger or simulate a monitored condition and record the alert path.']),
+        module('backup', 'Backup integration', 'การสำรองข้อมูล', [
+          'Enroll the host in the approved backup policy and verify backup completion.',
+          'Perform a test restore of an agreed nonproduction file or configuration.']),
+      ],
+      assumptions: [pair('Customer supplies target hosts, OS entitlements, installation media, network access and change approval.')],
+      exclusions: [pair('Application installation, data migration and ongoing administration require separate scope and pricing.')],
+    },
+  },
+  kubeV2('openshift', 'Red Hat OpenShift', 'OpenShift', [
+    'Verify subscriptions, installer prerequisites, DNS, certificates and the selected connected or disconnected deployment path.',
+    'Prepare installation assets and deploy the control plane and worker capacity to the approved topology.',
+    'Configure core operators and machine management required by the agreed design; record cluster access and version.',
+    'Validate operator health, node readiness and a representative application deployment.'],
+    ['Customer supplies supported infrastructure and active subscriptions; external DNS, load balancing and storage remain customer responsibilities unless included as modules.']),
+  kubeV2('nkp', 'Nutanix Kubernetes Platform', 'NKP', [
+    'Verify Prism access, supported images, network segments, storage and the selected connected or disconnected deployment method.',
+    'Prepare deployment tooling and the approved node image in the customer environment.',
+    'Provision the management cluster and connect platform management components according to the design.',
+    'Provision the agreed workload clusters and node pools; document cluster templates and administrative access.',
+    'Validate management-to-workload connectivity, node readiness and a representative workload.'],
+    ['Customer supplies supported Nutanix capacity and platform licenses; storage, load balancing and disconnected repositories require customer approval and are scoped separately when needed.']),
+  kubeV2('vanilla-kube', 'Upstream Kubernetes', 'Kubernetes', [
+    'Confirm supported distribution tooling, container runtime, version policy and topology for the approved hosts.',
+    'Prepare hosts and repositories, then initialize the control plane and join worker nodes.',
+    'Install the agreed network provider and configure cluster access and lifecycle tooling.',
+    'Validate node readiness, DNS, service routing and deployment of a representative workload.'],
+    ['Customer supplies supported hosts and selects ownership for lifecycle, networking, ingress, storage and load balancing components.']),
+];
+
 const plain = (v, path, max = 2000) => {
   if (typeof v !== 'string' || v.length > max || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v)) throw new Error(`${path} must be plain text up to ${max} characters`);
   return v.trim();

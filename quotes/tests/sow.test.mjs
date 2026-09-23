@@ -79,6 +79,7 @@ test('AI preview rolls back, rejects unsupported keys and missing prices, and ap
   assert.equal(exported.lines[0].unit_price, '35000.00');
   const before = db.prepare('SELECT COUNT(*) c FROM quotation_lines WHERE quotation_id=?').get(id).c;
   const proposal = structuredClone(exported);
+  delete proposal.status; // HTTP status belongs to the test helper, not the AI schema.
   proposal.lines.push(line({ description_en: 'Validation', qty: '1', unit_price: '12000.00' }));
   const preview = await call('POST', `/quotations/${id}/draft`, proposal, { dry_run: '1' });
   assert.equal(preview.status, 200, JSON.stringify(preview));

@@ -233,7 +233,7 @@ describe('quotation flow', () => {
     const row = db.prepare('SELECT quotation_id, source_quotation_number FROM invoices WHERE id = ?').get(inv.id);
     assert.equal(row.quotation_id, null);
     assert.equal(row.source_quotation_number, q.number);
-    assert.equal(db.prepare("SELECT COUNT(*) c FROM audit_log WHERE action='invoice.unlink' AND entity_id=?").get(inv.id).c, 1);
+    assert.deepEqual(db.prepare("SELECT entity_id FROM audit_log WHERE action='invoice.unlink'").all().map((r) => r.entity_id), [String(inv.id)]);
   });
 
   test('an active invoice blocks deletion even when another linked invoice is cancelled', async () => {

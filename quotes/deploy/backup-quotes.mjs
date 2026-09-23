@@ -6,7 +6,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const app = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const sourcePath = resolve(process.env.QUOTES_DB_PATH ?? join(app, 'data', 'quotes.db'));
+const livePath = '/home/ice/.factor-quotes/data/quotes.db';
+const sourcePath = resolve(process.env.QUOTES_DB_PATH ?? (existsSync(livePath) ? livePath : join(app, 'data', 'quotes.db')));
 if (!existsSync(sourcePath)) throw new Error(`database missing: ${sourcePath}`);
 const destDir = join(dirname(sourcePath), 'backups');
 mkdirSync(destDir, { recursive: true, mode: 0o700 });

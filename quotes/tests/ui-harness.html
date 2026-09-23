@@ -558,10 +558,11 @@ async function checkQuoteInteractions() {
     check('SOW dialog fits viewport', doc.documentElement.scrollWidth <= win.innerWidth + 1 &&
       scopeDialog.getBoundingClientRect().width <= win.innerWidth &&
       scopeDialog.scrollWidth <= scopeDialog.clientWidth + 1);
-    summary.value = 'Fixture scope change';
+    const scopeChange = `Fixture scope change ${Date.now()}`;
+    summary.value = scopeChange;
     summary.dispatchEvent(new Event('input', { bubbles: true }));
     click('dialog[aria-label="Edit statement of work"] button[type="submit"]');
-    await until(() => doc.querySelector('[data-quote-section="scope"]')?.textContent.includes('Fixture scope change'));
+    await until(() => doc.querySelector('[data-quote-section="scope"]')?.textContent.includes(scopeChange));
     check('Edited SOW saves', !scopeDialog.open);
   } catch (error) {
     checks.push(row('Fixture interaction', 'FAIL', error.message));

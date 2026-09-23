@@ -333,17 +333,15 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   function sowCard(unlocked) {
     const sow = doc.sow;
     if (!sow) return el(`<section class="card sow-editor"><h2>Statement of work <span class="meta">ขอบเขตงาน</span></h2>
-      <p class="meta">Add an engagement scope before issue so the quotation says what will be delivered.</p>
+      <p class="meta">Add an engagement scope so the quotation states what will be delivered.</p>
       ${unlocked ? `<div class="row-actions"><select data-sow-template aria-label="Engagement template"><option value="">Choose a template…</option>${sowTemplates.map((t) => `<option value="${esc(t.code)}">${esc(t.titleEn)}</option>`).join('')}</select><button type="button" class="secondary" data-add-sow>Add SOW</button></div>` : '<p class="muted">Revise to add a SOW.</p>'}</section>`);
-    const included = sow.modules.filter((m) => m.included);
-    return el(`<section class="card sow-editor"><div class="toolbar"><h2>Statement of work <span class="meta">ขอบเขตงาน</span></h2><span class="meta">${included.length} included · ${sow.modules.length} available</span></div>
-      ${unlocked ? `<form data-form="sow"><label>Summary (EN)<textarea name="summary_en" rows="2">${esc(sow.summary.en)}</textarea></label>
-        <div class="sow-module-grid">${sow.modules.map((m) => `<label class="sow-module"><input type="checkbox" data-code="${esc(m.code)}"${m.included ? ' checked' : ''}><span><strong>${esc(m.titleEn)}</strong><small>${esc(m.items.map((x) => x.en).join(' · '))}</small></span></label>`).join('')}</div>
-        <details><summary>Edit complete SOW text and translations as JSON</summary><p class="meta">Keep the version and module codes. Text is plain text; prices belong to quotation lines.</p><textarea name="sow_json" class="mono" rows="18" spellcheck="false">${esc(JSON.stringify(sow, null, 2))}</textarea></details>
-        <div class="row-actions"><button type="submit" class="secondary">Save SOW</button></div></form>`
-      : `<p>${esc(sow.summary.en)}</p><ul>${included.map((m) => `<li><strong>${esc(m.titleEn)}</strong> — ${esc(m.items.map((x) => x.en).join('; '))}</li>`).join('')}</ul>
-        ${sow.assumptions.length ? `<p class="meta">Assumptions: ${esc(sow.assumptions.map((x) => x.en).join('; '))}</p>` : ''}
-        ${sow.exclusions.length ? `<p class="meta">Exclusions: ${esc(sow.exclusions.map((x) => x.en).join('; '))}</p>` : ''}`}
+    const included = sow.modules.filter((module) => module.included);
+    return el(`<section class="card sow-editor"><div class="toolbar"><h2>Statement of work <span class="meta">ขอบเขตงาน</span></h2>
+      <span class="row-actions tight"><span class="meta">${included.length} included · ${sow.modules.length} available</span>${unlocked ? '<button type="button" class="secondary sm" data-edit-sow>Edit scope</button>' : ''}</span></div>
+      <p>${esc(sow.summary.en)}</p>
+      <div class="scope-summary">${included.map((module) => `<details><summary>${esc(module.titleEn)} <span class="meta">${module.items.length} activities</span></summary><ul>${module.items.map((item) => `<li>${esc(item.en)}</li>`).join('')}</ul></details>`).join('')}</div>
+      ${sow.assumptions.length ? `<details><summary>Assumptions</summary><ul>${sow.assumptions.map((item) => `<li>${esc(item.en)}</li>`).join('')}</ul></details>` : ''}
+      ${sow.exclusions.length ? `<details><summary>Out of scope</summary><ul>${sow.exclusions.map((item) => `<li>${esc(item.en)}</li>`).join('')}</ul></details>` : ''}
     </section>`);
   }
 

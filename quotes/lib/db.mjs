@@ -515,6 +515,19 @@ export const MIGRATIONS = [
       ) WHERE quotation_id IS NOT NULL;
     `,
   },
+  {
+    version: 9,
+    name: 'detailed-sow-starters',
+    // Only a byte-for-byte copy of the old seed is upgraded automatically.
+    // Any operator-edited value stays intact and can use Reset to starter.
+    sql: `
+      UPDATE settings
+      SET value = '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}',
+          updated_by = 'seed', updated_at = datetime('now')
+      WHERE key = 'sow.templates'
+        AND value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V1).replaceAll("'", "''")}';
+    `,
+  },
 ];
 
 export function openDb(path) {

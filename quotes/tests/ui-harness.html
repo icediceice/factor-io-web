@@ -374,7 +374,9 @@ function measure(win) {
       const head = doc.querySelector('.rail-head');
       const count = doc.querySelector('.rail-count');
       const chrome = (head?.getBoundingClientRect().height ?? 0) + (count?.getBoundingClientRect().height ?? 0);
-      const capacity = Math.floor((rr.height - chrome) / rowH);
+      const maxRail = parseFloat(win.getComputedStyle(rail).maxHeight);
+      const budget = Number.isFinite(maxRail) ? maxRail : rr.height;
+      const capacity = Math.floor((budget - chrome) / rowH);
       out.push(row('Rail capacity ≥12 rows', capacity >= 12 ? 'PASS' : 'FAIL',
         `${capacity} rows · ${Math.round(rowH)}px each`));
     }

@@ -152,6 +152,8 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   if (!catalog.length) {
     try { catalog = (await api('GET', '/catalog?active=1')).items ?? []; } catch { catalog = []; }
   }
+  let sowTemplates = [];
+  try { sowTemplates = (await api('GET', '/sow-templates')).templates ?? []; } catch { sowTemplates = []; }
 
   // An issued quotation is editable but NOT edited by accident: the fields stay
   // locked behind an explicit Revise click. Reset whenever the record is

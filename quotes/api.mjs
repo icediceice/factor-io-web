@@ -24,7 +24,7 @@ import {
 } from './lib/reports.mjs';
 import { parseKinds, isValidKind, kindCodes, normalisePeriod } from './lib/kinds.mjs';
 import { createHash } from 'node:crypto';
-import { validateSow, parseTemplates, sowFromTemplate } from './lib/sow.mjs';
+import { DEFAULT_SOW_TEMPLATES, validateSow, parseTemplates, sowFromTemplate } from './lib/sow.mjs';
 import { canonicalDocDigest } from './lib/quote.mjs';
 
 /**

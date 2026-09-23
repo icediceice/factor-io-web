@@ -548,6 +548,9 @@ async function checkQuoteInteractions() {
     const summary = scopeDialog.querySelector('[data-summary="en"]');
     check('Populated SOW opens in editor', scopeDialog.open && !!summary.value &&
       scopeDialog.querySelectorAll('.sow-work-module').length > 0);
+    check('SOW dialog fits viewport', doc.documentElement.scrollWidth <= win.innerWidth + 1 &&
+      scopeDialog.getBoundingClientRect().width <= win.innerWidth &&
+      scopeDialog.scrollWidth <= scopeDialog.clientWidth + 1);
     summary.value = 'Fixture scope change';
     summary.dispatchEvent(new Event('input', { bubbles: true }));
     click('dialog[aria-label="Edit statement of work"] button[type="submit"]');

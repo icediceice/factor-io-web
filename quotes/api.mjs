@@ -422,6 +422,14 @@ export function createApi(db) {
       if (!Number.isInteger(clientId)) throw bad('client_id is required');
       if (!db.prepare('SELECT id FROM clients WHERE id = ?').get(clientId)) throw missing('client');
       const lang = body.lang === 'th' ? 'th' : 'en';
+      let sow = null;
+      try {
+        if (body.template) sow = sowFromTemplate(getSettings(db, ''), String(body.template));
+        if (body.sow !== undefined) sow = validateSow(body.sow);
+      } catch (e) { throw bad(e.message); }
+      const lineErrors = [];
+      const initialLines = body.lines === undefined ? [] : checkedLines(db, body.lines, lineErrors);
+      if (lineErrors.length) return json(400, { error: 'quotation lines need correction', errors: lineErrors });
       const doc = tx(db, () => {
         const settings = getSettings(db, '');
         const number = allocateQuoteNumber(db, settings);

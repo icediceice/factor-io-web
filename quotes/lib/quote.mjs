@@ -307,6 +307,7 @@ export function canonicalDocDigest(doc) {
     fxRate: q.fxRate ?? '',
     fxAsOf: q.fxAsOf ?? '',
     clientId: doc?.client?.id ?? null,
+    ...(doc?.sow ? { sow: canonicalSow(doc.sow) } : {}),
     lines: (doc?.lines ?? []).map((l) => [
       l.position, l.kind ?? '', l.descriptionEn ?? '', l.descriptionTh ?? '',
       l.qtyMilli ?? 0, l.unit ?? '', l.unitSatang ?? 0, l.discountSatang ?? 0,

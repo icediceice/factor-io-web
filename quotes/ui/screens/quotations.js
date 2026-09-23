@@ -8,6 +8,7 @@ import {
   api, fmtSatang, el, esc, toast, statusChip, confirmAction, withBusy,
 } from '../app.js';
 import { mountWorkbench } from '../workbench.js';
+import { mountSmartQuote } from './smart-quote.js';
 
 /* ------------------------------------------------------------ vocabulary -- */
 

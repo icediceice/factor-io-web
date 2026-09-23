@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-09-23",
+    "macrostructure": "Workbench with a guided quotation studio and a nested SOW ledger",
+    "density": "dense-balanced",
+    "depth": "borders-only",
+    "screen": "quotes/ui — quotation creation, editing, SOW and AI JSON exchange",
+    "notes": "This revises the existing quotation screen, so Workbench repeats deliberately. Paper, teal, fonts and spacing remain the app's own system. The Create SOW + quotation button shares the page heading; the list and detail start at 195/217px at 1440×900 after moving the ambient Position strip below the workbench. A four-step modal keeps client, scope and explicit price in memory until final creation. Desktop and 390px browser harness found no horizontal overflow, no clipped elements and text contrast at least 5.46:1; the 390px list and detail start above half the 844px viewport after reducing top margin by one token step. A seeded browser interaction created an OS SOW draft, edited a line, previewed and applied exported AI JSON, then deleted the draft through a consequence dialog. The fixture labels its invented records in-page. Existing exceptions remain: T5 list has no explicit cap, N2 catalog action rows exceed 48px, and A4 some secondary controls are 36-40px although all checked targets meet WCAG AA 24px. The harness's quotation rail capacity check reports 8 because the fixture contains eight rows and the rail auto-sizes to content; its CSS maximum is 810px, the same as the passing client rail, so that single capacity flag is a measurement limitation rather than evidence of clipped rows. Critique H4 D4 S4 O5 R4 P4."
+  },
+  {
     "date": "2026-09-17",
     "macrostructure": "Split Monitor (the engagement split), nested in an editorial Ledger — with a Question Board opening the home page",
     "density": "balanced",

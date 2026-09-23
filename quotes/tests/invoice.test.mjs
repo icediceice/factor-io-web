@@ -3,7 +3,8 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { openDb, setSetting, getSettings } from '../lib/db.mjs';
-import { markStatus } from '../lib/quote.mjs';
+import { markStatus, deleteQuotation } from '../lib/quote.mjs';
+import { renderInvoiceHtml } from '../templates/invoice.mjs';
 import {
   computeInvoiceTotals, allocateInvoiceNumber, createInvoiceFromQuotation,
   issueInvoice, markInvoiceStatus, recordPayment, recordWhtCertificate,
@@ -318,6 +319,18 @@ describe('invoice document envelope', () => {
     assert.equal(doc.issuer.branchEn, 'Head Office');
     assert.ok(Array.isArray(doc.payments));
     assert.ok(Array.isArray(doc.whtCertificates));
+  });
+
+  test('a cancelled tax invoice prints its original quotation number after deletion', () => {
+    const { db, qid } = seedAccepted();
+    const { id } = createInvoiceFromQuotation(db, qid, {});
+    issueInvoice(db, id, {});
+    markInvoiceStatus(db, id, 'cancelled');
+    deleteQuotation(db, qid);
+    const doc = buildInvoiceDocument(db, id);
+    assert.equal(doc.invoice.quotationId, null);
+    assert.equal(doc.invoice.quotationNumber, 'QT-202609-0001');
+    assert.match(renderInvoiceHtml(doc, 'en'), /QT-202609-0001/);
   });
 });
 

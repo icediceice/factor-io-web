@@ -95,7 +95,9 @@ async function renderClient(id, host, reloadList) {
     api('GET', `/invoices?client_id=${id}`),
   ]);
 
-  const blocked = quotations.length > 0;
+  const blocked = quotations.length + invoices.length > 0;
+  const retained = invoices.filter((invoice) => invoice.status !== 'draft');
+  const drafts = invoices.filter((invoice) => invoice.status === 'draft');
 
   host.innerHTML = '';
 

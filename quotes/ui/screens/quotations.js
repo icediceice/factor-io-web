@@ -577,6 +577,43 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     const btn = e.target.closest('button');
     if (!btn) return;
 
+    if (btn.hasAttribute('data-add-sow')) {
+      const code = host.querySelector('[data-sow-template]')?.value;
+      const template = sowTemplates.find((t) => t.code === code);
+      if (!template) return toast('Choose an engagement template', 'error');
+      return run(btn, async () => { await api('PUT', `/quotations/${id}/sow`, { sow: template.sow }); await refresh({ list: true }); }, 'SOW added');
+    }
+    if (btn.dataset.ai) {
+      const card = btn.closest('.ai-draft');
+      const area = card.querySelector('[data-ai-json]');
+      const result = card.querySelector('[data-ai-result]');
+      const action = btn.dataset.ai;
+      if (action === 'export') return run(btn, async () => {
+        area.value = JSON.stringify(await api('GET', `/quotations/${id}/draft.json`), null, 2);
+        previewJson = '';
+        card.querySelector('[data-ai="apply"]').disabled = true;
+        result.textContent = 'Export ready. Ask your model to preserve schema, quotation_id and base_digest, and return explicit unit_price strings.';
+      });
+      if (action === 'copy') return run(btn, async () => { await navigator.clipboard.writeText(area.value); }, 'JSON copied');
+      if (action === 'download') {
+        if (!area.value) return toast('Export JSON first', 'error');
+        const url = URL.createObjectURL(new Blob([area.value], { type: 'application/json' }));
+        const link = document.createElement('a'); link.href = url; link.download = `${doc.quotation.number}-ai-draft.json`; link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000); return;
+      }
+      if (action === 'preview') return run(btn, async () => {
+        try {
+          const response = await aiRequest(area.value, true);
+          previewJson = area.value;
+          card.querySelector('[data-ai="apply"]').disabled = false;
+          result.textContent = `Ready to apply: ${response.lines.length} lines · ${fmtSatang(response.totals.payableSatang)} payable. Review the SOW and prices above.`;
+        } catch (error) { previewJson = ''; card.querySelector('[data-ai="apply"]').disabled = true; result.textContent = error.message; }
+      });
+      if (action === 'apply') {
+        if (!previewJson || previewJson !== area.value) return toast('Preview this exact JSON first', 'error');
+        return run(btn, async () => { await aiRequest(area.value, false); previewJson = ''; await refresh({ list: true }); }, 'AI draft applied');
+      }
+    }
     if (btn.dataset.edit) { editingLine = btn.dataset.edit; return draw(); }
     if (btn.hasAttribute('data-cancel-edit')) { editingLine = null; return draw(); }
 

@@ -505,6 +505,16 @@ export const MIGRATIONS = [
         AND latest.snapshot_date GLOB '????-??-??';
     `,
   },
+  {
+    version: 8,
+    name: 'invoice-source-quotation-number',
+    sql: `
+      ALTER TABLE invoices ADD COLUMN source_quotation_number TEXT NOT NULL DEFAULT '';
+      UPDATE invoices SET source_quotation_number = (
+        SELECT number FROM quotations WHERE quotations.id = invoices.quotation_id
+      ) WHERE quotation_id IS NOT NULL;
+    `,
+  },
 ];
 
 export function openDb(path) {

@@ -55,12 +55,12 @@ export function mountSowEditor(container, sow, { onChange = () => {}, readOnly =
     else if (field.dataset.field) sow.modules[Number(field.dataset.module)][field.dataset.field] = field.value;
     else return;
     changed();
-  });
+  }, { signal: controller.signal });
   container.addEventListener('change', (event) => {
     if (event.target.dataset.included === undefined) return;
     sow.modules[Number(event.target.dataset.included)].included = event.target.checked;
     changed();
-  });
+  }, { signal: controller.signal });
   container.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-action]');
     if (!button || readOnly) return;
@@ -92,7 +92,7 @@ export function mountSowEditor(container, sow, { onChange = () => {}, readOnly =
     else return;
     changed();
     render();
-  });
+  }, { signal: controller.signal });
   render();
   return { render };
 }

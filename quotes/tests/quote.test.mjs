@@ -425,7 +425,7 @@ function openV2Db() {
 describe('migrations', () => {
   test('a fresh database lands on user_version 5', () => {
     const db = openDb(':memory:');
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 6);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 7);
     // Migration 4's seeds are present and are the accounting keys, not stubs.
     const s = getSettings(db, '');
     assert.equal(s['invoice.number_format'], 'INV-{YYYY}{MM}-{SEQ:4}');
@@ -467,7 +467,7 @@ describe('migrations', () => {
 
     migrate(db);
 
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 6);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 7);
     // Ids, numbers and statuses all preserved — a rebuild that renumbered rows
     // would silently detach every child row and every stored revision.
     const after = db.prepare('SELECT id, number, status, lang, notes FROM quotations ORDER BY id').all();
@@ -499,7 +499,7 @@ describe('migrations', () => {
   test('migrating an already-current database is a no-op', () => {
     const db = openDb(':memory:');
     migrate(db);
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 6);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 7);
   });
 
   // -------------------------------------------------------------------------
@@ -531,7 +531,7 @@ describe('migrations', () => {
 
     migrate(db);
 
-    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 6);
+    assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 7);
     assert.deepEqual(db.prepare('PRAGMA foreign_key_check;').all(), []);
 
     const line = db.prepare('SELECT * FROM quotation_lines WHERE id = 1').get();

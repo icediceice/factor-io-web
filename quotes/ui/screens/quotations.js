@@ -217,7 +217,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     try { revisions = (await api('GET', `/quotations/${id}/revisions`)).revisions ?? []; }
     catch { revisions = []; }
     draw();
-    if (list) { reloadList(); reloadStats(); }
+    if (list) { await reloadList(); await reloadStats(); }
   }
 
   const run = async (btn, fn, okMsg) => withBusy(btn, async () => {

@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-09-23",
+    "macrostructure": "Workbench with nested quotation section rail and focused edit dialogs",
+    "density": "dense-balanced",
+    "depth": "borders-only",
+    "screen": "quotes/ui — quotation detail and structured SOW editor",
+    "notes": "Repeats the quotation Workbench deliberately because this is the same selected-record job. The quotation shows one of Overview, Scope, Pricing, History or AI at a time; detail and scope edits open focused native dialogs. Detailed OS, OpenShift, NKP and upstream Kubernetes starters supply editable phases without invented prices or support terms. The 54 light-design gates were reviewed: 51 clean or inapplicable, with existing T5 (unbounded list), N2 (catalog inline-action row height) and A4 (36–40px secondary controls) argued rather than marked clean. Browser harness measured the quotation detail at 390×844 and 1440×900: 0 failures, 1 target-size warning at each size; 0 page overflow or clipped elements and worst text contrast 5.46:1. Five fixture interactions passed at each size: pending AI preview across section switching, open details through redraw, populated SOW editing, dialog viewport fit and SOW save. The harness rail capacity check now uses CSS max-height instead of the auto-sized eight-row box, correcting the limitation noted in the earlier entry. Screenshot inspection found the paper/teal workbench and left section rail legible; the fixture server used for layout still held its pre-change in-memory template seed, so starter reset is established by API and migration tests rather than that browser run. Critique H4 D4 S4 O5 R4 P4."
+  },
+  {
+    "date": "2026-09-23",
     "macrostructure": "Workbench with a guided quotation studio and a nested SOW ledger",
     "density": "dense-balanced",
     "depth": "borders-only",

@@ -114,6 +114,20 @@ function fmtDate(iso, lang) {
   return lang === 'th' ? formatThaiDate(iso) : formatEnDate(iso);
 }
 
+function sowSection(sow, lang) {
+  if (!sow) return '';
+  const text = (pair) => esc(lang === 'th' && pair?.th ? pair.th : pair?.en);
+  const modules = (sow.modules ?? []).filter((m) => m.included);
+  const list = (items) => items.length ? `<ul>${items.map((item) => `<li>${text(item)}</li>`).join('')}</ul>` : '';
+  return `<section class="sow" aria-label="Statement of work">
+    <h2>${lang === 'th' ? 'ขอบเขตงาน' : 'Statement of work'}</h2>
+    <p>${text(sow.summary)}</p>
+    ${modules.map((m) => `<div class="sow-module"><h3>${esc(lang === 'th' && m.titleTh ? m.titleTh : m.titleEn)}</h3>${list(m.items ?? [])}</div>`).join('')}
+    ${sow.assumptions?.length ? `<h3>${lang === 'th' ? 'ข้อสมมติ' : 'Assumptions'}</h3>${list(sow.assumptions)}` : ''}
+    ${sow.exclusions?.length ? `<h3>${lang === 'th' ? 'ไม่รวมในขอบเขต' : 'Exclusions'}</h3>${list(sow.exclusions)}` : ''}
+  </section>`;
+}
+
 export function renderQuotationHtml(doc, lang = 'en') {
   const t = T[lang] ?? T.en;
   const { quotation: q, client, lines, totals, issuer, bank, terms } = doc;

@@ -387,7 +387,7 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
   .snav a[aria-current=true]{border-left-color:transparent;border-bottom-color:var(--accent)}
 }
 @media(max-width:860px){
-  .wrap{width:calc(100% - var(--s4));margin-top:var(--s4)}
+  .wrap{width:calc(100% - var(--s4));margin-top:var(--s3)}
   .header-inner{width:calc(100% - var(--s4));gap:var(--s3);padding:var(--s2) 0}
   .header-inner [data-auth-actions]{margin-left:0}
   /* The Workbench collapses to one column: the rail IS the page until something

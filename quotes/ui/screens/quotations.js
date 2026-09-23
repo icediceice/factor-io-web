@@ -170,15 +170,7 @@ function newQuotationForm(getWb) {
     <div class="row-actions"><button type="submit">Create draft</button></div>
   </form>`);
 
-  const select = form.querySelector('select[name=client_id]');
-  const fillClients = () => {
-    select.innerHTML = clients.length
-      ? clients.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')
-      : '<option value="">— add a client first —</option>';
-  };
-  // The list arrives with the workbench's first load; poll once it exists.
-  const t = setInterval(() => { if (clients.length) { fillClients(); clearInterval(t); } }, 100);
-  setTimeout(() => clearInterval(t), 8000);
+
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

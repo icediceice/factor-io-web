@@ -765,4 +765,5 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   });
 
   draw();
+  bind(detailsDialog);
 }

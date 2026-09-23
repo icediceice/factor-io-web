@@ -432,3 +432,37 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   button:active,.button:active{transform:none}
 }
+
+/* Quotation detail: a short section workbench inside the selected record. */
+.quote-stack{margin-top:var(--s4);gap:var(--s5)}
+.quote-stack .snav{min-width:0}
+.quote-stack .stack-body>[data-quote-section][hidden]{display:none!important}
+.quote-stack .stack-body>[data-quote-section]{min-width:0}
+.quote-stack .stack-body>[data-quote-section]>.card+ .card{margin-top:var(--s4)}
+.quote-add-line{margin-top:var(--s4);border-top:1px solid var(--line);padding-top:var(--s3)}
+.quote-add-line summary,.scope-summary summary{cursor:pointer;font-weight:600;padding:var(--s2) 0}
+.quote-add-line form{padding-top:var(--s3)}
+.scope-summary details{border-bottom:1px solid var(--line)}
+.scope-summary ul,.sow-editor details ul{margin:var(--s2) 0 var(--s4);padding-left:var(--s5)}
+.quote-edit-dialog{width:min(860px,calc(100% - var(--s4)));max-height:calc(100vh - var(--s7));overflow:auto;background:var(--paper);color:var(--ink);border:2px solid var(--accent);padding:var(--s5);box-shadow:none}
+.quote-edit-dialog::backdrop{background:var(--scrim)}
+.quote-edit-dialog .kv{display:block}
+.quote-edit-dialog .kv dt{display:none}
+.quote-edit-dialog .kv dd{margin:0}
+.structured-sow{display:grid;gap:var(--s4);min-width:0}
+.structured-sow .toolbar{align-items:center}
+.structured-sow h3{font-size:var(--t-xl)}
+.structured-sow h4{font-size:var(--t-base);margin:0}
+.sow-work-modules{display:grid;gap:var(--s3)}
+.sow-work-module{border:1px solid var(--line);background:var(--white)}
+.sow-work-module>summary{cursor:pointer;padding:var(--s3);display:flex;align-items:center;gap:var(--s3)}
+.sow-work-module>summary input{width:auto;min-height:0}
+.sow-work-body{display:grid;gap:var(--s3);border-top:1px solid var(--line);padding:var(--s3)}
+.sow-text-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:var(--s3);align-items:end;padding:var(--s2) 0;border-bottom:1px solid var(--line)}
+.sow-text-row label{min-width:0}
+.sow-text-row textarea{width:100%}
+.sow-pairs{border-top:1px solid var(--line);padding-top:var(--s3)}
+.sow-advanced{border-top:1px solid var(--line);padding-top:var(--s3)}
+.sow-advanced summary{cursor:pointer;font-weight:600}
+.sow-advanced textarea{width:100%}
+@media(max-width:700px){.sow-text-row{grid-template-columns:1fr}.quote-edit-dialog{padding:var(--s3)}}

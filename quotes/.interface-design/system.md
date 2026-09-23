@@ -48,6 +48,13 @@ the marketing site and the calculator. This is the first product UI in the log.
 | Quotation lines, invoice lines, Catalog | **Ledger** (nested in the detail pane) | The table *is* the job. |
 | Reports, Settings | **Stacked Sections** | Independent worksheets and grouped facts; an anchored section nav, no rail. |
 
+Within a selected quotation, a narrow **section rail** exposes Overview, Scope of
+work, Pricing and lines, History, and AI exchange. Only one section shows at a
+time. Detail and SOW edits open native dialogs so the quotation remains short;
+the scope editor groups modules as disclosures and keeps the JSON form under an
+Advanced disclosure. The rail repeats the Workbench pattern deliberately: the
+operator is still working one selected record, now choosing one part of it.
+
 **Not Command Deck.** There is a small stat row on the quotations screen, but it
 is three figures that exist to keep *forecast* and *recognised income* apart —
 it is not the shape of the screen, and it never becomes four equal KPI cards

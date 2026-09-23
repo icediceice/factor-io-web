@@ -568,6 +568,7 @@ export function createApi(db) {
         const lines = checkedLines(db, body.lines, errors);
         if (!lines.length) errors.push({ path: 'lines', message: 'add at least one priced line' });
         if (errors.length) return json(400, { error: 'AI draft needs correction', errors });
+        if (body.base_digest !== quoteDigest(buildQuoteDocument(db, id))) return json(409, { error: 'quotation changed since export; export a fresh AI draft' });
         const dryRun = query.dry_run === '1';
         const PREVIEW = Symbol('preview');
         try {

@@ -291,10 +291,24 @@ export function createApi(db) {
         return json(200, { client: db.prepare('SELECT * FROM clients WHERE id = ?').get(id) });
       }
       if (method === 'DELETE') {
-        const used = db.prepare('SELECT COUNT(*) c FROM quotations WHERE client_id = ?').get(id).c;
-        if (used) throw bad(`client has ${used} quotation(s); remove them first`);
         tx(db, () => {
-          db.prepare('DELETE FROM clients WHERE id = ?').run(id);
+          const used = db.prepare('SELECT COUNT(*) c FROM quotations WHERE client_id = ?').get(id).c;
+          if (used) throw bad(`client has ${used} quotation(s); delete or reassign them first`);
+          const invoices = db.prepare('SELECT number, status FROM invoices WHERE client_id = ? ORDER BY id').all(id);
+          const retained = invoices.filter((invoice) => invoice.status !== 'draft');
+          if (retained.length) {
+            const numbers = retained.map((invoice) => invoice.number).join(', ');
+            throw bad(`client has ${retained.length} retained tax invoice(s) (${numbers}); issued, paid and cancelled tax invoices are retained records, so this client cannot be deleted`);
+          }
+          if (invoices.length) {
+            const numbers = invoices.map((invoice) => invoice.number).join(', ');
+            throw bad(`delete draft invoice(s) ${numbers} first`);
+          }
+          try { db.prepare('DELETE FROM clients WHERE id = ?').run(id); }
+          catch (error) {
+            if (/FOREIGN KEY constraint failed/.test(error.message)) throw bad('client is still referenced by another record');
+            throw error;
+          }
           audit(db, actor, 'client.delete', 'client', id, { name: row.name });
         });
         return json(200, { ok: true });

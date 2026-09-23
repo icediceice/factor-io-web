@@ -150,49 +150,6 @@ async function loadStats(card) {
   }
 }
 
-/* ----------------------------------------------------------- new quotation -- */
-
-function newQuotationForm(getWb) {
-  const form = el(`<form id="new">
-    <p class="section-label">New quotation</p>
-    <label>Client
-      <select name="client_id" required><option value="">Loading clients…</option></select>
-    </label>
-    <label>Language
-      <select name="lang"><option value="en">English</option><option value="th">ไทย</option></select>
-    </label>
-    <label>Issue date
-      <input name="issue_date" type="date">
-      <span class="hint">Blank = today</span>
-    </label>
-    <label>Notes
-      <textarea name="notes" rows="2" placeholder="Scope summary, references…"></textarea>
-    </label>
-    <div class="row-actions"><button type="submit">Create draft</button></div>
-  </form>`);
-
-
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = new FormData(form);
-    if (!f.get('client_id')) return toast('Add a client first — a quotation needs someone to be for', 'error');
-    await withBusy(form.querySelector('button[type=submit]'), async () => {
-      try {
-        const body = { client_id: Number(f.get('client_id')), lang: f.get('lang'), notes: f.get('notes') };
-        if (f.get('issue_date')) body.issue_date = f.get('issue_date');
-        const { quotation } = await api('POST', '/quotations', body);
-        toast(`Created ${quotation.number}`);
-        form.reset();
-        const wb = getWb();
-        await wb.reloadAll();
-        wb.select(quotation.id);
-      } catch (err) { toast(err.message, 'error'); }
-    });
-  });
-  return form;
-}
-
 /* ---------------------------------------------------------------- detail -- */
 
 async function renderQuote(id, host, reloadList, reloadStats) {

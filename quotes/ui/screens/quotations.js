@@ -681,6 +681,22 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   });
 
   host.addEventListener('submit', async (e) => {
+    if (e.target.dataset.form === 'sow') {
+      e.preventDefault();
+      const form = e.target;
+      let sow;
+      try { sow = JSON.parse(form.querySelector('[name="sow_json"]').value); }
+      catch { return toast('SOW JSON is invalid', 'error'); }
+      if (sow?.summary) sow.summary.en = form.querySelector('[name="summary_en"]').value;
+      for (const input of form.querySelectorAll('[data-code]')) {
+        const module = sow.modules?.find((m) => m.code === input.dataset.code);
+        if (module) module.included = input.checked;
+      }
+      return run(form.querySelector('button[type="submit"]'), async () => {
+        await api('PUT', `/quotations/${id}/sow`, { sow });
+        await refresh({ list: true });
+      }, 'SOW saved');
+    }
     if (e.target.dataset.form !== 'addLine') return;
     e.preventDefault();
     const form = e.target;

@@ -652,6 +652,13 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     }
   });
 
+  host.addEventListener('input', (e) => {
+    if (e.target.matches('[data-ai-json]')) {
+      previewJson = '';
+      e.target.closest('.ai-draft').querySelector('[data-ai="apply"]').disabled = true;
+    }
+  });
+
   host.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && editingLine) { editingLine = null; draw(); }
   });

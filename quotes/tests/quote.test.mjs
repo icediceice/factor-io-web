@@ -9,6 +9,7 @@ import {
   EDITABLE_STATUSES, editRefusal, canonicalDocDigest,
 } from '../lib/quote.mjs';
 import { renderQuotationHtml } from '../templates/quotation.mjs';
+import { cleanupTestQuotation } from '../deploy/cleanup-test-quotation.mjs';
 import { formatMoney } from '../lib/money.mjs';
 
 function seedDb() {
@@ -500,6 +501,39 @@ describe('migrations', () => {
     const db = openDb(':memory:');
     migrate(db);
     assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 8);
+  });
+
+  test('migration 8 freezes linked invoice source numbers and leaves unlinked invoices blank', () => {
+    const db = new DatabaseSync(':memory:');
+    for (const m of MIGRATIONS.filter((m) => m.version <= 7)) {
+      db.exec(m.sql);
+      db.exec(`PRAGMA user_version = ${m.version}`);
+    }
+    db.prepare("INSERT INTO clients (name) VALUES ('Legacy')").run();
+    db.prepare("INSERT INTO quotations (number, client_id) VALUES ('QT-OLD', 1)").run();
+    db.prepare("INSERT INTO invoices (number, quotation_id, client_id) VALUES ('INV-LINKED', 1, 1)").run();
+    db.prepare("INSERT INTO invoices (number, client_id) VALUES ('INV-UNLINKED', 1)").run();
+    migrate(db);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 8);
+    assert.deepEqual(db.prepare('SELECT number, source_quotation_number FROM invoices ORDER BY id').all(), [
+      { number: 'INV-LINKED', source_quotation_number: 'QT-OLD' },
+      { number: 'INV-UNLINKED', source_quotation_number: '' },
+    ]);
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
+  });
+
+  test('test-record cleanup refuses a near match, then removes only the exact cancelled pair', () => {
+    const db = openDb(':memory:');
+    db.prepare("INSERT INTO clients (name) VALUES ('Test')").run();
+    db.prepare("INSERT INTO quotations (id, number, client_id, status) VALUES (4, 'QT-202609-0004', 1, 'cancelled')").run();
+    db.prepare("INSERT INTO invoices (id, number, quotation_id, source_quotation_number, client_id, status) VALUES (1, 'INV-OTHER', 4, 'QT-202609-0004', 1, 'cancelled')").run();
+    assert.throws(() => cleanupTestQuotation(db, { apply: true }), /identity mismatch/);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations WHERE id=4').get().c, 1);
+    db.prepare("UPDATE invoices SET number='INV-202609-0001' WHERE id=1").run();
+    assert.equal(cleanupTestQuotation(db).invoices[0].number, 'INV-202609-0001');
+    assert.deepEqual(cleanupTestQuotation(db, { apply: true }).deleted.unlinked_invoices, ['INV-202609-0001']);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations WHERE id=4').get().c, 0);
+    assert.equal(db.prepare('SELECT source_quotation_number FROM invoices WHERE id=1').get().source_quotation_number, 'QT-202609-0004');
   });
 
   // -------------------------------------------------------------------------

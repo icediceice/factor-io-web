@@ -79,6 +79,7 @@ export async function mount(main) {
     <div id="stats" class="stat-row posbar"><div class="empty">Loading…</div></div>
   </section>`);
   main.append(statsCard);
+  const wizard = mountSmartQuote(main, () => wbApi, () => clients, vocab);
 
   const wbApi = mountWorkbench(main, {
     noun: 'quotation',

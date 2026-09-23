@@ -177,6 +177,20 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     catch (e) { toast(e.message, 'error'); }
   });
 
+  async function aiRequest(jsonText, preview) {
+    let body;
+    try { body = JSON.parse(jsonText); } catch { throw new Error('AI draft must be valid JSON'); }
+    const res = await fetch(`/api/quotations/${id}/draft${preview ? '?dry_run=1' : ''}`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const details = (result.errors ?? []).map((e) => `${e.path}: ${e.message}`).join('\n');
+      throw new Error(details || result.error || `HTTP ${res.status}`);
+    }
+    return result;
+  }
+
   function draw() {
     const q = doc.quotation;
     const editable = EDITABLE.includes(q.status);

@@ -9,6 +9,7 @@ import {
 } from '../app.js';
 import { mountWorkbench } from '../workbench.js';
 import { mountSmartQuote } from './smart-quote.js';
+import { mountSowEditor } from '../sow-editor.js';
 
 /* ------------------------------------------------------------ vocabulary -- */
 

@@ -93,7 +93,7 @@ test('migration 7 backfills the latest valid issued date without overwriting exp
   const invalid = Number(insertQuote.run('QT-INVALID', '').lastInsertRowid);
   insertRev.run(invalid, 1, '{bad json');
   migrate(db);
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 7);
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 8);
   assert.equal(db.prepare('SELECT issue_date FROM quotations WHERE id=?').get(blank).issue_date, '2026-09-22');
   assert.equal(db.prepare('SELECT issue_date FROM quotations WHERE id=?').get(explicit).issue_date, '2026-09-21');
   assert.equal(db.prepare('SELECT issue_date FROM quotations WHERE id=?').get(invalid).issue_date, '');

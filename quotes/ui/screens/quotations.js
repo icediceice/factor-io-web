@@ -69,7 +69,6 @@ export async function mount(main) {
   const statsCard = el(`<section aria-label="Position">
     <div id="stats" class="stat-row posbar"><div class="empty">Loading…</div></div>
   </section>`);
-  main.append(statsCard);
   const wizard = mountSmartQuote(main, () => wbApi, () => clients, vocab);
 
   const wbApi = mountWorkbench(main, {

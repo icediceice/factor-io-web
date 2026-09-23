@@ -416,8 +416,8 @@ export function deleteQuotation(db, quotationId, { actor = 'agent', expect = nul
     ).all(quotationId);
 
     if (expect) {
-      const actual = invoices.map(({ number, status }) => ({ number, status }));
-      if (row.id !== expect.id || row.number !== expect.number
+      const actual = invoices.map(({ id, number, status }) => ({ id, number, status }));
+      if (row.id !== expect.id || row.number !== expect.number || row.status !== expect.status
           || JSON.stringify(actual) !== JSON.stringify(expect.invoices)) {
         throw new QuotationDeleteRefusal(`cleanup identity mismatch for ${expect.number}`);
       }

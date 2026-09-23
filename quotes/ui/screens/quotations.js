@@ -235,6 +235,9 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     head.querySelector('[data-kv]').innerHTML = headerFields(q, unlocked);
     host.append(head);
 
+    host.append(sowCard(unlocked));
+    if (q.status === 'draft') host.append(aiCard());
+
     /* ---- lines, THEN totals ---- */
     // Totals used to come first, which read backwards — a grand total above
     // the lines it is computed from — and left a wide empty gulf beside the

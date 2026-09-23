@@ -484,8 +484,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
         </select>
         <span class="hint">Fills the fields below. Every value stays editable per quote.</span>
       </label>` : '';
-    return `<form data-form="addLine">
-      <p class="section-label">Add a line</p>
+    return `<details class="quote-add-line"><summary>Add priced line</summary><form data-form="addLine">
       ${picker}
       <div class="grid">
         <label>Type <select name="kind">${opts(vocab.kinds)}</select></label>

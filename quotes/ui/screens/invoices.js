@@ -166,7 +166,9 @@ async function renderInvoice(id, host, reloadList) {
           <dt>Tax ID</dt><dd class="mono">${esc(client?.taxId) || '<span class="muted">none on file</span>'}</dd>
           <dt>From quotation</dt><dd>${i.quotationId
             ? `<a class="mono" href="quote.html?id=${i.quotationId}">${esc(i.quotationNumber)}</a>`
-            : '<span class="muted">none</span>'}</dd>
+            : (i.quotationNumber
+              ? `<span class="mono">${esc(i.quotationNumber)}</span> <span class="muted">(deleted)</span>`
+              : '<span class="muted">none</span>')}</dd>
         </dl>
         <dl class="kv">
           <dt>Tax point (issued)</dt><dd class="mono">${esc(i.issueDate) || '<span class="muted">not issued yet</span>'}</dd>

@@ -111,23 +111,55 @@ export async function mount(main) {
   }
 
   const sowEditor = el(`<section class="card" id="sow-templates"><h2>SOW engagement templates</h2>
-    <p class="meta">Define reusable starting scopes for OS installation, OpenShift, NKP and Kubernetes. Optional modules stay excluded until selected in a quotation.</p>
-    <form data-sow-templates><label>Template definitions (JSON)<textarea name="templates" class="mono" rows="18" spellcheck="false"></textarea></label>
-      <div class="row-actions"><button type="submit" class="secondary">Save SOW templates</button></div></form></section>`);
+    <p class="meta">Tailor a reusable engagement scope. New quotations take a copy; saved quotations keep their own scope.</p>
+    <div class="row-actions"><label>Engagement<select data-template-choice></select></label>
+      <button type="button" class="secondary" data-reset-starter>Reset to starter</button></div>
+    <div data-template-editor></div>
+    <div class="row-actions"><button type="button" data-save-templates>Save templates</button></div>
+    <details><summary>Advanced: template collection JSON</summary><textarea data-template-json class="mono" rows="12" spellcheck="false"></textarea>
+      <button type="button" class="secondary" data-apply-template-json>Apply JSON to editor</button></details></section>`);
   body.append(sowEditor);
   stack.querySelector('.snav').insertAdjacentHTML('beforeend', '<a href="#sow-templates">SOW templates</a>');
+  let templates = [];
+  let starters = [];
+  let chosenCode = '';
+  const choice = sowEditor.querySelector('[data-template-choice]');
+  function renderTemplate() {
+    choice.innerHTML = templates.map((template) => `<option value="${esc(template.code)}"${template.code === chosenCode ? ' selected' : ''}>${esc(template.titleEn)}</option>`).join('');
+    const selected = templates.find((template) => template.code === chosenCode);
+    const host = sowEditor.querySelector('[data-template-editor]');
+    host.replaceChildren();
+    if (selected) mountSowEditor(host, selected.sow);
+    sowEditor.querySelector('[data-template-json]').value = JSON.stringify(templates, null, 2);
+  }
   try {
-    const { templates } = await api('GET', '/sow-templates');
-    sowEditor.querySelector('textarea').value = JSON.stringify(templates, null, 2);
+    const result = await api('GET', '/sow-templates');
+    templates = result.templates ?? [];
+    starters = result.starters ?? [];
+    chosenCode = templates[0]?.code ?? '';
+    renderTemplate();
   } catch (e) { toast(e.message, 'error'); }
-  sowEditor.querySelector('form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    let templates;
-    try { templates = JSON.parse(e.target.querySelector('textarea[name="templates"]').value); }
-    catch { return toast('Template JSON is invalid', 'error'); }
-    await withBusy(e.target.querySelector('button[type="submit"]'), async () => {
+  choice.addEventListener('change', () => { chosenCode = choice.value; renderTemplate(); });
+  sowEditor.querySelector('[data-reset-starter]').addEventListener('click', () => {
+    const starter = starters.find((item) => item.code === chosenCode);
+    if (!starter) return toast('No starter for this engagement', 'error');
+    templates[templates.findIndex((item) => item.code === chosenCode)] = structuredClone(starter);
+    renderTemplate();
+    toast('Starter loaded. Save templates to keep it.');
+  });
+  sowEditor.querySelector('[data-apply-template-json]').addEventListener('click', () => {
+    try {
+      const value = JSON.parse(sowEditor.querySelector('[data-template-json]').value);
+      if (!Array.isArray(value)) throw Error('Expected an array of templates');
+      templates = value;
+      chosenCode = templates.find((item) => item.code === chosenCode)?.code ?? templates[0]?.code ?? '';
+      renderTemplate();
+    } catch (error) { toast(`Template JSON is invalid: ${error.message}`, 'error'); }
+  });
+  sowEditor.querySelector('[data-save-templates]').addEventListener('click', async (event) => {
+    await withBusy(event.target, async () => {
       try { await api('PUT', '/sow-templates', { templates }); toast('SOW templates saved'); }
-      catch (e) { toast(e.message, 'error'); }
+      catch (error) { toast(error.message, 'error'); }
     });
   });
 

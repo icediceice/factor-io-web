@@ -605,6 +605,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
       };
       await run(e.target.querySelector('button[type=submit]'), async () => {
         await api('PUT', `/quotations/${id}`, body);
+        if (detailsDialog.open) detailsDialog.close();
         await refresh({ list: true });
       }, 'Details saved');
     });

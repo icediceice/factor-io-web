@@ -211,7 +211,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     // would work — the operator is pointed at the re-issue that fixes it.
     const pdfBlocked = stale && editable && q.status !== 'draft';
 
-    host.innerHTML = '';
+    surface.innerHTML = '';
 
     /* ---- header ---- */
     const head = el(`<section class="card">

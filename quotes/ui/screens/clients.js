@@ -110,9 +110,10 @@ async function renderClient(id, host, reloadList) {
       </div>
     </div>
     ${blocked ? `<div class="banner" data-tone="info">
-      This client cannot be deleted while ${quotations.length} quotation${quotations.length === 1 ? '' : 's'}
-      reference${quotations.length === 1 ? 's' : ''} them — a quotation must always belong to someone.
-      Delete or reassign those first; they are listed below.
+      <strong>This client cannot be deleted.</strong>
+      ${quotations.length ? `<p>${quotations.length} quotation${quotations.length === 1 ? '' : 's'} still reference this client. Delete or reassign ${quotations.length === 1 ? 'it' : 'them'} first.</p>` : ''}
+      ${retained.length ? `<p>Tax invoice${retained.length === 1 ? '' : 's'} ${retained.map((invoice) => esc(invoice.number)).join(', ')} must be retained, including after cancellation.</p>` : ''}
+      ${drafts.length ? `<p>Delete draft invoice${drafts.length === 1 ? '' : 's'} ${drafts.map((invoice) => esc(invoice.number)).join(', ')} first.</p>` : ''}
     </div>` : ''}
     <form data-form="edit">
       <div class="grid">

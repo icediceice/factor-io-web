@@ -109,6 +109,27 @@ export async function mount(main) {
     });
   }
 
+  const sowEditor = el(`<section class="card" id="sow-templates"><h2>SOW engagement templates</h2>
+    <p class="meta">Define reusable starting scopes for OS installation, OpenShift, NKP and Kubernetes. Optional modules stay excluded until selected in a quotation.</p>
+    <form data-sow-templates><label>Template definitions (JSON)<textarea name="templates" class="mono" rows="18" spellcheck="false"></textarea></label>
+      <div class="row-actions"><button type="submit" class="secondary">Save SOW templates</button></div></form></section>`);
+  body.append(sowEditor);
+  stack.querySelector('.snav').insertAdjacentHTML('beforeend', '<a href="#sow-templates">SOW templates</a>');
+  try {
+    const { templates } = await api('GET', '/sow-templates');
+    sowEditor.querySelector('textarea').value = JSON.stringify(templates, null, 2);
+  } catch (e) { toast(e.message, 'error'); }
+  sowEditor.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let templates;
+    try { templates = JSON.parse(e.target.elements.templates.value); }
+    catch { return toast('Template JSON is invalid', 'error'); }
+    await withBusy(e.target.querySelector('button[type="submit"]'), async () => {
+      try { await api('PUT', '/sow-templates', { templates }); toast('SOW templates saved'); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  });
+
   if ('IntersectionObserver' in window) {
     const links = [...stack.querySelectorAll('.snav a')];
     const obs = new IntersectionObserver((entries) => {

@@ -612,8 +612,13 @@ async function renderQuote(id, host, reloadList, reloadStats) {
 
   // Line actions live on the host because linesCard is rebuilt on every draw.
   host.addEventListener('click', async (e) => {
+    const nav = e.target.closest('[data-quote-nav]');
+    if (nav) { e.preventDefault(); section = nav.dataset.quoteNav; showSection(); return; }
     const btn = e.target.closest('button');
     if (!btn) return;
+    if (btn.hasAttribute('data-close-dialog')) { btn.closest('dialog')?.close(); return; }
+    if (btn.hasAttribute('data-edit-details')) return openDetails();
+    if (btn.hasAttribute('data-edit-sow')) return openScope();
 
     if (btn.hasAttribute('data-add-sow')) {
       const code = host.querySelector('[data-sow-template]')?.value;

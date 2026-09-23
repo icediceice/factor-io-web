@@ -94,6 +94,7 @@ const docEnvelope = (doc, extra = {}) => ({
   quotation: doc.quotation,
   client: doc.client,
   lines: doc.lines,
+  sow: doc.sow,
   totals: doc.totals,
   issuer: doc.issuer,
   bank: doc.bank,

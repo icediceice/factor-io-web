@@ -164,6 +164,10 @@ export function createInvoiceFromQuotation(db, quotationId, { actor = 'agent', l
     if (q.status !== 'accepted') {
       throw new Error(`quotation ${q.number} is '${q.status}' — only an accepted quotation can be invoiced`);
     }
+    const source = buildQuoteDocument(db, quotationId);
+    if (source.quotation.revision === 0 || source.quotation.revisionStale) {
+      throw new Error(`quotation ${q.number} differs from its issued revision and cannot be invoiced`);
+    }
     const allLines = db.prepare(
       'SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id'
     ).all(quotationId);

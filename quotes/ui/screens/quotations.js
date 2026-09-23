@@ -200,6 +200,28 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     return result;
   }
 
+  function showSection() {
+    for (const panel of surface.querySelectorAll('[data-quote-section]')) panel.hidden = panel.dataset.quoteSection !== section;
+    for (const link of surface.querySelectorAll('[data-quote-nav]')) {
+      if (link.dataset.quoteNav === section) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    }
+  }
+
+  function openDetails() {
+    if (!(doc.quotation.status === 'draft' || revising)) return;
+    detailsDialog.innerHTML = `<div class="toolbar"><h2>Edit quotation details</h2><button type="button" class="quiet sm" data-close-dialog>Close</button></div><dl class="kv">${headerFields(doc.quotation, true)}</dl>`;
+    detailsDialog.showModal();
+  }
+
+  function openScope() {
+    if (!(doc.quotation.status === 'draft' || revising) || !doc.sow) return;
+    scopeDraft = structuredClone(doc.sow);
+    scopeDialog.innerHTML = '<div class="toolbar"><h2>Edit statement of work</h2><button type="button" class="quiet sm" data-close-dialog>Close</button></div><form data-form="sow"><div data-sow-editor></div><div class="row-actions"><button type="submit">Save SOW</button></div></form>';
+    mountSowEditor(scopeDialog.querySelector('[data-sow-editor]'), scopeDraft);
+    scopeDialog.showModal();
+  }
+
   function draw() {
     const q = doc.quotation;
     const editable = EDITABLE.includes(q.status);

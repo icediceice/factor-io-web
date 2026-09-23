@@ -278,6 +278,13 @@ export function renderQuotationHtml(doc, lang = 'en') {
   .party .kicker { font:7.5pt/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6pt; }
   .party .name { font-weight:750; font-size:11pt; }
   .party .sub { color:var(--muted); font-size:8.5pt; margin-top:3pt; line-height:1.5; }
+  .sow { border-top:1.5pt solid var(--accent); margin:12pt 0; padding-top:8pt; break-inside:avoid-page; }
+  .sow h2 { margin:0 0 5pt; font:8pt var(--mono); letter-spacing:.1em; color:var(--accent); text-transform:uppercase; }
+  .sow h3 { margin:7pt 0 3pt; font-size:9pt; }
+  .sow p { margin:0 0 5pt; white-space:pre-wrap; }
+  .sow ul { margin:2pt 0 6pt; padding-inline-start:16pt; }
+  .sow li { break-inside:avoid; white-space:pre-wrap; }
+  .sow-module { break-inside:avoid-page; }
   table.lines { width:100%; border-collapse:collapse; margin-top:4pt; }
   table.lines th { font:7.5pt/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase;
                    text-align:left; color:var(--muted); border-bottom:1.5pt solid var(--ink); padding:5pt 6pt; }

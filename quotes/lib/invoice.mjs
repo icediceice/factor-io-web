@@ -28,7 +28,7 @@
 
 import { tx, getSettings, audit } from './db.mjs';
 import { lineSubtotal, vatOf, whtOf, fxToThb, todayBkk, addDaysBkk } from './money.mjs';
-import { markStatus } from './quote.mjs';
+import { markStatus, buildQuoteDocument } from './quote.mjs';
 import { labelMap } from './kinds.mjs';
 
 export const INVOICE_STATUSES = ['draft', 'issued', 'paid', 'cancelled'];

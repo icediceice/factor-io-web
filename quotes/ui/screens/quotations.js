@@ -160,6 +160,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   // re-opened, so unlocking never outlives the visit.
   let revising = false;
   let editingLine = null;
+  let previewJson = '';
 
   const kindLabel = (code) => doc.kindLabels?.[code] ?? code;
 

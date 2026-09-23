@@ -23,6 +23,9 @@ import {
   pp30Monthly, incomeByMonth, whtRegister, pndSummary, pipelineSummary,
 } from './lib/reports.mjs';
 import { parseKinds, isValidKind, kindCodes, normalisePeriod } from './lib/kinds.mjs';
+import { createHash } from 'node:crypto';
+import { validateSow, parseTemplates, sowFromTemplate } from './lib/sow.mjs';
+import { canonicalDocDigest } from './lib/quote.mjs';
 
 /**
  * Validate a line/catalog `kind` against the operator-configured vocabulary.

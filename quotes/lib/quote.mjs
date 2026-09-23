@@ -435,6 +435,12 @@ export function markStatus(db, quotationId, status, actor) {
         + (legal.length ? ` (from ${from}, allowed: ${legal.join(', ')})` : ` (${from} is terminal)`)
       );
     }
+    if (status === 'accepted') {
+      const state = revisionState(db, quotationId, buildQuoteDocument(db, quotationId));
+      if (state.revision === 0 || state.revisionStale) {
+        throw new Error(`cannot accept: content differs from Rev. ${state.revision} — re-issue the quotation first`);
+      }
+    }
     db.prepare("UPDATE quotations SET status = ?, updated_at = datetime('now') WHERE id = ?").run(status, quotationId);
     audit(db, actor, 'quotation.status', 'quotation', quotationId, { from, status });
     let rev = null;

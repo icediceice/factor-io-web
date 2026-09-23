@@ -443,8 +443,9 @@ export function createApi(db) {
           String(body.fx_base ?? settings['fx.base'] ?? ''),
           String(body.fx_rate ?? settings['fx.rate'] ?? ''),
           String(body.fx_as_of ?? settings['fx.as_of'] ?? ''),
-          optStr(body, 'notes'), actor);
-        audit(db, actor, 'quotation.create', 'quotation', id, { number, client_id: clientId });
+          optStr(body, 'notes'), actor, sow ? JSON.stringify(sow) : '');
+        if (initialLines.length) insertCheckedLines(db, id, initialLines);
+        audit(db, actor, 'quotation.create', 'quotation', id, { number, client_id: clientId, template: body.template ?? null, lines: initialLines.length });
         return buildQuoteDocument(db, id);
       });
       return json(201, docEnvelope(doc));

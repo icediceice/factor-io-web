@@ -534,6 +534,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
           revisions.length
             ? `${revisions.length} revision snapshot${revisions.length === 1 ? '' : 's'} — the only record of what was sent to ${doc.client?.name ?? 'the client'}`
             : 'No revision snapshots exist yet — nothing has been issued',
+          'Cancelled invoices stay on file with their quotation number. Active invoices block deletion.',
         ];
         const ok = await confirmAction({
           title: `Delete ${q.number}?`,
@@ -546,7 +547,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
         if (!ok) return;
         return run(btn, async () => {
           const res = await api('DELETE', `/quotations/${id}`);
-          toast(`Deleted ${res.number}${res.revisions_destroyed ? ` and ${res.revisions_destroyed} revision snapshot(s)` : ''}`);
+          toast(`Deleted ${res.number}${res.revisions_destroyed ? ` and ${res.revisions_destroyed} revision snapshot(s)` : ''}${res.unlinked_invoices?.length ? `; kept cancelled invoice(s): ${res.unlinked_invoices.join(', ')}` : ''}`);
           reloadStats();
           await reloadList();
         });

@@ -13,7 +13,7 @@ import { openDb, tx, getSettings, setSetting, audit } from './lib/db.mjs';
 import { parseSatang, parseMilli, milliToDecimal, satangToDecimal, lineSubtotal } from './lib/money.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
-  saveRevision, markStatus, editRefusal,
+  saveRevision, markStatus, editRefusal, deleteQuotation, QuotationDeleteRefusal,
 } from './lib/quote.mjs';
 import {
   createInvoiceFromQuotation, issueInvoice, markInvoiceStatus,
@@ -204,6 +204,7 @@ export function createApi(db) {
       return await dispatch(req);
     } catch (e) {
       if (e instanceof ApiError) return err(e.status, e.message);
+      if (e instanceof QuotationDeleteRefusal) return err(400, e.message);
       if (/invalid money|invalid quantity|invalid rate|invalid fx|invalid status/.test(e.message)) {
         return err(400, e.message);
       }
@@ -495,40 +496,7 @@ export function createApi(db) {
           return json(200, docEnvelope(buildQuoteDocument(db, id)));
         }
         if (method === 'DELETE') {
-          // Was draft-only, which left every test quotation that had ever been
-          // issued permanently stuck in the list with no way to remove it.
-          //
-          // The ONE thing that must stay impossible is an orphaned invoice:
-          // invoices.quotation_id (db.mjs) carries no ON DELETE rule, so a
-          // deleted quotation would leave an invoice pointing at nothing —
-          // and an invoice is a filed tax document. Everything else is the
-          // operator's call.
-          //
-          // The cost is stated rather than hidden: quotation_revisions
-          // CASCADEs, so deleting an issued quotation destroys the snapshots of
-          // what was actually sent. 'cancelled' exists as the non-destructive
-          // retirement path and the UI offers it alongside this.
-          const inv = db.prepare(
-            'SELECT number FROM invoices WHERE quotation_id = ? ORDER BY id LIMIT 1'
-          ).get(id);
-          if (inv) {
-            throw bad(
-              `quotation ${row.number} cannot be deleted because tax invoice ${inv.number} was raised from it`
-              + ' (cancel the invoice first, or cancel this quotation instead of deleting it)'
-            );
-          }
-          const revisions = db.prepare(
-            'SELECT COUNT(*) c FROM quotation_revisions WHERE quotation_id = ?'
-          ).get(id).c;
-          tx(db, () => {
-            db.prepare('DELETE FROM quotations WHERE id = ?').run(id);
-            // status and revisions_destroyed are recorded because the rows that
-            // would otherwise evidence them are gone with the quotation.
-            audit(db, actor, 'quotation.delete', 'quotation', id, {
-              number: row.number, status: String(row.status), revisions_destroyed: revisions,
-            });
-          });
-          return json(200, { ok: true, number: String(row.number), revisions_destroyed: revisions });
+          return json(200, deleteQuotation(db, id, { actor }));
         }
       }
 

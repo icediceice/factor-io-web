@@ -371,6 +371,8 @@ export function renderQuotationHtml(doc, lang = 'en') {
     </div>
   </div>
 
+  ${sowSection(doc.sow, lang)}
+
   <table class="lines">
     <thead>
       <tr>

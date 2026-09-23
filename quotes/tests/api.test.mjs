@@ -215,6 +215,42 @@ describe('quotation flow', () => {
     assert.equal(db.prepare('SELECT quotation_id FROM invoices WHERE id = ?').get(inv.id).quotation_id, q.id);
   });
 
+  test('deleting a quotation keeps its cancelled invoice and frozen source reference', async () => {
+    const { db, call } = boot();
+    const { q } = await acceptedQuote(call);
+    const inv = JSON.parse((await call('POST', '/invoices', { body: { quotation_id: q.id } })).body).invoice;
+    assert.equal((await call('POST', `/invoices/${inv.id}/status`, { body: { status: 'cancelled' } })).status, 200);
+
+    const removed = await call('DELETE', `/quotations/${q.id}`);
+    assert.equal(removed.status, 200);
+    assert.deepEqual(JSON.parse(removed.body).unlinked_invoices, [inv.number]);
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations WHERE id = ?').get(q.id).c, 0);
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
+    const retained = JSON.parse((await call('GET', `/invoices/${inv.id}`)).body).invoice;
+    assert.equal(retained.status, 'cancelled');
+    assert.equal(retained.quotationId, null);
+    assert.equal(retained.quotationNumber, q.number);
+    const row = db.prepare('SELECT quotation_id, source_quotation_number FROM invoices WHERE id = ?').get(inv.id);
+    assert.equal(row.quotation_id, null);
+    assert.equal(row.source_quotation_number, q.number);
+    assert.equal(db.prepare("SELECT COUNT(*) c FROM audit_log WHERE action='invoice.unlink' AND entity_id=?").get(inv.id).c, 1);
+  });
+
+  test('an active invoice blocks deletion even when another linked invoice is cancelled', async () => {
+    const { db, call } = boot();
+    const { q } = await acceptedQuote(call);
+    const first = JSON.parse((await call('POST', '/invoices', { body: { quotation_id: q.id } })).body).invoice;
+    const second = JSON.parse((await call('POST', '/invoices', { body: { quotation_id: q.id } })).body).invoice;
+    await call('POST', `/invoices/${first.id}/status`, { body: { status: 'cancelled' } });
+
+    const removed = await call('DELETE', `/quotations/${q.id}`);
+    assert.equal(removed.status, 400);
+    assert.match(JSON.parse(removed.body).error, new RegExp(second.number));
+    assert.equal(db.prepare('SELECT COUNT(*) c FROM quotations WHERE id = ?').get(q.id).c, 1);
+    assert.equal(db.prepare('SELECT quotation_id FROM invoices WHERE id = ?').get(first.id).quotation_id, q.id);
+    assert.equal(db.prepare("SELECT COUNT(*) c FROM audit_log WHERE action='invoice.unlink'").get().c, 0);
+  });
+
   test('GET /quotations?include=totals carries a payable figure per row; the plain list still does not', async () => {
     const { call } = boot();
     const client = JSON.parse((await call('POST', '/clients', { body: { name: 'A' } })).body).client;

@@ -109,6 +109,7 @@ export async function mount(main) {
     onLoad: () => wizard.refreshClients(),
   });
 
+  main.append(statsCard);
   await wbApi.refresh();
   loadStats(statsCard);
 }

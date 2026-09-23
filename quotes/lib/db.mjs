@@ -473,6 +473,15 @@ export const MIGRATIONS = [
          'seed');
     `,
   },
+  {
+    version: 6,
+    name: 'quotation-sow',
+    sql: `
+      ALTER TABLE quotations ADD COLUMN sow_json TEXT NOT NULL DEFAULT '';
+      INSERT INTO settings (key, value, updated_by) VALUES
+        ('sow.templates', '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}', 'seed');
+    `,
+  },
 ];
 
 export function openDb(path) {

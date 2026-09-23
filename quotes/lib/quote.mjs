@@ -215,6 +215,7 @@ export function buildQuoteDocument(db, quotationId) {
       email: str(clientRow.email),
       phone: str(clientRow.phone),
     } : null,
+    sow: parseSow(q.sow_json),
     lines: lines.map((l) => ({
       // The row's own id. Without it the document is READ-ONLY by accident:
       // every UI line carries no address, so removing or correcting one sends

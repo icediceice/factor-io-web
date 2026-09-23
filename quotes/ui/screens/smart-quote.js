@@ -1,6 +1,7 @@
 // Guided SOW + quotation creation. All choices stay in browser memory until
 // the final submit, so abandoning the guide does not consume a quote number.
 import { api, el, esc, toast, withBusy, fmtSatang } from '../app.js';
+import { mountSowEditor } from '../sow-editor.js';
 
 export function mountSmartQuote(main, getWorkbench, getClients, vocab) {
   const launch = el('<button type="button" class="quote-launch" data-start>Create SOW + quotation</button>');

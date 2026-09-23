@@ -3,9 +3,10 @@
 import { api, el, esc, toast, withBusy, fmtSatang } from '../app.js';
 
 export function mountSmartQuote(main, getWorkbench, getClients, vocab) {
-  const launch = el(`<div class="quote-launch"><div><span class="section-label">QUOTATION STUDIO</span><strong>Scope the work. Price every line. Review before creating.</strong></div><button type="button" data-start>Create SOW + quotation</button></div>`);
+  const launch = el('<button type="button" class="quote-launch" data-start>Create SOW + quotation</button>');
   const dialog = el('<dialog class="quote-wizard" aria-label="New SOW and quotation"></dialog>');
-  main.append(launch, dialog);
+  main.querySelector('[data-page-actions]').append(launch);
+  main.append(dialog);
   let templates = [];
   let step = 0;
   let state = {};

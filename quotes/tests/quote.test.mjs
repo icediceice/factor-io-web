@@ -423,7 +423,7 @@ function openV2Db() {
 }
 
 describe('migrations', () => {
-  test('a fresh database lands on user_version 7', () => {
+  test('a fresh database lands on user_version 8', () => {
     const db = openDb(':memory:');
     assert.equal(db.prepare('PRAGMA user_version;').get().user_version, 8);
     // Migration 4's seeds are present and are the accounting keys, not stubs.

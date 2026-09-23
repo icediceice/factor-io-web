@@ -14,8 +14,8 @@ const expected = {
 };
 
 export function cleanupTestQuotation(db, { apply = false } = {}) {
-  if (db.prepare('PRAGMA user_version').get().user_version !== 8) {
-    throw new Error('cleanup requires schema version 8; deploy and restart first');
+  if (db.prepare('PRAGMA user_version').get().user_version < 8) {
+    throw new Error('cleanup requires schema version 8 or newer; deploy and restart first');
   }
   return tx(db, () => {
     const quote = db.prepare('SELECT id, number, status FROM quotations WHERE number = ?').get(expected.number);

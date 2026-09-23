@@ -16,6 +16,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { DEFAULT_SOW_TEMPLATES } from './sow.mjs';
 
 export const SATANG = 100;          // minor units per THB
 export const MILLI = 1000;          // qty resolution: 1 unit = 1000 milli

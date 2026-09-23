@@ -340,6 +340,48 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
 .stack-body{min-width:0}
 .stack-body>section{scroll-margin-top:calc(var(--header-h) + var(--s6))}
 
+/* Guided quotation and scoped AI exchange. The create action is visible above
+   the workbench; the editor keeps the same paper, rules and teal hierarchy. */
+.quote-launch{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);background:var(--tint);border:1px solid var(--accent);padding:var(--s3) var(--s4);margin:var(--s4) 0}
+.quote-launch>div{display:grid;gap:var(--s1)}
+.quote-launch strong{font-size:var(--t-base);font-weight:600}
+.quote-launch .section-label{margin:0}
+.quote-wizard{width:min(880px,calc(100% - var(--s4)));max-height:calc(100vh - var(--s7));overflow:auto;background:var(--paper);color:var(--ink);border:2px solid var(--accent);padding:0;box-shadow:none}
+.quote-wizard::backdrop{background:var(--scrim)}
+.studio-head{background:var(--white);border-bottom:1px solid var(--line);padding:var(--s5)}
+.studio-head h2{font-size:var(--t-2xl);margin:var(--s2) 0 var(--s4)}
+.studio-head>[data-close]{float:right}
+.studio-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s1)}
+.studio-steps span{font:var(--t-sm) var(--mono);padding:var(--s2);border-bottom:2px solid var(--line);color:var(--muted)}
+.studio-steps span[aria-current=step]{border-bottom-color:var(--accent);color:var(--ink);font-weight:700;background:var(--tint)}
+.studio-fields,.studio-review{padding:var(--s5);display:grid;gap:var(--s4)}
+.studio-fields label{margin:0}
+.studio-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3)}
+.studio-price-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s3)}
+.studio-modules,.sow-module-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2)}
+.studio-module,.sow-module{display:flex;align-items:flex-start;gap:var(--s2);border:1px solid var(--line);padding:var(--s2) var(--s3);background:var(--white);cursor:pointer}
+.studio-module input,.sow-module input{width:auto;min-height:0;margin:var(--s1) 0 0;flex:none}
+.studio-module span,.sow-module span{display:grid;gap:var(--s1)}
+.studio-module strong,.sow-module strong{font-size:var(--t-base)}
+.studio-module small,.sow-module small{font-size:var(--t-sm);color:var(--muted);line-height:1.4}
+.studio-module:has(input:checked),.sow-module:has(input:checked){border-color:var(--accent);background:var(--tint)}
+.studio-line{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) 0;border-bottom:1px solid var(--line)}
+.studio-line span{display:grid;flex:1;min-width:0}
+.studio-line small{font-size:var(--t-sm);color:var(--muted)}
+.studio-line b,.studio-total strong{font:600 var(--t-base) var(--mono);white-space:nowrap}
+.studio-price-form{border-top:2px solid var(--accent);padding-top:var(--s4);display:grid;gap:var(--s3)}
+.studio-review dl{display:grid;grid-template-columns:140px 1fr;gap:var(--s2);padding:var(--s4);background:var(--white);border:1px solid var(--line)}
+.studio-review dt{color:var(--muted)}
+.studio-total{display:flex;justify-content:space-between;border-top:2px solid var(--accent);padding:var(--s3) 0}
+.studio-actions{display:flex;justify-content:space-between;gap:var(--s3);padding:var(--s4) var(--s5);background:var(--white);border-top:1px solid var(--line)}
+.sow-editor .sow-module-grid{margin:var(--s4) 0}
+.sow-editor details{margin:var(--s4) 0;border-top:1px solid var(--line);padding-top:var(--s3)}
+.sow-editor summary{cursor:pointer;font-weight:600}
+.sow-editor textarea[name=sow_json],.ai-draft textarea[data-ai-json]{width:100%;max-width:100%;font-size:var(--t-sm);line-height:1.5}
+.ai-draft{border-left:3px solid var(--accent)!important;padding-left:var(--s4)!important}
+.ai-draft [data-ai-result]{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:var(--s2)}
+@media(max-width:700px){.quote-launch{align-items:stretch;flex-direction:column}.studio-pair,.studio-price-grid,.studio-modules,.sow-module-grid{grid-template-columns:1fr}.studio-steps span{font-size:var(--t-sm);padding:var(--s1)}.studio-review dl{grid-template-columns:1fr}.studio-line{flex-wrap:wrap}}
+
 /* ------------------------------------------------------------ responsive -- */
 @media(max-width:1100px){
   :root{--rail-w:280px}

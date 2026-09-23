@@ -546,7 +546,7 @@ export function createApi(db) {
           lines: doc.lines.map((line) => ({ kind: line.kind, description_en: line.descriptionEn,
             description_th: line.descriptionTh, qty: milliToDecimal(line.qtyMilli), unit: line.unit,
             unit_price: satangToDecimal(line.unitSatang), discount_satang: line.discountSatang,
-            billing_period: line.billingPeriod, section: line.section, optional: line.optional })) });
+            billing_period: line.billingPeriod, section: line.section, optional: Boolean(line.optional) })) });
       }
       if (seg[2] === 'draft' && method === 'POST') {
         if (row.status !== 'draft') throw bad('AI draft import is available for draft quotations only');

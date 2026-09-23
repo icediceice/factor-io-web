@@ -116,8 +116,7 @@ export async function mount(main) {
     }],
     emptyHtml: '<div class="empty"><strong>No quotations yet</strong>Create the first one below.</div>',
     detailOf: (id, host) => renderQuote(id, host, () => wbApi.reloadList(), () => loadStats(statsCard)),
-    onLoad: () => fillClientOptions(),
-    aside: newQuotationForm(() => wbApi),
+    onLoad: () => wizard.refreshClients(),
   });
 
   await wbApi.refresh();

@@ -122,7 +122,7 @@ export async function mount(main) {
   sowEditor.querySelector('form').addEventListener('submit', async (e) => {
     e.preventDefault();
     let templates;
-    try { templates = JSON.parse(e.target.elements.templates.value); }
+    try { templates = JSON.parse(e.target.querySelector('textarea[name="templates"]').value); }
     catch { return toast('Template JSON is invalid', 'error'); }
     await withBusy(e.target.querySelector('button[type="submit"]'), async () => {
       try { await api('PUT', '/sow-templates', { templates }); toast('SOW templates saved'); }

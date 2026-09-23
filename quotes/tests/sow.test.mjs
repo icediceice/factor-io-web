@@ -34,10 +34,11 @@ test('SOW templates are editable data and optional Kubernetes services start exc
   assert.equal(response.status, 200);
   assert.deepEqual(response.templates.map((t) => t.code), ['os-install', 'openshift', 'nkp', 'vanilla-kube']);
   for (const t of response.templates) {
-    assert.equal(t.sow.modules[0].included, true);
-    assert.ok(t.sow.modules.slice(1).every((m) => !m.included));
+    assert.deepEqual(t.sow.modules.slice(0, 4).map((m) => m.included), [true, true, true, true]);
+    assert.ok(t.sow.modules.slice(4).every((m) => !m.included));
   }
-  assert.match(response.templates[2].sow.assumptions[0].en, /storage and load balancing/);
+  assert.match(response.templates[2].sow.modules[1].items[2].en, /management cluster/);
+  assert.deepEqual(response.starters.map((t) => t.code), response.templates.map((t) => t.code));
   const changed = structuredClone(response.templates);
   changed[0].sow.summary.en = 'Custom OS delivery';
   assert.equal((await call('PUT', '/sow-templates', { templates: changed })).status, 200);

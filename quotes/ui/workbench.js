@@ -227,6 +227,19 @@ export function mountWorkbench(main, spec) {
   return {
     refresh,
     select,
+    /** Re-read the rail without replacing an open editor or its listeners. */
+    reloadList: async () => {
+      items = await spec.load();
+      spec.onLoad?.(items);
+      if (selected && !items.some((it) => String(spec.rowOf(it).id) === String(selected))) {
+        selected = null;
+        history.replaceState({}, '', location.pathname);
+        renderRail();
+        await renderDetail();
+        return;
+      }
+      renderRail();
+    },
     /** Re-render only the open record — after an edit that did not change the list. */
     reloadDetail: renderDetail,
     /** Re-read the list and re-render both panes, keeping the open record. */

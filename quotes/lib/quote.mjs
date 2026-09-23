@@ -341,6 +341,10 @@ export function saveRevision(db, quotationId, doc, actor) {
     const { next } = db.prepare(
       'SELECT COALESCE(MAX(rev), 0) + 1 AS next FROM quotation_revisions WHERE quotation_id = ?'
     ).get(quotationId);
+    // buildQuoteDocument resolves a blank date to today. Store that same date
+    // before freezing the snapshot so tomorrow's live document still matches.
+    db.prepare("UPDATE quotations SET issue_date = ? WHERE id = ? AND issue_date = ''")
+      .run(doc.quotation.issueDate, quotationId);
     // The document was built BEFORE this number existed (markStatus calls
     // buildQuoteDocument, then this), so it still carries the PREVIOUS
     // revision. Stamp the real one in, or rendering an old snapshot years

@@ -2,6 +2,9 @@
 import { esc } from './app.js';
 
 export function mountSowEditor(container, sow, { onChange = () => {}, readOnly = false } = {}) {
+  container._sowEditorAbort?.abort();
+  const controller = new AbortController();
+  container._sowEditorAbort = controller;
   const changed = () => {
     const json = container.querySelector('[data-json]');
     if (json && document.activeElement !== json) json.value = JSON.stringify(sow, null, 2);

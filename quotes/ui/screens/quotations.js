@@ -499,7 +499,7 @@ async function renderQuote(id, host, reloadList, reloadStats) {
       <label>Description (TH) <input name="description_th" placeholder="คำอธิบายภาษาไทย (ถ้ามี)"></label>
       <label class="inline"><input type="checkbox" name="optional" value="1"> Optional — priced, excluded from totals</label>
       <div class="row-actions"><button type="submit">Add line</button></div>
-    </form>`;
+    </form></details>`;
   }
 
   function revisionsCard() {

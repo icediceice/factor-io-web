@@ -1,20 +1,69 @@
 {
-  "locale": "en", "updated": "2026-09-18",
+  "locale": "en",
+  "updated": "2026-09-18",
   "ui": {
-    "skip": "Skip to content", "menu": "Menu", "nav": "Main navigation", "language": "Language", "home": "Factor IO home",
-    "primary": "Talk about your project", "secondary": "Work with us as a partner", "learn": "See the services in detail", "privacy": "Privacy", "resources": "Engineering resources", "calculator": "Local AI cost calculator", "tools": "light-tools · open source", "footer": "Kubernetes, infrastructure and enterprise AI. Thailand.",
+    "skip": "Skip to content",
+    "menu": "Menu",
+    "nav": "Main navigation",
+    "language": "Language",
+    "home": "Factor IO home",
+    "primary": "Talk about your project",
+    "secondary": "Work with us as a partner",
+    "learn": "See the services in detail",
+    "privacy": "Privacy",
+    "resources": "Engineering resources",
+    "calculator": "Local AI cost calculator",
+    "tools": "light-tools · open source",
+    "footer": "Kubernetes, infrastructure and enterprise AI. Thailand.",
     "routeMark": "Who holds the customer relationship",
-    "ctaTitle": "Start with the problem you need to solve.", "ctaBody": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk. LINE is the quickest way to reach us.", "ctaLink": "Discuss your project", "backTop": "Back to top"
+    "ctaTitle": "Discuss your infrastructure with the principal architect.",
+    "ctaBody": "Tell us what you want to achieve and what hardware or platform you currently run. We scope your technical requirements and provide an itemized quotation within 48 hours.",
+    "ctaLink": "Request a technical quotation",
+    "backTop": "Back to top"
   },
   "topology": {
-    "title": "Your environment. Clear boundaries.", "caption": "An illustrative architecture, adapted to your infrastructure and the way your organisation works.",
-    "models": ["Local / private AI", "Enterprise AI", "Frontier APIs"], "agent": "Agents · reasoning & preparation", "boundary": "GOVERNED EXECUTION",
-    "fields": ["Identity", "Authorization", "Scope", "Approval", "State", "Audit", "Policy", "Tool control", "Reconcile"], "systems": "Your systems, data & workflows", "note": "Reasoning can be flexible. Actions need permission."
+    "title": "Your environment. Clear boundaries.",
+    "caption": "An illustrative architecture, adapted to your infrastructure and the way your organisation works.",
+    "models": [
+      "Local / private AI",
+      "Enterprise AI",
+      "Frontier APIs"
+    ],
+    "agent": "Agents · reasoning & preparation",
+    "boundary": "GOVERNED EXECUTION",
+    "fields": [
+      "Identity",
+      "Authorization",
+      "Scope",
+      "Approval",
+      "State",
+      "Audit",
+      "Policy",
+      "Tool control",
+      "Reconcile"
+    ],
+    "systems": "Your systems, data & workflows",
+    "note": "Reasoning can be flexible. Actions need permission."
   },
   "demo": {
-    "title": "Asking is not the same as being allowed.", "intro": "An illustration that runs in your browser and is connected to nothing. Start the request and watch where it stops. It will not go any further until you approve that exact revision yourself.",
-    "identity": "Trusted identity", "scope": "Authorized scope", "target": "Requested target", "revision": "Workflow revision", "operation": "Operation", "request": "Run the request", "approve": "Approve this revision", "reset": "Reset the example", "approvalLabel": "Your approval covers only the target, operation and revision shown above.",
-    "stages": ["Request", "Identity", "Scope", "Human approval", "Execution"],
+    "title": "Asking is not the same as being allowed.",
+    "intro": "An illustration that runs in your browser and is connected to nothing. Start the request and watch where it stops. It will not go any further until you approve that exact revision yourself.",
+    "identity": "Trusted identity",
+    "scope": "Authorized scope",
+    "target": "Requested target",
+    "revision": "Workflow revision",
+    "operation": "Operation",
+    "request": "Run the request",
+    "approve": "Approve this revision",
+    "reset": "Reset the example",
+    "approvalLabel": "Your approval covers only the target, operation and revision shown above.",
+    "stages": [
+      "Request",
+      "Identity",
+      "Scope",
+      "Human approval",
+      "Execution"
+    ],
     "halt": "Stopped here. The flow is waiting for a human decision and will not continue on its own.",
     "legend": "Refused · Waiting for a person · Passed",
     "initial": "DENIED · production/payment-api sits outside staging/*, and nobody has approved it.",
@@ -26,113 +75,437 @@
     "static": "A restart of production/payment-api by workflow-agent-17, which is authorized only for staging/*, is refused. A human approval naming that target, the restart operation and revision 182 permits that one request and nothing else. Identity and permissions come from the execution layer, never from what the model claims about itself."
   },
   "contact": {
-    "title": "Talk to us on LINE.", "intro": "LINE is the quickest way to reach us. Send a short note about what you are working on and what you already have running — we will reply there.",
-    "lineAction": "Add Factor IO on LINE", "qrAlt": "LINE QR code for Factor IO. Scan it in the LINE app to start a conversation.", "qrCaption": "Scan from another device, or tap the button above on your phone.", "lineIdLabel": "LINE ID",
-    "fallback": "Prefer email? Write directly to", "privacy": "Read how enquiries are handled."
+    "title": "Talk to us on LINE.",
+    "intro": "LINE is the quickest way to reach us. Send a short note about what you are working on and what you already have running — we will reply there.",
+    "lineAction": "Add Factor IO on LINE",
+    "qrAlt": "LINE QR code for Factor IO. Scan it in the LINE app to start a conversation.",
+    "qrCaption": "Scan from another device, or tap the button above on your phone.",
+    "lineIdLabel": "LINE ID",
+    "fallback": "Prefer email? Write directly to",
+    "privacy": "Read how enquiries are handled."
   },
   "pages": {
     "home": {
-      "nav": "Home", "title": "Kubernetes, Infrastructure and Enterprise AI Consulting in Thailand", "description": "Kubernetes and infrastructure engineering in Thailand, with enterprise AI as the specialisation. Platform architecture and delivery for businesses, and technical support for technology partners.", "eyebrow": "FACTOR IO / KUBERNETES · INFRASTRUCTURE · ENTERPRISE AI", "headline": "Kubernetes, infrastructure, and the AI that runs on it.", "lede": "Factor IO builds the platform layer that any enterprise workload can run on. AI is the workload at the front of the queue right now, and it is our specialisation — model serving, knowledge systems, and the governance that decides what AI is allowed to do. The platform underneath is what makes it survivable.",
+      "nav": "Home",
+      "title": "Kubernetes, Infrastructure and Enterprise AI Consulting in Thailand",
+      "description": "Kubernetes and infrastructure engineering in Thailand, with enterprise AI as the specialisation. Platform architecture and delivery for businesses, and technical support for technology partners.",
+      "eyebrow": "FACTOR IO / KUBERNETES · INFRASTRUCTURE · ENTERPRISE AI",
+      "headline": "The complete private AI bundle, from bare metal to local inference.",
+      "lede": "We don't sell third-party cloud API wrappers. Factor IO engineers the complete on-premise bundle: bare-metal Kubernetes, authoritative knowledge systems, and private local AI running entirely within your enterprise boundary—delivered directly by a principal architect.",
       "sections": [
-        { "id": "focus", "kind": "statement", "kicker": "01 / Focus", "title": "The platform is general. The specialisation is not.", "body": "Kubernetes and the infrastructure under it are built to carry whatever the business needs to run — applications, data, batch work, and the workload nobody has chosen yet. That generality is the point: a platform built around one workload has to be rebuilt when the next one arrives. What we go deep on today is AI, because AI is what is arriving. Both statements matter and they are not the same claim. The platform is where the durability is. AI is where the specialisation is.", "items": [] },
-        { "id": "production", "kind": "questions", "kicker": "02 / Production", "title": "Plan for the day people start relying on it.", "body": "We work through these questions during design. Then we test against agreed requirements and prepare your team to operate the system. If you already have a pilot, we can assess what it needs before it goes into production.", "items": [
-          { "title": "Who can access the data?", "body": "Access follows the roles and approvals your organisation already uses. It gets settled during design, not after the system is live." },
-          { "title": "How will you check the answers?", "body": "Results are tested against requirements you agreed, so a reviewer can check the work rather than having to trust it." },
-          { "title": "What happens when something fails?", "body": "Failure handling is part of the design: what stops, what is retried, and who gets told about it." },
-          { "title": "Who will look after the system?", "body": "Your team. We prepare them to operate it, and the procedures are written down before handover." }
-        ] },
-        { "id": "services", "kind": "ledger", "kicker": "03 / Services", "title": "The platform first, then what runs on it.", "body": "Most engagements start with the infrastructure and grow into the workloads it carries. Each of these can stand on its own or be one stage of the same delivery.", "items": [
-          { "title": "Kubernetes and infrastructure", "body": "The platform your applications need, including Kubernetes and GPU infrastructure. It is designed to carry whatever the business runs on it rather than one workload in particular. Capacity, recovery, upgrades and day-to-day ownership are part of the design." },
-          { "title": "Enterprise AI", "body": "Tell us what you want AI to do for the business. We help define the scope, choose an approach and build it into your existing environment." },
-          { "title": "Knowledge systems", "body": "Make your organisation's information useful to AI: which sources to trust, who can access them, and how to keep them current." },
-          { "title": "AI governance", "body": "Decide what AI may do on its own and when a person needs to approve the next step. We design the controls around those decisions, and how they will be tested." }
-        ] },
-        { "id": "engagement", "kind": "routes", "kicker": "04 / Engagement routes", "title": "Two ways to bring us in.", "body": "The technical work is the same. What changes is who is sitting in front of the customer.", "items": [
-          { "title": "For your business", "body": "Engage us to assess an existing system, design a new solution or carry a project through delivery. We agree the scope, responsibilities and acceptance criteria with you before implementation begins.", "mark": "You hold it, and we are accountable to you for the technical scope we agreed." },
-          { "title": "For technology partners", "body": "Bring us into an opportunity that needs senior architecture or delivery expertise. We work alongside vendors, distributors and systems integrators, supporting customer discovery, solution design, technical validation and implementation.", "mark": "Your team holds it, and we take responsibility for the agreed technical work." }
-        ] },
-        { "id": "architect", "kind": "founder", "kicker": "05 / The architect", "title": "Work directly with the architect doing the work.", "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. You can discuss the business requirement and the implementation with the same person.", "items": [] },
-        { "id": "process", "kind": "process", "kicker": "06 / Process", "title": "Start with the problem you need to solve.", "body": "Four stages, agreed with you before anything gets built.", "items": [
-          { "title": "Understand the requirement", "body": "Review your goals, existing systems and constraints. Identify what needs attention first." },
-          { "title": "Agree the design", "body": "Set the scope, architecture and acceptance criteria so you know what will be delivered." },
-          { "title": "Build and test", "body": "Implement the agreed solution. Use a focused pilot where an assumption needs testing before wider deployment." },
-          { "title": "Deploy and hand over", "body": "Prepare the operating procedures and work through them with your team. Agree any ongoing support separately." }
-        ] }
+        {
+          "id": "focus",
+          "kind": "statement",
+          "kicker": "01 / The Bundle",
+          "title": "The full bundle is the deliverable, not an isolated model.",
+          "body": "Enterprise AI cannot survive in production without the platform underneath it and data authority around it. Selling a model or technique in isolation invites project failure. Factor IO delivers the whole architecture as an integrated bundle: bare-metal GPU clusters, knowledge authority mapping, private local model serving, and mechanical execution controls.",
+          "items": []
+        },
+        {
+          "id": "production",
+          "kind": "questions",
+          "kicker": "02 / Operational Reality",
+          "title": "Engineered for local security, air-gapped systems and compliance.",
+          "body": "When sensitive corporate data cannot leave your network or be billed on unpredictable API tokens, local on-premise AI is the only viable architecture. We address the hard operational questions before installation begins:",
+          "items": [
+            {
+              "title": "Where does the model run?",
+              "body": "Strictly on your private servers or local Kubernetes clusters—using optimized local runtimes (vLLM, Triton, Ollama) with zero outbound data leakage."
+            },
+            {
+              "title": "Which document is authoritative?",
+              "body": "Source authority and document lifecycle are settled before indexing, preventing hallucinated answers from obsolete company policies."
+            },
+            {
+              "title": "Who is permitted to see what?",
+              "body": "Retrieval filters enforce existing active directory and RBAC permissions mechanically at query time, not by prompting the model."
+            },
+            {
+              "title": "What happens when hardware fails?",
+              "body": "High availability, failover domains, and automated recovery are engineered into the Kubernetes cluster from Day 1."
+            }
+          ]
+        },
+        {
+          "id": "services",
+          "kind": "ledger",
+          "kicker": "03 / The Four Pillars",
+          "title": "The platform first, the data foundation, then sovereign AI.",
+          "body": "Every layer reinforces the others. You can engage us for the complete turnkey rollout or a specific phase aligned with your roadmap.",
+          "items": [
+            {
+              "title": "Kubernetes & GPU Platform",
+              "body": "The platform your applications need, including Kubernetes and GPU infrastructure. It is designed to carry whatever the business runs on it rather than one workload in particular. Capacity, recovery, upgrades and day-to-day ownership are part of the design."
+            },
+            {
+              "title": "Private Local AI Implementation",
+              "body": "On-premise inference engines, model quantization, local embeddings, and GPU capacity optimization with predictable, zero-token cost and total data sovereignty."
+            },
+            {
+              "title": "Knowledge and Authority Mapping",
+              "body": "Make your organisation's information useful to AI: which sources to trust, who can access them, and how to keep them current before algorithmic indexing."
+            },
+            {
+              "title": "AI Governance and Controls",
+              "body": "Decide what AI may do on its own and when a person needs to approve the next step. We design controls around those decisions, including access, review and deterministic refusal."
+            }
+          ]
+        },
+        {
+          "id": "engagement",
+          "kind": "routes",
+          "kicker": "04 / Engagement & Quotation",
+          "title": "Transparent engagement scopes. Direct engineering quotation.",
+          "body": "Because every enterprise environment has distinct security constraints, hardware baselines, and data policies, we don't sell generic price-tag commodities. We scope directly with you and deliver a transparent quotation within 48 hours.",
+          "items": [
+            {
+              "title": "For your business",
+              "body": "Engage us for a focused architecture sprint, a private AI pilot, or full production delivery. Talk directly to the principal engineer to define technical scope and receive an itemized quotation.",
+              "mark": "You hold the direct relationship, and we are accountable for the agreed delivery."
+            },
+            {
+              "title": "For technology partners",
+              "body": "Bring principal-level solution architecture into complex client opportunities. We support vendors, distributors, and SIs across discovery, sizing, POC validation, and implementation.",
+              "mark": "Your team holds the commercial relationship, and we take responsibility for technical delivery."
+            }
+          ]
+        },
+        {
+          "id": "architect",
+          "kind": "founder",
+          "kicker": "05 / The Architect",
+          "title": "Work directly with the architect doing the work.",
+          "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. You can discuss the business requirement and the implementation with the same person.",
+          "items": []
+        },
+        {
+          "id": "process",
+          "kind": "process",
+          "kicker": "06 / Phased Delivery",
+          "title": "From discovery to turnkey quotation and handover.",
+          "body": "Four clear stages with defined deliverables, agreed before anything gets built.",
+          "items": [
+            {
+              "title": "1. Requirement & Infrastructure Audit",
+              "body": "Review your goals, existing systems and constraints. Identify what needs attention first and define the quotation scope."
+            },
+            {
+              "title": "2. Solution Architecture & Sizing",
+              "body": "Agree the cluster scope, hardware sizing and acceptance criteria so you know exactly what will be delivered."
+            },
+            {
+              "title": "3. Build & Local AI Pilot",
+              "body": "Implement the agreed solution. Use a focused pilot where an assumption needs testing before wider enterprise rollout."
+            },
+            {
+              "title": "4. Deploy & Hand Over",
+              "body": "Prepare the operating procedures and work through them with your team. Agree any ongoing support separately."
+            }
+          ]
+        }
       ]
     },
     "services": {
-      "nav": "Services", "title": "Kubernetes, infrastructure and enterprise AI services", "description": "Kubernetes and GPU platform design, enterprise AI delivery, knowledge systems and AI governance controls — scoped, built and handed over to your team.", "eyebrow": "01 / SERVICES", "headline": "Engineering help where the work gets technical.", "lede": "Start with the infrastructure and the way things operate today. The platform layer is the same whatever you end up running on it; the AI work on top of it is the specialisation. We scope the engagement around a decision, an integration or a result you need to show, with clear responsibilities and evidence that it works.",
+      "nav": "Services",
+      "title": "Kubernetes, infrastructure and enterprise AI services",
+      "description": "Kubernetes and GPU platform design, enterprise AI delivery, knowledge systems and AI governance controls — scoped, built and handed over to your team.",
+      "eyebrow": "01 / SERVICES",
+      "headline": "The complete private AI bundle: infrastructure, knowledge, and local models.",
+      "lede": "Start with the infrastructure and the way things operate today. The platform layer is the foundation; the private local AI stack on top of it is the delivery. We scope the engagement around an architecture audit, an on-premise pilot, or a production cluster, providing a clear quotation and verified delivery.",
       "sections": [
-        { "id": "offer", "kind": "ledger", "kicker": "What we deliver", "title": "Four services, scoped to what you already run.", "body": "Each one can be a standalone engagement or a stage of a larger delivery. The platform work comes first because everything else sits on it. We agree responsibilities and acceptance criteria before implementation begins.", "items": [
-          { "title": "Kubernetes and infrastructure", "body": "We design and deliver the platform your applications need, including Kubernetes and GPU infrastructure. It is built to carry whatever you run on it rather than one workload in particular. Capacity, recovery, upgrades and day-to-day ownership are part of the design. We start with the systems you already run." },
-          { "title": "Enterprise AI", "body": "Tell us what you want AI to do for the business. We help define the scope, choose an approach and build it into your existing environment. Our work covers model selection, system integration, testing and deployment." },
-          { "title": "Knowledge systems", "body": "Make your organisation's information useful to AI. We help establish which sources to trust, who can access them and how to keep them current. That gives the search and answer system a clear set of requirements to work against." },
-          { "title": "AI governance", "body": "Decide what AI may do on its own and when a person needs to approve the next step. We design controls around those decisions, including access, review and how to handle failures. The scope includes how those controls will be tested." }
-        ] },
-        { "id": "governance", "kind": "demo", "kicker": "Governance, shown rather than described", "title": "An instruction is a request. A permission is a fact.", "body": "This is what the AI governance service produces: a decision made before the action runs, not a rule written into a prompt and hoped for. The illustration below is the shape of that control, not a product you buy.", "items": [] },
-        { "id": "escalation", "kind": "exceptions", "kicker": "What reaches a person", "title": "Send people the cases that genuinely need a person.", "body": "AI handles the volume; people handle the judgment. What gets escalated is written down as a rule during design, so nobody is asked to trust a confidence score without seeing the evidence behind it.", "items": [
-          { "title": "Normal result", "body": "Runs under the policy already approved." },
-          { "title": "High-value transaction", "body": "Always goes to a person." },
-          { "title": "Missing evidence or conflicting data", "body": "Stops and asks someone accountable." },
-          { "title": "Low confidence", "body": "Escalates instead of guessing." },
-          { "title": "Against policy", "body": "Blocked, then routed to review." },
-          { "title": "Wide blast radius", "body": "Needs explicit approval first." }
-        ] },
-        { "id": "architecture", "kind": "architecture", "kicker": "Where the controls sit", "title": "Keep model choice separate from authority.", "body": "Agents can run on local, enterprise-hosted or frontier models. Identity, authorization, scope, approval, tool access, state, audit and reconciliation are checked before any of them reach your systems. Choosing a different model does not change who is allowed to do what.", "items": [] },
-        { "id": "ongoing", "kind": "statement", "kicker": "After it ships", "title": "AI workflows need maintenance, not just a launch.", "body": "Review the corrections people made, the outputs they rejected, the escalations and exceptions, how long things take and what changed in the data and the business rules. AI can propose improvements, but every change is tested, reviewed and released as a controlled revision. Production policy never changes quietly. Ongoing support is agreed separately, per project.", "items": [] }
+        {
+          "id": "offer",
+          "kind": "ledger",
+          "kicker": "What we deliver",
+          "title": "Four services forming the complete on-premise bundle.",
+          "body": "Each service can be a standalone engagement or a phase of the complete bundle delivery. The platform work comes first because everything else sits on it. We agree technical scope and provide an itemized quotation before implementation begins.",
+          "items": [
+            {
+              "title": "Kubernetes & GPU Platform",
+              "body": "We design and deliver the container platform your workloads need, including Red Hat OpenShift, Nutanix NKP, and GPU virtualization. Built for bare-metal, air-gapped, and sovereign operations."
+            },
+            {
+              "title": "Private Local AI Implementation",
+              "body": "Deploy open-weight and fine-tuned models directly inside your data center using high-throughput inference engines (vLLM, Triton). Zero cloud API dependency and zero data exfiltration."
+            },
+            {
+              "title": "Knowledge Systems & Authority",
+              "body": "Make your organisation's information useful and safe for local AI: authoritative source mapping, RBAC access boundaries, document freshness, and compliant lifecycle pipelines."
+            },
+            {
+              "title": "Mechanical AI Governance",
+              "body": "Decide what AI may do on its own and when a person needs to approve the next step. We design controls around those decisions, including access, review and deterministic refusal."
+            }
+          ]
+        },
+        {
+          "id": "governance",
+          "kind": "demo",
+          "kicker": "Governance, shown rather than described",
+          "title": "An instruction is a request. A permission is a fact.",
+          "body": "This is what the AI governance service produces: a decision made before the action runs, not a rule written into a prompt and hoped for. The illustration below is the shape of that control, not a product you buy.",
+          "items": []
+        },
+        {
+          "id": "escalation",
+          "kind": "exceptions",
+          "kicker": "What reaches a person",
+          "title": "Send people the cases that genuinely need a person.",
+          "body": "AI handles the volume; people handle the judgment. What gets escalated is written down as a rule during design, so nobody is asked to trust a confidence score without seeing the evidence behind it.",
+          "items": [
+            {
+              "title": "Normal result",
+              "body": "Runs under the policy already approved."
+            },
+            {
+              "title": "High-value transaction",
+              "body": "Always goes to a person."
+            },
+            {
+              "title": "Missing evidence or conflicting data",
+              "body": "Stops and asks someone accountable."
+            },
+            {
+              "title": "Low confidence",
+              "body": "Escalates instead of guessing."
+            },
+            {
+              "title": "Against policy",
+              "body": "Blocked, then routed to review."
+            },
+            {
+              "title": "Wide blast radius",
+              "body": "Needs explicit approval first."
+            }
+          ]
+        },
+        {
+          "id": "architecture",
+          "kind": "architecture",
+          "kicker": "Where the controls sit",
+          "title": "Keep model choice separate from authority.",
+          "body": "Agents can run on local, enterprise-hosted or frontier models. Identity, authorization, scope, approval, tool access, state, audit and reconciliation are checked before any of them reach your systems. Choosing a different model does not change who is allowed to do what.",
+          "items": []
+        },
+        {
+          "id": "ongoing",
+          "kind": "statement",
+          "kicker": "After it ships",
+          "title": "AI workflows need maintenance, not just a launch.",
+          "body": "Review the corrections people made, the outputs they rejected, the escalations and exceptions, how long things take and what changed in the data and the business rules. AI can propose improvements, but every change is tested, reviewed and released as a controlled revision. Production policy never changes quietly. Ongoing support is agreed separately, per project.",
+          "items": []
+        }
       ]
     },
     "about": {
-      "nav": "About", "title": "Thanat Manasakool: solution architect, Thailand", "description": "Factor IO is led by Thanat Manasakool: nearly 20 years in enterprise infrastructure, enterprise platforms, partner technical support and hands-on delivery.", "eyebrow": "02 / ABOUT FACTOR IO", "headline": "Infrastructure is the foundation of the practice.", "lede": "Factor I O Co., Ltd. is a Thailand-based engineering consultancy led by Thanat Manasakool, Founder & Principal Engineer.",
+      "nav": "About",
+      "title": "Thanat Manasakool: solution architect, Thailand",
+      "description": "Factor IO is led by Thanat Manasakool: nearly 20 years in enterprise infrastructure, enterprise platforms, partner technical support and hands-on delivery.",
+      "eyebrow": "02 / ABOUT FACTOR IO",
+      "headline": "Infrastructure is the foundation of the practice.",
+      "lede": "Factor I O Co., Ltd. is a Thailand-based engineering consultancy led by Thanat Manasakool, Founder & Principal Engineer.",
       "sections": [
-        { "id": "experience", "kind": "founder", "kicker": "Principal-led engineering", "title": "Nearly 20 years close to the technical decisions.", "body": "Thanat Manasakool brings nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. His background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP.", "items": [] },
-        { "id": "approach", "kind": "cards", "kicker": "What that means for your project", "title": "Architecture, integration and a team that can carry it.", "body": "The aim is a system your own team can understand, operate and improve after we hand it over.", "items": [
-          { "title": "Work with the environment you have", "body": "Start from your infrastructure, dependencies, policies and operating limits. We explain the trade-offs and agree what evidence will show it is ready." },
-          { "title": "One person across the whole problem", "body": "You discuss the business requirement and the implementation detail with the same person. Platform recommendations follow your requirements, not a product line." },
-          { "title": "Make consequential work accountable", "body": "The authority to accept risk stays with the people responsible for it. Controlled execution and verification make AI useful inside those limits." }
-        ] },
-        { "id": "independence", "kind": "statement", "kicker": "Independent advice", "title": "We work for you, and we protect your interests.", "body": "Thanat has worked with Red Hat and Nutanix, and some engagements do come through a vendor or an SI partner. We say so plainly so you can judge the technical background behind the advice and see where we have been. On your project, your interests are the ones we protect: recommendations follow your requirements and constraints, we say when a simpler or cheaper option would serve you better, and we disclose any relationship that could bear on our advice before it bears on a decision. We are not a reseller or a formally certified partner, and the scope and responsibilities of every engagement are agreed with you directly.", "items": [] }
+        {
+          "id": "experience",
+          "kind": "founder",
+          "kicker": "Principal-led engineering",
+          "title": "Nearly 20 years close to the technical decisions.",
+          "body": "Thanat Manasakool brings nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. His background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP.",
+          "items": []
+        },
+        {
+          "id": "approach",
+          "kind": "cards",
+          "kicker": "What that means for your project",
+          "title": "Architecture, integration and a team that can carry it.",
+          "body": "The aim is a system your own team can understand, operate and improve after we hand it over.",
+          "items": [
+            {
+              "title": "Work with the environment you have",
+              "body": "Start from your infrastructure, dependencies, policies and operating limits. We explain the trade-offs and agree what evidence will show it is ready."
+            },
+            {
+              "title": "One person across the whole problem",
+              "body": "You discuss the business requirement and the implementation detail with the same person. Platform recommendations follow your requirements, not a product line."
+            },
+            {
+              "title": "Make consequential work accountable",
+              "body": "The authority to accept risk stays with the people responsible for it. Controlled execution and verification make AI useful inside those limits."
+            }
+          ]
+        },
+        {
+          "id": "independence",
+          "kind": "statement",
+          "kicker": "Independent advice",
+          "title": "We work for you, and we protect your interests.",
+          "body": "Thanat has worked with Red Hat and Nutanix, and some engagements do come through a vendor or an SI partner. We say so plainly so you can judge the technical background behind the advice and see where we have been. On your project, your interests are the ones we protect: recommendations follow your requirements and constraints, we say when a simpler or cheaper option would serve you better, and we disclose any relationship that could bear on our advice before it bears on a decision. We are not a reseller or a formally certified partner, and the scope and responsibilities of every engagement are agreed with you directly.",
+          "items": []
+        }
       ]
     },
     "profile": {
-      "nav": "Profile", "title": "Company profile: Factor I O Co., Ltd., Thailand", "description": "Company profile for Factor I O Co., Ltd. — a Thailand-based Kubernetes, infrastructure and enterprise AI engineering practice. Registered particulars, leadership, services, engagement model and contact details.", "eyebrow": "03 / COMPANY PROFILE", "headline": "Factor I O Co., Ltd.", "lede": "A Thailand-based engineering consultancy building Kubernetes and the infrastructure underneath it, with enterprise AI as the declared specialisation. Registered in Bangkok, led by its principal engineer, and engaged either directly by a business or alongside a technology partner. This page holds the details a procurement or vendor registration process asks for.",
+      "nav": "Profile",
+      "title": "Company profile: Factor I O Co., Ltd., Thailand",
+      "description": "Company profile for Factor I O Co., Ltd. — a Thailand-based Kubernetes, infrastructure and enterprise AI engineering practice. Registered particulars, leadership, services, engagement model and contact details.",
+      "eyebrow": "03 / COMPANY PROFILE",
+      "headline": "Factor I O Co., Ltd.",
+      "lede": "A Thailand-based engineering consultancy building Kubernetes and the infrastructure underneath it, with enterprise AI as the declared specialisation. Registered in Bangkok, led by its principal engineer, and engaged either directly by a business or alongside a technology partner. This page holds the details a procurement or vendor registration process asks for.",
       "sections": [
-        { "id": "company", "kind": "statement", "kicker": "01 / The company", "title": "Small by design, and accountable for the technical work.", "body": "Factor I O Co., Ltd. is an independent engineering consultancy registered in Bangkok. It is deliberately small: the person who scopes the work is the person who builds it, so nothing is lost between the requirements conversation and the implementation. Every engagement is scoped around a decision, an integration or a result the business needs to show, with responsibilities and acceptance criteria agreed in writing before implementation begins. We are not a reseller and we hold no formal vendor certification, so the scope of each engagement is agreed with you directly rather than inherited from a partner programme.", "items": [] },
-        { "id": "registration", "kind": "exceptions", "kicker": "02 / Registration", "title": "The particulars a vendor registration asks for.", "body": "Registered details for contracting and supplier onboarding. Under Thai law the company registration number and the tax identification number are the same thirteen-digit number, so one value answers both fields on a registration form.", "items": [
-          { "title": "Registered name", "body": "Factor I O Co., Ltd." },
-          { "title": "Registered name (Thai)", "body": "บริษัท แฟคเคอร์ ไอ โอ จำกัด" },
-          { "title": "Registration and tax ID", "body": "0105562205512" },
-          { "title": "Registered address", "body": "88/57 Sethasiri Punyainthra, Bang Chan, Klong Sam Wa, Bangkok 10510, Thailand" },
-          { "title": "Telephone", "body": "+66 92 888 7155" },
-          { "title": "Email", "body": "admin@factor-io.com" },
-          { "title": "LINE", "body": "icediceice" },
-          { "title": "Website", "body": "studio.factor-io.com" }
-        ] },
-        { "id": "practice", "kind": "ledger", "kicker": "03 / Services", "title": "Four services, and the platform comes first.", "body": "The platform layer is the same whatever the business ends up running on it, which is why it leads. AI is the workload at the front of the queue today and the specialisation we go deep on. Each service can stand on its own or be one stage of the same delivery.", "items": [
-          { "title": "Kubernetes and infrastructure", "body": "The platform your applications need, including Kubernetes and GPU infrastructure, designed to carry whatever the business runs on it rather than one workload in particular. Capacity, recovery, upgrades and day-to-day ownership are part of the design." },
-          { "title": "Enterprise AI", "body": "Scoping what AI should do for the business, choosing an approach and building it into the environment you already run. The work covers model selection, system integration, testing and deployment." },
-          { "title": "Knowledge systems", "body": "Making an organisation's own information useful to AI: which sources to trust, who may access them, and how they are kept current." },
-          { "title": "AI governance", "body": "Deciding what AI may do on its own and when a person must approve the next step, then designing the controls around those decisions and how they will be tested." }
-        ] },
-        { "id": "leadership", "kind": "founder", "kicker": "04 / Leadership", "title": "Led by the engineer who does the work.", "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. His background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP. You discuss the business requirement and the implementation detail with the same person.", "items": [] },
-        { "id": "engagement-model", "kind": "cards", "kicker": "05 / Engagement", "title": "How an engagement is structured.", "body": "The commercial shape is settled before any technical work starts.", "items": [
-          { "title": "Scoped before it starts", "body": "We agree the scope, the responsibilities on each side and the acceptance criteria in writing, so you know what will be delivered and what evidence will show it is done." },
-          { "title": "Two ways to bring us in", "body": "Directly, where we are accountable to you for the agreed technical scope. Or alongside a vendor, distributor or systems integrator, where your team holds the customer relationship and we take responsibility for the technical work." },
-          { "title": "Handover is part of the scope", "body": "Operating procedures are written down and worked through with your team before we step back. Ongoing support, where you want it, is agreed separately rather than assumed." }
-        ] },
-        { "id": "delivery", "kind": "process", "kicker": "06 / Delivery", "title": "Four stages, agreed with you before anything gets built.", "body": "The same sequence on every engagement, whether it is a short assessment or a full delivery.", "items": [
-          { "title": "Understand the requirement", "body": "Review your goals, existing systems and constraints. Identify what needs attention first." },
-          { "title": "Agree the design", "body": "Set the scope, architecture and acceptance criteria so you know what will be delivered." },
-          { "title": "Build and test", "body": "Implement the agreed solution. Use a focused pilot where an assumption needs testing before wider deployment." },
-          { "title": "Deploy and hand over", "body": "Prepare the operating procedures and work through them with your team. Agree any ongoing support separately." }
-        ] },
-        { "id": "standing", "kind": "statement", "kicker": "07 / Independence", "title": "We work for you, and we protect your interests.", "body": "Thanat has worked with Red Hat and Nutanix, and some engagements do come through a vendor or an SI partner. We say so plainly so you can judge the technical background behind the advice. On your project, your interests are the ones we protect: recommendations follow your requirements and constraints, we say when a simpler or cheaper option would serve you better, and we disclose any relationship that could bear on our advice before it bears on a decision. We are not a reseller or a formally certified partner.", "items": [] }
+        {
+          "id": "company",
+          "kind": "statement",
+          "kicker": "01 / The company",
+          "title": "Small by design, and accountable for the technical work.",
+          "body": "Factor I O Co., Ltd. is an independent engineering consultancy registered in Bangkok. It is deliberately small: the person who scopes the work is the person who builds it, so nothing is lost between the requirements conversation and the implementation. Every engagement is scoped around a decision, an integration or a result the business needs to show, with responsibilities and acceptance criteria agreed in writing before implementation begins. We are not a reseller and we hold no formal vendor certification, so the scope of each engagement is agreed with you directly rather than inherited from a partner programme.",
+          "items": []
+        },
+        {
+          "id": "registration",
+          "kind": "exceptions",
+          "kicker": "02 / Registration",
+          "title": "The particulars a vendor registration asks for.",
+          "body": "Registered details for contracting and supplier onboarding. Under Thai law the company registration number and the tax identification number are the same thirteen-digit number, so one value answers both fields on a registration form.",
+          "items": [
+            {
+              "title": "Registered name",
+              "body": "Factor I O Co., Ltd."
+            },
+            {
+              "title": "Registered name (Thai)",
+              "body": "บริษัท แฟคเคอร์ ไอ โอ จำกัด"
+            },
+            {
+              "title": "Registration and tax ID",
+              "body": "0105562205512"
+            },
+            {
+              "title": "Registered address",
+              "body": "88/57 Sethasiri Punyainthra, Bang Chan, Klong Sam Wa, Bangkok 10510, Thailand"
+            },
+            {
+              "title": "Telephone",
+              "body": "+66 92 888 7155"
+            },
+            {
+              "title": "Email",
+              "body": "admin@factor-io.com"
+            },
+            {
+              "title": "LINE",
+              "body": "icediceice"
+            },
+            {
+              "title": "Website",
+              "body": "studio.factor-io.com"
+            }
+          ]
+        },
+        {
+          "id": "practice",
+          "kind": "ledger",
+          "kicker": "03 / Services",
+          "title": "Four services, and the platform comes first.",
+          "body": "The platform layer is the same whatever the business ends up running on it, which is why it leads. AI is the workload at the front of the queue today and the specialisation we go deep on. Each service can stand on its own or be one stage of the same delivery.",
+          "items": [
+            {
+              "title": "Kubernetes and infrastructure",
+              "body": "The platform your applications need, including Kubernetes and GPU infrastructure, designed to carry whatever the business runs on it rather than one workload in particular. Capacity, recovery, upgrades and day-to-day ownership are part of the design."
+            },
+            {
+              "title": "Enterprise AI",
+              "body": "Scoping what AI should do for the business, choosing an approach and building it into the environment you already run. The work covers model selection, system integration, testing and deployment."
+            },
+            {
+              "title": "Knowledge systems",
+              "body": "Making an organisation's own information useful to AI: which sources to trust, who may access them, and how they are kept current."
+            },
+            {
+              "title": "AI governance",
+              "body": "Deciding what AI may do on its own and when a person must approve the next step, then designing the controls around those decisions and how they will be tested."
+            }
+          ]
+        },
+        {
+          "id": "leadership",
+          "kind": "founder",
+          "kicker": "04 / Leadership",
+          "title": "Led by the engineer who does the work.",
+          "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. His background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP. You discuss the business requirement and the implementation detail with the same person.",
+          "items": []
+        },
+        {
+          "id": "engagement-model",
+          "kind": "cards",
+          "kicker": "05 / Engagement",
+          "title": "How an engagement is structured.",
+          "body": "The commercial shape is settled before any technical work starts.",
+          "items": [
+            {
+              "title": "Scoped before it starts",
+              "body": "We agree the scope, the responsibilities on each side and the acceptance criteria in writing, so you know what will be delivered and what evidence will show it is done."
+            },
+            {
+              "title": "Two ways to bring us in",
+              "body": "Directly, where we are accountable to you for the agreed technical scope. Or alongside a vendor, distributor or systems integrator, where your team holds the customer relationship and we take responsibility for the technical work."
+            },
+            {
+              "title": "Handover is part of the scope",
+              "body": "Operating procedures are written down and worked through with your team before we step back. Ongoing support, where you want it, is agreed separately rather than assumed."
+            }
+          ]
+        },
+        {
+          "id": "delivery",
+          "kind": "process",
+          "kicker": "06 / Delivery",
+          "title": "Four stages, agreed with you before anything gets built.",
+          "body": "The same sequence on every engagement, whether it is a short assessment or a full delivery.",
+          "items": [
+            {
+              "title": "Understand the requirement",
+              "body": "Review your goals, existing systems and constraints. Identify what needs attention first."
+            },
+            {
+              "title": "Agree the design",
+              "body": "Set the scope, architecture and acceptance criteria so you know what will be delivered."
+            },
+            {
+              "title": "Build and test",
+              "body": "Implement the agreed solution. Use a focused pilot where an assumption needs testing before wider deployment."
+            },
+            {
+              "title": "Deploy and hand over",
+              "body": "Prepare the operating procedures and work through them with your team. Agree any ongoing support separately."
+            }
+          ]
+        },
+        {
+          "id": "standing",
+          "kind": "statement",
+          "kicker": "07 / Independence",
+          "title": "We work for you, and we protect your interests.",
+          "body": "Thanat has worked with Red Hat and Nutanix, and some engagements do come through a vendor or an SI partner. We say so plainly so you can judge the technical background behind the advice. On your project, your interests are the ones we protect: recommendations follow your requirements and constraints, we say when a simpler or cheaper option would serve you better, and we disclose any relationship that could bear on our advice before it bears on a decision. We are not a reseller or a formally certified partner.",
+          "items": []
+        }
       ]
     },
     "contact": {
-      "nav": "Contact", "title": "Discuss an enterprise AI, Kubernetes or governance project", "description": "Contact Factor IO about enterprise AI, Kubernetes and infrastructure, knowledge systems or AI governance. Reach us on LINE, or by email.", "eyebrow": "04 / CONTACT", "headline": "What are you working on?", "lede": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk.",
+      "nav": "Contact",
+      "title": "Discuss an enterprise AI, Kubernetes or governance project",
+      "description": "Contact Factor IO about enterprise AI, Kubernetes and infrastructure, knowledge systems or AI governance. Reach us on LINE, or by email.",
+      "eyebrow": "04 / CONTACT",
+      "headline": "What are you working on?",
+      "lede": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk. We will scope your requirements and provide an itemized quotation.",
       "sections": [
-        { "id": "enquiry", "kind": "contact", "kicker": "Start a technical conversation", "title": "You do not need the architecture worked out.", "body": "Bring the business problem, the data you have and the constraints you are under. We can work through the model, platform and integration decisions together. If you have a customer opportunity that needs an architect, say so and we will pick up the partner route.", "items": [] }
+        {
+          "id": "enquiry",
+          "kind": "contact",
+          "kicker": "Start a technical conversation",
+          "title": "You do not need the architecture worked out.",
+          "body": "Bring the business problem, the data you have and the constraints you are under. We can work through the local AI models, platform and integration decisions together, and deliver a scoped technical quotation. If you have a customer opportunity that needs an architect, say so and we will pick up the partner route.",
+          "items": []
+        }
       ]
     }
   }

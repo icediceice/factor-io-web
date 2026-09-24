@@ -15,36 +15,19 @@ export function createDemo() {
       request = next;
     },
     approve() { approval = validRequest(request) ? { ...request } : null; return !!approval; },
-    // Read-only view of state that already exists: did a HUMAN approve this exact
-    // request? The chart needs it to tell "allowed because in scope" apart from
-    // "allowed because approved", so the human-approval node never shows a tick
-    // nobody earned. Adds no state and changes no existing behaviour.
     approvedExact: () => sameRequest(approval, request),
     evaluate() { return validRequest(request) && (request.target === 'staging/payment-api' || sameRequest(approval, request)); },
     reset() { request = { target: 'production/payment-api', operation: 'restart', revision: 182 }; approval = null; },
   };
 }
 
-// The chart is emphasis, never the argument: every status line is set SYNCHRONOUSLY
-// in the handler, and only node states are staged. Nothing on a timer may touch
-// .demo-status, or a pending frame from a previous click could overwrite the verdict
-// of the current one. Reduced motion applies the identical end state with no staging.
 const reducedMotion = () => typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FLOW_IDLE = ['idle', 'idle', 'idle', 'idle', 'idle'];
-// A human really did approve this exact request, so every stage is earned.
 const FLOW_PASS = ['pass', 'pass', 'pass', 'pass', 'pass'];
-// Outside staging and unapproved: identity clears, scope refuses, and the chain
-// STOPS at the human gate rather than running on.
 const FLOW_HALT = ['pass', 'pass', 'deny', 'wait', 'idle'];
-// Already inside the agent's authorized scope: no human decision is required, so the
-// approval stage stays NEUTRAL. Painting it 'pass' would claim an approval nobody gave.
 const FLOW_SCOPED = ['pass', 'pass', 'pass', 'idle', 'pass'];
-// The request itself is malformed. It is refused at the request stage and must never
-// show a human wait, because approving it can never clear it.
 const FLOW_MALFORMED = ['deny', 'idle', 'idle', 'idle', 'idle'];
 
-// Every painted stage must describe an event that actually occurred, so the chain is
-// derived from the model's real situation rather than from one allow/deny bit.
 export function flowStates(model) {
   if (!validRequest(model.snapshot())) return FLOW_MALFORMED;
   if (model.approvedExact()) return FLOW_PASS;
@@ -65,9 +48,9 @@ export function bindDemo(root) {
       if (!nodes[i]) return;
       if (step) timers.push(setTimeout(() => {
         nodes[i].dataset.state = state;
-        nodes[i].classList.remove("pulse-trigger");
+        nodes[i].classList.remove('pulse-trigger');
         void nodes[i].offsetWidth;
-        nodes[i].classList.add("pulse-trigger");
+        nodes[i].classList.add('pulse-trigger');
       }, i * step));
       else nodes[i].dataset.state = state;
     });
@@ -98,7 +81,64 @@ export function bindNavigation(doc) {
   doc.body.classList.add('menu-ready'); toggle.hidden = false;
 }
 
+export function bindTelemetry(doc) {
+  const bar = doc.querySelector('[data-hud-fill]');
+  const pct = doc.querySelector('[data-hud-pct]');
+  const sceneTag = doc.querySelector('[data-hud-scene]');
+  const scenes = [...doc.querySelectorAll('[data-scene]')];
+  if (!bar && !pct && !sceneTag) return;
+
+  let ticking = false;
+  const update = () => {
+    const docHeight = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
+    const scrolled = docHeight > 0 ? Math.min(100, Math.max(0, (globalThis.scrollY / docHeight) * 100)) : 0;
+    const rounded = Math.round(scrolled);
+    if (bar) bar.style.width = `${scrolled}%`;
+    if (pct) pct.textContent = `${String(rounded).padStart(2, '0')}%`;
+
+    if (sceneTag && scenes.length) {
+      const scrollMid = globalThis.scrollY + (globalThis.innerHeight * 0.35);
+      let currentScene = scenes[0].dataset.scene || '';
+      for (const s of scenes) {
+        if (s.offsetTop <= scrollMid) currentScene = s.dataset.scene || currentScene;
+      }
+      if (currentScene && sceneTag.textContent !== currentScene) {
+        sceneTag.textContent = currentScene;
+      }
+    }
+    ticking = false;
+  };
+
+  globalThis.addEventListener('scroll', () => {
+    if (!ticking) {
+      ticking = true;
+      globalThis.requestAnimationFrame(update);
+    }
+  }, { passive: true });
+  update();
+}
+
+export function bindSceneTransitions(doc) {
+  const blocks = doc.querySelectorAll('.scene-block, .items li');
+  if (!blocks.length || typeof IntersectionObserver === 'undefined') return;
+  if (reducedMotion()) {
+    blocks.forEach(b => b.classList.add('scene-visible'));
+    return;
+  }
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('scene-visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  blocks.forEach(b => observer.observe(b));
+}
+
 if (typeof document !== 'undefined') {
   bindNavigation(document);
   document.querySelectorAll('[data-demo]').forEach(bindDemo);
+  bindTelemetry(document);
+  bindSceneTransitions(document);
 }

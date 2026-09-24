@@ -21,6 +21,7 @@ function topology(c) {
   const t = c.topology;
   return `<figure class="topology" aria-label="${esc(t.title)}">
     <div class="figure-heading"><span class="signal" aria-hidden="true"></span>${esc(t.title)}</div>
+    <div class="topology-art-frame"><img src="/assets/hero-future.png" alt="Futuristic Enterprise Kubernetes & AI Platform" class="future-art hero-future-art" width="1024" height="682" loading="eager"></div>
     <div class="model-row">${t.models.map(m => `<span>${esc(m)}</span>`).join('')}</div>
     <div class="connector" aria-hidden="true">↓</div><div class="agent-node">${esc(t.agent)}</div>
     <div class="connector" aria-hidden="true">↓</div><div class="boundary"><strong>${esc(t.boundary)}</strong>
@@ -60,6 +61,7 @@ function demo(c) {
   const stages = d.stages.map((label, i) => `<li class="flow-node" data-stage="${i}" data-state="idle">
       <span class="flow-index">${String(i + 1).padStart(2, '0')}</span><span class="flow-label">${esc(label)}</span></li>`).join('');
   return `<div class="demo" data-demo data-copy="${esc(JSON.stringify(d))}">
+    <div class="demo-shield-banner"><img src="/assets/governance-shield.png" alt="Futuristic AI Governance & Execution Shield" class="future-art shield-future-art" width="1024" height="682" loading="lazy"></div>
     <h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p>
     <dl class="identity-row"><div><dt>${esc(d.identity)}</dt><dd><code>workflow-agent-17</code></dd></div><div><dt>${esc(d.scope)}</dt><dd><code>staging/*</code></dd></div></dl>
     <ol class="flowchart" data-flow aria-hidden="true">${stages}</ol>

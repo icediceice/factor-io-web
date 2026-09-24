@@ -136,9 +136,109 @@ export function bindSceneTransitions(doc) {
   blocks.forEach(b => observer.observe(b));
 }
 
+export function bindDeckNavigation(doc) {
+  const slides = [...doc.querySelectorAll('.deck-slide')];
+  const dots = [...doc.querySelectorAll('.deck-dot')];
+  if (!slides.length) return;
+
+  const getActiveSlideIndex = () => {
+    const scrollMid = globalThis.scrollY + (globalThis.innerHeight * 0.45);
+    let active = 0;
+    for (let i = 0; i < slides.length; i++) {
+      if (slides[i].offsetTop <= scrollMid) active = i;
+    }
+    return active;
+  };
+
+  const scrollToSlide = index => {
+    if (index >= 0 && index < slides.length) {
+      slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  doc.querySelectorAll('[data-deck-next]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const current = getActiveSlideIndex();
+      if (current < slides.length - 1) scrollToSlide(current + 1);
+    });
+  });
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', e => {
+      e.preventDefault();
+      const target = Number(dot.dataset.slideTarget);
+      if (!Number.isNaN(target)) scrollToSlide(target);
+    });
+  });
+
+  globalThis.addEventListener('keydown', e => {
+    if (['input', 'textarea', 'select'].includes(e.target?.tagName?.toLowerCase())) return;
+    const current = getActiveSlideIndex();
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+      if (current < slides.length - 1) {
+        e.preventDefault();
+        scrollToSlide(current + 1);
+      }
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+      if (current > 0) {
+        e.preventDefault();
+        scrollToSlide(current - 1);
+      }
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      scrollToSlide(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      scrollToSlide(slides.length - 1);
+    }
+  });
+
+  let isWheeling = false;
+  let wheelTimer = null;
+  globalThis.addEventListener('wheel', e => {
+    if (reducedMotion()) return;
+    if (Math.abs(e.deltaY) < 35) return;
+    if (isWheeling) return;
+
+    const current = getActiveSlideIndex();
+    if (e.deltaY > 0 && current < slides.length - 1) {
+      isWheeling = true;
+      scrollToSlide(current + 1);
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { isWheeling = false; }, 600);
+    } else if (e.deltaY < 0 && current > 0) {
+      isWheeling = true;
+      scrollToSlide(current - 1);
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { isWheeling = false; }, 600);
+    }
+  }, { passive: true });
+
+  const syncDots = () => {
+    const active = getActiveSlideIndex();
+    dots.forEach(dot => {
+      const target = Number(dot.dataset.slideTarget);
+      if (target === active) {
+        dot.classList.add('active');
+        dot.setAttribute('aria-current', 'true');
+      } else {
+        dot.classList.remove('active');
+        dot.removeAttribute('aria-current');
+      }
+    });
+  };
+
+  globalThis.addEventListener('scroll', () => {
+    globalThis.requestAnimationFrame(syncDots);
+  }, { passive: true });
+  syncDots();
+}
+
 if (typeof document !== 'undefined') {
   bindNavigation(document);
   document.querySelectorAll('[data-demo]').forEach(bindDemo);
   bindTelemetry(document);
   bindSceneTransitions(document);
+  bindDeckNavigation(document);
 }

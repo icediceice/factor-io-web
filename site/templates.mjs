@@ -212,7 +212,7 @@ function demo(c) {
     <p class="flow-halt" data-halt hidden aria-hidden="true">${esc(d.halt)}</p>
     <p class="flow-legend" aria-hidden="true">${esc(d.legend)}</p>
     <div class="demo-interactive" hidden>
-      <div class="field-row"><label>${esc(d.target)}<select name="target"><option>production/payment-api</option><option>staging/payment-api</option><option>production/reporting-api</option></select></label>
+      <div class="demo-fields"><label>${esc(d.target)}<select name="target"><option>production/payment-api</option><option>staging/payment-api</option><option>production/reporting-api</option></select></label>
       <label>${esc(d.revision)}<input name="revision" type="number" min="1" max="999999" value="182" required></label></div>
       <p class="operation">${esc(d.operation)}: <code>restart</code></p>
       <p id="approval-label">${esc(d.approvalLabel)}</p>
@@ -233,7 +233,7 @@ function contact(c, asset = () => '') {
     <figcaption>${esc(d.qrCaption)}</figcaption></figure>
     <p class="line-id">${esc(d.lineIdLabel)} <code>${esc(config.lineId)}</code></p>
     </div>
-    <div class="contact-fallback"><p class="contact-direct">${esc(d.fallback)}<br><!--email_off--><a href="mailto:${config.email}">${config.email}</a><!--/email_off--></p>
+    <div class="contact-fallback"><p class="contact-direct">${esc(d.fallback)}<br><!--email_off--><a href="mailto:${config.email}">${config.email}</a><!--/email_off-->/p>
     ${link('/privacy.html#website-enquiries', d.privacy)}</div></div>`;
 }
 
@@ -287,15 +287,12 @@ ${renderJsonLd(page, locale)}<script type="module" src="${asset('site.js')}"></s
 <header class="site-header"><div class="header-inner"><a class="brand" href="${routePath(locale, 'home')}" aria-label="${esc(u.home)}">FACTOR <span>I/O</span></a>
 <button class="menu-toggle quiet" type="button" aria-expanded="false" aria-controls="main-nav" hidden>${esc(u.menu)} <span aria-hidden="true">≡</span></button>
 <nav id="main-nav" aria-label="${esc(u.nav)}">${nav}</nav><nav class="language" aria-label="${esc(u.language)}">${language}</nav></div></header>
-<main id="main"><div class="wrap">
-<section class="hero ${page === 'home' ? 'hero-home' : ''} scene-block deck-slide" data-slide-index="0" data-scene="SCENE // 01 HERO" aria-labelledby="page-title"><div class="hero-copy"><p class="kicker">${esc(p.eyebrow)}</p><h1 id="page-title">${esc(p.headline)}</h1><p class="lede">${esc(p.lede)}</p>
+<main id="main"><div class="wrap"><section class="hero ${page === 'home' ? 'hero-home' : ''} scene-block deck-slide" data-slide-index="0" data-scene="SCENE // 01 HERO" aria-labelledby="page-title"><div class="hero-copy"><p class="kicker">${esc(p.eyebrow)}</p><h1 id="page-title">${esc(p.headline)}</h1><p class="lede">${esc(p.lede)}</p>
 ${page !== 'contact' ? `<div class="actions">${link(routePath(locale, 'contact'), u.primary, 'button')}${page === 'home' ? link('#engagement', u.secondary, 'text-link') : ''}</div>` : ''}</div>${page === 'home' ? topology(c) : '<div class="page-rule" aria-hidden="true"><span>F / IO</span></div>'}
 <div class="deck-cue-wrap"><button type="button" class="deck-next-cue" data-deck-next aria-label="Next slide"><span class="cue-label">NEXT SECTION</span><span class="cue-arrow" aria-hidden="true">↓</span></button></div>
 </section>
 ${p.sections.map((s, idx) => `${section(c, s, asset, idx)}${page === 'home' && s.id === 'services' ? `<p class="service-link">${link(routePath(locale, 'services'), u.learn)}</p>` : ''}`).join('\n')}
 ${page !== 'contact' ? `<section class="cta scene-block deck-slide" data-slide-index="${p.sections.length + 1}" data-scene="SCENE // CONTACT_CALL"><div><h2>${esc(u.ctaTitle)}</h2><p>${esc(u.ctaBody)}</p></div>${link(routePath(locale, 'contact'), u.ctaLink, 'button')}</section>` : ''}
-</div></main>
-<footer class="site-footer scene-block deck-slide" data-slide-index="${p.sections.length + 2}" data-scene="SCENE // FOOTER"><div class="wrap footer-grid"><div><a class="brand" href="${routePath(locale, 'home')}">FACTOR <span>I/O</span></a><p>${esc(u.footer)}</p><p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div><div><h2>${esc(u.resources)}</h2>${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}</div><div>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('#top', u.backTop)}</div></div></footer>
-</body></html>
+</div></main><footer class="site-footer scene-block deck-slide" data-slide-index="${p.sections.length + 2}" data-scene="SCENE // FOOTER"><div class="wrap footer-grid"><div><a class="brand" href="${routePath(locale, 'home')}">FACTOR <span>I/O</span></a><p>${esc(u.footer)}</p><p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div><div><h2>${esc(u.resources)}</h2>${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}</div><div>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('#top', u.backTop)}</div></div></footer></body></html>
 `;
 }

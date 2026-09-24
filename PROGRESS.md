@@ -459,3 +459,9 @@ Upcoming work in priority order:
   - `node scripts/build-site.mjs`: Generated 12 static HTML outputs cleanly.
   - `node scripts/build-site.mjs --check`: Verified zero drift.
   - `node --test tests/website.test.mjs`: All 31 tests passed.
+
+#### 12:05 — Semantic Thai Translation Redo from English
+- **What:** Completed full semantic redo of Thai translation directly from English source (`content/en/site.json`). Replaced machine-translation phrasing with native, authoritative Thai suitable for executive and technical buyers. Validated schema parity, rebuilt 12 static HTML outputs without drift, and verified test suite.
+- **Files:** `content/th/site.json`, `PROGRESS.md`, `.claude/active-plan.md`, 12 generated static outputs
+- **Next:** Awaiting direction
+- **Known issues:** No known issues

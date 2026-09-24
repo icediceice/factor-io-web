@@ -63,7 +63,12 @@ export function bindDemo(root) {
     const step = reducedMotion() ? 0 : 260, waiting = states.includes('wait');
     states.forEach((state, i) => {
       if (!nodes[i]) return;
-      if (step) timers.push(setTimeout(() => { nodes[i].dataset.state = state; }, i * step));
+      if (step) timers.push(setTimeout(() => {
+        nodes[i].dataset.state = state;
+        nodes[i].classList.remove("pulse-trigger");
+        void nodes[i].offsetWidth;
+        nodes[i].classList.add("pulse-trigger");
+      }, i * step));
       else nodes[i].dataset.state = state;
     });
     if (!halt) return;

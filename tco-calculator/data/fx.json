@@ -3,9 +3,9 @@
   "source_id": "ecb",
   "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
   "retrieved_via": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
-  "observed_at": "2026-09-22",
-  "expires_at": "2026-09-29T23:59:59.999Z",
-  "eur_usd": "1.1463",
-  "eur_thb": "37.988",
+  "observed_at": "2026-09-23",
+  "expires_at": "2026-09-30T23:59:59.999Z",
+  "eur_usd": "1.1411",
+  "eur_thb": "37.987",
   "integrity": "digest-pinned"
 }

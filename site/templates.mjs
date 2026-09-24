@@ -172,12 +172,14 @@ function topology(c) {
   const t = c.topology;
   return `<figure class="topology scene-block" aria-label="${esc(t.title)}">
     <div class="figure-heading"><span class="signal" aria-hidden="true"></span>${esc(t.title)} <span class="hud-mini-chip">SYS//ARCH_01</span></div>
-    <div class="topology-art-frame"><img src="/assets/hero-future.png" alt="Futuristic Enterprise Kubernetes & AI Platform" class="future-art hero-future-art" width="1024" height="682" loading="eager"></div>
-    <div class="model-row">${t.models.map(m => `<span>${esc(m)}</span>`).join('')}</div>
-    <div class="connector" aria-hidden="true">↓</div><div class="agent-node">${esc(t.agent)}</div>
-    <div class="connector" aria-hidden="true">↓</div><div class="boundary"><strong>${esc(t.boundary)}</strong>
-    <ul>${t.fields.map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>
-    <div class="connector" aria-hidden="true">↓</div><div class="systems-node">${esc(t.systems)}</div>
+    <div class="topology-terminal-box">
+      <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">SOVEREIGN AIR-GAPPED ARCHITECTURE // LOCAL RUNTIME</span></div>
+      <div class="model-row">${t.models.map(m => `<span>${esc(m)}</span>`).join('')}</div>
+      <div class="connector" aria-hidden="true">↓</div><div class="agent-node">${esc(t.agent)}</div>
+      <div class="connector" aria-hidden="true">↓</div><div class="boundary"><strong>${esc(t.boundary)}</strong>
+      <ul>${t.fields.map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>
+      <div class="connector" aria-hidden="true">↓</div><div class="systems-node">${esc(t.systems)}</div>
+    </div>
     <p class="figure-note">${esc(t.note)}</p><figcaption>${esc(t.caption)}</figcaption>
   </figure>`;
 }
@@ -202,7 +204,7 @@ function demo(c) {
   const stages = d.stages.map((label, i) => `<li class="flow-node" data-stage="${i}" data-state="idle">
       <span class="flow-index">${String(i + 1).padStart(2, '0')}</span><span class="flow-label">${esc(label)}</span></li>`).join('');
   return `<div class="demo scene-block" data-demo data-copy="${esc(JSON.stringify(d))}">
-    <div class="demo-shield-banner"><img src="/assets/governance-shield.png" alt="Futuristic AI Governance & Execution Shield" class="future-art shield-future-art" width="1024" height="682" loading="lazy"></div>
+    <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">MECHANICAL GOVERNANCE GATE // DETERMINISTIC INTERLOCK</span></div>
     <div class="demo-header-tag"><span class="hud-status-led"></span>SECURE RUNTIME INTERLOCK</div>
     <h3>${esc(d.title)}</h3><p>${esc(d.intro)}</p>
     <dl class="identity-row"><div><dt>${esc(d.identity)}</dt><dd><code>workflow-agent-17</code></dd></div><div><dt>${esc(d.scope)}</dt><dd><code>staging/*</code></dd></div></dl>
@@ -249,15 +251,22 @@ function section(c, s, asset, index = 0) {
     detail = `<${tag} class="items ${s.kind}">${s.items.map((item, i) => `<li><span class="item-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><div><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></div></li>`).join('')}</${tag}>`;
   }
   const sceneNum = String(index + 1).padStart(2, '0');
-  return `<section id="${s.id}" class="content-section section-${s.kind} scene-block" data-scene="SCENE // ${sceneNum} ${s.id.toUpperCase()}" aria-labelledby="${s.id}-title"><div class="scene-marker" aria-hidden="true"><span class="scene-num">${sceneNum}</span><span class="scene-label">// ${s.id.toUpperCase()}</span><span class="scene-track"></span></div><div class="section-heading"><p class="kicker">${esc(s.kicker)}</p><h2 id="${s.id}-title">${esc(s.title)}</h2><p>${esc(s.body)}</p></div>${detail}</section>`;
+  return `<section id="${s.id}" class="content-section section-${s.kind} scene-block deck-slide" data-slide-index="${index + 1}" data-scene="SCENE // ${sceneNum} ${s.id.toUpperCase()}" aria-labelledby="${s.id}-title"><div class="scene-marker" aria-hidden="true"><span class="scene-num">${sceneNum}</span><span class="scene-label">// ${s.id.toUpperCase()}</span><span class="scene-track"></span></div><div class="section-heading"><p class="kicker">${esc(s.kicker)}</p><h2 id="${s.id}-title">${esc(s.title)}</h2><p>${esc(s.body)}</p></div>${detail}<div class="deck-cue-wrap"><button type="button" class="deck-next-cue" data-deck-next aria-label="Next slide"><span class="cue-label">NEXT SECTION</span><span class="cue-arrow" aria-hidden="true">↓</span></button></div></section>`;
 }
 
 export function renderPage(c, page, assets = {}) {
   const p = c.pages[page], locale = c.locale, u = c.ui;
   const canonical = config.origin + routePath(locale, page);
   const asset = name => `/assets/${name}${assets[name] ? `?v=${assets[name]}` : ''}`;
-  const nav = routes.map(r => `<a href="${routePath(locale, r)}"${r === page ? ' aria-current="page"' : ''}>${esc(c.pages[r].nav)}</a>`).join('');
+  const nav = routes.map(r => `<a href="${routePath(locale, r)}"${r === page ? ' aria-current="page"' : ''}>${c.pages[r].nav}</a>`).join('');
   const language = Object.entries(config.locales).map(([lang, meta]) => `<a href="${routePath(lang, page)}" lang="${lang}" hreflang="${lang}"${lang === locale ? ' aria-current="true"' : ''}>${meta.label}</a>`).join('');
+
+  const deckDots = [
+    `<button type="button" class="deck-dot active" data-slide-target="0" aria-label="Slide 01: Hero" aria-current="true"><span class="deck-dot-num">01</span><span class="deck-dot-label">HERO</span></button>`,
+    ...p.sections.map((s, idx) => `<button type="button" class="deck-dot" data-slide-target="${idx + 1}" aria-label="Slide ${String(idx + 2).padStart(2, '0')}: ${esc(s.id)}"><span class="deck-dot-num">${String(idx + 2).padStart(2, '0')}</span><span class="deck-dot-label">${esc(s.id.toUpperCase())}</span></button>`),
+    ...(page !== 'contact' ? [`<button type="button" class="deck-dot" data-slide-target="${p.sections.length + 1}" aria-label="Slide ${String(p.sections.length + 2).padStart(2, '0')}: Action"><span class="deck-dot-num">${String(p.sections.length + 2).padStart(2, '0')}</span><span class="deck-dot-label">ACTION</span></button>`] : [])
+  ].join('');
+
   return `<!DOCTYPE html>
 <!-- Generated by scripts/build-site.mjs; edit content and templates, not this file. -->
 <html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -271,16 +280,22 @@ ${Object.keys(config.locales).map(lang => `<link rel="alternate" hreflang="${lan
 <link rel="icon" href="${asset('favicon.svg')}" type="image/svg+xml"><link rel="stylesheet" href="${asset('site.css')}">
 ${renderJsonLd(page, locale)}<script type="module" src="${asset('site.js')}"></script></head>
 <body id="top" class="page-${page}">
+<div class="cyber-bg" aria-hidden="true"><div class="cyber-ambient ambient-top"></div><div class="cyber-ambient ambient-bottom"></div><div class="cyber-grid"></div><div class="cyber-scanline"></div></div>
 <div class="hud-telemetry" aria-hidden="true"><div class="hud-telemetry-inner"><div class="hud-left"><span class="hud-brand-tag">FACTOR//IO</span><span class="hud-slash">/</span><span class="hud-scene-name" data-hud-scene>[SCENE // 01 HERO]</span></div><div class="hud-right"><span class="hud-status"><span class="hud-pulse"></span>SYS.ONLINE</span><span class="hud-pct" data-hud-pct>0%</span></div></div><div class="hud-progress-line"><div class="hud-progress-fill" data-hud-fill></div></div></div>
-<div class="cyber-bg" aria-hidden="true"><div class="cyber-grid"></div><div class="cyber-ambient ambient-top"></div><div class="cyber-ambient ambient-bottom"></div><div class="cyber-scanline"></div></div>
+<nav class="deck-nav" aria-label="Presentation deck navigation">${deckDots}</nav>
 <a class="skip" href="#main">${esc(u.skip)}</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="${routePath(locale, 'home')}" aria-label="${esc(u.home)}">FACTOR <span>I/O</span></a>
 <button class="menu-toggle quiet" type="button" aria-expanded="false" aria-controls="main-nav" hidden>${esc(u.menu)} <span aria-hidden="true">≡</span></button>
 <nav id="main-nav" aria-label="${esc(u.nav)}">${nav}</nav><nav class="language" aria-label="${esc(u.language)}">${language}</nav></div></header>
-<main id="main"><div class="wrap"><section class="hero ${page === 'home' ? 'hero-home' : ''} scene-block" data-scene="SCENE // 01 HERO" aria-labelledby="page-title"><div class="hero-copy"><p class="kicker">${esc(p.eyebrow)}</p><h1 id="page-title">${esc(p.headline)}</h1><p class="lede">${esc(p.lede)}</p>
-${page !== 'contact' ? `<div class="actions">${link(routePath(locale, 'contact'), u.primary, 'button')}${page === 'home' ? link('#engagement', u.secondary, 'text-link') : ''}</div>` : ''}</div>${page === 'home' ? topology(c) : '<div class="page-rule" aria-hidden="true"><span>F / IO</span></div>'}</section>
-${p.sections.map((s, idx) => `${section(c, s, asset, idx + 1)}${page === 'home' && s.id === 'services' ? `<p class="service-link">${link(routePath(locale, 'services'), u.learn)}</p>` : ''}`).join('\n')}
-${page !== 'contact' ? `<section class="cta scene-block" data-scene="SCENE // CONTACT_CALL"><div><h2>${esc(u.ctaTitle)}</h2><p>${esc(u.ctaBody)}</p></div>${link(routePath(locale, 'contact'), u.ctaLink, 'button')}</section>` : ''}
-</div></main><footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand" href="${routePath(locale, 'home')}">FACTOR <span>I/O</span></a><p>${esc(u.footer)}</p><p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div><div><h2>${esc(u.resources)}</h2>${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}</div><div>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('#top', u.backTop)}</div></div></footer></body></html>
+<main id="main"><div class="wrap">
+<section class="hero ${page === 'home' ? 'hero-home' : ''} scene-block deck-slide" data-slide-index="0" data-scene="SCENE // 01 HERO" aria-labelledby="page-title"><div class="hero-copy"><p class="kicker">${esc(p.eyebrow)}</p><h1 id="page-title">${esc(p.headline)}</h1><p class="lede">${esc(p.lede)}</p>
+${page !== 'contact' ? `<div class="actions">${link(routePath(locale, 'contact'), u.primary, 'button')}${page === 'home' ? link('#engagement', u.secondary, 'text-link') : ''}</div>` : ''}</div>${page === 'home' ? topology(c) : '<div class="page-rule" aria-hidden="true"><span>F / IO</span></div>'}
+<div class="deck-cue-wrap"><button type="button" class="deck-next-cue" data-deck-next aria-label="Next slide"><span class="cue-label">NEXT SECTION</span><span class="cue-arrow" aria-hidden="true">↓</span></button></div>
+</section>
+${p.sections.map((s, idx) => `${section(c, s, asset, idx)}${page === 'home' && s.id === 'services' ? `<p class="service-link">${link(routePath(locale, 'services'), u.learn)}</p>` : ''}`).join('\n')}
+${page !== 'contact' ? `<section class="cta scene-block deck-slide" data-slide-index="${p.sections.length + 1}" data-scene="SCENE // CONTACT_CALL"><div><h2>${esc(u.ctaTitle)}</h2><p>${esc(u.ctaBody)}</p></div>${link(routePath(locale, 'contact'), u.ctaLink, 'button')}</section>` : ''}
+</div></main>
+<footer class="site-footer scene-block deck-slide" data-slide-index="${p.sections.length + 2}" data-scene="SCENE // FOOTER"><div class="wrap footer-grid"><div><a class="brand" href="${routePath(locale, 'home')}">FACTOR <span>I/O</span></a><p>${esc(u.footer)}</p><p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div><div><h2>${esc(u.resources)}</h2>${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}</div><div>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('#top', u.backTop)}</div></div></footer>
+</body></html>
 `;
 }

@@ -50,7 +50,7 @@ Allow: /
 User-agent: Perplexity-User
 Allow: /
 
-# --- Apple / Meta / Common Crawl ---
+# --- Apple / Meta / Common Crawl / Frontier AI ---
 User-agent: Applebot
 Allow: /
 
@@ -62,5 +62,14 @@ Allow: /
 
 User-agent: CCBot
 Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+# LLMs discovery for Generative Engine Optimization (GEO)
+# Full system context for AI models: https://studio.factor-io.com/llms.txt
 
 Sitemap: https://studio.factor-io.com/sitemap.xml

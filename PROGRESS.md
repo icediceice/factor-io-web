@@ -477,3 +477,9 @@ Upcoming work in priority order:
 - **Files:** assets/site.css, assets/site.js, site/templates.mjs, robots.txt, llms.txt, PROGRESS.md, .claude/active-plan.md, and the 12 generated static outputs
 - **Next:** Awaiting user feedback / further design enhancements
 - **Known issues:** No known issues
+
+#### 17:05 — Slide-by-Slide Deck Presentation, Sovereign Bundle Messaging, Pure Typography & Quotation Model
+- **What:** Replaced standard continuous mouse-wheel scrolling with an executive full-viewport (100vh) slide-by-slide presentation deck with debounced wheel, touch, and keyboard (Arrow/PageDown/Space) snap navigation and right-rail HUD dot tracker. Completely removed decorative AI diagram illustrations (hero-future.png and governance-shield.png) in favor of crisp monospaced typography and structural terminal wireframes. Generated a dark, moody infrastructure ambient background texture (assets/bg-ambient.png) layered quietly behind a 90% vignette. Reworded English and Thai content to position the Complete Sovereign Bundle (Bare-metal Kubernetes + Ground-up Knowledge Management & Data Governance + Private Local AI Implementation on-premise) and framed pricing around transparent engagement archetypes with a direct engineering quotation CTA. Regenerated 12 static HTML pages with zero drift and passed all 31 tests.
+- **Files:** assets/site.css, assets/site.js, assets/bg-ambient.png, site/templates.mjs, content/en/site.json, content/th/site.json, PROGRESS.md, .claude/active-plan.md, and the 12 generated static outputs
+- **Next:** Awaiting direction
+- **Known issues:** No known issues

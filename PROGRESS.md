@@ -442,3 +442,20 @@ Upcoming work in priority order:
 - **Verified:** 52/52 node tests green (`node --test 'tco-calculator/tests/*.test.mjs'`) covering F1–F10 against frozen real feeds; live browser pass on 127.0.0.1:8787 confirmed S1–S4: F7 anchor invariants hold in the UI (derived optimum $10,000 with 80M/100M demand; advisory 70/30 blend $10,198 flagged **dominated**, delta $198 at real gpt-4o prices), Lane B tagged exact with meter resolution incl. honest `no_request_fee`, Lane C per-1M $7,020.41 honestly `assumed`, p95 verdicts unknown with the empty-evidence note, staleness banner from the manifest envelope, zero console errors. Byte-identical determinism fixture asserts SPEC 10.1 serialization. Homepage card + nav render post-patch (template JSON parses, 152 `\u002F` escapes, served bytes == disk).
 - **Next:** snapshot refresh automation; evidence ingestion for measured tok/s; feed TTL calibration
 - **Known issues:** Lane C hourly rates are assumed from conflicting sources (re-verify dates set in lane-c-presets.json; tok/s ceilings are planning placeholders, **not** benchmarks); throughput verdicts are unknown until the evidence store is populated (by design); tco-calculator.html requires HTTP serving (fetches manifest — no file:// support, same caveat as spec-artifact.html); og-image.png/logo.png still 404 (pre-existing); feed coverage is LiteLLM + OpenRouter only — AWS/Azure/GCP bulk registries are spec'd but unimplemented; default model selection picks the first name-sorted /gpt-4o/ match (azure/eu/gpt-4o-2024-08-06), which may surprise users expecting the OpenAI first-party SKU
+
+### 2026-09-24: Thai Translation Refinement & Futuristic UX/UI Revamp
+- **Refined Thai translation (`content/th/site.json`):**
+  - Polished entire Thai copy across UI, topology, demo, and all 5 pages (`home`, `services`, `about`, `profile`, `contact`).
+  - Elevated tone to natural, executive-level Thai; removed clumsy machine-translated phrasing (e.g. "ขอ ไม่ได้แปลว่าได้" -> "การร้องขอคำสั่ง ไม่เท่ากับการได้รับอนุญาต", "สั่งให้คำขอเดิน" -> "เริ่มส่งคำขอ").
+  - Strictly verified schema parity and verbatim preserved registered company details.
+- **Futuristic enterprise graphics (`assets/hero-future.png`, `assets/governance-shield.png`):**
+  - Generated futuristic cloud & AI infrastructure topology and governance shield graphics via `light_imagine`.
+  - Optimized PNG assets for web performance.
+- **Futuristic & playful UX/UI enhancements:**
+  - Embedded high-tech architecture illustration frame in the Topology section (`site/templates.mjs`).
+  - Added futuristic governance shield banner to the interactive Governed Execution demo.
+  - Implemented glowing cybernetic nodes, pulse-trigger micro-interactions during flowchart execution, tactile button responses, and mission-control status banners in `assets/site.css` and `assets/site.js`.
+- **Validation:**
+  - `node scripts/build-site.mjs`: Generated 12 static HTML outputs cleanly.
+  - `node scripts/build-site.mjs --check`: Verified zero drift.
+  - `node --test tests/website.test.mjs`: All 31 tests passed.

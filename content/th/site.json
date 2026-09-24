@@ -90,7 +90,7 @@
       "title": "ที่ปรึกษา Kubernetes, โครงสร้างพื้นฐาน และ Enterprise AI ในไทย",
       "description": "งานวิศวกรรม Kubernetes และโครงสร้างพื้นฐานในประเทศไทย โดยมี Enterprise AI เป็นงานที่เราเชี่ยวชาญเป็นพิเศษ ออกแบบและส่งมอบระบบให้องค์กร พร้อมช่วยสนับสนุนด้านเทคนิคให้พาร์ตเนอร์เทคโนโลยี",
       "eyebrow": "FACTOR IO / KUBERNETES · INFRASTRUCTURE · ENTERPRISE AI",
-      "headline": "โซลูชันครบวงจรสำหรับระบบ Private AI ตั้งแต่โครงสร้าง Bare Metal จนถึง Local Inference",
+      "headline": "Kubernetes, โครงสร้างพื้นฐาน Bare Metal และโซลูชันครบวงจรสำหรับระบบ Private AI",
       "lede": "เราไม่ใช่ตัวแทนขาย Cloud API ทั่วไป แต่ Factor IO ออกแบบและสร้างแพลตฟอร์มแบบครบวงจร (Full Bundle) ภายในองค์กรของคุณ ทั้งระบบ Bare-Metal Kubernetes, สถาปัตยกรรมข้อมูล และระบบ Local AI ที่ทำงานบนเซิร์ฟเวอร์ของคุณอย่างปลอดภัย ส่งมอบตรงโดย Principal Engineer",
       "sections": [
         {

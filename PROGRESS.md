@@ -465,3 +465,9 @@ Upcoming work in priority order:
 - **Files:** `content/th/site.json`, `PROGRESS.md`, `.claude/active-plan.md`, 12 generated static outputs
 - **Next:** Awaiting direction
 - **Known issues:** No known issues
+
+#### 12:35 — Natural & Friendly Native Thai Translation
+- **What:** Completed a full rewrite of Thai copy across `content/th/site.json` to make it sound completely natural as spoken by a native Thai speaker, friendly and approachable without stiff, literal, or overly technical jargon. Retained exact 1:1 schema parity with English source, preserved verbatim legal registered particulars, rebuilt 12 static HTML outputs with zero drift, and passed all 31 tests.
+- **Files:** `content/th/site.json`, `PROGRESS.md`, `.claude/active-plan.md`, `th/index.html`, `th/services/index.html`, `th/about/index.html`, `th/profile/index.html`, `th/contact/index.html`
+- **Next:** Awaiting direction
+- **Known issues:** No known issues

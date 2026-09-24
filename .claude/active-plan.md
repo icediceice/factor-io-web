@@ -2,11 +2,11 @@
 
 Status: completed
 
-**Light plan:** `local:239eb3a3caded51ef48d467656b8e951` (project `factor-io-web`, size **M**) — authoritative. This file mirrors it; the Light plan row is the source of truth.
+**Light plan:** `local:948e96147ac13fdbb40845519c796e42` (project `factor-io-web`, size **M**) — authoritative. This file mirrors it; the Light plan row is the source of truth.
 
 ## Goal
 
-Redo the Thai translation across content/th/site.json from English source using deep semantic understanding and natural executive-level Thai phrasing without machine-translation artifacts, preserving schema parity and compliance.
+Refine Thai copy across content/th/site.json to sound completely natural as spoken and written by a native Thai speaker, friendly and approachable without over-technical jargon, while strictly preserving schema parity, registered company details, and test constraints.
 
 ## File boundary
 
@@ -16,5 +16,5 @@ Redo the Thai translation across content/th/site.json from English source using 
 
 ## Completed Steps
 
-1. [x] Step 1: Semantic Thai translation redo from English across all sections in `content/th/site.json`, applying idiomatic native executive phrasing, eliminating translationese, and preserving 100% schema parity and legal registered particulars.
-2. [x] Step 2: Built static outputs (`node scripts/build-site.mjs`), verified zero drift (`--check`), ran complete test suite (`node --test tests/website.test.mjs` — 31/31 passing), and updated progress logs.
+1. [x] Step 1: Rewrote content/th/site.json with natural, native, friendly, and approachable Thai phrasing.
+2. [x] Step 2: Ran build-site, zero-drift check, full test suite (31/31 passed), and completed commit-and-log protocol.

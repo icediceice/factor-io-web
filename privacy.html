@@ -49,7 +49,7 @@
   </div>
 
   <h1>Privacy Statement</h1>
-  <div class="meta">Factor I O Co., Ltd. &middot; Effective 11 September 2026</div>
+  <div class="meta">Factor I O Co., Ltd. &middot; Effective 25 September 2026</div>
 
   <div class="scope">
     This statement applies to <strong>Cat Countdown</strong> on Android and iPhone, and to every
@@ -63,7 +63,7 @@
   <div class="kicker"><b>01</b> / The short version</div>
   <ul class="short">
     <li><strong>No advertising.</strong> Our apps show no ads, ever.</li>
-    <li><strong>No analytics or accounts.</strong> App data stays on your device. The calculator's explicit AI request is forwarded without storing its question or answer (section 04). Email enquiries that you send are received as ordinary correspondence; see the website section below.</li>
+    <li><strong>No analytics or accounts.</strong> App data stays on your device, or in your own iCloud if you turn on Cat Countdown's premium iCloud sync on iPhone; Factor IO cannot see it. The calculator's explicit AI request is forwarded without storing its question or answer (section 04). Email enquiries that you send are received as ordinary correspondence; see the website section below.</li>
     <li><strong>The calculator makes two kinds of network request:</strong> automatic public price/FX GETs with no calculator context, and an AI POST only when you press Send or Ask.</li>
   </ul>
 
@@ -86,7 +86,14 @@
   <h2>We do not collect your data</h2>
   <p>We collect, store, and transmit <strong>no personal data</strong>. There are no user accounts,
   no analytics, and no telemetry. Everything you create in the app — your countdowns, dates, and
-  settings — stays on your device.</p>
+  settings — stays on your device, unless you turn on iCloud sync, in which case a copy is also
+  kept in your own iCloud account.</p>
+  <p><strong>iCloud sync on iPhone.</strong> Cat Countdown for iPhone offers iCloud sync as a premium
+  feature. It is <strong>off by default</strong>. When you turn it on, your app data is stored in the
+  private iCloud storage of the Apple Account signed in on your device, so it stays in step across your
+  Apple devices. That storage belongs to your iCloud account and is governed by Apple&rsquo;s privacy
+  policy: Factor IO cannot read it, and it never passes through a Factor IO server. The Android app
+  does not use iCloud.</p>
   <p>The web calculator&rsquo;s separate AI advisor is the single exception to the <em>transmit</em> half of
   that sentence, and only to it: pressing Send or Ask sends your message and planning context to a Factor IO
   server so the AI request can be completed. Section 04 states exactly what is sent, to whom, and
@@ -99,10 +106,11 @@
   <ul>
     <li><strong>Android backup</strong> — upload app data to your Google Drive.</li>
     <li><strong>iPhone backup</strong> — upload app data to your iCloud.</li>
+    <li><strong>iPhone iCloud sync</strong> (premium, off by default) — keep app data in your private iCloud storage, synced across your Apple devices.</li>
     <li><strong>Calculator AI advisor Send or Ask</strong> — POST your question and bounded captured planning context to Factor IO's AI endpoint at <code>ai.factor-io.com</code>, which forwards it to MiniMax.</li>
   </ul>
-  <p>The backup lives inside your personal account with that provider and is governed by their
-  privacy policy. <strong>Factor IO does not receive, store, or proxy the backup.</strong> For calculator AI requests, the payload contains your message, bounded current controls, current model candidates and source-status envelopes, the deterministic blueprint and component ledger when available, bounded complete exchange history, and structured tool definitions.</p>
+  <p>The backup or synced copy lives inside your personal account with that provider and is governed by their
+  privacy policy. <strong>Factor IO does not receive, store, or proxy the backup or the synced data.</strong> For calculator AI requests, the payload contains your message, bounded current controls, current model candidates and source-status envelopes, the deterministic blueprint and component ledger when available, bounded complete exchange history, and structured tool definitions.</p>
   <p><strong>Factor IO now proxies calculator AI requests.</strong> This changed in v0.7 and is a deliberate reversal of the previous arrangement. There is no longer any API-key field in the calculator, because the MiniMax credential is held on a Factor IO server and added to your request there — it never exists in your browser. In exchange, your request passes through infrastructure we operate: <code>ai.factor-io.com</code> receives your message and planning context, adds the credential, forwards the request to MiniMax and returns MiniMax's reply to you unchanged. We do not store your message, the planning context or the response; the service logs only the request route, status, model name, byte counts and duration. Your conversation history stays in memory for the current tab and is never written to disk by us.</p>
   <p>Opening the separate advisor stores a bounded scenario and pending proposal in this tab's <code>sessionStorage</code> for up to two hours (at most four records). This includes calculator controls, selected example, captured figures and source dates, not conversation messages or credentials. The opaque URL identifier is only a reference to that tab-local record. Reload loses the in-memory conversation, but can retain an unexpired scenario. The advisor's confirmed Clear action removes its owned records and current conversation without touching other site storage. Opening the advisor or selecting an example never sends inference.</p>
   <p>The advisor can prepare and copy a credential-free request for Ollama, LM Studio or your own OpenAI-compatible gateway without sending it. Send and Ask contact Factor IO's endpoint explicitly.</p>
@@ -110,7 +118,7 @@
 
   <div class="kicker"><b>05</b> / Third-party services</div>
   <h2>Only the ones you choose</h2>
-  <p>The third parties involved are the cloud providers you opt into for backup, the public OpenRouter and Frankfurter services used for calculator pricing/FX refreshes, and MiniMax, which receives calculator AI requests forwarded by Factor IO's own endpoint.
+  <p>The third parties involved are the cloud providers you opt into for backup or iCloud sync, the public OpenRouter and Frankfurter services used for calculator pricing/FX refreshes, and MiniMax, which receives calculator AI requests forwarded by Factor IO's own endpoint.
   We have no arrangement with them that gives us access to your data. Their policies:
   <a href="https://policies.google.com/privacy" rel="noopener">Google</a> &middot;
   <a href="https://www.apple.com/legal/privacy/" rel="noopener">Apple</a>.</p>

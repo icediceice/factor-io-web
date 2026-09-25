@@ -18,7 +18,7 @@ export const config = {
     { path: '/', updated: '2026-09-11' },
     { path: '/light-tools.html', updated: '2026-09-11' },
     { path: '/tco-calculator.html', updated: '2026-08-28' },
-    { path: '/privacy.html', updated: '2026-09-11' },
+    { path: '/privacy.html', updated: '2026-09-25' },
   ],
 };
 export const routes = ['home', 'services', 'about', 'profile', 'contact'];

@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1790489441206",
-  "generated_at": "2026-09-27T06:10:41.206Z",
-  "snapshot_digest": "359e7c6182c6e84b",
+  "refresh_id": "refresh-1790576248713",
+  "generated_at": "2026-09-28T06:17:28.713Z",
+  "snapshot_digest": "7cdce849d5ca7c3d",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-359e7c6182c6e84b.json",
-      "digest": "359e7c6182c6e84b",
-      "bytes": 3326441
+      "path": "catalog-7cdce849d5ca7c3d.json",
+      "digest": "7cdce849d5ca7c3d",
+      "bytes": 3327127
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-27T06:10:41.206Z",
-      "last_success_at": "2026-09-27T06:10:41.206Z",
-      "expires_at": "2026-09-30T06:10:41.206Z",
+      "observed_at": "2026-09-28T06:17:28.713Z",
+      "last_success_at": "2026-09-28T06:17:28.713Z",
+      "expires_at": "2026-10-01T06:17:28.713Z",
       "root_digest": "54e58fe46bf400e9",
       "record_count": 440,
       "missing_streak": 0
@@ -31,18 +31,18 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-27T06:10:41.206Z",
-      "last_success_at": "2026-09-27T06:10:41.206Z",
-      "expires_at": "2026-09-30T06:10:41.206Z",
-      "root_digest": "58f8bd5d2b5f6bbd",
-      "record_count": 3351,
+      "observed_at": "2026-09-28T06:17:28.713Z",
+      "last_success_at": "2026-09-28T06:17:28.713Z",
+      "expires_at": "2026-10-01T06:17:28.713Z",
+      "root_digest": "3c413378a633aa57",
+      "record_count": 3352,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-09-25T00:00:00.000Z",
-      "last_success_at": "2026-09-27T06:11:06.009Z",
+      "last_success_at": "2026-09-28T06:17:56.255Z",
       "expires_at": "2026-10-02T23:59:59.999Z",
       "root_digest": "bf37a158bd440445",
       "record_count": 1,
@@ -5142,6 +5142,17 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/MAI-Cyber-1-Flash",
+      "name": "azure_ai/MAI-Cyber-1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -24748,6 +24759,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -38282,20 +38294,6 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-3-haiku",
-      "name": "Anthropic: Claude 3 Haiku",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
       "id": "openrouter:anthropic/claude-fable-5",
       "name": "Anthropic: Claude Fable 5",
       "tariff": "token",
@@ -38853,7 +38851,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38889,27 +38888,6 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-r1-distill-llama-70b",
-      "name": "DeepSeek: R1 Distill Llama 70B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:deepseek/deepseek-v3.1-terminus",
-      "name": "DeepSeek: DeepSeek V3.1 Terminus",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:deepseek/deepseek-v3.2",
       "name": "DeepSeek: DeepSeek V3.2",
       "tariff": "token",
@@ -38918,16 +38896,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:deepseek/deepseek-v3.2-exp",
-      "name": "DeepSeek: DeepSeek V3.2 Exp",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -42191,8 +42159,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -48598,6 +48565,16 @@
         "offer": "litellm:vertex_ai/gemini-2.5-pro-tts",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:azure_ai/mistral-ocr-2505",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:azure_ai/mistral-ocr-2512",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
       }
     ],
     "source_errors": {

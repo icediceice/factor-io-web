@@ -248,7 +248,7 @@ function section(c, s, asset, index = 0) {
   else if (s.kind === 'founder') detail = `<div class="founder-links">${link(config.linkedin, 'LinkedIn ↗')}${link(config.github, 'GitHub ↗')}${link(routePath(c.locale, 'about'), c.pages.about.nav)}</div>`;
   else if (s.items.length) {
     const tag = s.kind === 'ledger' ? 'ol' : 'ul';
-    detail = `<${tag} class="items ${s.kind}">${s.items.map((item, i) => `<li><span class="item-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><div><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></div></li>`).join('')}</${tag}>`;
+    detail = `<${tag} class="items ${s.kind}">${s.items.map((item, i) => `<li><span class="item-index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><div><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p>${item.link ? `<p class="item-link">${link(item.link, s.linkLabel || 'Open \u2197')}</p>` : ''}</div></li>`).join('')}</${tag}>`;
   }
   const sceneNum = String(index + 1).padStart(2, '0');
   return `<section id="${s.id}" class="content-section section-${s.kind} scene-block deck-slide" data-slide-index="${index + 1}" data-scene="SCENE // ${sceneNum} ${s.id.toUpperCase()}" aria-labelledby="${s.id}-title"><div class="scene-marker" aria-hidden="true"><span class="scene-num">${sceneNum}</span><span class="scene-label">// ${s.id.toUpperCase()}</span><span class="scene-track"></span></div><div class="section-heading"><p class="kicker">${esc(s.kicker)}</p><h2 id="${s.id}-title">${esc(s.title)}</h2><p>${esc(s.body)}</p></div>${detail}<div class="deck-cue-wrap"><button type="button" class="deck-next-cue" data-deck-next aria-label="Next slide"><span class="cue-label">NEXT SECTION</span><span class="cue-arrow" aria-hidden="true">↓</span></button></div></section>`;

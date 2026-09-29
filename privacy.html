@@ -124,10 +124,26 @@
   Factor IO server so the request can be completed. Section 04 states exactly what is sent, to whom,
   and what is kept.</p>
 
-  <div class="kicker"><b>04</b> / Network activity and actions you choose</div>
-  <h2>Public refreshes are separate from your AI conversation</h2>
-  <p>The calculator makes automatic public GET requests at startup for OpenRouter model pricing and a USD-to-THB rate from Frankfurter, an ECB-data mirror. These requests carry standard browser network metadata such as your IP address and user agent to those services, but include <strong>no calculator inputs, transcript, or result</strong>. A failed or incomplete refresh leaves the dated local fallback unchanged.</p>
-  <p>Other data can leave only when you explicitly choose one of these actions:</p>
+  <div class="kicker"><b>04</b> / What leaves your device, and when</div>
+  <h2>Automatic checks, your chosen actions, and the calculator</h2>
+  <p>Not everything on this page is something you trigger. This section separates what happens on its
+  own from what happens because you did something.</p>
+  <p><strong>Automatic, on Android.</strong> The licence check described in section 03 runs so that
+  the app can verify itself. It is the only thing an Android build sends without you doing anything.
+  iPhone builds send nothing automatically.</p>
+  <p><strong>Automatic, on the web calculator.</strong> The calculator makes public GET requests at
+  startup for OpenRouter model pricing and a USD-to-THB rate from Frankfurter, an ECB-data mirror.
+  These requests carry standard browser network metadata such as your IP address and user agent to
+  those services, but include <strong>no calculator inputs, transcript, or result</strong>. A failed
+  or incomplete refresh leaves the dated local fallback unchanged.</p>
+  <p><strong>Only when you choose one of these:</strong></p>
+  <ul>
+    <li><strong>Checking the weather</strong> — approximate location to Open-Meteo, once you have allowed the permission.</li>
+    <li><strong>Buying or restoring the yearly backup subscription</strong> — the store purchase token to RevenueCat.</li>
+    <li><strong>Cloud backup</strong> — write your app data to your own Google Drive, or your own iCloud on iPhone. The copy stays inside your personal account with that provider and is governed by their privacy policy. <strong>Factor IO does not receive, store, or proxy the backup.</strong> The app adds no encryption of its own to that archive.</li>
+    <li><strong>Calculator AI advisor Send or Ask</strong> — POST your question and bounded captured planning context to Factor IO's AI endpoint at <code>ai.factor-io.com</code>, which forwards it to MiniMax.</li>
+  </ul>
+  <p>For calculator AI requests, the payload contains your message, bounded current controls, current model candidates and source-status envelopes, the deterministic blueprint and component ledger when available, bounded complete exchange history, and structured tool definitions.</p>
   <ul>
     <li><strong>Android backup</strong> — upload app data to your Google Drive.</li>
     <li><strong>iPhone backup</strong> — upload app data to your iCloud.</li>

@@ -24,6 +24,13 @@ Public consulting presence published statically from this repository:
 - [Enterprise AI TCO Calculator](https://studio.factor-io.com/tco-calculator.html): In-browser total cost of ownership calculator for enterprise AI and infrastructure investments. Compares cloud API consumption against private inference and GPU infrastructure across token volumes, concurrency and depreciation schedules.
 - [TCO Assistant](https://studio.factor-io.com/tco-assistant.html): Interactive natural language interface that guides operators through sizing, architecture trade-offs and cost modelling.
 
+## Mobile apps
+
+Applications built, released and maintained by the practice itself, listed at [Mobile apps](https://studio.factor-io.com/en/mobile-apps/):
+
+- [Blink](https://blink.factor-io.com/): Android privacy app. Runs entirely on-device with zero data collection — no account, no analytics, and no network traffic of its own. Live.
+- Cat Countdown: countdown app for Android and iPhone. Nine cats across fifteen categories. Local-first; no advertising, no analytics and no account with Factor IO. A paid yearly plan unlocks cloud backup, and purchases are processed by RevenueCat with an anonymous app-user id. No public store URL is listed here yet.
+
 ## Separate products
 
 - [Quotes](https://studio.factor-io.com/quotes/): Internal business tooling for commercial proposals and engagements. Private; authenticated sessions only.

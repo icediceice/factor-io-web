@@ -29,7 +29,7 @@ Public consulting presence published statically from this repository:
 Applications built, released and maintained by the practice itself, listed at [Mobile apps](https://studio.factor-io.com/en/mobile-apps/):
 
 - [Blink](https://blink.factor-io.com/): Android privacy app. Runs entirely on-device with zero data collection — no account, no analytics, and no network traffic of its own. Live.
-- Cat Countdown: countdown app for Android and iPhone. Nine cats across fifteen categories. Local-first; no advertising, no analytics and no account with Factor IO. A paid yearly plan unlocks cloud backup, and purchases are processed by RevenueCat with an anonymous app-user id. No public store URL is listed here yet.
+- Cat Countdown: countdown app for Android and iPhone. Nine cats across fifteen categories. Local-first; no advertising, no usage analytics and no account with Factor IO. A paid yearly plan unlocks cloud backup, and purchases are processed by RevenueCat with an anonymous app-user id. No public store URL is listed here yet.
 
 ## Separate products
 

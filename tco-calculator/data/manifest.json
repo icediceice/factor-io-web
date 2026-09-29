@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1790576248713",
-  "generated_at": "2026-09-28T06:17:28.713Z",
-  "snapshot_digest": "7cdce849d5ca7c3d",
+  "refresh_id": "refresh-1790662142927",
+  "generated_at": "2026-09-29T06:09:02.927Z",
+  "snapshot_digest": "9f2d5c1b12d399c9",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-7cdce849d5ca7c3d.json",
-      "digest": "7cdce849d5ca7c3d",
-      "bytes": 3327127
+      "path": "catalog-9f2d5c1b12d399c9.json",
+      "digest": "9f2d5c1b12d399c9",
+      "bytes": 3352526
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "bf37a158bd440445",
+      "digest": "c87d6fc67c3493cf",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-28T06:17:28.713Z",
-      "last_success_at": "2026-09-28T06:17:28.713Z",
-      "expires_at": "2026-10-01T06:17:28.713Z",
-      "root_digest": "54e58fe46bf400e9",
-      "record_count": 440,
+      "observed_at": "2026-09-29T06:09:02.927Z",
+      "last_success_at": "2026-09-29T06:09:02.927Z",
+      "expires_at": "2026-10-02T06:09:02.927Z",
+      "root_digest": "3ef4128621b7ded5",
+      "record_count": 442,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-28T06:17:28.713Z",
-      "last_success_at": "2026-09-28T06:17:28.713Z",
-      "expires_at": "2026-10-01T06:17:28.713Z",
-      "root_digest": "3c413378a633aa57",
-      "record_count": 3352,
+      "observed_at": "2026-09-29T06:09:02.927Z",
+      "last_success_at": "2026-09-29T06:09:02.927Z",
+      "expires_at": "2026-10-02T06:09:02.927Z",
+      "root_digest": "3d5946618dda7dfe",
+      "record_count": 3378,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-25T00:00:00.000Z",
-      "last_success_at": "2026-09-28T06:17:56.255Z",
-      "expires_at": "2026-10-02T23:59:59.999Z",
-      "root_digest": "bf37a158bd440445",
+      "observed_at": "2026-09-28T00:00:00.000Z",
+      "last_success_at": "2026-09-29T06:09:29.044Z",
+      "expires_at": "2026-10-05T23:59:59.999Z",
+      "root_digest": "c87d6fc67c3493cf",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -1353,6 +1353,19 @@
       ]
     },
     {
+      "id": "litellm:anthropic.claude-sonnet-5-5",
+      "name": "anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:anthropic.claude-v1",
       "name": "anthropic.claude-v1",
       "tariff": "token",
@@ -1684,6 +1697,19 @@
       ]
     },
     {
+      "id": "litellm:apac.anthropic.claude-sonnet-5-5",
+      "name": "apac.anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write|age=1hr",
+        "cache_write",
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:au.anthropic.claude-fable-5",
       "name": "au.anthropic.claude-fable-5",
       "tariff": "token",
@@ -1825,6 +1851,19 @@
     {
       "id": "litellm:au.anthropic.claude-sonnet-5",
       "name": "au.anthropic.claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:au.anthropic.claude-sonnet-5-5",
+      "name": "au.anthropic.claude-sonnet-5-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -5496,6 +5535,19 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/claude-sonnet-5-5",
+      "name": "azure_ai/claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/cohere-command-a",
       "name": "azure_ai/cohere-command-a",
       "tariff": "token",
@@ -6060,7 +6112,7 @@
       "id": "litellm:azure_ai/muse-spark-1.3",
       "name": "azure_ai/muse-spark-1.3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -7391,6 +7443,19 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-sonnet-5-5",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/claude-sonnet-4-5-20250929-v1:0",
       "name": "bedrock/us-gov-east-1/claude-sonnet-4-5-20250929-v1:0",
       "tariff": "token",
@@ -7627,6 +7692,19 @@
     {
       "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-sonnet-5",
       "name": "bedrock/us-gov-west-1/anthropic.claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-sonnet-5-5",
+      "name": "bedrock/us-gov-west-1/anthropic.claude-sonnet-5-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -7908,6 +7986,32 @@
       ]
     },
     {
+      "id": "litellm:bedrock_mantle/anthropic.claude-opus-5-5",
+      "name": "bedrock_mantle/anthropic.claude-opus-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/anthropic.claude-sonnet-5-5",
+      "name": "bedrock_mantle/anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock_mantle/deepseek.v3.1",
       "name": "bedrock_mantle/deepseek.v3.1",
       "tariff": "token",
@@ -8086,6 +8190,32 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/anthropic.claude-opus-5-5",
+      "name": "bedrock_mantle/us-gov-west-1/anthropic.claude-opus-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/anthropic.claude-sonnet-5-5",
+      "name": "bedrock_mantle/us-gov-west-1/anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -8643,6 +8773,23 @@
     {
       "id": "litellm:claude-sonnet-5",
       "name": "claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:claude-sonnet-5-5",
+      "name": "claude-sonnet-5-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -12393,6 +12540,19 @@
     {
       "id": "litellm:eu.anthropic.claude-sonnet-5",
       "name": "eu.anthropic.claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:eu.anthropic.claude-sonnet-5-5",
+      "name": "eu.anthropic.claude-sonnet-5-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -17307,6 +17467,19 @@
       ]
     },
     {
+      "id": "litellm:global.anthropic.claude-sonnet-5-5",
+      "name": "global.anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:global.moonshotai.kimi-k3",
       "name": "global.moonshotai.kimi-k3",
       "tariff": "token",
@@ -17461,6 +17634,17 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:global.xai.grok-4.7",
+      "name": "global.xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -19442,6 +19626,19 @@
     {
       "id": "litellm:jp.anthropic.claude-sonnet-5",
       "name": "jp.anthropic.claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:jp.anthropic.claude-sonnet-5-5",
+      "name": "jp.anthropic.claude-sonnet-5-5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -24547,6 +24744,19 @@
     {
       "id": "litellm:openrouter/anthropic/claude-sonnet-5",
       "name": "openrouter/anthropic/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/anthropic/claude-sonnet-5.5",
+      "name": "openrouter/anthropic/claude-sonnet-5.5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30078,6 +30288,28 @@
       ]
     },
     {
+      "id": "litellm:prism/deepseek-v4-flash",
+      "name": "prism/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:prism/deepseek-v4.1-flash",
+      "name": "prism/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:publicai/BSC-LT/ALIA-40b-instruct_Q8_0",
       "name": "publicai/BSC-LT/ALIA-40b-instruct_Q8_0",
       "tariff": "token",
@@ -33406,6 +33638,19 @@
       ]
     },
     {
+      "id": "litellm:us-gov.anthropic.claude-sonnet-5-5",
+      "name": "us-gov.anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us-gov.nvidia.nemotron-nano-12b-v2",
       "name": "us-gov.nvidia.nemotron-nano-12b-v2",
       "tariff": "token",
@@ -33838,6 +34083,19 @@
       ]
     },
     {
+      "id": "litellm:us.anthropic.claude-sonnet-5-5",
+      "name": "us.anthropic.claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us.deepseek.r1-v1:0",
       "name": "us.deepseek.r1-v1:0",
       "tariff": "token",
@@ -34146,6 +34404,17 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:us.xai.grok-4.7",
+      "name": "us.xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -35657,6 +35926,40 @@
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-sonnet-5-5",
+      "name": "vertex_ai/claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-sonnet-5-5@default",
+      "name": "vertex_ai/claude-sonnet-5-5@default",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
         "input",
         "input|tier=batches",
         "output",
@@ -37338,6 +37641,17 @@
       ]
     },
     {
+      "id": "litellm:xai.grok-4.7",
+      "name": "xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:xai/grok-4.20",
       "name": "xai/grok-4.20",
       "tariff": "token",
@@ -38658,6 +38972,34 @@
       ]
     },
     {
+      "id": "openrouter:anthropic/claude-sonnet-5.5",
+      "name": "Anthropic: Claude Sonnet 5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-sonnet-5.5:batch",
+      "name": "Anthropic: Claude Sonnet 5.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
       "id": "openrouter:anthropic/claude-sonnet-5:batch",
       "name": "Anthropic: Claude Sonnet 5 (batch)",
       "tariff": "token",
@@ -39655,7 +39997,7 @@
       "id": "openrouter:inclusionai/ling-3.0-flash-fin:free",
       "name": "inclusionAI: Ling 3.0 Flash Fin (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -41476,7 +41818,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -41805,7 +42148,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43186,7 +43530,7 @@
       {
         "offer": "openrouter:~anthropic/claude-sonnet-latest",
         "rule": "alias_skipped",
-        "target": "anthropic/claude-sonnet-5"
+        "target": "anthropic/claude-sonnet-5.5"
       },
       {
         "offer": "openrouter:~anthropic/claude-opus-latest",
@@ -48575,6 +48919,11 @@
         "offer": "litellm:azure_ai/mistral-ocr-2512",
         "rule": "skipped_out_of_scope_mode",
         "mode": "ocr"
+      },
+      {
+        "offer": "litellm:perplexity/anthropic/claude-sonnet-5-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       }
     ],
     "source_errors": {

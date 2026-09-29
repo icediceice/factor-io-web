@@ -297,6 +297,42 @@
         }
       ]
     },
+    "mobile-apps": {
+      "nav": "Mobile apps",
+      "title": "Mobile apps built by Factor IO: Blink and Cat Countdown",
+      "description": "The mobile applications built by Factor IO: Blink, an Android privacy app that works entirely on-device, and Cat Countdown, a countdown app for Android and iPhone. No ads, no tracking, no account with us.",
+      "eyebrow": "MOBILE APPS / BUILT BY THE STUDIO",
+      "headline": "The apps we build for ourselves are held to the same bar as the platforms we build for you.",
+      "lede": "Everything above this line is delivered to clients. These are the applications we built, shipped and maintain ourselves. They carry no advertising, no analytics and no account with us, because that is the standard we work to when a client asks us for the same thing.",
+      "sections": [
+        {
+          "id": "portfolio",
+          "kind": "cards",
+          "kicker": "The portfolio",
+          "title": "Two applications, released.",
+          "body": "Both are ours from the first design decision through to the store release. They share a privacy posture rather than a feature set: nothing is collected for its own sake, and nothing you create is readable by us.",
+          "items": [
+            {
+              "title": "Blink",
+              "body": "Privacy protection for Android, built for the threat that is standing next to you. It runs entirely on the device and collects nothing at all: no account, no analytics, no network traffic of its own.",
+              "link": "https://blink.factor-io.com/"
+            },
+            {
+              "title": "Cat Countdown",
+              "body": "A countdown app with personality. Nine cats, fifteen categories, and a soft claymorphic look that makes the waiting a little warmer. Set a date, pick your cat, and watch it count down to the thing you are looking forward to. Android and iPhone."
+            }
+          ]
+        },
+        {
+          "id": "posture",
+          "kind": "statement",
+          "kicker": "How they are built",
+          "title": "Local-first, and honest about the exceptions.",
+          "body": "Your countdowns, dates, attachments and settings stay on your device. Cloud backup, where a plan offers it, writes to an account you already own rather than to a server of ours. Where an app sells a subscription, it is a plain yearly plan handled by RevenueCat on the store's behalf, and it never creates an account with Factor IO. Each app states precisely what it sends, to whom and for how long in its own privacy statement, because a promise like this is only worth something if it is specific enough to be checked.",
+          "items": []
+        }
+      ]
+    },
     "about": {
       "nav": "About",
       "title": "Thanat Manasakool: solution architect, Thailand",

@@ -85,22 +85,44 @@
   identifiers, and no third-party tracking of any kind. We do not earn money from your attention,
   so we have no reason to watch you.</p>
 
-  <div class="kicker"><b>03</b> / No data collection</div>
-  <h2>We do not collect your data</h2>
-  <p>We collect, store, and transmit <strong>no personal data</strong>. There are no user accounts,
-  no analytics, and no telemetry. Everything you create in the app — your countdowns, dates, and
-  settings — stays on your device, unless you turn on iCloud sync, in which case a copy is also
-  kept in your own iCloud account.</p>
-  <p><strong>iCloud sync on iPhone.</strong> Cat Countdown for iPhone offers iCloud sync as a premium
-  feature. It is <strong>off by default</strong>. When you turn it on, your app data is stored in the
-  private iCloud storage of the Apple Account signed in on your device, so it stays in step across your
-  Apple devices. That storage belongs to your iCloud account and is governed by Apple&rsquo;s privacy
-  policy: Factor IO cannot read it, and it never passes through a Factor IO server. The Android app
-  does not use iCloud.</p>
-  <p>The web calculator&rsquo;s separate AI advisor is the single exception to the <em>transmit</em> half of
-  that sentence, and only to it: pressing Send or Ask sends your message and planning context to a Factor IO
-  server so the AI request can be completed. Section 04 states exactly what is sent, to whom, and
-  what is kept. Nothing else in any Factor IO app transmits your data to us.</p>
+  <div class="kicker"><b>03</b> / What we handle</div>
+  <h2>Three specific things, and nothing else</h2>
+  <p>Cat Countdown has no user accounts, no analytics and no telemetry. Everything you create in the
+  app &mdash; your countdowns, dates, tasks, notes, attachments and settings &mdash; stays on your
+  device and is never sent to a Factor IO server. So that this statement is accurate rather than
+  merely reassuring, the three things the app does handle are named individually below.</p>
+  <p><strong>1. Purchase history, and only if you buy something.</strong> Cat Countdown sells a
+  single subscription: a <strong>yearly</strong> plan that unlocks cloud backup. Purchases are
+  processed by <strong>RevenueCat</strong>, our billing provider, which receives the store purchase
+  token so the subscription can be verified and later restored. The app never asks you to sign in to
+  us, so the RevenueCat app-user identifier is anonymous: it is not linked to an account, an email
+  address, or your other apps, and no advertising identifier is collected. RevenueCat keeps the
+  transaction record so your subscription can be supported &mdash; the same purchase history the
+  store already holds. It is used to run and support the subscription, not to analyse you. If you
+  never buy the subscription, none of this applies to you.</p>
+  <p><strong>2. Approximate location, and only if you allow it.</strong> With your permission, the
+  app sends your approximate coordinates to <strong>Open-Meteo</strong> to fetch a weather forecast
+  for your countdown dates. This is the one place where data you generate is shared with an outside
+  service. The coordinates are used for that single request and are not written to storage; only the
+  resulting weather condition is kept, and the position is discarded from memory after five minutes.
+  Declining the permission leaves the app fully usable, without the weather.</p>
+  <p><strong>3. A licence identifier, on Android only.</strong> Cat Countdown is a paid app, so
+  Android checks that your copy is genuine. To do that it sends a Play Integrity token and a stable
+  hash of a key held in your device&rsquo;s own secure storage to a Factor IO server. That hash
+  identifies one installation and nothing more: it carries no name, no email address, no account and
+  no advertising identifier, it is never shared with anyone, and it is used to verify the licence and
+  to rate-limit automated licence requests. iPhone builds make no such request and verify the
+  purchase on-device instead.</p>
+  <p><strong>Cloud backup is your own copy, not ours.</strong> When you use cloud backup, your app
+  data is written into a private area of your own Google Drive or your own iCloud account, where you
+  and the app are the only parties to it. Factor IO neither receives, stores nor proxies that backup.
+  You should know one thing about it plainly: the app does not add its own encryption to the backup
+  archive, so the protection it gets is whatever your drive provider already applies. Section 04
+  describes when a backup runs.</p>
+  <p>The web calculator&rsquo;s separate AI advisor is the one further case, and only to the
+  <em>transmit</em> half of this: pressing Send or Ask sends your message and planning context to a
+  Factor IO server so the request can be completed. Section 04 states exactly what is sent, to whom,
+  and what is kept.</p>
 
   <div class="kicker"><b>04</b> / Network activity and actions you choose</div>
   <h2>Public refreshes are separate from your AI conversation</h2>

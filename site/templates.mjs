@@ -314,7 +314,8 @@ ${renderJsonLd(page, locale)}<script type="module" src="${asset('site.js')}"></s
 <a class="skip" href="#main">${esc(u.skip)}</a>
 <header class="site-header"><div class="wrap header-inner">${brand}
 <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>${esc(u.menu)}</button>
-<div class="header-nav" id="main-nav"><nav aria-label="${esc(u.nav)}">${nav}</nav><nav class="language" aria-label="${esc(u.language)}">${language}</nav><a class="button button-small" href="${routePath(locale, 'contact')}"${page === 'contact' ? ' aria-current="page"' : ''}>${esc(c.pages.contact.nav)}</a></div></div></header>
+<div class="header-nav" id="main-nav"><nav aria-label="${esc(u.nav)}">${nav}</nav><a class="button button-small" href="${routePath(locale, 'contact')}"${page === 'contact' ? ' aria-current="page"' : ''}>${esc(c.pages.contact.nav)}</a></div>
+<nav class="language" aria-label="${esc(u.language)}">${language}</nav></div></header>
 <main id="main"><div class="wrap">${hero}
 ${p.sections.map(s => section(c, s, page, asset, page === 'home' && s.id === 'services' ? `<p class="section-link">${link(routePath(locale, 'services'), u.learn)}</p>` : '')).join('\n')}
 ${page !== 'contact' ? `<section class="cta" aria-labelledby="cta-title"><div><h2 id="cta-title">${esc(u.ctaTitle)}</h2><p>${esc(u.ctaBody)}</p></div>${link(routePath(locale, 'contact'), u.ctaLink, 'button')}</section>` : ''}

@@ -96,7 +96,8 @@ code { font: 500 .88em var(--mono); }
 .menu-toggle { display: none; margin-left: auto; min-height: 44px; padding: 0 18px; border: 1px solid var(--line-strong); border-radius: var(--pill); background: transparent; color: var(--ink); font: 500 15px var(--sans); cursor: pointer; }
 .menu-toggle:hover { border-color: var(--ink); }
 @media (max-width: 900px) {
-  .header-inner { flex-wrap: wrap; }
+  /* The language switch sits outside #main-nav so a phone visitor can change language without opening the menu. */
+  .header-inner { flex-wrap: wrap; gap: 12px; }
   .menu-ready .menu-toggle { display: inline-flex; align-items: center; }
   .menu-ready .header-nav { display: none; }
   .menu-ready.menu-open .header-nav { position: absolute; top: 100%; left: 0; right: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px var(--gutter) 28px; background: var(--bg); border-bottom: 1px solid var(--line); }

@@ -24,10 +24,11 @@ const mode = args[0] ?? 'work';
 const settle = ms => new Promise(r => setTimeout(r, ms));
 
 // Scroll the page once so reveal-on-view sections are in their shown state, then return to the top.
+// 'instant' matters: site.css sets smooth scrolling, and a smooth scrollTo every 60ms never gets past the hero.
 const REVEAL = `(async () => {
   const step = innerHeight * 0.8;
-  for (let y = 0; y < document.documentElement.scrollHeight; y += step) { scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); }
-  scrollTo(0, 0); await new Promise(r => setTimeout(r, 400)); return true;
+  for (let y = 0; y < document.documentElement.scrollHeight; y += step) { scrollTo({ top: y, behavior: 'instant' }); await new Promise(r => setTimeout(r, 60)); }
+  scrollTo({ top: 0, behavior: 'instant' }); await new Promise(r => setTimeout(r, 900)); return document.querySelectorAll('.reveal-pending').length;
 })()`;
 
 const MEASURE = `(() => {

@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1790662142927",
-  "generated_at": "2026-09-29T06:09:02.927Z",
-  "snapshot_digest": "9f2d5c1b12d399c9",
+  "refresh_id": "refresh-1790748161711",
+  "generated_at": "2026-09-30T06:02:41.711Z",
+  "snapshot_digest": "593fb200f6fe2573",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-9f2d5c1b12d399c9.json",
-      "digest": "9f2d5c1b12d399c9",
-      "bytes": 3352526
+      "path": "catalog-593fb200f6fe2573.json",
+      "digest": "593fb200f6fe2573",
+      "bytes": 3370966
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "c87d6fc67c3493cf",
+      "digest": "41bdc8c4d233388c",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-09-29T06:09:02.927Z",
-      "last_success_at": "2026-09-29T06:09:02.927Z",
-      "expires_at": "2026-10-02T06:09:02.927Z",
-      "root_digest": "3ef4128621b7ded5",
-      "record_count": 442,
+      "observed_at": "2026-09-30T06:02:41.711Z",
+      "last_success_at": "2026-09-30T06:02:41.711Z",
+      "expires_at": "2026-10-03T06:02:41.711Z",
+      "root_digest": "d71eaf1b0e1d8c51",
+      "record_count": 446,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-09-29T06:09:02.927Z",
-      "last_success_at": "2026-09-29T06:09:02.927Z",
-      "expires_at": "2026-10-02T06:09:02.927Z",
-      "root_digest": "3d5946618dda7dfe",
-      "record_count": 3378,
+      "observed_at": "2026-09-30T06:02:41.711Z",
+      "last_success_at": "2026-09-30T06:02:41.711Z",
+      "expires_at": "2026-10-03T06:02:41.711Z",
+      "root_digest": "f800636a741a94e4",
+      "record_count": 3392,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-28T00:00:00.000Z",
-      "last_success_at": "2026-09-29T06:09:29.044Z",
-      "expires_at": "2026-10-05T23:59:59.999Z",
-      "root_digest": "c87d6fc67c3493cf",
+      "observed_at": "2026-09-29T00:00:00.000Z",
+      "last_success_at": "2026-09-30T06:03:06.876Z",
+      "expires_at": "2026-10-06T23:59:59.999Z",
+      "root_digest": "41bdc8c4d233388c",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -3845,6 +3845,38 @@
       ]
     },
     {
+      "id": "litellm:azure/gpt-6.1-sol",
+      "name": "azure/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:azure/gpt-6.1-sol-2026-09-29",
+      "name": "azure/gpt-6.1-sol-2026-09-29",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure/gpt-audio",
       "name": "azure/gpt-audio",
       "tariff": "token",
@@ -5825,6 +5857,22 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/gpt-6.1-sol",
+      "name": "azure_ai/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/gpt-chat-latest",
       "name": "azure_ai/gpt-chat-latest",
       "tariff": "token",
@@ -6197,6 +6245,17 @@
     {
       "id": "litellm:baseten/deepseek-ai/DeepSeek-V4.1-Flash",
       "name": "baseten/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:baseten/deepseek-ai/DeepSeek-V4.1-Flash-Fast",
+      "name": "baseten/deepseek-ai/DeepSeek-V4.1-Flash-Fast",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -16592,6 +16651,19 @@
       ]
     },
     {
+      "id": "litellm:gemini/deep-research-pro-preview-12-2025",
+      "name": "gemini/deep-research-pro-preview-12-2025",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "image_in",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
       "id": "litellm:gemini/gemini-2.5-computer-use-preview-10-2025",
       "name": "gemini/gemini-2.5-computer-use-preview-10-2025",
       "tariff": "token",
@@ -17230,6 +17302,41 @@
       ]
     },
     {
+      "id": "litellm:github_copilot/claude-haiku-4.5",
+      "name": "github_copilot/claude-haiku-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-sonnet-4",
+      "name": "github_copilot/claude-sonnet-4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gpt-5-mini",
+      "name": "github_copilot/gpt-5-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:github_copilot/mai-code-1-flash",
       "name": "github_copilot/mai-code-1-flash",
       "tariff": "token",
@@ -17611,6 +17718,22 @@
         "cache_write|>272000",
         "cache_read",
         "cache_read|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:global.openai.gpt-6.1-sol",
+      "name": "global.openai.gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
         "output",
         "output|>272000"
       ]
@@ -18973,6 +19096,46 @@
         "output|>272000|tier=priority",
         "output|tier=batches",
         "output|>272000|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:gpt-6.1-sol",
+      "name": "gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=batches",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=batches",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=batches",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=batches",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=batches",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
       ]
@@ -21080,7 +21243,6 @@
       "state": "active",
       "meters": [
         "cache_read",
-        "op_in_second",
         "input",
         "output"
       ]
@@ -21092,7 +21254,6 @@
       "state": "active",
       "meters": [
         "cache_read",
-        "op_in_second",
         "input",
         "output"
       ]
@@ -24197,6 +24358,22 @@
       ]
     },
     {
+      "id": "litellm:openai.gpt-6.1-sol",
+      "name": "openai.gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:openai.gpt-oss-120b-1:0",
       "name": "openai.gpt-oss-120b-1:0",
       "tariff": "token",
@@ -24765,6 +24942,19 @@
         "cache_read",
         "cache_write",
         "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/anthropic/claude-sonnet-5.5:batch",
+      "name": "openrouter/anthropic/claude-sonnet-5.5:batch",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -27768,6 +27958,70 @@
       ]
     },
     {
+      "id": "litellm:openrouter/openai/gpt-6.1-sol",
+      "name": "openrouter/openai/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/openai/gpt-6.1-sol-pro",
+      "name": "openrouter/openai/gpt-6.1-sol-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/openai/gpt-6.1-sol-pro:batch",
+      "name": "openrouter/openai/gpt-6.1-sol-pro:batch",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/openai/gpt-6.1-sol:batch",
+      "name": "openrouter/openai/gpt-6.1-sol:batch",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:openrouter/openai/gpt-audio",
       "name": "openrouter/openai/gpt-audio",
       "tariff": "token",
@@ -27829,6 +28083,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -28121,6 +28376,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -34366,6 +34622,22 @@
       ]
     },
     {
+      "id": "litellm:us.openai.gpt-6.1-sol",
+      "name": "us.openai.gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:us.twelvelabs.pegasus-1-2-v1:0",
       "name": "us.twelvelabs.pegasus-1-2-v1:0",
       "tariff": "token",
@@ -35859,7 +36131,8 @@
         "cache_read|tier=batches",
         "input|tier=batches",
         "output",
-        "output|tier=batches"
+        "output|tier=batches",
+        "cache_write|tier=batches"
       ]
     },
     {
@@ -35880,7 +36153,8 @@
         "cache_read|tier=batches",
         "input|tier=batches",
         "output",
-        "output|tier=batches"
+        "output|tier=batches",
+        "cache_write|tier=batches"
       ]
     },
     {
@@ -41755,6 +42029,58 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-6.1-sol",
+      "name": "OpenAI: GPT-6.1 Sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-6.1-sol-pro",
+      "name": "OpenAI: GPT-6.1 Sol Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-6.1-sol-pro:batch",
+      "name": "OpenAI: GPT-6.1 Sol Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-6.1-sol:batch",
+      "name": "OpenAI: GPT-6.1 Sol (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-audio",
       "name": "OpenAI: GPT Audio",
       "tariff": "token",
@@ -41797,8 +42123,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -43465,7 +43790,7 @@
       {
         "offer": "openrouter:~openai/gpt-sol-latest",
         "rule": "alias_skipped",
-        "target": "openai/gpt-6-sol"
+        "target": "openai/gpt-6.1-sol"
       },
       {
         "offer": "openrouter:~openai/gpt-terra-latest",
@@ -46261,11 +46586,6 @@
         "mode": "image_generation"
       },
       {
-        "offer": "litellm:gemini/deep-research-pro-preview-12-2025",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "image_generation"
-      },
-      {
         "offer": "litellm:gemini/gemini-2.5-flash-preview-tts",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
@@ -46437,6 +46757,11 @@
       },
       {
         "offer": "litellm:gpt-4o-mini-tts",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:gpt-4o-mini-tts-2025-03-20",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
       },
@@ -48922,6 +49247,11 @@
       },
       {
         "offer": "litellm:perplexity/anthropic/claude-sonnet-5-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/openai.gpt-6.1-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       }

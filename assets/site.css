@@ -11,7 +11,7 @@
 /* Tokens. One accent; --accent-text is the accent darkened until small text clears 4.5:1. */
 :root {
   --bg: #F3F4F2; --surface: #FFFFFF; --surface-2: #E8EAE7; --ink: #121417; --muted: #5B6168;
-  --line: rgba(18, 20, 23, .12); --line-strong: rgba(18, 20, 23, .26);
+  --line: rgba(18, 20, 23, .12); --line-strong: rgba(18, 20, 23, .26); --control-edge: #858A8F;
   --accent: #FF5A1F; --accent-ink: #121417; --accent-text: #C0410E; --accent-soft: rgba(255, 90, 31, .1);
   --film: #0F1214; --device: #121417; --cta-bg: #121417; --cta-ink: #ECEDEA; --cta-muted: #A0A5AB;
   /* Films and device chrome are dark in both themes, so the dark blocks below leave these alone. */

@@ -86,7 +86,7 @@ code { font: 500 .88em var(--mono); }
 .brand span { color: var(--accent-text); }
 .header-nav { display: flex; align-items: center; gap: 28px; margin-left: auto; }
 .header-nav nav:first-child { display: flex; gap: 26px; }
-.header-nav nav:first-child a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 15px; text-decoration: none; border-bottom: 2px solid transparent; transition: color .2s var(--ease); }
+.header-nav nav:first-child a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; color: var(--muted); font-size: 15px; text-decoration: none; border-bottom: 2px solid transparent; transition: color .2s var(--ease); }
 .header-nav nav:first-child a:hover, .header-nav nav:first-child a[aria-current="page"] { color: var(--ink); }
 .header-nav nav:first-child a[aria-current="page"] { border-bottom-color: var(--accent); }
 .language { display: flex; border: 1px solid var(--line); border-radius: var(--pill); }

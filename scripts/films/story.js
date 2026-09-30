@@ -43,7 +43,7 @@ export function build({ stage, copy, spec }) {
   const url = el('p', 'mono', end, 'studio.factor-io.com');
 
   return t => {
-    tag.render(t);
+    tag.render(t, prog(t, 24.8, 0.4));
     const ends = [c1 - 0.1, c2 - 0.1, c3 - 0.1, 24.9];
     texts.forEach((text, i) => text.render(t, spec.chapters[i] + 0.3, ends[i]));
 
@@ -90,7 +90,5 @@ export function build({ stage, copy, spec }) {
     mark.style.transform = `translateY(${30 * (1 - on)}px)`;
     style(place1, { opacity: prog(t, 25.5, 0.6), y: 12 * (1 - prog(t, 25.5, 0.7)) });
     style(url, { opacity: prog(t, 25.8, 0.6) });
-    tag.render(t);
-    stage.querySelector('.tag').style.opacity = String(1 - prog(t, 24.8, 0.4));
   };
 }

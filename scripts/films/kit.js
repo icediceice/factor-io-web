@@ -41,7 +41,8 @@ export function wire(root, d, cls = '') {
     draw(p, opacity = 1) {
       path.style.strokeDasharray = cls.includes('dash') ? '' : '1 1';
       path.style.strokeDashoffset = cls.includes('dash') ? '' : String(1 - p);
-      path.style.opacity = String(p > 0 ? opacity : 0);
+      // A dashed wire cannot also use the dash offset to draw, so it fades in instead.
+      path.style.opacity = String(cls.includes('dash') ? p * opacity : p > 0 ? opacity : 0);
     },
     at(p) { const len = path.getTotalLength(); return path.getPointAtLength(len * clamp(p)); },
   };

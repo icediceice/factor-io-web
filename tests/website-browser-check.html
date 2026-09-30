@@ -9,7 +9,7 @@ const report = document.querySelector('#report'), stage = document.querySelector
 // Kept in step with site/config.mjs routes[]. This list is INDEPENDENT of the generator:
 // adding a route there does not extend fixture coverage, and a missing entry here reports
 // a clean pass while never loading the page. Add the route in both places or measure nothing.
-const pages = ['', 'services/', 'about/', 'profile/', 'contact/'];
+const pages = ['', 'services/', 'mobile-apps/', 'about/', 'profile/', 'contact/'];
 const frameAt = async (path, width, noScript = false) => {
   const frame = document.createElement('iframe'); frame.width = width; frame.title = `${path} at ${width}px`;
   if (noScript) frame.setAttribute('sandbox', 'allow-same-origin');
@@ -80,6 +80,26 @@ function measure(frame, width) {
 async function interactions(frame, page) {
   const doc = frame.contentDocument, win = frame.contentWindow, failures = [];
   const input = (node, value) => { node.value = value; node.dispatchEvent(new win.Event('input', { bubbles:true })); };
+  if (page === '') {
+    // site.js swaps the native controls for the pause button and chapter seeking. A chapter
+    // button must move the video to its own start and take aria-current, or the bar is decoration.
+    const figures = [...doc.querySelectorAll('[data-film]')];
+    if (figures.length !== 3) failures.push(`home shows ${figures.length} films, expected 3`);
+    for (const figure of figures) {
+      const video = figure.querySelector('video'), toggle = figure.querySelector('[data-film-toggle]');
+      const chapters = [...figure.querySelectorAll('[data-chapter]')], last = chapters[chapters.length - 1];
+      if (!toggle || toggle.hidden) failures.push(`film ${figure.dataset.film}: play control not enabled`);
+      if (video.controls) failures.push(`film ${figure.dataset.film}: native controls survived enhancement`);
+      if (!last) { failures.push(`film ${figure.dataset.film}: no chapters`); continue; }
+      last.click();
+      if (Math.abs(video.currentTime - Number(last.dataset.start)) > 0.5) failures.push(`film ${figure.dataset.film}: chapter seek landed at ${video.currentTime}`);
+      if (last.getAttribute('aria-current') !== 'step') failures.push(`film ${figure.dataset.film}: sought chapter not marked current`);
+      video.pause();
+    }
+    // The CTA is also a <section>, so take the last content section, not :last-of-type.
+    const lastSection = [...doc.querySelectorAll('main section.section')].pop();
+    if (!lastSection || !lastSection.querySelector('.tiles')) failures.push('studio work strip is not the last home section');
+  }
   if (page === 'services/') {
     const root = doc.querySelector('[data-demo]'), status = root.querySelector('[data-status]');
     const click = selector => root.querySelector(selector).click();

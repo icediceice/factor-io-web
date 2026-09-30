@@ -26,6 +26,15 @@ test('direct email links opt out of edge obfuscation so the no-JS fallback survi
   }
 });
 
+// Cloudflare also rewrites a bare address in page text into a script-decoded "[email protected]"
+// link, which is what the live check caught on both profile pages.
+test('no generated page leaves a bare address in its text for the edge to rewrite', () => {
+  for (const [path, html] of output) {
+    const exposed = html.replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--email_off-->[\s\S]*?<!--\/email_off-->/g, '');
+    assert.doesNotMatch(exposed, /[\w.+-]+@[\w-]+\.[\w.-]+/, path);
+  }
+});
+
 test('published comparison allows only removal of exact opt-out comments, not obfuscation or injected code', () => {
   const expected = Buffer.from('<!--email_off--><a href="mailto:admin@factor-io.com">admin@factor-io.com</a><!--/email_off-->');
   const plain = Buffer.from('<a href="mailto:admin@factor-io.com">admin@factor-io.com</a>');

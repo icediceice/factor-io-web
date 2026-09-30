@@ -152,6 +152,8 @@ async function interactions(frame, page) {
     if (!qr) failures.push('LINE QR image missing');
     else {
       if (!(qr.getAttribute('alt') || '').trim()) failures.push('LINE QR has no alt text');
+      // The QR is loading="lazy" and sits below a 900px frame's fold on narrow layouts: fetch it before judging it.
+      if (!qr.naturalWidth) { qr.loading = 'eager'; await Promise.race([qr.decode().catch(() => {}), new Promise(r => setTimeout(r, 5000))]); }
       if (qr.naturalWidth === 0) failures.push('LINE QR failed to load');
       const box = qr.getBoundingClientRect();
       if (box.width < 120) failures.push(`LINE QR rendered too small to scan: ${Math.round(box.width)}px`);

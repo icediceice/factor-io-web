@@ -7,8 +7,10 @@ import { once } from 'node:events';
 import { resolve } from 'node:path';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
-import { ROOT, generate, loadContent, assertParity, samePreviewBytes } from '../scripts/build-site.mjs';
-import { createDemo, flowStates } from '../assets/site.js';
+import { ROOT, generate, loadContent, assertParity, samePreviewBytes, checkPreview, publishedMedia } from '../scripts/build-site.mjs';
+import { createDemo, flowStates, bindFilm } from '../assets/site.js';
+import { chapterTag } from '../scripts/films/kit.js';
+import { films, filmFile, filmPoster, work, workFile } from '../site/media.mjs';
 
 const read = path => readFile(resolve(ROOT, path), 'utf8');
 const content = await loadContent(), output = await generate();
@@ -21,6 +23,15 @@ test('direct email links opt out of edge obfuscation so the no-JS fallback survi
       assert.equal(html.slice(match.index - 16, match.index), '<!--email_off-->');
       assert.equal(html.slice(match.index + match[0].length, match.index + match[0].length + 17), '<!--/email_off-->');
     }
+  }
+});
+
+// Cloudflare also rewrites a bare address in page text into a script-decoded "[email protected]"
+// link, which is what the live check caught on both profile pages.
+test('no generated page leaves a bare address in its text for the edge to rewrite', () => {
+  for (const [path, html] of output) {
+    const exposed = html.replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--email_off-->[\s\S]*?<!--\/email_off-->/g, '');
+    assert.doesNotMatch(exposed, /[\w.+-]+@[\w-]+\.[\w.-]+/, path);
   }
 });
 
@@ -320,6 +331,47 @@ test('the llms.txt contact route describes LINE, not the deleted email draft', a
   assert.doesNotMatch(bullet, /draft/i);
 });
 
+// The films carry the argument the old deck carried in text, so a missing render or a
+// chapter bar that drifted from site/media.mjs would leave the story half told.
+test('the three films ship in both locales with their poster, media-timed chapters and a transcript', async () => {
+  for (const locale of ['en', 'th']) {
+    const home = output.get(outputPath(locale, 'home'));
+    for (const id of Object.keys(films)) {
+      assert.ok((await stat(resolve(ROOT, filmFile(id, locale).slice(1)))).size > 100000, `${id}-${locale}.mp4 is missing or empty`);
+      assert.ok((await stat(resolve(ROOT, filmPoster(id, locale).slice(1)))).isFile(), `${id}-${locale}.jpg is missing`);
+      assert.ok(home.includes(`data-film="${id}"`), `${locale}: home does not carry the ${id} film`);
+      for (const start of films[id].chapters) assert.ok(home.includes(`data-start="${start}"`), `${locale}: ${id} has no chapter at ${start}s`);
+      assert.ok(home.includes(`id="film-${id}-transcript"`), `${locale}: ${id} has no transcript`);
+    }
+  }
+});
+
+// Apps and tools are output of the studio, not its pitch: the home strip is the last
+// section, leads with the web tools, plays no video, and every tile has a full entry.
+test('studio work stays secondary on home and every tile resolves to a full entry with real media', async () => {
+  for (const locale of ['en', 'th']) {
+    const strip = content[locale].pages.home.sections.at(-1);
+    assert.equal(strip.kind, 'work'); assert.equal(strip.variant, 'strip');
+    const frames = strip.items.map(item => work[item.id].frame);
+    assert.equal(frames[0], 'browser', `${locale}: the web tools no longer lead the strip`);
+    assert.ok(frames.includes('phone') && frames.includes('icon'), `${locale}: the strip lost its Android output`);
+    const home = output.get(outputPath(locale, 'home')), full = output.get(outputPath(locale, 'mobile-apps'));
+    assert.ok(!home.includes('frame-promo') && !home.includes('cat-countdown-promo'), `${locale}: the app promo belongs on the studio-work page`);
+    for (const item of strip.items) {
+      assert.ok(home.includes(`href="${routePath(locale, 'mobile-apps')}#${item.id}"`), `${locale}: ${item.id} tile does not link to its entry`);
+      assert.ok(full.includes(`id="${item.id}"`), `${locale}: studio work has no ${item.id} entry`);
+      for (const shot of work[item.id].shots) assert.ok((await stat(resolve(ROOT, 'assets/work', shot.file))).isFile(), shot.file);
+    }
+  }
+  // Blink is shown by its icon only, by decision: no interface capture ships.
+  assert.equal(work.blink.frame, 'icon'); assert.equal(work.blink.shots.length, 1);
+});
+
+test('the redesign leaves no deck, HUD or terminal markup behind, and content carries no em or en dash', async () => {
+  for (const [path, html] of output) assert.doesNotMatch(html, /class="[^"]*\b(?:deck|hud|cyber|scene|terminal)-|\bkicker\b/, path);
+  for (const locale of ['en', 'th']) assert.doesNotMatch(await read(`content/${locale}/site.json`), /[–—]/, locale);
+});
+
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {
   const child = spawn(process.execPath, ['scripts/serve.mjs', '0'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
   t.after(async () => { if (child.exitCode === null) { child.kill('SIGTERM'); await once(child, 'exit'); } });
@@ -343,4 +395,114 @@ test('real static server handles locale directories, redirects, HEAD, missing pa
   assert.equal((await fetch(`${base}/not-a-route/`)).status, 404);
   assert.equal((await fetch(`${base}/en/`, { method: 'POST' })).status, 405);
   assert.equal((await fetch(`${base}/..%2f..%2fetc/passwd`)).status, 404);
+  // Video seeks by byte range; a server that answers 200 to a Range request leaves the films unseekable.
+  const film = await fetch(`${base}${filmFile('story', 'en')}`, { headers: { range: 'bytes=0-99' } });
+  assert.equal(film.status, 206); assert.equal(film.headers.get('content-type'), 'video/mp4'); assert.equal(film.headers.get('accept-ranges'), 'bytes');
+  assert.match(film.headers.get('content-range'), /^bytes 0-99\/\d+$/); assert.equal((await film.arrayBuffer()).byteLength, 100);
+});
+
+// bindFilm and chapterTag read browser globals. Each case installs its own and puts back
+// whatever Node had, so the server test above keeps the real fetch and navigator.
+class FakeNode extends EventTarget {
+  constructor() { super(); this.dataset = {}; this.attrs = new Map(); this.children = []; this.style = { setProperty: (name, value) => { this.style[name] = value; } }; }
+  setAttribute(name, value) { this.attrs.set(name, String(value)); }
+  getAttribute(name) { return this.attrs.get(name) ?? null; }
+  removeAttribute(name) { this.attrs.delete(name); }
+  toggleAttribute(name, on) { if (on) this.setAttribute(name, ''); else this.removeAttribute(name); }
+  appendChild(child) { this.children.push(child); return child; }
+  click() { this.dispatchEvent(new Event('click')); }
+}
+let observed;
+const browser = ({ reduce = false, saveData = false } = {}) => ({
+  matchMedia: () => ({ matches: reduce }),
+  navigator: { connection: { saveData } },
+  requestAnimationFrame: () => 1,
+  cancelAnimationFrame: () => {},
+  IntersectionObserver: class { constructor(callback, options) { observed = { callback, options }; } observe() {} },
+  document: { createElement: () => new FakeNode() },
+});
+async function withGlobals(values, fn) {
+  const saved = Object.keys(values).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]);
+  for (const [key, value] of Object.entries(values)) Object.defineProperty(globalThis, key, { value, configurable: true, writable: true });
+  try { return await fn(); } finally {
+    for (const [key, descriptor] of saved) if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];
+  }
+}
+function mountFilm(spec = films.expertise) {
+  const video = new FakeNode(); video.paused = true; video.currentTime = 0;
+  video.play = () => { video.paused = false; video.dispatchEvent(new Event('play')); return Promise.resolve(); };
+  video.pause = () => { video.paused = true; video.dispatchEvent(new Event('pause')); };
+  const toggle = Object.assign(new FakeNode(), { dataset: { play: 'Play film', pause: 'Pause film' } });
+  const chapters = spec.chapters.map(start => Object.assign(new FakeNode(), { dataset: { start: String(start) } }));
+  const rows = chapters.map(() => new FakeNode()), seeks = chapters.map((_, i) => Object.assign(new FakeNode(), { dataset: { seek: String(i) } }));
+  const figure = Object.assign(new FakeNode(), {
+    dataset: { duration: String(spec.duration) },
+    querySelector: selector => selector === 'video' ? video : selector === '[data-film-toggle]' ? toggle : new FakeNode(),
+    querySelectorAll: () => chapters,
+    closest: () => ({ querySelectorAll: selector => selector === '[data-row]' ? rows : seeks }),
+  });
+  bindFilm(figure);
+  return {
+    video, toggle, rows, seeks,
+    view: ratio => observed.callback([{ isIntersecting: ratio > 0, intersectionRatio: ratio }]),
+    at: t => { video.currentTime = t; video.dispatchEvent(new Event('seeked')); },
+    chapter: () => chapters.findIndex(button => button.getAttribute('aria-current') === 'step'),
+  };
+}
+
+test('a film plays only while at least half of it is on screen, and a pause the visitor chose survives scrolling', () => withGlobals(browser(), () => {
+  const film = mountFilm();
+  assert.equal(observed.options.threshold, 0.5);
+  film.view(0.1); assert.equal(film.video.paused, true, 'a sliver on first observe must not start it');
+  film.view(0.5); assert.equal(film.video.paused, false); assert.equal(film.toggle.getAttribute('aria-label'), 'Pause film');
+  film.view(0.49); assert.equal(film.video.paused, true, 'dropping under half must pause'); assert.equal(film.toggle.getAttribute('aria-label'), 'Play film');
+  film.view(1); film.toggle.click(); film.view(0); film.view(1);
+  assert.equal(film.video.paused, true, 'an explicit pause survives leaving and coming back');
+}));
+
+test('reduced motion and Save-Data hold every film until the visitor presses play', async () => {
+  await withGlobals(browser({ reduce: true }), () => {
+    const film = mountFilm(); film.view(1); assert.equal(film.video.paused, true);
+    film.toggle.click(); assert.equal(film.video.paused, false);
+  });
+  await withGlobals(browser({ saveData: true }), () => { const film = mountFilm(); film.view(1); assert.equal(film.video.paused, true); });
+});
+
+test('the active chapter and ledger row change exactly at each chapter start, seeks land there, and the loop wraps to the first', () => withGlobals(browser(), () => {
+  const film = mountFilm(), { chapters, duration } = films.expertise;
+  chapters.forEach((start, i) => {
+    film.at(start); assert.equal(film.chapter(), i); assert.equal(film.rows[i].attrs.has('data-active'), true);
+    if (i) { film.at(start - 0.01); assert.equal(film.chapter(), i - 1); }
+    film.seeks[i].click(); assert.equal(film.video.currentTime, start); assert.equal(film.video.paused, false);
+  });
+  film.at(duration - 0.01); assert.equal(film.chapter(), chapters.length - 1);
+  film.at(0); assert.equal(film.chapter(), 0); assert.deepEqual(film.rows.map(row => row.attrs.has('data-active')), chapters.map((_, i) => i === 0));
+}));
+
+// The burned-in chapter name starts fading in 0.2s before its chapter, in the beat where the
+// previous chapter's copy has already left; the page switches on the start itself. That lead
+// is deliberate and bounded here, so the two can never drift further apart.
+test('each film names a chapter at most 0.2s before the page marks it, and never after', () => withGlobals(browser(), () => {
+  for (const [id, spec] of Object.entries(films)) {
+    const film = mountFilm(spec), stage = new FakeNode(), names = spec.chapters.map((_, i) => `chapter-${i}`);
+    const tag = chapterTag(stage, id, names, spec.chapters), label = stage.children[0].children[1];
+    for (const start of spec.chapters) for (const t of [Math.max(0, start - 0.21), start]) {
+      tag.render(t); film.at(t);
+      assert.equal(label.textContent, names[film.chapter()], `${id} at ${t}s`);
+    }
+  }
+}));
+
+test('the live check fetches every film, poster, studio visual and font, and fails when one is missing', async () => {
+  const media = await publishedMedia(), css = await read('assets/site.css');
+  for (const id of Object.keys(films)) for (const locale of Object.keys(config.locales)) assert.ok(media.includes(filmFile(id, locale)) && media.includes(filmPoster(id, locale)), `${id}-${locale}`);
+  for (const [id, m] of Object.entries(work)) for (const file of [...m.shots.map(shot => shot.file), ...(m.promo ? [m.promo.file, m.promo.poster] : [])]) assert.ok(media.includes(workFile(file)), `${id}: ${file}`);
+  assert.equal(media.filter(path => path.startsWith('/assets/fonts/')).length, css.match(/@font-face/g).length);
+  const served = missing => async url => {
+    if (url.pathname === missing) return { ok: false, status: 404 };
+    const bytes = await readFile(resolve(ROOT, `.${url.pathname.endsWith('/') ? `${url.pathname}index.html` : url.pathname}`));
+    return { ok: true, status: 200, arrayBuffer: async () => bytes };
+  };
+  await withGlobals({ fetch: served(null) }, () => checkPreview('https://verification.invalid/', output));
+  await withGlobals({ fetch: served(filmFile('expertise', 'th')) }, () => assert.rejects(checkPreview('https://verification.invalid/', output), /\/assets\/films\/expertise-th\.mp4: HTTP 404/));
 });

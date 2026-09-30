@@ -21,11 +21,14 @@ const waitForLine = (stream, pattern, what, ms = 15000) => new Promise((resolve,
   });
 });
 
-// Starts scripts/serve.mjs on a free port; returns { origin, close }.
+// Starts scripts/serve.mjs on a free port; returns { origin, close }. The server inherits
+// stderr, so an orphan would hold the caller's pipe open forever: it dies with this process.
 export async function serve() {
   const child = spawn(process.execPath, ['scripts/serve.mjs', '0'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
+  const stop = () => child.kill('SIGTERM');
+  process.once('exit', stop);
   const origin = await waitForLine(child.stdout, /(http:\/\/127\.0\.0\.1:\d+)/, 'serve.mjs');
-  return { origin, close: () => child.kill('SIGTERM') };
+  return { origin, close: () => { process.off('exit', stop); stop(); } };
 }
 
 class Connection {
@@ -67,7 +70,12 @@ export async function launch() {
   const conn = new Connection(ws);
   return {
     conn,
-    async close() { ws.close(); child.kill('SIGTERM'); await new Promise(r => child.once('exit', r)); await rm(profile, { recursive: true, force: true }); },
+    // Chromium's helper processes can still be writing into the profile after the main
+    // process exits (ENOTEMPTY), so retry, and never let a leftover temp dir fail a render.
+    async close() {
+      ws.close(); child.kill('SIGTERM'); await new Promise(r => child.once('exit', r));
+      await rm(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }).catch(error => console.warn(`left ${profile}: ${error.code}`));
+    },
   };
 }
 

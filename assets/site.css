@@ -270,7 +270,7 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .line-qr img { width: 200px; border-radius: var(--radius-inner); border: 1px solid var(--line); }
 .line-qr figcaption, .line-id { margin-top: 10px; color: var(--muted); font-size: 14px; }
 .contact-fallback { grid-area: fallback; display: grid; gap: 10px; color: var(--muted); }
-.contact-direct a { padding-block: 11px; color: var(--ink); }
+.contact-direct a { padding-block: 12px; color: var(--ink); }
 @media (max-width: 800px) { .contact-layout { grid-template-columns: 1fr; grid-template-areas: "aside" "card" "fallback"; } }
 
 /* Studio output. Frames only; the pixels inside are real captures. */

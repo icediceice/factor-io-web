@@ -96,7 +96,7 @@ test('root and resource JSON-LD retain consistent cross-page identities and foun
 
 test('sitemap retains every original URL, omits noindex Thai and fixture, and uses explicit dates', () => {
   const xml = output.get('sitemap.xml');
-  for (const path of ['/', '/light-tools.html', '/tco-calculator.html', '/privacy.html']) assert.ok(xml.includes(`<loc>${config.origin}${path}</loc>`));
+  for (const path of ['/', '/light-tools.html', '/tco-calculator.html', '/privacy.html', '/terms.html']) assert.ok(xml.includes(`<loc>${config.origin}${path}</loc>`));
   assert.ok(xml.includes('<lastmod>2026-08-28</lastmod>'));
   assert.doesNotMatch(xml, /\/th\/|\/tests\/|services\.html/);
   for (const route of routes) assert.ok(xml.includes(routePath('en', route)));

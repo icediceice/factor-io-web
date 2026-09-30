@@ -76,7 +76,7 @@ code { font: 500 .88em var(--mono); }
 .button-text:hover { background: transparent; color: var(--ink); }
 .button-small { min-height: 44px; padding: 0 18px; font-size: 15px; }
 /* Vertical padding on an inline link grows its 44px hit area without moving the line it sits on. */
-.text-link { padding-block: 11px; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-color .2s var(--ease); }
+.text-link { padding-block: 12px; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-color .2s var(--ease); }
 .text-link:hover { text-decoration-color: var(--accent); }
 
 /* Header. */

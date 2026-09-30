@@ -84,6 +84,153 @@
     "fallback": "Prefer email? Write directly to",
     "privacy": "Read how enquiries are handled."
   },
+  "films": {
+    "play": "Play film",
+    "pause": "Pause film",
+    "chapters": "Chapters",
+    "transcript": "What the film shows",
+    "story": {
+      "title": "The studio",
+      "caption": "Where Factor IO comes from, and why it builds the running system rather than the slide.",
+      "chapters": [
+        {
+          "title": "Where we come from",
+          "line": "Nearly 20 years\ninside enterprise\n*infrastructure.*",
+          "sub": "Ecosystem Solutions Architect for Red Hat and Nutanix, working alongside Thailand's systems integrators."
+        },
+        {
+          "title": "The gap",
+          "line": "Most projects stall\nbetween the slide and\nthe *running system.*",
+          "sub": "The design is sound. The platform underneath it is where the work gets hard."
+        },
+        {
+          "title": "What we build",
+          "line": "So we build\nthe running system,\n*from bare metal up.*",
+          "sub": "Hardware, Kubernetes, data and controls, delivered as one piece of work."
+        },
+        {
+          "title": "The studio",
+          "line": "One principal-led\nstudio. *Platform first,*\n*AI on top.*",
+          "sub": "Bangkok, Thailand"
+        }
+      ],
+      "labels": {
+        "slide": "Architecture slide",
+        "system": "Running system",
+        "layers": [
+          "Bare metal and GPUs",
+          "Kubernetes platform",
+          "Data, identity and audit",
+          "AI and applications"
+        ]
+      }
+    },
+    "thesis": {
+      "title": "The platform thesis",
+      "caption": "Why every serious AI project turns into a platform project, and why that platform should carry more than AI.",
+      "chapters": [
+        {
+          "title": "The model",
+          "line": "The model is\n*the easy part.*",
+          "sub": "A demo needs a model and a laptop. Production needs everything around it."
+        },
+        {
+          "title": "What it needs",
+          "line": "Then it needs GPUs,\ndata, identity, audit\n*and recovery.*",
+          "sub": "Scheduling, data kept on premises, access control, an audit trail and a way back after failure."
+        },
+        {
+          "title": "A platform",
+          "line": "That is a platform.\n*It carries more*\n*than AI.*",
+          "sub": "Applications, databases and pipelines run on the same foundation."
+        },
+        {
+          "title": "Build once",
+          "line": "Build the platform\nonce. *Run whatever*\n*comes next.*",
+          "sub": "Kubernetes first. AI is the specialisation."
+        }
+      ],
+      "labels": {
+        "model": "Model",
+        "needs": [
+          "GPU scheduling",
+          "Data on premises",
+          "Identity and access",
+          "Audit trail",
+          "Backup and recovery"
+        ],
+        "short": [
+          "GPUs",
+          "Data",
+          "Identity",
+          "Audit",
+          "Recovery"
+        ],
+        "platform": "Kubernetes platform",
+        "workloads": [
+          "Applications",
+          "Databases",
+          "Pipelines"
+        ],
+        "next": "What comes next"
+      }
+    },
+    "expertise": {
+      "title": "What we deliver",
+      "caption": "Four services on one platform, from the cluster to the decision a person still has to make.",
+      "chapters": [
+        {
+          "title": "Kubernetes and GPU platform",
+          "line": "Clusters that\nschedule GPUs and\n*survive a failed node.*",
+          "sub": "OpenShift, Nutanix NKP or upstream Kubernetes, on bare metal or air-gapped."
+        },
+        {
+          "title": "Private AI",
+          "line": "Models served\ninside your network.\n*Nothing leaves.*",
+          "sub": "Open-weight models on vLLM or Triton, sized to the GPUs you own."
+        },
+        {
+          "title": "Knowledge and authority",
+          "line": "The right source,\n*for the right people.*",
+          "sub": "Which documents are authoritative, and who may read them, is settled before anything is indexed."
+        },
+        {
+          "title": "AI governance",
+          "line": "An agent can ask.\n*A person decides.*",
+          "sub": "Anything outside the agreed scope stops until someone accountable approves it."
+        }
+      ],
+      "closing": "Scoped, built\nand *handed over*\n*to your team.*",
+      "labels": {
+        "nodes": [
+          "Node A",
+          "Node B",
+          "GPU node"
+        ],
+        "down": "Node down",
+        "network": "Your network",
+        "users": "Users",
+        "server": "Model server",
+        "docs": "Documents",
+        "outside": "Public AI API",
+        "blocked": "Blocked",
+        "question": "Question",
+        "docNames": [
+          "Leave policy",
+          "Leave policy",
+          "Salary file"
+        ],
+        "docTags": [
+          "current",
+          "superseded",
+          "restricted"
+        ],
+        "scope": "Outside scope",
+        "waiting": "Waiting for a person",
+        "approved": "Approved: revision 182"
+      }
+    }
+  },
   "pages": {
     "home": {
       "nav": "Home",

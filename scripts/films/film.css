@@ -79,3 +79,7 @@ svg.wires .dash { stroke-dasharray: 8 10; }
 .box.slot { font-size: 20px; padding: 0 8px; }
 .tagline { position: absolute; font-family: var(--mono); font-size: 17px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
 :lang(th) .tagline { letter-spacing: 0; text-transform: none; font-size: 20px; }
+
+/* Expertise film: the network boundary. */
+.zone { position: absolute; border: 2px dashed var(--line-strong); border-radius: 20px; }
+.zone .mono { position: absolute; left: 24px; top: -14px; padding: 0 10px; background: var(--ink); }

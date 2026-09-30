@@ -13,7 +13,7 @@ export function build({ stage, copy, content, spec }) {
   const tagline = (text, x, y) => place(el('div', 'tagline', stage, text), { x, y });
 
   // Chapter 1: three nodes; node B fails and its pods reschedule onto the other two.
-  const NODE = { y: 330, w: 210, h: 330 }, nodeX = [1110, 1345, 1580];
+  const NODE = { y: 375, w: 210, h: 330 }, nodeX = [1110, 1345, 1580];
   const nodes = L.nodes.map((label, n) => box(stage, label, n === 2 ? 'left accent' : 'left', { x: nodeX[n], y: NODE.y, w: NODE.w, h: NODE.h }));
   const slot = (n, i) => ({ x: nodeX[n] + 22 + (i % 3) * 60, y: NODE.y + 100 + Math.floor(i / 3) * 60 });
   // [node, slot, where it lands after node B fails]

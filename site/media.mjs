@@ -6,7 +6,7 @@
 export const films = {
   story: { duration: 28, chapters: [0, 7, 14, 21], poster: 17.5 },
   thesis: { duration: 26, chapters: [0, 6.5, 13, 19.5], poster: 22 },
-  expertise: { duration: 32, chapters: [0, 7.5, 15, 22.5], poster: 27.2 },
+  expertise: { duration: 33, chapters: [0, 7.5, 15, 22.5], poster: 28.3 },
 };
 export const filmSize = { width: 1920, height: 1080, fps: 30 };
 export const filmFile = (id, locale) => `/assets/films/${id}-${locale}.mp4`;

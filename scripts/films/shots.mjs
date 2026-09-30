@@ -41,11 +41,13 @@ const MEASURE = `(() => {
   const ratio = (a, b) => { const L1 = lum(a), L2 = lum(b); return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05); };
   const name = el => el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\\s+/).join('.') : '');
   const shown = el => { for (let n = el; n; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === 'none' || cs.visibility === 'hidden' || px(cs.opacity) === 0) return false; } return true; };
+  // A deliberately cropped child (the work tiles bleed a browser frame off their edge) is not overflow when its clipping box sits inside the viewport.
+  const clipped = el => { for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) { const o = getComputedStyle(n).overflowX; if (o === 'hidden' || o === 'clip') { const a = n.getBoundingClientRect(); return a.left >= -1 && a.right <= vw + 1; } } return false; };
   const overflow = [], contrast = [], sizes = new Map();
   for (const el of document.body.querySelectorAll('*')) {
     const r = el.getBoundingClientRect();
     if (r.width <= 1 || r.height <= 1 || !shown(el)) continue;
-    if (r.right > vw + 1 || r.left < -1) overflow.push({ sel: name(el), left: Math.round(r.left), right: Math.round(r.right) });
+    if ((r.right > vw + 1 || r.left < -1) && !clipped(el)) overflow.push({ sel: name(el), left: Math.round(r.left), right: Math.round(r.right) });
     if (!Array.from(el.childNodes).some(n => n.nodeType === 3 && n.textContent.trim())) continue;
     const cs = getComputedStyle(el), fs = px(cs.fontSize);
     sizes.set(fs, (sizes.get(fs) || 0) + 1);

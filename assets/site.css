@@ -74,8 +74,9 @@ code { font: 500 .88em var(--mono); }
 .button-quiet:hover { background: transparent; border-color: var(--ink); }
 .button-text { background: transparent; color: var(--muted); padding: 0 8px; text-decoration: underline; text-underline-offset: 4px; }
 .button-text:hover { background: transparent; color: var(--ink); }
-.button-small { min-height: 40px; padding: 0 18px; font-size: 15px; }
-.text-link { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-color .2s var(--ease); }
+.button-small { min-height: 44px; padding: 0 18px; font-size: 15px; }
+/* Vertical padding on an inline link grows its 44px hit area without moving the line it sits on. */
+.text-link { padding-block: 11px; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-color .2s var(--ease); }
 .text-link:hover { text-decoration-color: var(--accent); }
 
 /* Header. */

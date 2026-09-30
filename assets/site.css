@@ -77,7 +77,7 @@ code { font: 500 .88em var(--mono); }
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--header); border-bottom: 1px solid var(--line); -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px); }
 .header-inner { display: flex; align-items: center; gap: 24px; min-height: 68px; }
 .brand { font-size: 21px; font-weight: 600; letter-spacing: -.03em; text-decoration: none; white-space: nowrap; }
-.brand span { color: var(--accent); }
+.brand span { color: var(--accent-text); }
 .header-nav { display: flex; align-items: center; gap: 28px; margin-left: auto; }
 .header-nav nav:first-child { display: flex; gap: 26px; }
 .header-nav nav:first-child a { color: var(--muted); font-size: 15px; text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; transition: color .2s var(--ease); }

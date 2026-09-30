@@ -57,7 +57,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
 p { margin: 0; text-wrap: pretty; }
 a { color: inherit; }
 code { font: 500 .88em var(--mono); }
-:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; border-radius: var(--radius-focus); }
 ::selection { background: var(--accent); color: var(--accent-ink); }
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 .skip { position: absolute; left: 16px; top: -64px; z-index: 30; padding: 10px 16px; border-radius: var(--pill); background: var(--ink); color: var(--bg); text-decoration: none; }

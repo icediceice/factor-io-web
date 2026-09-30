@@ -235,7 +235,7 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .flow-node[data-state="pass"] { border-color: var(--ink); background: var(--surface-2); }
 .flow-node[data-state="deny"] { border-color: var(--accent-text); background: var(--accent-soft); color: var(--accent-text); }
 .flow-node[data-state="wait"] { border: 2px dashed var(--accent-text); }
-@media (prefers-reduced-motion: no-preference) { .flow-node.pulse-trigger { animation: node-in .45s var(--ease); } }
+@media (prefers-reduced-motion: no-preference) { .flow-node.pulse-trigger { animation: node-in .28s var(--ease); } }
 @keyframes node-in { from { transform: scale(.94); } to { transform: none; } }
 .flow-halt { margin: 4px 0 0; padding-left: 12px; border-left: 3px solid var(--accent-text); color: var(--accent-text); font-size: 15px; }
 .flow-legend { margin-top: 10px; color: var(--muted); font-size: 14px; }

@@ -177,7 +177,7 @@ const index = i => `<span class="index" aria-hidden="true">${String(i + 1).padSt
 // its native controls; site.js swaps them for the pause button and chapter seeking.
 function film(c, id) {
   const f = c.films[id], spec = films[id], u = c.films, tid = `film-${id}-transcript`;
-  return `<figure class="film" data-film="${id}">
+  return `<figure class="film" data-film="${id}" data-duration="${spec.duration}">
     <div class="film-frame"><video class="film-video" controls muted playsinline loop preload="none" width="1920" height="1080" poster="${filmPoster(id, c.locale)}" aria-label="${esc(f.title)}" aria-describedby="${tid}"><source src="${filmFile(id, c.locale)}" type="video/mp4"></video>
     <button type="button" class="film-toggle" data-film-toggle data-play="${esc(u.play)}" data-pause="${esc(u.pause)}" aria-label="${esc(u.play)}" hidden><span aria-hidden="true"></span></button></div>
     <figcaption class="film-bar"><p class="film-caption"><strong>${esc(f.title)}</strong> ${esc(f.caption)}</p>

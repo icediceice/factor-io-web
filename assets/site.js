@@ -121,8 +121,10 @@ export function bindFilm(figure) {
   chapters.forEach((button, i) => button.addEventListener('click', () => seek(i)));
   if (group) group.querySelectorAll('[data-seek]').forEach(button => button.addEventListener('click', () => seek(Number(button.dataset.seek))));
   if (typeof IntersectionObserver === 'function') {
+    // The observer also reports on first observe and on every crossing, and isIntersecting
+    // is true for any sliver; only the ratio says "at least half".
     new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
+      visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
       if (visible && !held && video.paused) play();
       else if (!visible && !video.paused) video.pause();
     }, { threshold: 0.5 }).observe(figure.querySelector('.film-frame'));

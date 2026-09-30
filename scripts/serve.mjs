@@ -21,6 +21,25 @@ const MIME = {
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
   ".xml": "application/xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".woff2": "font/woff2",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+};
+
+// Browsers fetch video with a Range header and will not seek without a 206, so
+// honour a single byte range the way GitHub Pages does. Multi-range requests get
+// the whole file, which the spec permits.
+const byteRange = (header, size) => {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(header ?? '');
+  if (!match || (match[1] === '' && match[2] === '')) return null;
+  let start = match[1] === '' ? size - Number(match[2]) : Number(match[1]);
+  let end = match[1] === '' || match[2] === '' ? size - 1 : Math.min(Number(match[2]), size - 1);
+  if (start < 0) start = 0;
+  return start > end || start >= size ? 'unsatisfiable' : { start, end };
 };
 
 const withinRoot = file => { const rel = relative(ROOT, file); return rel !== '..' && !rel.startsWith('../') && !isAbsolute(rel); };
@@ -38,7 +57,15 @@ const server = createServer(async (req, res) => {
       if (!withinRoot(file)) throw new Error('index outside root');
     }
     const body = await readFile(file);
-    res.writeHead(200, { "content-type": MIME[extname(file)] ?? "application/octet-stream", "cache-control": "no-store" });
+    const headers = { "content-type": MIME[extname(file)] ?? "application/octet-stream", "cache-control": "no-store", "accept-ranges": "bytes" };
+    const range = byteRange(req.headers.range, body.length);
+    if (range === 'unsatisfiable') { res.writeHead(416, { ...headers, "content-range": `bytes */${body.length}` }); res.end(); return; }
+    if (range) {
+      res.writeHead(206, { ...headers, "content-range": `bytes ${range.start}-${range.end}/${body.length}`, "content-length": range.end - range.start + 1 });
+      res.end(req.method === 'HEAD' ? undefined : body.subarray(range.start, range.end + 1));
+      return;
+    }
+    res.writeHead(200, headers);
     res.end(req.method === 'HEAD' ? undefined : body);
   } catch {
     res.writeHead(404, { "content-type": "text/plain" });

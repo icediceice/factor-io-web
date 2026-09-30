@@ -1,6 +1,6 @@
 {
   "locale": "en",
-  "updated": "2026-09-18",
+  "updated": "2026-09-30",
   "ui": {
     "skip": "Skip to content",
     "menu": "Menu",
@@ -14,12 +14,14 @@
     "resources": "Engineering resources",
     "calculator": "Local AI cost calculator",
     "tools": "light-tools · open source",
-    "footer": "Kubernetes, infrastructure and enterprise AI. Thailand.",
+    "footer": "Kubernetes, infrastructure and enterprise AI. Bangkok, Thailand.",
     "routeMark": "Who holds the customer relationship",
-    "ctaTitle": "Discuss your infrastructure with the principal architect.",
-    "ctaBody": "Tell us what you want to achieve and what hardware or platform you currently run. We scope your technical requirements and provide an itemized quotation within 48 hours.",
-    "ctaLink": "Request a technical quotation",
-    "backTop": "Back to top"
+    "ctaTitle": "Talk to the architect who will build it.",
+    "ctaBody": "Tell us what you want to achieve and what you run today. We scope the work and send an itemised quotation within 48 hours.",
+    "ctaLink": "Request a quotation",
+    "backTop": "Back to top",
+    "workLink": "See the studio work",
+    "company": "Company"
   },
   "topology": {
     "title": "Your environment. Clear boundaries.",
@@ -29,8 +31,8 @@
       "Enterprise AI",
       "Frontier APIs"
     ],
-    "agent": "Agents · reasoning & preparation",
-    "boundary": "GOVERNED EXECUTION",
+    "agent": "Agents · reasoning and preparation",
+    "boundary": "Governed execution",
     "fields": [
       "Identity",
       "Authorization",
@@ -42,7 +44,7 @@
       "Tool control",
       "Reconcile"
     ],
-    "systems": "Your systems, data & workflows",
+    "systems": "Your systems, data and workflows",
     "note": "Reasoning can be flexible. Actions need permission."
   },
   "demo": {
@@ -70,13 +72,13 @@
     "denied": "DENIED · This action is outside the standing scope, or it no longer matches the approval on file. It stops here for a person to look at.",
     "approved": "APPROVED · Your approval is bound to the target, operation and revision shown, so the request clears the gate and the flow runs to the end. Nothing real was touched.",
     "allowed": "ALLOWED · This exact request now has authority, so the flow runs to the end. Nothing real was touched.",
-    "invalidated": "APPROVAL REVOKED · The request changed, so the previous approval is void — even if you set the values back to what they were.",
+    "invalidated": "APPROVAL REVOKED · The request changed, so the previous approval is void, even if you set the values back to what they were.",
     "evidence": "Illustrative evidence: identity workflow-agent-17, the target and revision, the policy decision, and what the approval actually covered. After a real action you still compare what happened against what was approved, and reconcile any difference.",
     "static": "A restart of production/payment-api by workflow-agent-17, which is authorized only for staging/*, is refused. A human approval naming that target, the restart operation and revision 182 permits that one request and nothing else. Identity and permissions come from the execution layer, never from what the model claims about itself."
   },
   "contact": {
     "title": "Talk to us on LINE.",
-    "intro": "LINE is the quickest way to reach us. Send a short note about what you are working on and what you already have running — we will reply there.",
+    "intro": "LINE is the quickest way to reach us. Send a short note about what you are working on and what you already run, and we will reply there.",
     "lineAction": "Add Factor IO on LINE",
     "qrAlt": "LINE QR code for Factor IO. Scan it in the LINE app to start a conversation.",
     "qrCaption": "Scan from another device, or tap the button above on your phone.",
@@ -84,122 +86,263 @@
     "fallback": "Prefer email? Write directly to",
     "privacy": "Read how enquiries are handled."
   },
+  "films": {
+    "play": "Play film",
+    "pause": "Pause film",
+    "chapters": "Chapters",
+    "transcript": "What the film shows",
+    "story": {
+      "title": "The studio",
+      "caption": "Where Factor IO comes from, and why it builds the running system rather than the slide.",
+      "chapters": [
+        {
+          "title": "Where we come from",
+          "line": "Nearly 20 years\ninside enterprise\n*infrastructure.*",
+          "sub": "Ecosystem Solutions Architect for Red Hat and Nutanix, working alongside Thailand's systems integrators."
+        },
+        {
+          "title": "The gap",
+          "line": "Most projects stall\nbetween the slide and\nthe *running system.*",
+          "sub": "The design is sound. The platform underneath it is where the work gets hard."
+        },
+        {
+          "title": "What we build",
+          "line": "So we build\nthe running system,\n*from bare metal up.*",
+          "sub": "Hardware, Kubernetes, data and controls, delivered as one piece of work."
+        },
+        {
+          "title": "The studio",
+          "line": "One principal-led\nstudio. *Platform first,*\n*AI on top.*",
+          "sub": "Bangkok, Thailand"
+        }
+      ],
+      "labels": {
+        "slide": "Architecture slide",
+        "system": "Running system",
+        "layers": [
+          "Bare metal and GPUs",
+          "Kubernetes platform",
+          "Data, identity and audit",
+          "AI and applications"
+        ]
+      }
+    },
+    "thesis": {
+      "title": "The platform thesis",
+      "caption": "Why every serious AI project turns into a platform project, and why that platform should carry more than AI.",
+      "chapters": [
+        {
+          "title": "The model",
+          "line": "The model is\n*the easy part.*",
+          "sub": "A demo needs a model and a laptop. Production needs everything around it."
+        },
+        {
+          "title": "What it needs",
+          "line": "Then it needs GPUs,\ndata, identity, audit\n*and recovery.*",
+          "sub": "Scheduling, data kept on premises, access control, an audit trail and a way back after failure."
+        },
+        {
+          "title": "A platform",
+          "line": "That is a platform.\n*It carries more*\n*than AI.*",
+          "sub": "Applications, databases and pipelines run on the same foundation."
+        },
+        {
+          "title": "Build once",
+          "line": "Build the platform\nonce. *Run whatever*\n*comes next.*",
+          "sub": "Kubernetes first. AI is the specialisation."
+        }
+      ],
+      "labels": {
+        "model": "Model",
+        "needs": [
+          "GPU scheduling",
+          "Data on premises",
+          "Identity and access",
+          "Audit trail",
+          "Backup and recovery"
+        ],
+        "short": [
+          "GPUs",
+          "Data",
+          "Identity",
+          "Audit",
+          "Recovery"
+        ],
+        "platform": "Kubernetes platform",
+        "workloads": [
+          "Applications",
+          "Databases",
+          "Pipelines"
+        ],
+        "next": "What comes next"
+      }
+    },
+    "expertise": {
+      "title": "What we deliver",
+      "caption": "Four services on one platform, from the cluster to the decision a person still has to make.",
+      "chapters": [
+        {
+          "title": "Kubernetes and GPU platform",
+          "line": "Clusters that\nschedule GPUs and\n*survive a failed node.*",
+          "sub": "OpenShift, Nutanix NKP or upstream Kubernetes, on bare metal or air-gapped."
+        },
+        {
+          "title": "Private AI",
+          "line": "Models served\ninside your network.\n*Nothing leaves.*",
+          "sub": "Open-weight models on vLLM or Triton, sized to the GPUs you own."
+        },
+        {
+          "title": "Knowledge and authority",
+          "line": "The right source,\n*for the right people.*",
+          "sub": "Which documents are authoritative, and who may read them, is settled before anything is indexed."
+        },
+        {
+          "title": "AI governance",
+          "line": "An agent can ask.\n*A person decides.*",
+          "sub": "Anything outside the agreed scope stops until someone accountable approves it."
+        }
+      ],
+      "closing": "Scoped, built\nand *handed over*\n*to your team.*",
+      "labels": {
+        "nodes": [
+          "Node A",
+          "Node B",
+          "GPU node"
+        ],
+        "down": "Node down",
+        "network": "Your network",
+        "users": "Users",
+        "server": "Model server",
+        "docs": "Documents",
+        "outside": "Public AI API",
+        "blocked": "Blocked",
+        "question": "Question",
+        "docNames": [
+          "Leave policy",
+          "Leave policy",
+          "Salary file"
+        ],
+        "docTags": [
+          "current",
+          "superseded",
+          "restricted"
+        ],
+        "scope": "Outside scope",
+        "waiting": "Waiting for a person",
+        "approved": "Approved: revision 182"
+      }
+    }
+  },
   "pages": {
     "home": {
       "nav": "Home",
       "title": "Kubernetes, Infrastructure and Enterprise AI Consulting in Thailand",
       "description": "Kubernetes and infrastructure engineering in Thailand, with enterprise AI as the specialisation. Platform architecture and delivery for businesses, and technical support for technology partners.",
-      "eyebrow": "FACTOR IO / KUBERNETES · INFRASTRUCTURE · ENTERPRISE AI",
-      "headline": "Kubernetes, bare-metal platforms, and the complete private AI bundle.",
-      "lede": "We don't sell third-party cloud API wrappers. Factor IO engineers the complete on-premise bundle: bare-metal Kubernetes, authoritative knowledge systems, and private local AI running entirely within your enterprise boundary—delivered directly by a principal architect.",
+      "eyebrow": "Factor IO · Bangkok engineering studio",
+      "headline": "The platform comes first. Everything else runs on it.",
+      "lede": "Kubernetes platforms, the infrastructure underneath them and the private AI on top, built by the architect who scopes the work.",
+      "film": "story",
       "sections": [
         {
           "id": "focus",
           "kind": "statement",
-          "kicker": "01 / The Bundle",
-          "title": "The full bundle is the deliverable, not an isolated model.",
-          "body": "Enterprise AI cannot survive in production without the platform underneath it and data authority around it. Selling a model or technique in isolation invites project failure. Factor IO delivers the whole architecture as an integrated bundle: bare-metal GPU clusters, knowledge authority mapping, private local model serving, and mechanical execution controls.",
+          "film": "thesis",
+          "title": "Every serious AI project becomes a platform project.",
+          "body": "A model is easy to demo. Running one for a business takes GPU scheduling, data kept on premises, identity, an audit trail and a way back after failure. That is a platform, and once it exists it carries your applications, databases and pipelines as well. We build it once, properly, and AI is the workload we know best.",
           "items": []
-        },
-        {
-          "id": "production",
-          "kind": "questions",
-          "kicker": "02 / Operational Reality",
-          "title": "Engineered for local security, air-gapped systems and compliance.",
-          "body": "When sensitive corporate data cannot leave your network or be billed on unpredictable API tokens, local on-premise AI is the only viable architecture. We address the hard operational questions before installation begins:",
-          "items": [
-            {
-              "title": "Where does the model run?",
-              "body": "Strictly on your private servers or local Kubernetes clusters—using optimized local runtimes (vLLM, Triton, Ollama) with zero outbound data leakage."
-            },
-            {
-              "title": "Which document is authoritative?",
-              "body": "Source authority and document lifecycle are settled before indexing, preventing hallucinated answers from obsolete company policies."
-            },
-            {
-              "title": "Who is permitted to see what?",
-              "body": "Retrieval filters enforce existing active directory and RBAC permissions mechanically at query time, not by prompting the model."
-            },
-            {
-              "title": "What happens when hardware fails?",
-              "body": "High availability, failover domains, and automated recovery are engineered into the Kubernetes cluster from Day 1."
-            }
-          ]
         },
         {
           "id": "services",
           "kind": "ledger",
-          "kicker": "03 / The Four Pillars",
-          "title": "The platform first, the data foundation, then sovereign AI.",
-          "body": "Every layer reinforces the others. You can engage us for the complete turnkey rollout or a specific phase aligned with your roadmap.",
+          "film": "expertise",
+          "title": "Four services, one platform underneath.",
+          "body": "Each can be an engagement of its own or one stage of the same delivery. The platform comes first because everything else sits on it.",
           "items": [
             {
-              "title": "Kubernetes & GPU Platform",
-              "body": "The platform your applications need, including Kubernetes and GPU infrastructure. It is designed to carry whatever the business runs on it rather than one workload in particular. Capacity, recovery, upgrades and day-to-day ownership are part of the design."
+              "title": "Kubernetes and GPU platform",
+              "body": "OpenShift, Nutanix NKP or upstream Kubernetes, on bare metal or air-gapped. Capacity, recovery, upgrades and day-to-day ownership are designed in."
             },
             {
-              "title": "Private Local AI Implementation",
-              "body": "On-premise inference engines, model quantization, local embeddings, and GPU capacity optimization with predictable, zero-token cost and total data sovereignty."
+              "title": "Private AI",
+              "body": "Open-weight models served inside your network on vLLM or Triton, sized to the GPUs you own. Your data stays put, and there is no per-token bill."
             },
             {
-              "title": "Knowledge and Authority Mapping",
-              "body": "Make your organisation's information useful to AI: which sources to trust, who can access them, and how to keep them current before algorithmic indexing."
+              "title": "Knowledge and authority",
+              "body": "Which documents are authoritative, who may read them and how they stay current, settled before anything is indexed."
             },
             {
-              "title": "AI Governance and Controls",
-              "body": "Decide what AI may do on its own and when a person needs to approve the next step. We design controls around those decisions, including access, review and deterministic refusal."
-            }
-          ]
-        },
-        {
-          "id": "engagement",
-          "kind": "routes",
-          "kicker": "04 / Engagement & Quotation",
-          "title": "Transparent engagement scopes. Direct engineering quotation.",
-          "body": "Because every enterprise environment has distinct security constraints, hardware baselines, and data policies, we don't sell generic price-tag commodities. We scope directly with you and deliver a transparent quotation within 48 hours.",
-          "items": [
-            {
-              "title": "For your business",
-              "body": "Engage us for a focused architecture sprint, a private AI pilot, or full production delivery. Talk directly to the principal engineer to define technical scope and receive an itemized quotation.",
-              "mark": "You hold the direct relationship, and we are accountable for the agreed delivery."
-            },
-            {
-              "title": "For technology partners",
-              "body": "Bring principal-level solution architecture into complex client opportunities. We support vendors, distributors, and SIs across discovery, sizing, POC validation, and implementation.",
-              "mark": "Your team holds the commercial relationship, and we take responsibility for technical delivery."
+              "title": "AI governance",
+              "body": "What an agent may do on its own, and what waits for a person. Enforced by the execution layer, not requested in a prompt."
             }
           ]
         },
         {
           "id": "architect",
           "kind": "founder",
-          "kicker": "05 / The Architect",
           "title": "Work directly with the architect doing the work.",
-          "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. You can discuss the business requirement and the implementation with the same person.",
+          "body": "Thanat Manasakool, Founder and Principal Engineer. Nearly 20 years in enterprise infrastructure, including time as an Ecosystem Solutions Architect for Red Hat and Nutanix, advising Thailand's leading systems integrators. The person who scopes your project is the person who builds it.",
           "items": []
         },
         {
-          "id": "process",
-          "kind": "process",
-          "kicker": "06 / Phased Delivery",
-          "title": "From discovery to turnkey quotation and handover.",
-          "body": "Four clear stages with defined deliverables, agreed before anything gets built.",
+          "id": "engagement",
+          "kind": "routes",
+          "title": "Two ways in. A quotation within 48 hours.",
+          "body": "Every environment has its own hardware, security constraints and data policies, so there is no price list. We scope the work with you and send an itemised quotation within 48 hours.",
           "items": [
             {
-              "title": "1. Requirement & Infrastructure Audit",
-              "body": "Review your goals, existing systems and constraints. Identify what needs attention first and define the quotation scope."
+              "title": "For your business",
+              "body": "An architecture review, a private AI pilot or a full production delivery, scoped directly with the principal engineer.",
+              "mark": "You hold the direct relationship, and we are accountable for the agreed delivery."
             },
             {
-              "title": "2. Solution Architecture & Sizing",
-              "body": "Agree the cluster scope, hardware sizing and acceptance criteria so you know exactly what will be delivered."
+              "title": "For technology partners",
+              "body": "Principal-level architecture for your client opportunities, from discovery and sizing to proof of concept and implementation. We work with vendors, distributors and systems integrators.",
+              "mark": "Your team holds the client relationship, and we take responsibility for the technical delivery."
+            }
+          ]
+        },
+        {
+          "id": "studio",
+          "kind": "work",
+          "variant": "strip",
+          "title": "Built in the studio",
+          "body": "Tools and apps we make for ourselves, to the same standard as client work.",
+          "items": [
+            {
+              "id": "tco-calculator",
+              "title": "Local AI cost calculator",
+              "meta": "Web tool",
+              "body": "What stays local, what still goes to an API, and whether the hardware pays for itself.",
+              "shots": [
+                "The Local AI cost calculator open in a browser."
+              ]
             },
             {
-              "title": "3. Build & Local AI Pilot",
-              "body": "Implement the agreed solution. Use a focused pilot where an assumption needs testing before wider enterprise rollout."
+              "id": "light-tools",
+              "title": "light-tools",
+              "meta": "Open source · Go",
+              "body": "An MCP server that replaces a coding agent's file and shell tools. One Go binary.",
+              "shots": [
+                "The light-tools page open in a browser."
+              ]
             },
             {
-              "title": "4. Deploy & Hand Over",
-              "body": "Prepare the operating procedures and work through them with your team. Agree any ongoing support separately."
+              "id": "cat-countdown",
+              "title": "Cat Countdown",
+              "meta": "Android and iPhone · Not yet released",
+              "body": "A cosy life organiser with nine cats: countdowns, tasks, sticker notes and alarms.",
+              "shots": [
+                "Cat Countdown home screen: a birthday twelve days away, above a card for each countdown."
+              ]
+            },
+            {
+              "id": "blink",
+              "title": "Blink",
+              "meta": "Android · Google Play",
+              "body": "A privacy app that runs entirely on the device. No data collection, no accounts, no analytics.",
+              "shots": [
+                "The Blink app icon."
+              ]
             }
           ]
         }
@@ -208,40 +351,39 @@
     "services": {
       "nav": "Services",
       "title": "Kubernetes, infrastructure and enterprise AI services",
-      "description": "Kubernetes and GPU platform design, enterprise AI delivery, knowledge systems and AI governance controls — scoped, built and handed over to your team.",
-      "eyebrow": "01 / SERVICES",
-      "headline": "The complete private AI bundle: infrastructure, knowledge, and local models.",
-      "lede": "Start with the infrastructure and the way things operate today. The platform layer is the foundation; the private local AI stack on top of it is the delivery. We scope the engagement around an architecture audit, an on-premise pilot, or a production cluster, providing a clear quotation and verified delivery.",
+      "description": "Kubernetes and GPU platform design, private AI, knowledge systems and AI governance controls. Scoped, built and handed over to your team.",
+      "eyebrow": "Services",
+      "headline": "Kubernetes first, then the AI that runs on it.",
+      "lede": "Start from the infrastructure you have and the way it runs today. The platform is the foundation, and private AI is what we build on top. An engagement can be an architecture review, an on-premises pilot or a production cluster, with a clear quotation before work begins.",
       "sections": [
         {
           "id": "offer",
           "kind": "ledger",
-          "kicker": "What we deliver",
-          "title": "Four services forming the complete on-premise bundle.",
-          "body": "Each service can be a standalone engagement or a phase of the complete bundle delivery. The platform work comes first because everything else sits on it. We agree technical scope and provide an itemized quotation before implementation begins.",
+          "film": "expertise",
+          "title": "Four services that make one on-premises platform.",
+          "body": "Each can be a standalone engagement or a phase of a full delivery. Platform work comes first because everything else sits on it. We agree the technical scope and send an itemised quotation before implementation begins.",
           "items": [
             {
-              "title": "Kubernetes & GPU Platform",
-              "body": "We design and deliver the container platform your workloads need, including Red Hat OpenShift, Nutanix NKP, and GPU virtualization. Built for bare-metal, air-gapped, and sovereign operations."
+              "title": "Kubernetes and GPU platform",
+              "body": "We design and deliver the container platform your workloads need: Red Hat OpenShift, Nutanix NKP or upstream Kubernetes, with GPU scheduling and virtualisation. Built for bare metal, air-gapped and sovereign operation."
             },
             {
-              "title": "Private Local AI Implementation",
-              "body": "Deploy open-weight and fine-tuned models directly inside your data center using high-throughput inference engines (vLLM, Triton). Zero cloud API dependency and zero data exfiltration."
+              "title": "Private AI",
+              "body": "Open-weight and fine-tuned models served inside your data centre on high-throughput engines such as vLLM and Triton. No dependency on a cloud API, and no data leaving your network."
             },
             {
-              "title": "Knowledge Systems & Authority",
-              "body": "Make your organisation's information useful and safe for local AI: authoritative source mapping, RBAC access boundaries, document freshness, and compliant lifecycle pipelines."
+              "title": "Knowledge and authority",
+              "body": "Make your organisation's information safe and useful for AI: which sources are authoritative, access boundaries that follow your existing roles, and a lifecycle that keeps documents current."
             },
             {
-              "title": "Mechanical AI Governance",
-              "body": "Decide what AI may do on its own and when a person needs to approve the next step. We design controls around those decisions, including access, review and deterministic refusal."
+              "title": "AI governance",
+              "body": "Decide what AI may do on its own and when a person must approve the next step. We design the controls around those decisions, including access, review, refusal and an audit trail."
             }
           ]
         },
         {
           "id": "governance",
           "kind": "demo",
-          "kicker": "Governance, shown rather than described",
           "title": "An instruction is a request. A permission is a fact.",
           "body": "This is what the AI governance service produces: a decision made before the action runs, not a rule written into a prompt and hoped for. The illustration below is the shape of that control, not a product you buy.",
           "items": []
@@ -249,7 +391,6 @@
         {
           "id": "escalation",
           "kind": "exceptions",
-          "kicker": "What reaches a person",
           "title": "Send people the cases that genuinely need a person.",
           "body": "AI handles the volume; people handle the judgment. What gets escalated is written down as a rule during design, so nobody is asked to trust a confidence score without seeing the evidence behind it.",
           "items": [
@@ -282,7 +423,6 @@
         {
           "id": "architecture",
           "kind": "architecture",
-          "kicker": "Where the controls sit",
           "title": "Keep model choice separate from authority.",
           "body": "Agents can run on local, enterprise-hosted or frontier models. Identity, authorization, scope, approval, tool access, state, audit and reconciliation are checked before any of them reach your systems. Choosing a different model does not change who is allowed to do what.",
           "items": []
@@ -290,7 +430,6 @@
         {
           "id": "ongoing",
           "kind": "statement",
-          "kicker": "After it ships",
           "title": "AI workflows need maintenance, not just a launch.",
           "body": "Review the corrections people made, the outputs they rejected, the escalations and exceptions, how long things take and what changed in the data and the business rules. AI can propose improvements, but every change is tested, reviewed and released as a controlled revision. Production policy never changes quietly. Ongoing support is agreed separately, per project.",
           "items": []
@@ -298,35 +437,81 @@
       ]
     },
     "mobile-apps": {
-      "nav": "Mobile apps",
-      "title": "Mobile apps built by Factor IO: Blink and Cat Countdown",
-      "description": "The mobile applications built by Factor IO: Blink, an Android privacy app that works entirely on-device, and Cat Countdown, a countdown app for Android and iPhone. No ads, no tracking, no account with us.",
-      "eyebrow": "MOBILE APPS / BUILT BY THE STUDIO",
-      "headline": "The apps we build for ourselves are held to the same bar as the platforms we build for you.",
-      "lede": "Everything above this line is delivered to clients. These are the applications we built, shipped and maintain ourselves. They carry no advertising, no usage analytics and no account with us, because that is the standard we work to when a client asks us for the same thing.",
+      "nav": "Studio work",
+      "title": "Studio work: web tools and apps built by Factor IO",
+      "description": "The web tools and mobile apps Factor IO builds for itself: a local AI cost calculator, the open-source light-tools, Cat Countdown and Blink.",
+      "eyebrow": "Studio work",
+      "headline": "What we build for ourselves.",
+      "lede": "Client work comes first. Between projects we build our own tools and apps: small, real, and shipped to the same standard as the work we deliver.",
       "sections": [
         {
-          "id": "portfolio",
-          "kind": "cards",
-          "kicker": "The portfolio",
-          "title": "Two applications, released.",
-          "body": "Both are ours from the first design decision through to the store release. They share a privacy posture rather than a feature set: nothing is collected for its own sake, and nothing you create is readable by us.",
+          "id": "tools",
+          "kind": "work",
+          "variant": "full",
+          "title": "Web tools",
+          "body": "Free to use, and useful before anyone talks to us.",
           "items": [
             {
-              "title": "Blink",
-              "body": "Privacy protection for Android, built for the threat that is standing next to you. It runs entirely on the device and collects nothing at all: no account, no analytics, no network traffic of its own.",
-              "link": "https://blink.factor-io.com/"
+              "id": "tco-calculator",
+              "title": "Local AI cost calculator",
+              "meta": "Web tool",
+              "body": "Weigh running AI on your own hardware against paying for an API. It shows what stays local, what still goes to the API, and whether the hardware pays for itself.",
+              "status": "Live",
+              "action": "Open the calculator",
+              "shots": [
+                "The Local AI cost calculator open in a browser."
+              ]
             },
             {
+              "id": "light-tools",
+              "title": "light-tools",
+              "meta": "Open source · Go",
+              "body": "An MCP server that replaces a coding agent's file and shell tools with one Go binary. Released under GPL-3.0-or-later.",
+              "status": "Open source",
+              "action": "Read about light-tools",
+              "shots": [
+                "The light-tools page open in a browser."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "apps",
+          "kind": "work",
+          "variant": "full",
+          "title": "Apps",
+          "body": "Designed and built in the studio, from the first sketch to the store listing.",
+          "items": [
+            {
+              "id": "cat-countdown",
               "title": "Cat Countdown",
-              "body": "A countdown app with personality. Nine cats, fifteen categories, and a soft claymorphic look that makes the waiting a little warmer. Set a date, pick your cat, and watch it count down to the thing you are looking forward to. Android and iPhone."
+              "meta": "Android and iPhone",
+              "body": "A cosy life organiser with nine cats. Countdowns, tasks, sticker notes and alarms, with backup and restore.",
+              "status": "Not yet released",
+              "promo": "Launch film, made in the studio ahead of the store release.",
+              "shots": [
+                "Cat Countdown home screen: a birthday twelve days away, above a card for each countdown.",
+                "A countdown in detail: final exams in 23 days, split into weeks and days, with checklist and journal tabs.",
+                "The notes screen, with sticker notes laid out on a notebook page.",
+                "The tasks screen, with today's progress, an overdue bill and today's reminders."
+              ]
+            },
+            {
+              "id": "blink",
+              "title": "Blink",
+              "meta": "Android",
+              "body": "A privacy app that runs entirely on the device. No data collection, no accounts and no analytics.",
+              "status": "On Google Play",
+              "action": "Visit the Blink site",
+              "shots": [
+                "The Blink app icon."
+              ]
             }
           ]
         },
         {
           "id": "posture",
           "kind": "statement",
-          "kicker": "How they are built",
           "title": "Local-first, and honest about the exceptions.",
           "body": "Your countdowns, dates, attachments and settings stay on your device. Cloud backup, where a plan offers it, writes to an account you already own rather than to a server of ours. Where an app sells a subscription, it is a plain yearly plan handled by RevenueCat on the store's behalf, and it never creates an account with Factor IO. Each app states precisely what it sends, to whom and for how long in its own privacy statement, because a promise like this is only worth something if it is specific enough to be checked.",
           "items": []
@@ -337,22 +522,20 @@
       "nav": "About",
       "title": "Thanat Manasakool: solution architect, Thailand",
       "description": "Factor IO is led by Thanat Manasakool: nearly 20 years in enterprise infrastructure, enterprise platforms, partner technical support and hands-on delivery.",
-      "eyebrow": "02 / ABOUT FACTOR IO",
+      "eyebrow": "About Factor IO",
       "headline": "Infrastructure is the foundation of the practice.",
-      "lede": "Factor I O Co., Ltd. is a Thailand-based engineering consultancy led by Thanat Manasakool, Founder & Principal Engineer.",
+      "lede": "Factor I O Co., Ltd. is a Thailand-based engineering consultancy led by Thanat Manasakool, Founder and Principal Engineer.",
       "sections": [
         {
           "id": "experience",
           "kind": "founder",
-          "kicker": "Principal-led engineering",
           "title": "Nearly 20 years close to the technical decisions.",
-          "body": "Thanat Manasakool brings nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. His background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP.",
+          "body": "Thanat Manasakool brings nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. That background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP.",
           "items": []
         },
         {
           "id": "approach",
           "kind": "cards",
-          "kicker": "What that means for your project",
           "title": "Architecture, integration and a team that can carry it.",
           "body": "The aim is a system your own team can understand, operate and improve after we hand it over.",
           "items": [
@@ -373,7 +556,6 @@
         {
           "id": "independence",
           "kind": "statement",
-          "kicker": "Independent advice",
           "title": "We work for you, and we protect your interests.",
           "body": "Thanat has worked with Red Hat and Nutanix, and some engagements do come through a vendor or an SI partner. We say so plainly so you can judge the technical background behind the advice and see where we have been. On your project, your interests are the ones we protect: recommendations follow your requirements and constraints, we say when a simpler or cheaper option would serve you better, and we disclose any relationship that could bear on our advice before it bears on a decision. We are not a reseller or a formally certified partner, and the scope and responsibilities of every engagement are agreed with you directly.",
           "items": []
@@ -383,15 +565,14 @@
     "profile": {
       "nav": "Profile",
       "title": "Company profile: Factor I O Co., Ltd., Thailand",
-      "description": "Company profile for Factor I O Co., Ltd. — a Thailand-based Kubernetes, infrastructure and enterprise AI engineering practice. Registered particulars, leadership, services, engagement model and contact details.",
-      "eyebrow": "03 / COMPANY PROFILE",
+      "description": "Company profile for Factor I O Co., Ltd., a Thailand-based Kubernetes, infrastructure and enterprise AI engineering practice. Registered particulars, leadership, services, engagement model and contact details.",
+      "eyebrow": "Company profile",
       "headline": "Factor I O Co., Ltd.",
       "lede": "A Thailand-based engineering consultancy building Kubernetes and the infrastructure underneath it, with enterprise AI as the declared specialisation. Registered in Bangkok, led by its principal engineer, and engaged either directly by a business or alongside a technology partner. This page holds the details a procurement or vendor registration process asks for.",
       "sections": [
         {
           "id": "company",
           "kind": "statement",
-          "kicker": "01 / The company",
           "title": "Small by design, and accountable for the technical work.",
           "body": "Factor I O Co., Ltd. is an independent engineering consultancy registered in Bangkok. It is deliberately small: the person who scopes the work is the person who builds it, so nothing is lost between the requirements conversation and the implementation. Every engagement is scoped around a decision, an integration or a result the business needs to show, with responsibilities and acceptance criteria agreed in writing before implementation begins. We are not a reseller and we hold no formal vendor certification, so the scope of each engagement is agreed with you directly rather than inherited from a partner programme.",
           "items": []
@@ -399,7 +580,6 @@
         {
           "id": "registration",
           "kind": "exceptions",
-          "kicker": "02 / Registration",
           "title": "The particulars a vendor registration asks for.",
           "body": "Registered details for contracting and supplier onboarding. Under Thai law the company registration number and the tax identification number are the same thirteen-digit number, so one value answers both fields on a registration form.",
           "items": [
@@ -440,7 +620,6 @@
         {
           "id": "practice",
           "kind": "ledger",
-          "kicker": "03 / Services",
           "title": "Four services, and the platform comes first.",
           "body": "The platform layer is the same whatever the business ends up running on it, which is why it leads. AI is the workload at the front of the queue today and the specialisation we go deep on. Each service can stand on its own or be one stage of the same delivery.",
           "items": [
@@ -465,15 +644,13 @@
         {
           "id": "leadership",
           "kind": "founder",
-          "kicker": "04 / Leadership",
           "title": "Led by the engineer who does the work.",
-          "body": "Thanat Manasakool, Founder & Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. His background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP. You discuss the business requirement and the implementation detail with the same person.",
+          "body": "Thanat Manasakool, Founder and Principal Engineer. Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners. That background spans enterprise platforms, partner technical support and hands-on delivery, including Red Hat OpenShift and Nutanix NKP. You discuss the business requirement and the implementation detail with the same person.",
           "items": []
         },
         {
           "id": "engagement-model",
           "kind": "cards",
-          "kicker": "05 / Engagement",
           "title": "How an engagement is structured.",
           "body": "The commercial shape is settled before any technical work starts.",
           "items": [
@@ -494,7 +671,6 @@
         {
           "id": "delivery",
           "kind": "process",
-          "kicker": "06 / Delivery",
           "title": "Four stages, agreed with you before anything gets built.",
           "body": "The same sequence on every engagement, whether it is a short assessment or a full delivery.",
           "items": [
@@ -519,7 +695,6 @@
         {
           "id": "standing",
           "kind": "statement",
-          "kicker": "07 / Independence",
           "title": "We work for you, and we protect your interests.",
           "body": "Thanat has worked with Red Hat and Nutanix, and some engagements do come through a vendor or an SI partner. We say so plainly so you can judge the technical background behind the advice. On your project, your interests are the ones we protect: recommendations follow your requirements and constraints, we say when a simpler or cheaper option would serve you better, and we disclose any relationship that could bear on our advice before it bears on a decision. We are not a reseller or a formally certified partner.",
           "items": []
@@ -530,14 +705,13 @@
       "nav": "Contact",
       "title": "Discuss an enterprise AI, Kubernetes or governance project",
       "description": "Contact Factor IO about enterprise AI, Kubernetes and infrastructure, knowledge systems or AI governance. Reach us on LINE, or by email.",
-      "eyebrow": "04 / CONTACT",
+      "eyebrow": "Contact",
       "headline": "What are you working on?",
-      "lede": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk. We will scope your requirements and provide an itemized quotation.",
+      "lede": "Tell us what you want to achieve and what you already have. You do not need to choose a model or a platform before we talk. We will scope your requirements and provide an itemised quotation.",
       "sections": [
         {
           "id": "enquiry",
           "kind": "contact",
-          "kicker": "Start a technical conversation",
           "title": "You do not need the architecture worked out.",
           "body": "Bring the business problem, the data you have and the constraints you are under. We can work through the local AI models, platform and integration decisions together, and deliver a scoped technical quotation. If you have a customer opportunity that needs an architect, say so and we will pick up the partner route.",
           "items": []

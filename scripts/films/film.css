@@ -1,0 +1,85 @@
+/* Film stage. Every visual property that moves is written by render(t) in the scene
+   modules, never by a CSS transition or animation, so a frame is a pure function of t. */
+@font-face { font-family: 'Geist'; src: url(/assets/fonts/geist-latin.woff2) format('woff2'); font-weight: 300 700; }
+@font-face { font-family: 'Geist Mono'; src: url(/assets/fonts/geist-mono-latin.woff2) format('woff2'); font-weight: 400 600; }
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url(/assets/fonts/plex-thai-400.woff2) format('woff2'); font-weight: 400; unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url(/assets/fonts/plex-thai-500.woff2) format('woff2'); font-weight: 500; unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url(/assets/fonts/plex-thai-600.woff2) format('woff2'); font-weight: 600; unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC; }
+
+:root {
+  --ink: #0F1214; --panel: #161A1E; --panel-2: #1C2126; --line: #2C333A; --line-strong: #46505A;
+  --text: #ECEDEA; --muted: #8A9199; --dim: #5B636B; --accent: #FF5A1F; --accent-soft: rgba(255, 90, 31, .14);
+  --sans: 'Geist', 'IBM Plex Sans Thai', sans-serif; --mono: 'Geist Mono', 'IBM Plex Sans Thai', monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ink); }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+#stage::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(236, 237, 234, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(236, 237, 234, .035) 1px, transparent 1px);
+  background-size: 60px 60px; background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 75% 70% at 62% 50%, #000 30%, transparent 100%);
+}
+.abs { position: absolute; }
+
+/* Text column: vertically centred on the left half. */
+.copy { position: absolute; left: 140px; top: 0; width: 900px; height: 1080px; display: flex; flex-direction: column; justify-content: center; gap: 34px; }
+.copy.top { justify-content: flex-start; padding-top: 190px; width: 1500px; }
+.headline { font-size: 74px; font-weight: 600; letter-spacing: -.032em; line-height: 1.06; margin: 0; }
+.headline .line { display: block; overflow: hidden; padding: .1em 0 .08em; margin: -.1em 0 -.08em; }
+.headline .line > span { display: inline-block; white-space: nowrap; }
+.headline em { font-style: normal; color: var(--accent); }
+.sub { font-size: 30px; line-height: 1.45; color: var(--muted); max-width: 760px; margin: 0; white-space: pre-line; }
+:lang(th) .headline { font-size: 70px; letter-spacing: 0; line-height: 1.3; }
+:lang(th) .sub { font-size: 29px; line-height: 1.6; }
+
+/* Persistent chrome: film title + chapter name, top left; brand, top right. */
+.tag { position: absolute; left: 140px; top: 96px; display: flex; align-items: center; gap: 18px; font-family: var(--mono); font-size: 20px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tag::before { content: ''; width: 44px; height: 2px; background: var(--accent); }
+.tag b { color: var(--text); font-weight: 500; }
+.brand { position: absolute; right: 140px; top: 96px; font-family: var(--mono); font-size: 20px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+:lang(th) .tag, :lang(th) .brand { letter-spacing: .02em; }
+
+/* Diagram primitives. */
+.box { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  border: 2px solid var(--line-strong); background: var(--panel); border-radius: 14px; font-size: 26px; font-weight: 500; line-height: 1.2; color: var(--text); padding: 0 14px; }
+.box small { font-family: var(--mono); font-size: 16px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+:lang(th) .box small { letter-spacing: 0; text-transform: none; font-size: 18px; }
+.box.accent { border-color: var(--accent); background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--panel); }
+.box.solid { border-color: var(--accent); background: var(--accent); color: var(--ink); }
+.box.solid small { color: rgba(15, 18, 20, .72); }
+.box.dashed { border-style: dashed; background: transparent; color: var(--muted); }
+.box.left { align-items: flex-start; justify-content: flex-start; text-align: left; padding: 18px 20px; }
+.pod { position: absolute; width: 46px; height: 46px; border-radius: 9px; background: var(--panel-2); border: 2px solid var(--line-strong); }
+.pod.accent { background: var(--accent); border-color: var(--accent); }
+.dot { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--accent); }
+.ring { position: absolute; border-radius: 50%; border: 2px solid var(--accent); }
+.bar { position: absolute; background: var(--line); border-radius: 6px; }
+.stop { position: absolute; width: 6px; height: 44px; margin: -22px 0 0 -3px; border-radius: 3px; background: var(--accent); }
+.mono { font-family: var(--mono); font-size: 18px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+:lang(th) .mono { letter-spacing: 0; text-transform: none; font-size: 20px; }
+.check { position: absolute; width: 14px; height: 26px; border: solid currentColor; border-width: 0 4px 4px 0; transform: rotate(45deg); }
+svg.wires { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+svg.wires path, svg.wires line { fill: none; stroke: var(--line-strong); stroke-width: 2.5; stroke-linecap: round; }
+svg.wires .accent { stroke: var(--accent); }
+svg.wires .dash { stroke-dasharray: 8 10; }
+.wordmark { font-size: 168px; font-weight: 600; letter-spacing: -.045em; line-height: 1; margin: 0; }
+.wordmark span { color: var(--accent); }
+
+/* Story film: a rack elevation and two cards. */
+.rack { position: absolute; border: 2px solid var(--line-strong); border-radius: 16px; }
+.unit { position: absolute; left: 16px; right: 16px; height: 46px; border: 2px solid var(--line); background: var(--panel); border-radius: 8px; }
+.unit .slotline { position: absolute; left: 18px; top: 18px; height: 6px; border-radius: 3px; background: var(--line); }
+.unit .led { position: absolute; top: 16px; width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
+.card { position: absolute; border: 2px solid var(--line-strong); background: var(--panel); border-radius: 14px; padding: 22px 24px; }
+.card .mono { display: block; margin-bottom: 22px; }
+.card .bars i { display: block; height: 12px; border-radius: 6px; background: var(--line); margin-bottom: 16px; }
+.card .units i { display: block; height: 28px; border-radius: 7px; border: 2px solid var(--line); margin-bottom: 12px; }
+.card.accent { border-color: var(--accent); }
+.box.slot { font-size: 20px; padding: 0 8px; }
+.tagline { position: absolute; font-family: var(--mono); font-size: 17px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+:lang(th) .tagline { letter-spacing: 0; text-transform: none; font-size: 20px; }
+
+/* Expertise film: the network boundary. */
+.zone { position: absolute; border: 2px dashed var(--line-strong); border-radius: 20px; }
+.zone .mono { position: absolute; left: 24px; top: -14px; padding: 0 10px; background: var(--ink); }

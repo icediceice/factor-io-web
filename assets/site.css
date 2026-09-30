@@ -55,6 +55,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 v
 :lang(th) body, body:lang(th) { line-height: 1.75; }
 img, video { display: block; max-width: 100%; height: auto; }
 h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+/* Balance splits the registered Thai name mid-word (แฟคเค / อร์): the transliteration is not in the line-break dictionary. */
+.page-profile:lang(th) h1 { text-wrap: wrap; }
 p { margin: 0; text-wrap: pretty; }
 a { color: inherit; }
 code { font: 500 .88em var(--mono); }

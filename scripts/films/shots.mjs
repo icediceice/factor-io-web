@@ -89,12 +89,12 @@ try {
     for (const route of routes) for (const width of widths) for (const scheme of schemes) {
       const page = await openPage(browser, { width, height: width < 700 ? 844 : 900, colorScheme: scheme });
       await page.goto(`${server.origin}${route}`);
-      await page.evaluate(REVEAL);
+      const unrevealed = await page.evaluate(REVEAL);
       const m = await page.evaluate(MEASURE);
       const file = `${route.replace(/^\/|\/$/g, '').replace(/[/.]/g, '_') || 'root'}-${width}-${scheme}.png`;
       await writeFile(resolve(dir, file), await page.screenshot({ fullPage: true }));
-      report.push({ route, width, file, ...m });
-      const flags = [m.scrollWidth > m.viewport && `h-scroll ${m.scrollWidth}`, m.h1 !== 1 && `h1=${m.h1}`, m.overflow.length && `overflow ${m.overflow.length}`, m.contrast.length && `contrast ${m.contrast.length}`].filter(Boolean);
+      report.push({ route, width, file, unrevealed, ...m });
+      const flags = [unrevealed && `unrevealed ${unrevealed}`, m.scrollWidth > m.viewport && `h-scroll ${m.scrollWidth}`, m.h1 !== 1 && `h1=${m.h1}`, m.overflow.length && `overflow ${m.overflow.length}`, m.contrast.length && `contrast ${m.contrast.length}`].filter(Boolean);
       console.log(`${route} ${width} ${scheme}: ${flags.length ? flags.join(', ') : 'clean'} · header ${m.headerHeight}px · type ${m.typeScale.join('/')}`);
       await page.close();
     }

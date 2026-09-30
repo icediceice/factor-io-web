@@ -64,6 +64,8 @@ export async function launch() {
     '--force-color-profile=srgb', '--font-render-hinting=none', '--autoplay-policy=no-user-gesture-required',
     '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows',
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const kill = () => child.kill('SIGTERM');
+  process.once('exit', kill);
   const wsUrl = await waitForLine(child.stderr, /DevTools listening on (ws:\/\/\S+)/, 'Chromium');
   const ws = new WebSocket(wsUrl);
   await new Promise((resolve, reject) => { ws.addEventListener('open', resolve, { once: true }); ws.addEventListener('error', reject, { once: true }); });
@@ -73,7 +75,7 @@ export async function launch() {
     // Chromium's helper processes can still be writing into the profile after the main
     // process exits (ENOTEMPTY), so retry, and never let a leftover temp dir fail a render.
     async close() {
-      ws.close(); child.kill('SIGTERM'); await new Promise(r => child.once('exit', r));
+      process.off('exit', kill); ws.close(); kill(); await new Promise(r => child.once('exit', r));
       await rm(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }).catch(error => console.warn(`left ${profile}: ${error.code}`));
     },
   };

@@ -285,11 +285,11 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .tile { position: relative; min-width: 0; }
 .tile-media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); transition: border-color .2s var(--ease); }
 .tile:hover .tile-media { border-color: var(--line-strong); }
-.tile-media .frame-browser { position: absolute; left: 12%; top: 14%; width: 100%; border-radius: 8px 0 0 0; }
+.tile-media .frame-browser { position: absolute; left: 12%; top: 14%; width: 100%; border-radius: var(--radius-chrome) 0 0 0; }
 .tile-media .frame-bar { height: 12px; padding: 0 6px; gap: 4px; }
 .tile-media .frame-bar i { width: 4px; height: 4px; }
-.tile-media .frame-phone { position: absolute; left: 50%; top: 14%; width: 34%; transform: translateX(-50%); border-width: 3px; border-radius: 14px; }
-.tile-media .frame-phone img { border-radius: 11px; }
+.tile-media .frame-phone { position: absolute; left: 50%; top: 14%; width: 34%; transform: translateX(-50%); border-width: 3px; border-radius: var(--bezel-sm); }
+.tile-media .frame-phone img { border-radius: var(--bezel-screen-sm); }
 .tile-media .frame-icon { position: absolute; inset: 0; }
 .tile-media .frame-icon img { width: 28%; }
 .tile h3 { margin-top: 16px; font-size: 17px; line-height: 1.3; }

@@ -267,7 +267,7 @@ function list(c, s) {
   if (s.kind === 'ledger') return `<ol class="ledger">${s.items.map((item, i) => `<li${s.film ? ` data-row="${i}"` : ''}>${index(i)}<div><h3>${s.film ? `<button type="button" class="ledger-seek" data-seek="${i}">${esc(item.title)}</button>` : esc(item.title)}</h3><p>${esc(item.body)}</p></div></li>`).join('')}</ol>`;
   if (s.kind === 'process') return `<ol class="process">${s.items.map((item, i) => `<li>${index(i)}<h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></li>`).join('')}</ol>`;
   if (s.kind === 'routes') return `<ul class="routes">${s.items.map(item => `<li><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p><p class="route-mark"><span>${esc(c.ui.routeMark)}</span> ${esc(item.mark)}</p></li>`).join('')}</ul>`;
-  if (s.kind === 'exceptions') return `<dl class="facts">${s.items.map(item => `<div><dt>${esc(item.title)}</dt><dd>${esc(item.body)}</dd></div>`).join('')}</dl>`;
+  if (s.kind === 'exceptions') return `<dl class="facts">${s.items.map(item => `<div><dt>${esc(item.title)}</dt><dd>${hasAddress(item.body) ? optOut(esc(item.body)) : esc(item.body)}</dd></div>`).join('')}</dl>`;
   if (s.kind === 'cards') return `<ul class="cards">${s.items.map(item => `<li><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></li>`).join('')}</ul>`;
   return '';
 }

@@ -90,6 +90,16 @@ export function samePreviewBytes(path, expected, received) {
   return withoutMarkers.equals(received);
 }
 
+// Films, posters, studio-work media and self-hosted fonts ship beside the pages, so the
+// live check fetches them too: a deploy that dropped or stale-cached one must fail here.
+export async function publishedMedia() {
+  const css = await readFile(resolve(ROOT, 'assets', 'site.css'), 'utf8');
+  const fonts = [...css.matchAll(/url\((\/assets\/fonts\/[^)]+)\)/g)].map(match => match[1]);
+  const filmPaths = Object.keys(films).flatMap(id => Object.keys(config.locales).flatMap(locale => [filmFile(id, locale), filmPoster(id, locale)]));
+  const workPaths = Object.values(work).flatMap(m => [...m.shots.map(shot => workFile(shot.file)), ...(m.promo ? [workFile(m.promo.file), workFile(m.promo.poster)] : [])]);
+  return [...new Set([...filmPaths, ...workPaths, ...fonts])];
+}
+
 export async function checkPreview(origin, output) {
   const base = new URL(origin);
   if (!['http:', 'https:'].includes(base.protocol) || base.pathname !== '/' || base.search || base.hash || base.username || base.password) throw new Error('Preview must be a plain HTTP(S) origin');

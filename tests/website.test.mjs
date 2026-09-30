@@ -9,6 +9,7 @@ import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
 import { ROOT, generate, loadContent, assertParity, samePreviewBytes } from '../scripts/build-site.mjs';
 import { createDemo, flowStates } from '../assets/site.js';
+import { films, filmFile, filmPoster, work } from '../site/media.mjs';
 
 const read = path => readFile(resolve(ROOT, path), 'utf8');
 const content = await loadContent(), output = await generate();
@@ -320,6 +321,47 @@ test('the llms.txt contact route describes LINE, not the deleted email draft', a
   assert.doesNotMatch(bullet, /draft/i);
 });
 
+// The films carry the argument the old deck carried in text, so a missing render or a
+// chapter bar that drifted from site/media.mjs would leave the story half told.
+test('the three films ship in both locales with their poster, media-timed chapters and a transcript', async () => {
+  for (const locale of ['en', 'th']) {
+    const home = output.get(outputPath(locale, 'home'));
+    for (const id of Object.keys(films)) {
+      assert.ok((await stat(resolve(ROOT, filmFile(id, locale).slice(1)))).size > 100000, `${id}-${locale}.mp4 is missing or empty`);
+      assert.ok((await stat(resolve(ROOT, filmPoster(id, locale).slice(1)))).isFile(), `${id}-${locale}.jpg is missing`);
+      assert.ok(home.includes(`data-film="${id}"`), `${locale}: home does not carry the ${id} film`);
+      for (const start of films[id].chapters) assert.ok(home.includes(`data-start="${start}"`), `${locale}: ${id} has no chapter at ${start}s`);
+      assert.ok(home.includes(`id="film-${id}-transcript"`), `${locale}: ${id} has no transcript`);
+    }
+  }
+});
+
+// Apps and tools are output of the studio, not its pitch: the home strip is the last
+// section, leads with the web tools, plays no video, and every tile has a full entry.
+test('studio work stays secondary on home and every tile resolves to a full entry with real media', async () => {
+  for (const locale of ['en', 'th']) {
+    const strip = content[locale].pages.home.sections.at(-1);
+    assert.equal(strip.kind, 'work'); assert.equal(strip.variant, 'strip');
+    const frames = strip.items.map(item => work[item.id].frame);
+    assert.equal(frames[0], 'browser', `${locale}: the web tools no longer lead the strip`);
+    assert.ok(frames.includes('phone') && frames.includes('icon'), `${locale}: the strip lost its Android output`);
+    const home = output.get(outputPath(locale, 'home')), full = output.get(outputPath(locale, 'mobile-apps'));
+    assert.ok(!home.includes('frame-promo') && !home.includes('cat-countdown-promo'), `${locale}: the app promo belongs on the studio-work page`);
+    for (const item of strip.items) {
+      assert.ok(home.includes(`href="${routePath(locale, 'mobile-apps')}#${item.id}"`), `${locale}: ${item.id} tile does not link to its entry`);
+      assert.ok(full.includes(`id="${item.id}"`), `${locale}: studio work has no ${item.id} entry`);
+      for (const shot of work[item.id].shots) assert.ok((await stat(resolve(ROOT, 'assets/work', shot.file))).isFile(), shot.file);
+    }
+  }
+  // Blink is shown by its icon only, by decision: no interface capture ships.
+  assert.equal(work.blink.frame, 'icon'); assert.equal(work.blink.shots.length, 1);
+});
+
+test('the redesign leaves no deck, HUD or terminal markup behind, and content carries no em or en dash', async () => {
+  for (const [path, html] of output) assert.doesNotMatch(html, /class="[^"]*\b(?:deck|hud|cyber|scene|terminal)-|\bkicker\b/, path);
+  for (const locale of ['en', 'th']) assert.doesNotMatch(await read(`content/${locale}/site.json`), /[–—]/, locale);
+});
+
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {
   const child = spawn(process.execPath, ['scripts/serve.mjs', '0'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
   t.after(async () => { if (child.exitCode === null) { child.kill('SIGTERM'); await once(child, 'exit'); } });
@@ -343,4 +385,8 @@ test('real static server handles locale directories, redirects, HEAD, missing pa
   assert.equal((await fetch(`${base}/not-a-route/`)).status, 404);
   assert.equal((await fetch(`${base}/en/`, { method: 'POST' })).status, 405);
   assert.equal((await fetch(`${base}/..%2f..%2fetc/passwd`)).status, 404);
+  // Video seeks by byte range; a server that answers 200 to a Range request leaves the films unseekable.
+  const film = await fetch(`${base}${filmFile('story', 'en')}`, { headers: { range: 'bytes=0-99' } });
+  assert.equal(film.status, 206); assert.equal(film.headers.get('content-type'), 'video/mp4'); assert.equal(film.headers.get('accept-ranges'), 'bytes');
+  assert.match(film.headers.get('content-range'), /^bytes 0-99\/\d+$/); assert.equal((await film.arrayBuffer()).byteLength, 100);
 });

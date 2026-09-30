@@ -16,7 +16,7 @@ import { ROOT, launch, openPage, serve } from './cdp.mjs';
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(name); return i === -1 ? fallback : args.splice(i, 2)[1]; };
 const outDir = flag('--out', null);
-const routes = flag('--routes', '/en/,/th/,/en/mobile-apps.html,/th/mobile-apps.html,/en/services.html,/en/contact.html').split(',');
+const routes = flag('--routes', '/en/,/th/,/en/mobile-apps/,/th/mobile-apps/,/en/services/,/th/services/,/en/contact/').split(',');
 const widths = flag('--widths', '390,768,1440').split(',').map(Number);
 const schemes = flag('--schemes', 'light,dark').split(',');
 const mode = args[0] ?? 'work';

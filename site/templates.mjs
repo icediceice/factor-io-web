@@ -3,10 +3,13 @@ import { films, filmFile, filmPoster, work, workFile } from './media.mjs';
 
 export const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c');
+// Preserve the direct no-JS contact path through Cloudflare's HTML edge filter, which
+// rewrites a mailto link or a bare address in text into a script-decoded "[email protected]".
+const optOut = html => `<!--email_off-->${html}<!--/email_off-->`;
+const hasAddress = text => /[\w.+-]+@[\w-]+\.[\w.-]+/.test(text);
 const link = (href, label, cls = 'text-link') => {
   const anchor = `<a class="${cls}" href="${esc(href)}">${esc(label)}</a>`;
-  // Preserve the direct no-JS contact path through Cloudflare's HTML edge filter.
-  return href.startsWith('mailto:') ? `<!--email_off-->${anchor}<!--/email_off-->` : anchor;
+  return href.startsWith('mailto:') ? optOut(anchor) : anchor;
 };
 
 export function renderJsonLd(page = 'home', locale = 'en') {

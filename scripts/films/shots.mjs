@@ -42,7 +42,7 @@ const MEASURE = `(() => {
   const name = el => el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\\s+/).join('.') : '');
   const shown = el => { for (let n = el; n; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === 'none' || cs.visibility === 'hidden' || px(cs.opacity) === 0) return false; } return true; };
   // A deliberately cropped child (the work tiles bleed a browser frame off their edge) is not overflow when its clipping box sits inside the viewport.
-  const clipped = el => { for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) { const o = getComputedStyle(n).overflowX; if (o === 'hidden' || o === 'clip') { const a = n.getBoundingClientRect(); return a.left >= -1 && a.right <= vw + 1; } } return false; };
+  const clipped = el => { for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) { const o = getComputedStyle(n).overflowX; if (o === 'hidden' || o === 'clip') { const a = n.getBoundingClientRect(); if (a.left >= -1 && a.right <= vw + 1) return true; } } return false; };
   const overflow = [], contrast = [], sizes = new Map();
   for (const el of document.body.querySelectorAll('*')) {
     const r = el.getBoundingClientRect();

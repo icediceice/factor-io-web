@@ -154,7 +154,7 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .film-chapters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
 .film-chapters button { display: grid; gap: 10px; width: 100%; padding: 8px 0 4px; border: 0; background: none; color: var(--muted); font: 500 14px/1.35 var(--sans); text-align: left; cursor: pointer; transition: color .2s var(--ease); }
 .film-chapters button:hover, .film-chapters button[aria-current] { color: var(--ink); }
-.film-meter { display: block; height: 3px; overflow: hidden; border-radius: 2px; background: var(--line); }
+.film-meter { display: block; height: 3px; overflow: hidden; border-radius: var(--radius-mark); background: var(--line); }
 .film-meter i { display: block; width: 100%; height: 100%; background: var(--ink); transform: scaleX(var(--p, 0)); transform-origin: left; }
 .film-chapters button[aria-current] .film-meter i { background: var(--accent); }
 .film-transcript { margin-top: 14px; color: var(--muted); font-size: 14px; }

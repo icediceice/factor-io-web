@@ -322,7 +322,7 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .work-text h3 { margin-top: 6px; font-size: clamp(26px, 2.4vw, 34px); letter-spacing: -.025em; line-height: 1.15; }
 .work-text > p:not(.work-meta):not(.work-status) { margin-top: 14px; color: var(--muted); }
 .work-status { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 5px 14px; border: 1px solid var(--line-strong); border-radius: var(--pill); font-size: 14px; }
-.work-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.work-status::before { content: ''; width: 7px; height: 7px; border-radius: var(--round); background: var(--accent); }
 .work-text .button { margin-top: 20px; margin-left: 12px; }
 @media (max-width: 1000px) { .work-item { grid-template-columns: 1fr; } }
 @media (max-width: 700px) {

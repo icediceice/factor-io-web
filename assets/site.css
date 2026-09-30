@@ -143,9 +143,9 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .film { margin: 0; min-width: 0; }
 .film-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius); background: var(--film); border: 1px solid var(--line); }
 .film-video { width: 100%; height: 100%; object-fit: cover; }
-.film-toggle { position: absolute; right: 14px; bottom: 14px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(236, 237, 234, .28); border-radius: var(--pill);
-  background: rgba(15, 18, 20, .72); color: #ECEDEA; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: background-color .2s var(--ease); }
-.film-toggle:hover { background: rgba(15, 18, 20, .92); }
+.film-toggle { position: absolute; right: 14px; bottom: 14px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--on-film-edge); border-radius: var(--pill);
+  background: var(--film-scrim); color: var(--on-film); cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: background-color .2s var(--ease); }
+.film-toggle:hover { background: var(--film-scrim-hover); }
 .film-toggle span { width: 0; height: 0; margin-left: 3px; border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent currentColor; }
 .film[data-state="playing"] .film-toggle span { width: 12px; height: 14px; margin: 0; border: 0; border-left: 4px solid currentColor; border-right: 4px solid currentColor; }
 .film-bar { margin-top: 16px; }

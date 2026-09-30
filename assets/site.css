@@ -344,7 +344,7 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 .footer-brand p { margin-top: 12px; max-width: 36ch; }
 .footer-brand .brand { color: var(--ink); }
 .site-footer h2 { margin-bottom: 12px; color: var(--ink); font-size: 15px; }
-.site-footer div > .text-link { display: block; width: fit-content; margin-top: 8px; color: var(--muted); }
+.site-footer div > .text-link { display: block; width: fit-content; padding-block: 10px; color: var(--muted); }
 .site-footer div > .text-link:hover { color: var(--ink); }
 .legal { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid var(--line); font-size: 14px; }
 @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }

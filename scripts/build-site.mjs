@@ -106,6 +106,7 @@ export async function checkPreview(origin, output) {
   const expected = new Map([...output].map(([path, text]) => [path.endsWith('index.html') ? `/${path.slice(0, -10)}` : `/${path}`, Buffer.from(text)]));
   for (const name of assetNames) expected.set(`/assets/${name}`, await readFile(resolve(ROOT, 'assets', name)));
   for (const path of ['light-tools.html', 'privacy.html', 'terms.html', 'tco-calculator.html', 'tco-assistant.html']) expected.set(`/${path}`, await readFile(resolve(ROOT, path)));
+  for (const path of await publishedMedia()) expected.set(path, await readFile(resolve(ROOT, path.slice(1))));
   let markerRemovals = 0;
   const results = await Promise.all([...expected].map(async ([path, bytes]) => {
     try {

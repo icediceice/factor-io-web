@@ -30,7 +30,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0E0F11; --surface: #16181B; --surface-2: #1D2024; --ink: #ECEDEA; --muted: #A0A5AB;
-    --line: rgba(236, 237, 234, .12); --line-strong: rgba(236, 237, 234, .26);
+    --line: rgba(236, 237, 234, .12); --line-strong: rgba(236, 237, 234, .26); --control-edge: #6B7076;
     --accent: #FF6A33; --accent-ink: #0E0F11; --accent-text: #FF7A45; --accent-soft: rgba(255, 106, 51, .12);
     --device: #2A2E33; --cta-bg: #16181B; --cta-ink: #ECEDEA; --cta-muted: #A0A5AB;
     --header: rgba(14, 15, 17, .86);
@@ -39,7 +39,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #0E0F11; --surface: #16181B; --surface-2: #1D2024; --ink: #ECEDEA; --muted: #A0A5AB;
-  --line: rgba(236, 237, 234, .12); --line-strong: rgba(236, 237, 234, .26);
+  --line: rgba(236, 237, 234, .12); --line-strong: rgba(236, 237, 234, .26); --control-edge: #6B7076;
   --accent: #FF6A33; --accent-ink: #0E0F11; --accent-text: #FF7A45; --accent-soft: rgba(255, 106, 51, .12);
   --device: #2A2E33; --cta-bg: #16181B; --cta-ink: #ECEDEA; --cta-muted: #A0A5AB;
   --header: rgba(14, 15, 17, .86);

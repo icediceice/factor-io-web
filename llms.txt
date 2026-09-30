@@ -8,8 +8,8 @@ The practice builds the platform layer — Kubernetes, GPU and the infrastructur
 
 Public consulting presence published statically from this repository:
 
-- [Home](https://studio.factor-io.com/en/): Core positioning (the platform comes first, and everything else runs on it), told through three short motion-graphic films: the studio's story, the thesis that every serious AI project becomes a platform project, and the four areas of expertise. Also the four services, the architect who does the work, the direct and technology-partner engagement routes, and a small strip of tools and apps built in the studio.
-- [Services](https://studio.factor-io.com/en/services/): The four service areas in full: Kubernetes and GPU platform (Red Hat OpenShift, Nutanix NKP or upstream Kubernetes, for bare metal, air-gapped and sovereign operation), Private AI (open-weight and fine-tuned models served inside the client's data centre on vLLM or Triton), Knowledge and authority (authoritative sources, access boundaries that follow existing roles, and a document lifecycle), and AI governance (approval, refusal and audit-trail controls). Includes an in-browser deterministic simulation of human-in-the-loop runtime approval, the cases that should reach a person, and why model choice stays separate from authority.
+- [Home](https://studio.factor-io.com/en/): Core positioning, architecture topology (the platform layer underneath agent workflows and production systems), the four consulting services, the focus statement on why the platform leads, and the direct vs SI-partner engagement routes.
+- [Services](https://studio.factor-io.com/en/services/): The four service areas in full — Kubernetes Platform Engineering, Enterprise Migration & Modernization (vSphere to open virtualization/Nutanix/KubeVirt), Private AI & Inference Infrastructure, and Governed AI Execution Systems — accompanied by the four architectural questions settled during design and the five-step delivery process. Includes an in-browser deterministic simulation of human-in-the-loop runtime approval.
 - [About](https://studio.factor-io.com/en/about/): Practice values, technical depth and engineering background.
 - [Company Profile](https://studio.factor-io.com/en/profile/): Verified legal, tax and registered particulars for vendor onboardings and procurement teams.
 - [Contact](https://studio.factor-io.com/en/contact/): A LINE conversation, not a form. LINE is the primary channel — a tappable https://line.me/ti/p/~icediceice link plus a QR code to scan, and the LINE ID as text; the direct email address is kept as the secondary channel. There is no form, no contact backend, no storage or inference, and the page needs no JavaScript. Starting a LINE conversation involves LINE Corporation as a third party carrying the message under its own policy; ordinary email correspondence may be retained.
@@ -24,14 +24,12 @@ Public consulting presence published statically from this repository:
 - [Enterprise AI TCO Calculator](https://studio.factor-io.com/tco-calculator.html): In-browser total cost of ownership calculator for enterprise AI and infrastructure investments. Compares cloud API consumption against private inference and GPU infrastructure across token volumes, concurrency and depreciation schedules.
 - [TCO Assistant](https://studio.factor-io.com/tco-assistant.html): Interactive natural language interface that guides operators through sizing, architecture trade-offs and cost modelling.
 
-## Studio work
+## Mobile apps
 
-Web tools and apps the studio builds for itself, to the same standard as client work, listed at [Studio work](https://studio.factor-io.com/en/mobile-apps/). They are an output of the studio, not its focus.
+Applications built, released and maintained by the practice itself, listed at [Mobile apps](https://studio.factor-io.com/en/mobile-apps/):
 
-- [Local AI cost calculator](https://studio.factor-io.com/tco-calculator.html): Web tool. Weighs running AI on your own hardware against paying for an API. Live.
-- [light-tools](https://github.com/icediceice/light-tools): Open source MCP server, one Go binary, GPL-3.0-or-later.
-- [Blink](https://blink.factor-io.com/): Android privacy app. Runs entirely on-device with zero data collection: no account, no analytics, and no network traffic of its own. On Google Play.
-- Cat Countdown: countdown app for Android and iPhone. Nine cats across fifteen categories. Local-first; no advertising, no usage analytics and no account with Factor IO. A paid yearly plan unlocks cloud backup, and purchases are processed by RevenueCat with an anonymous app-user id. Not yet released; no public store URL is listed here yet.
+- [Blink](https://blink.factor-io.com/): Android privacy app. Runs entirely on-device with zero data collection — no account, no analytics, and no network traffic of its own. Live.
+- Cat Countdown: countdown app for Android and iPhone. Nine cats across fifteen categories. Local-first; no advertising, no usage analytics and no account with Factor IO. A paid yearly plan unlocks cloud backup, and purchases are processed by RevenueCat with an anonymous app-user id. No public store URL is listed here yet.
 
 ## Separate products
 

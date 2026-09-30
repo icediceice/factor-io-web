@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
-import { films, filmFile, filmPoster, work, workFile } from '../site/media.mjs';
 import { renderPage, esc } from '../site/templates.mjs';
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -20,29 +19,7 @@ export function assertParity(a, b, path = 'content') {
     Object.keys(a).forEach(k => assertParity(a[k], b[k], `${path}.${k}`));
   } else if (typeof a !== 'string' || typeof b !== 'string' || !a.trim() || !b.trim()) {
     throw new Error(`Missing translated text: ${path}`);
-  } else if (/\.(id|kind|film|variant)$/.test(path) && a !== b) throw new Error(`Translation structural mismatch: ${path}`);
-}
-
-// Every film and studio-work item named by content must have its media on disk, so a
-// missing render or screenshot fails the build instead of shipping a broken frame.
-async function assertMedia(c) {
-  const exists = path => stat(resolve(ROOT, path.slice(1))).then(s => s.isFile(), () => false);
-  const need = [];
-  const filmIds = [c.pages.home.film, ...Object.values(c.pages).flatMap(page => page.sections.map(s => s.film))].filter(Boolean);
-  for (const id of filmIds) {
-    if (!films[id] || c.films[id]?.chapters.length !== films[id].chapters.length) throw new Error(`Film ${id} is not declared in site/media.mjs with matching chapters`);
-    need.push(filmFile(id, c.locale), filmPoster(id, c.locale));
-  }
-  for (const page of Object.values(c.pages)) for (const s of page.sections) {
-    if (s.kind !== 'work') continue;
-    if (!['strip', 'full'].includes(s.variant)) throw new Error(`Unknown work variant ${s.variant}`);
-    for (const item of s.items) {
-      const m = work[item.id];
-      if (!m || item.shots.length < (s.variant === 'strip' ? 1 : m.shots.length)) throw new Error(`Work item ${item.id} has no media or too few shot descriptions`);
-      need.push(...m.shots.map(shot => workFile(shot.file)), ...(m.promo ? [workFile(m.promo.file), workFile(m.promo.poster)] : []));
-    }
-  }
-  for (const path of need) if (!(await exists(path))) throw new Error(`Missing media ${path}`);
+  } else if (/\.(id|kind)$/.test(path) && a !== b) throw new Error(`Translation structural mismatch: ${path}`);
 }
 
 export async function loadContent() {
@@ -54,9 +31,8 @@ export async function loadContent() {
     for (const page of Object.values(c.pages)) {
       const ids = page.sections.map(s => s.id);
       if (new Set(ids).size !== ids.length || ids.some(id => !/^[a-z][a-z0-9-]*$/.test(id))) throw new Error('Invalid section ids');
-      for (const s of page.sections) if (!['statement', 'cards', 'ledger', 'exceptions', 'founder', 'architecture', 'routes', 'process', 'demo', 'contact', 'work'].includes(s.kind)) throw new Error(`Unknown section kind ${s.kind}`);
+      for (const s of page.sections) if (!['statement', 'cards', 'ledger', 'exceptions', 'founder', 'architecture', 'questions', 'routes', 'process', 'demo', 'contact'].includes(s.kind)) throw new Error(`Unknown section kind ${s.kind}`);
     }
-    await assertMedia(c);
     content[locale] = c;
   }
   assertParity(content.en, content.th);
@@ -90,23 +66,12 @@ export function samePreviewBytes(path, expected, received) {
   return withoutMarkers.equals(received);
 }
 
-// Films, posters, studio-work media and self-hosted fonts ship beside the pages, so the
-// live check fetches them too: a deploy that dropped or stale-cached one must fail here.
-export async function publishedMedia() {
-  const css = await readFile(resolve(ROOT, 'assets', 'site.css'), 'utf8');
-  const fonts = [...css.matchAll(/url\((\/assets\/fonts\/[^)]+)\)/g)].map(match => match[1]);
-  const filmPaths = Object.keys(films).flatMap(id => Object.keys(config.locales).flatMap(locale => [filmFile(id, locale), filmPoster(id, locale)]));
-  const workPaths = Object.values(work).flatMap(m => [...m.shots.map(shot => workFile(shot.file)), ...(m.promo ? [workFile(m.promo.file), workFile(m.promo.poster)] : [])]);
-  return [...new Set([...filmPaths, ...workPaths, ...fonts])];
-}
-
 export async function checkPreview(origin, output) {
   const base = new URL(origin);
   if (!['http:', 'https:'].includes(base.protocol) || base.pathname !== '/' || base.search || base.hash || base.username || base.password) throw new Error('Preview must be a plain HTTP(S) origin');
   const expected = new Map([...output].map(([path, text]) => [path.endsWith('index.html') ? `/${path.slice(0, -10)}` : `/${path}`, Buffer.from(text)]));
   for (const name of assetNames) expected.set(`/assets/${name}`, await readFile(resolve(ROOT, 'assets', name)));
   for (const path of ['light-tools.html', 'privacy.html', 'terms.html', 'tco-calculator.html', 'tco-assistant.html']) expected.set(`/${path}`, await readFile(resolve(ROOT, path)));
-  for (const path of await publishedMedia()) expected.set(path, await readFile(resolve(ROOT, path.slice(1))));
   let markerRemovals = 0;
   const results = await Promise.all([...expected].map(async ([path, bytes]) => {
     try {

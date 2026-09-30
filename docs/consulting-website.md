@@ -14,14 +14,6 @@ The particulars are **compliance values, not copy**, and two of them are easy to
 
 Date of incorporation and registered capital are **deliberately unpublished** at the operator's explicit instruction — they appear in no page, no test fixture and no schema, and the test asserts their absence so a later "completeness" edit has to be a deliberate one. The operator was told before publication that this page is crawler-indexed in a way the DBD registry is not, and chose to proceed.
 
-**Studio redesign 2026-09-30: films, studio work and a new visual system.** The operator judged the previous site unable to tell the story of the studio, and asked for a redesign that uses motion graphics to explain the studio, the thesis behind the platform and the expertise, each as its own section, with the Android and web work shown from real screenshots but kept secondary. Platform-first ordering from 2026-09-18 is kept: Kubernetes is item 0 of the service ledger on Home and Services, and the focus section still says it outright. What changed:
-
-- Home is now hero with the `story` film, `focus` with the `thesis` film, `services` (the ledger) with the `expertise` film, `architect`, `engagement`, and `studio`, a low-emphasis `work` strip that is always the LAST home section and leads with the web tools. The `production` question board and the Home `process` section were removed; the topology figure now appears only on Services.
-- `/mobile-apps/` keeps its slug so inbound links survive, but its nav label is "Studio work" and it lists web tools before apps. It is the only place the Cat Countdown launch promo plays; the home strip never carries video.
-- Kickers, numbered eyebrows and em/en dashes were removed from all copy; a test enforces the dash and kicker bans. The hero line and eyebrow numbering quoted in the two dated paragraphs above are superseded.
-- Visual system: off-white `#F3F4F2` and ink `#121417` with one orange accent (`#FF5A1F`, text `#C0410E` for AA), dark mode from the same tokens, Geist, Geist Mono and IBM Plex Sans Thai self-hosted in `assets/fonts/` under OFL. No external font or script request.
-- Blink is shown by its store icon only, never by UI screenshots, by decision.
-
 ## Editing and publishing
 
 Edit explicit copy in `content/en/site.json` and `content/th/site.json`. Shared identity, contact, routes, editorial dates and locale indexing live in `site/config.mjs`; presentation lives in `site/templates.mjs` and `assets/site.css`. `assets/site.js` is progressive enhancement, never a content/translation dependency. No framework, dependencies, backend or build-service migration.
@@ -33,53 +25,51 @@ Dates are editorial source fields, never the build clock. Sitemap retains root, 
 ## Claims and language review
 
 - “Nearly 20 years” and leading Thai SI enablement come from the operator's current prompt. Role history for Red Hat/Nutanix is inherited public site copy, not independently verified employment evidence. The old five-year duration is deliberately omitted under specification §24. No invented clients, metrics, certifications, badges or endorsement.
-- Keep `Thanat Manasakool` in Latin script on English pages. Thai pages have used `ธนัช มานะสกุล` since the 2026-09-17 rewrite; a 2026-09-24 copy patch introduced a second spelling, `ธนัท มนัสสกุล`, on Home only, and the 2026-09-30 redesign standardised every Thai page back to `ธนัช มานะสกุล`. The operator has not confirmed an official Thai spelling, so treat it as unverified.
+- Keep `Thanat Manasakool` in Latin script in both languages. An official Thai spelling has not been supplied.
 - Thai copy is authored explicitly, not translated at runtime. Native-language review remains outstanding. The approved launch makes Thai publicly accessible and language-linked but `noindex`; this is not privacy. After the operator reviews/corrects all Thai copy, a separate scoped change sets `config.locales.th.indexable = true`, updates the editorial date, rebuilds and checks metadata/sitemap. Never record review as completed without the operator's sign-off.
 - The old bilingual sales deck remains byte-for-byte unchanged, noindex and unlinked, with its own historical review/distribution decision intact. Historical progress entries are not rewritten to look current.
 
 ## Specification coverage
 
-Six routes: Home, Services, Studio work (`/mobile-apps/`), About, Profile, Contact. The specification is covered by Home, Services, About and Contact; Profile carries no specification section of its own (it is the entity page a procurement process is sent to, and restates Home and Services material alongside the registered particulars), and Studio work is the studio's own output rather than part of the consulting specification. The ids below are the literal `sections[].id` values in `content/{en,th}/site.json`. Read them there before assuming a location, because this table is prose and the JSON is the contract.
+Five routes carry the whole specification: Home, Services, About, Profile, Contact. The specification itself is covered by the first four; Profile carries no specification section of its own — it is the entity page a procurement process is sent to, and it restates Home and Services material alongside the registered particulars. The ids below are the literal `sections[].id` values in `content/{en,th}/site.json` — read them there before assuming a location, because this table is prose and the JSON is the contract.
 
 | Section | Implementation location |
 | --- | --- |
 | 1 Objective | Home hero; Services `offer` |
 | 2 Core positioning | Home hero lede; Home `focus` (the explicit platform/specialisation statement); Home `services` |
 | 3 Reasoning versus execution | Services `architecture`, Services `governance` |
-| 4 Human-centered progression | Profile `delivery`; Services `escalation` |
-| 5 Homepage | Home hero with the `story` film, two CTAs, full semantic content; each film carries a text transcript |
-| 6 Problem | Home `focus` with the `thesis` film (every serious AI project becomes a platform project) |
+| 4 Human-centered progression | Home `process` |
+| 5 Homepage | Home hero with the topology figure, two CTAs, full semantic content |
+| 6 Problem | Home `production` (the opening question board) |
 | 7 Three values | About `approach`; Home `services` |
 | 8 Four services | Services `offer`; summarised on Home `services` |
 | 9 Continuous optimization | Services `ongoing` |
 | 10 Exception-driven review | Services `escalation` |
 | 11 Governance demo | Services `governance`, shared demo copy and a local halting flowchart |
-| 12 Architecture | Services `architecture` (topology figure); the `thesis` and `expertise` films |
+| 12 Architecture | Home hero topology; Services `architecture` |
 | 13 Data/reasoning philosophy | Services `architecture`; the topology note; Knowledge systems in Services `offer` |
 | 14 Model placement | Services `architecture` — model choice held separate from authority |
-| 15 Prompt is not enforcement | Services `governance` |
-| 16 Engagement phases | Home `engagement` (the two engagement routes); Profile `delivery` |
+| 15 Prompt is not enforcement | Services `governance`; Home `production` |
+| 16 Engagement phases | Home `engagement` (the two engagement routes); Home `process` |
 | 17 Differentiation | Home `engagement`; About `independence` |
 | 18 CTA | Shared CTA band, Contact `enquiry` |
 | 19 Navigation | Four paired routes, always-visible language links |
-| 20 Visual direction | Studio system: off-white and ink with one orange accent, Geist and IBM Plex Sans Thai; three motion-graphic films; real screenshots in device frames |
+| 20 Visual direction | Engineering Field Guide; the engagement split; native topology/flow figures; restrained ink/paper/teal |
 | 21 Tone | Separate English/professional Thai copy, normal enterprise terminology |
 | 22 Technical requirements | Static `.mjs` export, semantic HTML, progressive contact, metadata |
 | 23 SEO | Per-language titles/descriptions/alternates, sitemap; Thai review hold disclosed |
 | 24 Claims | Config/provenance rules above, no fabricated quantitative proof |
-| 25 First impression | Home hero: the platform first, AI named as the specialisation, with the `story` film; restated outright in Home `focus` |
+| 25 First impression | Home hero: Kubernetes and infrastructure first, AI named as the specialisation, with the topology figure; restated outright in Home `focus` |
 
 ### Retired routes
 
 `/platform/`, `/governance/` and `/how-we-work/` were retired on 2026-09-17. Both language copies of each are kept as redirect stubs — `{en,th}/{platform,governance,how-we-work}/index.html` — carrying `noindex, follow`, a `rel=canonical` to the replacement, a zero-delay `meta http-equiv="refresh"`, and a visible link for anyone whose browser ignores it. Platform redirects to Services, Governance to `/services/#governance`, How We Work to Home.
 
-These six files are **hand-written and are not generated by `scripts/build-site.mjs`**. No generator invariant covers them: `--check` compares only the 14 generated outputs and will not notice if a stub rots, so a route rename has to update them by hand. Do not delete them either — GitHub Pages serves committed bytes and offers no server-side redirect, so deleting a stub turns every existing inbound link into a 404.
+These six files are **hand-written and are not generated by `scripts/build-site.mjs`**. No generator invariant covers them: `--check` compares only the 10 generated outputs and will not notice if a stub rots, so a route rename has to update them by hand. Do not delete them either — GitHub Pages serves committed bytes and offers no server-side redirect, so deleting a stub turns every existing inbound link into a 404.
 
 ## Interaction contracts
 
-The approval illustration lives on Services at `#governance`; the retired `/governance/` route redirects to that exact anchor. The topology figure appears on Services at `#architecture`, built from the shared `topology` object in `content/{en,th}/site.json`.
-
-The three films (`story`, `thesis`, `expertise`) are rendered locally by `scripts/films/render.mjs` into `assets/films/<id>-<locale>.mp4` with a poster jpg; no paid or generated video is used. Chapter timing has one source, `site/media.mjs`, which both the film stage and the page's chapter bar read. **The film words are burned into the video**: they come from `films.*` in `content/{en,th}/site.json` at render time, so editing that copy without re-running `node scripts/films/render.mjs <id|all> <en|th|all>` leaves the page transcript and the video saying different things. The build checks that every film exists with the right chapter count; it cannot detect stale burned-in text. Without JavaScript each film keeps native controls. With it, `assets/site.js` `bindFilm` swaps in a pause toggle and chapter seeking, plays only while at least half the frame is visible, and never autoplays under `prefers-reduced-motion` or Save-Data. `scripts/serve.mjs` answers single Range requests so local preview can seek.
+The approval illustration lives on Services at `#governance`; the retired `/governance/` route redirects to that exact anchor. The topology figure appears twice — in the Home hero, and again on Services at `#architecture` — from the single shared `topology` object in `content/{en,th}/site.json`, so editing it changes both.
 
 The governance example is a simulation, not a deployed authority system or API. Trusted identity stays `workflow-agent-17`; staging authority permits only `restart` on the example staging target. Human simulation binds target, operation and revision; every input change invalidates it, including a change followed by a revert. Reset returns to denied production revision 182. Allowed does not claim a real action ran. Real deployments must verify/reconcile actual observed state.
 

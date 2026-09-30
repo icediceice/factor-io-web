@@ -81,78 +81,164 @@ export function bindNavigation(doc) {
   doc.body.classList.add('menu-ready'); toggle.hidden = false;
 }
 
-const saveData = () => !!globalThis.navigator?.connection?.saveData;
+export function bindTelemetry(doc) {
+  const bar = doc.querySelector('[data-hud-fill]');
+  const pct = doc.querySelector('[data-hud-pct]');
+  const sceneTag = doc.querySelector('[data-hud-scene]');
+  const scenes = [...doc.querySelectorAll('[data-scene]')];
+  if (!bar && !pct && !sceneTag) return;
 
-// A film plays muted while at least half of it is on screen, unless the visitor asked for
-// reduced motion, is saving data, or paused it. Chapters (and ledger rows in the same
-// [data-film-group]) seek; the chapter meters and the active row follow the playhead.
-export function bindFilm(figure) {
-  const video = figure.querySelector('video'), toggle = figure.querySelector('[data-film-toggle]');
-  const chapters = [...figure.querySelectorAll('[data-chapter]')], starts = chapters.map(b => Number(b.dataset.start));
-  const group = figure.closest('[data-film-group]');
-  const rows = group ? [...group.querySelectorAll('[data-row]')] : [];
-  const end = Number(figure.dataset.duration);
-  let held = reducedMotion() || saveData(), visible = false, frame = 0, active = -1;
-  video.controls = false;
-  toggle.hidden = false;
-  const label = () => {
-    figure.dataset.state = video.paused ? 'paused' : 'playing';
-    toggle.setAttribute('aria-label', video.paused ? toggle.dataset.play : toggle.dataset.pause);
+  let ticking = false;
+  const update = () => {
+    const docHeight = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
+    const scrolled = docHeight > 0 ? Math.min(100, Math.max(0, (globalThis.scrollY / docHeight) * 100)) : 0;
+    const rounded = Math.round(scrolled);
+    if (bar) bar.style.width = `${scrolled}%`;
+    if (pct) pct.textContent = `${String(rounded).padStart(2, '0')}%`;
+
+    if (sceneTag && scenes.length) {
+      const scrollMid = globalThis.scrollY + (globalThis.innerHeight * 0.35);
+      let currentScene = scenes[0].dataset.scene || '';
+      for (const s of scenes) {
+        if (s.offsetTop <= scrollMid) currentScene = s.dataset.scene || currentScene;
+      }
+      if (currentScene && sceneTag.textContent !== currentScene) {
+        sceneTag.textContent = currentScene;
+      }
+    }
+    ticking = false;
   };
-  const paint = () => {
-    const t = video.currentTime;
-    let current = 0;
-    starts.forEach((s, i) => { if (t >= s) current = i; });
-    chapters.forEach((button, i) => {
-      const to = starts[i + 1] ?? end, p = Math.min(1, Math.max(0, (t - starts[i]) / (to - starts[i])));
-      button.style.setProperty('--p', String(i < current ? 1 : i === current ? p : 0));
-      if (i === current) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current');
-    });
-    if (current !== active) { active = current; rows.forEach((row, i) => row.toggleAttribute('data-active', i === current)); }
-  };
-  const tick = () => { paint(); frame = video.paused ? 0 : requestAnimationFrame(tick); };
-  const play = () => { const started = video.play(); if (started) started.catch(label); };
-  const seek = i => { video.currentTime = starts[i]; held = false; paint(); play(); };
-  video.addEventListener('play', () => { label(); cancelAnimationFrame(frame); frame = requestAnimationFrame(tick); });
-  video.addEventListener('pause', () => { label(); paint(); });
-  video.addEventListener('seeked', paint);
-  video.addEventListener('click', () => toggle.click());
-  toggle.addEventListener('click', () => { if (video.paused) { held = false; play(); } else { held = true; video.pause(); } });
-  chapters.forEach((button, i) => button.addEventListener('click', () => seek(i)));
-  if (group) group.querySelectorAll('[data-seek]').forEach(button => button.addEventListener('click', () => seek(Number(button.dataset.seek))));
-  if (typeof IntersectionObserver === 'function') {
-    // The observer also reports on first observe and on every crossing, and isIntersecting
-    // is true for any sliver; only the ratio says "at least half".
-    new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
-      if (visible && !held && video.paused) play();
-      else if (!visible && !video.paused) video.pause();
-    }, { threshold: 0.5 }).observe(figure.querySelector('.film-frame'));
-  }
-  label(); paint();
+
+  globalThis.addEventListener('scroll', () => {
+    if (!ticking) {
+      ticking = true;
+      globalThis.requestAnimationFrame(update);
+    }
+  }, { passive: true });
+  update();
 }
 
-// Sections below the fold fade up once as they arrive. Nothing already on screen moves.
-export function bindReveal(doc) {
-  if (reducedMotion() || typeof IntersectionObserver !== 'function') return;
-  const nodes = [...doc.querySelectorAll('.section-head, .section .film, .ledger > li, .cards > li, .routes > li, .process > li, .tile, .work-item, .demo, .cta')];
-  const io = new IntersectionObserver(entries => entries.forEach(({ isIntersecting, target }) => {
-    if (!isIntersecting) return;
-    target.classList.replace('reveal-pending', 'reveal-in');
-    io.unobserve(target);
-  }), { rootMargin: '0px 0px -8% 0px' });
-  for (const node of nodes) {
-    if (node.getBoundingClientRect().top < globalThis.innerHeight) continue;
-    const siblings = node.parentElement ? [...node.parentElement.children] : [];
-    node.style.transitionDelay = `${(Math.max(0, siblings.indexOf(node)) % 4) * 70}ms`;
-    node.classList.add('reveal-pending');
-    io.observe(node);
+export function bindSceneTransitions(doc) {
+  const blocks = doc.querySelectorAll('.scene-block, .items li');
+  if (!blocks.length || typeof IntersectionObserver === 'undefined') return;
+  if (reducedMotion()) {
+    blocks.forEach(b => b.classList.add('scene-visible'));
+    return;
   }
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('scene-visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  blocks.forEach(b => observer.observe(b));
+}
+
+export function bindDeckNavigation(doc) {
+  const slides = [...doc.querySelectorAll('.deck-slide')];
+  const dots = [...doc.querySelectorAll('.deck-dot')];
+  if (!slides.length) return;
+
+  const getActiveSlideIndex = () => {
+    const scrollMid = globalThis.scrollY + (globalThis.innerHeight * 0.45);
+    let active = 0;
+    for (let i = 0; i < slides.length; i++) {
+      if (slides[i].offsetTop <= scrollMid) active = i;
+    }
+    return active;
+  };
+
+  const scrollToSlide = index => {
+    if (index >= 0 && index < slides.length) {
+      slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  doc.querySelectorAll('[data-deck-next]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const current = getActiveSlideIndex();
+      if (current < slides.length - 1) scrollToSlide(current + 1);
+    });
+  });
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', e => {
+      e.preventDefault();
+      const target = Number(dot.dataset.slideTarget);
+      if (!Number.isNaN(target)) scrollToSlide(target);
+    });
+  });
+
+  globalThis.addEventListener('keydown', e => {
+    if (['input', 'textarea', 'select'].includes(e.target?.tagName?.toLowerCase())) return;
+    const current = getActiveSlideIndex();
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+      if (current < slides.length - 1) {
+        e.preventDefault();
+        scrollToSlide(current + 1);
+      }
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+      if (current > 0) {
+        e.preventDefault();
+        scrollToSlide(current - 1);
+      }
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      scrollToSlide(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      scrollToSlide(slides.length - 1);
+    }
+  });
+
+  let isWheeling = false;
+  let wheelTimer = null;
+  globalThis.addEventListener('wheel', e => {
+    if (reducedMotion()) return;
+    if (Math.abs(e.deltaY) < 35) return;
+    if (isWheeling) return;
+
+    const current = getActiveSlideIndex();
+    if (e.deltaY > 0 && current < slides.length - 1) {
+      isWheeling = true;
+      scrollToSlide(current + 1);
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { isWheeling = false; }, 600);
+    } else if (e.deltaY < 0 && current > 0) {
+      isWheeling = true;
+      scrollToSlide(current - 1);
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { isWheeling = false; }, 600);
+    }
+  }, { passive: true });
+
+  const syncDots = () => {
+    const active = getActiveSlideIndex();
+    dots.forEach(dot => {
+      const target = Number(dot.dataset.slideTarget);
+      if (target === active) {
+        dot.classList.add('active');
+        dot.setAttribute('aria-current', 'true');
+      } else {
+        dot.classList.remove('active');
+        dot.removeAttribute('aria-current');
+      }
+    });
+  };
+
+  globalThis.addEventListener('scroll', () => {
+    globalThis.requestAnimationFrame(syncDots);
+  }, { passive: true });
+  syncDots();
 }
 
 if (typeof document !== 'undefined') {
   bindNavigation(document);
   document.querySelectorAll('[data-demo]').forEach(bindDemo);
-  document.querySelectorAll('.film').forEach(bindFilm);
-  bindReveal(document);
+  bindTelemetry(document);
+  bindSceneTransitions(document);
+  bindDeckNavigation(document);
 }

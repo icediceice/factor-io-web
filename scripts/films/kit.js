@@ -100,15 +100,17 @@ export function chapterTag(parent, title, names, starts) {
   const tag = el('div', 'tag', parent);
   el('span', '', tag, title);
   const name = el('b', '', tag);
-  el('div', 'brand', parent, 'Factor IO');
+  const brand = el('div', 'brand', parent, 'Factor IO');
   return {
-    render(t) {
+    // out: 0..1, fades the whole tag away (end cards).
+    render(t, out = 0) {
       let i = 0;
       starts.forEach((s, j) => { if (t >= s - 0.2) i = j; });
       name.textContent = names[i];
       const since = t - (starts[i] - 0.2);
       name.style.opacity = String(i === 0 ? prog(t, 0.2, 0.6) : clamp(since / 0.4));
-      tag.style.opacity = String(prog(t, 0, 0.6));
+      tag.style.opacity = String(prog(t, 0, 0.6) * (1 - out));
+      brand.style.opacity = String(prog(t, 0, 0.6) * (1 - out));
     },
   };
 }

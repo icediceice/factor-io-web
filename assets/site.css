@@ -14,10 +14,15 @@
   --line: rgba(18, 20, 23, .12); --line-strong: rgba(18, 20, 23, .26);
   --accent: #FF5A1F; --accent-ink: #121417; --accent-text: #C0410E; --accent-soft: rgba(255, 90, 31, .1);
   --film: #0F1214; --device: #121417; --cta-bg: #121417; --cta-ink: #ECEDEA; --cta-muted: #A0A5AB;
+  /* Films and device chrome are dark in both themes, so the dark blocks below leave these alone. */
+  --on-film: #ECEDEA; --on-film-edge: rgba(236, 237, 234, .28); --film-scrim: rgba(15, 18, 20, .72); --film-scrim-hover: rgba(15, 18, 20, .92);
+  --chrome: #0A0A0F; --chrome-bar: #1B1B21; --chrome-dot: #3A3A42;
   --header: rgba(243, 244, 242, .88);
   --sans: 'Geist', 'IBM Plex Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-  --radius: 14px; --radius-inner: 10px; --pill: 999px;
+  --radius: 14px; --radius-inner: 10px; --pill: 999px; --round: 50%;
+  --radius-mark: 2px; --radius-focus: 6px; --radius-chrome: 8px; --app-icon: 22%;
+  --bezel: 24px; --bezel-screen: 19px; --bezel-sm: 14px; --bezel-screen-sm: 11px;
   --wrap: 1280px; --gutter: clamp(16px, 4vw, 40px); --section: clamp(72px, 9vw, 136px);
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: light;

@@ -7,9 +7,10 @@ import { once } from 'node:events';
 import { resolve } from 'node:path';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
-import { ROOT, generate, loadContent, assertParity, samePreviewBytes } from '../scripts/build-site.mjs';
-import { createDemo, flowStates } from '../assets/site.js';
-import { films, filmFile, filmPoster, work } from '../site/media.mjs';
+import { ROOT, generate, loadContent, assertParity, samePreviewBytes, checkPreview, publishedMedia } from '../scripts/build-site.mjs';
+import { createDemo, flowStates, bindFilm } from '../assets/site.js';
+import { chapterTag } from '../scripts/films/kit.js';
+import { films, filmFile, filmPoster, work, workFile } from '../site/media.mjs';
 
 const read = path => readFile(resolve(ROOT, path), 'utf8');
 const content = await loadContent(), output = await generate();

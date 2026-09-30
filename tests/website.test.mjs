@@ -16,7 +16,7 @@ const decode = s => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#
 const schema = html => JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
 
 test('direct email links opt out of edge obfuscation so the no-JS fallback survives publication', async () => {
-  for (const html of [...output.values(), await read('light-tools.html'), await read('privacy.html')]) {
+  for (const html of [...output.values(), await read('light-tools.html'), await read('privacy.html'), await read('terms.html')]) {
     for (const match of html.matchAll(/<a\b[^>]*href="mailto:[^"]*"[^>]*>[\s\S]*?<\/a>/g)) {
       assert.equal(html.slice(match.index - 16, match.index), '<!--email_off-->');
       assert.equal(html.slice(match.index + match[0].length, match.index + match[0].length + 17), '<!--/email_off-->');

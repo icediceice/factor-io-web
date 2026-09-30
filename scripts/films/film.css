@@ -23,9 +23,9 @@ html, body { margin: 0; background: var(--ink); }
 .abs { position: absolute; }
 
 /* Text column: vertically centred on the left half. */
-.copy { position: absolute; left: 140px; top: 0; width: 820px; height: 1080px; display: flex; flex-direction: column; justify-content: center; gap: 34px; }
+.copy { position: absolute; left: 140px; top: 0; width: 900px; height: 1080px; display: flex; flex-direction: column; justify-content: center; gap: 34px; }
 .copy.top { justify-content: flex-start; padding-top: 190px; width: 1500px; }
-.headline { font-size: 78px; font-weight: 600; letter-spacing: -.032em; line-height: 1.06; margin: 0; }
+.headline { font-size: 74px; font-weight: 600; letter-spacing: -.032em; line-height: 1.06; margin: 0; }
 .headline .line { display: block; overflow: hidden; padding: .1em 0 .08em; margin: -.1em 0 -.08em; }
 .headline .line > span { display: inline-block; white-space: nowrap; }
 .headline em { font-style: normal; color: var(--accent); }
@@ -65,3 +65,17 @@ svg.wires .accent { stroke: var(--accent); }
 svg.wires .dash { stroke-dasharray: 8 10; }
 .wordmark { font-size: 168px; font-weight: 600; letter-spacing: -.045em; line-height: 1; margin: 0; }
 .wordmark span { color: var(--accent); }
+
+/* Story film: a rack elevation and two cards. */
+.rack { position: absolute; border: 2px solid var(--line-strong); border-radius: 16px; }
+.unit { position: absolute; left: 16px; right: 16px; height: 46px; border: 2px solid var(--line); background: var(--panel); border-radius: 8px; }
+.unit .slotline { position: absolute; left: 18px; top: 18px; height: 6px; border-radius: 3px; background: var(--line); }
+.unit .led { position: absolute; top: 16px; width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
+.card { position: absolute; border: 2px solid var(--line-strong); background: var(--panel); border-radius: 14px; padding: 22px 24px; }
+.card .mono { display: block; margin-bottom: 22px; }
+.card .bars i { display: block; height: 12px; border-radius: 6px; background: var(--line); margin-bottom: 16px; }
+.card .units i { display: block; height: 28px; border-radius: 7px; border: 2px solid var(--line); margin-bottom: 12px; }
+.card.accent { border-color: var(--accent); }
+.box.slot { font-size: 20px; padding: 0 8px; }
+.tagline { position: absolute; font-family: var(--mono); font-size: 17px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+:lang(th) .tagline { letter-spacing: 0; text-transform: none; font-size: 20px; }

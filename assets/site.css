@@ -272,14 +272,14 @@ h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.0
 @media (max-width: 800px) { .contact-layout { grid-template-columns: 1fr; grid-template-areas: "aside" "card" "fallback"; } }
 
 /* Studio output. Frames only; the pixels inside are real captures. */
-.frame-browser { overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius-inner); background: #0A0A0F; }
-.frame-bar { display: flex; gap: 6px; align-items: center; height: 26px; padding: 0 12px; background: #1B1B21; }
-.frame-bar i { width: 8px; height: 8px; border-radius: 50%; background: #3A3A42; }
+.frame-browser { overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius-inner); background: var(--chrome); }
+.frame-bar { display: flex; gap: 6px; align-items: center; height: 26px; padding: 0 12px; background: var(--chrome-bar); }
+.frame-bar i { width: 8px; height: 8px; border-radius: var(--round); background: var(--chrome-dot); }
 .frame-browser img { width: 100%; }
-.frame-phone { overflow: hidden; border: 4px solid var(--device); border-radius: 24px; background: var(--device); }
-.frame-phone img { width: 100%; border-radius: 19px; }
+.frame-phone { overflow: hidden; border: 4px solid var(--device); border-radius: var(--bezel); background: var(--device); }
+.frame-phone img { width: 100%; border-radius: var(--bezel-screen); }
 .frame-icon { display: grid; place-items: center; }
-.frame-icon img { border-radius: 22%; }
+.frame-icon img { border-radius: var(--app-icon); }
 
 .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; }
 .tile { position: relative; min-width: 0; }

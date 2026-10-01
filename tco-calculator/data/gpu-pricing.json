@@ -1,6 +1,6 @@
 {
   "schema": "factor-io.tco-gpu-pricing/1.0.0",
-  "generated_at": "2026-09-30T06:02:27.792Z",
+  "generated_at": "2026-10-01T06:06:25.758Z",
   "note": "Rented-GPU rates per SPEC v0.2 5.7. confidence=first_party rows come from the vendor's own price list with no credential. confidence=indicative rows come from a public aggregator because the vendor's own API is credential-gated (GCP Cloud Billing returns 403 unauthenticated; Alibaba/Tencent/Huawei require signed AccessKey auth) — they are order-of-magnitude planning figures and every surface that renders one says so. No row is promoted between tiers without being re-fetched from the vendor.",
   "tiers": {
     "first_party": "Vendor's own price list, fetched without credentials.",
@@ -95,7 +95,7 @@
       "label": "Microsoft Azure",
       "confidence": "first_party",
       "seeded": false,
-      "rows": 40,
+      "rows": 48,
       "gpus": [
         "a10",
         "a100_40",
@@ -176,9 +176,8 @@
       "label": "Vast.ai",
       "confidence": "indicative",
       "seeded": false,
-      "rows": 6,
+      "rows": 5,
       "gpus": [
-        "a100_80",
         "b200",
         "h100",
         "h200",
@@ -202,7 +201,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/EU%20(Ireland)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -218,7 +217,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -234,7 +233,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -250,7 +249,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/EU%20(Ireland)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -266,7 +265,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/EU%20(Ireland)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -282,7 +281,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -298,7 +297,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -314,7 +313,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -330,7 +329,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -346,7 +345,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -362,7 +361,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -378,7 +377,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -394,7 +393,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -410,7 +409,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -426,7 +425,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -442,7 +441,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -458,7 +457,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -474,7 +473,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -490,7 +489,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "aws",
@@ -506,7 +505,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -522,7 +521,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -538,7 +537,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -554,7 +553,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -570,7 +569,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -586,7 +585,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -602,7 +601,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -618,7 +617,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -634,7 +633,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -650,7 +649,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -666,7 +665,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -682,7 +681,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -698,7 +697,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -714,7 +713,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -730,7 +729,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -746,7 +745,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -762,7 +761,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -778,7 +777,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -794,7 +793,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -810,7 +809,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -826,7 +825,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -842,7 +841,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -858,7 +857,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -874,7 +873,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -890,7 +889,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -906,7 +905,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -922,7 +921,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -938,7 +937,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -954,7 +953,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -970,7 +969,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -986,7 +985,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1002,7 +1001,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1018,7 +1017,7 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1034,7 +1033,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC144ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 1,
+      "vram_gb": 96,
+      "node_hourly_usd": 15.747,
+      "gpu_hourly_usd": 15.747,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1050,7 +1065,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC288ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 2,
+      "vram_gb": 96,
+      "node_hourly_usd": 15.73,
+      "gpu_hourly_usd": 7.865,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1066,7 +1097,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC72ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 1,
+      "vram_gb": 96,
+      "node_hourly_usd": 4.047,
+      "gpu_hourly_usd": 4.047,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1082,7 +1129,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC72ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 1,
+      "vram_gb": 96,
+      "node_hourly_usd": 7.359,
+      "gpu_hourly_usd": 7.359,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1098,7 +1161,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC288ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 2,
+      "vram_gb": 96,
+      "node_hourly_usd": 28.978,
+      "gpu_hourly_usd": 14.489,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1114,7 +1193,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC36ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 1,
+      "vram_gb": 96,
+      "node_hourly_usd": 2.062,
+      "gpu_hourly_usd": 2.062,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1130,7 +1225,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC144ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 1,
+      "vram_gb": 96,
+      "node_hourly_usd": 9.123,
+      "gpu_hourly_usd": 9.123,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "azure",
@@ -1146,7 +1257,23 @@
       "billing": "on_demand",
       "confidence": "first_party",
       "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
+    },
+    {
+      "provider": "azure",
+      "provider_label": "Microsoft Azure",
+      "region": "westeurope",
+      "sku": "NC36ds_xl_RTXPRO6000BSE_v6",
+      "gpu_id": "rtx_pro_6000_se",
+      "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
+      "gpu_count": 1,
+      "vram_gb": 96,
+      "node_hourly_usd": 3.718,
+      "gpu_hourly_usd": 3.718,
+      "billing": "on_demand",
+      "confidence": "first_party",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'westeurope'%20and%20priceType%20eq%20'Consumption'",
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "coreweave",
@@ -1162,7 +1289,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-a100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "coreweave",
@@ -1178,7 +1305,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-b200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "coreweave",
@@ -1194,7 +1321,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "coreweave",
@@ -1210,7 +1337,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "coreweave",
@@ -1226,7 +1353,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-l40s",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "coreweave",
@@ -1242,7 +1369,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-rtx-pro-6000",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "gcp",
@@ -1258,7 +1385,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-a100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "gcp",
@@ -1274,7 +1401,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "gcp",
@@ -1290,7 +1417,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-rtx-pro-6000",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "huawei",
@@ -1325,7 +1452,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-a100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "lambda",
@@ -1341,7 +1468,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-b200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "lambda",
@@ -1357,7 +1484,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "runpod",
@@ -1373,7 +1500,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-a100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "runpod",
@@ -1389,7 +1516,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-b200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "runpod",
@@ -1405,7 +1532,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "runpod",
@@ -1416,12 +1543,12 @@
       "gpu_label": "NVIDIA H200 141GB",
       "gpu_count": 1,
       "vram_gb": 141,
-      "node_hourly_usd": 3.59,
-      "gpu_hourly_usd": 3.59,
+      "node_hourly_usd": 4.59,
+      "gpu_hourly_usd": 4.59,
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "runpod",
@@ -1437,7 +1564,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-l40s",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "runpod",
@@ -1448,12 +1575,12 @@
       "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
       "gpu_count": 1,
       "vram_gb": 96,
-      "node_hourly_usd": 1.69,
-      "gpu_hourly_usd": 1.69,
+      "node_hourly_usd": 1.64,
+      "gpu_hourly_usd": 1.64,
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-rtx-pro-6000",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "tencent",
@@ -1478,33 +1605,17 @@
       "provider": "vast",
       "provider_label": "Vast.ai",
       "region": "unspecified",
-      "sku": "Vast.ai NVIDIA A100 80GB",
-      "gpu_id": "a100_80",
-      "gpu_label": "NVIDIA A100 80GB",
-      "gpu_count": 1,
-      "vram_gb": 80,
-      "node_hourly_usd": 0.4,
-      "gpu_hourly_usd": 0.4,
-      "billing": "on_demand",
-      "confidence": "indicative",
-      "source_url": "https://getdeploying.com/gpus/nvidia-a100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
-    },
-    {
-      "provider": "vast",
-      "provider_label": "Vast.ai",
-      "region": "unspecified",
       "sku": "Vast.ai NVIDIA B200 180GB",
       "gpu_id": "b200",
       "gpu_label": "NVIDIA B200 180GB",
       "gpu_count": 1,
       "vram_gb": 180,
-      "node_hourly_usd": 6.25,
-      "gpu_hourly_usd": 6.25,
+      "node_hourly_usd": 7.5,
+      "gpu_hourly_usd": 7.5,
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-b200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "vast",
@@ -1515,12 +1626,12 @@
       "gpu_label": "NVIDIA H100 80GB",
       "gpu_count": 1,
       "vram_gb": 80,
-      "node_hourly_usd": 1.47,
-      "gpu_hourly_usd": 1.47,
+      "node_hourly_usd": 1.73,
+      "gpu_hourly_usd": 1.73,
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h100",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "vast",
@@ -1531,12 +1642,12 @@
       "gpu_label": "NVIDIA H200 141GB",
       "gpu_count": 1,
       "vram_gb": 141,
-      "node_hourly_usd": 2.93,
-      "gpu_hourly_usd": 2.93,
+      "node_hourly_usd": 2.65,
+      "gpu_hourly_usd": 2.65,
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-h200",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "vast",
@@ -1552,7 +1663,7 @@
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-l40s",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     },
     {
       "provider": "vast",
@@ -1563,12 +1674,12 @@
       "gpu_label": "NVIDIA RTX PRO 6000 Blackwell Server Edition 96GB",
       "gpu_count": 1,
       "vram_gb": 96,
-      "node_hourly_usd": 1,
-      "gpu_hourly_usd": 1,
+      "node_hourly_usd": 1.07,
+      "gpu_hourly_usd": 1.07,
       "billing": "on_demand",
       "confidence": "indicative",
       "source_url": "https://getdeploying.com/gpus/nvidia-rtx-pro-6000",
-      "observed_at": "2026-09-30T06:02:27.792Z"
+      "observed_at": "2026-10-01T06:06:25.758Z"
     }
   ]
 }

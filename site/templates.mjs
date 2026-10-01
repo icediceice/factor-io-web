@@ -325,7 +325,7 @@ ${page !== 'contact' ? `<section class="cta" aria-labelledby="cta-title"><div><h
 </div></main>
 <footer class="site-footer"><div class="wrap footer-grid"><div class="footer-brand">${brand}<p>${esc(u.footer)}</p></div>
 <div><h2>${esc(u.resources)}</h2>${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}${link(routePath(locale, 'mobile-apps'), c.pages['mobile-apps'].nav)}</div>
-<div><h2>${esc(u.company)}</h2>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('#top', u.backTop)}</div>
+<div><h2>${esc(u.company)}</h2>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('/terms.html', u.terms)}${link('#top', u.backTop)}</div>
 <p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div></footer></body></html>
 `;
 }

@@ -517,3 +517,9 @@ Upcoming work in priority order:
 - **Files:** terms.html, site/config.mjs, scripts/build-site.mjs, tests/website.test.mjs, sitemap.xml, PROGRESS.md
 - **Next:** Operator confirms two promises the page makes that no code enforces: changes affecting a paid subscription are announced in the app first (s07), and term changes never apply retroactively to a paid year (s12).
 - **Known issues:** The page states no price or trial length on purpose, because none exists yet: per KB, as of 2026-09-29 `backup_yearly` exists in neither RevenueCat, Play nor ASC. Whether restore works without an active subscription is unverified (lives in cat_countdown_flutter, outside this repo), so the page makes no claim either way. English only, like privacy.html.
+
+#### 2026-10-01 — Terms of Use linked from the site footer and the Privacy Statement
+- **What:** `renderPage`'s footer Company column now links `/terms.html` right after Privacy, labelled by the new `ui.terms` key ("Terms of Use" / "ข้อกำหนดการใช้งาน"; both locales need it or `assertParity` throws). Rebuilt all 13 generated pages. `privacy.html`'s footer now links `terms.html`, so the two legal pages link each other. Tests: 42/42 pass via `node --test tests/website.test.mjs`.
+- **Files:** content/en/site.json, content/th/site.json, site/templates.mjs, privacy.html, en/*/index.html, th/*/index.html, index.html, PROGRESS.md
+- **Next:** Optional per-app Terms link on the Cat Countdown card or the Mobile apps posture section, which was left out of scope.
+- **Known issues:** The Thai footer links an English-only terms page, the same as its Privacy link already does.

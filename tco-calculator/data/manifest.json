@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1790834797675",
-  "generated_at": "2026-10-01T06:06:37.675Z",
-  "snapshot_digest": "642cd137c0c61f19",
+  "refresh_id": "refresh-1790922361518",
+  "generated_at": "2026-10-02T06:26:01.518Z",
+  "snapshot_digest": "cbcc1177a33c804f",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-642cd137c0c61f19.json",
-      "digest": "642cd137c0c61f19",
-      "bytes": 3372456
+      "path": "catalog-cbcc1177a33c804f.json",
+      "digest": "cbcc1177a33c804f",
+      "bytes": 3377420
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "825d8e9b97641a5e",
+      "digest": "c3e874ff7c367c4b",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-01T06:06:37.675Z",
-      "last_success_at": "2026-10-01T06:06:37.675Z",
-      "expires_at": "2026-10-04T06:06:37.675Z",
-      "root_digest": "f161ddc5f554b6f8",
-      "record_count": 444,
+      "observed_at": "2026-10-02T06:26:01.518Z",
+      "last_success_at": "2026-10-02T06:26:01.518Z",
+      "expires_at": "2026-10-05T06:26:01.518Z",
+      "root_digest": "57e29b398a35e339",
+      "record_count": 446,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-01T06:06:37.675Z",
-      "last_success_at": "2026-10-01T06:06:37.675Z",
-      "expires_at": "2026-10-04T06:06:37.675Z",
-      "root_digest": "f800636a741a94e4",
-      "record_count": 3392,
+      "observed_at": "2026-10-02T06:26:01.518Z",
+      "last_success_at": "2026-10-02T06:26:01.518Z",
+      "expires_at": "2026-10-05T06:26:01.518Z",
+      "root_digest": "56f4988d2628b62c",
+      "record_count": 3396,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-09-30T00:00:00.000Z",
-      "last_success_at": "2026-10-01T06:07:02.254Z",
-      "expires_at": "2026-10-07T23:59:59.999Z",
-      "root_digest": "825d8e9b97641a5e",
+      "observed_at": "2026-10-01T00:00:00.000Z",
+      "last_success_at": "2026-10-02T06:26:27.079Z",
+      "expires_at": "2026-10-08T23:59:59.999Z",
+      "root_digest": "c3e874ff7c367c4b",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -21698,6 +21698,16 @@
       ]
     },
     {
+      "id": "litellm:nebius/Qwen/Qwen3.8-27B",
+      "name": "nebius/Qwen/Qwen3.8-27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:nebius/deepseek-ai/DeepSeek-R1",
       "name": "nebius/deepseek-ai/DeepSeek-R1",
       "tariff": "token",
@@ -24985,6 +24995,16 @@
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/apodex/apodex-1.1-mini:free",
+      "name": "openrouter/apodex/apodex-1.1-mini:free",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "input",
         "output"
       ]
@@ -29386,6 +29406,17 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/unbiased/pareto-26.10-preview",
+      "name": "openrouter/unbiased/pareto-26.10-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -37175,6 +37206,20 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/xai/grok-4.7",
+      "name": "vertex_ai/xai/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/zai-org/glm-4.7-maas",
       "name": "vertex_ai/zai-org/glm-4.7-maas",
       "tariff": "token",
@@ -39306,6 +39351,16 @@
       ]
     },
     {
+      "id": "openrouter:apodex/apodex-1.1-mini:free",
+      "name": "Apodex: Apodex 1.1 Mini (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:arcee-ai/trinity-large-thinking",
       "name": "Arcee AI: Trinity Large Thinking",
       "tariff": "token",
@@ -40858,7 +40913,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -42835,7 +42891,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43367,6 +43424,17 @@
     {
       "id": "openrouter:unbiased/pareto",
       "name": "Pareto",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:unbiased/pareto-26.10-preview",
+      "name": "Pareto 26.10 Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -48078,6 +48146,16 @@
         "mode": "rerank"
       },
       {
+        "offer": "litellm:voyage/rerank-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:voyage/rerank-lite-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
         "offer": "litellm:voyage/rerank-2.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -48154,6 +48232,11 @@
       },
       {
         "offer": "litellm:voyage/voyage-large-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:voyage/voyage-large-2-instruct",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
       },
@@ -49254,6 +49337,41 @@
       },
       {
         "offer": "litellm:perplexity/anthropic/claude-sonnet-5-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/anthropic/claude-fable-5-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/anthropic/claude-opus-5-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/openai/gpt-6.1-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/openai/gpt-6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/openai/gpt-6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/google/gemini-3.8-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/xai/grok-4.7",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       },

@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791008561739",
-  "generated_at": "2026-10-03T06:22:41.739Z",
-  "snapshot_digest": "89d7a89db94611ad",
+  "refresh_id": "refresh-1791180709540",
+  "generated_at": "2026-10-05T06:11:49.540Z",
+  "snapshot_digest": "99710c5159b3158e",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-89d7a89db94611ad.json",
-      "digest": "89d7a89db94611ad",
-      "bytes": 3379975
+      "path": "catalog-99710c5159b3158e.json",
+      "digest": "99710c5159b3158e",
+      "bytes": 3379767
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-03T06:22:41.739Z",
-      "last_success_at": "2026-10-03T06:22:41.739Z",
-      "expires_at": "2026-10-06T06:22:41.739Z",
+      "observed_at": "2026-10-05T06:11:49.540Z",
+      "last_success_at": "2026-10-05T06:11:49.540Z",
+      "expires_at": "2026-10-08T06:11:49.540Z",
       "root_digest": "ac22bab5a84700fc",
       "record_count": 448,
       "missing_streak": 0
@@ -31,18 +31,18 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-03T06:22:41.739Z",
-      "last_success_at": "2026-10-03T06:22:41.739Z",
-      "expires_at": "2026-10-06T06:22:41.739Z",
-      "root_digest": "53e1fc104aa89009",
-      "record_count": 3381,
+      "observed_at": "2026-10-05T06:11:49.540Z",
+      "last_success_at": "2026-10-05T06:11:49.540Z",
+      "expires_at": "2026-10-08T06:11:49.540Z",
+      "root_digest": "6894f59898a4d4eb",
+      "record_count": 3382,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-10-02T00:00:00.000Z",
-      "last_success_at": "2026-10-03T06:23:08.460Z",
+      "last_success_at": "2026-10-05T06:12:15.220Z",
       "expires_at": "2026-10-09T23:59:59.999Z",
       "root_digest": "77ca4bfa1b144e8c",
       "record_count": 1,
@@ -5996,6 +5996,16 @@
     {
       "id": "litellm:azure_ai/jamba-instruct",
       "name": "azure_ai/jamba-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/kimi-k2-thinking",
+      "name": "azure_ai/kimi-k2-thinking",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -25198,7 +25208,6 @@
       "tariff": "token",
       "state": "active",
       "meters": [
-        "cache_read",
         "input",
         "output"
       ]
@@ -26174,6 +26183,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -26732,9 +26742,9 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -29016,6 +29026,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_write",
         "input",
         "output",
         "cache_read"
@@ -42957,7 +42968,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43059,7 +43071,8 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_write"
       ]
     },
     {
@@ -43229,16 +43242,6 @@
     {
       "id": "openrouter:sao10k/l3.3-euryale-70b",
       "name": "Sao10K: Llama 3.3 Euryale 70B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:stealth/space-bunny-alpha",
-      "name": "Space Bunny Alpha",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -44846,6 +44849,26 @@
         "mode": "audio_transcription"
       },
       {
+        "offer": "litellm:cloudflare/clef",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:cloudflare/clef-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:cloudflare/@cf/cloudflare/clef",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:cloudflare/@cf/cloudflare/clef-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:cohere.embed-english-v3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -44872,6 +44895,16 @@
       },
       {
         "offer": "litellm:cohere/embed-v4.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:cohere/embed-v5.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:cohere/embed-v5.0-fast",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
       },
@@ -47494,6 +47527,11 @@
         "mode": "search"
       },
       {
+        "offer": "litellm:perplexity/pplx-decider-v1-27b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:perplexity/preset/fast-search",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -48899,6 +48937,11 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:xai/grok-imagine-video-1.5-lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:xai/grok-imagine-video-1.5-2026-05-30",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -49379,6 +49422,11 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:strands_decider/strands-decider-2B-hobson-v19",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:typesafe/jev-1.13.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
@@ -49392,6 +49440,21 @@
         "offer": "litellm:typesafe/jev-preview",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:openrouter/openai/gpt-image-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:openrouter/openai/gpt-image-2.5-flare",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:openrouter/openai/gpt-image-2.5-sunburst",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       },
       {
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",

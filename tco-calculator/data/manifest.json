@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791180709540",
-  "generated_at": "2026-10-05T06:11:49.540Z",
-  "snapshot_digest": "99710c5159b3158e",
+  "refresh_id": "refresh-1791270224319",
+  "generated_at": "2026-10-06T07:03:44.319Z",
+  "snapshot_digest": "09dbb9a252eaec57",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-99710c5159b3158e.json",
-      "digest": "99710c5159b3158e",
-      "bytes": 3379767
+      "path": "catalog-09dbb9a252eaec57.json",
+      "digest": "09dbb9a252eaec57",
+      "bytes": 3385285
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "77ca4bfa1b144e8c",
+      "digest": "1b55e5003d7d34e9",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-05T06:11:49.540Z",
-      "last_success_at": "2026-10-05T06:11:49.540Z",
-      "expires_at": "2026-10-08T06:11:49.540Z",
-      "root_digest": "ac22bab5a84700fc",
-      "record_count": 448,
+      "observed_at": "2026-10-06T07:03:44.319Z",
+      "last_success_at": "2026-10-06T07:03:44.319Z",
+      "expires_at": "2026-10-09T07:03:44.319Z",
+      "root_digest": "7dfd3dd3851dc84c",
+      "record_count": 446,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-05T06:11:49.540Z",
-      "last_success_at": "2026-10-05T06:11:49.540Z",
-      "expires_at": "2026-10-08T06:11:49.540Z",
-      "root_digest": "6894f59898a4d4eb",
-      "record_count": 3382,
+      "observed_at": "2026-10-06T07:03:44.319Z",
+      "last_success_at": "2026-10-06T07:03:44.319Z",
+      "expires_at": "2026-10-09T07:03:44.319Z",
+      "root_digest": "3935ac05be184939",
+      "record_count": 3384,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-02T00:00:00.000Z",
-      "last_success_at": "2026-10-05T06:12:15.220Z",
-      "expires_at": "2026-10-09T23:59:59.999Z",
-      "root_digest": "77ca4bfa1b144e8c",
+      "observed_at": "2026-10-05T00:00:00.000Z",
+      "last_success_at": "2026-10-06T07:04:10.840Z",
+      "expires_at": "2026-10-12T23:59:59.999Z",
+      "root_digest": "1b55e5003d7d34e9",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -1906,17 +1906,6 @@
       ]
     },
     {
-      "id": "litellm:azure/eu/codex-mini",
-      "name": "azure/eu/codex-mini",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/eu/computer-use-preview",
       "name": "azure/eu/computer-use-preview",
       "tariff": "token",
@@ -2057,17 +2046,6 @@
       ]
     },
     {
-      "id": "litellm:azure/eu/gpt-5-codex",
-      "name": "azure/eu/gpt-5-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/eu/gpt-5-mini",
       "name": "azure/eu/gpt-5-mini",
       "tariff": "token",
@@ -2130,18 +2108,6 @@
       ]
     },
     {
-      "id": "litellm:azure/eu/gpt-5-pro",
-      "name": "azure/eu/gpt-5-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
       "id": "litellm:azure/eu/gpt-5.1",
       "name": "azure/eu/gpt-5.1",
       "tariff": "token",
@@ -2163,17 +2129,6 @@
       "name": "azure/eu/gpt-5.1-chat",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/eu/gpt-5.1-codex-max",
-      "name": "azure/eu/gpt-5.1-codex-max",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -2209,29 +2164,6 @@
       ]
     },
     {
-      "id": "litellm:azure/eu/gpt-5.2-codex",
-      "name": "azure/eu/gpt-5.2-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/eu/gpt-5.2-pro",
-      "name": "azure/eu/gpt-5.2-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
       "id": "litellm:azure/eu/gpt-5.3-chat",
       "name": "azure/eu/gpt-5.3-chat",
       "tariff": "token",
@@ -2240,20 +2172,6 @@
         "cache_read",
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/eu/gpt-5.3-codex",
-      "name": "azure/eu/gpt-5.3-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "cache_read|tier=priority",
-        "input",
-        "input|tier=priority",
-        "output",
-        "output|tier=priority"
       ]
     },
     {
@@ -2330,22 +2248,6 @@
         "input",
         "input|tier=batches",
         "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:azure/eu/gpt-5.4-pro",
-      "name": "azure/eu/gpt-5.4-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "input|>272000",
-        "input|>272000|tier=batches",
-        "input|tier=batches",
-        "output",
-        "output|>272000",
-        "output|>272000|tier=batches",
         "output|tier=batches"
       ]
     },
@@ -4124,17 +4026,6 @@
       ]
     },
     {
-      "id": "litellm:azure/us/codex-mini",
-      "name": "azure/us/codex-mini",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/us/computer-use-preview",
       "name": "azure/us/computer-use-preview",
       "tariff": "token",
@@ -4320,17 +4211,6 @@
       ]
     },
     {
-      "id": "litellm:azure/us/gpt-5-codex",
-      "name": "azure/us/gpt-5-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/us/gpt-5-mini",
       "name": "azure/us/gpt-5-mini",
       "tariff": "token",
@@ -4393,18 +4273,6 @@
       ]
     },
     {
-      "id": "litellm:azure/us/gpt-5-pro",
-      "name": "azure/us/gpt-5-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
       "id": "litellm:azure/us/gpt-5.1",
       "name": "azure/us/gpt-5.1",
       "tariff": "token",
@@ -4426,17 +4294,6 @@
       "name": "azure/us/gpt-5.1-chat",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/us/gpt-5.1-codex-max",
-      "name": "azure/us/gpt-5.1-codex-max",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -4472,29 +4329,6 @@
       ]
     },
     {
-      "id": "litellm:azure/us/gpt-5.2-codex",
-      "name": "azure/us/gpt-5.2-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/us/gpt-5.2-pro",
-      "name": "azure/us/gpt-5.2-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
       "id": "litellm:azure/us/gpt-5.3-chat",
       "name": "azure/us/gpt-5.3-chat",
       "tariff": "token",
@@ -4503,20 +4337,6 @@
         "cache_read",
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/us/gpt-5.3-codex",
-      "name": "azure/us/gpt-5.3-codex",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "cache_read|tier=priority",
-        "input",
-        "input|tier=priority",
-        "output",
-        "output|tier=priority"
       ]
     },
     {
@@ -4593,22 +4413,6 @@
         "input",
         "input|tier=batches",
         "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:azure/us/gpt-5.4-pro",
-      "name": "azure/us/gpt-5.4-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "input|>272000",
-        "input|>272000|tier=batches",
-        "input|tier=batches",
-        "output",
-        "output|>272000",
-        "output|>272000|tier=batches",
         "output|tier=batches"
       ]
     },
@@ -8356,7 +8160,13 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8367,7 +8177,13 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -16719,6 +16535,7 @@
         "input",
         "output",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
@@ -16742,6 +16559,7 @@
         "input",
         "output",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
@@ -16835,7 +16653,8 @@
         "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority",
-        "audio_in_tok|tier=batches"
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority"
       ]
     },
     {
@@ -17622,9 +17441,17 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -17785,7 +17612,13 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -17795,8 +17628,38 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:global.zai.glm-5.3",
+      "name": "global.zai.glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=batches",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21472,9 +21335,17 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -34562,9 +34433,17 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -34745,7 +34624,13 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -34755,8 +34640,38 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:us.zai.glm-5.3",
+      "name": "us.zai.glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=batches",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -38005,8 +37920,14 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -40504,7 +40425,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40944,7 +40866,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -42644,8 +42567,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -43079,7 +43001,7 @@
       "id": "openrouter:qwen/qwen3.8-27b:free",
       "name": "Qwen: Qwen3.8 27B (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -46762,6 +46684,26 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:chatgpt/gpt-6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6-astra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6.1-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:chatgpt/gpt-5.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49565,6 +49507,11 @@
         "offer": "litellm:vertex_ai/gemini-3.8-flash-lite-tts",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:amazon.nova-2-5-sonic",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
       }
     ],
     "source_errors": {

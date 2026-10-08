@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791354249004",
-  "generated_at": "2026-10-07T06:24:09.004Z",
-  "snapshot_digest": "7155ddceb2b29d10",
+  "refresh_id": "refresh-1791440119872",
+  "generated_at": "2026-10-08T06:15:19.872Z",
+  "snapshot_digest": "4450eabaf6c42148",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-7155ddceb2b29d10.json",
-      "digest": "7155ddceb2b29d10",
-      "bytes": 3398020
+      "path": "catalog-4450eabaf6c42148.json",
+      "digest": "4450eabaf6c42148",
+      "bytes": 3420226
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "ab1a6f2e81fbb359",
+      "digest": "08c84a4526fe80df",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-07T06:24:09.004Z",
-      "last_success_at": "2026-10-07T06:24:09.004Z",
-      "expires_at": "2026-10-10T06:24:09.004Z",
-      "root_digest": "10a43c7f7a44ad2c",
-      "record_count": 447,
+      "observed_at": "2026-10-08T06:15:19.872Z",
+      "last_success_at": "2026-10-08T06:15:19.872Z",
+      "expires_at": "2026-10-11T06:15:19.872Z",
+      "root_digest": "1b56e4d0e0b7dd39",
+      "record_count": 449,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-07T06:24:09.004Z",
-      "last_success_at": "2026-10-07T06:24:09.004Z",
-      "expires_at": "2026-10-10T06:24:09.004Z",
-      "root_digest": "d689b19e39f2edb4",
-      "record_count": 3390,
+      "observed_at": "2026-10-08T06:15:19.872Z",
+      "last_success_at": "2026-10-08T06:15:19.872Z",
+      "expires_at": "2026-10-11T06:15:19.872Z",
+      "root_digest": "b601b2300a5b860a",
+      "record_count": 3407,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-06T00:00:00.000Z",
-      "last_success_at": "2026-10-07T06:24:32.939Z",
-      "expires_at": "2026-10-13T23:59:59.999Z",
-      "root_digest": "ab1a6f2e81fbb359",
+      "observed_at": "2026-10-07T00:00:00.000Z",
+      "last_success_at": "2026-10-08T06:15:44.472Z",
+      "expires_at": "2026-10-14T23:59:59.999Z",
+      "root_digest": "08c84a4526fe80df",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -1153,6 +1153,24 @@
       ]
     },
     {
+      "id": "litellm:anthropic.claude-haiku-5-5",
+      "name": "anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:anthropic.claude-instant-v1",
       "name": "anthropic.claude-instant-v1",
       "tariff": "token",
@@ -1590,6 +1608,24 @@
       ]
     },
     {
+      "id": "litellm:apac.anthropic.claude-haiku-5-5",
+      "name": "apac.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write|age=1hr",
+        "cache_write",
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:apac.anthropic.claude-mythos-preview",
       "name": "apac.anthropic.claude-mythos-preview",
       "tariff": "token",
@@ -1735,6 +1771,24 @@
         "output",
         "input|tier=batches",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:au.anthropic.claude-haiku-5-5",
+      "name": "au.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -5336,6 +5390,24 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/claude-haiku-5-5",
+      "name": "azure_ai/claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/claude-opus-4-5",
       "name": "azure_ai/claude-opus-4-5",
       "tariff": "token",
@@ -7336,6 +7408,24 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-haiku-5-5",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-opus-4-8",
       "name": "bedrock/us-gov-east-1/anthropic.claude-opus-4-8",
       "tariff": "token",
@@ -7588,6 +7678,24 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-haiku-5-5",
+      "name": "bedrock/us-gov-west-1/anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
@@ -7944,6 +8052,24 @@
       ]
     },
     {
+      "id": "litellm:bedrock_mantle/anthropic.claude-haiku-5-5",
+      "name": "bedrock_mantle/anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock_mantle/anthropic.claude-opus-5-5",
       "name": "bedrock_mantle/anthropic.claude-opus-5-5",
       "tariff": "token",
@@ -8148,6 +8274,24 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/anthropic.claude-haiku-5-5",
+      "name": "bedrock_mantle/us-gov-west-1/anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -8449,6 +8593,32 @@
         "input|tier=batches",
         "output",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:claude-haiku-5-5",
+      "name": "claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000|tier=batches",
+        "output|>100000|tier=batches",
+        "cache_write|>100000|tier=batches",
+        "cache_read|>100000|tier=batches",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches",
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000"
       ]
     },
     {
@@ -12371,6 +12541,24 @@
         "output",
         "input|tier=batches",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:eu.anthropic.claude-haiku-5-5",
+      "name": "eu.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -17382,6 +17570,24 @@
       ]
     },
     {
+      "id": "litellm:global.anthropic.claude-haiku-5-5",
+      "name": "global.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:global.anthropic.claude-mythos-5-1",
       "name": "global.anthropic.claude-mythos-5-1",
       "tariff": "token",
@@ -19724,6 +19930,24 @@
         "output",
         "input|tier=batches",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:jp.anthropic.claude-haiku-5-5",
+      "name": "jp.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -24715,6 +24939,24 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:openrouter/anthropic/claude-haiku-5.5",
+      "name": "openrouter/anthropic/claude-haiku-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr",
+        "input|>100000",
+        "output|>100000",
+        "cache_read|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr"
       ]
     },
     {
@@ -33943,6 +34185,24 @@
       ]
     },
     {
+      "id": "litellm:us-gov.anthropic.claude-haiku-5-5",
+      "name": "us-gov.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us-gov.anthropic.claude-opus-4-8",
       "name": "us-gov.anthropic.claude-opus-4-8",
       "tariff": "token",
@@ -34252,6 +34512,24 @@
         "output",
         "input|tier=batches",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:us.anthropic.claude-haiku-5-5",
+      "name": "us.anthropic.claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -36061,6 +36339,50 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-haiku-5-5",
+      "name": "vertex_ai/claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-haiku-5-5@default",
+      "name": "vertex_ai/claude-haiku-5-5@default",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input|>100000",
+        "output|>100000",
+        "cache_write|>100000",
+        "cache_write|>100000|age=1hr",
+        "cache_read|>100000",
         "cache_write",
         "cache_write|age=1hr",
         "cache_write|tier=batches",
@@ -39166,6 +39488,34 @@
       ]
     },
     {
+      "id": "openrouter:anthropic/claude-haiku-5.5",
+      "name": "Anthropic: Claude Haiku 5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-haiku-5.5:batch",
+      "name": "Anthropic: Claude Haiku 5.5 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
       "id": "openrouter:anthropic/claude-opus-4.1",
       "name": "Anthropic: Claude Opus 4.1",
       "tariff": "token",
@@ -39506,16 +39856,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:baidu/ernie-4.5-vl-424b-a47b",
-      "name": "Baidu: ERNIE 4.5 VL 424B A47B ",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -40632,8 +40972,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -41200,8 +41539,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -42927,17 +43265,6 @@
       ]
     },
     {
-      "id": "openrouter:qwen/qwen3-next-80b-a3b-instruct",
-      "name": "Qwen: Qwen3 Next 80B A3B Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:qwen/qwen3-next-80b-a3b-thinking",
       "name": "Qwen: Qwen3 Next 80B A3B Thinking",
       "tariff": "token",
@@ -43213,16 +43540,6 @@
         "output",
         "cache_read",
         "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:qwen/qwen3.8-27b:free",
-      "name": "Qwen: Qwen3.8 27B (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -44051,7 +44368,7 @@
       {
         "offer": "openrouter:~anthropic/claude-haiku-latest",
         "rule": "alias_skipped",
-        "target": "anthropic/claude-haiku-4.5"
+        "target": "anthropic/claude-haiku-5.5"
       },
       {
         "offer": "openrouter:~openai/gpt-mini-latest",
@@ -49730,6 +50047,11 @@
         "offer": "litellm:vertex_ai/gemini-nano-banana-2.1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:perplexity/anthropic/claude-haiku-5-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       }
     ],
     "source_errors": {

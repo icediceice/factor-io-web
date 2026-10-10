@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791526399514",
-  "generated_at": "2026-10-09T06:13:19.514Z",
-  "snapshot_digest": "ac70d01e6afc03e8",
+  "refresh_id": "refresh-1791613287999",
+  "generated_at": "2026-10-10T06:21:27.999Z",
+  "snapshot_digest": "3742a7dbe00a7fd8",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-ac70d01e6afc03e8.json",
-      "digest": "ac70d01e6afc03e8",
-      "bytes": 3434683
+      "path": "catalog-3742a7dbe00a7fd8.json",
+      "digest": "3742a7dbe00a7fd8",
+      "bytes": 3454348
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "38d42a773158f083",
+      "digest": "1ccd8f9ec7b9753f",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-09T06:13:19.514Z",
-      "last_success_at": "2026-10-09T06:13:19.514Z",
-      "expires_at": "2026-10-12T06:13:19.514Z",
-      "root_digest": "f2c967bb2c573a34",
-      "record_count": 451,
+      "observed_at": "2026-10-10T06:21:27.999Z",
+      "last_success_at": "2026-10-10T06:21:27.999Z",
+      "expires_at": "2026-10-13T06:21:27.999Z",
+      "root_digest": "5e295e600ddfdcac",
+      "record_count": 440,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-09T06:13:19.514Z",
-      "last_success_at": "2026-10-09T06:13:19.514Z",
-      "expires_at": "2026-10-12T06:13:19.514Z",
-      "root_digest": "d30cb66fe7358e8e",
-      "record_count": 3410,
+      "observed_at": "2026-10-10T06:21:27.999Z",
+      "last_success_at": "2026-10-10T06:21:27.999Z",
+      "expires_at": "2026-10-13T06:21:27.999Z",
+      "root_digest": "dab43e362c2d6b3a",
+      "record_count": 2924,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-08T00:00:00.000Z",
-      "last_success_at": "2026-10-09T06:13:44.788Z",
-      "expires_at": "2026-10-15T23:59:59.999Z",
-      "root_digest": "38d42a773158f083",
+      "observed_at": "2026-10-09T00:00:00.000Z",
+      "last_success_at": "2026-10-10T06:21:53.005Z",
+      "expires_at": "2026-10-16T23:59:59.999Z",
+      "root_digest": "1ccd8f9ec7b9753f",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -1335,12 +1335,12 @@
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
+        "cache_write|>200000|age=1hr",
         "cache_read",
         "input",
         "input|>200000",
         "output|>200000",
         "cache_write|>200000",
-        "cache_write|>200000|age=1hr",
         "cache_read|>200000",
         "output",
         "input|tier=batches",
@@ -8985,21 +8985,12 @@
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
-        "cache_write|>200000|age=1hr",
         "cache_read",
         "input",
-        "input|>200000",
-        "output|>200000",
-        "cache_write|>200000",
-        "cache_write|>200000|tier=batches",
         "cache_write|tier=batches",
-        "cache_read|>200000",
-        "cache_read|>200000|tier=batches",
         "cache_read|tier=batches",
-        "input|>200000|tier=batches",
         "input|tier=batches",
         "output",
-        "output|>200000|tier=batches",
         "output|tier=batches"
       ]
     },
@@ -9011,21 +9002,12 @@
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
-        "cache_write|>200000|age=1hr",
         "cache_read",
         "input",
-        "input|>200000",
-        "output|>200000",
-        "cache_write|>200000",
-        "cache_write|>200000|tier=batches",
         "cache_write|tier=batches",
-        "cache_read|>200000",
-        "cache_read|>200000|tier=batches",
         "cache_read|tier=batches",
-        "input|>200000|tier=batches",
         "input|tier=batches",
         "output",
-        "output|>200000|tier=batches",
         "output|tier=batches"
       ]
     },
@@ -17626,10 +17608,26 @@
       ]
     },
     {
+      "id": "litellm:github_copilot/claude-haiku-5.5",
+      "name": "github_copilot/claude-haiku-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>100000",
+        "cache_read",
+        "cache_read|>100000",
+        "input",
+        "input|>100000",
+        "output",
+        "output|>100000"
+      ]
+    },
+    {
       "id": "litellm:github_copilot/claude-sonnet-4",
       "name": "github_copilot/claude-sonnet-4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read",
@@ -17652,7 +17650,7 @@
       "id": "litellm:github_copilot/mai-code-1-flash",
       "name": "github_copilot/mai-code-1-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -17663,7 +17661,7 @@
       "id": "litellm:github_copilot/mai-code-1-flash-internal",
       "name": "github_copilot/mai-code-1-flash-internal",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -19591,6 +19589,17 @@
       ]
     },
     {
+      "id": "litellm:gpt-rosalind-discovery",
+      "name": "gpt-rosalind-discovery",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gpt-rosalind-research",
       "name": "gpt-rosalind-research",
       "tariff": "token",
@@ -20965,6 +20974,16 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:microsoft_365_copilot/chat",
+      "name": "microsoft_365_copilot/chat",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "input",
         "output"
       ]
@@ -24921,7 +24940,7 @@
       "id": "litellm:openrouter/aion-labs/aion-2.0",
       "name": "openrouter/aion-labs/aion-2.0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -24932,7 +24951,7 @@
       "id": "litellm:openrouter/aion-labs/aion-3.0",
       "name": "openrouter/aion-labs/aion-3.0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -24943,7 +24962,7 @@
       "id": "litellm:openrouter/aion-labs/aion-3.0-mini",
       "name": "openrouter/aion-labs/aion-3.0-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -24954,7 +24973,7 @@
       "id": "litellm:openrouter/aion-labs/aion-3.5",
       "name": "openrouter/aion-labs/aion-3.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -24965,7 +24984,7 @@
       "id": "litellm:openrouter/aion-labs/aion-3.5-mini",
       "name": "openrouter/aion-labs/aion-3.5-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -24976,7 +24995,7 @@
       "id": "litellm:openrouter/aion-labs/aion-rp-llama-3.1-8b",
       "name": "openrouter/aion-labs/aion-rp-llama-3.1-8b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -24986,7 +25005,7 @@
       "id": "litellm:openrouter/amazon/nova-2-lite-v1",
       "name": "openrouter/amazon/nova-2-lite-v1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -24996,7 +25015,7 @@
       "id": "litellm:openrouter/amazon/nova-lite-v1",
       "name": "openrouter/amazon/nova-lite-v1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25006,7 +25025,7 @@
       "id": "litellm:openrouter/amazon/nova-micro-v1",
       "name": "openrouter/amazon/nova-micro-v1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25016,7 +25035,7 @@
       "id": "litellm:openrouter/amazon/nova-premier-v1",
       "name": "openrouter/amazon/nova-premier-v1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25027,7 +25046,7 @@
       "id": "litellm:openrouter/amazon/nova-pro-v1",
       "name": "openrouter/amazon/nova-pro-v1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25037,7 +25056,7 @@
       "id": "litellm:openrouter/anthracite-org/magnum-v4-72b",
       "name": "openrouter/anthracite-org/magnum-v4-72b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25047,7 +25066,7 @@
       "id": "litellm:openrouter/anthropic/claude-3-haiku",
       "name": "openrouter/anthropic/claude-3-haiku",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25061,7 +25080,7 @@
       "id": "litellm:openrouter/anthropic/claude-3.5-sonnet",
       "name": "openrouter/anthropic/claude-3.5-sonnet",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25071,7 +25090,7 @@
       "id": "litellm:openrouter/anthropic/claude-3.7-sonnet",
       "name": "openrouter/anthropic/claude-3.7-sonnet",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "input",
@@ -25082,7 +25101,7 @@
       "id": "litellm:openrouter/anthropic/claude-fable-5",
       "name": "openrouter/anthropic/claude-fable-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25095,7 +25114,7 @@
       "id": "litellm:openrouter/anthropic/claude-fable-5.1",
       "name": "openrouter/anthropic/claude-fable-5.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25108,7 +25127,7 @@
       "id": "litellm:openrouter/anthropic/claude-fable-5.1:batch",
       "name": "openrouter/anthropic/claude-fable-5.1:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25121,7 +25140,7 @@
       "id": "litellm:openrouter/anthropic/claude-fable-5:batch",
       "name": "openrouter/anthropic/claude-fable-5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25134,7 +25153,7 @@
       "id": "litellm:openrouter/anthropic/claude-haiku-4.5",
       "name": "openrouter/anthropic/claude-haiku-4.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25147,7 +25166,7 @@
       "id": "litellm:openrouter/anthropic/claude-haiku-4.5:batch",
       "name": "openrouter/anthropic/claude-haiku-4.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25160,7 +25179,7 @@
       "id": "litellm:openrouter/anthropic/claude-haiku-5.5",
       "name": "openrouter/anthropic/claude-haiku-5.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25178,7 +25197,7 @@
       "id": "litellm:openrouter/anthropic/claude-haiku-5.5:batch",
       "name": "openrouter/anthropic/claude-haiku-5.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>100000",
@@ -25196,7 +25215,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.1",
       "name": "openrouter/anthropic/claude-opus-4.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "cache_write",
@@ -25210,7 +25229,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.1:batch",
       "name": "openrouter/anthropic/claude-opus-4.1:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25223,7 +25242,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.5",
       "name": "openrouter/anthropic/claude-opus-4.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25236,7 +25255,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.5:batch",
       "name": "openrouter/anthropic/claude-opus-4.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25249,7 +25268,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.6",
       "name": "openrouter/anthropic/claude-opus-4.6",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25262,7 +25281,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.6:batch",
       "name": "openrouter/anthropic/claude-opus-4.6:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25275,7 +25294,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.7",
       "name": "openrouter/anthropic/claude-opus-4.7",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25288,7 +25307,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.7:batch",
       "name": "openrouter/anthropic/claude-opus-4.7:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25301,7 +25320,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.8",
       "name": "openrouter/anthropic/claude-opus-4.8",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25314,7 +25333,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-4.8:batch",
       "name": "openrouter/anthropic/claude-opus-4.8:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25327,7 +25346,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-5",
       "name": "openrouter/anthropic/claude-opus-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25340,7 +25359,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-5.5",
       "name": "openrouter/anthropic/claude-opus-5.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25353,7 +25372,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-5.5:batch",
       "name": "openrouter/anthropic/claude-opus-5.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25366,7 +25385,7 @@
       "id": "litellm:openrouter/anthropic/claude-opus-5:batch",
       "name": "openrouter/anthropic/claude-opus-5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25379,7 +25398,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-4",
       "name": "openrouter/anthropic/claude-sonnet-4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "cache_write",
@@ -25397,7 +25416,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-4.5",
       "name": "openrouter/anthropic/claude-sonnet-4.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "cache_write",
@@ -25415,7 +25434,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-4.5:batch",
       "name": "openrouter/anthropic/claude-sonnet-4.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25432,7 +25451,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-4.6",
       "name": "openrouter/anthropic/claude-sonnet-4.6",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25449,7 +25468,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-4.6:batch",
       "name": "openrouter/anthropic/claude-sonnet-4.6:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25462,7 +25481,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-5",
       "name": "openrouter/anthropic/claude-sonnet-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25475,7 +25494,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-5.5",
       "name": "openrouter/anthropic/claude-sonnet-5.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25488,7 +25507,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-5.5:batch",
       "name": "openrouter/anthropic/claude-sonnet-5.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25501,7 +25520,7 @@
       "id": "litellm:openrouter/anthropic/claude-sonnet-5:batch",
       "name": "openrouter/anthropic/claude-sonnet-5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -25514,7 +25533,7 @@
       "id": "litellm:openrouter/apodex/apodex-1.1-mini:free",
       "name": "openrouter/apodex/apodex-1.1-mini:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25524,7 +25543,7 @@
       "id": "litellm:openrouter/arcee-ai/trinity-large-thinking",
       "name": "openrouter/arcee-ai/trinity-large-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25535,7 +25554,7 @@
       "id": "litellm:openrouter/baidu/ernie-4.5-vl-424b-a47b",
       "name": "openrouter/baidu/ernie-4.5-vl-424b-a47b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25545,7 +25564,7 @@
       "id": "litellm:openrouter/bytedance-seed/seed-1.6",
       "name": "openrouter/bytedance-seed/seed-1.6",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>128000",
@@ -25557,7 +25576,7 @@
       "id": "litellm:openrouter/bytedance-seed/seed-1.6-flash",
       "name": "openrouter/bytedance-seed/seed-1.6-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>128000",
@@ -25569,7 +25588,7 @@
       "id": "litellm:openrouter/bytedance-seed/seed-2-1-turbo",
       "name": "openrouter/bytedance-seed/seed-2-1-turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25579,7 +25598,7 @@
       "id": "litellm:openrouter/bytedance-seed/seed-2.0-code",
       "name": "openrouter/bytedance-seed/seed-2.0-code",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>128000",
@@ -25591,7 +25610,7 @@
       "id": "litellm:openrouter/bytedance-seed/seed-2.0-lite",
       "name": "openrouter/bytedance-seed/seed-2.0-lite",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>128000",
@@ -25603,7 +25622,7 @@
       "id": "litellm:openrouter/bytedance-seed/seed-2.0-mini",
       "name": "openrouter/bytedance-seed/seed-2.0-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>128000",
@@ -25615,7 +25634,7 @@
       "id": "litellm:openrouter/bytedance/ui-tars-1.5-7b",
       "name": "openrouter/bytedance/ui-tars-1.5-7b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25626,7 +25645,7 @@
       "id": "litellm:openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition",
       "name": "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25636,7 +25655,7 @@
       "id": "litellm:openrouter/cohere/command-a",
       "name": "openrouter/cohere/command-a",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25646,7 +25665,7 @@
       "id": "litellm:openrouter/cohere/command-a-plus",
       "name": "openrouter/cohere/command-a-plus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25657,7 +25676,7 @@
       "id": "litellm:openrouter/cohere/command-r-08-2024",
       "name": "openrouter/cohere/command-r-08-2024",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25667,7 +25686,7 @@
       "id": "litellm:openrouter/cohere/command-r-plus-08-2024",
       "name": "openrouter/cohere/command-r-plus-08-2024",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25677,7 +25696,7 @@
       "id": "litellm:openrouter/cohere/command-r7b-12-2024",
       "name": "openrouter/cohere/command-r7b-12-2024",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25687,7 +25706,7 @@
       "id": "litellm:openrouter/cohere/north-mini-code:free",
       "name": "openrouter/cohere/north-mini-code:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25697,7 +25716,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-chat",
       "name": "openrouter/deepseek/deepseek-chat",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25707,7 +25726,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-chat-v3-0324",
       "name": "openrouter/deepseek/deepseek-chat-v3-0324",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25718,7 +25737,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-chat-v3.1",
       "name": "openrouter/deepseek/deepseek-chat-v3.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25729,7 +25748,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-r1",
       "name": "openrouter/deepseek/deepseek-r1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25740,7 +25759,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-r1-0528",
       "name": "openrouter/deepseek/deepseek-r1-0528",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25751,7 +25770,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-r1-distill-llama-70b",
       "name": "openrouter/deepseek/deepseek-r1-distill-llama-70b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25761,7 +25780,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v3.1-terminus",
       "name": "openrouter/deepseek/deepseek-v3.1-terminus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25772,7 +25791,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v3.2",
       "name": "openrouter/deepseek/deepseek-v3.2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25783,7 +25802,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v3.2-exp",
       "name": "openrouter/deepseek/deepseek-v3.2-exp",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25794,7 +25813,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4-flash",
       "name": "openrouter/deepseek/deepseek-v4-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25805,7 +25824,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4-flash-0731",
       "name": "openrouter/deepseek/deepseek-v4-flash-0731",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25816,7 +25835,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4-flash-vision-exp",
       "name": "openrouter/deepseek/deepseek-v4-flash-vision-exp",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25827,7 +25846,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4-pro",
       "name": "openrouter/deepseek/deepseek-v4-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25838,7 +25857,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4-pro-0813",
       "name": "openrouter/deepseek/deepseek-v4-pro-0813",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25849,7 +25868,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4.1-flash",
       "name": "openrouter/deepseek/deepseek-v4.1-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25860,7 +25879,7 @@
       "id": "litellm:openrouter/deepseek/deepseek-v4.1-flash:batch",
       "name": "openrouter/deepseek/deepseek-v4.1-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -25871,7 +25890,7 @@
       "id": "litellm:openrouter/dots-studio/dots-3-note-preview:free",
       "name": "openrouter/dots-studio/dots-3-note-preview:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -25881,7 +25900,7 @@
       "id": "litellm:openrouter/fireworks/ember-1",
       "name": "openrouter/fireworks/ember-1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25892,7 +25911,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-flash",
       "name": "openrouter/google/gemini-2.5-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -25906,7 +25925,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-flash-image",
       "name": "openrouter/google/gemini-2.5-flash-image",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25921,7 +25940,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-flash-lite",
       "name": "openrouter/google/gemini-2.5-flash-lite",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -25935,7 +25954,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-flash-lite:batch",
       "name": "openrouter/google/gemini-2.5-flash-lite:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read_audio",
         "cache_read",
@@ -25948,7 +25967,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-flash:batch",
       "name": "openrouter/google/gemini-2.5-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read_audio",
         "cache_read",
@@ -25961,7 +25980,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-pro",
       "name": "openrouter/google/gemini-2.5-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -25978,7 +25997,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-pro-preview",
       "name": "openrouter/google/gemini-2.5-pro-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -25995,7 +26014,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-pro-preview-05-06",
       "name": "openrouter/google/gemini-2.5-pro-preview-05-06",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26011,7 +26030,7 @@
       "id": "litellm:openrouter/google/gemini-2.5-pro:batch",
       "name": "openrouter/google/gemini-2.5-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read_audio",
         "cache_read",
@@ -26027,7 +26046,7 @@
       "id": "litellm:openrouter/google/gemini-3-flash-preview",
       "name": "openrouter/google/gemini-3-flash-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26041,7 +26060,7 @@
       "id": "litellm:openrouter/google/gemini-3-flash-preview:batch",
       "name": "openrouter/google/gemini-3-flash-preview:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "audio_in_tok",
         "input",
@@ -26052,7 +26071,7 @@
       "id": "litellm:openrouter/google/gemini-3-pro-image",
       "name": "openrouter/google/gemini-3-pro-image",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26067,7 +26086,7 @@
       "id": "litellm:openrouter/google/gemini-3-pro-image-preview",
       "name": "openrouter/google/gemini-3-pro-image-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26082,7 +26101,7 @@
       "id": "litellm:openrouter/google/gemini-3-pro-preview",
       "name": "openrouter/google/gemini-3-pro-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>200000",
@@ -26099,7 +26118,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-flash-image",
       "name": "openrouter/google/gemini-3.1-flash-image",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26110,7 +26129,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-flash-image-preview",
       "name": "openrouter/google/gemini-3.1-flash-image-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26121,7 +26140,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-flash-lite",
       "name": "openrouter/google/gemini-3.1-flash-lite",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26135,7 +26154,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-flash-lite-image",
       "name": "openrouter/google/gemini-3.1-flash-lite-image",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26146,7 +26165,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-flash-lite-preview",
       "name": "openrouter/google/gemini-3.1-flash-lite-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26160,7 +26179,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-flash-lite:batch",
       "name": "openrouter/google/gemini-3.1-flash-lite:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read_audio",
         "cache_read",
@@ -26173,7 +26192,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-pro-preview",
       "name": "openrouter/google/gemini-3.1-pro-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read",
@@ -26191,7 +26210,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-pro-preview-customtools",
       "name": "openrouter/google/gemini-3.1-pro-preview-customtools",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26208,7 +26227,7 @@
       "id": "litellm:openrouter/google/gemini-3.1-pro-preview:batch",
       "name": "openrouter/google/gemini-3.1-pro-preview:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "audio_in_tok",
         "input",
@@ -26221,7 +26240,7 @@
       "id": "litellm:openrouter/google/gemini-3.5-flash",
       "name": "openrouter/google/gemini-3.5-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26235,7 +26254,7 @@
       "id": "litellm:openrouter/google/gemini-3.5-flash-lite",
       "name": "openrouter/google/gemini-3.5-flash-lite",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26249,7 +26268,7 @@
       "id": "litellm:openrouter/google/gemini-3.5-flash-lite:batch",
       "name": "openrouter/google/gemini-3.5-flash-lite:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read_audio",
         "cache_read",
@@ -26262,7 +26281,7 @@
       "id": "litellm:openrouter/google/gemini-3.5-flash:batch",
       "name": "openrouter/google/gemini-3.5-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read_audio",
         "cache_read",
@@ -26275,7 +26294,7 @@
       "id": "litellm:openrouter/google/gemini-3.6-flash",
       "name": "openrouter/google/gemini-3.6-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26289,7 +26308,7 @@
       "id": "litellm:openrouter/google/gemini-3.6-flash:batch",
       "name": "openrouter/google/gemini-3.6-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26303,7 +26322,7 @@
       "id": "litellm:openrouter/google/gemini-3.7-flash",
       "name": "openrouter/google/gemini-3.7-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26317,7 +26336,7 @@
       "id": "litellm:openrouter/google/gemini-3.7-flash:batch",
       "name": "openrouter/google/gemini-3.7-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26331,7 +26350,7 @@
       "id": "litellm:openrouter/google/gemini-3.8-flash",
       "name": "openrouter/google/gemini-3.8-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26345,7 +26364,7 @@
       "id": "litellm:openrouter/google/gemini-3.8-flash:batch",
       "name": "openrouter/google/gemini-3.8-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -26359,7 +26378,7 @@
       "id": "litellm:openrouter/google/gemini-nano-banana-2.1",
       "name": "openrouter/google/gemini-nano-banana-2.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "image_out_tok",
@@ -26370,7 +26389,7 @@
       "id": "litellm:openrouter/google/gemma-2-27b-it",
       "name": "openrouter/google/gemma-2-27b-it",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26380,7 +26399,7 @@
       "id": "litellm:openrouter/google/gemma-3-12b-it",
       "name": "openrouter/google/gemma-3-12b-it",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26390,7 +26409,7 @@
       "id": "litellm:openrouter/google/gemma-3-27b-it",
       "name": "openrouter/google/gemma-3-27b-it",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26401,7 +26420,7 @@
       "id": "litellm:openrouter/google/gemma-3-4b-it",
       "name": "openrouter/google/gemma-3-4b-it",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26411,7 +26430,7 @@
       "id": "litellm:openrouter/google/gemma-4-26b-a4b-it",
       "name": "openrouter/google/gemma-4-26b-a4b-it",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26422,7 +26441,7 @@
       "id": "litellm:openrouter/google/gemma-4-26b-a4b-it:free",
       "name": "openrouter/google/gemma-4-26b-a4b-it:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26432,7 +26451,7 @@
       "id": "litellm:openrouter/google/gemma-4-31b-it",
       "name": "openrouter/google/gemma-4-31b-it",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26443,7 +26462,7 @@
       "id": "litellm:openrouter/google/gemma-4-31b-it:free",
       "name": "openrouter/google/gemma-4-31b-it:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26453,7 +26472,7 @@
       "id": "litellm:openrouter/gryphe/mythomax-l2-13b",
       "name": "openrouter/gryphe/mythomax-l2-13b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26463,7 +26482,7 @@
       "id": "litellm:openrouter/ibm-granite/granite-4.0-h-micro",
       "name": "openrouter/ibm-granite/granite-4.0-h-micro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26473,7 +26492,7 @@
       "id": "litellm:openrouter/ibm-granite/granite-4.2-8b",
       "name": "openrouter/ibm-granite/granite-4.2-8b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26484,7 +26503,7 @@
       "id": "litellm:openrouter/inception/mercury-2",
       "name": "openrouter/inception/mercury-2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26495,7 +26514,7 @@
       "id": "litellm:openrouter/inception/mercury-2.5",
       "name": "openrouter/inception/mercury-2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26506,7 +26525,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash",
       "name": "openrouter/inclusionai/ling-3.0-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26517,7 +26536,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash-fin",
       "name": "openrouter/inclusionai/ling-3.0-flash-fin",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26528,7 +26547,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash-fin:free",
       "name": "openrouter/inclusionai/ling-3.0-flash-fin:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26538,7 +26557,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash-sante",
       "name": "openrouter/inclusionai/ling-3.0-flash-sante",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26549,7 +26568,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash-sante:free",
       "name": "openrouter/inclusionai/ling-3.0-flash-sante:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26559,7 +26578,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash-vl",
       "name": "openrouter/inclusionai/ling-3.0-flash-vl",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26570,7 +26589,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.0-flash-vl:free",
       "name": "openrouter/inclusionai/ling-3.0-flash-vl:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26580,7 +26599,7 @@
       "id": "litellm:openrouter/inclusionai/ling-3.1-flash",
       "name": "openrouter/inclusionai/ling-3.1-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26590,7 +26609,7 @@
       "id": "litellm:openrouter/inference-net/schematron-v2-small",
       "name": "openrouter/inference-net/schematron-v2-small",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26601,7 +26620,7 @@
       "id": "litellm:openrouter/inference-net/schematron-v2-turbo",
       "name": "openrouter/inference-net/schematron-v2-turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26612,7 +26631,7 @@
       "id": "litellm:openrouter/kwaipilot/kat-coder-pro-v2.5",
       "name": "openrouter/kwaipilot/kat-coder-pro-v2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26623,7 +26642,7 @@
       "id": "litellm:openrouter/liquid/lfm-2.5-2.6b:free",
       "name": "openrouter/liquid/lfm-2.5-2.6b:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26633,7 +26652,7 @@
       "id": "litellm:openrouter/mancer/weaver",
       "name": "openrouter/mancer/weaver",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26643,7 +26662,7 @@
       "id": "litellm:openrouter/meituan/longcat-2.0",
       "name": "openrouter/meituan/longcat-2.0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26654,7 +26673,7 @@
       "id": "litellm:openrouter/meta-llama/llama-3-70b-instruct",
       "name": "openrouter/meta-llama/llama-3-70b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26664,7 +26683,7 @@
       "id": "litellm:openrouter/meta-llama/llama-3.1-70b-instruct",
       "name": "openrouter/meta-llama/llama-3.1-70b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26674,7 +26693,7 @@
       "id": "litellm:openrouter/meta-llama/llama-3.1-8b-instruct",
       "name": "openrouter/meta-llama/llama-3.1-8b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26685,7 +26704,7 @@
       "id": "litellm:openrouter/meta-llama/llama-3.2-1b-instruct",
       "name": "openrouter/meta-llama/llama-3.2-1b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26695,7 +26714,7 @@
       "id": "litellm:openrouter/meta-llama/llama-3.2-3b-instruct",
       "name": "openrouter/meta-llama/llama-3.2-3b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26705,7 +26724,7 @@
       "id": "litellm:openrouter/meta-llama/llama-3.3-70b-instruct",
       "name": "openrouter/meta-llama/llama-3.3-70b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26716,7 +26735,7 @@
       "id": "litellm:openrouter/meta-llama/llama-4-maverick",
       "name": "openrouter/meta-llama/llama-4-maverick",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26727,7 +26746,7 @@
       "id": "litellm:openrouter/meta-llama/llama-4-scout",
       "name": "openrouter/meta-llama/llama-4-scout",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26737,7 +26756,7 @@
       "id": "litellm:openrouter/meta-llama/llama-guard-4-12b",
       "name": "openrouter/meta-llama/llama-guard-4-12b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26747,7 +26766,7 @@
       "id": "litellm:openrouter/meta/muse-glimmer-30b",
       "name": "openrouter/meta/muse-glimmer-30b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26758,7 +26777,7 @@
       "id": "litellm:openrouter/meta/muse-spark-1.1",
       "name": "openrouter/meta/muse-spark-1.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26769,7 +26788,7 @@
       "id": "litellm:openrouter/meta/muse-spark-1.2",
       "name": "openrouter/meta/muse-spark-1.2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26780,7 +26799,7 @@
       "id": "litellm:openrouter/meta/muse-spark-1.2-contributor",
       "name": "openrouter/meta/muse-spark-1.2-contributor",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26791,7 +26810,7 @@
       "id": "litellm:openrouter/meta/muse-spark-1.3",
       "name": "openrouter/meta/muse-spark-1.3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26802,7 +26821,7 @@
       "id": "litellm:openrouter/meta/muse-spark-1.3-contributor",
       "name": "openrouter/meta/muse-spark-1.3-contributor",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26813,7 +26832,7 @@
       "id": "litellm:openrouter/microsoft/phi-4",
       "name": "openrouter/microsoft/phi-4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26823,7 +26842,7 @@
       "id": "litellm:openrouter/microsoft/wizardlm-2-8x22b",
       "name": "openrouter/microsoft/wizardlm-2-8x22b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26833,7 +26852,7 @@
       "id": "litellm:openrouter/minimax/minimax-01",
       "name": "openrouter/minimax/minimax-01",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26843,7 +26862,7 @@
       "id": "litellm:openrouter/minimax/minimax-m1",
       "name": "openrouter/minimax/minimax-m1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26853,7 +26872,7 @@
       "id": "litellm:openrouter/minimax/minimax-m2",
       "name": "openrouter/minimax/minimax-m2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26863,7 +26882,7 @@
       "id": "litellm:openrouter/minimax/minimax-m2-her",
       "name": "openrouter/minimax/minimax-m2-her",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26874,7 +26893,7 @@
       "id": "litellm:openrouter/minimax/minimax-m2.1",
       "name": "openrouter/minimax/minimax-m2.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26886,7 +26905,7 @@
       "id": "litellm:openrouter/minimax/minimax-m2.5",
       "name": "openrouter/minimax/minimax-m2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26897,7 +26916,7 @@
       "id": "litellm:openrouter/minimax/minimax-m2.7",
       "name": "openrouter/minimax/minimax-m2.7",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26908,7 +26927,7 @@
       "id": "litellm:openrouter/minimax/minimax-m2.7:free",
       "name": "openrouter/minimax/minimax-m2.7:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26918,7 +26937,7 @@
       "id": "litellm:openrouter/minimax/minimax-m3",
       "name": "openrouter/minimax/minimax-m3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26929,7 +26948,7 @@
       "id": "litellm:openrouter/minimax/minimax-m3:free",
       "name": "openrouter/minimax/minimax-m3:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -26939,7 +26958,7 @@
       "id": "litellm:openrouter/mistralai/codestral-2508",
       "name": "openrouter/mistralai/codestral-2508",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -26950,7 +26969,7 @@
       "id": "litellm:openrouter/mistralai/codestral-2508:batch",
       "name": "openrouter/mistralai/codestral-2508:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -26961,7 +26980,7 @@
       "id": "litellm:openrouter/mistralai/devstral-2512",
       "name": "openrouter/mistralai/devstral-2512",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "image_in",
@@ -26973,7 +26992,7 @@
       "id": "litellm:openrouter/mistralai/ministral-14b-2512",
       "name": "openrouter/mistralai/ministral-14b-2512",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "image_in",
@@ -26985,7 +27004,7 @@
       "id": "litellm:openrouter/mistralai/ministral-3b-2512",
       "name": "openrouter/mistralai/ministral-3b-2512",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "image_in",
@@ -26997,7 +27016,7 @@
       "id": "litellm:openrouter/mistralai/ministral-8b-2512",
       "name": "openrouter/mistralai/ministral-8b-2512",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "image_in",
@@ -27009,7 +27028,7 @@
       "id": "litellm:openrouter/mistralai/ministral-8b-2512:batch",
       "name": "openrouter/mistralai/ministral-8b-2512:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27020,7 +27039,7 @@
       "id": "litellm:openrouter/mistralai/mistral-7b-instruct",
       "name": "openrouter/mistralai/mistral-7b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27030,7 +27049,7 @@
       "id": "litellm:openrouter/mistralai/mistral-large",
       "name": "openrouter/mistralai/mistral-large",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27041,7 +27060,7 @@
       "id": "litellm:openrouter/mistralai/mistral-large-2407",
       "name": "openrouter/mistralai/mistral-large-2407",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27052,7 +27071,7 @@
       "id": "litellm:openrouter/mistralai/mistral-large-2512",
       "name": "openrouter/mistralai/mistral-large-2512",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27063,7 +27082,7 @@
       "id": "litellm:openrouter/mistralai/mistral-large-2512:batch",
       "name": "openrouter/mistralai/mistral-large-2512:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27074,7 +27093,7 @@
       "id": "litellm:openrouter/mistralai/mistral-large-4-0",
       "name": "openrouter/mistralai/mistral-large-4-0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27085,7 +27104,7 @@
       "id": "litellm:openrouter/mistralai/mistral-medium-3",
       "name": "openrouter/mistralai/mistral-medium-3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27096,7 +27115,7 @@
       "id": "litellm:openrouter/mistralai/mistral-medium-3-5",
       "name": "openrouter/mistralai/mistral-medium-3-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27106,7 +27125,7 @@
       "id": "litellm:openrouter/mistralai/mistral-medium-3-5:batch",
       "name": "openrouter/mistralai/mistral-medium-3-5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27116,7 +27135,7 @@
       "id": "litellm:openrouter/mistralai/mistral-medium-3.1",
       "name": "openrouter/mistralai/mistral-medium-3.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27127,7 +27146,7 @@
       "id": "litellm:openrouter/mistralai/mistral-medium-3.1:batch",
       "name": "openrouter/mistralai/mistral-medium-3.1:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27138,7 +27157,7 @@
       "id": "litellm:openrouter/mistralai/mistral-nemo",
       "name": "openrouter/mistralai/mistral-nemo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27148,7 +27167,7 @@
       "id": "litellm:openrouter/mistralai/mistral-saba",
       "name": "openrouter/mistralai/mistral-saba",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27159,7 +27178,7 @@
       "id": "litellm:openrouter/mistralai/mistral-small-24b-instruct-2501",
       "name": "openrouter/mistralai/mistral-small-24b-instruct-2501",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27169,7 +27188,7 @@
       "id": "litellm:openrouter/mistralai/mistral-small-2603",
       "name": "openrouter/mistralai/mistral-small-2603",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27180,7 +27199,7 @@
       "id": "litellm:openrouter/mistralai/mistral-small-2603:batch",
       "name": "openrouter/mistralai/mistral-small-2603:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27191,7 +27210,7 @@
       "id": "litellm:openrouter/mistralai/mistral-small-3.1-24b-instruct",
       "name": "openrouter/mistralai/mistral-small-3.1-24b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27201,7 +27220,7 @@
       "id": "litellm:openrouter/mistralai/mistral-small-3.2-24b-instruct",
       "name": "openrouter/mistralai/mistral-small-3.2-24b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27211,7 +27230,7 @@
       "id": "litellm:openrouter/mistralai/mixtral-8x22b-instruct",
       "name": "openrouter/mistralai/mixtral-8x22b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27222,7 +27241,7 @@
       "id": "litellm:openrouter/mistralai/voxtral-small-24b-2507",
       "name": "openrouter/mistralai/voxtral-small-24b-2507",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27234,7 +27253,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k2",
       "name": "openrouter/moonshotai/kimi-k2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27244,7 +27263,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k2-0905",
       "name": "openrouter/moonshotai/kimi-k2-0905",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27254,7 +27273,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k2-thinking",
       "name": "openrouter/moonshotai/kimi-k2-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27265,7 +27284,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k2.5",
       "name": "openrouter/moonshotai/kimi-k2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27276,7 +27295,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k2.6",
       "name": "openrouter/moonshotai/kimi-k2.6",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27287,7 +27306,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k2.7-code",
       "name": "openrouter/moonshotai/kimi-k2.7-code",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27298,7 +27317,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k3",
       "name": "openrouter/moonshotai/kimi-k3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27309,7 +27328,7 @@
       "id": "litellm:openrouter/moonshotai/kimi-k3:batch",
       "name": "openrouter/moonshotai/kimi-k3:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27320,7 +27339,7 @@
       "id": "litellm:openrouter/morph/morph-v3-fast",
       "name": "openrouter/morph/morph-v3-fast",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27330,7 +27349,7 @@
       "id": "litellm:openrouter/morph/morph-v3-large",
       "name": "openrouter/morph/morph-v3-large",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27340,7 +27359,7 @@
       "id": "litellm:openrouter/nex-agi/nex-n2.5-mini",
       "name": "openrouter/nex-agi/nex-n2.5-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27351,7 +27370,7 @@
       "id": "litellm:openrouter/nex-agi/nex-n2.5-mini:free",
       "name": "openrouter/nex-agi/nex-n2.5-mini:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27361,7 +27380,7 @@
       "id": "litellm:openrouter/nex-agi/nex-n2.5-pro",
       "name": "openrouter/nex-agi/nex-n2.5-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27372,7 +27391,7 @@
       "id": "litellm:openrouter/nex-agi/nex-n2.5-pro:free",
       "name": "openrouter/nex-agi/nex-n2.5-pro:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27382,7 +27401,7 @@
       "id": "litellm:openrouter/nousresearch/hermes-3-llama-3.1-405b",
       "name": "openrouter/nousresearch/hermes-3-llama-3.1-405b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27392,7 +27411,7 @@
       "id": "litellm:openrouter/nousresearch/hermes-3-llama-3.1-70b",
       "name": "openrouter/nousresearch/hermes-3-llama-3.1-70b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27402,7 +27421,7 @@
       "id": "litellm:openrouter/nousresearch/hermes-4-405b",
       "name": "openrouter/nousresearch/hermes-4-405b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27412,7 +27431,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3-nano-30b-a3b",
       "name": "openrouter/nvidia/nemotron-3-nano-30b-a3b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27423,7 +27442,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "name": "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27433,7 +27452,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3-super-120b-a12b",
       "name": "openrouter/nvidia/nemotron-3-super-120b-a12b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27443,7 +27462,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "name": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27453,7 +27472,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3-ultra-550b-a55b",
       "name": "openrouter/nvidia/nemotron-3-ultra-550b-a55b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27464,7 +27483,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
       "name": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27474,7 +27493,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3.5-content-safety",
       "name": "openrouter/nvidia/nemotron-3.5-content-safety",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27484,7 +27503,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3.5-content-safety:free",
       "name": "openrouter/nvidia/nemotron-3.5-content-safety:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27494,7 +27513,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3.5-lightning",
       "name": "openrouter/nvidia/nemotron-3.5-lightning",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27505,7 +27524,7 @@
       "id": "litellm:openrouter/nvidia/nemotron-3.5-lightning:free",
       "name": "openrouter/nvidia/nemotron-3.5-lightning:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27515,7 +27534,7 @@
       "id": "litellm:openrouter/openai/gpt-3.5-turbo",
       "name": "openrouter/openai/gpt-3.5-turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27525,7 +27544,7 @@
       "id": "litellm:openrouter/openai/gpt-3.5-turbo-0613",
       "name": "openrouter/openai/gpt-3.5-turbo-0613",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27535,7 +27554,7 @@
       "id": "litellm:openrouter/openai/gpt-3.5-turbo-16k",
       "name": "openrouter/openai/gpt-3.5-turbo-16k",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27545,7 +27564,7 @@
       "id": "litellm:openrouter/openai/gpt-3.5-turbo-instruct",
       "name": "openrouter/openai/gpt-3.5-turbo-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27555,7 +27574,7 @@
       "id": "litellm:openrouter/openai/gpt-3.5-turbo:batch",
       "name": "openrouter/openai/gpt-3.5-turbo:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27565,7 +27584,7 @@
       "id": "litellm:openrouter/openai/gpt-4",
       "name": "openrouter/openai/gpt-4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27575,7 +27594,7 @@
       "id": "litellm:openrouter/openai/gpt-4-turbo",
       "name": "openrouter/openai/gpt-4-turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27585,7 +27604,7 @@
       "id": "litellm:openrouter/openai/gpt-4-turbo-preview",
       "name": "openrouter/openai/gpt-4-turbo-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27595,7 +27614,7 @@
       "id": "litellm:openrouter/openai/gpt-4-turbo:batch",
       "name": "openrouter/openai/gpt-4-turbo:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27605,7 +27624,7 @@
       "id": "litellm:openrouter/openai/gpt-4.1",
       "name": "openrouter/openai/gpt-4.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27616,7 +27635,7 @@
       "id": "litellm:openrouter/openai/gpt-4.1-mini",
       "name": "openrouter/openai/gpt-4.1-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27627,7 +27646,7 @@
       "id": "litellm:openrouter/openai/gpt-4.1-mini:batch",
       "name": "openrouter/openai/gpt-4.1-mini:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27638,7 +27657,7 @@
       "id": "litellm:openrouter/openai/gpt-4.1-nano",
       "name": "openrouter/openai/gpt-4.1-nano",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27649,7 +27668,7 @@
       "id": "litellm:openrouter/openai/gpt-4.1-nano:batch",
       "name": "openrouter/openai/gpt-4.1-nano:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27660,7 +27679,7 @@
       "id": "litellm:openrouter/openai/gpt-4.1:batch",
       "name": "openrouter/openai/gpt-4.1:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27671,7 +27690,7 @@
       "id": "litellm:openrouter/openai/gpt-4o",
       "name": "openrouter/openai/gpt-4o",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27682,7 +27701,7 @@
       "id": "litellm:openrouter/openai/gpt-4o-2024-05-13",
       "name": "openrouter/openai/gpt-4o-2024-05-13",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27692,7 +27711,7 @@
       "id": "litellm:openrouter/openai/gpt-4o-2024-08-06",
       "name": "openrouter/openai/gpt-4o-2024-08-06",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27703,7 +27722,7 @@
       "id": "litellm:openrouter/openai/gpt-4o-2024-11-20",
       "name": "openrouter/openai/gpt-4o-2024-11-20",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27714,7 +27733,7 @@
       "id": "litellm:openrouter/openai/gpt-4o-mini",
       "name": "openrouter/openai/gpt-4o-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27725,7 +27744,7 @@
       "id": "litellm:openrouter/openai/gpt-4o-mini-2024-07-18",
       "name": "openrouter/openai/gpt-4o-mini-2024-07-18",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27736,7 +27755,7 @@
       "id": "litellm:openrouter/openai/gpt-4o-mini:batch",
       "name": "openrouter/openai/gpt-4o-mini:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27747,7 +27766,7 @@
       "id": "litellm:openrouter/openai/gpt-4o:batch",
       "name": "openrouter/openai/gpt-4o:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27758,7 +27777,7 @@
       "id": "litellm:openrouter/openai/gpt-5",
       "name": "openrouter/openai/gpt-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27769,7 +27788,7 @@
       "id": "litellm:openrouter/openai/gpt-5-chat",
       "name": "openrouter/openai/gpt-5-chat",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27780,7 +27799,7 @@
       "id": "litellm:openrouter/openai/gpt-5-codex",
       "name": "openrouter/openai/gpt-5-codex",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27791,7 +27810,7 @@
       "id": "litellm:openrouter/openai/gpt-5-image",
       "name": "openrouter/openai/gpt-5-image",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27802,7 +27821,7 @@
       "id": "litellm:openrouter/openai/gpt-5-image-mini",
       "name": "openrouter/openai/gpt-5-image-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27813,7 +27832,7 @@
       "id": "litellm:openrouter/openai/gpt-5-mini",
       "name": "openrouter/openai/gpt-5-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27824,7 +27843,7 @@
       "id": "litellm:openrouter/openai/gpt-5-mini:batch",
       "name": "openrouter/openai/gpt-5-mini:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27835,7 +27854,7 @@
       "id": "litellm:openrouter/openai/gpt-5-nano",
       "name": "openrouter/openai/gpt-5-nano",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27846,7 +27865,7 @@
       "id": "litellm:openrouter/openai/gpt-5-nano:batch",
       "name": "openrouter/openai/gpt-5-nano:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27857,7 +27876,7 @@
       "id": "litellm:openrouter/openai/gpt-5-pro",
       "name": "openrouter/openai/gpt-5-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27867,7 +27886,7 @@
       "id": "litellm:openrouter/openai/gpt-5-pro:batch",
       "name": "openrouter/openai/gpt-5-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27877,7 +27896,7 @@
       "id": "litellm:openrouter/openai/gpt-5.1",
       "name": "openrouter/openai/gpt-5.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27888,7 +27907,7 @@
       "id": "litellm:openrouter/openai/gpt-5.1-codex",
       "name": "openrouter/openai/gpt-5.1-codex",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27899,7 +27918,7 @@
       "id": "litellm:openrouter/openai/gpt-5.1-codex-max",
       "name": "openrouter/openai/gpt-5.1-codex-max",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27910,7 +27929,7 @@
       "id": "litellm:openrouter/openai/gpt-5.1-codex-mini",
       "name": "openrouter/openai/gpt-5.1-codex-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -27921,7 +27940,7 @@
       "id": "litellm:openrouter/openai/gpt-5.1:batch",
       "name": "openrouter/openai/gpt-5.1:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27932,7 +27951,7 @@
       "id": "litellm:openrouter/openai/gpt-5.2",
       "name": "openrouter/openai/gpt-5.2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "cache_read",
@@ -27944,7 +27963,7 @@
       "id": "litellm:openrouter/openai/gpt-5.2-chat",
       "name": "openrouter/openai/gpt-5.2-chat",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "cache_read",
@@ -27956,7 +27975,7 @@
       "id": "litellm:openrouter/openai/gpt-5.2-codex",
       "name": "openrouter/openai/gpt-5.2-codex",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27967,7 +27986,7 @@
       "id": "litellm:openrouter/openai/gpt-5.2-pro",
       "name": "openrouter/openai/gpt-5.2-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "image_in",
         "input",
@@ -27978,7 +27997,7 @@
       "id": "litellm:openrouter/openai/gpt-5.2-pro:batch",
       "name": "openrouter/openai/gpt-5.2-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -27988,7 +28007,7 @@
       "id": "litellm:openrouter/openai/gpt-5.2:batch",
       "name": "openrouter/openai/gpt-5.2:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -27999,7 +28018,7 @@
       "id": "litellm:openrouter/openai/gpt-5.3-codex",
       "name": "openrouter/openai/gpt-5.3-codex",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28010,7 +28029,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4",
       "name": "openrouter/openai/gpt-5.4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28024,7 +28043,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-image-2",
       "name": "openrouter/openai/gpt-5.4-image-2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28035,7 +28054,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-mini",
       "name": "openrouter/openai/gpt-5.4-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28046,7 +28065,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-mini:batch",
       "name": "openrouter/openai/gpt-5.4-mini:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28057,7 +28076,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-nano",
       "name": "openrouter/openai/gpt-5.4-nano",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28068,7 +28087,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-nano:batch",
       "name": "openrouter/openai/gpt-5.4-nano:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28079,7 +28098,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-pro",
       "name": "openrouter/openai/gpt-5.4-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28091,7 +28110,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4-pro:batch",
       "name": "openrouter/openai/gpt-5.4-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>272000",
@@ -28103,7 +28122,7 @@
       "id": "litellm:openrouter/openai/gpt-5.4:batch",
       "name": "openrouter/openai/gpt-5.4:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -28117,7 +28136,7 @@
       "id": "litellm:openrouter/openai/gpt-5.5",
       "name": "openrouter/openai/gpt-5.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28131,7 +28150,7 @@
       "id": "litellm:openrouter/openai/gpt-5.5-pro",
       "name": "openrouter/openai/gpt-5.5-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28143,7 +28162,7 @@
       "id": "litellm:openrouter/openai/gpt-5.5-pro:batch",
       "name": "openrouter/openai/gpt-5.5-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>272000",
@@ -28155,7 +28174,7 @@
       "id": "litellm:openrouter/openai/gpt-5.5:batch",
       "name": "openrouter/openai/gpt-5.5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -28169,7 +28188,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-luna",
       "name": "openrouter/openai/gpt-5.6-luna",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28185,7 +28204,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-luna-pro",
       "name": "openrouter/openai/gpt-5.6-luna-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28201,7 +28220,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-luna-pro:batch",
       "name": "openrouter/openai/gpt-5.6-luna-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -28215,7 +28234,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-luna:batch",
       "name": "openrouter/openai/gpt-5.6-luna:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -28229,7 +28248,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-sol",
       "name": "openrouter/openai/gpt-5.6-sol",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28245,7 +28264,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-sol-pro",
       "name": "openrouter/openai/gpt-5.6-sol-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28261,7 +28280,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-sol-pro:batch",
       "name": "openrouter/openai/gpt-5.6-sol-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28277,7 +28296,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-sol:batch",
       "name": "openrouter/openai/gpt-5.6-sol:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28293,7 +28312,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-terra",
       "name": "openrouter/openai/gpt-5.6-terra",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28309,7 +28328,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-terra-pro",
       "name": "openrouter/openai/gpt-5.6-terra-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28325,7 +28344,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-terra-pro:batch",
       "name": "openrouter/openai/gpt-5.6-terra-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -28339,7 +28358,7 @@
       "id": "litellm:openrouter/openai/gpt-5.6-terra:batch",
       "name": "openrouter/openai/gpt-5.6-terra:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -28353,7 +28372,7 @@
       "id": "litellm:openrouter/openai/gpt-5:batch",
       "name": "openrouter/openai/gpt-5:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28364,7 +28383,7 @@
       "id": "litellm:openrouter/openai/gpt-6-astra",
       "name": "openrouter/openai/gpt-6-astra",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28380,7 +28399,7 @@
       "id": "litellm:openrouter/openai/gpt-6-astra-pro",
       "name": "openrouter/openai/gpt-6-astra-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28396,7 +28415,7 @@
       "id": "litellm:openrouter/openai/gpt-6-astra-pro:batch",
       "name": "openrouter/openai/gpt-6-astra-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28412,7 +28431,7 @@
       "id": "litellm:openrouter/openai/gpt-6-astra:batch",
       "name": "openrouter/openai/gpt-6-astra:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28428,7 +28447,7 @@
       "id": "litellm:openrouter/openai/gpt-6-luna",
       "name": "openrouter/openai/gpt-6-luna",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28444,7 +28463,7 @@
       "id": "litellm:openrouter/openai/gpt-6-luna-pro",
       "name": "openrouter/openai/gpt-6-luna-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28460,7 +28479,7 @@
       "id": "litellm:openrouter/openai/gpt-6-luna-pro:batch",
       "name": "openrouter/openai/gpt-6-luna-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28476,7 +28495,7 @@
       "id": "litellm:openrouter/openai/gpt-6-luna:batch",
       "name": "openrouter/openai/gpt-6-luna:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28492,7 +28511,7 @@
       "id": "litellm:openrouter/openai/gpt-6-sol",
       "name": "openrouter/openai/gpt-6-sol",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28508,7 +28527,7 @@
       "id": "litellm:openrouter/openai/gpt-6-sol-pro",
       "name": "openrouter/openai/gpt-6-sol-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28524,7 +28543,7 @@
       "id": "litellm:openrouter/openai/gpt-6-sol-pro:batch",
       "name": "openrouter/openai/gpt-6-sol-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28540,7 +28559,7 @@
       "id": "litellm:openrouter/openai/gpt-6-sol:batch",
       "name": "openrouter/openai/gpt-6-sol:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28556,7 +28575,7 @@
       "id": "litellm:openrouter/openai/gpt-6.1-sol",
       "name": "openrouter/openai/gpt-6.1-sol",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28572,7 +28591,7 @@
       "id": "litellm:openrouter/openai/gpt-6.1-sol-pro",
       "name": "openrouter/openai/gpt-6.1-sol-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28588,7 +28607,7 @@
       "id": "litellm:openrouter/openai/gpt-6.1-sol-pro:batch",
       "name": "openrouter/openai/gpt-6.1-sol-pro:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28604,7 +28623,7 @@
       "id": "litellm:openrouter/openai/gpt-6.1-sol:batch",
       "name": "openrouter/openai/gpt-6.1-sol:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -28620,7 +28639,7 @@
       "id": "litellm:openrouter/openai/gpt-audio",
       "name": "openrouter/openai/gpt-audio",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28632,7 +28651,7 @@
       "id": "litellm:openrouter/openai/gpt-audio-mini",
       "name": "openrouter/openai/gpt-audio-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28644,7 +28663,7 @@
       "id": "litellm:openrouter/openai/gpt-chat-latest",
       "name": "openrouter/openai/gpt-chat-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28655,7 +28674,7 @@
       "id": "litellm:openrouter/openai/gpt-oss-120b",
       "name": "openrouter/openai/gpt-oss-120b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28665,7 +28684,7 @@
       "id": "litellm:openrouter/openai/gpt-oss-120b:batch",
       "name": "openrouter/openai/gpt-oss-120b:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28675,7 +28694,7 @@
       "id": "litellm:openrouter/openai/gpt-oss-20b",
       "name": "openrouter/openai/gpt-oss-20b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28686,7 +28705,7 @@
       "id": "litellm:openrouter/openai/gpt-oss-20b:batch",
       "name": "openrouter/openai/gpt-oss-20b:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28696,7 +28715,7 @@
       "id": "litellm:openrouter/openai/gpt-oss-safeguard-20b",
       "name": "openrouter/openai/gpt-oss-safeguard-20b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28707,7 +28726,7 @@
       "id": "litellm:openrouter/openai/o1",
       "name": "openrouter/openai/o1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28718,7 +28737,7 @@
       "id": "litellm:openrouter/openai/o1-pro",
       "name": "openrouter/openai/o1-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28728,7 +28747,7 @@
       "id": "litellm:openrouter/openai/o3",
       "name": "openrouter/openai/o3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28739,7 +28758,7 @@
       "id": "litellm:openrouter/openai/o3-mini",
       "name": "openrouter/openai/o3-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28750,7 +28769,7 @@
       "id": "litellm:openrouter/openai/o3-mini-high",
       "name": "openrouter/openai/o3-mini-high",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28761,7 +28780,7 @@
       "id": "litellm:openrouter/openai/o3-mini:batch",
       "name": "openrouter/openai/o3-mini:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28772,7 +28791,7 @@
       "id": "litellm:openrouter/openai/o3-pro",
       "name": "openrouter/openai/o3-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28782,7 +28801,7 @@
       "id": "litellm:openrouter/openai/o3:batch",
       "name": "openrouter/openai/o3:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28793,7 +28812,7 @@
       "id": "litellm:openrouter/openai/o4-mini",
       "name": "openrouter/openai/o4-mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28804,7 +28823,7 @@
       "id": "litellm:openrouter/openai/o4-mini-high",
       "name": "openrouter/openai/o4-mini-high",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28815,7 +28834,7 @@
       "id": "litellm:openrouter/openai/o4-mini:batch",
       "name": "openrouter/openai/o4-mini:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28826,7 +28845,7 @@
       "id": "litellm:openrouter/openrouter/auto",
       "name": "openrouter/openrouter/auto",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28836,7 +28855,7 @@
       "id": "litellm:openrouter/openrouter/bodybuilder",
       "name": "openrouter/openrouter/bodybuilder",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28846,7 +28865,7 @@
       "id": "litellm:openrouter/openrouter/free",
       "name": "openrouter/openrouter/free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28856,7 +28875,7 @@
       "id": "litellm:openrouter/perceptron/perceptron-mk1",
       "name": "openrouter/perceptron/perceptron-mk1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28866,7 +28885,7 @@
       "id": "litellm:openrouter/perceptron/perceptron-mk1.5",
       "name": "openrouter/perceptron/perceptron-mk1.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28876,7 +28895,7 @@
       "id": "litellm:openrouter/perplexity/sonar",
       "name": "openrouter/perplexity/sonar",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28886,7 +28905,7 @@
       "id": "litellm:openrouter/perplexity/sonar-deep-research",
       "name": "openrouter/perplexity/sonar-deep-research",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28896,7 +28915,7 @@
       "id": "litellm:openrouter/perplexity/sonar-pro",
       "name": "openrouter/perplexity/sonar-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28906,7 +28925,7 @@
       "id": "litellm:openrouter/perplexity/sonar-pro-search",
       "name": "openrouter/perplexity/sonar-pro-search",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28916,7 +28935,7 @@
       "id": "litellm:openrouter/perplexity/sonar-reasoning-pro",
       "name": "openrouter/perplexity/sonar-reasoning-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28926,7 +28945,7 @@
       "id": "litellm:openrouter/poolside/laguna-s-2.1",
       "name": "openrouter/poolside/laguna-s-2.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28937,7 +28956,7 @@
       "id": "litellm:openrouter/poolside/laguna-s-2.1:free",
       "name": "openrouter/poolside/laguna-s-2.1:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28947,7 +28966,7 @@
       "id": "litellm:openrouter/poolside/laguna-xs-2.1",
       "name": "openrouter/poolside/laguna-xs-2.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -28958,7 +28977,7 @@
       "id": "litellm:openrouter/poolside/laguna-xs-2.1:free",
       "name": "openrouter/poolside/laguna-xs-2.1:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28968,7 +28987,7 @@
       "id": "litellm:openrouter/prism-ml/ternary-bonsai-2-27b",
       "name": "openrouter/prism-ml/ternary-bonsai-2-27b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -28979,7 +28998,7 @@
       "id": "litellm:openrouter/qwen/qwen-2.5-72b-instruct",
       "name": "openrouter/qwen/qwen-2.5-72b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28989,7 +29008,7 @@
       "id": "litellm:openrouter/qwen/qwen-2.5-7b-instruct",
       "name": "openrouter/qwen/qwen-2.5-7b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28999,7 +29018,7 @@
       "id": "litellm:openrouter/qwen/qwen-2.5-coder-32b-instruct",
       "name": "openrouter/qwen/qwen-2.5-coder-32b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29009,7 +29028,7 @@
       "id": "litellm:openrouter/qwen/qwen-plus",
       "name": "openrouter/qwen/qwen-plus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29025,7 +29044,7 @@
       "id": "litellm:openrouter/qwen/qwen-plus-2025-07-28",
       "name": "openrouter/qwen/qwen-plus-2025-07-28",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read",
@@ -29039,7 +29058,7 @@
       "id": "litellm:openrouter/qwen/qwen-vl-plus",
       "name": "openrouter/qwen/qwen-vl-plus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29049,7 +29068,7 @@
       "id": "litellm:openrouter/qwen/qwen2.5-vl-72b-instruct",
       "name": "openrouter/qwen/qwen2.5-vl-72b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29060,7 +29079,7 @@
       "id": "litellm:openrouter/qwen/qwen3-14b",
       "name": "openrouter/qwen/qwen3-14b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29070,7 +29089,7 @@
       "id": "litellm:openrouter/qwen/qwen3-235b-a22b",
       "name": "openrouter/qwen/qwen3-235b-a22b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29080,7 +29099,7 @@
       "id": "litellm:openrouter/qwen/qwen3-235b-a22b-2507",
       "name": "openrouter/qwen/qwen3-235b-a22b-2507",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29090,7 +29109,7 @@
       "id": "litellm:openrouter/qwen/qwen3-235b-a22b-thinking-2507",
       "name": "openrouter/qwen/qwen3-235b-a22b-thinking-2507",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29100,7 +29119,7 @@
       "id": "litellm:openrouter/qwen/qwen3-30b-a3b",
       "name": "openrouter/qwen/qwen3-30b-a3b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29110,7 +29129,7 @@
       "id": "litellm:openrouter/qwen/qwen3-30b-a3b-instruct-2507",
       "name": "openrouter/qwen/qwen3-30b-a3b-instruct-2507",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29120,7 +29139,7 @@
       "id": "litellm:openrouter/qwen/qwen3-30b-a3b-thinking-2507",
       "name": "openrouter/qwen/qwen3-30b-a3b-thinking-2507",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29130,7 +29149,7 @@
       "id": "litellm:openrouter/qwen/qwen3-32b",
       "name": "openrouter/qwen/qwen3-32b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29140,7 +29159,7 @@
       "id": "litellm:openrouter/qwen/qwen3-8b",
       "name": "openrouter/qwen/qwen3-8b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29150,7 +29169,7 @@
       "id": "litellm:openrouter/qwen/qwen3-coder",
       "name": "openrouter/qwen/qwen3-coder",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29161,7 +29180,7 @@
       "id": "litellm:openrouter/qwen/qwen3-coder-30b-a3b-instruct",
       "name": "openrouter/qwen/qwen3-coder-30b-a3b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29171,7 +29190,7 @@
       "id": "litellm:openrouter/qwen/qwen3-coder-flash",
       "name": "openrouter/qwen/qwen3-coder-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>32000",
@@ -29191,7 +29210,7 @@
       "id": "litellm:openrouter/qwen/qwen3-coder-next",
       "name": "openrouter/qwen/qwen3-coder-next",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29202,7 +29221,7 @@
       "id": "litellm:openrouter/qwen/qwen3-coder-plus",
       "name": "openrouter/qwen/qwen3-coder-plus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>128000",
@@ -29222,7 +29241,7 @@
       "id": "litellm:openrouter/qwen/qwen3-max",
       "name": "openrouter/qwen/qwen3-max",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>128000",
@@ -29242,7 +29261,7 @@
       "id": "litellm:openrouter/qwen/qwen3-max-thinking",
       "name": "openrouter/qwen/qwen3-max-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>128000",
@@ -29256,7 +29275,7 @@
       "id": "litellm:openrouter/qwen/qwen3-next-80b-a3b-instruct",
       "name": "openrouter/qwen/qwen3-next-80b-a3b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29267,7 +29286,7 @@
       "id": "litellm:openrouter/qwen/qwen3-next-80b-a3b-thinking",
       "name": "openrouter/qwen/qwen3-next-80b-a3b-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29277,7 +29296,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-235b-a22b-instruct",
       "name": "openrouter/qwen/qwen3-vl-235b-a22b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29288,7 +29307,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-235b-a22b-thinking",
       "name": "openrouter/qwen/qwen3-vl-235b-a22b-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29298,7 +29317,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-30b-a3b-instruct",
       "name": "openrouter/qwen/qwen3-vl-30b-a3b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29308,7 +29327,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-30b-a3b-thinking",
       "name": "openrouter/qwen/qwen3-vl-30b-a3b-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29318,7 +29337,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-32b-instruct",
       "name": "openrouter/qwen/qwen3-vl-32b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29328,7 +29347,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-8b-instruct",
       "name": "openrouter/qwen/qwen3-vl-8b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29338,7 +29357,7 @@
       "id": "litellm:openrouter/qwen/qwen3-vl-8b-thinking",
       "name": "openrouter/qwen/qwen3-vl-8b-thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29348,7 +29367,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-122b-a10b",
       "name": "openrouter/qwen/qwen3.5-122b-a10b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29358,7 +29377,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-27b",
       "name": "openrouter/qwen/qwen3.5-27b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29368,7 +29387,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-35b-a3b",
       "name": "openrouter/qwen/qwen3.5-35b-a3b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29379,7 +29398,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-397b-a17b",
       "name": "openrouter/qwen/qwen3.5-397b-a17b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29390,7 +29409,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-9b",
       "name": "openrouter/qwen/qwen3.5-9b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29400,7 +29419,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-flash-02-23",
       "name": "openrouter/qwen/qwen3.5-flash-02-23",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29410,7 +29429,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-plus-02-15",
       "name": "openrouter/qwen/qwen3.5-plus-02-15",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>256000",
@@ -29422,7 +29441,7 @@
       "id": "litellm:openrouter/qwen/qwen3.5-plus-20260420",
       "name": "openrouter/qwen/qwen3.5-plus-20260420",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29436,7 +29455,7 @@
       "id": "litellm:openrouter/qwen/qwen3.6-27b",
       "name": "openrouter/qwen/qwen3.6-27b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29447,7 +29466,7 @@
       "id": "litellm:openrouter/qwen/qwen3.6-35b-a3b",
       "name": "openrouter/qwen/qwen3.6-35b-a3b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29458,7 +29477,7 @@
       "id": "litellm:openrouter/qwen/qwen3.6-flash",
       "name": "openrouter/qwen/qwen3.6-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29472,7 +29491,7 @@
       "id": "litellm:openrouter/qwen/qwen3.6-max-preview",
       "name": "openrouter/qwen/qwen3.6-max-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>128000",
@@ -29486,7 +29505,7 @@
       "id": "litellm:openrouter/qwen/qwen3.6-plus",
       "name": "openrouter/qwen/qwen3.6-plus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "input|>256000",
@@ -29500,7 +29519,7 @@
       "id": "litellm:openrouter/qwen/qwen3.7-flash",
       "name": "openrouter/qwen/qwen3.7-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>32000",
@@ -29520,7 +29539,7 @@
       "id": "litellm:openrouter/qwen/qwen3.7-max",
       "name": "openrouter/qwen/qwen3.7-max",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29532,7 +29551,7 @@
       "id": "litellm:openrouter/qwen/qwen3.7-plus",
       "name": "openrouter/qwen/qwen3.7-plus",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "input|>256000",
@@ -29548,7 +29567,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-2.4t-a95b",
       "name": "openrouter/qwen/qwen3.8-2.4t-a95b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29559,7 +29578,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-27b",
       "name": "openrouter/qwen/qwen3.8-27b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "input",
@@ -29571,7 +29590,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-27b:free",
       "name": "openrouter/qwen/qwen3.8-27b:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29581,7 +29600,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-flash",
       "name": "openrouter/qwen/qwen3.8-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29593,7 +29612,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-max",
       "name": "openrouter/qwen/qwen3.8-max",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29605,7 +29624,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-max-0902",
       "name": "openrouter/qwen/qwen3.8-max-0902",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29617,7 +29636,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-max-prime",
       "name": "openrouter/qwen/qwen3.8-max-prime",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29628,7 +29647,7 @@
       "id": "litellm:openrouter/qwen/qwen3.8-omni-flash",
       "name": "openrouter/qwen/qwen3.8-omni-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29639,7 +29658,7 @@
       "id": "litellm:openrouter/rekaai/reka-edge",
       "name": "openrouter/rekaai/reka-edge",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29649,7 +29668,7 @@
       "id": "litellm:openrouter/rekaai/reka-flash-3",
       "name": "openrouter/rekaai/reka-flash-3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29659,7 +29678,7 @@
       "id": "litellm:openrouter/relace/relace-apply-3",
       "name": "openrouter/relace/relace-apply-3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29669,7 +29688,7 @@
       "id": "litellm:openrouter/relace/relace-search",
       "name": "openrouter/relace/relace-search",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29679,7 +29698,7 @@
       "id": "litellm:openrouter/sakana/fugu-max",
       "name": "openrouter/sakana/fugu-max",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29690,7 +29709,7 @@
       "id": "litellm:openrouter/sakana/fugu-ultra",
       "name": "openrouter/sakana/fugu-ultra",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -29704,7 +29723,7 @@
       "id": "litellm:openrouter/sakana/fugu-ultra-v2",
       "name": "openrouter/sakana/fugu-ultra-v2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>272000",
@@ -29718,7 +29737,7 @@
       "id": "litellm:openrouter/sakana/sakana-namazu",
       "name": "openrouter/sakana/sakana-namazu",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29729,7 +29748,7 @@
       "id": "litellm:openrouter/sao10k/l3-lunaris-8b",
       "name": "openrouter/sao10k/l3-lunaris-8b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29739,7 +29758,7 @@
       "id": "litellm:openrouter/sao10k/l3.1-euryale-70b",
       "name": "openrouter/sao10k/l3.1-euryale-70b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29749,7 +29768,7 @@
       "id": "litellm:openrouter/sao10k/l3.3-euryale-70b",
       "name": "openrouter/sao10k/l3.3-euryale-70b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29759,7 +29778,7 @@
       "id": "litellm:openrouter/stealth/space-bunny-alpha",
       "name": "openrouter/stealth/space-bunny-alpha",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29769,7 +29788,7 @@
       "id": "litellm:openrouter/stepfun/step-3.5-flash",
       "name": "openrouter/stepfun/step-3.5-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29779,7 +29798,7 @@
       "id": "litellm:openrouter/stepfun/step-3.7-flash",
       "name": "openrouter/stepfun/step-3.7-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29790,7 +29809,7 @@
       "id": "litellm:openrouter/stepfun/step-5-preview",
       "name": "openrouter/stepfun/step-5-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29801,7 +29820,7 @@
       "id": "litellm:openrouter/switchpoint/router",
       "name": "openrouter/switchpoint/router",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29811,7 +29830,7 @@
       "id": "litellm:openrouter/tencent/hunyuan-a13b-instruct",
       "name": "openrouter/tencent/hunyuan-a13b-instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29821,7 +29840,7 @@
       "id": "litellm:openrouter/tencent/hy-mt2-1.8b",
       "name": "openrouter/tencent/hy-mt2-1.8b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29831,7 +29850,7 @@
       "id": "litellm:openrouter/tencent/hy-mt2-30b-a3b",
       "name": "openrouter/tencent/hy-mt2-30b-a3b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29841,7 +29860,7 @@
       "id": "litellm:openrouter/tencent/hy-mt2-7b",
       "name": "openrouter/tencent/hy-mt2-7b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29851,7 +29870,7 @@
       "id": "litellm:openrouter/tencent/hy3",
       "name": "openrouter/tencent/hy3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29862,7 +29881,7 @@
       "id": "litellm:openrouter/tencent/hy3-preview",
       "name": "openrouter/tencent/hy3-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29873,7 +29892,7 @@
       "id": "litellm:openrouter/tencent/hy4-preview",
       "name": "openrouter/tencent/hy4-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29884,7 +29903,7 @@
       "id": "litellm:openrouter/thedrummer/cydonia-24b-v4.1",
       "name": "openrouter/thedrummer/cydonia-24b-v4.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29895,7 +29914,7 @@
       "id": "litellm:openrouter/thedrummer/skyfall-36b-v2",
       "name": "openrouter/thedrummer/skyfall-36b-v2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29906,7 +29925,7 @@
       "id": "litellm:openrouter/thedrummer/unslopnemo-12b",
       "name": "openrouter/thedrummer/unslopnemo-12b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29916,7 +29935,7 @@
       "id": "litellm:openrouter/thinkingmachines/inkling",
       "name": "openrouter/thinkingmachines/inkling",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29927,7 +29946,7 @@
       "id": "litellm:openrouter/thinkingmachines/inkling-small",
       "name": "openrouter/thinkingmachines/inkling-small",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29938,7 +29957,7 @@
       "id": "litellm:openrouter/thinkingmachines/inkling-small:free",
       "name": "openrouter/thinkingmachines/inkling-small:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29948,7 +29967,7 @@
       "id": "litellm:openrouter/thinkingmachines/inkling:free",
       "name": "openrouter/thinkingmachines/inkling:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29958,7 +29977,7 @@
       "id": "litellm:openrouter/typesafe/jev-router",
       "name": "openrouter/typesafe/jev-router",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -29968,7 +29987,7 @@
       "id": "litellm:openrouter/unbiased/pareto",
       "name": "openrouter/unbiased/pareto",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -29979,7 +29998,7 @@
       "id": "litellm:openrouter/unbiased/pareto-26.10-preview",
       "name": "openrouter/unbiased/pareto-26.10-preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -29990,7 +30009,7 @@
       "id": "litellm:openrouter/undi95/remm-slerp-l2-13b",
       "name": "openrouter/undi95/remm-slerp-l2-13b",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -30000,7 +30019,7 @@
       "id": "litellm:openrouter/upstage/solar-mini4",
       "name": "openrouter/upstage/solar-mini4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30011,7 +30030,7 @@
       "id": "litellm:openrouter/upstage/solar-pro-3",
       "name": "openrouter/upstage/solar-pro-3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30022,7 +30041,7 @@
       "id": "litellm:openrouter/upstage/solar-pro4",
       "name": "openrouter/upstage/solar-pro4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30033,7 +30052,7 @@
       "id": "litellm:openrouter/writer/palmyra-x5",
       "name": "openrouter/writer/palmyra-x5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -30043,7 +30062,7 @@
       "id": "litellm:openrouter/x-ai/grok-4",
       "name": "openrouter/x-ai/grok-4",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -30053,7 +30072,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.20",
       "name": "openrouter/x-ai/grok-4.20",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30067,7 +30086,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.20-multi-agent",
       "name": "openrouter/x-ai/grok-4.20-multi-agent",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30081,7 +30100,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.3",
       "name": "openrouter/x-ai/grok-4.3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30095,7 +30114,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.3:batch",
       "name": "openrouter/x-ai/grok-4.3:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>200000",
@@ -30109,7 +30128,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.5",
       "name": "openrouter/x-ai/grok-4.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30123,7 +30142,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.6",
       "name": "openrouter/x-ai/grok-4.6",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30137,7 +30156,7 @@
       "id": "litellm:openrouter/x-ai/grok-4.7",
       "name": "openrouter/x-ai/grok-4.7",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>200000",
@@ -30151,7 +30170,7 @@
       "id": "litellm:openrouter/x-ai/grok-build-0.1",
       "name": "openrouter/x-ai/grok-build-0.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30165,7 +30184,7 @@
       "id": "litellm:openrouter/xiaomi/mimo-v2-flash",
       "name": "openrouter/xiaomi/mimo-v2-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30177,7 +30196,7 @@
       "id": "litellm:openrouter/xiaomi/mimo-v2.5",
       "name": "openrouter/xiaomi/mimo-v2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30189,7 +30208,7 @@
       "id": "litellm:openrouter/xiaomi/mimo-v2.5-pro",
       "name": "openrouter/xiaomi/mimo-v2.5-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30201,7 +30220,7 @@
       "id": "litellm:openrouter/xiaomi/mimo-v2.6-flash",
       "name": "openrouter/xiaomi/mimo-v2.6-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30212,7 +30231,7 @@
       "id": "litellm:openrouter/xiaomi/mimo-v2.6-pro",
       "name": "openrouter/xiaomi/mimo-v2.6-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30223,7 +30242,7 @@
       "id": "litellm:openrouter/xiaomi/mimo-v2.6-pro-ultraspeed",
       "name": "openrouter/xiaomi/mimo-v2.6-pro-ultraspeed",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30234,7 +30253,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.5",
       "name": "openrouter/z-ai/glm-4.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30245,7 +30264,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.5-air",
       "name": "openrouter/z-ai/glm-4.5-air",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30256,7 +30275,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.5v",
       "name": "openrouter/z-ai/glm-4.5v",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30267,7 +30286,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.6",
       "name": "openrouter/z-ai/glm-4.6",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30278,7 +30297,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.6:exacto",
       "name": "openrouter/z-ai/glm-4.6:exacto",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -30288,7 +30307,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.6v",
       "name": "openrouter/z-ai/glm-4.6v",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30299,7 +30318,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.7",
       "name": "openrouter/z-ai/glm-4.7",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read",
@@ -30311,7 +30330,7 @@
       "id": "litellm:openrouter/z-ai/glm-4.7-flash",
       "name": "openrouter/z-ai/glm-4.7-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30323,7 +30342,7 @@
       "id": "litellm:openrouter/z-ai/glm-5",
       "name": "openrouter/z-ai/glm-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30334,7 +30353,7 @@
       "id": "litellm:openrouter/z-ai/glm-5-turbo",
       "name": "openrouter/z-ai/glm-5-turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30345,7 +30364,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.1",
       "name": "openrouter/z-ai/glm-5.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read",
@@ -30357,7 +30376,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.2",
       "name": "openrouter/z-ai/glm-5.2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30368,7 +30387,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.2:free",
       "name": "openrouter/z-ai/glm-5.2:free",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -30378,7 +30397,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.3",
       "name": "openrouter/z-ai/glm-5.3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30389,7 +30408,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.3-flash",
       "name": "openrouter/z-ai/glm-5.3-flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30400,7 +30419,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.3-flash:batch",
       "name": "openrouter/z-ai/glm-5.3-flash:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30411,7 +30430,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.3-flashx",
       "name": "openrouter/z-ai/glm-5.3-flashx",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30422,7 +30441,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.3-prime",
       "name": "openrouter/z-ai/glm-5.3-prime",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30433,7 +30452,7 @@
       "id": "litellm:openrouter/z-ai/glm-5.3:batch",
       "name": "openrouter/z-ai/glm-5.3:batch",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30444,7 +30463,7 @@
       "id": "litellm:openrouter/z-ai/glm-5v-turbo",
       "name": "openrouter/z-ai/glm-5v-turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -30455,7 +30474,7 @@
       "id": "litellm:openrouter/~anthropic/claude-fable-latest",
       "name": "openrouter/~anthropic/claude-fable-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -30468,7 +30487,7 @@
       "id": "litellm:openrouter/~anthropic/claude-haiku-latest",
       "name": "openrouter/~anthropic/claude-haiku-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input|>100000",
         "output|>100000",
@@ -30486,7 +30505,7 @@
       "id": "litellm:openrouter/~anthropic/claude-opus-latest",
       "name": "openrouter/~anthropic/claude-opus-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -30499,7 +30518,7 @@
       "id": "litellm:openrouter/~anthropic/claude-sonnet-latest",
       "name": "openrouter/~anthropic/claude-sonnet-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -30512,7 +30531,7 @@
       "id": "litellm:openrouter/~deepseek/deepseek-flash-latest",
       "name": "openrouter/~deepseek/deepseek-flash-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30523,7 +30542,7 @@
       "id": "litellm:openrouter/~deepseek/deepseek-pro-latest",
       "name": "openrouter/~deepseek/deepseek-pro-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30534,7 +30553,7 @@
       "id": "litellm:openrouter/~deepseek/deepseek-v4-flash-latest",
       "name": "openrouter/~deepseek/deepseek-v4-flash-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30545,7 +30564,7 @@
       "id": "litellm:openrouter/~google/gemini-flash-latest",
       "name": "openrouter/~google/gemini-flash-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -30559,7 +30578,7 @@
       "id": "litellm:openrouter/~google/gemini-pro-latest",
       "name": "openrouter/~google/gemini-pro-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_read_audio",
@@ -30576,7 +30595,7 @@
       "id": "litellm:openrouter/~moonshotai/kimi-latest",
       "name": "openrouter/~moonshotai/kimi-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30587,7 +30606,7 @@
       "id": "litellm:openrouter/~openai/gpt-astra-latest",
       "name": "openrouter/~openai/gpt-astra-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -30603,7 +30622,7 @@
       "id": "litellm:openrouter/~openai/gpt-luna-latest",
       "name": "openrouter/~openai/gpt-luna-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -30619,7 +30638,7 @@
       "id": "litellm:openrouter/~openai/gpt-mini-latest",
       "name": "openrouter/~openai/gpt-mini-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30630,7 +30649,7 @@
       "id": "litellm:openrouter/~openai/gpt-sol-latest",
       "name": "openrouter/~openai/gpt-sol-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -30646,7 +30665,7 @@
       "id": "litellm:openrouter/~openai/gpt-terra-latest",
       "name": "openrouter/~openai/gpt-terra-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|>272000",
@@ -30662,7 +30681,7 @@
       "id": "litellm:openrouter/~x-ai/grok-latest",
       "name": "openrouter/~x-ai/grok-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "cache_read|>200000",
@@ -30676,7 +30695,7 @@
       "id": "litellm:openrouter/~z-ai/glm-flash-latest",
       "name": "openrouter/~z-ai/glm-flash-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -30687,7 +30706,7 @@
       "id": "litellm:openrouter/~z-ai/glm-latest",
       "name": "openrouter/~z-ai/glm-latest",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -34370,6 +34389,16 @@
     {
       "id": "litellm:twelvelabs.pegasus-1-2-v1:0",
       "name": "twelvelabs.pegasus-1-2-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "op_video_second",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:twelvelabs.pegasus-1-5-v1:0",
+      "name": "twelvelabs.pegasus-1-5-v1:0",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -41655,7 +41684,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43625,8 +43655,7 @@
       "meters": [
         "input",
         "output",
-        "cache_read",
-        "cache_write"
+        "cache_read"
       ]
     },
     {
@@ -43637,8 +43666,7 @@
       "meters": [
         "input",
         "output",
-        "cache_read",
-        "cache_write"
+        "cache_read"
       ]
     },
     {
@@ -45660,6 +45688,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:databricks/databricks-openjev-qwen35-4b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:dataforseo/search",
         "rule": "skipped_out_of_scope_mode",
         "mode": "search"
@@ -47275,12 +47308,57 @@
         "mode": "video_generation"
       },
       {
-        "offer": "litellm:github_copilot/gpt-5.1-codex-max",
+        "offer": "litellm:github_copilot/gpt-5.3-codex",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       },
       {
-        "offer": "litellm:github_copilot/gpt-5.3-codex",
+        "offer": "litellm:github_copilot/gpt-5.4-mini",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-5.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-5.6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-5.6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-5.6-terra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-6-astra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-6.1-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/mai-code-1.1-flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       },
@@ -48181,6 +48259,11 @@
       },
       {
         "offer": "litellm:perplexity/perplexity/deepseek-v4-flash-0731",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/perplexity/deepseek-v4-pro-0813",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       },
@@ -49675,6 +49758,16 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:perplexity/openai/gpt-5-nano",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/openai/gpt-5.3-codex",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:perplexity/google/gemini-3.1-pro-preview",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49930,11 +50023,6 @@
         "mode": "realtime"
       },
       {
-        "offer": "litellm:openrouter/typesafe/jev-1.13",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "evaluation"
-      },
-      {
         "offer": "litellm:bespoke/nimble-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
@@ -49983,21 +50071,6 @@
         "offer": "litellm:typesafe/jev-preview",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
-      },
-      {
-        "offer": "litellm:openrouter/openai/gpt-image-2",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "image_generation"
-      },
-      {
-        "offer": "litellm:openrouter/openai/gpt-image-2.5-flare",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "image_generation"
-      },
-      {
-        "offer": "litellm:openrouter/openai/gpt-image-2.5-sunburst",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "image_generation"
       },
       {
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",
@@ -50080,6 +50153,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:perplexity/openai/gpt-6-astra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:perplexity/openai/gpt-6-luna",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -50136,6 +50214,16 @@
       },
       {
         "offer": "litellm:perplexity/anthropic/claude-haiku-5-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/Microsoft-Decision-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-rosalind-discovery",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       }

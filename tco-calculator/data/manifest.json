@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791613287999",
-  "generated_at": "2026-10-10T06:21:27.999Z",
-  "snapshot_digest": "3742a7dbe00a7fd8",
+  "refresh_id": "refresh-1791786132099",
+  "generated_at": "2026-10-12T06:22:12.099Z",
+  "snapshot_digest": "e20823d3334a5e1f",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-3742a7dbe00a7fd8.json",
-      "digest": "3742a7dbe00a7fd8",
-      "bytes": 3454348
+      "path": "catalog-e20823d3334a5e1f.json",
+      "digest": "e20823d3334a5e1f",
+      "bytes": 3458370
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-10T06:21:27.999Z",
-      "last_success_at": "2026-10-10T06:21:27.999Z",
-      "expires_at": "2026-10-13T06:21:27.999Z",
+      "observed_at": "2026-10-12T06:22:12.099Z",
+      "last_success_at": "2026-10-12T06:22:12.099Z",
+      "expires_at": "2026-10-15T06:22:12.099Z",
       "root_digest": "5e295e600ddfdcac",
       "record_count": 440,
       "missing_streak": 0
@@ -31,18 +31,18 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-10T06:21:27.999Z",
-      "last_success_at": "2026-10-10T06:21:27.999Z",
-      "expires_at": "2026-10-13T06:21:27.999Z",
-      "root_digest": "dab43e362c2d6b3a",
-      "record_count": 2924,
+      "observed_at": "2026-10-12T06:22:12.099Z",
+      "last_success_at": "2026-10-12T06:22:12.099Z",
+      "expires_at": "2026-10-15T06:22:12.099Z",
+      "root_digest": "3140552719cb75bd",
+      "record_count": 2930,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-10-09T00:00:00.000Z",
-      "last_success_at": "2026-10-10T06:21:53.005Z",
+      "last_success_at": "2026-10-12T06:22:38.747Z",
       "expires_at": "2026-10-16T23:59:59.999Z",
       "root_digest": "1ccd8f9ec7b9753f",
       "record_count": 1,
@@ -969,6 +969,17 @@
     {
       "id": "litellm:amazon.nova-micro-v1:0",
       "name": "amazon.nova-micro-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:amazon.nova-premier-v1:0",
+      "name": "amazon.nova-premier-v1:0",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -7115,7 +7126,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "output",
+        "output|tier=flex"
       ]
     },
     {
@@ -24877,22 +24890,6 @@
       ]
     },
     {
-      "id": "litellm:openai.gpt-6.1-sol",
-      "name": "openai.gpt-6.1-sol",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_write",
-        "cache_write|>272000",
-        "cache_read",
-        "cache_read|>272000",
-        "input",
-        "input|>272000",
-        "output",
-        "output|>272000"
-      ]
-    },
-    {
       "id": "litellm:openai.gpt-oss-120b-1:0",
       "name": "openai.gpt-oss-120b-1:0",
       "tariff": "token",
@@ -32989,6 +32986,56 @@
       ]
     },
     {
+      "id": "litellm:scaledown/classify",
+      "name": "scaledown/classify",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:scaledown/compress",
+      "name": "scaledown/compress",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:scaledown/decisions",
+      "name": "scaledown/decisions",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:scaledown/extract",
+      "name": "scaledown/extract",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:scaledown/summarize",
+      "name": "scaledown/summarize",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:scaleway/deepseek-v4-flash-0731",
       "name": "scaleway/deepseek-v4-flash-0731",
       "tariff": "token",
@@ -38686,23 +38733,6 @@
       ]
     },
     {
-      "id": "litellm:xai.grok-4.7",
-      "name": "xai.grok-4.7",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "cache_read|tier=flex",
-        "cache_read|tier=priority",
-        "input",
-        "input|tier=flex",
-        "input|tier=priority",
-        "output",
-        "output|tier=flex",
-        "output|tier=priority"
-      ]
-    },
-    {
       "id": "litellm:xai/grok-4.20",
       "name": "xai/grok-4.20",
       "tariff": "token",
@@ -41097,16 +41127,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:inclusionai/ling-3.0-flash-sante:free",
-      "name": "inclusionAI: Ling 3.0 Flash Sante (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -43643,8 +43663,7 @@
       "meters": [
         "input",
         "output",
-        "cache_read",
-        "cache_write"
+        "cache_read"
       ]
     },
     {
@@ -45689,6 +45708,11 @@
       },
       {
         "offer": "litellm:databricks/databricks-openjev-qwen35-4b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:databricks/ai_decide",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
       },
@@ -50226,6 +50250,16 @@
         "offer": "litellm:chatgpt/gpt-rosalind-discovery",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/Cohere-Embed-V5-Fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:azure_ai/Cohere-Embed-V5-Pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
       }
     ],
     "source_errors": {

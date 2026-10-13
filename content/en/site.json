@@ -13,8 +13,10 @@
     "privacy": "Privacy",
     "terms": "Terms of Use",
     "resources": "Engineering resources",
-    "lightops": "LightOps AI · Enterprise Platform",
-    "lightopsCta": "Explore the LightOps AI platform and live workbench",
+    "offerings": "What we sell · commercial catalog",
+    "offeringsCta": "See full commercial catalog and how to buy",
+    "lightops": "Private AI workbench · live demo",
+    "lightopsCta": "Try the live Private AI workbench",
     "calculator": "Local AI cost calculator",
     "tools": "light-tools · open source",
     "footer": "Kubernetes, infrastructure and enterprise AI. Bangkok, Thailand.",
@@ -282,24 +284,24 @@
         {
           "id": "lightops",
           "kind": "cards",
-          "title": "LightOps AI: a bespoke on-premises operations platform.",
-          "body": "Where the four services come together as one delivered system. Custom-engineered inside your network for Thai operational workflows, with domain fine-tuned local models, Thai fiscal document verification and governed ERP execution.",
+          "title": "What we have for sale: four commercial packages.",
+          "body": "Concrete systems and architectural deliverables you can buy standalone or as a full build, scoped directly with the principal engineer and quoted within 48 hours.",
           "items": [
             {
-              "title": "Domain fine-tuned local LLMs",
-              "body": "OpenThaiGPT, SeaLLMs v3 and Qwen2.5-Thai fine-tuned on your company dialogues, SOPs and terminology via LoRA and SFT, served on private vLLM with zero cross-border data transfer."
+              "title": "01 · Enterprise Kubernetes and GPU platform build",
+              "body": "Deliverable: production Red Hat OpenShift, Nutanix NKP or CNCF Kubernetes cluster on bare metal or air-gapped, with NVIDIA GPU scheduling, recovery drills and Day-2 runbooks. Typical timeline: 2 to 6 weeks."
             },
             {
-              "title": "Thai frontline LINE OA and NLP",
-              "body": "Signed LINE OA webhooks and Thai-English code-switching intent routing for colloquial customer messages, with structured context summaries handed to human operators."
+              "title": "02 · Turnkey Private AI and Thai operations system",
+              "body": "Deliverable: customer-data fine-tuned Thai LLM (OpenThaiGPT, SeaLLMs v3, Qwen2.5-Thai), LINE OA intake, ภ.พ.20 and PromptPay slip verification, operator console and SAP, Express or FlowAccount connectors. Timeline: 2 to 4 week pilot."
             },
             {
-              "title": "Thai fiscal Document AI (ภ.พ.20 and PromptPay)",
-              "body": "Document perception calibrated for 13-digit Tax ID Modulo-11 checksums, 5-digit branch validation, PromptPay EMVCo QR verification and bank slip deduplication."
+              "title": "03 · Enterprise knowledge and document authority system",
+              "body": "Deliverable: source-of-truth authority matrix, department RBAC permissions, PostgreSQL pgvector ingestion pipeline, PDPA deletion hygiene and citation-enforced internal Q&A. Typical timeline: 2 to 4 weeks."
             },
             {
-              "title": "Governed ERP execution and operator console",
-              "body": "Pre-flight JSON manifest gating, fail-closed verification, one-click manager approval for high-value thresholds and adapters for SAP S/4HANA, Express and FlowAccount."
+              "title": "04 · Principal architect assessment and SI deal support",
+              "body": "Deliverable: vendor-neutral hardware and GPU BOM sizing, 36-month TCO comparison, mechanical AI governance blueprint, or joint presales and PoC execution for SI partners. Timeline: 1 to 2 week fixed sprint."
             }
           ]
         },
@@ -411,24 +413,24 @@
         {
           "id": "lightops",
           "kind": "cards",
-          "title": "LightOps AI: a bespoke on-premises operations platform.",
-          "body": "Where the four services come together as one delivered system. Custom-engineered inside your network for Thai operational workflows, with domain fine-tuned local models, Thai fiscal document verification and governed ERP execution.",
+          "title": "How you get there: four buyable stages from assessment to handover.",
+          "body": "Every engagement is broken into four concrete stages. Each stage produces a tangible deliverable you own, and each can be purchased standalone so you never commit blind budget.",
           "items": [
             {
-              "title": "Domain fine-tuned local LLMs",
-              "body": "OpenThaiGPT, SeaLLMs v3 and Qwen2.5-Thai fine-tuned on your company dialogues, SOPs and terminology via LoRA and SFT, served on private vLLM with zero cross-border data transfer."
+              "title": "Stage 01 · Assess (1 to 2 weeks, fixed scope)",
+              "body": "We audit your existing hardware, data readiness, security constraints and workflow bottlenecks before you buy GPUs or licenses. Deliverable: written current-state assessment, target architecture, risk map and cost envelope."
             },
             {
-              "title": "Thai frontline LINE OA and NLP",
-              "body": "Signed LINE OA webhooks and Thai-English code-switching intent routing for colloquial customer messages, with structured context summaries handed to human operators."
+              "title": "Stage 02 · Design (fixed scope)",
+              "body": "We specify the exact cluster topology, local model serving stack, document authority rules and human-approval thresholds. Deliverable: reference configuration, hardware BOM sizing, acceptance criteria and rollback plan."
             },
             {
-              "title": "Thai fiscal Document AI (ภ.พ.20 and PromptPay)",
-              "body": "Document perception calibrated for 13-digit Tax ID Modulo-11 checksums, 5-digit branch validation, PromptPay EMVCo QR verification and bank slip deduplication."
+              "title": "Stage 03 · Pilot on your data (2 to 4 weeks)",
+              "body": "We deploy a bounded working system inside your environment running against your real Thai documents, LINE OA flow or GPU nodes. Deliverable: working on-premises pilot with measured accuracy and governance evidence."
             },
             {
-              "title": "Governed ERP execution and operator console",
-              "body": "Pre-flight JSON manifest gating, fail-closed verification, one-click manager approval for high-value thresholds and adapters for SAP S/4HANA, Express and FlowAccount."
+              "title": "Stage 04 · Run and handover (4 to 8 weeks)",
+              "body": "We cut over to production, connect SAP, Express or FlowAccount ERP rails, train your operators and engineers, and hand over the Day-2 runbooks so your team owns the system."
             }
           ]
         },

@@ -7,7 +7,6 @@
 <meta name="description" content="Production-grade, zero-egress enterprise AI platform custom-engineered for Thai operational topologies. Tailored LINE OA ingestion, ภ.พ.20 Thai Tax Invoice & PromptPay slip document AI, sovereign on-prem vLLM inference, and deterministic ERP execution rails.">
 <link rel="canonical" href="https://studio.factor-io.com/lightops-ai.html">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://studio.factor-io.com/#organization","name":"Factor IO","legalName":"Factor I O Co., Ltd.","taxID":"0105562205512","url":"https://studio.factor-io.com/","email":"admin@factor-io.com","telephone":"+66928887155","description":"Infrastructure engineering and governed enterprise AI consulting in Thailand. Architecture, migration, private AI and technical enablement for systems integrators.","founder":{"@id":"https://studio.factor-io.com/#founder"}},{"@type":"Person","@id":"https://studio.factor-io.com/#founder","name":"Thanat Manasakool","jobTitle":"Founder & Principal Engineer","worksFor":{"@id":"https://studio.factor-io.com/#organization"},"description":"Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners."}]}</script>
 
 <!--
 /* light-design · macrostructure: Workbench / Split Monitor · density: operator (dense-balanced) · depth: borders-only
@@ -834,8 +833,8 @@
   <section class="hero">
     <div class="eyebrow-row">
       <span class="eyebrow">Enterprise Cognitive Ops</span>
-      <span class="badge-sovereign" data-i18n="badgeSovereign">100% On-Premises &amp; Private VPC</span>
-      <span class="badge-pdpa" data-i18n="badgePdpa">PDPA s.28/29 Zero Cross-Border Transfer</span>
+      <span class="badge-sovereign">100% On-Premises &amp; Private VPC</span>
+      <span class="badge-pdpa">Thailand PDPA B.E. 2562 Compliant</span>
     </div>
     <h1 data-i18n="heroTitle">LightOps AI: Bespoke Sovereign Operations Substrate for Thai Enterprise</h1>
     <p class="hero-lede" data-i18n="heroLede">
@@ -972,7 +971,6 @@
             <button class="btn btn-quiet" onclick="handleHitlRescan()" data-i18n="btnRescan">Request Rescan via LINE OA</button>
             <button class="btn btn-danger" onclick="handleHitlReject()" data-i18n="btnReject">Refuse Transaction</button>
           </div>
-          <div id="hitl-receipt" role="status" aria-live="polite" hidden style="margin-top:10px; padding:9px 10px; border-radius:3px; font-family:var(--mono); font-size:11px; line-height:1.45;"></div>
         </div>
 
         <!-- Cryptographic Audit Chain -->
@@ -1196,40 +1194,16 @@
 
     <div class="catalog-grid">
       <div class="cat-card">
-        <div>
-          <div class="cat-num">Buyer Assurance 01 / PDPA s.28 &amp; s.29</div>
-          <h3 class="cat-title" data-i18n="pdpaTitle">Eliminates Cross-Border Personal Data Transfer</h3>
-          <p class="cat-body" data-i18n="pdpaBody">
-            Calling an overseas LLM API with a Thai customer's name, 13-digit National ID, or transfer slip is a cross-border personal data transfer under PDPA Sections 28 and 29. Running fine-tuned models inside your Thailand data center avoids cross-border transfer mechanisms entirely, while scrubbing PII in volatile RAM before context ingestion.
-          </p>
-        </div>
+        <h3 class="cat-title" data-i18n="pdpaTitle">Thailand PDPA Compliance Invariant</h3>
+        <p class="cat-body" data-i18n="pdpaBody">
+          Customer National IDs (13 digits), bank accounts, medical records, and phone numbers are scrubbed in memory prior to context ingestion. Temporary decryption keys are held in volatile RAM expiring immediately upon transaction close.
+        </p>
       </div>
       <div class="cat-card">
-        <div>
-          <div class="cat-num">Buyer Assurance 02 / Fail-Closed Control</div>
-          <h3 class="cat-title" data-i18n="failClosedTitle">Never a False Green When Upstream Breaks</h3>
-          <p class="cat-body" data-i18n="failClosedBody">
-            The most dangerous failure in enterprise automation is a dashboard that stays green when an upstream scanner or ERP link goes silent. LightOps AI evaluates lane completeness as an early return: if an OCR check or SAP lookup is unavailable, the transaction halts as UNKNOWN and can never be outvoted by a model confidence score.
-          </p>
-        </div>
-      </div>
-      <div class="cat-card">
-        <div>
-          <div class="cat-num">Buyer Assurance 03 / Vector Authority</div>
-          <h3 class="cat-title" data-i18n="erasureTitle">Right-to-Erasure &amp; Document Lifecycle Lineage</h3>
-          <p class="cat-body" data-i18n="erasureBody">
-            Most RAG builds cannot answer how to honour a PDPA deletion request or retire a superseded pricing policy once embedded. Every vector chunk in LightOps AI is keyed to its authoritative source ID, effective date window, and role ACL—allowing deterministic purge and instant retirement of superseded documents.
-          </p>
-        </div>
-      </div>
-      <div class="cat-card">
-        <div>
-          <div class="cat-num">Buyer Assurance 04 / Fixed Hardware TCO</div>
-          <h3 class="cat-title" data-i18n="tcoTitle">Zero Per-Token API Bills &amp; Platform Independence</h3>
-          <p class="cat-body" data-i18n="tcoBody">
-            Deploys cleanly on Red Hat OpenShift, Nutanix NKP, or upstream bare-metal Kubernetes. Processing millions of LINE inquiries and ภ.พ.20 invoices on your own GPUs incurs zero external per-token charges. Model your exact hardware payback in our <a href="/tco-calculator.html" style="color:var(--cyan);">Local AI Cost Calculator →</a>
-          </p>
-        </div>
+        <h3 class="cat-title" data-i18n="tcoTitle">Zero Per-Token API Costs</h3>
+        <p class="cat-body" data-i18n="tcoBody">
+          Because inference runs on your own hardware, processing millions of LINE customer inquiries and hundreds of thousands of fiscal tax invoices incurs zero external API bills. Your compute cost is fixed and predictable.
+        </p>
       </div>
     </div>
   </section>
@@ -1261,7 +1235,7 @@
         Chat on LINE with Principal
       </a>
       <div style="margin-top:10px; font-size:11px; color:var(--faint);">
-        Or email <!--email_off--><a href="mailto:admin@factor-io.com" style="color:var(--cyan); text-decoration:none;">admin@factor-io.com</a><!--/email_off-->
+        Or email <a href="mailto:admin@factor-io.com" style="color:var(--cyan); text-decoration:none;">admin@factor-io.com</a>
       </div>
     </div>
   </section>
@@ -1287,8 +1261,6 @@
     en: {
       docHeader: "LightOps AI · Enterprise Platform Dossier",
       backHome: "Back to main site",
-      badgeSovereign: "100% On-Premises · Zero Cloud Egress",
-      badgePdpa: "PDPA s.28/29 Zero Cross-Border Transfer",
       heroTitle: "LightOps AI: Bespoke Sovereign Operations Substrate for Thai Enterprise",
       heroLede: "Not a generic chatbot wrapper or SaaS API proxy. LightOps AI is an on-premises cognitive operations platform custom-engineered to mirror your organization's exact operational topology, frontline LINE OA customer journeys, Thai fiscal compliance (ภ.พ.20 Tax Invoices & PromptPay slips), and deterministic ERP execution rails.",
       spec1Key: "Inference & Fine-Tuning", spec1Val: "Bespoke Customer-Data SFT",
@@ -1339,14 +1311,10 @@
       archMainTitle: "Sovereign On-Premise Topology & Zero-Egress Boundary",
       archMainDesc: "LightOps AI runs completely within your physical data center or sovereign virtual private cloud. The architecture eliminates any cloud API dependency or recurring per-token SaaS liability.",
       topoTitle: "SYSTEM TOPOLOGY: PRIVATE AIR-GAPPED VPC",
-      pdpaTitle: "PDPA s.28/29 Cross-Border Zero-Transfer Proof",
-      pdpaBody: "Because all inference, customer-data fine-tuning, and PostgreSQL vector indexing execute inside your Thai facility, personal data never crosses international borders. Eliminates PDPA Section 28/29 transfer liability while scrubbing 13-digit National IDs and financial accounts in volatile RAM.",
-      failClosedTitle: "Fail-Closed Hallucination Containment",
-      failClosedBody: "Unlike autonomous chatbots that hallucinate policy exceptions, LightOps AI enforces schema-locked execution manifests. Every output must pass deterministic Modulo-11, 7% VAT balance, and ERP master-record checks before staging, routing any variance to Human-in-the-Loop approval.",
-      erasureTitle: "Sovereign Fine-Tuning & Right-to-Erasure Hygiene",
-      erasureBody: "Customer-data fine-tuned LoRA adapters and RAG embeddings are versioned with lineage tags inside your isolated cluster. Subject access or erasure requests purge both vector chunks and adapter training shards cleanly on-premises without third-party SaaS lock-in.",
-      tcoTitle: "Zero Per-Token API Tax & Predictable TCO",
-      tcoBody: "Processing millions of LINE OA inquiries, ภ.พ.20 tax invoices, and PromptPay slips on your own GPU hardware incurs zero external per-token API bills. Compare your 36-month on-premises vs. cloud API break-even on our <a href=\"/tco-calculator.html\" style=\"color:var(--accent-primary); text-decoration:underline;\">Enterprise TCO Calculator →</a>",
+      pdpaTitle: "Thailand PDPA Compliance Invariant",
+      pdpaBody: "Customer National IDs (13 digits), bank accounts, medical records, and phone numbers are scrubbed in memory prior to context ingestion. Temporary decryption keys are held in volatile RAM expiring immediately upon transaction close.",
+      tcoTitle: "Zero Per-Token API Costs",
+      tcoBody: "Because inference runs on your own hardware, processing millions of LINE customer inquiries and hundreds of thousands of fiscal tax invoices incurs zero external API bills. Your compute cost is fixed and predictable.",
       engTitle: "Talk Directly With The Principal Architect",
       engDesc: "Every LightOps AI deployment is engineered and delivered by Thanat Manasakool, Founder & Principal Engineer with nearly 20 years in enterprise infrastructure (former Ecosystem Solutions Architect at Red Hat and Nutanix).",
       engP1: "Phase 1: Architecture Blueprint & Feasibility Review (1–2 weeks)",
@@ -1358,8 +1326,6 @@
     th: {
       docHeader: "LightOps AI · เอกสารสถาปัตยกรรมและโซลูชันระดับองค์กร",
       backHome: "กลับสู่หน้าหลัก",
-      badgeSovereign: "ติดตั้งในองค์กร 100% · ไม่ส่งข้อมูลออกคลาวด์",
-      badgePdpa: "รองรับ PDPA มาตรา 28/29 ไม่ส่งข้อมูลข้ามประเทศ",
       heroTitle: "LightOps AI: แพลตฟอร์ม AI ปฏิบัติการอธิปไตยแบบออนพรีมิสสำหรับองค์กรไทย",
       heroLede: "ไม่ใช่แค่ Chatbot Wrapper ทั่วไป หรือ SaaS API จากภายนอก แต่เป็นแพลตฟอร์มปฏิบัติการอัจฉริยะที่ติดตั้งในศูนย์ข้อมูลของคุณโดยตรง ออกแบบให้ตรงตามโครงสร้างองค์กร บริการลูกค้าผ่าน LINE OA ตรวจสอบภาษีไทย (ภ.พ.20 & สลิปโอนเงิน) และเชื่อมต่อ ERP อย่างปลอดภัย",
       spec1Key: "โมเดลและการ Fine-Tune", spec1Val: "Fine-Tuned LLM ด้วยข้อมูลองค์กร 100%",
@@ -1410,16 +1376,12 @@
       archMainTitle: "สถาปัตยกรรม Sovereign On-Premise ไม่ส่งข้อมูลออกภายนอก",
       archMainDesc: "LightOps AI ทำงานอยู่บนคลัสเตอร์ภายในองค์กรของคุณอย่างสมบูรณ์ ไม่มีค่าใช้จ่ายคิดตามจำนวนโทเค็นของคลาวด์ภายนอก",
       topoTitle: "สถาปัตยกรรมระบบ: ไพรเวทคลัสเตอร์แบบปิด (AIR-GAPPED)",
-      pdpaTitle: "ตัดความเสี่ยง PDPA มาตรา 28/29 (ไม่ส่งข้อมูลข้ามประเทศ)",
-      pdpaBody: "การประมวลผล การทำ Fine-Tuning ด้วยข้อมูลองค์กร และฐานข้อมูลเวกเตอร์ทำงานอยู่ภายในศูนย์ข้อมูลในไทยทั้งหมด ข้อมูลส่วนบุคคลจึงไม่ถูกส่งออกนอกราชอาณาจักร พร้อมระบบมาสก์เลขบัตรประชาชน 13 หลักและเลขบัญชีในหน่วยความจำชั่วคราว",
-      failClosedTitle: "กลไก Fail-Closed สกัดกั้น AI ตอบมั่ว (Hallucination)",
-      failClosedBody: "ต่างจากแชทบอททั่วไปที่อาจสร้างข้อมูลผิดพลาด LightOps AI บังคับใช้ Manifest ที่มีโครงสร้างชัดเจน ทุกคำสั่งต้องผ่านการตรวจ Modulo-11 ยอดภาษีมูลค่าเพิ่ม 7% และรหัสคู่ค้าใน ERP ก่อนเสมอ หากพบส่วนต่างจะหยุดและส่งให้ผู้มีอำนาจอนุมัติทันที",
-      erasureTitle: "อธิปไตยเหนือโมเดล Fine-Tune และสิทธิ์ในการลบข้อมูล",
-      erasureBody: "โมเดล LoRA ที่ฝึกด้วยข้อมูลลูกค้าและดัชนี RAG ถูกจัดเก็บพร้อมระบบติดตามแหล่งที่มาภายในคลัสเตอร์ของคุณ สามารถลบข้อมูลตามคำขอของเจ้าของข้อมูลได้สมบูรณ์ทั้งในดัชนีค้นหาและชุดข้อมูลฝึกสอนโดยไม่ติดล็อกกับผู้ให้บริการคลาวด์",
-      tcoTitle: "ไม่มีค่าใช้จ่าย API รายโทเค็น คำนวณความคุ้มทุนได้ชัดเจน",
-      tcoBody: "ประมวลผลแชท LINE OA ใบกำกับภาษี ภ.พ.20 และสลิปโอนเงินหลายล้านรายการบนฮาร์ดแวร์ของคุณเองโดยไม่มีบิลค่าโทเค็นส่วนเพิ่ม เปรียบเทียบจุดคุ้มทุนแบบ 36 เดือนได้ที่ <a href=\"/tco-calculator.html\" style=\"color:var(--accent-primary); text-decoration:underline;\">เครื่องคำนวณต้นทุน TCO →</a>",
+      pdpaTitle: "สอดคล้องตามมาตรฐาน PDPA",
+      pdpaBody: "เลขบัตรประชาชน เบอร์โทรศัพท์ และข้อมูลการเงินจะถูกมาสก์ตั้งแต่ก่อนประมวลผล คีย์ถอดรหัสจะถูกเก็บชั่วคราวใน RAM และทำลายทิ้งทันทีหลังจบรายการ",
+      tcoTitle: "ไม่มีค่าใช้จ่าย API รายโทเค็น",
+      tcoBody: "ประมวลผลข้อความและสลิปหลักล้านรายการโดยไม่มีค่าใช้จ่ายแปรผันตามจำนวนข้อความ ควบคุมต้นทุนโครงสร้างพื้นฐานได้อย่างแม่นยำ",
       engTitle: "ปรึกษาสถาปนิกผู้ลงมือสร้างระบบโดยตรง",
-      engDesc: "ทุกโครงการดูแลและส่งมอบโดย ธนัช มานะสกุล ผู้ก่อตั้งและ Principal Engineer ประสบการณ์กว่า 20 ปีในโครงสร้างพื้นฐานองค์กร (อดีต Solutions Architect ที่ Red Hat และ Nutanix)",
+      engDesc: "ทุกโครงการดูแลและส่งมอบโดย ธนัท มานะสกุล ผู้ก่อตั้งและ Principal Engineer ประสบการณ์กว่า 20 ปีในโครงสร้างพื้นฐานองค์กร (อดีต Solutions Architect ที่ Red Hat และ Nutanix)",
       engP1: "ระยะที่ 1: ตรวจสอบสถาปัตยกรรมและความเป็นไปได้ (1–2 สัปดาห์)",
       engP2: "ระยะที่ 2: ติดตั้งระบบนำร่อง (POC) บนฮาร์ดแวร์ของคุณด้วยข้อมูลจริง (2–4 สัปดาห์)",
       engP3: "ระยะที่ 3: ติดตั้งใช้งานจริง เชื่อมโยง ERP และส่งมอบงาน",
@@ -1457,7 +1419,6 @@
       id: "DOC-2026-9041",
       channel: "LINE OA · U4af8382...",
       title: "Thai Tax Invoice ภ.พ.20",
-      title_th: "ใบกำกับภาษีเต็มรูป ภ.พ.20",
       amount: "฿155,364.00",
       status: "FLAGGED_DELTA",
       tagClass: "tag-warn",
@@ -1502,7 +1463,6 @@
         ]
       },
       hitlDesc: "Tax Invoice gross amount differs by 0.50 THB against SAP Purchase Order PO-69201. Requires Level 1 Manager authorization to waive variance.",
-      hitlDesc_th: "ยอดรวมในใบกำกับภาษีต่างจากใบสั่งซื้อ SAP PO-69201 อยู่ 0.50 บาท ต้องได้รับการอนุมัติจากผู้จัดการระดับ 1 เพื่อยกเว้นส่วนต่าง",
       auditEvents: [
         { time: "14:48:02", actor: "gateway:line-oa", hash: "9a2f...10b", text: "Webhook received (x-line-signature verified)" },
         { time: "14:48:03", actor: "vision:tax-ai", hash: "4c11...88d", text: "13-digit checksum evaluated: PASSED (Modulo 11)" },
@@ -1513,7 +1473,6 @@
       id: "DOC-2026-9042",
       channel: "LINE OA · U89f0221...",
       title: "KBank Transfer Slip (สลิปโอนเงิน)",
-      title_th: "สลิปโอนเงินกสิกรไทย (PromptPay QR)",
       amount: "฿48,500.00",
       status: "VERIFIED_OK",
       tagClass: "tag-ok",
@@ -1522,7 +1481,7 @@
       previewText: `[สลิปการโอนเงิน: ธนาคารกสิกรไทย]
 วัน-เวลาที่ทำรายการ: 13/10/2026 14:15:22
 ผู้โอน: บจก. ชลบุรี โคลด์เชน (004-xxx-8910)
-ผู้รับ: <span class="bbox-highlight">บจก. แฟคเคอร์ ไอ โอ (0105562205512)</span>
+ผู้รับ: <span class="bbox-highlight">บจก. แฟคเตอร์ ไอ โอ (0105562205512)</span>
 จำนวนเงิน: <span class="bbox-highlight">48,500.00 บาท</span>
 รหัสอ้างอิง: <span class="bbox-highlight">2026101349817721KB</span>
 PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
@@ -1549,7 +1508,6 @@ PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
         amount: 48500.00
       },
       hitlDesc: "Exact match on open receivable under 50,000 THB threshold. Auto-clearance eligible or click to confirm.",
-      hitlDesc_th: "ยอดตรงกับลูกหนี้คงค้างทุกประการและต่ำกว่าเกณฑ์ 50,000 บาท สามารถตัดยอดอัตโนมัติหรือคลิกเพื่อยืนยัน",
       auditEvents: [
         { time: "14:15:30", actor: "gateway:line-oa", hash: "3c9a...11f", text: "Image received from LINE user U89f0221" },
         { time: "14:15:31", actor: "vision:slip-ai", hash: "99ea...30c", text: "EMVCo CRC-16 verified; hash checked in Redis" },
@@ -1560,7 +1518,6 @@ PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
       id: "DOC-2026-9043",
       channel: "B2B EDI Gateway",
       title: "Enterprise Purchase Order (PO)",
-      title_th: "ใบสั่งซื้อสินค้าองค์กร (PO)",
       amount: "฿1,240,000.00",
       status: "HITL_LEVEL_2",
       tagClass: "tag-bad",
@@ -1569,7 +1526,7 @@ PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
       previewText: `[ใบสั่งซื้อ: PURCHASE ORDER]
 เลขที่: PO-2026-BDG-0091
 วันที่: 13 ตุลาคม 2569
-ผู้ขาย: บจก. แฟคเคอร์ ไอ โอ (Tax ID: 0105562205512)
+ผู้ขาย: บจก. แฟคเตอร์ ไอ โอ (Tax ID: 0105562205512)
 มูลค่าก่อนภาษี: 1,158,878.50 บาท
 VAT 7%: 81,121.50 บาท
 รวมสุทธิ: <span class="bbox-warn">1,240,000.00 บาท<span class="bbox-label">HIGH VALUE</span></span>`,
@@ -1594,7 +1551,6 @@ VAT 7%: 81,121.50 บาท
         value: 1240000.00
       },
       hitlDesc: "Order value exceeds 100,000 THB threshold. Policy requires dual-key cryptographic authorization by Division Director.",
-      hitlDesc_th: "มูลค่าใบสั่งซื้อเกินเกณฑ์ 100,000 บาท นโยบายกำหนดให้ต้องใช้กุญแจอนุมัติคู่ (Dual-Key) จากผู้อำนวยการฝ่าย",
       auditEvents: [
         { time: "13:50:11", actor: "edi:as2-gateway", hash: "44be...90f", text: "Signed AS2 EDI message ingested" },
         { time: "13:50:12", actor: "engine:rails", hash: "18ce...55a", text: "Credit line check passed; gated on Tier 2 Director Token" }
@@ -1604,7 +1560,6 @@ VAT 7%: 81,121.50 บาท
       id: "DOC-2026-9044",
       channel: "Warehouse Field App",
       title: "Proof of Delivery (POD)",
-      title_th: "ใบรับรองการจัดส่งสินค้า (POD)",
       amount: "฿0.00 (FOC)",
       status: "VERIFIED_OK",
       tagClass: "tag-ok",
@@ -1635,7 +1590,6 @@ VAT 7%: 81,121.50 บาท
         geofence_verified: true
       },
       hitlDesc: "Geofence and recipient signature validated against delivery order. Automatically staged to close transport manifest.",
-      hitlDesc_th: "พิกัด GPS และลายเซ็นผู้รับตรงตามใบสั่งส่งสินค้า เตรียมปิดงานขนส่งในระบบคลังสินค้าอัตโนมัติ",
       auditEvents: [
         { time: "13:20:00", actor: "mobile:driver-app", hash: "22ab...66f", text: "Signed manifest submitted with GPS telemetry" },
         { time: "13:20:01", actor: "engine:rails", hash: "77ac...44a", text: "Geofence check verified in 14ms" }
@@ -1653,7 +1607,7 @@ VAT 7%: 81,121.50 บาท
           <span class="q-id">${item.id}</span>
           <span class="q-time">${item.auditEvents[item.auditEvents.length - 1].time}</span>
         </div>
-        <div class="queue-row2">${currentLang === 'th' && item.title_th ? item.title_th : item.title}</div>
+        <div class="queue-row2">${item.title}</div>
         <div class="queue-row3">
           <span class="q-amount">${item.amount}</span>
           <span class="status-tag ${item.tagClass}">${item.tagLabel}</span>
@@ -1692,18 +1646,7 @@ VAT 7%: 81,121.50 บาท
 
     // Right Manifest
     document.getElementById('manifest-code').textContent = JSON.stringify(item.manifest, null, 2);
-    document.getElementById('hitl-reason-text').textContent = currentLang === 'th' && item.hitlDesc_th ? item.hitlDesc_th : item.hitlDesc;
-
-    const receiptEl = document.getElementById('hitl-receipt');
-    if (receiptEl) {
-      if (item.lastReceiptHtml) {
-        receiptEl.innerHTML = item.lastReceiptHtml;
-        receiptEl.hidden = false;
-      } else {
-        receiptEl.hidden = true;
-        receiptEl.innerHTML = '';
-      }
-    }
+    document.getElementById('hitl-reason-text').textContent = item.hitlDesc;
 
     // Audit Stream
     const auditList = document.getElementById('audit-list');
@@ -1720,50 +1663,26 @@ VAT 7%: 81,121.50 บาท
 
   function handleHitlApprove() {
     const item = queueData[currentQueueIndex];
-    const now = new Date().toTimeString().slice(0, 8);
+    alert(`[MANAGER AUTH GRANTED]\n\nTransaction ${item.id} authorized by Operator.\nCryptographic authorization token generated: 0x89fa...22e\nDispatched to ${item.manifest.system || 'ERP'}.`);
     item.status = "CLEARED_POSTED";
     item.tagClass = "tag-ok";
     item.tagLabel = "COMMITTED";
-    item.auditEvents.push({
-      time: now,
-      actor: "operator:mgr-l1",
-      hash: "0x89fa...22e",
-      text: `Authorized & posted to ${item.manifest.system || 'ERP'} (${item.manifest.transaction_id})`
-    });
-    item.lastReceiptHtml = `<strong style="color:var(--ok);">✓ [COMMITTED TO ${item.manifest.system || 'ERP'}]</strong><br>Token: <code>0x89fa...22e</code> · Tx: <code>${item.manifest.transaction_id}</code> · Appended to <code>pg_audit</code>.`;
     loadQueueItem(currentQueueIndex);
   }
 
   function handleHitlRescan() {
     const item = queueData[currentQueueIndex];
-    const now = new Date().toTimeString().slice(0, 8);
-    item.status = "RESCAN_PENDING";
-    item.tagClass = "tag-warn";
-    item.tagLabel = "RESCAN SENT";
-    item.auditEvents.push({
-      time: now,
-      actor: "gateway:line-oa",
-      hash: "0x5c31...71a",
-      text: `Rescan prompt dispatched to ${item.channel}`
-    });
-    item.lastReceiptHtml = `<strong style="color:var(--warn);">↻ [LINE OA RESCAN DISPATCHED]</strong><br>Channel: <code>${item.channel}</code><br>"เรียนลูกค้า ระบบตรวจพบยอดรวมคลาดเคลื่อน กรุณาถ่ายภาพเอกสารใหม่อีกครั้งให้ชัดเจน ขอบคุณครับ"`;
-    loadQueueItem(currentQueueIndex);
+    alert(`[LINE OA RESCAN REQUEST DISPATCHED]\n\nAutomated message sent to ${item.channel}:\n"เรียนลูกค้า ทางระบบตรวจพบยอดรวมมีความคลาดเคลื่อน กรุณาถ่ายภาพเอกสารภาษีใหม่อีกครั้งให้ขอบเอกสารชัดเจน ขอบคุณครับ"`);
   }
 
   function handleHitlReject() {
     const item = queueData[currentQueueIndex];
-    const now = new Date().toTimeString().slice(0, 8);
-    item.status = "REJECTED_REFUSED";
-    item.tagClass = "tag-bad";
-    item.tagLabel = "REFUSED";
-    item.auditEvents.push({
-      time: now,
-      actor: "operator:mgr-l1",
-      hash: "0xde04...99c",
-      text: `Transaction ${item.id} refused; ERP mutation aborted`
-    });
-    item.lastReceiptHtml = `<strong style="color:var(--bad);">✕ [TRANSACTION REFUSED]</strong><br>ID: <code>${item.id}</code> · ERP write blocked · Rejection logged to immutable audit chain.`;
-    loadQueueItem(currentQueueIndex);
+    if (confirm(`Refuse and cancel transaction ${item.id}?`)) {
+      item.status = "REJECTED_REFUSED";
+      item.tagClass = "tag-bad";
+      item.tagLabel = "REFUSED";
+      loadQueueItem(currentQueueIndex);
+    }
   }
 
   // =========================================================================

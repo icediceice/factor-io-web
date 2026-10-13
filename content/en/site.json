@@ -14,7 +14,6 @@
     "terms": "Terms of Use",
     "resources": "Engineering resources",
     "lightops": "LightOps AI · Enterprise Platform",
-    "lightopsCta": "Explore the LightOps AI platform and live workbench",
     "calculator": "Local AI cost calculator",
     "tools": "light-tools · open source",
     "footer": "Kubernetes, infrastructure and enterprise AI. Bangkok, Thailand.",
@@ -280,30 +279,6 @@
           ]
         },
         {
-          "id": "lightops",
-          "kind": "cards",
-          "title": "LightOps AI: a bespoke on-premises operations platform.",
-          "body": "Where the four services come together as one delivered system. Custom-engineered inside your network for Thai operational workflows, with domain fine-tuned local models, Thai fiscal document verification and governed ERP execution.",
-          "items": [
-            {
-              "title": "Domain fine-tuned local LLMs",
-              "body": "OpenThaiGPT, SeaLLMs v3 and Qwen2.5-Thai fine-tuned on your company dialogues, SOPs and terminology via LoRA and SFT, served on private vLLM with zero cross-border data transfer."
-            },
-            {
-              "title": "Thai frontline LINE OA and NLP",
-              "body": "Signed LINE OA webhooks and Thai-English code-switching intent routing for colloquial customer messages, with structured context summaries handed to human operators."
-            },
-            {
-              "title": "Thai fiscal Document AI (ภ.พ.20 and PromptPay)",
-              "body": "Document perception calibrated for 13-digit Tax ID Modulo-11 checksums, 5-digit branch validation, PromptPay EMVCo QR verification and bank slip deduplication."
-            },
-            {
-              "title": "Governed ERP execution and operator console",
-              "body": "Pre-flight JSON manifest gating, fail-closed verification, one-click manager approval for high-value thresholds and adapters for SAP S/4HANA, Express and FlowAccount."
-            }
-          ]
-        },
-        {
           "id": "architect",
           "kind": "founder",
           "title": "Work directly with the architect doing the work.",
@@ -405,30 +380,6 @@
             {
               "title": "AI governance",
               "body": "Decide what AI may do on its own and when a person must approve the next step. We design the controls around those decisions, including access, review, refusal and an audit trail."
-            }
-          ]
-        },
-        {
-          "id": "lightops",
-          "kind": "cards",
-          "title": "LightOps AI: a bespoke on-premises operations platform.",
-          "body": "Where the four services come together as one delivered system. Custom-engineered inside your network for Thai operational workflows, with domain fine-tuned local models, Thai fiscal document verification and governed ERP execution.",
-          "items": [
-            {
-              "title": "Domain fine-tuned local LLMs",
-              "body": "OpenThaiGPT, SeaLLMs v3 and Qwen2.5-Thai fine-tuned on your company dialogues, SOPs and terminology via LoRA and SFT, served on private vLLM with zero cross-border data transfer."
-            },
-            {
-              "title": "Thai frontline LINE OA and NLP",
-              "body": "Signed LINE OA webhooks and Thai-English code-switching intent routing for colloquial customer messages, with structured context summaries handed to human operators."
-            },
-            {
-              "title": "Thai fiscal Document AI (ภ.พ.20 and PromptPay)",
-              "body": "Document perception calibrated for 13-digit Tax ID Modulo-11 checksums, 5-digit branch validation, PromptPay EMVCo QR verification and bank slip deduplication."
-            },
-            {
-              "title": "Governed ERP execution and operator console",
-              "body": "Pre-flight JSON manifest gating, fail-closed verification, one-click manager approval for high-value thresholds and adapters for SAP S/4HANA, Express and FlowAccount."
             }
           ]
         },

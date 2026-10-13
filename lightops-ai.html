@@ -1196,16 +1196,40 @@
 
     <div class="catalog-grid">
       <div class="cat-card">
-        <h3 class="cat-title" data-i18n="pdpaTitle">Thailand PDPA Compliance Invariant</h3>
-        <p class="cat-body" data-i18n="pdpaBody">
-          Customer National IDs (13 digits), bank accounts, medical records, and phone numbers are scrubbed in memory prior to context ingestion. Temporary decryption keys are held in volatile RAM expiring immediately upon transaction close.
-        </p>
+        <div>
+          <div class="cat-num">Buyer Assurance 01 / PDPA s.28 &amp; s.29</div>
+          <h3 class="cat-title" data-i18n="pdpaTitle">Eliminates Cross-Border Personal Data Transfer</h3>
+          <p class="cat-body" data-i18n="pdpaBody">
+            Calling an overseas LLM API with a Thai customer's name, 13-digit National ID, or transfer slip is a cross-border personal data transfer under PDPA Sections 28 and 29. Running fine-tuned models inside your Thailand data center avoids cross-border transfer mechanisms entirely, while scrubbing PII in volatile RAM before context ingestion.
+          </p>
+        </div>
       </div>
       <div class="cat-card">
-        <h3 class="cat-title" data-i18n="tcoTitle">Zero Per-Token API Costs</h3>
-        <p class="cat-body" data-i18n="tcoBody">
-          Because inference runs on your own hardware, processing millions of LINE customer inquiries and hundreds of thousands of fiscal tax invoices incurs zero external API bills. Your compute cost is fixed and predictable.
-        </p>
+        <div>
+          <div class="cat-num">Buyer Assurance 02 / Fail-Closed Control</div>
+          <h3 class="cat-title" data-i18n="failClosedTitle">Never a False Green When Upstream Breaks</h3>
+          <p class="cat-body" data-i18n="failClosedBody">
+            The most dangerous failure in enterprise automation is a dashboard that stays green when an upstream scanner or ERP link goes silent. LightOps AI evaluates lane completeness as an early return: if an OCR check or SAP lookup is unavailable, the transaction halts as UNKNOWN and can never be outvoted by a model confidence score.
+          </p>
+        </div>
+      </div>
+      <div class="cat-card">
+        <div>
+          <div class="cat-num">Buyer Assurance 03 / Vector Authority</div>
+          <h3 class="cat-title" data-i18n="erasureTitle">Right-to-Erasure &amp; Document Lifecycle Lineage</h3>
+          <p class="cat-body" data-i18n="erasureBody">
+            Most RAG builds cannot answer how to honour a PDPA deletion request or retire a superseded pricing policy once embedded. Every vector chunk in LightOps AI is keyed to its authoritative source ID, effective date window, and role ACL—allowing deterministic purge and instant retirement of superseded documents.
+          </p>
+        </div>
+      </div>
+      <div class="cat-card">
+        <div>
+          <div class="cat-num">Buyer Assurance 04 / Fixed Hardware TCO</div>
+          <h3 class="cat-title" data-i18n="tcoTitle">Zero Per-Token API Bills &amp; Platform Independence</h3>
+          <p class="cat-body" data-i18n="tcoBody">
+            Deploys cleanly on Red Hat OpenShift, Nutanix NKP, or upstream bare-metal Kubernetes. Processing millions of LINE inquiries and ภ.พ.20 invoices on your own GPUs incurs zero external per-token charges. Model your exact hardware payback in our <a href="/tco-calculator.html" style="color:var(--cyan);">Local AI Cost Calculator →</a>
+          </p>
+        </div>
       </div>
     </div>
   </section>

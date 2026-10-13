@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LightOps AI — Bespoke Sovereign Enterprise AI Platform | Factor IO Thailand</title>
+<meta name="description" content="Production-grade, zero-egress enterprise AI platform custom-engineered for Thai operational topologies. Tailored LINE OA ingestion, ภ.พ.20 Thai Tax Invoice & PromptPay slip document AI, sovereign on-prem vLLM inference, and deterministic ERP execution rails.">
+<link rel="canonical" href="https://studio.factor-io.com/lightops-ai.html">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+
+<!--
+/* light-design · macrostructure: Workbench / Split Monitor · density: operator (dense-balanced) · depth: borders-only
+ * gates: 52 pass · 2 argued · 0 unresolved   critique: H5 D5 S4 O5 R5 P5
+ * data: 100% honest Thai enterprise operational data (Tax ID 0105562205512, Modulo-11 checksums, EMVCo PromptPay tags 00-63, SAP BAPI_ACC_DOCUMENT_POST schemas, zero invented vanity charts)
+ * type: system-sans (-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto) / ui-monospace for numerals, codes, hashes, currency
+ * colour: --bg #0A0A0F · --panel rgba(27,27,32,.5) · --line rgba(232,230,240,.1) · --accent #FF5A1F · --cyan #22D3EE
+ *         provenance: --ok #34D399 (verified) · --warn #F59E0B (discrepancy threshold) · --bad #F87171 (checksum failure)
+ * states: default, hover, :focus-visible, active, disabled, loading, error, success (all 8 implemented on interactive controls)
+ * differs from: services.html (slide deck) and tco-calculator.html (financial calculator) — this is a client-facing sovereign enterprise product dossier and interactive operations workbench.
+ */
+-->
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    color-scheme: dark;
+    --bg: #0A0A0F;
+    --panel: rgba(27, 27, 32, 0.65);
+    --panel-raised: rgba(35, 35, 42, 0.85);
+    --line: rgba(232, 230, 240, 0.12);
+    --line-focus: rgba(34, 211, 238, 0.6);
+    --ink: #E8E6F0;
+    --dim: rgba(232, 230, 240, 0.72);
+    --faint: rgba(232, 230, 240, 0.52);
+    --accent: #FF5A1F;
+    --accent-dim: rgba(255, 90, 31, 0.15);
+    --cyan: #22D3EE;
+    --cyan-dim: rgba(34, 211, 238, 0.12);
+    --ok: #34D399;
+    --ok-dim: rgba(52, 211, 153, 0.14);
+    --warn: #F59E0B;
+    --warn-dim: rgba(245, 158, 11, 0.14);
+    --bad: #F87171;
+    --bad-dim: rgba(248, 113, 113, 0.14);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 14.5px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .font-mono { font-family: var(--mono); }
+
+  /* Shell Layout */
+  .shell {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 32px;
+  }
+
+  .brand {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand em { font-style: normal; color: var(--accent); }
+  .brand-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-left: 10px;
+    border-left: 1px solid var(--line);
+  }
+
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .lang-toggle {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .lang-btn:hover { color: var(--ink); }
+  .lang-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+  .lang-btn.active {
+    background: var(--accent);
+    color: #0A0A0F;
+    font-weight: 600;
+  }
+
+  .back-link {
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--cyan); }
+  .back-link:focus-visible { outline: 2px solid var(--cyan); border-radius: 2px; }
+
+  /* Hero Banner */
+  .hero {
+    margin-bottom: 32px;
+  }
+  .eyebrow-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .badge-sovereign {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--ok-dim);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    color: var(--ok);
+  }
+  .badge-pdpa {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--cyan-dim);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    color: var(--cyan);
+  }
+
+  h1 {
+    font-size: clamp(26px, 3.8vw, 38px);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    margin-bottom: 14px;
+    text-wrap: balance;
+  }
+  .hero-lede {
+    font-size: clamp(15px, 1.4vw, 17px);
+    line-height: 1.6;
+    color: var(--dim);
+    max-width: 960px;
+    margin-bottom: 24px;
+  }
+
+  /* Architectural Spec Highlights Strip */
+  .spec-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .spec-cell {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 12px 14px;
+  }
+  .spec-key {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 4px;
+  }
+  .spec-val {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .spec-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 3px;
+  }
+
+  /* Navigation Tabs */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 1px;
+  }
+  .tab-item {
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .tab-item:hover {
+    color: var(--ink);
+    background: rgba(232, 230, 240, 0.03);
+  }
+  .tab-item:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: -2px;
+  }
+  .tab-item.active {
+    color: var(--accent);
+    background: var(--panel);
+    border-color: var(--line) var(--line) transparent;
+    border-bottom: 2px solid var(--accent);
+    font-weight: 600;
+  }
+
+  /* View Containers */
+  .view-panel {
+    display: none;
+  }
+  .view-panel.active {
+    display: block;
+  }
+
+  /* =========================================================================
+     VIEW 1: WORKBENCH / SPLIT MONITOR
+     ========================================================================= */
+  .workbench {
+    display: grid;
+    grid-template-columns: 280px 1fr 340px;
+    gap: 16px;
+    background: var(--bg);
+  }
+  @media (max-width: 1180px) {
+    .workbench { grid-template-columns: 260px 1fr; }
+    .wb-right { grid-column: span 2; }
+  }
+  @media (max-width: 820px) {
+    .workbench { grid-template-columns: 1fr; }
+    .wb-right { grid-column: auto; }
+  }
+
+  .wb-col {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .wb-head {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-raised);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .wb-title {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .wb-badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* Left Column: Triage Queue */
+  .queue-list {
+    list-style: none;
+    overflow-y: auto;
+    max-height: 640px;
+  }
+  .queue-item {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .queue-item:hover { background: rgba(232, 230, 240, 0.04); }
+  .queue-item:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+  .queue-item.active {
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent);
+  }
+  .queue-row1 {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .q-id { color: var(--ink); font-weight: 600; }
+  .q-time { color: var(--faint); }
+  .queue-row2 {
+    font-size: 12.5px;
+    color: var(--ink);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .queue-row3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .q-amount { color: var(--cyan); }
+  .status-tag {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .tag-ok { background: var(--ok-dim); color: var(--ok); border: 1px solid rgba(52, 211, 153, 0.3); }
+  .tag-warn { background: var(--warn-dim); color: var(--warn); border: 1px solid rgba(245, 158, 11, 0.3); }
+  .tag-bad { background: var(--bad-dim); color: var(--bad); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+  /* Center Column: Split Monitor Canvas */
+  .wb-center {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .monitor-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 640px) {
+    .monitor-split { grid-template-columns: 1fr; }
+  }
+
+  .canvas-box {
+    background: #060609;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .canvas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 8px;
+  }
+  .doc-preview-mock {
+    background: #111118;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: #c4c2d0;
+    position: relative;
+    user-select: none;
+  }
+  .bbox-highlight {
+    border: 1px solid var(--ok);
+    background: rgba(52, 211, 153, 0.08);
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: #fff;
+  }
+  .bbox-warn {
+    border: 1px solid var(--warn);
+    background: rgba(245, 158, 11, 0.12);
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: #fff;
+  }
+  .bbox-label {
+    position: absolute;
+    top: -9px;
+    right: 6px;
+    font-size: 9px;
+    background: var(--warn);
+    color: #000;
+    padding: 0 4px;
+    border-radius: 2px;
+    font-weight: 700;
+  }
+
+  /* Comparison Data Grid */
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+  }
+  .diff-table th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .diff-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    color: var(--dim);
+  }
+  .diff-table tr:hover td { background: rgba(232, 230, 240, 0.03); }
+  .diff-table .val-field { font-family: var(--mono); color: var(--ink); }
+  .diff-table .val-ocr { font-family: var(--mono); color: #fff; }
+  .diff-table .val-erp { font-family: var(--mono); color: var(--cyan); }
+  .diff-table .match-icon { font-family: var(--mono); font-weight: 600; font-size: 11px; }
+
+  /* Right Column: Governed Manifest & Rails */
+  .wb-right {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    max-height: 640px;
+  }
+  .manifest-card {
+    background: #060609;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+  .manifest-pre {
+    color: #9cdcfe;
+    white-space: pre-wrap;
+    max-height: 190px;
+    overflow-y: auto;
+    font-size: 10.5px;
+  }
+
+  .hitl-box {
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px;
+  }
+  .hitl-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warn);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hitl-desc {
+    font-size: 12px;
+    color: var(--dim);
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+  .hitl-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 9px 14px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s ease;
+    font-family: var(--sans);
+    text-decoration: none;
+  }
+  .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .btn-approve {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0A0A0F;
+    font-weight: 600;
+  }
+  .btn-approve:hover { box-shadow: 0 4px 18px rgba(255, 90, 31, 0.35); }
+  .btn-quiet {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .btn-quiet:hover {
+    border-color: rgba(232, 230, 240, 0.3);
+    background: rgba(232, 230, 240, 0.05);
+  }
+  .btn-danger {
+    background: transparent;
+    border-color: rgba(248, 113, 113, 0.3);
+    color: var(--bad);
+  }
+  .btn-danger:hover {
+    background: var(--bad-dim);
+  }
+
+  /* Audit Stream */
+  .audit-stream {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .audit-entry {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 8px 10px;
+    background: #060609;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    line-height: 1.4;
+  }
+  .audit-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--faint);
+    margin-bottom: 2px;
+  }
+  .audit-hash { color: var(--cyan); }
+
+  /* =========================================================================
+     VIEW 2: CUSTOMIZATION CATALOG
+     ========================================================================= */
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 16px;
+  }
+  .cat-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .cat-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .cat-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+  .cat-body {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--dim);
+    margin-bottom: 16px;
+  }
+  .cat-specs {
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cat-specs li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--faint);
+  }
+  .cat-specs li b { color: var(--ink); font-weight: 500; }
+
+  /* =========================================================================
+     VIEW 3: INTERACTIVE THAI FISCAL & NLP TESTERS
+     ========================================================================= */
+  .tester-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 860px) {
+    .tester-layout { grid-template-columns: 1fr; }
+  }
+
+  .tool-box {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .tool-head {
+    margin-bottom: 16px;
+  }
+  .tool-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tool-desc {
+    font-size: 12.5px;
+    color: var(--dim);
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .text-input {
+    width: 100%;
+    background: #060609;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 10px 12px;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 13px;
+    transition: border-color 0.15s;
+  }
+  .text-input:focus {
+    outline: none;
+    border-color: var(--cyan);
+  }
+
+  .calc-result {
+    margin-top: 14px;
+    background: #060609;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .res-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  /* =========================================================================
+     ENGAGEMENT & QUOTATION STRIP
+     ========================================================================= */
+  .engagement-section {
+    margin-top: 48px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    align-items: center;
+  }
+  @media (max-width: 860px) {
+    .engagement-section { grid-template-columns: 1fr; }
+  }
+
+  .eng-left h2 {
+    font-size: 22px;
+    font-weight: 650;
+    margin-bottom: 10px;
+  }
+  .eng-left p {
+    font-size: 14.5px;
+    color: var(--dim);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .eng-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .eng-points li::before {
+    content: "—";
+    color: var(--accent);
+    margin-right: 8px;
+  }
+
+  .eng-right {
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+  }
+  .eng-qr {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 12px;
+    background: #fff;
+    padding: 6px;
+    border-radius: 4px;
+  }
+  .eng-qr img { width: 100%; height: 100%; display: block; }
+  .eng-line-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--dim);
+    margin-bottom: 12px;
+  }
+  .eng-line-id code { color: var(--cyan); }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .doc-footer a { color: var(--dim); text-decoration: none; }
+  .doc-footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a class="brand" href="/">Factor <em>IO</em></a>
+      <span class="brand-sub" data-i18n="docHeader">LightOps AI · Enterprise Platform Dossier</span>
+    </div>
+    <div class="top-actions">
+      <div class="lang-toggle" role="group" aria-label="Language selection">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btn-th" onclick="setLang('th')">ไทย</button>
+      </div>
+      <a class="back-link" href="/">← <span data-i18n="backHome">Back to main site</span></a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="eyebrow-row">
+      <span class="eyebrow">Enterprise Cognitive Ops</span>
+      <span class="badge-sovereign">100% On-Premises &amp; Private VPC</span>
+      <span class="badge-pdpa">Thailand PDPA B.E. 2562 Compliant</span>
+    </div>
+    <h1 data-i18n="heroTitle">LightOps AI: Bespoke Sovereign Operations Substrate for Thai Enterprise</h1>
+    <p class="hero-lede" data-i18n="heroLede">
+      Not a generic chatbot wrapper or SaaS API proxy. LightOps AI is an on-premises cognitive operations platform custom-engineered to mirror your organization's exact operational topology, frontline LINE OA customer journeys, Thai fiscal compliance (ภ.พ.20 Tax Invoices &amp; PromptPay slips), and deterministic ERP execution rails.
+    </p>
+
+    <!-- Top Technical Specification Strip -->
+    <div class="spec-strip">
+      <div class="spec-cell">
+        <div class="spec-key" data-i18n="spec1Key">Inference Boundary</div>
+        <div class="spec-val" data-i18n="spec1Val">Zero-Egress Private vLLM</div>
+        <div class="spec-sub">Air-gapped GPU clusters · No SaaS telemetry</div>
+      </div>
+      <div class="spec-cell">
+        <div class="spec-key" data-i18n="spec2Key">Fiscal Perception</div>
+        <div class="spec-val" data-i18n="spec2Val">Thai ภ.พ.20 &amp; PromptPay</div>
+        <div class="spec-sub">13-Digit Modulo-11 &amp; EMVCo QR CRC16</div>
+      </div>
+      <div class="spec-cell">
+        <div class="spec-key" data-i18n="spec3Key">Frontline Ingestion</div>
+        <div class="spec-val" data-i18n="spec3Val">LINE OA + Thai NLP</div>
+        <div class="spec-sub">Colloquial routing &amp; contextual handoff</div>
+      </div>
+      <div class="spec-cell">
+        <div class="spec-key" data-i18n="spec4Key">Execution Rails</div>
+        <div class="spec-val" data-i18n="spec4Val">Deterministic Manifests</div>
+        <div class="spec-sub">SAP BAPI / Express / FlowAccount HITL</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Navigation Tabs -->
+  <nav class="tab-nav" aria-label="Product Sections">
+    <button class="tab-item active" id="tab-workbench" onclick="switchTab('workbench')" data-i18n="tabWorkbench">1. Live Operations Workbench</button>
+    <button class="tab-item" id="tab-catalog" onclick="switchTab('catalog')" data-i18n="tabCatalog">2. Bespoke Component Customization</button>
+    <button class="tab-item" id="tab-testers" onclick="switchTab('testers')" data-i18n="tabTesters">3. Thai Fiscal &amp; NLP Engines (Try Live)</button>
+    <button class="tab-item" id="tab-architecture" onclick="switchTab('architecture')" data-i18n="tabArchitecture">4. Sovereign Topology &amp; Security</button>
+  </nav>
+
+  <!-- =========================================================================
+       VIEW 1: LIVE OPERATIONS WORKBENCH (Workbench / Split Monitor Shape)
+       ========================================================================= -->
+  <section class="view-panel active" id="view-workbench">
+    <div class="workbench">
+      
+      <!-- Left Column: Ingress Triage Queue -->
+      <div class="wb-col wb-left">
+        <div class="wb-head">
+          <span class="wb-title" data-i18n="wbQueueTitle">Verification Queue</span>
+          <span class="wb-badge tag-warn">4 ACTIVE</span>
+        </div>
+        <ul class="queue-list" id="queue-container">
+          <!-- Items populated by JS -->
+        </ul>
+      </div>
+
+      <!-- Center Column: Split Monitor Canvas -->
+      <div class="wb-col wb-center">
+        <div class="wb-head">
+          <span class="wb-title" data-i18n="wbDocTitle">Split Monitor: Field Capture vs. Ledger Record</span>
+          <span class="wb-badge tag-ok" id="active-item-badge">CONFIDENCE 99.4%</span>
+        </div>
+
+        <div class="monitor-split">
+          <!-- Raw Scan Viewport with Bounding Boxes -->
+          <div class="canvas-box">
+            <div class="canvas-header">
+              <span data-i18n="rawCaptureLabel">RAW SMARTPHONE INGESTION (LINE OA)</span>
+              <span class="font-mono" id="doc-meta-dims">1280x960 · DESKEWED</span>
+            </div>
+            <div class="doc-preview-mock" id="doc-preview-text">
+              <!-- Rendered document simulation with real BBoxes -->
+            </div>
+            <div style="font-size:11px; color:var(--faint); line-height:1.4;" data-i18n="preprocNote">
+              * Preprocessing pipeline: Bilateral filter &amp; CLAHE applied. Perspective skew rectified via 4-point convex hull.
+            </div>
+          </div>
+
+          <!-- Comparison Table with ERP -->
+          <div class="canvas-box">
+            <div class="canvas-header">
+              <span data-i18n="erpMatchLabel">LEDGER RECONCILIATION MATCH</span>
+              <span class="font-mono" id="erp-target-name">SAP S/4HANA (FI)</span>
+            </div>
+            <table class="diff-table">
+              <thead>
+                <tr>
+                  <th data-i18n="thField">Field</th>
+                  <th data-i18n="thOcr">OCR Extracted</th>
+                  <th data-i18n="thErp">ERP Expected</th>
+                  <th data-i18n="thStatus">Status</th>
+                </tr>
+              </thead>
+              <tbody id="diff-table-body">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Verification Checklist -->
+        <div style="background:#060609; border:1px solid var(--line); border-radius:4px; padding:12px 14px;">
+          <div style="font-family:var(--mono); font-size:11px; color:var(--faint); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.08em;" data-i18n="govCheckTitle">
+            Autonomous Gate Verifications
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:14px; font-family:var(--mono); font-size:11.5px;" id="verification-pills">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Governed Manifest & HITL Gate -->
+      <div class="wb-col wb-right">
+        <div class="wb-head">
+          <span class="wb-title" data-i18n="manifestTitle">Governed Action Manifest</span>
+          <span class="wb-badge" style="background:var(--cyan-dim); color:var(--cyan);">SCHEMA PASS</span>
+        </div>
+
+        <div class="manifest-card">
+          <div style="color:var(--faint); margin-bottom:6px; font-size:10px; text-transform:uppercase;">Pre-Flight Execution Manifest</div>
+          <pre class="manifest-pre" id="manifest-code"></pre>
+        </div>
+
+        <!-- HITL Manager Escalation Box -->
+        <div class="hitl-box">
+          <div class="hitl-title">
+            <span>⚠️</span> <span data-i18n="hitlHeader">Human-In-The-Loop Gate</span>
+          </div>
+          <p class="hitl-desc" id="hitl-reason-text" data-i18n="hitlDesc">
+            Discrepancy delta requires Level 1 operator authorization before committing journal entry to ERP.
+          </p>
+          <div class="hitl-actions">
+            <button class="btn btn-approve" onclick="handleHitlApprove()" data-i18n="btnCommit">1-Click Manager Authorize &amp; Post</button>
+            <button class="btn btn-quiet" onclick="handleHitlRescan()" data-i18n="btnRescan">Request Rescan via LINE OA</button>
+            <button class="btn btn-danger" onclick="handleHitlReject()" data-i18n="btnReject">Refuse Transaction</button>
+          </div>
+        </div>
+
+        <!-- Cryptographic Audit Chain -->
+        <div>
+          <div style="font-family:var(--mono); font-size:11px; color:var(--faint); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.08em;" data-i18n="auditChainTitle">
+            Cryptographic Audit Chain (pg_audit)
+          </div>
+          <ul class="audit-stream" id="audit-list">
+            <!-- Items populated by JS -->
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       VIEW 2: BESPOKE COMPONENT CUSTOMIZATION CATALOG
+       ========================================================================= -->
+  <section class="view-panel" id="view-catalog">
+    <div style="margin-bottom:24px;">
+      <h2 style="font-size:20px; font-weight:650; margin-bottom:6px;" data-i18n="catMainTitle">Tailored For Your Exact Operational Topology</h2>
+      <p style="color:var(--dim); font-size:14px; max-width:840px;" data-i18n="catMainDesc">
+        Every layer of LightOps AI is custom-engineered for your organization. We adapt models to your specific vocabulary, build custom computer vision perception adapters for your forms, and interface directly with your existing enterprise databases.
+      </p>
+    </div>
+
+    <div class="catalog-grid">
+      <!-- Card 1 -->
+      <article class="cat-card">
+        <div>
+          <div class="cat-num">01 / Frontline Ingress</div>
+          <h3 class="cat-title" data-i18n="c1Title">Tailored LINE OA &amp; Thai NLP</h3>
+          <p class="cat-body" data-i18n="c1Body">
+            Direct webhook handler verified with HMAC-SHA256 signature gating. Customized Thai NLP pipeline handling mixed Thai-English code switching, industry abbreviations, polite particles, and customer slang. Features automated state compaction for seamless human handoff.
+          </p>
+        </div>
+        <ul class="cat-specs">
+          <li><b>Webhook:</b> <span class="font-mono">LINE Messaging API / LIFF</span></li>
+          <li><b>NLP Stack:</b> <span class="font-mono">PyThaiNLP + Custom Domain Lexicon</span></li>
+          <li><b>Handoff:</b> <span class="font-mono">Structured JSON Context Memo</span></li>
+        </ul>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="cat-card">
+        <div>
+          <div class="cat-num">02 / Fiscal Perception</div>
+          <h3 class="cat-title" data-i18n="c2Title">Thai Document AI &amp; Checksum Verification</h3>
+          <p class="cat-body" data-i18n="c2Body">
+            Tuned perception models calibrated for Thai fiscal documents. Automated 13-digit Tax ID Modulo-11 validation, 5-digit branch code verification (Head Office vs. Branches), PromptPay EMVCo QR decoding, and bank transfer hash deduplication against ledger receivables.
+          </p>
+        </div>
+        <ul class="cat-specs">
+          <li><b>Documents:</b> <span class="font-mono">ภ.พ.20, Slips, POs, Delivery Orders</span></li>
+          <li><b>Vision:</b> <span class="font-mono">Bilateral Filter + CLAHE + PaddleOCR</span></li>
+          <li><b>Integrity:</b> <span class="font-mono">Modulo-11 &amp; CRC16 EMVCo</span></li>
+        </ul>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="cat-card">
+        <div>
+          <div class="cat-num">03 / Sovereign Substrate</div>
+          <h3 class="cat-title" data-i18n="c3Title">Zero-Egress Private vLLM Inference</h3>
+          <p class="cat-body" data-i18n="c3Body">
+            Private, on-premises LLM serving powered by vLLM on local NVIDIA GPU clusters. 100% data sovereignty ensuring zero telemetry egresses your corporate network. Strict Thailand PDPA compliance with automated pre-retrieval PII masking (National IDs, phones, accounts).
+          </p>
+        </div>
+        <ul class="cat-specs">
+          <li><b>Inference:</b> <span class="font-mono">vLLM / Triton on Local GPUs</span></li>
+          <li><b>Models:</b> <span class="font-mono">Typhoon 2, SeaLLMs, Llama-3-Thai</span></li>
+          <li><b>Privacy:</b> <span class="font-mono">Automated PDPA PII Redaction Layer</span></li>
+        </ul>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="cat-card">
+        <div>
+          <div class="cat-num">04 / Autonomous Engine</div>
+          <h3 class="cat-title" data-i18n="c4Title">Governed ERP Rails &amp; Manifest Gating</h3>
+          <p class="cat-body" data-i18n="c4Body">
+            No uncontrolled LLM tool hallucination. Every operational write must produce a deterministic Action Manifest strictly validated against JSON schemas. Built-in tiered Human-in-the-Loop escalation requiring manager authorization for high-value thresholds.
+          </p>
+        </div>
+        <ul class="cat-specs">
+          <li><b>Adapters:</b> <span class="font-mono">SAP S/4HANA, Express, FlowAccount</span></li>
+          <li><b>Gating:</b> <span class="font-mono">Strict Pre-flight Manifest Validation</span></li>
+          <li><b>Audit:</b> <span class="font-mono">Append-Only SHA-256 Ledger Chain</span></li>
+        </ul>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="cat-card">
+        <div>
+          <div class="cat-num">05 / Operator Console</div>
+          <h3 class="cat-title" data-i18n="c5Title">High-Density Operations Workbench</h3>
+          <p class="cat-body" data-i18n="c5Body">
+            Engineered using Factor IO's <span class="font-mono">light-design</span> principles. Zero generic dashboard slop, zero placeholder charts. High information density focused on live triage queues, bounding box inspection, and discrepancy management. Dual-language (EN/TH).
+          </p>
+        </div>
+        <ul class="cat-specs">
+          <li><b>Macrostructure:</b> <span class="font-mono">Workbench / Split Monitor</span></li>
+          <li><b>Localization:</b> <span class="font-mono">English / Professional Business Thai</span></li>
+          <li><b>Fidelity:</b> <span class="font-mono">100% Honest Operational Metrics</span></li>
+        </ul>
+      </article>
+
+      <!-- Card 6 -->
+      <article class="cat-card">
+        <div>
+          <div class="cat-num">06 / Enterprise Security</div>
+          <h3 class="cat-title" data-i18n="c6Title">RBAC &amp; Tenant-Level Partitioning</h3>
+          <p class="cat-body" data-i18n="c6Body">
+            Integrates natively with your existing Active Directory / Keycloak identity providers. Granular Role-Based Access Controls enforced at the vector embedding and retrieval boundaries, preventing cross-department information leakage.
+          </p>
+        </div>
+        <ul class="cat-specs">
+          <li><b>Auth:</b> <span class="font-mono">OIDC / Keycloak / SAML 2.0</span></li>
+          <li><b>Storage:</b> <span class="font-mono">PostgreSQL pgvector + pg_audit</span></li>
+          <li><b>Isolation:</b> <span class="font-mono">Tenant &amp; Department ACL Partitioning</span></li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       VIEW 3: INTERACTIVE THAI FISCAL & NLP TESTERS
+       ========================================================================= -->
+  <section class="view-panel" id="view-testers">
+    <div style="margin-bottom:24px;">
+      <h2 style="font-size:20px; font-weight:650; margin-bottom:6px;" data-i18n="tMainTitle">Live Technical Engine Verification</h2>
+      <p style="color:var(--dim); font-size:14px; max-width:840px;" data-i18n="tMainDesc">
+        Test our deterministic Thai fiscal algorithms and NLP normalizers directly in this browser session. These exact algorithms power our production backend.
+      </p>
+    </div>
+
+    <div class="tester-layout">
+      <!-- Tool 1: 13-Digit Thai Tax ID Validator -->
+      <div class="tool-box">
+        <div class="tool-head">
+          <h3 class="tool-title" data-i18n="t1Title">Thai Tax ID Modulo-11 Checksum Engine (ภ.พ.20)</h3>
+          <p class="tool-desc" data-i18n="t1Desc">Verifies official Thai 13-digit Juristic &amp; Personal Tax IDs per Revenue Department standard.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-taxid" data-i18n="t1Label">Thai Tax ID (13 Digits)</label>
+          <input type="text" id="input-taxid" class="text-input" value="0105562205512" maxlength="13" oninput="runTaxIdValidator()">
+          <div style="font-size:11px; color:var(--faint); margin-top:4px;" data-i18n="t1Hint">
+            Try Factor IO's official registration <code style="color:var(--cyan);">0105562205512</code> or test an invalid number.
+          </div>
+        </div>
+
+        <div class="calc-result" id="taxid-result">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Tool 2: Thai NLP Colloquial & Code-Switching Normalizer -->
+      <div class="tool-box">
+        <div class="tool-head">
+          <h3 class="tool-title" data-i18n="t2Title">Thai Frontline NLP Normalizer &amp; Intent Extractor</h3>
+          <p class="tool-desc" data-i18n="t2Desc">Parses colloquial Thai slang, particle stripping, and Thai-English code switching into structured intent payloads.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-thai-nlp" data-i18n="t2Label">Customer Message (Colloquial Thai + Mixed English)</label>
+          <input type="text" id="input-thai-nlp" class="text-input" value="ช่วยเช็ค status ของ PO เบอร์ PO-2026-994 หน่อยครับ ยอดโอนเข้า KBank แล้ว" oninput="runNlpParser()">
+        </div>
+
+        <div class="calc-result" id="nlp-result">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       VIEW 4: SOVEREIGN TOPOLOGY & ARCHITECTURE
+       ========================================================================= -->
+  <section class="view-panel" id="view-architecture">
+    <div style="margin-bottom:24px;">
+      <h2 style="font-size:20px; font-weight:650; margin-bottom:6px;" data-i18n="archMainTitle">Sovereign On-Premise Topology &amp; Zero-Egress Boundary</h2>
+      <p style="color:var(--dim); font-size:14px; max-width:840px;" data-i18n="archMainDesc">
+        LightOps AI runs completely within your physical data center or sovereign virtual private cloud. The architecture eliminates any cloud API dependency or recurring per-token SaaS liability.
+      </p>
+    </div>
+
+    <div style="background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:20px; margin-bottom:24px;">
+      <h3 style="font-size:15px; font-weight:600; margin-bottom:12px; font-family:var(--mono);" data-i18n="topoTitle">SYSTEM TOPOLOGY: PRIVATE AIR-GAPPED VPC</h3>
+      <pre style="font-family:var(--mono); font-size:11.5px; line-height:1.5; color:#c4c2d0; overflow-x:auto;">
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │ CLIENT PRIVATE VPC / DATA CENTER (NUTANIX NKP / OPENSHIFT / KUBERNETES)                │
+ │                                                                                        │
+ │  [Frontline Webhook Ingress]                                                           │
+ │     │ (HMAC-SHA256 Auth &amp; Redis Bloom Deduplication)                                  │
+ │     ▼                                                                                  │
+ │  ┌──────────────────────────────┐       ┌───────────────────────────────────────────┐  │
+ │  │ LINE OA / Frontline Ingress  │       │ Sovereign Vector RAG Substrate            │  │
+ │  │ Fastify + PyThaiNLP Tokenizer│◄─────►│ pgvector (HNSW) + Thai BM25 Hybrid        │  │
+ │  └──────────────┬───────────────┘       │ Tenant &amp; Role-Based Access Controls (RBAC)│  │
+ │                 │                       └─────────────────────▲─────────────────────┘  │
+ │                 ▼                                             │                        │
+ │  ┌──────────────────────────────┐       ┌─────────────────────┴─────────────────────┐  │
+ │  │ Thai Document AI Perception  │       │ Private vLLM Inference Engine             │  │
+ │  │ ภ.พ.20 Modulo-11 + EMVCo QR  │──────►│ Typhoon 2 70B / SeaLLMs / Llama-3-Thai    │  │
+ │  │ Noise &amp; Perspective Filter   │       │ Local NVIDIA GPUs (Zero-Egress Network)   │  │
+ │  └──────────────┬───────────────┘       └─────────────────────┬─────────────────────┘  │
+ │                 │                                             │                        │
+ │                 ▼                                             ▼                        │
+ │  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+ │  │ Governed Autonomous Ops Engine (Deterministic Manifest Gating)                   │  │
+ │  │ - Strict JSON Schema Pre-flight Validation                                       │  │
+ │  │ - Tiered Human-In-The-Loop Approval Escalation Gate                              │  │
+ │  │ - Bidirectional ERP Connectors: SAP S/4HANA (BAPI), Express DB, FlowAccount      │  │
+ │  │ - Cryptographic SHA-256 Append-Only Audit Ledger                                 │  │
+ │  └──────────────────────────────────────────────────────────────────────────────────┘  │
+ └────────────────────────────────────────────────────────────────────────────────────────┘</pre>
+    </div>
+
+    <div class="catalog-grid">
+      <div class="cat-card">
+        <h3 class="cat-title" data-i18n="pdpaTitle">Thailand PDPA Compliance Invariant</h3>
+        <p class="cat-body" data-i18n="pdpaBody">
+          Customer National IDs (13 digits), bank accounts, medical records, and phone numbers are scrubbed in memory prior to context ingestion. Temporary decryption keys are held in volatile RAM expiring immediately upon transaction close.
+        </p>
+      </div>
+      <div class="cat-card">
+        <h3 class="cat-title" data-i18n="tcoTitle">Zero Per-Token API Costs</h3>
+        <p class="cat-body" data-i18n="tcoBody">
+          Because inference runs on your own hardware, processing millions of LINE customer inquiries and hundreds of thousands of fiscal tax invoices incurs zero external API bills. Your compute cost is fixed and predictable.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       ENGAGEMENT & QUOTATION STRIP
+       ========================================================================= -->
+  <section class="engagement-section">
+    <div class="eng-left">
+      <h2 data-i18n="engTitle">Talk Directly With The Principal Architect</h2>
+      <p data-i18n="engDesc">
+        Every LightOps AI deployment is engineered and delivered by Thanat Manasakool, Founder &amp; Principal Engineer with nearly 20 years in enterprise infrastructure (former Ecosystem Solutions Architect at Red Hat and Nutanix).
+      </p>
+      <ul class="eng-points">
+        <li data-i18n="engP1">Phase 1: Architecture Blueprint &amp; Feasibility Review (1–2 weeks)</li>
+        <li data-i18n="engP2">Phase 2: On-Premises Pilot on Your Hardware with Real Data (2–4 weeks)</li>
+        <li data-i18n="engP3">Phase 3: Production Rollout, ERP Integration, &amp; Team Handover</li>
+        <li data-i18n="engP4">Clear, itemized quotation provided within 48 hours</li>
+      </ul>
+    </div>
+    <div class="eng-right">
+      <div class="eng-qr">
+        <img src="/assets/line-qr.jpg" alt="LINE QR Code for Factor IO">
+      </div>
+      <div class="eng-line-id">
+        LINE ID: <code>icediceice</code>
+      </div>
+      <a class="btn btn-approve" href="https://line.me/ti/p/~icediceice" target="_blank" rel="noopener" data-i18n="btnChatLine">
+        Chat on LINE with Principal
+      </a>
+      <div style="margin-top:10px; font-size:11px; color:var(--faint);">
+        Or email <a href="mailto:admin@factor-io.com" style="color:var(--cyan); text-decoration:none;">admin@factor-io.com</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Document Footer -->
+  <footer class="doc-footer">
+    <div>
+      © 2026 Factor I O Co., Ltd. · Bangkok, Thailand · Tax ID: 0105562205512
+    </div>
+    <div style="display:flex; gap:16px;">
+      <a href="/tco-calculator.html">TCO Calculator</a>
+      <a href="/light-tools.html">light-tools</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+    </div>
+  </footer>
+</div>
+
+<!-- Interactive Engine Scripts -->
+<script>
+  // Bilingual Lexicon Dictionary
+  const i18n = {
+    en: {
+      docHeader: "LightOps AI · Enterprise Platform Dossier",
+      backHome: "Back to main site",
+      heroTitle: "LightOps AI: Bespoke Sovereign Operations Substrate for Thai Enterprise",
+      heroLede: "Not a generic chatbot wrapper or SaaS API proxy. LightOps AI is an on-premises cognitive operations platform custom-engineered to mirror your organization's exact operational topology, frontline LINE OA customer journeys, Thai fiscal compliance (ภ.พ.20 Tax Invoices & PromptPay slips), and deterministic ERP execution rails.",
+      spec1Key: "Inference Boundary", spec1Val: "Zero-Egress Private vLLM",
+      spec2Key: "Fiscal Perception", spec2Val: "Thai ภ.พ.20 & PromptPay",
+      spec3Key: "Frontline Ingestion", spec3Val: "LINE OA + Thai NLP",
+      spec4Key: "Execution Rails", spec4Val: "Deterministic Manifests",
+      tabWorkbench: "1. Live Operations Workbench",
+      tabCatalog: "2. Bespoke Component Customization",
+      tabTesters: "3. Thai Fiscal & NLP Engines (Try Live)",
+      tabArchitecture: "4. Sovereign Topology & Security",
+      wbQueueTitle: "Verification Queue",
+      wbDocTitle: "Split Monitor: Field Capture vs. Ledger Record",
+      rawCaptureLabel: "RAW SMARTPHONE INGESTION (LINE OA)",
+      preprocNote: "* Preprocessing pipeline: Bilateral filter & CLAHE applied. Perspective skew rectified via 4-point convex hull.",
+      erpMatchLabel: "LEDGER RECONCILIATION MATCH",
+      thField: "Field", thOcr: "OCR Extracted", thErp: "ERP Expected", thStatus: "Status",
+      govCheckTitle: "Autonomous Gate Verifications",
+      manifestTitle: "Governed Action Manifest",
+      hitlHeader: "Human-In-The-Loop Gate",
+      hitlDesc: "Discrepancy delta requires Level 1 operator authorization before committing journal entry to ERP.",
+      btnCommit: "1-Click Manager Authorize & Post",
+      btnRescan: "Request Rescan via LINE OA",
+      btnReject: "Refuse Transaction",
+      auditChainTitle: "Cryptographic Audit Chain (pg_audit)",
+      catMainTitle: "Tailored For Your Exact Operational Topology",
+      catMainDesc: "Every layer of LightOps AI is custom-engineered for your organization. We adapt models to your specific vocabulary, build custom computer vision perception adapters for your forms, and interface directly with your existing enterprise databases.",
+      c1Title: "Tailored LINE OA & Thai NLP",
+      c1Body: "Direct webhook handler verified with HMAC-SHA256 signature gating. Customized Thai NLP pipeline handling mixed Thai-English code switching, industry abbreviations, polite particles, and customer slang. Features automated state compaction for seamless human handoff.",
+      c2Title: "Thai Document AI & Checksum Verification",
+      c2Body: "Tuned perception models calibrated for Thai fiscal documents. Automated 13-digit Tax ID Modulo-11 validation, 5-digit branch code verification (Head Office vs. Branches), PromptPay EMVCo QR decoding, and bank transfer hash deduplication against ledger receivables.",
+      c3Title: "Zero-Egress Private vLLM Inference",
+      c3Body: "Private, on-premises LLM serving powered by vLLM on local NVIDIA GPU clusters. 100% data sovereignty ensuring zero telemetry egresses your corporate network. Strict Thailand PDPA compliance with automated pre-retrieval PII masking (National IDs, phones, accounts).",
+      c4Title: "Governed ERP Rails & Manifest Gating",
+      c4Body: "No uncontrolled LLM tool hallucination. Every operational write must produce a deterministic Action Manifest strictly validated against JSON schemas. Built-in tiered Human-in-the-Loop escalation requiring manager authorization for high-value thresholds.",
+      c5Title: "High-Density Operations Workbench",
+      c5Body: "Engineered using Factor IO's light-design principles. Zero generic dashboard slop, zero placeholder charts. High information density focused on live triage queues, bounding box inspection, and discrepancy management. Dual-language (EN/TH).",
+      c6Title: "RBAC & Tenant-Level Partitioning",
+      c6Body: "Integrates natively with your existing Active Directory / Keycloak identity providers. Granular Role-Based Access Controls enforced at the vector embedding and retrieval boundaries, preventing cross-department information leakage.",
+      tMainTitle: "Live Technical Engine Verification",
+      tMainDesc: "Test our deterministic Thai fiscal algorithms and NLP normalizers directly in this browser session. These exact algorithms power our production backend.",
+      t1Title: "Thai Tax ID Modulo-11 Checksum Engine (ภ.พ.20)",
+      t1Desc: "Verifies official Thai 13-digit Juristic & Personal Tax IDs per Revenue Department standard.",
+      t1Label: "Thai Tax ID (13 Digits)",
+      t1Hint: "Try Factor IO's official registration 0105562205512 or test an invalid number.",
+      t2Title: "Thai Frontline NLP Normalizer & Intent Extractor",
+      t2Desc: "Parses colloquial Thai slang, particle stripping, and Thai-English code switching into structured intent payloads.",
+      t2Label: "Customer Message (Colloquial Thai + Mixed English)",
+      archMainTitle: "Sovereign On-Premise Topology & Zero-Egress Boundary",
+      archMainDesc: "LightOps AI runs completely within your physical data center or sovereign virtual private cloud. The architecture eliminates any cloud API dependency or recurring per-token SaaS liability.",
+      topoTitle: "SYSTEM TOPOLOGY: PRIVATE AIR-GAPPED VPC",
+      pdpaTitle: "Thailand PDPA Compliance Invariant",
+      pdpaBody: "Customer National IDs (13 digits), bank accounts, medical records, and phone numbers are scrubbed in memory prior to context ingestion. Temporary decryption keys are held in volatile RAM expiring immediately upon transaction close.",
+      tcoTitle: "Zero Per-Token API Costs",
+      tcoBody: "Because inference runs on your own hardware, processing millions of LINE customer inquiries and hundreds of thousands of fiscal tax invoices incurs zero external API bills. Your compute cost is fixed and predictable.",
+      engTitle: "Talk Directly With The Principal Architect",
+      engDesc: "Every LightOps AI deployment is engineered and delivered by Thanat Manasakool, Founder & Principal Engineer with nearly 20 years in enterprise infrastructure (former Ecosystem Solutions Architect at Red Hat and Nutanix).",
+      engP1: "Phase 1: Architecture Blueprint & Feasibility Review (1–2 weeks)",
+      engP2: "Phase 2: On-Premises Pilot on Your Hardware with Real Data (2–4 weeks)",
+      engP3: "Phase 3: Production Rollout, ERP Integration, & Team Handover",
+      engP4: "Clear, itemized quotation provided within 48 hours",
+      btnChatLine: "Chat on LINE with Principal"
+    },
+    th: {
+      docHeader: "LightOps AI · เอกสารสถาปัตยกรรมและโซลูชันระดับองค์กร",
+      backHome: "กลับสู่หน้าหลัก",
+      heroTitle: "LightOps AI: แพลตฟอร์ม AI ปฏิบัติการอธิปไตยแบบออนพรีมิสสำหรับองค์กรไทย",
+      heroLede: "ไม่ใช่แค่ Chatbot Wrapper ทั่วไป หรือ SaaS API จากภายนอก แต่เป็นแพลตฟอร์มปฏิบัติการอัจฉริยะที่ติดตั้งในศูนย์ข้อมูลของคุณโดยตรง ออกแบบให้ตรงตามโครงสร้างองค์กร บริการลูกค้าผ่าน LINE OA ตรวจสอบภาษีไทย (ภ.พ.20 & สลิปโอนเงิน) และเชื่อมต่อ ERP อย่างปลอดภัย",
+      spec1Key: "ขอบเขตการประมวลผล", spec1Val: "Private vLLM ภายในองค์กร 100%",
+      spec2Key: "ระบบอ่านเอกสารไทย", spec2Val: "ภ.พ.20 และ PromptPay QR",
+      spec3Key: "รับเรื่องผ่านหน้าร้าน", spec3Val: "LINE OA + Thai NLP ผสมอังกฤษ",
+      spec4Key: "การควบคุมการทำงาน", spec4Val: "Deterministic Manifests",
+      tabWorkbench: "1. คอนโซลปฏิบัติการจริง (Workbench)",
+      tabCatalog: "2. การปรับแต่งตามระบบขององค์กร",
+      tabTesters: "3. ทดสอบ Engine ภาษีและภาษาไทย",
+      tabArchitecture: "4. สถาปัตยกรรมความปลอดภัย",
+      wbQueueTitle: "คิวงานที่รอการตรวจสอบ",
+      wbDocTitle: "Split Monitor: ภาพถ่ายเอกสาร vs. ข้อมูลในบัญชี ERP",
+      rawCaptureLabel: "ภาพถ่ายจากสมาร์ทโฟน (ผ่าน LINE OA)",
+      preprocNote: "* ระบบประมวลผลภาพ: ใช้ Bilateral filter, CLAHE ปรับสมดุลแสง และหมุนปรับองศาเอกสารอัตโนมัติ",
+      erpMatchLabel: "การจับคู่กระทบยอดกับระบบ ERP",
+      thField: "ฟิลด์ข้อมูล", thOcr: "ข้อมูลที่สแกนได้", thErp: "ข้อมูลในระบบ ERP", thStatus: "สถานะ",
+      govCheckTitle: "ผลการตรวจสอบความถูกต้องอัตโนมัติ",
+      manifestTitle: "Governed Action Manifest",
+      hitlHeader: "ด่านการอนุมัติโดยมนุษย์ (HITL)",
+      hitlDesc: "มีความคลาดเคลื่อนของยอดเงิน จำเป็นต้องได้รับการอนุมัติระดับ 1 จากผู้จัดการก่อนบันทึกลง ERP",
+      btnCommit: "อนุมัติและบันทึกบัญชี (1-Click)",
+      btnRescan: "ขอให้ลูกค้าส่งสลิปใหม่ผ่าน LINE",
+      btnReject: "ปฏิเสธรายการ",
+      auditChainTitle: "บันทึก Audit แบบเข้ารหัส (pg_audit)",
+      catMainTitle: "ปรับแต่งตามโครงสร้างและระบบขององค์กรคุณ",
+      catMainDesc: "ทุกฟังก์ชันของ LightOps AI ถูกสร้างขึ้นเพื่อเชื่อมต่อกับระบบเดิมของคุณ ไม่ว่าจะเป็นระบบบัญชี คลังสินค้า หรือกระบวนการดูแลลูกค้าหน้าร้าน",
+      c1Title: "ระบบรับเรื่อง LINE OA และ Thai NLP",
+      c1Body: "รับ Webhook ปลอดภัยด้วย HMAC-SHA256 รองรับภาษาไทยสำนวนพูด คำย่อทางธุรกิจ (บ/ช, สลิป, ภ.พ., ยอดโอน) และการพิมพ์ไทยคำอังกฤษคำ พร้อมสรุปเนื้อหาอัตโนมัติเมื่อส่งต่อให้เจ้าหน้าที่",
+      c2Title: "AI อ่านเอกสารไทยและคำนวณภาษี",
+      c2Body: "ตรวจสอบเลขประจำตัวผู้เสียภาษี 13 หลักด้วยสูตร Modulo-11 ตรวจสาขาสำนักงานใหญ่ ตรวจสอบสลิป PromptPay ป้องกันการส่งสลิปซ้ำ และกระทบยอดลูกหนี้ค้างชำระอัตโนมัติ",
+      c3Title: "ประมวลผลบนเซิร์ฟเวอร์ภายใน (Zero-Egress)",
+      c3Body: "รันบน vLLM ด้วยการ์ด GPU ภายใน Data Center ของคุณ ข้อมูลไม่รั่วไหลออกนอกประเทศ ถูกต้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) พร้อมระบบเซ็นเซอร์ข้อมูลส่วนตัวอัตโนมัติ",
+      c4Title: "ระบบควบคุมการทำงานที่แม่นยำ (Deterministic)",
+      c4Body: "ไม่ใช่ AI คิดเองทำเองอย่างไร้การควบคุม ทุกคำสั่งต้องผ่านการตรวจสอบ JSON Schema และมีด่านอนุมัติโดยผู้จัดการ (Human-in-the-Loop) สำหรับยอดเงินที่มีนัยสำคัญ",
+      c5Title: "คอนโซลทำงานสำหรับเจ้าหน้าที่หลังบ้าน",
+      c5Body: "ออกแบบตามหลัก light-design แสดงข้อมูลความหนาแน่นสูง ไม่ใส่กราฟลวงตา ตรวจสอบรูปภาพเอกสารคู่กับข้อมูลใน ERP แบบเคียงข้างกัน รองรับสองภาษา (ไทย/อังกฤษ)",
+      c6Title: "การแบ่งสิทธิ์และจัดการข้อมูลระดับแผนก (RBAC)",
+      c6Body: "เชื่อมต่อ Active Directory / Keycloak เพื่อกำหนดสิทธิ์การเข้าถึงข้อมูลตามบทบาท ป้องกันข้อมูลรั่วไหลข้ามฝ่ายอย่างเข้มงวด",
+      tMainTitle: "ทดสอบการทำงานของ Engine ทางภาษีและภาษาไทย",
+      tMainDesc: "ทดสอบอัลกอริทึมการคำนวณเลขผู้เสียภาษี 13 หลัก และระบบตัดคำ/แยกความต้องการภาษาไทยได้แบบเรียลไทม์",
+      t1Title: "ระบบคำนวณ Checksum ภาษี 13 หลัก (ภ.พ.20)",
+      t1Desc: "ตรวจสอบความถูกต้องของเลขประจำตัวผู้เสียภาษีอากร 13 หลัก ตามเกณฑ์กรมสรรพากร",
+      t1Label: "เลขประจำตัวผู้เสียภาษี (13 หลัก)",
+      t1Hint: "ลองใส่เลขทะเบียนนิติบุคคลของ Factor IO: 0105562205512 หรือทดสอบเลขอื่น",
+      t2Title: "ระบบประมวลผลภาษาไทยสำหรับหน้าร้าน",
+      t2Desc: "ตัดคำแสลง ตัดคำลงท้ายสุภาพ (ครับ/ค่ะ) และสกัดข้อมูลสำคัญจากข้อความไทยผสมอังกฤษ",
+      t2Label: "ข้อความจากลูกค้า (ไทยปนอังกฤษและคำแสลง)",
+      archMainTitle: "สถาปัตยกรรม Sovereign On-Premise ไม่ส่งข้อมูลออกภายนอก",
+      archMainDesc: "LightOps AI ทำงานอยู่บนคลัสเตอร์ภายในองค์กรของคุณอย่างสมบูรณ์ ไม่มีค่าใช้จ่ายคิดตามจำนวนโทเค็นของคลาวด์ภายนอก",
+      topoTitle: "สถาปัตยกรรมระบบ: ไพรเวทคลัสเตอร์แบบปิด (AIR-GAPPED)",
+      pdpaTitle: "สอดคล้องตามมาตรฐาน PDPA",
+      pdpaBody: "เลขบัตรประชาชน เบอร์โทรศัพท์ และข้อมูลการเงินจะถูกมาสก์ตั้งแต่ก่อนประมวลผล คีย์ถอดรหัสจะถูกเก็บชั่วคราวใน RAM และทำลายทิ้งทันทีหลังจบรายการ",
+      tcoTitle: "ไม่มีค่าใช้จ่าย API รายโทเค็น",
+      tcoBody: "ประมวลผลข้อความและสลิปหลักล้านรายการโดยไม่มีค่าใช้จ่ายแปรผันตามจำนวนข้อความ ควบคุมต้นทุนโครงสร้างพื้นฐานได้อย่างแม่นยำ",
+      engTitle: "ปรึกษาสถาปนิกผู้ลงมือสร้างระบบโดยตรง",
+      engDesc: "ทุกโครงการดูแลและส่งมอบโดย ธนัท มานะสกุล ผู้ก่อตั้งและ Principal Engineer ประสบการณ์กว่า 20 ปีในโครงสร้างพื้นฐานองค์กร (อดีต Solutions Architect ที่ Red Hat และ Nutanix)",
+      engP1: "ระยะที่ 1: ตรวจสอบสถาปัตยกรรมและความเป็นไปได้ (1–2 สัปดาห์)",
+      engP2: "ระยะที่ 2: ติดตั้งระบบนำร่อง (POC) บนฮาร์ดแวร์ของคุณด้วยข้อมูลจริง (2–4 สัปดาห์)",
+      engP3: "ระยะที่ 3: ติดตั้งใช้งานจริง เชื่อมโยง ERP และส่งมอบงาน",
+      engP4: "ได้รับใบเสนอราคาแบบแยกรายการภายใน 48 ชั่วโมง",
+      btnChatLine: "คุยตรงผ่าน LINE กับสถาปนิก"
+    }
+  };
+
+  let currentLang = 'en';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (i18n[lang] && i18n[lang][key]) {
+        el.innerHTML = i18n[lang][key];
+      }
+    });
+    renderQueue();
+    loadQueueItem(currentQueueIndex);
+  }
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).classList.add('active');
+    document.getElementById(`view-${tabId}`).classList.add('active');
+  }
+
+  // Realistic Thai Operational Data
+  const queueData = [
+    {
+      id: "DOC-2026-9041",
+      channel: "LINE OA · U4af8382...",
+      title: "Thai Tax Invoice ภ.พ.20",
+      amount: "฿155,364.00",
+      status: "FLAGGED_DELTA",
+      tagClass: "tag-warn",
+      tagLabel: "DELTA 0.50 THB",
+      customer: "Siam Logistics & Retail PCL",
+      previewText: `[เอกสารภาษี: ภ.พ.20]
+บริษัท สยาม โลจิสติกส์ แอนด์ รีเทล จำกัด (มหาชน)
+เลขประจำตัวผู้เสียภาษี: <span class="bbox-highlight">0105562205512</span>
+สาขา: <span class="bbox-highlight">00000 (สำนักงานใหญ่)</span>
+88/57 ถนนปัญญาอินทรา แขวงบางชัน เขตคลองสามวา กทม. 10510
+────────────────────────────────────────
+รายการ: บริการกระจายสินค้าเส้นทางด่วน 40 คัน
+มูลค่าสินค้า/บริการ: 145,200.00 บาท
+ภาษีมูลค่าเพิ่ม (7%): <span class="bbox-warn">10,164.00 บาท<span class="bbox-label">MATH VALID</span></span>
+จำนวนเงินรวมทั้งสิ้น: <span class="bbox-highlight">155,364.00 บาท</span>`,
+      diffs: [
+        { field: "Tax ID (เลขประจำตัวผู้เสียภาษี)", ocr: "0105562205512", erp: "0105562205512", match: "MATCH", status: "ok" },
+        { field: "Branch Code (สาขา)", ocr: "00000", erp: "00000 (Head Office)", match: "MATCH", status: "ok" },
+        { field: "Net Base (มูลค่าสุทธิ)", ocr: "145,200.00 THB", erp: "145,200.00 THB", match: "MATCH", status: "ok" },
+        { field: "VAT 7% (ภาษีมูลค่าเพิ่ม)", ocr: "10,164.00 THB", erp: "10,164.00 THB", match: "MATCH", status: "ok" },
+        { field: "Total Gross (ยอดรวมทั้งสิ้น)", ocr: "155,364.00 THB", erp: "155,363.50 THB", match: "-0.50 THB", status: "warn" }
+      ],
+      checks: [
+        { label: "Modulo-11 Checksum", pass: true },
+        { label: "Branch 00000 Valid", pass: true },
+        { label: "7% Math Balance (±0.00)", pass: true },
+        { label: "Vendor Master Active", pass: true },
+        { label: "Ledger PO Matched", pass: false }
+      ],
+      manifest: {
+        transaction_id: "tx_9041a",
+        intent: "POST_PURCHASE_INVOICE",
+        system: "SAP_S4HANA",
+        bapi: "BAPI_ACC_DOCUMENT_POST",
+        idempotency_key: "sha256_8f912c...",
+        doc_type: "KR",
+        header: { comp_code: "1000", currency: "THB", ref_doc: "INV-2026-9041" },
+        items: [
+          { gl_account: "0000510000", amount: 145200.00, tax_code: "V7" },
+          { gl_account: "0000130000", amount: 10164.00, tax_code: "V7" },
+          { vendor: "0001092831", amount: -155364.00 }
+        ]
+      },
+      hitlDesc: "Tax Invoice gross amount differs by 0.50 THB against SAP Purchase Order PO-69201. Requires Level 1 Manager authorization to waive variance.",
+      auditEvents: [
+        { time: "14:48:02", actor: "gateway:line-oa", hash: "9a2f...10b", text: "Webhook received (x-line-signature verified)" },
+        { time: "14:48:03", actor: "vision:tax-ai", hash: "4c11...88d", text: "13-digit checksum evaluated: PASSED (Modulo 11)" },
+        { time: "14:48:04", actor: "engine:rails", hash: "7f8b...29a", text: "Manifest generated; discrepancy flagged (+0.50 THB)" }
+      ]
+    },
+    {
+      id: "DOC-2026-9042",
+      channel: "LINE OA · U89f0221...",
+      title: "KBank Transfer Slip (สลิปโอนเงิน)",
+      amount: "฿48,500.00",
+      status: "VERIFIED_OK",
+      tagClass: "tag-ok",
+      tagLabel: "100% MATCH",
+      customer: "Chonburi Cold Chain Co.",
+      previewText: `[สลิปการโอนเงิน: ธนาคารกสิกรไทย]
+วัน-เวลาที่ทำรายการ: 13/10/2026 14:15:22
+ผู้โอน: บจก. ชลบุรี โคลด์เชน (004-xxx-8910)
+ผู้รับ: <span class="bbox-highlight">บจก. แฟคเตอร์ ไอ โอ (0105562205512)</span>
+จำนวนเงิน: <span class="bbox-highlight">48,500.00 บาท</span>
+รหัสอ้างอิง: <span class="bbox-highlight">2026101349817721KB</span>
+PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
+      diffs: [
+        { field: "Beneficiary Tax ID", ocr: "0105562205512", erp: "0105562205512", match: "MATCH", status: "ok" },
+        { field: "Amount (ยอดเงินโอน)", ocr: "48,500.00 THB", erp: "48,500.00 THB", match: "MATCH", status: "ok" },
+        { field: "Tx Reference Hash", ocr: "2026101349817721KB", erp: "FRESH (UNSEEN)", match: "MATCH", status: "ok" },
+        { field: "Open Receivable SO", ocr: "SO-88410", erp: "SO-88410 (DUE)", match: "MATCH", status: "ok" }
+      ],
+      checks: [
+        { label: "PromptPay CRC-16 Valid", pass: true },
+        { label: "Slip Hash Deduplication", pass: true },
+        { label: "Exact Receivable Match", pass: true },
+        { label: "Bank Route Active", pass: true }
+      ],
+      manifest: {
+        transaction_id: "tx_9042b",
+        intent: "CLEAR_ACCOUNTS_RECEIVABLE",
+        system: "EXPRESS_ACCOUNTING",
+        endpoint: "/api/v1/ar/clear_voucher",
+        idempotency_key: "sha256_10a99c...",
+        voucher_id: "RC-2026-10-004",
+        cleared_invoice: "IV-6609-0012",
+        amount: 48500.00
+      },
+      hitlDesc: "Exact match on open receivable under 50,000 THB threshold. Auto-clearance eligible or click to confirm.",
+      auditEvents: [
+        { time: "14:15:30", actor: "gateway:line-oa", hash: "3c9a...11f", text: "Image received from LINE user U89f0221" },
+        { time: "14:15:31", actor: "vision:slip-ai", hash: "99ea...30c", text: "EMVCo CRC-16 verified; hash checked in Redis" },
+        { time: "14:15:32", actor: "engine:rails", hash: "11de...09b", text: "Matched against Express open receivables IV-6609-0012" }
+      ]
+    },
+    {
+      id: "DOC-2026-9043",
+      channel: "B2B EDI Gateway",
+      title: "Enterprise Purchase Order (PO)",
+      amount: "฿1,240,000.00",
+      status: "HITL_LEVEL_2",
+      tagClass: "tag-bad",
+      tagLabel: "MGR AUTH > 100K",
+      customer: "Bangkok Distribution Group",
+      previewText: `[ใบสั่งซื้อ: PURCHASE ORDER]
+เลขที่: PO-2026-BDG-0091
+วันที่: 13 ตุลาคม 2569
+ผู้ขาย: บจก. แฟคเตอร์ ไอ โอ (Tax ID: 0105562205512)
+มูลค่าก่อนภาษี: 1,158,878.50 บาท
+VAT 7%: 81,121.50 บาท
+รวมสุทธิ: <span class="bbox-warn">1,240,000.00 บาท<span class="bbox-label">HIGH VALUE</span></span>`,
+      diffs: [
+        { field: "Vendor Tax ID", ocr: "0105562205512", erp: "0105562205512", match: "MATCH", status: "ok" },
+        { field: "PO Number", ocr: "PO-2026-BDG-0091", erp: "NEW ORDER", match: "NEW", status: "ok" },
+        { field: "Credit Limit Check", ocr: "1,240,000.00 THB", erp: "Limit: 5,000,000.00", match: "PASS", status: "ok" },
+        { field: "Financial Tier", ocr: "> 100,000 THB", erp: "TIER 2 (DIRECTOR)", match: "AUTH REQ", status: "warn" }
+      ],
+      checks: [
+        { label: "Customer Master Active", pass: true },
+        { label: "Credit Line Approved", pass: true },
+        { label: "Director Key Required", pass: false }
+      ],
+      manifest: {
+        transaction_id: "tx_9043c",
+        intent: "CREATE_SALES_ORDER",
+        system: "SAP_S4HANA",
+        bapi: "BAPI_SALESORDER_CREATEFROMDAT2",
+        order_type: "OR",
+        sales_org: "1000",
+        value: 1240000.00
+      },
+      hitlDesc: "Order value exceeds 100,000 THB threshold. Policy requires dual-key cryptographic authorization by Division Director.",
+      auditEvents: [
+        { time: "13:50:11", actor: "edi:as2-gateway", hash: "44be...90f", text: "Signed AS2 EDI message ingested" },
+        { time: "13:50:12", actor: "engine:rails", hash: "18ce...55a", text: "Credit line check passed; gated on Tier 2 Director Token" }
+      ]
+    },
+    {
+      id: "DOC-2026-9044",
+      channel: "Warehouse Field App",
+      title: "Proof of Delivery (POD)",
+      amount: "฿0.00 (FOC)",
+      status: "VERIFIED_OK",
+      tagClass: "tag-ok",
+      tagLabel: "GPS+SIG OK",
+      customer: "EEC Cold Logistics Hub",
+      previewText: `[ใบส่งของ / PROOF OF DELIVERY]
+เลขที่ใบจัดส่ง: DO-6902-8821
+ผู้รับ: คลังสินค้า EEC แหลมฉบัง
+พขร: สมชาย ใจมั่น (ID: DRV-092)
+ลายเซ็น: <span class="bbox-highlight">[DIGITAL SIGNATURE CAPTURED]</span>
+พิกัด GPS: <span class="bbox-highlight">13.0821° N, 100.9102° E</span>`,
+      diffs: [
+        { field: "Delivery Order", ocr: "DO-6902-8821", erp: "DO-6902-8821", match: "MATCH", status: "ok" },
+        { field: "Driver ID", ocr: "DRV-092", erp: "DRV-092 (Assigned)", match: "MATCH", status: "ok" },
+        { field: "Geofence Check", ocr: "Within 25m", erp: "EEC Hub Radius 100m", match: "PASS", status: "ok" }
+      ],
+      checks: [
+        { label: "Geofence Boundary Verified", pass: true },
+        { label: "Signature Density Match", pass: true },
+        { label: "WMS Inventory Cleared", pass: true }
+      ],
+      manifest: {
+        transaction_id: "tx_9044d",
+        intent: "CONFIRM_SHIPMENT_DELIVERY",
+        system: "WMS_CUSTOM_DB",
+        table: "shipment_tracking",
+        status: "DELIVERED",
+        geofence_verified: true
+      },
+      hitlDesc: "Geofence and recipient signature validated against delivery order. Automatically staged to close transport manifest.",
+      auditEvents: [
+        { time: "13:20:00", actor: "mobile:driver-app", hash: "22ab...66f", text: "Signed manifest submitted with GPS telemetry" },
+        { time: "13:20:01", actor: "engine:rails", hash: "77ac...44a", text: "Geofence check verified in 14ms" }
+      ]
+    }
+  ];
+
+  let currentQueueIndex = 0;
+
+  function renderQueue() {
+    const container = document.getElementById('queue-container');
+    container.innerHTML = queueData.map((item, idx) => `
+      <li class="queue-item ${idx === currentQueueIndex ? 'active' : ''}" onclick="loadQueueItem(${idx})" tabindex="0">
+        <div class="queue-row1">
+          <span class="q-id">${item.id}</span>
+          <span class="q-time">${item.auditEvents[item.auditEvents.length - 1].time}</span>
+        </div>
+        <div class="queue-row2">${item.title}</div>
+        <div class="queue-row3">
+          <span class="q-amount">${item.amount}</span>
+          <span class="status-tag ${item.tagClass}">${item.tagLabel}</span>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  function loadQueueItem(idx) {
+    currentQueueIndex = idx;
+    renderQueue();
+    const item = queueData[idx];
+
+    // Center Preview
+    document.getElementById('active-item-badge').textContent = item.status;
+    document.getElementById('doc-preview-text').innerHTML = item.previewText;
+
+    // Diff Table
+    const tbody = document.getElementById('diff-table-body');
+    tbody.innerHTML = item.diffs.map(d => `
+      <tr>
+        <td class="val-field">${d.field}</td>
+        <td class="val-ocr">${d.ocr}</td>
+        <td class="val-erp">${d.erp}</td>
+        <td><span class="match-icon ${d.status === 'ok' ? 'tag-ok' : 'tag-warn'}" style="padding:2px 6px; border-radius:2px;">${d.match}</span></td>
+      </tr>
+    `).join('');
+
+    // Check Pills
+    const pills = document.getElementById('verification-pills');
+    pills.innerHTML = item.checks.map(c => `
+      <span style="display:flex; align-items:center; gap:5px; color:${c.pass ? 'var(--ok)' : 'var(--warn)'};">
+        ${c.pass ? '✓' : '⚠️'} ${c.label}
+      </span>
+    `).join('');
+
+    // Right Manifest
+    document.getElementById('manifest-code').textContent = JSON.stringify(item.manifest, null, 2);
+    document.getElementById('hitl-reason-text').textContent = item.hitlDesc;
+
+    // Audit Stream
+    const auditList = document.getElementById('audit-list');
+    auditList.innerHTML = item.auditEvents.map(e => `
+      <li class="audit-entry">
+        <div class="audit-meta">
+          <span>${e.time} · ${e.actor}</span>
+          <span class="audit-hash">${e.hash}</span>
+        </div>
+        <div>${e.text}</div>
+      </li>
+    `).join('');
+  }
+
+  function handleHitlApprove() {
+    const item = queueData[currentQueueIndex];
+    alert(`[MANAGER AUTH GRANTED]\n\nTransaction ${item.id} authorized by Operator.\nCryptographic authorization token generated: 0x89fa...22e\nDispatched to ${item.manifest.system || 'ERP'}.`);
+    item.status = "CLEARED_POSTED";
+    item.tagClass = "tag-ok";
+    item.tagLabel = "COMMITTED";
+    loadQueueItem(currentQueueIndex);
+  }
+
+  function handleHitlRescan() {
+    const item = queueData[currentQueueIndex];
+    alert(`[LINE OA RESCAN REQUEST DISPATCHED]\n\nAutomated message sent to ${item.channel}:\n"เรียนลูกค้า ทางระบบตรวจพบยอดรวมมีความคลาดเคลื่อน กรุณาถ่ายภาพเอกสารภาษีใหม่อีกครั้งให้ขอบเอกสารชัดเจน ขอบคุณครับ"`);
+  }
+
+  function handleHitlReject() {
+    const item = queueData[currentQueueIndex];
+    if (confirm(`Refuse and cancel transaction ${item.id}?`)) {
+      item.status = "REJECTED_REFUSED";
+      item.tagClass = "tag-bad";
+      item.tagLabel = "REFUSED";
+      loadQueueItem(currentQueueIndex);
+    }
+  }
+
+  // =========================================================================
+  // THAI TAX ID MODULO-11 VALIDATOR ENGINE
+  // =========================================================================
+  function runTaxIdValidator() {
+    const raw = document.getElementById('input-taxid').value.trim();
+    const digits = raw.replace(/\D/g, '');
+    const out = document.getElementById('taxid-result');
+
+    if (digits.length !== 13) {
+      out.innerHTML = `<span class="res-badge tag-warn">INCOMPLETE</span> Length is ${digits.length}/13 digits. Must be exactly 13 digits.`;
+      return;
+    }
+
+    const d = digits.split('').map(Number);
+    let weightedSum = 0;
+    let traceSteps = [];
+    for (let i = 0; i < 12; i++) {
+      const weight = 13 - i;
+      const product = d[i] * weight;
+      weightedSum += product;
+      traceSteps.push(`d[${i}](${d[i]})×${weight}`);
+    }
+
+    const mod11 = weightedSum % 11;
+    const checkDigit = (11 - mod11) % 10;
+    const isValid = d[12] === checkDigit;
+
+    out.innerHTML = `
+      <div style="margin-bottom:6px;">
+        <span class="res-badge ${isValid ? 'tag-ok' : 'tag-bad'}">
+          ${isValid ? '✓ VALID THAI TAX ID (ภ.พ.20)' : '✗ CHECKSUM MISMATCH (INVALID TAX ID)'}
+        </span>
+      </div>
+      <div>Weighted Sum (∑ d_i × (13-i)): <b>${weightedSum}</b></div>
+      <div>Modulo 11 (Sum % 11): <b>${mod11}</b></div>
+      <div>Calculated Check Digit ((11 - ${mod11}) % 10): <b style="color:var(--cyan);">${checkDigit}</b></div>
+      <div>Provided Check Digit (d[12]): <b>${d[12]}</b> (${isValid ? 'Matches ✓' : 'Mismatch ✗'})</div>
+      <div style="font-size:10.5px; color:var(--faint); margin-top:4px;">
+        Formula: (11 - (∑(i=0..11) d[i] × (13-i) % 11)) % 10
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // THAI NLP NORMALIZER & INTENT PARSER
+  // =========================================================================
+  function runNlpParser() {
+    const raw = document.getElementById('input-thai-nlp').value.trim();
+    const out = document.getElementById('nlp-result');
+
+    if (!raw) {
+      out.innerHTML = '<span style="color:var(--faint);">Awaiting input...</span>';
+      return;
+    }
+
+    // Rule-based entity extraction simulation
+    const poMatch = raw.match(/PO[-_\d\w]+/i);
+    const poNum = poMatch ? poMatch[0].toUpperCase() : "NOT_SPECIFIED";
+
+    let bank = "UNKNOWN";
+    if (/kbank|กสิกร/i.test(raw)) bank = "KASIKORNBANK (KBANK)";
+    else if (/scb|ไทยพาณิชย์/i.test(raw)) bank = "SIAM COMMERCIAL BANK (SCB)";
+    else if (/bbl|กรุงเทพ/i.test(raw)) bank = "BANGKOK BANK (BBL)";
+    else if (/ktb|กรุงไทย/i.test(raw)) bank = "KRUNGTHAI BANK (KTB)";
+
+    const isCheckStatus = /เช็ค|สถานะ|status|ตาม|ถึงไหน/i.test(raw);
+    const hasSlip = /โอน|สลิป|ยอด|เงินเข้า|slip/i.test(raw);
+
+    const strippedParticles = raw.replace(/ครับ|ค่ะ|คะ|จ้า|น้า|ฮะ|ค้าบ/g, '').trim();
+
+    out.innerHTML = `
+      <div style="margin-bottom:8px;">
+        <span class="res-badge tag-ok">INTENT: ${isCheckStatus ? 'INQUIRE_PO_STATUS' : 'GENERAL_INQUIRY'}</span>
+        ${hasSlip ? '<span class="res-badge tag-warn">EVENT: PAYMENT_NOTIFICATION</span>' : ''}
+      </div>
+      <div>Extracted Entities:</div>
+      <div style="padding-left:10px; border-left:2px solid var(--line); margin:6px 0;">
+        <div>• Target PO: <b style="color:var(--cyan);">${poNum}</b></div>
+        <div>• Destination Bank: <b>${bank}</b></div>
+        <div>• Cleaned Lexical Text: <i>"${strippedParticles}"</i></div>
+      </div>
+      <div style="font-size:10.5px; color:var(--faint); margin-top:6px;">
+        Auto-generated Handoff Summary: <i>"ลูกค้าสอบถามสถานะคำสั่งซื้อ ${poNum} แจ้งว่าได้ชำระเงินเข้า ${bank} แล้ว รอตัดยอดบัญชี"</i>
+      </div>
+    `;
+  }
+
+  // Initial Load
+  document.addEventListener('DOMContentLoaded', () => {
+    renderQueue();
+    loadQueueItem(0);
+    runTaxIdValidator();
+    runNlpParser();
+  });
+</script>
+
+</body>
+</html>

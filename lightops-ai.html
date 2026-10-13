@@ -1457,6 +1457,7 @@
       id: "DOC-2026-9041",
       channel: "LINE OA · U4af8382...",
       title: "Thai Tax Invoice ภ.พ.20",
+      title_th: "ใบกำกับภาษีเต็มรูป ภ.พ.20",
       amount: "฿155,364.00",
       status: "FLAGGED_DELTA",
       tagClass: "tag-warn",
@@ -1501,6 +1502,7 @@
         ]
       },
       hitlDesc: "Tax Invoice gross amount differs by 0.50 THB against SAP Purchase Order PO-69201. Requires Level 1 Manager authorization to waive variance.",
+      hitlDesc_th: "ยอดรวมในใบกำกับภาษีต่างจากใบสั่งซื้อ SAP PO-69201 อยู่ 0.50 บาท ต้องได้รับการอนุมัติจากผู้จัดการระดับ 1 เพื่อยกเว้นส่วนต่าง",
       auditEvents: [
         { time: "14:48:02", actor: "gateway:line-oa", hash: "9a2f...10b", text: "Webhook received (x-line-signature verified)" },
         { time: "14:48:03", actor: "vision:tax-ai", hash: "4c11...88d", text: "13-digit checksum evaluated: PASSED (Modulo 11)" },
@@ -1511,6 +1513,7 @@
       id: "DOC-2026-9042",
       channel: "LINE OA · U89f0221...",
       title: "KBank Transfer Slip (สลิปโอนเงิน)",
+      title_th: "สลิปโอนเงินกสิกรไทย (PromptPay QR)",
       amount: "฿48,500.00",
       status: "VERIFIED_OK",
       tagClass: "tag-ok",
@@ -1519,7 +1522,7 @@
       previewText: `[สลิปการโอนเงิน: ธนาคารกสิกรไทย]
 วัน-เวลาที่ทำรายการ: 13/10/2026 14:15:22
 ผู้โอน: บจก. ชลบุรี โคลด์เชน (004-xxx-8910)
-ผู้รับ: <span class="bbox-highlight">บจก. แฟคเตอร์ ไอ โอ (0105562205512)</span>
+ผู้รับ: <span class="bbox-highlight">บจก. แฟคเคอร์ ไอ โอ (0105562205512)</span>
 จำนวนเงิน: <span class="bbox-highlight">48,500.00 บาท</span>
 รหัสอ้างอิง: <span class="bbox-highlight">2026101349817721KB</span>
 PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
@@ -1546,6 +1549,7 @@ PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
         amount: 48500.00
       },
       hitlDesc: "Exact match on open receivable under 50,000 THB threshold. Auto-clearance eligible or click to confirm.",
+      hitlDesc_th: "ยอดตรงกับลูกหนี้คงค้างทุกประการและต่ำกว่าเกณฑ์ 50,000 บาท สามารถตัดยอดอัตโนมัติหรือคลิกเพื่อยืนยัน",
       auditEvents: [
         { time: "14:15:30", actor: "gateway:line-oa", hash: "3c9a...11f", text: "Image received from LINE user U89f0221" },
         { time: "14:15:31", actor: "vision:slip-ai", hash: "99ea...30c", text: "EMVCo CRC-16 verified; hash checked in Redis" },

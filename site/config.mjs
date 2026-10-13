@@ -16,7 +16,6 @@ export const config = {
   locales: { en: { label: 'EN', indexable: true, og: 'en_US' }, th: { label: 'ไทย', indexable: false, og: 'th_TH' } },
   legacyUrls: [
     { path: '/', updated: '2026-09-11' },
-    { path: '/offerings.html', updated: '2026-10-13' },
     { path: '/lightops-ai.html', updated: '2026-10-13' },
     { path: '/light-tools.html', updated: '2026-09-11' },
     { path: '/tco-calculator.html', updated: '2026-08-28' },

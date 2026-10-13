@@ -320,11 +320,11 @@ ${renderJsonLd(page, locale)}<script type="module" src="${asset('site.js')}"></s
 <div class="header-nav" id="main-nav"><nav aria-label="${esc(u.nav)}">${nav}</nav><a class="button button-small" href="${routePath(locale, 'contact')}"${page === 'contact' ? ' aria-current="page"' : ''}>${esc(c.pages.contact.nav)}</a></div>
 <nav class="language" aria-label="${esc(u.language)}">${language}</nav></div></header>
 <main id="main"><div class="wrap">${hero}
-${p.sections.map(s => section(c, s, page, asset, page === 'home' && s.id === 'services' ? `<p class="section-link">${link(routePath(locale, 'services'), u.learn)}</p>` : s.id === 'lightops' ? `<p class="section-link">${link('/offerings.html', u.offeringsCta, 'button')} ${link('/lightops-ai.html', u.lightopsCta, 'button button-quiet')}</p>` : '')).join('\n')}
+${p.sections.map(s => section(c, s, page, asset, page === 'home' && s.id === 'services' ? `<p class="section-link">${link(routePath(locale, 'services'), u.learn)}</p>` : s.id === 'lightops' ? `<p class="section-link">${link('/lightops-ai.html', u.lightopsCta, 'button button-quiet')}</p>` : '')).join('\n')}
 ${page !== 'contact' ? `<section class="cta" aria-labelledby="cta-title"><div><h2 id="cta-title">${esc(u.ctaTitle)}</h2><p>${esc(u.ctaBody)}</p></div>${link(routePath(locale, 'contact'), u.ctaLink, 'button')}</section>` : ''}
 </div></main>
 <footer class="site-footer"><div class="wrap footer-grid"><div class="footer-brand">${brand}<p>${esc(u.footer)}</p></div>
-<div><h2>${esc(u.resources)}</h2>${link('/offerings.html', u.offerings)}${link('/lightops-ai.html', u.lightops)}${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}${link(routePath(locale, 'mobile-apps'), c.pages['mobile-apps'].nav)}</div>
+<div><h2>${esc(u.resources)}</h2>${link('/lightops-ai.html', u.lightops)}${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}${link(routePath(locale, 'mobile-apps'), c.pages['mobile-apps'].nav)}</div>
 <div><h2>${esc(u.company)}</h2>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('/terms.html', u.terms)}${link('#top', u.backTop)}</div>
 <p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div></footer></body></html>
 `;

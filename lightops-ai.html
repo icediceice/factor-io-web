@@ -1560,6 +1560,7 @@ PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
       id: "DOC-2026-9043",
       channel: "B2B EDI Gateway",
       title: "Enterprise Purchase Order (PO)",
+      title_th: "ใบสั่งซื้อสินค้าองค์กร (PO)",
       amount: "฿1,240,000.00",
       status: "HITL_LEVEL_2",
       tagClass: "tag-bad",
@@ -1568,7 +1569,7 @@ PromptPay QR: <span class="bbox-highlight">EMVCo 00020101...CRC16:4A1F</span>`,
       previewText: `[ใบสั่งซื้อ: PURCHASE ORDER]
 เลขที่: PO-2026-BDG-0091
 วันที่: 13 ตุลาคม 2569
-ผู้ขาย: บจก. แฟคเตอร์ ไอ โอ (Tax ID: 0105562205512)
+ผู้ขาย: บจก. แฟคเคอร์ ไอ โอ (Tax ID: 0105562205512)
 มูลค่าก่อนภาษี: 1,158,878.50 บาท
 VAT 7%: 81,121.50 บาท
 รวมสุทธิ: <span class="bbox-warn">1,240,000.00 บาท<span class="bbox-label">HIGH VALUE</span></span>`,
@@ -1593,6 +1594,7 @@ VAT 7%: 81,121.50 บาท
         value: 1240000.00
       },
       hitlDesc: "Order value exceeds 100,000 THB threshold. Policy requires dual-key cryptographic authorization by Division Director.",
+      hitlDesc_th: "มูลค่าใบสั่งซื้อเกินเกณฑ์ 100,000 บาท นโยบายกำหนดให้ต้องใช้กุญแจอนุมัติคู่ (Dual-Key) จากผู้อำนวยการฝ่าย",
       auditEvents: [
         { time: "13:50:11", actor: "edi:as2-gateway", hash: "44be...90f", text: "Signed AS2 EDI message ingested" },
         { time: "13:50:12", actor: "engine:rails", hash: "18ce...55a", text: "Credit line check passed; gated on Tier 2 Director Token" }
@@ -1602,6 +1604,7 @@ VAT 7%: 81,121.50 บาท
       id: "DOC-2026-9044",
       channel: "Warehouse Field App",
       title: "Proof of Delivery (POD)",
+      title_th: "ใบรับรองการจัดส่งสินค้า (POD)",
       amount: "฿0.00 (FOC)",
       status: "VERIFIED_OK",
       tagClass: "tag-ok",
@@ -1632,6 +1635,7 @@ VAT 7%: 81,121.50 บาท
         geofence_verified: true
       },
       hitlDesc: "Geofence and recipient signature validated against delivery order. Automatically staged to close transport manifest.",
+      hitlDesc_th: "พิกัด GPS และลายเซ็นผู้รับตรงตามใบสั่งส่งสินค้า เตรียมปิดงานขนส่งในระบบคลังสินค้าอัตโนมัติ",
       auditEvents: [
         { time: "13:20:00", actor: "mobile:driver-app", hash: "22ab...66f", text: "Signed manifest submitted with GPS telemetry" },
         { time: "13:20:01", actor: "engine:rails", hash: "77ac...44a", text: "Geofence check verified in 14ms" }
@@ -1649,7 +1653,7 @@ VAT 7%: 81,121.50 บาท
           <span class="q-id">${item.id}</span>
           <span class="q-time">${item.auditEvents[item.auditEvents.length - 1].time}</span>
         </div>
-        <div class="queue-row2">${item.title}</div>
+        <div class="queue-row2">${currentLang === 'th' && item.title_th ? item.title_th : item.title}</div>
         <div class="queue-row3">
           <span class="q-amount">${item.amount}</span>
           <span class="status-tag ${item.tagClass}">${item.tagLabel}</span>
@@ -1688,7 +1692,18 @@ VAT 7%: 81,121.50 บาท
 
     // Right Manifest
     document.getElementById('manifest-code').textContent = JSON.stringify(item.manifest, null, 2);
-    document.getElementById('hitl-reason-text').textContent = item.hitlDesc;
+    document.getElementById('hitl-reason-text').textContent = currentLang === 'th' && item.hitlDesc_th ? item.hitlDesc_th : item.hitlDesc;
+
+    const receiptEl = document.getElementById('hitl-receipt');
+    if (receiptEl) {
+      if (item.lastReceiptHtml) {
+        receiptEl.innerHTML = item.lastReceiptHtml;
+        receiptEl.hidden = false;
+      } else {
+        receiptEl.hidden = true;
+        receiptEl.innerHTML = '';
+      }
+    }
 
     // Audit Stream
     const auditList = document.getElementById('audit-list');
@@ -1705,26 +1720,50 @@ VAT 7%: 81,121.50 บาท
 
   function handleHitlApprove() {
     const item = queueData[currentQueueIndex];
-    alert(`[MANAGER AUTH GRANTED]\n\nTransaction ${item.id} authorized by Operator.\nCryptographic authorization token generated: 0x89fa...22e\nDispatched to ${item.manifest.system || 'ERP'}.`);
+    const now = new Date().toTimeString().slice(0, 8);
     item.status = "CLEARED_POSTED";
     item.tagClass = "tag-ok";
     item.tagLabel = "COMMITTED";
+    item.auditEvents.push({
+      time: now,
+      actor: "operator:mgr-l1",
+      hash: "0x89fa...22e",
+      text: `Authorized & posted to ${item.manifest.system || 'ERP'} (${item.manifest.transaction_id})`
+    });
+    item.lastReceiptHtml = `<strong style="color:var(--ok);">✓ [COMMITTED TO ${item.manifest.system || 'ERP'}]</strong><br>Token: <code>0x89fa...22e</code> · Tx: <code>${item.manifest.transaction_id}</code> · Appended to <code>pg_audit</code>.`;
     loadQueueItem(currentQueueIndex);
   }
 
   function handleHitlRescan() {
     const item = queueData[currentQueueIndex];
-    alert(`[LINE OA RESCAN REQUEST DISPATCHED]\n\nAutomated message sent to ${item.channel}:\n"เรียนลูกค้า ทางระบบตรวจพบยอดรวมมีความคลาดเคลื่อน กรุณาถ่ายภาพเอกสารภาษีใหม่อีกครั้งให้ขอบเอกสารชัดเจน ขอบคุณครับ"`);
+    const now = new Date().toTimeString().slice(0, 8);
+    item.status = "RESCAN_PENDING";
+    item.tagClass = "tag-warn";
+    item.tagLabel = "RESCAN SENT";
+    item.auditEvents.push({
+      time: now,
+      actor: "gateway:line-oa",
+      hash: "0x5c31...71a",
+      text: `Rescan prompt dispatched to ${item.channel}`
+    });
+    item.lastReceiptHtml = `<strong style="color:var(--warn);">↻ [LINE OA RESCAN DISPATCHED]</strong><br>Channel: <code>${item.channel}</code><br>"เรียนลูกค้า ระบบตรวจพบยอดรวมคลาดเคลื่อน กรุณาถ่ายภาพเอกสารใหม่อีกครั้งให้ชัดเจน ขอบคุณครับ"`;
+    loadQueueItem(currentQueueIndex);
   }
 
   function handleHitlReject() {
     const item = queueData[currentQueueIndex];
-    if (confirm(`Refuse and cancel transaction ${item.id}?`)) {
-      item.status = "REJECTED_REFUSED";
-      item.tagClass = "tag-bad";
-      item.tagLabel = "REFUSED";
-      loadQueueItem(currentQueueIndex);
-    }
+    const now = new Date().toTimeString().slice(0, 8);
+    item.status = "REJECTED_REFUSED";
+    item.tagClass = "tag-bad";
+    item.tagLabel = "REFUSED";
+    item.auditEvents.push({
+      time: now,
+      actor: "operator:mgr-l1",
+      hash: "0xde04...99c",
+      text: `Transaction ${item.id} refused; ERP mutation aborted`
+    });
+    item.lastReceiptHtml = `<strong style="color:var(--bad);">✕ [TRANSACTION REFUSED]</strong><br>ID: <code>${item.id}</code> · ERP write blocked · Rejection logged to immutable audit chain.`;
+    loadQueueItem(currentQueueIndex);
   }
 
   // =========================================================================

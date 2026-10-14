@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791871993382",
-  "generated_at": "2026-10-13T06:13:13.382Z",
-  "snapshot_digest": "2a22227f222f8718",
+  "refresh_id": "refresh-1791958844205",
+  "generated_at": "2026-10-14T06:20:44.205Z",
+  "snapshot_digest": "5ac75f0de2904cc5",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-2a22227f222f8718.json",
-      "digest": "2a22227f222f8718",
-      "bytes": 3459639
+      "path": "catalog-5ac75f0de2904cc5.json",
+      "digest": "5ac75f0de2904cc5",
+      "bytes": 3477200
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "a9b60fa2d2be57e9",
+      "digest": "abadbbd4599b604d",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-13T06:13:13.382Z",
-      "last_success_at": "2026-10-13T06:13:13.382Z",
-      "expires_at": "2026-10-16T06:13:13.382Z",
-      "root_digest": "141c70960f3fa720",
-      "record_count": 441,
+      "observed_at": "2026-10-14T06:20:44.205Z",
+      "last_success_at": "2026-10-14T06:20:44.205Z",
+      "expires_at": "2026-10-17T06:20:44.205Z",
+      "root_digest": "99e04830582d24d3",
+      "record_count": 443,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-13T06:13:13.382Z",
-      "last_success_at": "2026-10-13T06:13:13.382Z",
-      "expires_at": "2026-10-16T06:13:13.382Z",
-      "root_digest": "e658159285953528",
-      "record_count": 2943,
+      "observed_at": "2026-10-14T06:20:44.205Z",
+      "last_success_at": "2026-10-14T06:20:44.205Z",
+      "expires_at": "2026-10-17T06:20:44.205Z",
+      "root_digest": "63e345a756cbce5b",
+      "record_count": 2958,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-12T00:00:00.000Z",
-      "last_success_at": "2026-10-13T06:13:36.027Z",
-      "expires_at": "2026-10-19T23:59:59.999Z",
-      "root_digest": "a9b60fa2d2be57e9",
+      "observed_at": "2026-10-13T00:00:00.000Z",
+      "last_success_at": "2026-10-14T06:21:10.562Z",
+      "expires_at": "2026-10-20T23:59:59.999Z",
+      "root_digest": "abadbbd4599b604d",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -1052,10 +1052,6 @@
       "meters": [
         "input",
         "output",
-        "input|>200000",
-        "output|>200000",
-        "cache_write|>200000",
-        "cache_read|>200000",
         "cache_write",
         "cache_read"
       ]
@@ -1069,11 +1065,7 @@
         "cache_write",
         "cache_read",
         "input",
-        "output",
-        "input|>200000",
-        "output|>200000",
-        "cache_write|>200000",
-        "cache_read|>200000"
+        "output"
       ]
     },
     {
@@ -5391,6 +5383,19 @@
         "cache_write",
         "cache_write|age=1hr",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/claude-fable-5-5",
+      "name": "azure_ai/claude-fable-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -17391,6 +17396,26 @@
       ]
     },
     {
+      "id": "litellm:gemini/gemini-4-argon",
+      "name": "gemini/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:gemini/gemini-exp-1114",
       "name": "gemini/gemini-exp-1114",
       "tariff": "token",
@@ -17731,6 +17756,17 @@
         "input|>100000",
         "output",
         "output|>100000"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gemini-4-argon",
+      "name": "github_copilot/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -27699,6 +27735,126 @@
       ]
     },
     {
+      "id": "litellm:tencent/deepseek-v4-pro-0813",
+      "name": "tencent/deepseek-v4-pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/deepseek-v4.1-flash",
+      "name": "tencent/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/glm-5.2",
+      "name": "tencent/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/glm-5.3",
+      "name": "tencent/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/glm-5.3-flash",
+      "name": "tencent/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/glm-5.3-flashx",
+      "name": "tencent/glm-5.3-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/kimi-k2.7-code",
+      "name": "tencent/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/kimi-k2.7-code-highspeed",
+      "name": "tencent/kimi-k2.7-code-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/kimi-k2.8-preview",
+      "name": "tencent/kimi-k2.8-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/kimi-k3",
+      "name": "tencent/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:tencent/minimax-m3",
       "name": "tencent/minimax-m3",
       "tariff": "token",
@@ -31727,6 +31883,52 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/gemini-4-argon",
+      "name": "vertex_ai/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/gemini-4-argon-cyber-permissive",
+      "name": "vertex_ai/gemini-4-argon-cyber-permissive",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/gemini-omni-1.1-flash",
       "name": "vertex_ai/gemini-omni-1.1-flash",
       "tariff": "token",
@@ -34441,7 +34643,7 @@
       "id": "openrouter:apodex/apodex-1.1-mini:free",
       "name": "Apodex: Apodex 1.1 Mini (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -35240,6 +35442,38 @@
       ]
     },
     {
+      "id": "openrouter:google/gemini-4-argon",
+      "name": "Google: Gemini 4 Argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-4-argon:batch",
+      "name": "Google: Gemini 4 Argon (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:google/gemini-nano-banana-2.1",
       "name": "Google: Nano Banana 2.1",
       "tariff": "token",
@@ -35422,7 +35656,7 @@
       "id": "openrouter:inclusionai/ling-3.0-flash-fin",
       "name": "inclusionAI: Ling 3.0 Flash Fin",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -35433,7 +35667,7 @@
       "id": "openrouter:inclusionai/ling-3.0-flash-sante",
       "name": "inclusionAI: Ling 3.0 Flash Sante",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -35458,7 +35692,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -35491,6 +35726,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:liquid/lfm-2.5-24b-a2b",
+      "name": "LiquidAI: LFM2.5-24B-A2B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -37283,8 +37529,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -38153,6 +38398,26 @@
       ]
     },
     {
+      "id": "openrouter:scaledown/extract",
+      "name": "ScaleDown: Extract",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:scaledown/summarize",
+      "name": "ScaleDown: Summarize",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:stepfun/step-3.5-flash",
       "name": "StepFun: Step 3.5 Flash",
       "tariff": "token",
@@ -38345,7 +38610,7 @@
       "id": "openrouter:unbiased/pareto",
       "name": "Pareto",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -38355,6 +38620,17 @@
     {
       "id": "openrouter:unbiased/pareto-26.10-preview",
       "name": "Pareto 26.10 Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:unbiased/pareto-26.9",
+      "name": "Pareto 26.9",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -38767,6 +39043,11 @@
   ],
   "provenance": {
     "logs": [
+      {
+        "offer": "openrouter:~unbiased/pareto-latest",
+        "rule": "alias_skipped",
+        "target": "unbiased/pareto-26.9"
+      },
       {
         "offer": "openrouter:~deepseek/deepseek-pro-latest",
         "rule": "alias_skipped",

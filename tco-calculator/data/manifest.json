@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1791958844205",
-  "generated_at": "2026-10-14T06:20:44.205Z",
-  "snapshot_digest": "5ac75f0de2904cc5",
+  "refresh_id": "refresh-1792044019323",
+  "generated_at": "2026-10-15T06:00:19.323Z",
+  "snapshot_digest": "3cac1f55cf597110",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-5ac75f0de2904cc5.json",
-      "digest": "5ac75f0de2904cc5",
-      "bytes": 3477200
+      "path": "catalog-3cac1f55cf597110.json",
+      "digest": "3cac1f55cf597110",
+      "bytes": 3479204
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "abadbbd4599b604d",
+      "digest": "c1a6deabb855e9b2",
       "bytes": 377
     }
   },
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-14T06:20:44.205Z",
-      "last_success_at": "2026-10-14T06:20:44.205Z",
-      "expires_at": "2026-10-17T06:20:44.205Z",
+      "observed_at": "2026-10-15T06:00:19.323Z",
+      "last_success_at": "2026-10-15T06:00:19.323Z",
+      "expires_at": "2026-10-18T06:00:19.323Z",
       "root_digest": "99e04830582d24d3",
       "record_count": 443,
       "missing_streak": 0
@@ -31,20 +31,20 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-14T06:20:44.205Z",
-      "last_success_at": "2026-10-14T06:20:44.205Z",
-      "expires_at": "2026-10-17T06:20:44.205Z",
-      "root_digest": "63e345a756cbce5b",
-      "record_count": 2958,
+      "observed_at": "2026-10-15T06:00:19.323Z",
+      "last_success_at": "2026-10-15T06:00:19.323Z",
+      "expires_at": "2026-10-18T06:00:19.323Z",
+      "root_digest": "b38eef09374e8fe5",
+      "record_count": 2960,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-13T00:00:00.000Z",
-      "last_success_at": "2026-10-14T06:21:10.562Z",
-      "expires_at": "2026-10-20T23:59:59.999Z",
-      "root_digest": "abadbbd4599b604d",
+      "observed_at": "2026-10-14T00:00:00.000Z",
+      "last_success_at": "2026-10-15T06:00:41.875Z",
+      "expires_at": "2026-10-21T23:59:59.999Z",
+      "root_digest": "c1a6deabb855e9b2",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -5389,7 +5389,7 @@
       "id": "litellm:azure_ai/claude-fable-5-5",
       "name": "azure_ai/claude-fable-5-5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -27490,8 +27490,41 @@
       ]
     },
     {
+      "id": "litellm:scx-ai/DeepSeek-V4.1-flash",
+      "name": "scx-ai/DeepSeek-V4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:scx-ai/GLM-5.2",
       "name": "scx-ai/GLM-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:scx-ai/GLM-5.3",
+      "name": "scx-ai/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:scx-ai/Kimi-K3",
+      "name": "scx-ai/Kimi-K3",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -34514,20 +34547,6 @@
       ]
     },
     {
-      "id": "openrouter:anthropic/claude-sonnet-4",
-      "name": "Anthropic: Claude Sonnet 4",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write",
-        "cache_write|age=1hr"
-      ]
-    },
-    {
       "id": "openrouter:anthropic/claude-sonnet-4.5",
       "name": "Anthropic: Claude Sonnet 4.5",
       "tariff": "token",
@@ -35554,8 +35573,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -37529,7 +37547,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38618,17 +38637,6 @@
       ]
     },
     {
-      "id": "openrouter:unbiased/pareto-26.10-preview",
-      "name": "Pareto 26.10 Preview",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:unbiased/pareto-26.9",
       "name": "Pareto 26.9",
       "tariff": "token",
@@ -39116,7 +39124,7 @@
       {
         "offer": "openrouter:~google/gemini-pro-latest",
         "rule": "alias_skipped",
-        "target": "google/gemini-3.1-pro-preview"
+        "target": "google/gemini-4-argon"
       },
       {
         "offer": "openrouter:~moonshotai/kimi-latest",
@@ -40180,6 +40188,61 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:dashscope/wan3.0-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/wan3.0-video-prime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/happyhorse-1.1-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/happyhorse-1.1-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/happyhorse-1.1-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/happyhorse-1.0-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/happyhorse-1.0-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/happyhorse-1.0-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/wan2.7-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/wan2.7-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:dashscope/wan2.7-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:qwencloud/qwen-plus-2025-07-28",
         "rule": "tier_entry_skipped",
         "index": 0,
@@ -40236,6 +40299,61 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:qwencloud/wan3.0-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/wan3.0-video-prime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/happyhorse-1.1-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/happyhorse-1.1-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/happyhorse-1.1-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/happyhorse-1.0-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/happyhorse-1.0-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/happyhorse-1.0-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/wan2.7-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/wan2.7-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwencloud/wan2.7-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:qwen_ai_platform/qwen-plus-2025-07-28",
         "rule": "tier_entry_skipped",
         "index": 0,
@@ -40290,6 +40408,61 @@
         "offer": "litellm:qwen_ai_platform/qwen-image-3.0-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/wan3.0-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/wan3.0-video-prime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/happyhorse-1.1-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/happyhorse-1.1-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/happyhorse-1.1-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/happyhorse-1.0-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/happyhorse-1.0-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/happyhorse-1.0-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/wan2.7-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/wan2.7-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:qwen_ai_platform/wan2.7-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
       },
       {
         "offer": "litellm:databricks/databricks-bge-large-en",
@@ -44757,6 +44930,11 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:typesafe/jev-1.14.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:typesafe/jev-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
@@ -44935,6 +45113,21 @@
         "offer": "litellm:azure_ai/Cohere-Embed-V5-Pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:xai/grok-voice-3.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:xai/grok-voice-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:xai/grok-voice-2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
       }
     ],
     "source_errors": {

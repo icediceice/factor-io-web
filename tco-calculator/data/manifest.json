@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792044019323",
-  "generated_at": "2026-10-15T06:00:19.323Z",
-  "snapshot_digest": "3cac1f55cf597110",
+  "refresh_id": "refresh-1792131191702",
+  "generated_at": "2026-10-16T06:13:11.702Z",
+  "snapshot_digest": "fd2f762cb4fe506e",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-3cac1f55cf597110.json",
-      "digest": "3cac1f55cf597110",
-      "bytes": 3479204
+      "path": "catalog-fd2f762cb4fe506e.json",
+      "digest": "fd2f762cb4fe506e",
+      "bytes": 3523243
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "c1a6deabb855e9b2",
+      "digest": "6dfdeee06689b804",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-15T06:00:19.323Z",
-      "last_success_at": "2026-10-15T06:00:19.323Z",
-      "expires_at": "2026-10-18T06:00:19.323Z",
-      "root_digest": "99e04830582d24d3",
-      "record_count": 443,
+      "observed_at": "2026-10-16T06:13:11.702Z",
+      "last_success_at": "2026-10-16T06:13:11.702Z",
+      "expires_at": "2026-10-19T06:13:11.702Z",
+      "root_digest": "2448095e2d87d9df",
+      "record_count": 446,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-15T06:00:19.323Z",
-      "last_success_at": "2026-10-15T06:00:19.323Z",
-      "expires_at": "2026-10-18T06:00:19.323Z",
-      "root_digest": "b38eef09374e8fe5",
-      "record_count": 2960,
+      "observed_at": "2026-10-16T06:13:11.702Z",
+      "last_success_at": "2026-10-16T06:13:11.702Z",
+      "expires_at": "2026-10-19T06:13:11.702Z",
+      "root_digest": "d2bbf7b4887c28f0",
+      "record_count": 3012,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-14T00:00:00.000Z",
-      "last_success_at": "2026-10-15T06:00:41.875Z",
-      "expires_at": "2026-10-21T23:59:59.999Z",
-      "root_digest": "c1a6deabb855e9b2",
+      "observed_at": "2026-10-15T00:00:00.000Z",
+      "last_success_at": "2026-10-16T06:13:35.229Z",
+      "expires_at": "2026-10-22T23:59:59.999Z",
+      "root_digest": "6dfdeee06689b804",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -5508,6 +5508,19 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/claude-opus-5-5-fast",
+      "name": "azure_ai/claude-opus-5-5-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/claude-sonnet-4-5",
       "name": "azure_ai/claude-sonnet-4-5",
       "tariff": "token",
@@ -6258,6 +6271,17 @@
       ]
     },
     {
+      "id": "litellm:baseten/meta-models/muse-spark-open",
+      "name": "baseten/meta-models/muse-spark-open",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:baseten/moonshotai/Kimi-K2-Instruct-0905",
       "name": "baseten/moonshotai/Kimi-K2-Instruct-0905",
       "tariff": "token",
@@ -6323,6 +6347,17 @@
     {
       "id": "litellm:baseten/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
       "name": "baseten/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:baseten/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B",
+      "name": "baseten/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -14695,6 +14730,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/muse-spark-open",
+      "name": "fireworks_ai/accounts/fireworks/models/muse-spark-open",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/mythomax-l2-13b",
       "name": "fireworks_ai/accounts/fireworks/models/mythomax-l2-13b",
       "tariff": "token",
@@ -16701,19 +16747,18 @@
       "meters": [
         "cache_read_audio",
         "cache_read",
-        "cache_read|tier=flex",
-        "audio_in_tok",
-        "input",
-        "output",
-        "input|tier=priority",
-        "audio_in_tok|tier=priority",
-        "output|tier=priority",
         "cache_read|tier=priority",
+        "audio_in_tok",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
         "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
+        "output",
         "output|tier=batches",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -16758,25 +16803,24 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_write|>200000",
         "cache_read",
         "cache_read|>200000",
-        "cache_write|>200000",
+        "cache_read|>200000|tier=priority",
+        "cache_read|tier=priority",
         "input",
         "input|>200000",
+        "input|>200000|tier=priority",
         "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "image_out",
         "output",
         "output|>200000",
-        "output|tier=batches",
-        "image_out",
-        "input|tier=priority",
-        "input|>200000|tier=priority",
-        "output|tier=priority",
         "output|>200000|tier=priority",
-        "cache_read|tier=priority",
-        "cache_read|>200000|tier=priority",
-        "cache_read|tier=flex",
-        "input|tier=flex",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -19305,6 +19349,17 @@
       ]
     },
     {
+      "id": "litellm:gpt-5.5-cyber-preview",
+      "name": "gpt-5.5-cyber-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gpt-5.6",
       "name": "gpt-5.6",
       "tariff": "token",
@@ -20098,6 +20153,389 @@
       ]
     },
     {
+      "id": "litellm:inferenceapis/MiniMaxAI/MiniMax-M3",
+      "name": "inferenceapis/MiniMaxAI/MiniMax-M3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/Qwen/Qwen3-VL-235B-A22B-Instruct",
+      "name": "inferenceapis/Qwen/Qwen3-VL-235B-A22B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/Qwen/Qwen3.8-Flash",
+      "name": "inferenceapis/Qwen/Qwen3.8-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-ai/DeepSeek-V3",
+      "name": "inferenceapis/deepseek-ai/DeepSeek-V3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-ai/DeepSeek-V4-Flash",
+      "name": "inferenceapis/deepseek-ai/DeepSeek-V4-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "name": "inferenceapis/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-ai/DeepSeek-V4-Pro",
+      "name": "inferenceapis/deepseek-ai/DeepSeek-V4-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "name": "inferenceapis/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-ai/DeepSeek-V4.1-Flash",
+      "name": "inferenceapis/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-chat",
+      "name": "inferenceapis/deepseek-chat",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-flash",
+      "name": "inferenceapis/deepseek-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-reasoner",
+      "name": "inferenceapis/deepseek-reasoner",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-v3",
+      "name": "inferenceapis/deepseek-v3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-v4-flash",
+      "name": "inferenceapis/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-v4-pro",
+      "name": "inferenceapis/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/deepseek-v4.1-flash",
+      "name": "inferenceapis/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/glm-5.3",
+      "name": "inferenceapis/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/glm-5.3-flash",
+      "name": "inferenceapis/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/gpt-oss-120b",
+      "name": "inferenceapis/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/gpt-oss-20b",
+      "name": "inferenceapis/gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/kimi-k2.7-code",
+      "name": "inferenceapis/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/llama-3.1-8b-instant",
+      "name": "inferenceapis/llama-3.1-8b-instant",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/llama-3.3-70b",
+      "name": "inferenceapis/llama-3.3-70b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/llama-3.3-70b-instruct",
+      "name": "inferenceapis/llama-3.3-70b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/llama-3.3-70b-versatile",
+      "name": "inferenceapis/llama-3.3-70b-versatile",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/meta-llama/Llama-3.3-70B-Instruct",
+      "name": "inferenceapis/meta-llama/Llama-3.3-70B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "name": "inferenceapis/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/minimax-m3",
+      "name": "inferenceapis/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/moonshotai/Kimi-K2.7-Code",
+      "name": "inferenceapis/moonshotai/Kimi-K2.7-Code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/openai/gpt-oss-120b",
+      "name": "inferenceapis/openai/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/openai/gpt-oss-20b",
+      "name": "inferenceapis/openai/gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/qwen3-vl",
+      "name": "inferenceapis/qwen3-vl",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/qwen3-vl-235b",
+      "name": "inferenceapis/qwen3-vl-235b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/qwen3.8-flash",
+      "name": "inferenceapis/qwen3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/zai-org/GLM-5.3",
+      "name": "inferenceapis/zai-org/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:inferenceapis/zai-org/GLM-5.3-Flash",
+      "name": "inferenceapis/zai-org/GLM-5.3-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:j2-light",
       "name": "j2-light",
       "tariff": "token",
@@ -20215,6 +20653,25 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:jp.amazon.nova-2-lite-v1:0",
+      "name": "jp.amazon.nova-2-lite-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -24578,6 +25035,26 @@
       ]
     },
     {
+      "id": "litellm:oci/openai.gpt-oss-120b",
+      "name": "oci/openai.gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:oci/openai.gpt-oss-20b",
+      "name": "oci/openai.gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:oci/xai.grok-3",
       "name": "oci/xai.grok-3",
       "tariff": "token",
@@ -24658,6 +25135,34 @@
       ]
     },
     {
+      "id": "litellm:oci/xai.grok-4.20-0309-non-reasoning",
+      "name": "oci/xai.grok-4.20-0309-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:oci/xai.grok-4.20-0309-reasoning",
+      "name": "oci/xai.grok-4.20-0309-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
       "id": "litellm:oci/xai.grok-4.20-multi-agent",
       "name": "oci/xai.grok-4.20-multi-agent",
       "tariff": "token",
@@ -24665,6 +25170,34 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:oci/xai.grok-4.20-non-reasoning",
+      "name": "oci/xai.grok-4.20-non-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:oci/xai.grok-4.20-reasoning",
+      "name": "oci/xai.grok-4.20-reasoning",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
       ]
     },
     {
@@ -25006,7 +25539,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -25016,7 +25553,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -28660,6 +29201,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/meta-models/Muse-Spark-Open-816B-A42B",
+      "name": "together_ai/meta-models/Muse-Spark-Open-816B-A42B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/mistralai/Ministral-3-14B-Instruct-2512",
       "name": "together_ai/mistralai/Ministral-3-14B-Instruct-2512",
       "tariff": "token",
@@ -28768,6 +29320,17 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:together_ai/nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+      "name": "together_ai/nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -31631,6 +32194,17 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/deepseek-ai/deepseek-v4.1-flash-maas",
+      "name": "vertex_ai/deepseek-ai/deepseek-v4.1-flash-maas",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/gemini-2.0-flash",
       "name": "vertex_ai/gemini-2.0-flash",
       "tariff": "token",
@@ -31668,19 +32242,18 @@
       "meters": [
         "cache_read_audio",
         "cache_read",
-        "cache_read|tier=flex",
-        "input",
-        "audio_in_tok",
-        "output",
-        "input|tier=priority",
-        "audio_in_tok|tier=priority",
-        "output|tier=priority",
         "cache_read|tier=priority",
+        "audio_in_tok",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
         "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
+        "output",
         "output|tier=batches",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -31748,25 +32321,24 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_write|>200000",
         "cache_read",
         "cache_read|>200000",
-        "cache_write|>200000",
+        "cache_read|>200000|tier=priority",
+        "cache_read|tier=priority",
         "input",
         "input|>200000",
+        "input|>200000|tier=priority",
         "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "image_out",
         "output",
         "output|>200000",
-        "output|tier=batches",
-        "image_out",
-        "input|tier=priority",
-        "input|>200000|tier=priority",
-        "output|tier=priority",
         "output|>200000|tier=priority",
-        "cache_read|tier=priority",
-        "cache_read|>200000|tier=priority",
-        "cache_read|tier=flex",
-        "input|tier=flex",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -32902,6 +33474,17 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:wandb/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B",
+      "name": "wandb/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -34659,16 +35242,6 @@
       ]
     },
     {
-      "id": "openrouter:apodex/apodex-1.1-mini:free",
-      "name": "Apodex: Apodex 1.1 Mini (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:arcee-ai/trinity-large-thinking",
       "name": "Arcee AI: Trinity Large Thinking",
       "tariff": "token",
@@ -35671,28 +36244,6 @@
       ]
     },
     {
-      "id": "openrouter:inclusionai/ling-3.0-flash-fin",
-      "name": "inclusionAI: Ling 3.0 Flash Fin",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:inclusionai/ling-3.0-flash-sante",
-      "name": "inclusionAI: Ling 3.0 Flash Sante",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:inclusionai/ling-3.0-flash-vl",
       "name": "inclusionAI: Ling 3.0 Flash VL",
       "tariff": "token",
@@ -35929,6 +36480,17 @@
         "input",
         "output",
         "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:meta/muse-spark-open",
+      "name": "Meta: Muse Spark Open",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
         "cache_read"
       ]
     },
@@ -36265,6 +36827,26 @@
       ]
     },
     {
+      "id": "openrouter:moondream/moondream3-preview",
+      "name": "Moondream: Moondream 3 Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:moondream/moondream3.1-9b-a2b",
+      "name": "Moondream: Moondream 3.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:moonshotai/kimi-k2",
       "name": "MoonshotAI: Kimi K2 0711",
       "tariff": "token",
@@ -36495,6 +37077,27 @@
     {
       "id": "openrouter:nvidia/nemotron-3.5-lightning:free",
       "name": "NVIDIA: Nemotron 3.5 Lightning (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3.5-super-vl",
+      "name": "NVIDIA: Nemotron 3.5 Super VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3.5-super-vl:free",
+      "name": "NVIDIA: Nemotron 3.5 Super VL (free)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -38160,7 +38763,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38623,17 +39227,6 @@
       "meters": [
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "openrouter:unbiased/pareto",
-      "name": "Pareto",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
       ]
     },
     {
@@ -42780,6 +43373,16 @@
         "mode": "audio_speech"
       },
       {
+        "offer": "litellm:minimax/MiniMax-H3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:minimax/MiniMax-H3-Max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:mistral/mistral-embed-2312",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -43315,7 +43918,17 @@
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-conservative-upscale-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-creative-upscale-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
+        "offer": "litellm:us.stability.stable-creative-upscale-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },
@@ -43325,7 +43938,17 @@
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-fast-upscale-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-outpaint-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
+        "offer": "litellm:us.stability.stable-outpaint-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },
@@ -43335,7 +43958,17 @@
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-image-control-sketch-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-image-control-structure-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
+        "offer": "litellm:us.stability.stable-image-control-structure-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },
@@ -43345,7 +43978,17 @@
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-image-erase-object-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-image-inpaint-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
+        "offer": "litellm:us.stability.stable-image-inpaint-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },
@@ -43355,7 +43998,17 @@
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-image-remove-background-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-image-search-recolor-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
+        "offer": "litellm:us.stability.stable-image-search-recolor-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },
@@ -43365,12 +44018,27 @@
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-image-search-replace-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-image-style-guide-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },
       {
+        "offer": "litellm:us.stability.stable-image-style-guide-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
         "offer": "litellm:stability.stable-style-transfer-v1:0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_edit"
+      },
+      {
+        "offer": "litellm:us.stability.stable-style-transfer-v1:0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_edit"
       },

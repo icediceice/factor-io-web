@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792131191702",
-  "generated_at": "2026-10-16T06:13:11.702Z",
-  "snapshot_digest": "fd2f762cb4fe506e",
+  "refresh_id": "refresh-1792217644274",
+  "generated_at": "2026-10-17T06:14:04.274Z",
+  "snapshot_digest": "3d8cb98df560b20a",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-fd2f762cb4fe506e.json",
-      "digest": "fd2f762cb4fe506e",
-      "bytes": 3523243
+      "path": "catalog-3d8cb98df560b20a.json",
+      "digest": "3d8cb98df560b20a",
+      "bytes": 3538282
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "6dfdeee06689b804",
+      "digest": "1e475d5e19078c25",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-16T06:13:11.702Z",
-      "last_success_at": "2026-10-16T06:13:11.702Z",
-      "expires_at": "2026-10-19T06:13:11.702Z",
-      "root_digest": "2448095e2d87d9df",
-      "record_count": 446,
+      "observed_at": "2026-10-17T06:14:04.274Z",
+      "last_success_at": "2026-10-17T06:14:04.274Z",
+      "expires_at": "2026-10-20T06:14:04.274Z",
+      "root_digest": "2124ccdfa2e1a488",
+      "record_count": 450,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-16T06:13:11.702Z",
-      "last_success_at": "2026-10-16T06:13:11.702Z",
-      "expires_at": "2026-10-19T06:13:11.702Z",
-      "root_digest": "d2bbf7b4887c28f0",
-      "record_count": 3012,
+      "observed_at": "2026-10-17T06:14:04.274Z",
+      "last_success_at": "2026-10-17T06:14:04.274Z",
+      "expires_at": "2026-10-20T06:14:04.274Z",
+      "root_digest": "70a729273d64abc8",
+      "record_count": 3015,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-15T00:00:00.000Z",
-      "last_success_at": "2026-10-16T06:13:35.229Z",
-      "expires_at": "2026-10-22T23:59:59.999Z",
-      "root_digest": "6dfdeee06689b804",
+      "observed_at": "2026-10-16T00:00:00.000Z",
+      "last_success_at": "2026-10-17T06:14:26.731Z",
+      "expires_at": "2026-10-23T23:59:59.999Z",
+      "root_digest": "1e475d5e19078c25",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -938,8 +938,13 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -952,7 +957,11 @@
         "input",
         "image_in_tok",
         "audio_in_tok",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -963,7 +972,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -974,7 +985,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -984,8 +997,13 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -996,10 +1014,15 @@
       "meters": [
         "cache_read",
         "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -5386,19 +5409,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/claude-fable-5-5",
-      "name": "azure_ai/claude-fable-5-5",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/claude-haiku-4-5",
       "name": "azure_ai/claude-haiku-4-5",
       "tariff": "token",
@@ -6379,6 +6389,17 @@
     {
       "id": "litellm:baseten/openai/gpt-oss-120b",
       "name": "baseten/openai/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:baseten/reflection/Beam-1.0",
+      "name": "baseten/reflection/Beam-1.0",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -8281,9 +8302,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8293,9 +8318,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8305,9 +8334,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8317,9 +8350,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8329,9 +8366,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8341,9 +8382,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8353,9 +8398,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8365,9 +8414,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8377,9 +8430,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8389,9 +8446,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8401,9 +8462,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8413,9 +8478,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8425,9 +8494,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8437,9 +8510,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8449,9 +8526,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8610,10 +8691,13 @@
         "input",
         "output",
         "cache_read",
+        "cache_read|tier=batches",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
+        "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
+        "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
       ]
@@ -12529,9 +12613,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -17841,8 +17929,13 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -18475,9 +18568,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -18487,9 +18584,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -18499,9 +18600,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21385,7 +21490,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -21395,7 +21502,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -21445,7 +21554,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -21575,9 +21686,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21587,9 +21702,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21599,9 +21718,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -21685,9 +21808,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21697,9 +21824,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21709,9 +21840,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21721,9 +21856,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21733,9 +21872,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21775,9 +21918,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21819,9 +21966,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -21831,9 +21982,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -22380,7 +22535,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -22504,9 +22663,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -23072,6 +23235,16 @@
     {
       "id": "litellm:nebius/openbmb/MiniCPM-V-4_5",
       "name": "nebius/openbmb/MiniCPM-V-4_5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:nebius/reflection/beam",
+      "name": "nebius/reflection/beam",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -24615,9 +24788,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -24627,9 +24804,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -24639,9 +24820,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -24651,9 +24836,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -25539,9 +25728,11 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
         "output",
+        "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
       ]
@@ -25553,9 +25744,11 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
         "output",
+        "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
       ]
@@ -25567,9 +25760,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -25579,9 +25776,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -26127,9 +26328,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -26139,7 +26344,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -26159,9 +26368,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -26181,7 +26394,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -29377,6 +29594,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/reflection/Beam-1.0-501B-A23B",
+      "name": "together_ai/reflection/Beam-1.0-501B-A23B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/thinkingmachines/Inkling",
       "name": "together_ai/thinkingmachines/Inkling",
       "tariff": "token",
@@ -29694,10 +29922,15 @@
       "meters": [
         "cache_read",
         "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -29710,7 +29943,11 @@
         "input",
         "image_in_tok",
         "audio_in_tok",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -29721,7 +29958,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -29732,7 +29971,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -29743,10 +29984,15 @@
       "meters": [
         "cache_read",
         "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -30101,9 +30347,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -30123,7 +30373,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -30133,7 +30385,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -30183,7 +30437,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -33836,9 +34092,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -34490,9 +34750,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -34502,9 +34766,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -34514,7 +34782,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -35546,6 +35818,17 @@
       ]
     },
     {
+      "id": "openrouter:elorian/glimpse",
+      "name": "Elorian: Glimpse",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:fireworks/ember-1",
       "name": "Fireworks: Ember-1",
       "tariff": "token",
@@ -36377,8 +36660,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -38837,6 +39119,16 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen3.7-plus:batch",
+      "name": "Qwen: Qwen3.7 Plus (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen3.8-2.4t-a95b",
       "name": "Qwen: Qwen3.8 2.4T A95B",
       "tariff": "token",
@@ -38894,6 +39186,17 @@
     {
       "id": "openrouter:qwen/qwen3.8-omni-flash",
       "name": "Qwen: Qwen3.8 Omni Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:reflection/beam-1.0-501b-a23b",
+      "name": "Reflection: Beam 1.0 501B A23B",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -39442,6 +39745,16 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:xingchen-agi/xing4.0-29b-a4b:free",
+      "name": "XingChen: Xing4.0 29B A4B (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -44913,6 +45226,26 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:volcengine/doubao-seedance-2-5-260628",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedance-2-0-260128",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedance-2-0-fast-260128",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedance-2-0-mini-260615",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:snowflake/snowflake-arctic-embed-l-v2.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -45589,6 +45922,26 @@
       },
       {
         "offer": "litellm:strands_decider/strands-decider-2B-hobson-v19",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:nace/drex-v1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:nace/drex-v1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:nace/drex-v2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:nace/drex-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
       },

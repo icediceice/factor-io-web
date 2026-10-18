@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792217644274",
-  "generated_at": "2026-10-17T06:14:04.274Z",
-  "snapshot_digest": "3d8cb98df560b20a",
+  "refresh_id": "refresh-1792304158459",
+  "generated_at": "2026-10-18T06:15:58.459Z",
+  "snapshot_digest": "419d4d465b28931c",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-3d8cb98df560b20a.json",
-      "digest": "3d8cb98df560b20a",
-      "bytes": 3538282
+      "path": "catalog-419d4d465b28931c.json",
+      "digest": "419d4d465b28931c",
+      "bytes": 3545183
     },
     "fx": {
       "kind": "external",
@@ -21,28 +21,28 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-17T06:14:04.274Z",
-      "last_success_at": "2026-10-17T06:14:04.274Z",
-      "expires_at": "2026-10-20T06:14:04.274Z",
-      "root_digest": "2124ccdfa2e1a488",
-      "record_count": 450,
+      "observed_at": "2026-10-18T06:15:58.459Z",
+      "last_success_at": "2026-10-18T06:15:58.459Z",
+      "expires_at": "2026-10-21T06:15:58.459Z",
+      "root_digest": "aea40880d05507a4",
+      "record_count": 452,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-17T06:14:04.274Z",
-      "last_success_at": "2026-10-17T06:14:04.274Z",
-      "expires_at": "2026-10-20T06:14:04.274Z",
-      "root_digest": "70a729273d64abc8",
-      "record_count": 3015,
+      "observed_at": "2026-10-18T06:15:58.459Z",
+      "last_success_at": "2026-10-18T06:15:58.459Z",
+      "expires_at": "2026-10-21T06:15:58.459Z",
+      "root_digest": "f7a66cdad76af1ab",
+      "record_count": 3022,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-10-16T00:00:00.000Z",
-      "last_success_at": "2026-10-17T06:14:26.731Z",
+      "last_success_at": "2026-10-18T06:16:19.462Z",
       "expires_at": "2026-10-23T23:59:59.999Z",
       "root_digest": "1e475d5e19078c25",
       "record_count": 1,
@@ -11846,6 +11846,28 @@
       ]
     },
     {
+      "id": "litellm:deepinfra/deepseek-ai/DeepSeek-V4.1-Flash",
+      "name": "deepinfra/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:deepinfra/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "name": "deepinfra/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:deepinfra/google/gemini-2.5-flash",
       "name": "deepinfra/google/gemini-2.5-flash",
       "tariff": "token",
@@ -17863,6 +17885,30 @@
       ]
     },
     {
+      "id": "litellm:github_copilot/claude-fable-5",
+      "name": "github_copilot/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-fable-5.1",
+      "name": "github_copilot/claude-fable-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:github_copilot/claude-haiku-4.5",
       "name": "github_copilot/claude-haiku-4.5",
       "tariff": "token",
@@ -17891,6 +17937,88 @@
       ]
     },
     {
+      "id": "litellm:github_copilot/claude-opus-4.8",
+      "name": "github_copilot/claude-opus-4.8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-opus-5",
+      "name": "github_copilot/claude-opus-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-opus-5.5",
+      "name": "github_copilot/claude-opus-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-sonnet-5",
+      "name": "github_copilot/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-sonnet-5.5",
+      "name": "github_copilot/claude-sonnet-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gemini-3.7-flash",
+      "name": "github_copilot/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gemini-3.8-flash",
+      "name": "github_copilot/gemini-3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:github_copilot/gemini-4-argon",
       "name": "github_copilot/gemini-4-argon",
       "tariff": "token",
@@ -17904,6 +18032,31 @@
     {
       "id": "litellm:github_copilot/gpt-5-mini",
       "name": "github_copilot/gpt-5-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gpt-5.4",
+      "name": "github_copilot/gpt-5.4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/kimi-k3",
+      "name": "github_copilot/kimi-k3",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -25783,6 +25936,36 @@
         "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:openinfer/@oi/GLM-5.3-Flash",
+      "name": "openinfer/@oi/GLM-5.3-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openinfer/@oi/Qwen3.5-27B",
+      "name": "openinfer/@oi/Qwen3.5-27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:openinfer/@oi/Qwen3.5-9B",
+      "name": "openinfer/@oi/Qwen3.5-9B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -35797,6 +35980,17 @@
       ]
     },
     {
+      "id": "openrouter:deepseek/deepseek-v4.1-flash-1017",
+      "name": "DeepSeek: DeepSeek V4.1 Flash 1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:deepseek/deepseek-v4.1-flash:batch",
       "name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
       "tariff": "token",
@@ -39533,6 +39727,17 @@
       ]
     },
     {
+      "id": "openrouter:unbiased/pareto-26.10",
+      "name": "Pareto 26.10",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:unbiased/pareto-26.9",
       "name": "Pareto 26.9",
       "tariff": "token",
@@ -39960,7 +40165,7 @@
       {
         "offer": "openrouter:~unbiased/pareto-latest",
         "rule": "alias_skipped",
-        "target": "unbiased/pareto-26.9"
+        "target": "unbiased/pareto-26.10"
       },
       {
         "offer": "openrouter:~deepseek/deepseek-pro-latest",
@@ -39970,7 +40175,7 @@
       {
         "offer": "openrouter:~deepseek/deepseek-flash-latest",
         "rule": "alias_skipped",
-        "target": "deepseek/deepseek-v4.1-flash"
+        "target": "deepseek/deepseek-v4.1-flash-1017"
       },
       {
         "offer": "openrouter:~openai/gpt-astra-latest",
@@ -43907,6 +44112,26 @@
       },
       {
         "offer": "litellm:perplexity/pplx-decider-v1.1-27b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:perplexity/pplx-decider-v1.2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:perplexity/pplx-decider-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:perplexity/pplx-decider-flash-v1.2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:perplexity/pplx-decider-flash-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
       },

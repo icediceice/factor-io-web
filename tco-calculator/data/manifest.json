@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792304158459",
-  "generated_at": "2026-10-18T06:15:58.459Z",
-  "snapshot_digest": "419d4d465b28931c",
+  "refresh_id": "refresh-1792390971555",
+  "generated_at": "2026-10-19T06:22:51.555Z",
+  "snapshot_digest": "6ead60c9b63b88cf",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-419d4d465b28931c.json",
-      "digest": "419d4d465b28931c",
-      "bytes": 3545183
+      "path": "catalog-6ead60c9b63b88cf.json",
+      "digest": "6ead60c9b63b88cf",
+      "bytes": 3551885
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-18T06:15:58.459Z",
-      "last_success_at": "2026-10-18T06:15:58.459Z",
-      "expires_at": "2026-10-21T06:15:58.459Z",
+      "observed_at": "2026-10-19T06:22:51.555Z",
+      "last_success_at": "2026-10-19T06:22:51.555Z",
+      "expires_at": "2026-10-22T06:22:51.555Z",
       "root_digest": "aea40880d05507a4",
       "record_count": 452,
       "missing_streak": 0
@@ -31,18 +31,18 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-18T06:15:58.459Z",
-      "last_success_at": "2026-10-18T06:15:58.459Z",
-      "expires_at": "2026-10-21T06:15:58.459Z",
-      "root_digest": "f7a66cdad76af1ab",
-      "record_count": 3022,
+      "observed_at": "2026-10-19T06:22:51.555Z",
+      "last_success_at": "2026-10-19T06:22:51.555Z",
+      "expires_at": "2026-10-22T06:22:51.555Z",
+      "root_digest": "a0c1be648a6a7475",
+      "record_count": 3030,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-10-16T00:00:00.000Z",
-      "last_success_at": "2026-10-18T06:16:19.462Z",
+      "last_success_at": "2026-10-19T06:23:13.399Z",
       "expires_at": "2026-10-23T23:59:59.999Z",
       "root_digest": "1e475d5e19078c25",
       "record_count": 1,
@@ -6261,6 +6261,28 @@
     {
       "id": "litellm:baseten/deepseek-ai/DeepSeek-V4.1-Flash",
       "name": "baseten/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:baseten/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "name": "baseten/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:baseten/deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast",
+      "name": "baseten/deepseek-ai/DeepSeek-V4.1-Flash-1017-Fast",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -13760,6 +13782,20 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/deepseek-v4p1-flash-1017",
+      "name": "fireworks_ai/accounts/fireworks/models/deepseek-v4p1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/devstral-small-2505",
       "name": "fireworks_ai/accounts/fireworks/models/devstral-small-2505",
       "tariff": "token",
@@ -17042,15 +17078,15 @@
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
         "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
         "output|tier=batches",
         "output|tier=flex",
-        "input|tier=priority",
-        "output|tier=priority",
-        "cache_read|tier=priority"
+        "output|tier=priority"
       ]
     },
     {
@@ -17949,6 +17985,18 @@
       ]
     },
     {
+      "id": "litellm:github_copilot/claude-opus-4.8-fast",
+      "name": "github_copilot/claude-opus-4.8-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:github_copilot/claude-opus-5",
       "name": "github_copilot/claude-opus-5",
       "tariff": "token",
@@ -17963,6 +18011,18 @@
     {
       "id": "litellm:github_copilot/claude-opus-5.5",
       "name": "github_copilot/claude-opus-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/claude-sonnet-4.6",
+      "name": "github_copilot/claude-sonnet-4.6",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -18052,6 +18112,48 @@
         "input|>272000",
         "output",
         "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/grok-4.5",
+      "name": "github_copilot/grok-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/grok-4.6",
+      "name": "github_copilot/grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/grok-4.7",
+      "name": "github_copilot/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
       ]
     },
     {
@@ -29450,6 +29552,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "name": "together_ai/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/deepseek-ai/deepseek-coder-33b-instruct",
       "name": "together_ai/deepseek-ai/deepseek-coder-33b-instruct",
       "tariff": "token",
@@ -32895,15 +33008,15 @@
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
         "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
         "output|tier=batches",
         "output|tier=flex",
-        "input|tier=priority",
-        "output|tier=priority",
-        "cache_read|tier=priority"
+        "output|tier=priority"
       ]
     },
     {
@@ -46374,6 +46487,11 @@
         "offer": "litellm:xai/grok-voice-2.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "realtime"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-5.4-nano",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       }
     ],
     "source_errors": {

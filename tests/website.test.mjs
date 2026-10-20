@@ -403,7 +403,7 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   assert.doesNotMatch(iosBtn[0], /\bhref=/);
   assert.doesNotMatch(html, /apps\.apple\.com/i);
 
-  const refs = [...html.matchAll(/(?:src|poster)="([^"]+)"|url\('([^']+)'\)/g)].map(m => m[1] || m[2]);
+  const refs = [...html.matchAll(/(?:src|poster)="([^"]+)"|url\(['"]?(assets\/[^'")]+)['"]?\)/g)].map(m => m[1] || m[2]);
   assert.ok(refs.length >= 8);
   for (const ref of refs) {
     assert.match(ref, /^assets\//, `expected document-relative asset path, got ${ref}`);

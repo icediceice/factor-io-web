@@ -445,6 +445,8 @@ test('real static server handles locale directories, redirects, HEAD, missing pa
   const film = await fetch(`${base}${filmFile('story', 'en')}`, { headers: { range: 'bytes=0-99' } });
   assert.equal(film.status, 206); assert.equal(film.headers.get('content-type'), 'video/mp4'); assert.equal(film.headers.get('accept-ranges'), 'bytes');
   assert.match(film.headers.get('content-range'), /^bytes 0-99\/\d+$/); assert.equal((await film.arrayBuffer()).byteLength, 100);
+  const catPromo = await fetch(`${base}/assets/work/cat-countdown-promo.mp4`, { headers: { range: 'bytes=0-99' } });
+  assert.equal(catPromo.status, 206); assert.equal(catPromo.headers.get('content-type'), 'video/mp4'); assert.equal(catPromo.headers.get('accept-ranges'), 'bytes');
 });
 
 // bindFilm and chapterTag read browser globals. Each case installs its own and puts back

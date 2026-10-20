@@ -102,6 +102,7 @@
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-sm); }
+  code { font-family: var(--mono); overflow-wrap: anywhere; }
 
   .skip {
     position: fixed;
@@ -172,7 +173,7 @@
   }
   .hero-grid {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
     gap: clamp(28px, 5vw, 64px);
     align-items: center;
   }
@@ -202,7 +203,7 @@
   }
   .store-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 14px;
     max-width: 540px;
   }
@@ -214,6 +215,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
   }
   .btn-store {
     display: inline-flex;
@@ -252,6 +254,7 @@
   .hero-visual {
     display: flex;
     justify-content: center;
+    min-width: 0;
   }
   .phone-frame {
     background-color: var(--device-bezel);
@@ -290,7 +293,7 @@
 
   .screens-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 20px;
   }
   .screen-item {
@@ -301,6 +304,7 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+    min-width: 0;
   }
   .screen-item .phone-frame {
     max-width: 100%;
@@ -322,7 +326,7 @@
 
   .bento-grid {
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: 24px;
     align-items: start;
   }
@@ -335,6 +339,7 @@
     flex-direction: column;
     align-items: center;
     gap: 14px;
+    min-width: 0;
   }
   .promo-panel .phone-frame {
     max-width: 270px;
@@ -346,14 +351,16 @@
   }
   .bento-stack {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 20px;
+    min-width: 0;
   }
   .bento-card {
     background-color: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 24px;
+    min-width: 0;
   }
   .bento-card-warm {
     background-color: var(--surface-2);
@@ -389,7 +396,7 @@
 
   .trust-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
   }
   .trust-item {
@@ -397,6 +404,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 24px;
+    min-width: 0;
   }
   .trust-item h3 {
     font-size: 20px;
@@ -411,7 +419,7 @@
 
   .release-ledger {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
   .ledger-row {
@@ -422,6 +430,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
   }
   .ledger-row h3 {
     font-size: 20px;
@@ -458,17 +467,17 @@
   }
 
   @media (max-width: 960px) {
-    .hero-grid { grid-template-columns: 1fr; }
-    .screens-grid { grid-template-columns: repeat(2, 1fr); }
-    .bento-grid { grid-template-columns: 1fr; }
-    .trust-grid { grid-template-columns: 1fr; }
-    .release-ledger { grid-template-columns: 1fr; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr); }
+    .screens-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bento-grid { grid-template-columns: minmax(0, 1fr); }
+    .trust-grid { grid-template-columns: minmax(0, 1fr); }
+    .release-ledger { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 600px) {
     h1 { font-size: 34px; }
     .header-inner { height: auto; padding: 14px 0; flex-wrap: wrap; }
-    .screens-grid { grid-template-columns: 1fr; }
-    .store-actions { grid-template-columns: 1fr; }
+    .screens-grid { grid-template-columns: minmax(0, 1fr); }
+    .store-actions { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
 </head>

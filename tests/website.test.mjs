@@ -387,7 +387,7 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   const founder = graph.find(node => node['@type'] === 'Person');
   const app = graph.find(node => node['@type'] === 'SoftwareApplication');
   assert.equal(org.url, `${config.origin}/`);
-  assert.equal(founder.url, `${config.origin}/en/founder/`);
+  assert.equal(founder.name, config.founder);
   assert.equal(app.name, 'Cat Countdown');
   assert.equal(app.url, 'https://catcountdown.factor-io.com/');
   assert.equal(app.downloadUrl, 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown');

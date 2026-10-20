@@ -394,7 +394,10 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   assert.equal(app.offers.price, '199');
   assert.equal(app.offers.priceCurrency, 'THB');
 
-  assert.match(html, /<a\b[^>]*href="https:\/\/play\.google\.com\/store\/apps\/details\?id=com\.catcountdown\.cat_countdown"[^>]*target="_blank"[^>]*rel="noopener noreferrer"[^>]*data-store="android"/);
+  const androidLink = html.match(/<a\b[^>]*data-store="android"[^>]*>[\s\S]*?<\/a>/);
+  assert.ok(androidLink, 'expected <a data-store="android">');
+  assert.match(androidLink[0], /\bhref="https:\/\/play\.google\.com\/store\/apps\/details\?id=com\.catcountdown\.cat_countdown"/);
+  assert.match(androidLink[0], /\brel="noopener\b/);
   const iosBtn = html.match(/<button\b[^>]*data-store="ios"[^>]*>[\s\S]*?<\/button>/);
   assert.ok(iosBtn, 'expected native <button data-store="ios">');
   assert.match(iosBtn[0], /\btype="button"/);

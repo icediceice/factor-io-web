@@ -368,8 +368,52 @@ test('studio work stays secondary on home and every tile resolves to a full entr
 });
 
 test('the redesign leaves no deck, HUD or terminal markup behind, and content carries no em or en dash', async () => {
-  for (const [path, html] of output) assert.doesNotMatch(html, /class="[^"]*\b(?:deck|hud|cyber|scene|terminal)-|\bkicker\b/, path);
+  for (const [path, html] of [...output, ['cat-countdown.html', await read('cat-countdown.html')], ['catcountdown/index.html', await read('catcountdown/index.html')]]) {
+    assert.doesNotMatch(html, /class="[^"]*\b(?:deck|hud|cyber|scene|terminal)-|\bkicker\b/, path);
+  }
   for (const locale of ['en', 'th']) assert.doesNotMatch(await read(`content/${locale}/site.json`), /[–—]/, locale);
+  assert.doesNotMatch(await read('cat-countdown.html'), /[–—]/);
+  assert.doesNotMatch(await read('catcountdown/index.html'), /[–—]/);
+});
+
+test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com with live Android link and iPhone stub', async () => {
+  const html = await read('cat-countdown.html');
+  const stub = await read('catcountdown/index.html');
+  assert.match(html, /<link rel="canonical" href="https:\/\/catcountdown\.factor-io\.com\/">/);
+  assert.match(html, /<meta property="og:url" content="https:\/\/catcountdown\.factor-io\.com\/">/);
+
+  const graph = schema(html);
+  const org = graph.find(node => node['@type'] === 'Organization');
+  const founder = graph.find(node => node['@type'] === 'Person');
+  const app = graph.find(node => node['@type'] === 'SoftwareApplication');
+  assert.equal(org.url, config.domain);
+  assert.equal(founder.url, config.founderUrl);
+  assert.equal(app.name, 'Cat Countdown');
+  assert.equal(app.url, 'https://catcountdown.factor-io.com/');
+  assert.equal(app.downloadUrl, 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown');
+  assert.equal(app.offers.price, '199');
+  assert.equal(app.offers.priceCurrency, 'THB');
+
+  assert.match(html, /<a\b[^>]*href="https:\/\/play\.google\.com\/store\/apps\/details\?id=com\.catcountdown\.cat_countdown"[^>]*target="_blank"[^>]*rel="noopener noreferrer"[^>]*data-store="android"/);
+  const iosBtn = html.match(/<button\b[^>]*data-store="ios"[^>]*>[\s\S]*?<\/button>/);
+  assert.ok(iosBtn, 'expected native <button data-store="ios">');
+  assert.match(iosBtn[0], /\btype="button"/);
+  assert.match(iosBtn[0], /\bdata-stub="true"/);
+  assert.match(iosBtn[0], /\bdisabled\b/);
+  assert.doesNotMatch(iosBtn[0], /\bhref=/);
+  assert.doesNotMatch(html, /apps\.apple\.com/i);
+
+  const refs = [...html.matchAll(/(?:src|poster)="([^"]+)"|url\('([^']+)'\)/g)].map(m => m[1] || m[2]);
+  assert.ok(refs.length >= 8);
+  for (const ref of refs) {
+    assert.match(ref, /^assets\//, `expected document-relative asset path, got ${ref}`);
+    const info = await stat(resolve(ROOT, ref));
+    assert.ok(info.size > 0, ref);
+  }
+
+  assert.match(stub, /<meta name="robots" content="noindex, follow">/);
+  assert.match(stub, /<meta http-equiv="refresh" content="0; url=\.\.\/cat-countdown\.html">/);
+  assert.match(stub, /<link rel="canonical" href="https:\/\/catcountdown\.factor-io\.com\/">/);
 });
 
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {

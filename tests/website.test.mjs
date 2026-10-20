@@ -18,7 +18,7 @@ const decode = s => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#
 const schema = html => JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
 
 test('direct email links opt out of edge obfuscation so the no-JS fallback survives publication', async () => {
-  for (const html of [...output.values(), await read('light-tools.html'), await read('privacy.html'), await read('terms.html')]) {
+  for (const html of [...output.values(), await read('light-tools.html'), await read('privacy.html'), await read('terms.html'), await read('cat-countdown.html')]) {
     for (const match of html.matchAll(/<a\b[^>]*href="mailto:[^"]*"[^>]*>[\s\S]*?<\/a>/g)) {
       assert.equal(html.slice(match.index - 16, match.index), '<!--email_off-->');
       assert.equal(html.slice(match.index + match[0].length, match.index + match[0].length + 17), '<!--/email_off-->');
@@ -28,8 +28,8 @@ test('direct email links opt out of edge obfuscation so the no-JS fallback survi
 
 // Cloudflare also rewrites a bare address in page text into a script-decoded "[email protected]"
 // link, which is what the live check caught on both profile pages.
-test('no generated page leaves a bare address in its text for the edge to rewrite', () => {
-  for (const [path, html] of output) {
+test('no generated page leaves a bare address in its text for the edge to rewrite', async () => {
+  for (const [path, html] of [...output, ['cat-countdown.html', await read('cat-countdown.html')], ['catcountdown/index.html', await read('catcountdown/index.html')]]) {
     const exposed = html.replace(/<script\b[\s\S]*?<\/script>/g, '').replace(/<!--email_off-->[\s\S]*?<!--\/email_off-->/g, '');
     assert.doesNotMatch(exposed, /[\w.+-]+@[\w-]+\.[\w.-]+/, path);
   }

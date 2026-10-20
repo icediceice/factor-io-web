@@ -522,10 +522,23 @@ export const MIGRATIONS = [
     // Any operator-edited value stays intact and can use Reset to starter.
     sql: `
       UPDATE settings
-      SET value = '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}',
+      SET value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V2).replaceAll("'", "''")}',
           updated_by = 'seed', updated_at = datetime('now')
       WHERE key = 'sow.templates'
         AND value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V1).replaceAll("'", "''")}';
+    `,
+  },
+  {
+    version: 10,
+    name: 'enterprise-ai-sow-starter',
+    // Upgrades an untouched schema-9 starter seed to include the Enterprise AI
+    // engagement template while leaving any operator-customized value intact.
+    sql: `
+      UPDATE settings
+      SET value = '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}',
+          updated_by = 'seed', updated_at = datetime('now')
+      WHERE key = 'sow.templates'
+        AND value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V2).replaceAll("'", "''")}';
     `,
   },
 ];

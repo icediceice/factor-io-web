@@ -428,8 +428,10 @@ test('real static server handles locale directories, redirects, HEAD, missing pa
     const response = await fetch(base + routePath(locale, page)); assert.equal(response.status, 200); assert.equal(await response.text(), output.get(outputPath(locale, page)));
   }
   const redirect = await fetch(`${base}/th/services?test=1`, { redirect: 'manual' }); assert.equal(redirect.status, 301); assert.equal(redirect.headers.get('location'), '/th/services/?test=1');
-  // Retired routes are hand-written stubs, not generated output: they must still resolve rather than 404.
-  for (const path of ['/en/platform/', '/en/governance/', '/en/how-we-work/', '/th/platform/', '/th/governance/', '/th/how-we-work/']) {
+  const catLanding = await fetch(`${base}/cat-countdown.html`); assert.equal(catLanding.status, 200); assert.equal(await catLanding.text(), await read('cat-countdown.html'));
+  const catDirRedirect = await fetch(`${base}/catcountdown`, { redirect: 'manual' }); assert.equal(catDirRedirect.status, 301); assert.equal(catDirRedirect.headers.get('location'), '/catcountdown/');
+  // Retired routes and /catcountdown/ are hand-written stubs, not generated output: they must still resolve rather than 404.
+  for (const path of ['/en/platform/', '/en/governance/', '/en/how-we-work/', '/th/platform/', '/th/governance/', '/th/how-we-work/', '/catcountdown/']) {
     const stub = await fetch(base + path); assert.equal(stub.status, 200, path);
     const body = await stub.text();
     assert.match(body, /<meta http-equiv="refresh"/, path);

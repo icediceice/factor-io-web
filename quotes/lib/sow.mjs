@@ -119,7 +119,7 @@ const kubeV2 = (code, titleEn, titleTh, platformSteps, assumptions) => ({
       pair('Hardware procurement and changes to systems outside the approved platform design are excluded.')],
   },
 });
-export const DEFAULT_SOW_TEMPLATES = [
+export const LEGACY_SOW_TEMPLATES_V2 = [
   {
     code: 'os-install', titleEn: 'OS installation', titleTh: 'ติดตั้งระบบปฏิบัติการ',
     sow: {

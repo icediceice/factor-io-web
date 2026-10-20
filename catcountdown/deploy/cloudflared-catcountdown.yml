@@ -1,0 +1,9 @@
+# Additive ingress fragment for /etc/cloudflared/config.yml on light-worker.
+# DO NOT overwrite /etc/cloudflared/config.yml with this file.
+# Insert the hostname block below into the existing ingress: list BEFORE the
+# terminal "- service: http_status:404" catch-all rule so all existing tunnel
+# hostnames, credentials, and originRequest settings remain intact.
+
+ingress_fragment:
+  - hostname: catcountdown.factor-io.com
+    service: http://localhost:80

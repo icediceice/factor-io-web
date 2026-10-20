@@ -174,6 +174,81 @@ export const LEGACY_SOW_TEMPLATES_V2 = [
     'Validate node readiness, DNS, service routing and deployment of a representative workload.'],
     ['Customer supplies supported hosts and selects ownership for lifecycle, networking, ingress, storage and load balancing components.']),
 ];
+const optionalAiV2 = [
+  module('assessment', 'Architecture and readiness assessment', 'ประเมินความพร้อมและสถาปัตยกรรม', [
+    'Audit current hardware, GPU capacity, data readiness, security constraints and target workflows before procurement or build.',
+    'Deliver a current-state assessment, target architecture, hardware sizing and risk register.']),
+  module('model_serving', 'Private model serving', 'ระบบรันโมเดลภายในองค์กร', [
+    'Deploy and configure the agreed local inference runtime on customer GPU infrastructure.',
+    'Validate model loading, concurrency, latency, access controls and request logging inside the customer network.']),
+  module('model_adaptation', 'Model adaptation and evaluation', 'ปรับแต่งและประเมินผลโมเดล', [
+    'Prepare customer-approved datasets, prompts or adapters and run domain adaptation for the agreed Thai and English tasks.',
+    'Benchmark accuracy, refusal behavior and regressions against an agreed evaluation set before release.']),
+  module('knowledge', 'Knowledge and document authority', 'ระบบจัดการความรู้และสิทธิ์เอกสาร', [
+    'Define the document authority matrix, role-based access rules, ingestion pipeline and vector index over approved sources.',
+    'Configure citation enforcement, document superseding and PDPA deletion or retention procedures.']),
+  module('governance', 'AI governance and approval controls', 'การควบคุมและอนุมัติการทำงานของ AI', [
+    'Define execution policies separating automated actions from actions requiring human approval, refusal or escalation.',
+    'Implement approval gates, confidence or value thresholds, stop controls and tamper-evident audit logging.']),
+  module('channels', 'Channel and intake integration', 'เชื่อมต่อช่องทางรับเรื่องและ LINE OA', [
+    'Connect the agreed intake channel with intent routing, attachment handling and operator handoff.',
+    'Validate bilingual Thai-English message handling and fallback to human operators.']),
+  module('document_ai', 'Thai fiscal and document verification', 'ตรวจสอบเอกสารภาษีและหลักฐานการโอน', [
+    'Configure extraction and verification rules for agreed Thai business documents, tax invoices and payment slips.',
+    'Validate field extraction, duplicate detection and exception routing to the operator review queue.']),
+  module('erp_integration', 'ERP and business system integration', 'เชื่อมต่อระบบ ERP และระบบงานภายใน', [
+    'Integrate approved connectors or APIs for the customer accounting, ERP or line-of-business systems.',
+    'Validate end-to-end transaction posting, reconciliation, error handling and rollback procedures.']),
+  module('gpu_platform', 'GPU scheduling and platform integration', 'จัดการทรัพยากร GPU และแพลตฟอร์ม', [
+    'Configure GPU drivers, device plugins, partitioning or quota isolation and workload placement on the target platform.',
+    'Validate GPU utilization, scheduling policies and recovery behavior under representative load.']),
+  module('observability', 'Monitoring, evaluation and cost telemetry', 'การติดตามผลและวัดประสิทธิภาพ', [
+    'Connect inference health, latency, throughput, escalation rates and audit metrics to the agreed monitoring platform.',
+    'Demonstrate alerting and review workflows for model drift, failed actions and operator overrides.']),
+  module('airgap', 'Disconnected deployment', 'ติดตั้งแบบไม่เชื่อมต่ออินเทอร์เน็ต', [
+    'Stage approved model weights, container images, packages and trust material in internal repositories.',
+    'Validate inference, updates and workflow execution without public internet or external API access.']),
+  module('retainer', 'Ongoing optimization and retained advisory', 'ดูแลปรับปรุงต่อเนื่องและที่ปรึกษาประจำ', [
+    'Review production exceptions, operator corrections, evaluation drift and policy changes on an agreed cadence.',
+    'Deliver tested prompt, model, retrieval or policy revisions and architectural guidance across multi-phase rollouts.']),
+  module('support', 'Post implementation support', 'บริการหลังติดตั้ง', [
+    'Agree the support channel, coverage window, response target and handoff owner before inclusion.',
+    'Record incident intake, model rollback and escalation steps in the operations runbook.']),
+];
+export const DEFAULT_SOW_TEMPLATES = [
+  ...LEGACY_SOW_TEMPLATES_V2,
+  {
+    code: 'enterprise-ai', titleEn: 'Enterprise AI', titleTh: 'ระบบ AI สำหรับองค์กร',
+    sow: {
+      version: 1,
+      summary: pair('Design, implement and hand over an enterprise AI system and governed workflows for the customer-approved environment and data.', 'ออกแบบ ติดตั้ง และส่งมอบระบบ AI สำหรับองค์กร'),
+      modules: [
+        module('discovery', 'Preparation and design', 'เตรียมงานและออกแบบ', [
+          'Hold a kickoff to confirm business objectives, target workflows, data sensitivity, approval boundaries and acceptance criteria.',
+          'Review compute, GPU, network, identity, data sources and regulatory prerequisites with customer owners; record gaps and decisions.',
+          'Produce an AI architecture, model and workflow design, evaluation plan and rollout sequence for customer approval.'], true),
+        module('implementation', 'Enterprise AI implementation', 'ติดตั้งระบบ AI สำหรับองค์กร', [
+          'Prepare the approved runtime environment, model artifacts, prompts, policies and integration endpoints.',
+          'Configure the agreed AI workflows, access controls, human-review checkpoints and operational logging.',
+          'Validate end-to-end execution against representative customer inputs and record configuration baselines.'], true),
+        module('validation', 'Validation and acceptance', 'ทดสอบและรับมอบ', [
+          'Run accuracy, safety, permission, escalation and failure-recovery checks against the agreed acceptance criteria.',
+          'Walk through representative normal and exception cases with customer stakeholders; record results and remediation owners.',
+          'Capture acceptance sign-off or agreed exceptions before production cutover.'], true),
+        module('handover', 'Operational handover', 'ส่งมอบการดำเนินงาน', [
+          'Deliver as-built architecture, model and prompt inventory, policy definitions and standard operating procedures.',
+          'Conduct an operator and engineering walkthrough covering routine monitoring, exception handling, rollback and escalation paths.'], true),
+        ...optionalAiV2,
+      ],
+      assumptions: [
+        pair('Customer supplies approved infrastructure or GPU capacity, network access, credentials, sample data and domain reviewers before implementation.'),
+        pair('Customer remains the data controller and approves document authority, retention rules and human-approval thresholds before production use.')],
+      exclusions: [
+        pair('Hardware procurement, third-party API consumption charges and unapproved data labeling or migration require separate scope and pricing.'),
+        pair('Changes to external ERP schemas, upstream source systems or ongoing operations outside the selected modules are excluded.')],
+    },
+  },
+];
 
 const plain = (v, path, max = 2000) => {
   if (typeof v !== 'string' || v.length > max || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v)) throw new Error(`${path} must be plain text up to ${max} characters`);

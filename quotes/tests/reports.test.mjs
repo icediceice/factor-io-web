@@ -176,7 +176,7 @@ describe('WHT register and PND summary', () => {
   test('certificates are totalled and grouped by form', () => {
     const db = db0();
     const qid = accepted(db, 'QT-W1');
-    const { id } = createInvoiceFromQuotation(db, qid, {});
+    const { id, number } = createInvoiceFromQuotation(db, qid, {});
     issueInvoice(db, id, { issueDate: '2026-09-15' });
     recordPayment(db, id, { paidOn: '2026-09-20', amountSatang: 10400000 });
     recordWhtCertificate(db, {
@@ -187,7 +187,8 @@ describe('WHT register and PND summary', () => {
     assert.equal(reg.count, 1);
     assert.equal(reg.totalWhtSatang, 300000);
     assert.equal(reg.byForm.PND53, 300000);
-    assert.equal(reg.certificates[0].invoiceNumber, 'INV-202609-0001');
+    assert.equal(reg.certificates[0].invoiceNumber, number);
+    assert.match(reg.certificates[0].invoiceNumber, /^INV-\d{6}-0001$/);
   });
 
   test('the date window excludes certificates outside it', () => {

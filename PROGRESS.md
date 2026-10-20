@@ -93,6 +93,13 @@ Upcoming work in priority order:
 
 ## Work Log
 
+#### Enterprise AI engagement starter template and schema 10 migration in Quotes (2026-10-20, plan local:486a272789a4eabaf816ea27bf07367c)
+
+- **What:** Added the bilingual `enterprise-ai` (`Enterprise AI` · `ระบบ AI สำหรับองค์กร`) SOW engagement starter to `quotes/lib/sow.mjs` (`DEFAULT_SOW_TEMPLATES`) and schema migration 10 (`enterprise-ai-sow-starter`) in `quotes/lib/db.mjs`.
+- **Scope structure for short or long engagements:** Mirrors the existing starter contract with 4 included core delivery stages (`discovery`, `implementation`, `validation`, `handover`) and 13 excluded optional modules (`assessment`, `model_serving`, `model_adaptation`, `knowledge`, `governance`, `channels`, `document_ai`, `erp_integration`, `gpu_platform`, `observability`, `airgap`, `retainer`, `support`) so a single quotation can scope anything from a short readiness assessment or pilot to a multi-phase private AI build and ongoing retained advisory.
+- **Migration safety:** Preserved the 4-template schema-9 seed as `LEGACY_SOW_TEMPLATES_V2` (24,377 bytes) so migration 9 stays deterministic and migration 10 upgrades only untouched schema-9 seeds to the 5-template `DEFAULT_SOW_TEMPLATES` without overwriting operator-customized `sow.templates`.
+- **Files:** `quotes/lib/sow.mjs`, `quotes/lib/db.mjs`, `quotes/tests/sow.test.mjs`, `quotes/README.md`, `PROGRESS.md`.
+- **Known issues:** If an operator previously customized `sow.templates` in Settings before schema 10, migration 10 intentionally leaves their custom JSON untouched; they can add or reset starter templates in Settings (`SOW templates`).
 #### Contact became a LINE conversation and the email draft form was deleted (2026-09-18, plan local:59764f7cccd33ac23bddce2df8e6cd83)
 
 - **What:** The operator's judgement was that nobody was going to fill in the form. Contact now leads with LINE — a content-hashed QR figure plus a tappable `https://line.me/ti/p/~icediceice` link and the LINE id as text — with the direct email address kept as a secondary channel. The form, the draft panel and the whole mailto-composition subsystem are gone: `prepareMailDraft`, `copyDraft`, `MAILTO_LIMIT` and `bindContact` deleted from `assets/site.js`, and the contact page now needs no JavaScript at all.

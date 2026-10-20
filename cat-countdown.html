@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cat Countdown: Cosy Life Organiser with Nine Cats | Factor IO</title>
+<meta name="description" content="Count down to the days you are waiting for with nine illustrated cats across thirteen categories. Tasks, sticker notes, alarms, widgets, and local-first privacy for Android and iPhone.">
+<link rel="canonical" href="https://catcountdown.factor-io.com/">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cat Countdown">
+<meta property="og:title" content="Cat Countdown: Cosy Life Organiser with Nine Cats">
+<meta property="og:description" content="Nine cats, thirteen categories, and over 1,000 storybook art assets. Countdowns, tasks, sticker notes, alarms, and home screen widgets.">
+<meta property="og:url" content="https://catcountdown.factor-io.com/">
+<meta property="og:image" content="https://studio.factor-io.com/assets/work/cat-countdown-promo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cat Countdown: Cosy Life Organiser with Nine Cats">
+<meta name="twitter:description" content="Countdowns, tasks, sticker notes, and alarms with nine cats. Pay once, yours on device.">
+<meta name="theme-color" content="#FAF6F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141216" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="preload" href="assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://studio.factor-io.com/#organization","name":"Factor IO","legalName":"Factor I O Co., Ltd.","url":"https://studio.factor-io.com/","email":"admin@factor-io.com","telephone":"+66928887155","taxID":"0105562205512","address":{"@type":"PostalAddress","streetAddress":"88/57 Sethasiri Punyainthra","addressLocality":"Bang Chan, Klong Sam Wa","addressRegion":"Bangkok","postalCode":"10510","addressCountry":"TH"},"description":"Infrastructure engineering and governed enterprise AI consulting in Thailand. Architecture, migration, private AI and technical enablement for systems integrators.","founder":{"@id":"https://studio.factor-io.com/#founder"}},{"@type":"Person","@id":"https://studio.factor-io.com/#founder","name":"Thanat Manasakool","jobTitle":"Founder & Principal Engineer","worksFor":{"@id":"https://studio.factor-io.com/#organization"},"description":"Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners."},{"@type":"SoftwareApplication","@id":"https://catcountdown.factor-io.com/#app","name":"Cat Countdown","applicationCategory":"ProductivityApplication","operatingSystem":"Android, iOS","url":"https://catcountdown.factor-io.com/","downloadUrl":"https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown","screenshot":"https://studio.factor-io.com/assets/work/cat-countdown-home.webp","publisher":{"@id":"https://studio.factor-io.com/#organization"},"description":"Pay once, it is yours. A cosy life organiser with 9 cats, 13 categories, and over 1,000 art assets: countdowns, tasks, sticker notes, alarms, and widgets.","offers":{"@type":"Offer","price":"199","priceCurrency":"THB","availability":"https://schema.org/InStock","url":"https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown"}}]}</script>
+<style>
+  @font-face { font-family: 'Geist'; src: url(assets/fonts/geist-latin.woff2) format('woff2'); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: 'Geist Mono'; src: url(assets/fonts/geist-mono-latin.woff2) format('woff2'); font-weight: 400 600; font-display: swap; }
+
+  :root {
+    --bg: #FAF6F0;
+    --surface: #FFFFFF;
+    --surface-2: #F0E8DC;
+    --surface-3: #E6DACA;
+    --ink: #1C1714;
+    --muted: #574C45;
+    --line: #DCCFC0;
+    --line-strong: #BFA992;
+    --accent: #B43E1C;
+    --accent-bg: #B43E1C;
+    --accent-ink: #FFFFFF;
+    --badge-bg: #EFE3D4;
+    --badge-ink: #4A3A2E;
+    --device-bezel: #231E1B;
+    --sans: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --wrap: 1180px;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141216;
+      --surface: #1E1B22;
+      --surface-2: #28242E;
+      --surface-3: #332E3B;
+      --ink: #F5EFE8;
+      --muted: #BDB3A8;
+      --line: #352F3D;
+      --line-strong: #52495E;
+      --accent: #FF8E6E;
+      --accent-bg: #FF7E5A;
+      --accent-ink: #141216;
+      --badge-bg: #2A2531;
+      --badge-ink: #E8DFD5;
+      --device-bezel: #2C2733;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #141216;
+    --surface: #1E1B22;
+    --surface-2: #28242E;
+    --surface-3: #332E3B;
+    --ink: #F5EFE8;
+    --muted: #BDB3A8;
+    --line: #352F3D;
+    --line-strong: #52495E;
+    --accent: #FF8E6E;
+    --accent-bg: #FF7E5A;
+    --accent-ink: #141216;
+    --badge-bg: #2A2531;
+    --badge-ink: #E8DFD5;
+    --device-bezel: #2C2733;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg);
+    color: var(--ink);
+    font: 400 17px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  img, video { display: block; max-width: 100%; height: auto; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+  .skip {
+    position: fixed;
+    top: -100px;
+    left: 16px;
+    background-color: var(--surface);
+    color: var(--ink);
+    padding: 10px 16px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-sm);
+    z-index: 50;
+  }
+  .skip:focus { top: 16px; }
+
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px); }
+
+  .site-header {
+    background-color: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand {
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .brand:hover { text-decoration: none; }
+  .studio-badge {
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background-color: var(--badge-bg);
+    color: var(--badge-ink);
+  }
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 15px;
+  }
+  .header-nav a { color: var(--muted); font-weight: 500; }
+  .header-nav a:hover { color: var(--ink); text-decoration: none; }
+
+  .hero {
+    padding: clamp(36px, 5vw, 68px) 0 clamp(48px, 6vw, 84px);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(34px, 4.6vw, 54px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--ink);
+  }
+  .hero-sub {
+    font-size: clamp(18px, 2vw, 21px);
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 52ch;
+    margin-bottom: 28px;
+  }
+  .store-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    max-width: 540px;
+  }
+  .store-card {
+    background-color: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-store {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font: 600 15px/1.2 var(--sans);
+    white-space: nowrap;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .btn-android {
+    background-color: var(--accent-bg);
+    color: var(--accent-ink);
+  }
+  .btn-android:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+  .btn-ios-stub,
+  .btn-ios-stub:disabled {
+    background-color: var(--surface-2);
+    color: var(--ink);
+    border: 1px dashed var(--line-strong);
+    cursor: not-allowed;
+    opacity: 1;
+  }
+  .store-note {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+  }
+  .phone-frame {
+    background-color: var(--device-bezel);
+    padding: 12px;
+    border-radius: 28px;
+    max-width: 280px;
+    width: 100%;
+    border: 1px solid var(--line-strong);
+  }
+  .phone-frame img, .phone-frame video {
+    border-radius: 18px;
+    width: 100%;
+    height: auto;
+  }
+
+  .section {
+    padding: clamp(56px, 7vw, 96px) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-head {
+    max-width: 64ch;
+    margin-bottom: clamp(32px, 4vw, 48px);
+  }
+  h2 {
+    font-size: clamp(26px, 3.2vw, 38px);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .section-lead {
+    font-size: 18px;
+    color: var(--muted);
+  }
+
+  .screens-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .screen-item {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .screen-item .phone-frame {
+    max-width: 100%;
+    padding: 8px;
+    border-radius: 22px;
+  }
+  .screen-item .phone-frame img {
+    border-radius: 14px;
+  }
+  .screen-item h3 {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .screen-item p {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .promo-panel {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .promo-panel .phone-frame {
+    max-width: 270px;
+  }
+  .promo-caption {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .bento-stack {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .bento-card {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .bento-card-warm {
+    background-color: var(--surface-2);
+  }
+  .bento-card h3 {
+    font-size: 21px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+  .bento-card p {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .bento-card p:last-child { margin-bottom: 0; }
+  .cat-roster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+  }
+  .cat-roster li {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background-color: var(--surface);
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .trust-item {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .trust-item h3 {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+  .trust-item p {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .release-ledger {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .ledger-row {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ledger-row h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .ledger-meta {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .ledger-row p {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .site-footer {
+    padding: 40px 0 64px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  @media (max-width: 960px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .screens-grid { grid-template-columns: repeat(2, 1fr); }
+    .bento-grid { grid-template-columns: 1fr; }
+    .trust-grid { grid-template-columns: 1fr; }
+    .release-ledger { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .header-inner { height: auto; padding: 14px 0; flex-wrap: wrap; }
+    .screens-grid { grid-template-columns: 1fr; }
+    .store-actions { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand-group">
+      <a class="brand" href="#main">Cat Countdown</a>
+      <span class="studio-badge">Factor IO Studio</span>
+    </div>
+    <nav class="header-nav" aria-label="Page navigation">
+      <a href="#screens">Screens</a>
+      <a href="#cats">Nine Cats</a>
+      <a href="#privacy">Privacy</a>
+      <a href="https://studio.factor-io.com/en/mobile-apps/">Studio Work</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Android &amp; iPhone Life Organiser</p>
+        <h1 id="hero-title">Count down with nine storybook cats.</h1>
+        <p class="hero-sub">Countdowns, tasks, sticker notes, and alarms that ring. Pay once and keep your plans on your phone.</p>
+        <div class="store-actions" role="group" aria-label="Platform release links">
+          <div class="store-card">
+            <a class="btn-store btn-android" data-store="android" href="https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown" rel="noopener">Get it on Google Play</a>
+            <p class="store-note">Android release &middot; v1.0.2</p>
+          </div>
+          <div class="store-card">
+            <button type="button" class="btn-store btn-ios-stub" data-store="ios" data-stub="true" disabled aria-describedby="iphone-status">App Store for iPhone</button>
+            <p id="iphone-status" class="store-note">Coming soon &middot; iPhone release stub</p>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="phone-frame">
+          <img src="assets/work/cat-countdown-home.webp" width="540" height="1212" alt="Cat Countdown home screen: a birthday twelve days away, above sticker cards for each countdown." fetchpriority="high" decoding="async">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens" class="section" aria-labelledby="screens-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="screens-title">Four quiet spaces for the days ahead.</h2>
+        <p class="section-lead">Every countdown gets its own illustrated cat scene, paired with checklists, notebook pages, and daily task rings.</p>
+      </div>
+      <div class="screens-grid">
+        <article class="screen-item">
+          <div class="phone-frame">
+            <img src="assets/work/cat-countdown-home.webp" width="540" height="1212" alt="Home screen showing a featured birthday countdown above upcoming event cards." loading="lazy" decoding="async">
+          </div>
+          <h3>Countdowns &amp; Widgets</h3>
+          <p>Sticker cards on your home screen and launcher widgets in small, medium, or large that roll the day count over at midnight.</p>
+        </article>
+        <article class="screen-item">
+          <div class="phone-frame">
+            <img src="assets/work/cat-countdown-detail.webp" width="540" height="1212" alt="Countdown detail screen showing final exams in 23 days split into weeks and days with checklist and journal tabs." loading="lazy" decoding="async">
+          </div>
+          <h3>Overview, Checklist &amp; Journal</h3>
+          <p>Open any event to see weeks and days left, tick off preparation checklists with reminders, or write notes in its journal tab.</p>
+        </article>
+        <article class="screen-item">
+          <div class="phone-frame">
+            <img src="assets/work/cat-countdown-notes.webp" width="540" height="1212" alt="Notes screen with illustrated cat sticker notes arranged on a lined notebook page." loading="lazy" decoding="async">
+          </div>
+          <h3>Sticker Notes</h3>
+          <p>Write checklists, headings, and lists on warm notebook pages, then decorate them with cat art stickers and emoji.</p>
+        </article>
+        <article class="screen-item">
+          <div class="phone-frame">
+            <img src="assets/work/cat-countdown-tasks.webp" width="540" height="1212" alt="Tasks screen showing today's progress ring, an overdue bill, and scheduled reminders." loading="lazy" decoding="async">
+          </div>
+          <h3>Tasks &amp; Ringing Alarms</h3>
+          <p>Keep to-dos sorted into Overdue, Today, and This week with a daily progress ring and alarms that ring until you snooze or dismiss them.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="cats" class="section" aria-labelledby="cats-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Storybook Art &amp; Motion</p>
+        <h2 id="cats-title">Nine cats, thirteen categories, over 1,000 illustrations.</h2>
+        <p class="section-lead">From birthdays, exams, and trips to anniversaries, paydays, and me-time, each cat brings its own hand-crafted scenes.</p>
+      </div>
+      <div class="bento-grid">
+        <figure class="promo-panel">
+          <div class="phone-frame">
+            <video controls muted playsinline preload="none" width="540" height="960" poster="assets/work/cat-countdown-promo.jpg" aria-label="Cat Countdown studio launch film">
+              <source src="assets/work/cat-countdown-promo.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption class="promo-caption">Studio launch film previewing the cats, sticker notebook, and countdown cards.</figcaption>
+        </figure>
+        <div class="bento-stack">
+          <div class="bento-card bento-card-warm">
+            <h3>Meet the nine companions</h3>
+            <p>Each cat has its own breed, colour, and personality. Keep their names, rename any of them, or create a custom cat of your own.</p>
+            <ul class="cat-roster" aria-label="Nine companion cats">
+              <li>Sakura</li>
+              <li>Nimbus</li>
+              <li>Luna</li>
+              <li>Nori</li>
+              <li>Tangerine</li>
+              <li>Chai</li>
+              <li>Coco</li>
+              <li>Mallow</li>
+              <li>Yuki</li>
+            </ul>
+          </div>
+          <div class="bento-card">
+            <h3>Pay once, it is yours</h3>
+            <p>Buy the app once and all 9 cats, all 13 categories, and over 1,000 art assets are included with no ads and no recurring fee required to use the organiser.</p>
+            <p>Supports light and dark themes, an optional live weather backdrop powered by Open-Meteo, and nine languages: English, German, French, Indonesian, Japanese, Korean, Thai, Vietnamese, and Chinese.</p>
+          </div>
+          <div class="bento-card">
+            <h3>Platform release status</h3>
+            <div class="release-ledger">
+              <div class="ledger-row">
+                <span class="ledger-meta">ANDROID &middot; GOOGLE PLAY</span>
+                <h3>Available on Google Play</h3>
+                <p>Package <code>com.catcountdown.cat_countdown</code>. Includes home screen widgets and optional Google Drive backup.</p>
+              </div>
+              <div class="ledger-row">
+                <span class="ledger-meta">IPHONE &middot; APP STORE STUB</span>
+                <h3>Preparing iPhone release</h3>
+                <p>The iPhone link above is a non-navigating stub while App Store review completes. Includes iOS widgets and optional iCloud backup.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy" class="section" aria-labelledby="privacy-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="privacy-title">Local-first by design, honest in writing.</h2>
+        <p class="section-lead">No advertising SDKs, no Factor IO user accounts, and no behavioural tracking.</p>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-item">
+          <h3>On your device first</h3>
+          <p>Your countdowns, dates, tasks, notes, attachments, and settings live on your phone. Factor IO never receives or reads the content you create.</p>
+        </div>
+        <div class="trust-item">
+          <h3>Your own cloud backup</h3>
+          <p>An optional yearly Cloud Backup subscription writes your archive directly into your own Google Drive or iCloud account. Restoring an existing backup is always free.</p>
+        </div>
+        <div class="trust-item">
+          <h3>Every network call named</h3>
+          <p>Read the full <a href="https://studio.factor-io.com/privacy.html">Privacy Statement</a> and <a href="https://studio.factor-io.com/terms.html">Terms of Use</a> for exact details on RevenueCat billing, optional Open-Meteo weather, and Android licence checks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>&copy; 2026 Factor I O Co., Ltd. &middot; Questions: <!--email_off--><a href="mailto:admin@factor-io.com">admin@factor-io.com</a><!--/email_off--></p>
+    <div class="footer-links">
+      <a href="https://studio.factor-io.com/privacy.html">Privacy Statement</a>
+      <a href="https://studio.factor-io.com/terms.html">Terms of Use</a>
+      <a href="https://studio.factor-io.com/en/mobile-apps/">Factor IO Studio</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

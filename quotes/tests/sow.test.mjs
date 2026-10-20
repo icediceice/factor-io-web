@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { openDb, getSettings, MIGRATIONS, migrate } from '../lib/db.mjs';
-import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, parseTemplates } from '../lib/sow.mjs';
+import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, LEGACY_SOW_TEMPLATES_V2, parseTemplates } from '../lib/sow.mjs';
 import { createApi } from '../api.mjs';
 import { renderQuotationHtml } from '../templates/quotation.mjs';
 import { buildQuoteDocument } from '../lib/quote.mjs';
@@ -30,16 +30,17 @@ async function draft(call) {
 
 test('detailed starters validate and migration upgrades only the untouched legacy seed', () => {
   assert.equal(JSON.stringify(LEGACY_SOW_TEMPLATES_V1).length, 11846);
+  assert.equal(JSON.stringify(LEGACY_SOW_TEMPLATES_V2).length, 24377);
   assert.deepEqual(parseTemplates(JSON.stringify(DEFAULT_SOW_TEMPLATES)), DEFAULT_SOW_TEMPLATES);
-  const oldDb = () => {
+  const oldDb = (maxVersion = 8) => {
     const db = new DatabaseSync(':memory:');
-    for (const migration of MIGRATIONS.filter((entry) => entry.version <= 8)) {
+    for (const migration of MIGRATIONS.filter((entry) => entry.version <= maxVersion)) {
       db.exec(migration.sql);
       db.exec(`PRAGMA user_version = ${migration.version}`);
     }
     return db;
   };
-  const untouched = oldDb();
+  const untouched = oldDb(8);
   assert.equal(untouched.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
     JSON.stringify(LEGACY_SOW_TEMPLATES_V1));
   migrate(untouched);
@@ -47,8 +48,16 @@ test('detailed starters validate and migration upgrades only the untouched legac
     JSON.stringify(DEFAULT_SOW_TEMPLATES));
   assert.equal(untouched.prepare('PRAGMA user_version').get().user_version, MIGRATIONS.at(-1).version);
 
-  const customized = oldDb();
-  const customValue = JSON.stringify([{ ...LEGACY_SOW_TEMPLATES_V1[0], titleEn: 'Operator scope' }]);
+  const untouchedV9 = oldDb(9);
+  assert.equal(untouchedV9.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
+    JSON.stringify(LEGACY_SOW_TEMPLATES_V2));
+  migrate(untouchedV9);
+  assert.equal(untouchedV9.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
+    JSON.stringify(DEFAULT_SOW_TEMPLATES));
+  assert.equal(untouchedV9.prepare('PRAGMA user_version').get().user_version, MIGRATIONS.at(-1).version);
+
+  const customized = oldDb(9);
+  const customValue = JSON.stringify([{ ...LEGACY_SOW_TEMPLATES_V2[0], titleEn: 'Operator scope' }]);
   customized.prepare("UPDATE settings SET value=? WHERE key='sow.templates'").run(customValue);
   migrate(customized);
   assert.equal(customized.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value, customValue);
@@ -56,16 +65,43 @@ test('detailed starters validate and migration upgrades only the untouched legac
 });
 
 
-test('SOW templates are editable data and optional Kubernetes services start excluded', async () => {
+test('SOW templates are editable data and optional Kubernetes and AI services start excluded', async () => {
   const { db, call } = fixture();
   const response = await call('GET', '/sow-templates');
   assert.equal(response.status, 200);
-  assert.deepEqual(response.templates.map((t) => t.code), ['os-install', 'openshift', 'nkp', 'vanilla-kube']);
+  assert.deepEqual(response.templates.map((t) => t.code), ['os-install', 'openshift', 'nkp', 'vanilla-kube', 'enterprise-ai']);
   for (const t of response.templates) {
     assert.deepEqual(t.sow.modules.slice(0, 4).map((m) => m.included), [true, true, true, true]);
     assert.ok(t.sow.modules.slice(4).every((m) => !m.included));
   }
   assert.match(response.templates[2].sow.modules[1].items[2].en, /management cluster/);
+  const aiTemplate = response.templates.find((t) => t.code === 'enterprise-ai');
+  assert.equal(aiTemplate.titleEn, 'Enterprise AI');
+  assert.equal(aiTemplate.titleTh, 'ระบบ AI สำหรับองค์กร');
+  assert.ok(aiTemplate.sow.modules.some((m) => m.code === 'model_serving' && !m.included));
+  assert.ok(aiTemplate.sow.modules.some((m) => m.code === 'knowledge' && !m.included));
+  assert.ok(aiTemplate.sow.modules.some((m) => m.code === 'governance' && !m.included));
+  assert.ok(aiTemplate.sow.modules.some((m) => m.code === 'retainer' && !m.included));
+
+  const client = await call('POST', '/clients', { name: 'AI Client Co., Ltd.' });
+  const customAiSow = structuredClone(aiTemplate.sow);
+  for (const mod of customAiSow.modules) {
+    if (['model_serving', 'knowledge', 'governance', 'retainer'].includes(mod.code)) mod.included = true;
+  }
+  const aiQuote = await call('POST', '/quotations', {
+    client_id: client.client.id,
+    template: 'enterprise-ai',
+    sow: customAiSow,
+    lines: [
+      line({ description_en: 'Enterprise AI platform implementation', section: 'Phase 1', unit_price: '180000.00', qty: '1', unit: 'project' }),
+      line({ description_en: 'Ongoing AI optimization retainer', section: 'Phase 2', billing_period: 'monthly', unit_price: '45000.00', qty: '1', unit: 'month' }),
+    ],
+  });
+  assert.equal(aiQuote.status, 201);
+  assert.equal(aiQuote.sow.modules.filter((m) => m.included).length, 8);
+  assert.match(renderQuotationHtml(aiQuote, 'en'), /AI governance and approval controls/);
+  assert.match(renderQuotationHtml(aiQuote, 'th'), /การควบคุมและอนุมัติการทำงานของ AI/);
+
   assert.deepEqual(response.starters.map((t) => t.code), response.templates.map((t) => t.code));
   const changed = structuredClone(response.templates);
   changed[0].sow.summary.en = 'Custom OS delivery';

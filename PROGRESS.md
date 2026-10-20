@@ -1,9 +1,15 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-09-30 (studio redesign: three films, studio-work strip, natural-speech Thai, measured and fixture-passed)
+> Last updated: 2026-10-20 (Cat Countdown standalone landing page and catcountdown.factor-io.com launch preparation)
 
 ## Current Focus
+
+**Cat Countdown standalone landing page and `catcountdown.factor-io.com` launch preparation (2026-10-20, plan `local:118228f5a501034d7bce4d83fe33e58f`).**
+- **What:** Built the standalone Cat Countdown product landing page (`cat-countdown.html`) for `catcountdown.factor-io.com` with a live Android release link (`https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown`), a native disabled `<button data-store="ios" data-stub="true" disabled>` stub for the iPhone release, document-relative `assets/...` references that resolve from both `/` on `catcountdown.factor-io.com` and `/cat-countdown.html` on `studio.factor-io.com`, a `noindex, follow` redirect stub at `catcountdown/index.html`, deployment preparation configs under `catcountdown/deploy/`, and behavioral tests in `tests/website.test.mjs`.
+- **Files:** `cat-countdown.html`, `catcountdown/index.html`, `catcountdown/deploy/nginx-catcountdown.conf`, `catcountdown/deploy/cloudflared-catcountdown.yml`, `catcountdown/deploy/README.md`, `.interface-design/log.json`, `tests/website.test.mjs`, `PROGRESS.md`, `.claude/active-plan.md`.
+- **Next:** When ready to launch `catcountdown.factor-io.com`, apply the nginx virtual host (`catcountdown/deploy/nginx-catcountdown.conf`) and Cloudflare Tunnel ingress + DNS CNAME (`catcountdown/deploy/cloudflared-catcountdown.yml`, `catcountdown/deploy/README.md`); when the iPhone App Store release goes live, replace the disabled `<button data-store="ios">` stub in `cat-countdown.html` with the live App Store `<a href="...">` link.
+- **Known issues:** None (`43/43` tests in `tests/website.test.mjs` and `node scripts/build-site.mjs --check` pass; `docs/service-offer-spec.md` remains untracked user work).
 
 **The site is a studio site now (2026-09-30).** The operator called the previous build ugly and said it did not tell the story, so the whole visual layer was replaced (plan `local:961abbe560db962dfd7bf1236cb77037`, light-design). Home now reads: hero + **studio story film** → **platform thesis film** beside the argument → four services as a ledger synced to the **expertise film** → the founder → the two engagement routes → **Built in the studio** strip → CTA. The films are real motion graphics rendered from this site's own copy (`node scripts/films/render.mjs <id|all> <en|th|all>`; headless Chromium via `scripts/films/cdp.mjs`, never `/snap/bin/chromium`), one per locale, text burned in from `content/*/site.json` `films.*`, and chapter timings live once in `site/media.mjs` so the page's chapter buttons, the ledger rows and the film stage share one playhead. Films autoplay muted while half on screen, pause off screen, loop, and hold still under reduced motion or Save-Data; each has a play/pause control and a text transcript.
 

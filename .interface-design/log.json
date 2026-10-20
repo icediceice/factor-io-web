@@ -13,6 +13,13 @@
       "macrostructure": "Commercial Catalog & 3-Read Switcher (What We Sell / How You Get There / Credibility)",
       "accent": "#10B981",
       "theme": "dark-carbon-precision"
+    },
+    {
+      "date": "2026-10-20",
+      "file": "cat-countdown.html",
+      "macrostructure": "Asymmetric Device Hero + 4-Screen Grid + Promo Bento + Local-First Trust",
+      "accent": "#B43E1C",
+      "theme": "storybook-paper-light-dark"
     }
   ]
 }

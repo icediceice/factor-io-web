@@ -99,6 +99,13 @@ Upcoming work in priority order:
 
 ## Work Log
 
+#### SOW scope expansion, professional Thai translations, and default NKP integration starter in Quotes (2026-10-21, plan local:ae44f55bd29c648f1a4a37befdb1d419)
+
+- **What:** Enriched deliverables and activities across all SOW starter templates (`os-install`, `openshift`, `nkp`, `vanilla-kube`, `enterprise-ai`) and their optional modules in `quotes/lib/sow.mjs`, added comprehensive native Thai translations for every item, assumption, and exclusion, and added schema migration 11 (`nkp-integration-and-thai-sow`) in `quotes/lib/db.mjs`.
+- **Default NKP Turnkey Integration Scope:** Added a turnkey `nkp_integration` (`NKP platform integration` · `การเชื่อมต่อระบบและแพลตฟอร์ม Nutanix NKP`) module enabled by default in the NKP template for partner reference, covering Nutanix Prism Central/AHV VM placement and anti-affinity, Nutanix CSI Driver (Volumes Block and Files NFS Shared RWX StorageClasses), VolumeSnapshotClass, Ingress & MetalLB IP pool load balancing, enterprise OIDC/Keycloak SSO federation with AD/LDAP, NKP platform observability stack (Prometheus, Grafana, Alertmanager), and Nutanix Objects/Velero cluster backup.
+- **Bilingual SOW translations:** Every activity item, module, summary, assumption, and exclusion across all five starter templates carries professional, native Thai translations for enterprise and partner RFPs and quotations without English fallback.
+- **Schema & Migration Safety:** Froze schema 10 templates as `LEGACY_SOW_TEMPLATES_V3` (byte length 32177) alongside V1 (11846) and V2 (24377); migration 11 updates untouched starter seeds while preserving operator-customized templates. All 198 unit tests and 42 smoke checks pass.
+
 #### Enterprise AI engagement starter template and schema 10 migration in Quotes (2026-10-20, plan local:486a272789a4eabaf816ea27bf07367c)
 
 - **What:** Added the bilingual `enterprise-ai` (`Enterprise AI` · `ระบบ AI สำหรับองค์กร`) SOW engagement starter to `quotes/lib/sow.mjs` (`DEFAULT_SOW_TEMPLATES`) and schema migration 10 (`enterprise-ai-sow-starter`) in `quotes/lib/db.mjs`.

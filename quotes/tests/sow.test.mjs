@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { openDb, getSettings, MIGRATIONS, migrate } from '../lib/db.mjs';
-import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, LEGACY_SOW_TEMPLATES_V2, parseTemplates } from '../lib/sow.mjs';
+import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, LEGACY_SOW_TEMPLATES_V2, LEGACY_SOW_TEMPLATES_V3, parseTemplates } from '../lib/sow.mjs';
 import { createApi } from '../api.mjs';
 import { renderQuotationHtml } from '../templates/quotation.mjs';
 import { buildQuoteDocument } from '../lib/quote.mjs';
@@ -31,6 +31,8 @@ async function draft(call) {
 test('detailed starters validate and migration upgrades only the untouched legacy seed', () => {
   assert.equal(JSON.stringify(LEGACY_SOW_TEMPLATES_V1).length, 11846);
   assert.equal(JSON.stringify(LEGACY_SOW_TEMPLATES_V2).length, 24377);
+  assert.equal(JSON.stringify(LEGACY_SOW_TEMPLATES_V3).length, 32177);
+  assert.equal(JSON.stringify(DEFAULT_SOW_TEMPLATES).length, 75546);
   assert.deepEqual(parseTemplates(JSON.stringify(DEFAULT_SOW_TEMPLATES)), DEFAULT_SOW_TEMPLATES);
   const oldDb = (maxVersion = 8) => {
     const db = new DatabaseSync(':memory:');
@@ -56,8 +58,16 @@ test('detailed starters validate and migration upgrades only the untouched legac
     JSON.stringify(DEFAULT_SOW_TEMPLATES));
   assert.equal(untouchedV9.prepare('PRAGMA user_version').get().user_version, MIGRATIONS.at(-1).version);
 
-  const customized = oldDb(9);
-  const customValue = JSON.stringify([{ ...LEGACY_SOW_TEMPLATES_V2[0], titleEn: 'Operator scope' }]);
+  const untouchedV10 = oldDb(10);
+  assert.equal(untouchedV10.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
+    JSON.stringify(LEGACY_SOW_TEMPLATES_V3));
+  migrate(untouchedV10);
+  assert.equal(untouchedV10.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value,
+    JSON.stringify(DEFAULT_SOW_TEMPLATES));
+  assert.equal(untouchedV10.prepare('PRAGMA user_version').get().user_version, MIGRATIONS.at(-1).version);
+
+  const customized = oldDb(10);
+  const customValue = JSON.stringify([{ ...LEGACY_SOW_TEMPLATES_V3[0], titleEn: 'Operator scope' }]);
   customized.prepare("UPDATE settings SET value=? WHERE key='sow.templates'").run(customValue);
   migrate(customized);
   assert.equal(customized.prepare("SELECT value FROM settings WHERE key='sow.templates'").get().value, customValue);
@@ -71,10 +81,16 @@ test('SOW templates are editable data and optional Kubernetes and AI services st
   assert.equal(response.status, 200);
   assert.deepEqual(response.templates.map((t) => t.code), ['os-install', 'openshift', 'nkp', 'vanilla-kube', 'enterprise-ai']);
   for (const t of response.templates) {
-    assert.deepEqual(t.sow.modules.slice(0, 4).map((m) => m.included), [true, true, true, true]);
-    assert.ok(t.sow.modules.slice(4).every((m) => !m.included));
+    if (t.code === 'nkp') {
+      assert.deepEqual(t.sow.modules.slice(0, 5).map((m) => m.included), [true, true, true, true, true]);
+      assert.equal(t.sow.modules[2].code, 'nkp_integration');
+      assert.ok(t.sow.modules.slice(5).every((m) => !m.included));
+    } else {
+      assert.deepEqual(t.sow.modules.slice(0, 4).map((m) => m.included), [true, true, true, true]);
+      assert.ok(t.sow.modules.slice(4).every((m) => !m.included));
+    }
   }
-  assert.match(response.templates[2].sow.modules[1].items[2].en, /management cluster/);
+  assert.ok(response.templates[2].sow.modules[1].items.some((item) => /management cluster/i.test(item.en)));
   const aiTemplate = response.templates.find((t) => t.code === 'enterprise-ai');
   assert.equal(aiTemplate.titleEn, 'Enterprise AI');
   assert.equal(aiTemplate.titleTh, 'ระบบ AI สำหรับองค์กร');
@@ -186,4 +202,52 @@ test('SOW text is escaped in HTML and omitted for old documents', async () => {
   assert.match(html, /&lt;img src=file:\/\/\/etc\/passwd&gt;/);
   assert.doesNotMatch(html, /<script>alert/);
   assert.doesNotMatch(renderQuotationHtml({ ...updated, sow: null }, 'en'), /Statement of work/);
+});
+
+test('all SOW engagement templates provide comprehensive, non-empty Thai translations and default NKP integration scope', async () => {
+  const { call } = fixture();
+  const response = await call('GET', '/sow-templates');
+  assert.equal(response.status, 200);
+  for (const t of response.templates) {
+    assert.ok(t.titleTh && t.titleTh.trim().length > 0, `template ${t.code} missing titleTh`);
+    assert.ok(t.sow.summary.th && t.sow.summary.th.trim().length > 0, `template ${t.code} missing summary.th`);
+    for (const mod of t.sow.modules) {
+      assert.ok(mod.titleTh && mod.titleTh.trim().length > 0, `template ${t.code} module ${mod.code} missing titleTh`);
+      for (let i = 0; i < mod.items.length; i++) {
+        assert.ok(mod.items[i].th && mod.items[i].th.trim().length > 0, `template ${t.code} module ${mod.code} item ${i} missing th`);
+      }
+    }
+    for (let i = 0; i < t.sow.assumptions.length; i++) {
+      assert.ok(t.sow.assumptions[i].th && t.sow.assumptions[i].th.trim().length > 0, `template ${t.code} assumption ${i} missing th`);
+    }
+    for (let i = 0; i < t.sow.exclusions.length; i++) {
+      assert.ok(t.sow.exclusions[i].th && t.sow.exclusions[i].th.trim().length > 0, `template ${t.code} exclusion ${i} missing th`);
+    }
+  }
+
+  // Verify turnkey NKP default integration scope and bilingual quotation HTML rendering
+  const client = await call('POST', '/clients', { name: 'Partner Reference Co., Ltd.' });
+  const nkpTemplate = response.templates.find((t) => t.code === 'nkp');
+  const nkpQuote = await call('POST', '/quotations', {
+    client_id: client.client.id,
+    template: 'nkp',
+    sow: nkpTemplate.sow,
+    lines: [line({ description_en: 'NKP Cluster Implementation & Integration', description_th: 'ติดตั้งและเชื่อมต่อระบบ Nutanix NKP' })],
+  });
+  assert.equal(nkpQuote.status, 201);
+  const includedCodes = nkpQuote.sow.modules.filter((m) => m.included).map((m) => m.code);
+  assert.deepEqual(includedCodes, ['discovery', 'implementation', 'nkp_integration', 'validation', 'handover']);
+
+  const htmlEn = renderQuotationHtml(nkpQuote, 'en');
+  assert.match(htmlEn, /NKP platform integration/);
+  assert.match(htmlEn, /Nutanix CSI Driver/);
+  assert.match(htmlEn, /Statement of work/);
+
+  const htmlTh = renderQuotationHtml(nkpQuote, 'th');
+  assert.match(htmlTh, /ขอบเขตงาน/);
+  assert.match(htmlTh, /การเชื่อมต่อระบบและแพลตฟอร์ม Nutanix NKP/);
+  assert.match(htmlTh, /Nutanix CSI Driver/);
+  assert.match(htmlTh, /StorageClass/);
+  assert.match(htmlTh, /ข้อสมมติ/);
+  assert.match(htmlTh, /ไม่รวมในขอบเขต/);
 });

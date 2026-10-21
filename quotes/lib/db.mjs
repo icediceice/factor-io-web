@@ -16,7 +16,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, LEGACY_SOW_TEMPLATES_V2 } from './sow.mjs';
+import { DEFAULT_SOW_TEMPLATES, LEGACY_SOW_TEMPLATES_V1, LEGACY_SOW_TEMPLATES_V2, LEGACY_SOW_TEMPLATES_V3 } from './sow.mjs';
 
 export const SATANG = 100;          // minor units per THB
 export const MILLI = 1000;          // qty resolution: 1 unit = 1000 milli
@@ -535,10 +535,24 @@ export const MIGRATIONS = [
     // engagement template while leaving any operator-customized value intact.
     sql: `
       UPDATE settings
-      SET value = '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}',
+      SET value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V3).replaceAll("'", "''")}',
           updated_by = 'seed', updated_at = datetime('now')
       WHERE key = 'sow.templates'
         AND value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V2).replaceAll("'", "''")}';
+    `,
+  },
+  {
+    version: 11,
+    name: 'nkp-integration-and-thai-sow',
+    // Upgrades an untouched schema-10 starter seed to include the default NKP
+    // integration scope and comprehensive Thai SOW translations while leaving
+    // any operator-customized value intact.
+    sql: `
+      UPDATE settings
+      SET value = '${JSON.stringify(DEFAULT_SOW_TEMPLATES).replaceAll("'", "''")}',
+          updated_by = 'seed', updated_at = datetime('now')
+      WHERE key = 'sow.templates'
+        AND value = '${JSON.stringify(LEGACY_SOW_TEMPLATES_V3).replaceAll("'", "''")}';
     `,
   },
 ];

@@ -782,6 +782,8 @@ async function renderQuote(id, host, reloadList, reloadStats, wbApi) {
             : `This quotation reached "${q.status}". If you only want it out of the way, Cancel keeps the audit trail.`,
           consequences,
           confirmLabel: `Delete ${q.number}`,
+          requireText: q.number,
+          requireLabel: `Type ${q.number} to unlock deletion`,
         });
         if (!ok) return;
         return run(btn, async () => {

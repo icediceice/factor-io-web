@@ -357,16 +357,18 @@ async function renderQuote(id, host, reloadList, reloadStats) {
 
   function sowCard(unlocked) {
     const sow = doc.sow;
-    if (!sow) return el(`<section class="card sow-editor"><h2>Statement of work <span class="meta">ขอบเขตงาน</span></h2>
-      <p class="meta">Add an engagement scope so the quotation states what will be delivered.</p>
-      ${unlocked ? `<div class="row-actions"><select data-sow-template aria-label="Engagement template"><option value="">Choose a template…</option>${sowTemplates.map((t) => `<option value="${esc(t.code)}">${esc(t.titleEn)}</option>`).join('')}</select><button type="button" class="secondary" data-add-sow>Add SOW</button></div>` : '<p class="muted">Revise to add a SOW.</p>'}</section>`);
+    const lang = doc.quotation?.lang ?? 'en';
+    const text = (pair) => esc(lang === 'th' && pair?.th ? pair.th : (pair?.en ?? ''));
+    if (!sow) return el(`<section class="card sow-editor"><h2>${lang === 'th' ? 'ขอบเขตงาน' : 'Statement of work'} <span class="meta">${lang === 'th' ? 'Statement of work' : 'ขอบเขตงาน'}</span></h2>
+      <p class="meta">${lang === 'th' ? 'เพิ่มขอบเขตการทำงานเพื่อให้ใบเสนอราคาระบุสิ่งที่ส่งมอบอย่างชัดเจน' : 'Add an engagement scope so the quotation states what will be delivered.'}</p>
+      ${unlocked ? `<div class="row-actions"><select data-sow-template aria-label="Engagement template"><option value="">${lang === 'th' ? 'เลือกแม่แบบขอบเขตงาน…' : 'Choose a template…'}</option>${sowTemplates.map((t) => `<option value="${esc(t.code)}">${esc(lang === 'th' && t.titleTh ? t.titleTh : t.titleEn)}</option>`).join('')}</select><button type="button" class="secondary" data-add-sow>${lang === 'th' ? 'เพิ่มขอบเขตงาน' : 'Add SOW'}</button></div>` : `<p class="muted">${lang === 'th' ? 'แก้ไขเพื่อเพิ่มขอบเขตงาน' : 'Revise to add a SOW.'}</p>`}</section>`);
     const included = sow.modules.filter((module) => module.included);
-    return el(`<section class="card sow-editor"><div class="toolbar"><h2>Statement of work <span class="meta">ขอบเขตงาน</span></h2>
-      <span class="row-actions tight"><span class="meta">${included.length} included · ${sow.modules.length} available</span>${unlocked ? '<button type="button" class="secondary sm" data-edit-sow>Edit scope</button>' : ''}</span></div>
-      <p>${esc(sow.summary.en)}</p>
-      <div class="scope-summary">${included.map((module) => `<details><summary>${esc(module.titleEn)} <span class="meta">${module.items.length} activities</span></summary><ul>${module.items.map((item) => `<li>${esc(item.en)}</li>`).join('')}</ul></details>`).join('')}</div>
-      ${sow.assumptions.length ? `<details><summary>Assumptions</summary><ul>${sow.assumptions.map((item) => `<li>${esc(item.en)}</li>`).join('')}</ul></details>` : ''}
-      ${sow.exclusions.length ? `<details><summary>Out of scope</summary><ul>${sow.exclusions.map((item) => `<li>${esc(item.en)}</li>`).join('')}</ul></details>` : ''}
+    return el(`<section class="card sow-editor"><div class="toolbar"><h2>${lang === 'th' ? 'ขอบเขตงาน' : 'Statement of work'} <span class="meta">${lang === 'th' ? 'Statement of work' : 'ขอบเขตงาน'}</span></h2>
+      <span class="row-actions tight"><span class="meta">${included.length} ${lang === 'th' ? 'หมวดที่เลือก' : 'included'} · ${sow.modules.length} ${lang === 'th' ? 'หมวดทั้งหมด' : 'available'}</span>${unlocked ? `<button type="button" class="secondary sm" data-edit-sow>${lang === 'th' ? 'แก้ไขขอบเขตงาน' : 'Edit scope'}</button>` : ''}</span></div>
+      <p>${text(sow.summary)}</p>
+      <div class="scope-summary">${included.map((module) => `<details><summary>${esc(lang === 'th' && module.titleTh ? module.titleTh : module.titleEn)} <span class="meta">${module.items.length} ${lang === 'th' ? 'กิจกรรม' : 'activities'}</span></summary><ul>${module.items.map((item) => `<li>${text(item)}</li>`).join('')}</ul></details>`).join('')}</div>
+      ${sow.assumptions.length ? `<details><summary>${lang === 'th' ? 'ข้อสมมติ' : 'Assumptions'}</summary><ul>${sow.assumptions.map((item) => `<li>${text(item)}</li>`).join('')}</ul></details>` : ''}
+      ${sow.exclusions.length ? `<details><summary>${lang === 'th' ? 'ไม่รวมในขอบเขต' : 'Out of scope'}</summary><ul>${sow.exclusions.map((item) => `<li>${text(item)}</li>`).join('')}</ul></details>` : ''}
     </section>`);
   }
 

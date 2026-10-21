@@ -99,6 +99,12 @@ Upcoming work in priority order:
 
 ## Work Log
 
+#### Deployed SOW Thai translations and quotation SOW card localization (2026-10-21, plan local:f914ad36fa26ec18212958d18f31ddaf)
+
+- **What:** Localized `sowCard` in `quotes/ui/screens/quotations.js` to render Thai summaries, module titles, activities, assumptions, and exclusions when quotation language is Thai.
+- **Production Deployment:** Verified online SQLite backup at `/home/ice/.factor-quotes/data/backups/quotes-2026-10-21T07-56-23.200Z.db`, deployed the updated `quotes/` application to `/home/ice/.factor-quotes/` via rsync, and restarted `factor-quotes.service` on light-worker.
+- **Verification:** SQLite database `/home/ice/.factor-quotes/data/quotes.db` auto-migrated to schema 11 (`user_version = 11`), populating full Thai activities, deliverables, assumptions, exclusions, and turnkey `nkp_integration` scope in the live service for SOW Page 2 (Scope) in the wizard.
+
 #### SOW scope expansion, professional Thai translations, and default NKP integration starter in Quotes (2026-10-21, plan local:ae44f55bd29c648f1a4a37befdb1d419)
 
 - **What:** Enriched deliverables and activities across all SOW starter templates (`os-install`, `openshift`, `nkp`, `vanilla-kube`, `enterprise-ai`) and their optional modules in `quotes/lib/sow.mjs`, added comprehensive native Thai translations for every item, assumption, and exclusion, and added schema migration 11 (`nkp-integration-and-thai-sow`) in `quotes/lib/db.mjs`.

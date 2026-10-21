@@ -71,6 +71,64 @@ export async function mount(main) {
     <div id="stats" class="stat-row posbar"><div class="empty">Loading…</div></div>
   </section>`);
   const wizard = mountSmartQuote(main, () => wbApi, () => clients, vocab);
+  const restoreBtn = el('<button type="button" class="secondary" data-restore-deleted hidden>Restore deleted</button>');
+  const restoreDialog = el('<dialog class="quote-edit-dialog" aria-label="Restore deleted quotation"></dialog>');
+  main.querySelector('[data-page-actions]')?.append(restoreBtn);
+  main.append(restoreDialog);
+  let deletedQuotes = [];
+
+  async function syncDeletedQuotes() {
+    try {
+      const res = await api('GET', '/quotations/deleted');
+      deletedQuotes = Array.isArray(res.deleted) ? res.deleted : [];
+    } catch {
+      deletedQuotes = [];
+    }
+    if (deletedQuotes.length > 0) {
+      restoreBtn.hidden = false;
+      restoreBtn.textContent = `Restore deleted (${deletedQuotes.length})`;
+    } else {
+      restoreBtn.hidden = true;
+    }
+  }
+
+  restoreBtn.addEventListener('click', () => {
+    if (!deletedQuotes.length) return;
+    restoreDialog.innerHTML = `<div class="toolbar"><h2>Restore deleted quotation</h2><button type="button" class="quiet" data-close-restore>Close</button></div>
+      <p class="meta mb-5">Deleted quotations keep an audit snapshot of their SOW, priced lines, and revisions so they can be restored intact.</p>
+      <div class="table-scroll"><table class="list"><thead><tr><th>Number</th><th>Client</th><th>Status</th><th>Lines</th><th>Deleted (UTC)</th><th></th></tr></thead><tbody>
+        ${deletedQuotes.map((d) => `<tr>
+          <td class="mono">${esc(d.number)}</td>
+          <td>${esc(clientName(d.client_id))}</td>
+          <td>${statusChip(d.status)}</td>
+          <td class="mono">${esc(String(d.line_count))}</td>
+          <td class="mono">${esc(d.deleted_at)}</td>
+          <td class="actions"><button type="button" class="secondary sm" data-restore-id="${esc(d.id)}">Restore</button></td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+    restoreDialog.showModal();
+  });
+
+  restoreDialog.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.hasAttribute('data-close-restore')) { restoreDialog.close(); return; }
+    if (btn.dataset.restoreId) {
+      const rid = Number(btn.dataset.restoreId);
+      await withBusy(btn, async () => {
+        try {
+          const res = await api('POST', `/quotations/${rid}/restore`, {});
+          restoreDialog.close();
+          toast(`Restored ${res.quotation.number}`);
+          await wbApi.reloadAll();
+          wbApi.select(res.quotation.id);
+          loadStats(statsCard);
+        } catch (err) {
+          toast(err.message, 'error');
+        }
+      });
+    }
+  });
 
   const wbApi = mountWorkbench(main, {
     noun: 'quotation',
@@ -82,6 +140,7 @@ export async function mount(main) {
         api('GET', '/clients'),
       ]);
       clients = cs;
+      syncDeletedQuotes();
       return quotations;
     },
     rowOf: (q) => ({

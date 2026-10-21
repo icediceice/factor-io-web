@@ -974,4 +974,45 @@ describe('quotation preview, clone, and line reorder', () => {
     const auditRow = db.prepare("SELECT action FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='line.reorder'").get(String(qid));
     assert.ok(auditRow);
   });
+
+  test('UI harness DOM audit passes in both light and dark themes across quotations and smart-quote', async () => {
+    const { spawn } = await import('node:child_process');
+    const { chromium } = await import('playwright');
+    const port = 18799;
+    const srv = spawn(process.execPath, ['tests/ui-harness-server.mjs', String(port)], {
+      cwd: new URL('..', import.meta.url),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('ui-harness-server start timeout')), 5000);
+      srv.stdout.on('data', (chunk) => {
+        if (String(chunk).includes('ui harness listening')) {
+          clearTimeout(timer);
+          resolve();
+        }
+      });
+      srv.on('exit', (code) => {
+        clearTimeout(timer);
+        reject(new Error(`ui-harness-server exited early (${code})`));
+      });
+    });
+
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1480, height: 960 } });
+      for (const [screen, theme] of [['quotations.html', 'light'], ['quotations.html', 'dark'], ['smart-quote.html', 'dark']]) {
+        await page.goto(`http://127.0.0.1:${port}/tests/ui-harness.html?screen=${screen}&vp=1440&theme=${theme}`);
+        await page.waitForFunction(() => {
+          const el = document.querySelector('#summary');
+          return el && (el.classList.contains('all-pass') || el.classList.contains('has-fail'));
+        }, null, { timeout: 15000 });
+        const summaryText = await page.locator('#summary').innerText();
+        const failLines = await page.locator('#results .fail').allInnerTexts();
+        assert.equal(failLines.length, 0, `${screen} (${theme}) DOM audit failed (${summaryText}):\n${failLines.join('\n')}`);
+      }
+    } finally {
+      await browser.close();
+      srv.kill('SIGTERM');
+    }
+  });
 });

@@ -48,6 +48,11 @@
     <option value="768x1024">768 × 1024 — tablet</option>
     <option value="1440x900" selected>1440 × 900 — desktop</option>
   </select>
+  <label for="theme">Theme</label>
+  <select id="theme">
+    <option value="light" selected>Light</option>
+    <option value="dark">Dark</option>
+  </select>
   <button id="measure">Measure this</button>
   <button id="all">Measure all screens at this width</button>
   <span id="status" class="run"></span>
@@ -118,12 +123,16 @@ function loadScreen(s, w, h) {
   return new Promise((resolve) => {
     frame.style.width = `${w}px`;
     frame.style.height = `${h}px`;
+    const wantTheme = $('#theme')?.value || 'light';
+    try { localStorage.setItem('factor-quotes-theme', wantTheme); } catch { /* ignore */ }
     frame.onload = async () => {
       const win = frame.contentWindow;
+      win.document.documentElement.dataset.theme = wantTheme;
       try { await win.document.fonts.ready; } catch { /* fonts API absent */ }
       // The screens fetch their data after load. Settle until the DOM stops
       // changing for 400ms, capped, rather than guessing a fixed delay.
       await quiet(win.document, 400, 6000);
+      win.document.documentElement.dataset.theme = wantTheme;
       resolve(win);
     };
     frame.src = urlFor(s);
@@ -564,6 +573,17 @@ async function checkQuoteInteractions() {
     click('dialog[aria-label="Edit statement of work"] button[type="submit"]');
     await until(() => doc.querySelector('[data-quote-section="scope"]')?.textContent.includes(scopeChange));
     check('Edited SOW saves', !scopeDialog.open);
+
+    click('.snav [data-quote-nav="preview"]');
+    await until(() => (doc.querySelector('[data-preview-frame]')?.srcdoc ?? '').includes('QUOTATION') || (doc.querySelector('[data-preview-frame]')?.srcdoc ?? '').includes('ใบเสนอราคา'));
+    check('Live A4 preview renders in iframe', (doc.querySelector('[data-preview-frame]')?.srcdoc ?? '').length > 200);
+
+    const themeBtn = doc.querySelector('[data-theme-toggle]');
+    const beforeTheme = doc.documentElement.dataset.theme || 'light';
+    themeBtn?.click();
+    const afterTheme = doc.documentElement.dataset.theme;
+    themeBtn?.click();
+    check('Header theme toggle switches light/dark', beforeTheme !== afterTheme && doc.documentElement.dataset.theme === beforeTheme);
   } catch (error) {
     checks.push(row('Fixture interaction', 'FAIL', error.message));
   }
@@ -571,12 +591,14 @@ async function checkQuoteInteractions() {
   statusEl.textContent = `done · quotation interactions at ${w}×${h}`;
 }
 
-// ?w=390x844&run=all — a width run is a URL, so it is reproducible and can be
-// driven without reaching into a native <select>.
+// ?w=390x844&theme=dark&run=all — a width/theme run is a URL, so it is reproducible.
 const q = new URLSearchParams(location.search);
 const wantW = q.get('w');
 if (wantW && [...$('#width').options].some((o) => o.value === wantW)) $('#width').value = wantW;
+const wantTheme = q.get('theme');
+if (wantTheme && [...$('#theme').options].some((o) => o.value === wantTheme)) $('#theme').value = wantTheme;
 if (q.get('screen') && SCREENS.some((s) => s.id === q.get('screen'))) sel.value = q.get('screen');
+$('#theme').onchange = () => sel.onchange();
 
 if (q.get('interaction') === 'quote') checkQuoteInteractions();
 else if (q.get('run') === 'all') run(SCREENS);

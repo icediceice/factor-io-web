@@ -106,7 +106,7 @@ export async function mount(main) {
       ],
     }],
     emptyHtml: '<div class="empty"><strong>No quotations yet</strong>Use Create SOW + quotation above to make the first draft.</div>',
-    detailOf: (id, host) => renderQuote(id, host, () => wbApi.reloadList(), () => loadStats(statsCard)),
+    detailOf: (id, host) => renderQuote(id, host, () => wbApi.reloadList(), () => loadStats(statsCard), wbApi),
     onLoad: () => wizard.refreshClients(),
   });
 
@@ -144,7 +144,7 @@ async function loadStats(card) {
 
 /* ---------------------------------------------------------------- detail -- */
 
-async function renderQuote(id, host, reloadList, reloadStats) {
+async function renderQuote(id, host, reloadList, reloadStats, wbApi) {
   let doc = await api('GET', `/quotations/${id}`);
   let revisions = [];
   // Advisory: a failed revisions read must not take the record down with it.
@@ -165,22 +165,27 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   let aiText = '';
   let aiMessage = '';
   let section = 'overview';
+  let previewLang = doc.quotation?.lang === 'th' ? 'th' : 'en';
+  let previewHtml = '';
   let scopeDraft = null;
   const surface = el('<div class="quote-surface"></div>');
   const detailsDialog = el('<dialog class="quote-edit-dialog" aria-label="Edit quotation details"></dialog>');
   const scopeDialog = el('<dialog class="quote-edit-dialog" aria-label="Edit statement of work"></dialog>');
-  host.append(surface, detailsDialog, scopeDialog);
+  const cloneDialog = el('<dialog class="quote-edit-dialog" aria-label="Duplicate quotation"></dialog>');
+  const invoiceDialog = el('<dialog class="quote-edit-dialog" aria-label="Raise invoice from quotation"></dialog>');
+  host.append(surface, detailsDialog, scopeDialog, cloneDialog, invoiceDialog);
 
   const kindLabel = (code) => doc.kindLabels?.[code] ?? code;
 
   async function refresh({ list = false } = {}) {
     doc = await api('GET', `/quotations/${id}`);
+    previewHtml = '';
     try { revisions = (await api('GET', `/quotations/${id}/revisions`)).revisions ?? []; }
     catch { revisions = []; }
     draw();
+    if (section === 'preview') await loadPreview();
     if (list) { await reloadList(); await reloadStats(); }
   }
-
   const run = async (btn, fn, okMsg) => withBusy(btn, async () => {
     try { await fn(); if (okMsg) toast(okMsg); }
     catch (e) { toast(e.message, 'error'); }
@@ -208,26 +213,131 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     card.querySelector('[data-ai="apply"]').disabled = !previewJson || previewJson !== aiText;
   }
 
+  async function loadPreview() {
+    const frame = surface.querySelector('[data-preview-frame]');
+    const status = surface.querySelector('[data-preview-status]');
+    if (!frame) return;
+    if (status) status.textContent = 'Rendering live A4 sheet…';
+    try {
+      const res = await api('GET', `/quotations/${id}/preview?lang=${encodeURIComponent(previewLang)}`);
+      previewHtml = res.html ?? '';
+      frame.srcdoc = previewHtml;
+      if (status) {
+        status.textContent = res.stale
+          ? `Live draft preview (${previewLang.toUpperCase()}) — edited since stored revision; re-issue before downloading final PDF.`
+          : `Live A4 preview (${previewLang.toUpperCase()}) · matches current quotation state.`;
+      }
+    } catch (e) {
+      if (status) status.textContent = `Preview unavailable: ${e.message}`;
+    }
+  }
+
   function showSection() {
     for (const panel of surface.querySelectorAll('[data-quote-section]')) panel.hidden = panel.dataset.quoteSection !== section;
-    for (const link of surface.querySelectorAll('[data-quote-nav]')) {
+    for (const link of surface.querySelectorAll('.snav [data-quote-nav]')) {
       if (link.dataset.quoteNav === section) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     }
+    if (section === 'preview' && !previewHtml) loadPreview();
   }
 
   function openDetails() {
     if (!(doc.quotation.status === 'draft' || revising)) return;
-    detailsDialog.innerHTML = `<div class="toolbar"><h2>Edit quotation details</h2><button type="button" class="quiet sm" data-close-dialog>Close</button></div><dl class="kv">${headerFields(doc.quotation, true)}</dl>`;
+    detailsDialog.innerHTML = `<div class="toolbar"><h2>Edit quotation details</h2><button type="button" class="quiet" data-close-dialog>Close</button></div><dl class="kv">${headerFields(doc.quotation, true)}</dl>`;
     detailsDialog.showModal();
   }
 
   function openScope() {
     if (!(doc.quotation.status === 'draft' || revising) || !doc.sow) return;
     scopeDraft = structuredClone(doc.sow);
-    scopeDialog.innerHTML = '<div class="toolbar"><h2>Edit statement of work</h2><button type="button" class="quiet sm" data-close-dialog>Close</button></div><form data-form="sow"><div data-sow-editor></div><div class="row-actions"><button type="submit">Save SOW</button></div></form>';
+    scopeDialog.innerHTML = '<div class="toolbar"><h2>Edit statement of work</h2><button type="button" class="quiet" data-close-dialog>Close</button></div><form data-form="sow"><div data-sow-editor></div><div class="row-actions"><button type="submit">Save SOW</button></div></form>';
     mountSowEditor(scopeDialog.querySelector('[data-sow-editor]'), scopeDraft);
     scopeDialog.showModal();
+  }
+
+  function openClone() {
+    const q = doc.quotation;
+    cloneDialog.innerHTML = `<div class="toolbar"><h2>Duplicate ${esc(q.number)}</h2><button type="button" class="quiet" data-close-dialog>Close</button></div>
+      <p class="meta mb-5">Creates a new <strong>draft</strong> quotation with a fresh number, copying the SOW and all ${doc.lines.length} line(s) from ${esc(q.number)}.</p>
+      <form data-form="clone">
+        <div class="grid">
+          <label>Client
+            <select name="client_id">${clients.map((c) =>
+              `<option value="${esc(c.id)}"${c.id === doc.client?.id ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}</select>
+          </label>
+          <label>Language
+            <select name="lang">
+              <option value="en"${q.lang === 'en' ? ' selected' : ''}>English</option>
+              <option value="th"${q.lang === 'th' ? ' selected' : ''}>ไทย</option>
+            </select>
+          </label>
+          <label>Issue date
+            <input name="issue_date" type="date" value="">
+            <span class="hint">Blank = assigned when the cloned draft is issued.</span>
+          </label>
+        </div>
+        <label>Notes <textarea name="notes" rows="2">${esc(q.notes ?? '')}</textarea></label>
+        <div class="row-actions"><button type="submit">Create duplicate draft</button></div>
+      </form>`;
+    cloneDialog.showModal();
+  }
+
+  function openRaiseInvoice() {
+    const q = doc.quotation;
+    if (q.status !== 'accepted') return;
+    const optLines = doc.lines.filter((l) => l.optional);
+    invoiceDialog.innerHTML = `<div class="toolbar"><h2>Raise draft invoice from ${esc(q.number)}</h2><button type="button" class="quiet" data-close-dialog>Close</button></div>
+      <p class="meta mb-5">Snapshots the accepted lines and freezes current VAT (${esc(String(doc.totals.vatRate))}%) and withholding (${esc(String(doc.totals.whtRate))}%) rates onto a new draft tax invoice for <strong>${esc(doc.client?.name ?? 'client')}</strong>.</p>
+      <form data-form="raiseInvoice">
+        <div class="grid">
+          <label>Language
+            <select name="lang">
+              <option value="">Same as quotation (${esc(q.lang.toUpperCase())})</option>
+              <option value="en">English</option>
+              <option value="th">ไทย</option>
+            </select>
+          </label>
+          <label>Issue date (tax point)
+            <input name="issue_date" type="date" value="">
+            <span class="hint">Blank = set when the invoice is issued.</span>
+          </label>
+        </div>
+        ${optLines.length ? `<div class="optional-lines-pick">
+          <span class="section-label">Optional lines on ${esc(q.number)} (check any options the client accepted)</span>
+          ${optLines.map((l) => `<label class="inline"><input type="checkbox" name="include_optional_line_id" value="${esc(l.id)}">
+            <span><strong>${esc(l.descriptionEn)}</strong> · <span class="mono">${fmtSatang(l.subtotalSatang, doc.totals.currency)}</span></span></label>`).join('')}
+        </div>` : ''}
+        <label>Invoice notes / PO reference <textarea name="notes" rows="2" placeholder="PO number, milestone reference…">${esc(q.notes ?? '')}</textarea></label>
+        <div class="row-actions">
+          <button type="submit">Create draft invoice</button>
+          <a class="button quiet" href="invoices.html">Open Invoices list</a>
+        </div>
+      </form>`;
+    invoiceDialog.showModal();
+  }
+
+  function previewCard() {
+    const q = doc.quotation;
+    const stale = !!q.revisionStale;
+    const editable = EDITABLE.includes(q.status);
+    const pdfBlocked = stale && editable && q.status !== 'draft';
+    return el(`<section class="card a4-preview-card">
+      <div class="toolbar">
+        <h2>Live A4 document preview <span class="muted">(${esc(previewLang === 'th' ? 'ภาษาไทย' : 'English')})</span></h2>
+        <div class="row-actions tight">
+          <button type="button" class="${previewLang === 'en' ? '' : 'secondary'}" data-preview-lang="en">Preview EN</button>
+          <button type="button" class="${previewLang === 'th' ? '' : 'secondary'}" data-preview-lang="th">Preview ไทย</button>
+          <button type="button" class="secondary" data-preview-refresh>Refresh</button>
+          ${pdfBlocked
+            ? '<span class="meta">Re-issue to unlock final PDF download</span>'
+            : `<a class="button secondary" href="/api/quotations/${q.id}/pdf?lang=${esc(previewLang)}" target="_blank" rel="noopener">Open PDF (${esc(previewLang.toUpperCase())})</a>`}
+        </div>
+      </div>
+      <p class="meta" data-preview-status>Loading A4 document preview…</p>
+      <div class="a4-preview-stage">
+        <iframe class="a4-preview-frame" data-preview-frame sandbox="allow-same-origin" title="Quotation ${esc(q.number)} A4 preview"></iframe>
+      </div>
+    </section>`);
   }
 
   function draw() {
@@ -236,72 +346,93 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     const unlocked = q.status === 'draft' || revising;
     const stale = !!q.revisionStale;
     const nextRev = (q.revision || 0) + 1;
-    // The server refuses the PDF of an issued or proposed quotation that no
-    // longer matches its snapshot, so the link is not offered as though it
-    // would work — the operator is pointed at the re-issue that fixes it.
     const pdfBlocked = stale && editable && q.status !== 'draft';
+    const moves = MOVES[q.status] ?? [];
+    const retiring = (s) => s === 'cancelled' || s === 'declined';
+    const forwardMoves = moves.filter(([s]) => !retiring(s));
+    const retiringMoves = moves.filter(([s]) => retiring(s));
+    const leadMove = forwardMoves[0]?.[0];
 
     surface.innerHTML = '';
 
     /* ---- header ---- */
-    const head = el(`<section class="card">
-      <div class="toolbar">
-        <h2>
-          <span class="mono">${esc(q.number)}</span> ${statusChip(q.status)}
-          ${q.revision >= 2 ? `<span class="mono muted">Rev. ${q.revision}</span>` : ''}
-        </h2>
-        <div class="row-actions tight">
+    const head = el(`<section class="card quote-head">
+      <div class="quote-identity">
+        <div class="quote-title-block">
+          <div class="quote-title-row">
+            <h2>
+              <span class="mono">${esc(q.number)}</span> ${statusChip(q.status)}
+              ${q.revision >= 2 ? `<span class="mono muted">Rev. ${q.revision}</span>` : ''}
+            </h2>
+          </div>
+          <div class="quote-client-meta">
+            <strong>${esc(doc.client?.name ?? '—')}</strong>
+            <span>· ${esc(q.lang.toUpperCase())} · ${esc(q.currency)}</span>
+            <span>· ${esc(String(doc.lines.length))} line${doc.lines.length === 1 ? '' : 's'}</span>
+            ${q.issueDate ? `<span>· Issued <span class="mono">${esc(q.issueDate)}</span></span>` : '<span>· Unissued draft</span>'}
+          </div>
+        </div>
+        <div class="quote-summary-figure">
+          <span class="label">Total payable</span>
+          <span class="value">${fmtSatang(doc.totals.payableSatang, doc.totals.currency)}</span>
+        </div>
+      </div>
+      <div class="quote-actions-bar">
+        <div class="action-group">
           ${q.status === 'draft' ? '<button data-act="issue">Issue</button>' : ''}
           ${editable && q.status !== 'draft' && !revising ? '<button class="secondary" data-act="revise">Revise</button>' : ''}
           ${q.status !== 'draft' && revising ? '<button class="quiet" data-act="lock">Done editing</button>' : ''}
           ${stale && editable ? `<button data-act="reissue">Re-issue as Rev. ${nextRev}</button>` : ''}
+          ${forwardMoves.map(([s, label]) => `<button${s === leadMove ? '' : ' class="secondary"'} data-move="${s}">${esc(label)}</button>`).join('')}
+          ${q.status === 'accepted' ? '<button type="button" data-act="raise-invoice">Raise invoice</button>' : ''}
+        </div>
+        <div class="action-group">
+          <button type="button" class="secondary" data-quote-nav="preview">Live A4 preview</button>
           ${pdfBlocked
             ? '<span class="meta">PDF available after re-issue</span>'
             : `<a class="button secondary" href="/api/quotations/${q.id}/pdf?lang=en" target="_blank" rel="noopener">PDF EN</a>
                <a class="button secondary" href="/api/quotations/${q.id}/pdf?lang=th" target="_blank" rel="noopener">PDF ไทย</a>`}
-          ${(() => {
-            // Exactly one primary per screen: the natural FORWARD move for this
-            // status — Mark proposed on an issued quote, Accept on a proposed
-            // one. Everything else is secondary, and retiring moves are
-            // destructive-styled. With every move rendered 'secondary' the row
-            // had no focal point at all; with the PDF links wrongly filled it
-            // had two. A retiring move is NEVER promoted to primary, so a
-            // status whose only move is Cancel simply has no primary here
-            // (a draft's primary is its Issue button).
-            const moves = MOVES[q.status] ?? [];
-            const retiring = (s) => s === 'cancelled' || s === 'declined';
-            const lead = moves.find(([s]) => !retiring(s))?.[0];
-            return moves.map(([s, label]) => {
-              const cls = retiring(s) ? 'danger' : (s === lead ? '' : 'secondary');
-              return `<button${cls ? ` class="${cls}"` : ''} data-move="${s}">${esc(label)}</button>`;
-            }).join('');
-          })()}
-          ${q.status === 'accepted' ? '<a class="button quiet" href="invoices.html">Raise invoice</a>' : ''}
+          <button type="button" class="secondary" data-act="clone">Duplicate</button>
+        </div>
+        <div class="action-group">
+          ${retiringMoves.map(([s, label]) => `<button class="danger" data-move="${s}">${esc(label)}</button>`).join('')}
           <button class="danger" data-act="delete">Delete</button>
         </div>
       </div>
-      ${stale ? `<div class="banner" data-tone="warn">
+      ${stale ? `<div class="banner mt-3" data-tone="warn">
         Edited since <strong>Rev. ${q.revision}</strong>. Re-issue to record the correction as Rev. ${nextRev} —
         until then this quotation does not match any stored revision and its PDF is unavailable.
       </div>` : ''}
     </section>`);
     surface.append(head);
 
+    const incMods = doc.sow?.modules?.filter((m) => m.included)?.length ?? 0;
+    const totalMods = doc.sow?.modules?.length ?? 0;
+    const firmLines = doc.lines.filter((l) => !l.optional).length;
+    const optLines = doc.lines.filter((l) => l.optional).length;
     const overview = el(`<section data-quote-section="overview"><div class="card"><div class="toolbar"><h2>Overview</h2>
-      ${unlocked ? '<button type="button" class="secondary sm" data-edit-details>Edit details</button>' : ''}</div>
-      <dl class="kv">${headerFields(q, false)}</dl></div></section>`);
+      ${unlocked ? '<button type="button" class="secondary" data-edit-details>Edit details</button>' : ''}</div>
+      <dl class="kv">${headerFields(q, false)}</dl>
+      <div class="overview-grid">
+        <div class="overview-stat"><div class="k">Scope of work</div><div class="v">${doc.sow ? `${incMods} of ${totalMods} modules included` : 'No SOW attached'}</div></div>
+        <div class="overview-stat"><div class="k">Priced lines</div><div class="v">${firmLines} firm${optLines ? ` · ${optLines} optional` : ''}</div></div>
+        <div class="overview-stat"><div class="k">Tax & WHT</div><div class="v">VAT ${esc(String(doc.totals.vatRate))}% · WHT ${esc(String(doc.totals.whtRate))}% (${esc(doc.totals.whtMode)})</div></div>
+        <div class="overview-stat"><div class="k">Net / Grand total</div><div class="v mono">${fmtSatang(doc.totals.netSatang, doc.totals.currency)} / ${fmtSatang(doc.totals.grandSatang, doc.totals.currency)}</div></div>
+      </div></div></section>`);
     const scope = el('<section data-quote-section="scope"></section>');
     scope.append(sowCard(unlocked));
     const pricing = el('<section data-quote-section="pricing"></section>');
     pricing.append(linesCard(unlocked, editable, kindLabel), totalsCard());
+    const preview = el('<section data-quote-section="preview"></section>');
+    preview.append(previewCard());
     const history = el('<section data-quote-section="history"></section>');
     history.append(revisionsCard());
     const ai = el('<section data-quote-section="ai"></section>');
     if (q.status === 'draft') ai.append(aiCard());
-    const sections = { overview, scope, pricing, history, ai };
+    const sections = { overview, scope, pricing, preview, history, ai };
     if (q.status !== 'draft' && section === 'ai') section = 'overview';
     const stack = el(`<div class="stack quote-stack"><nav class="snav" aria-label="Quotation sections">
-      ${Object.entries({ overview: 'Overview', scope: 'Scope of work', pricing: 'Pricing & lines', history: 'History', ...(q.status === 'draft' ? { ai: 'AI exchange' } : {}) }).map(([key, label]) => `<a href="#${key}" data-quote-nav="${key}">${label}</a>`).join('')}
+      ${Object.entries({ overview: 'Overview', scope: 'Scope of work', pricing: 'Pricing & lines', preview: 'Live A4 preview', history: 'History', ...(q.status === 'draft' ? { ai: 'AI exchange' } : {}) }).map(([key, label]) => `<a href="#${key}" data-quote-nav="${key}">${label}</a>`).join('')}
       </nav><div class="stack-body" data-section-body></div></div>`);
     stack.querySelector('[data-section-body]').append(...Object.values(sections));
     surface.append(stack);
@@ -417,9 +548,9 @@ async function renderQuote(id, host, reloadList, reloadStats) {
           <th class="num">Qty</th><th>Unit</th><th class="num">Unit price</th>
           <th class="num">Discount</th><th class="num">Subtotal</th><th></th>
         </tr></thead><tbody>
-          ${doc.lines.map((l) => (String(l.id) === String(editingLine) && unlocked
+          ${doc.lines.map((l, idx) => (String(l.id) === String(editingLine) && unlocked
             ? lineEditRow(l)
-            : lineRow(l, unlocked, kindLabel))).join('')}
+            : lineRow(l, unlocked, kindLabel, idx, doc.lines.length))).join('')}
         </tbody></table></div>`
       : '<div class="empty"><strong>No lines yet</strong>A quotation cannot be issued until it has at least one.</div>';
 
@@ -431,7 +562,13 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     return card;
   }
 
-  function lineRow(l, unlocked, kindLabel) {
+  function lineRow(l, unlocked, kindLabel, idx = 0, totalLines = 1) {
+    const reorderBtns = unlocked && totalLines > 1
+      ? `<span class="line-order-btns">
+           <button type="button" class="quiet sm" data-move-line="up" data-line-id="${esc(l.id)}" aria-label="Move line up"${idx === 0 ? ' disabled' : ''}>↑</button>
+           <button type="button" class="quiet sm" data-move-line="down" data-line-id="${esc(l.id)}" aria-label="Move line down"${idx === totalLines - 1 ? ' disabled' : ''}>↓</button>
+         </span>`
+      : '';
     return `<tr data-optional="${l.optional ? 'true' : 'false'}">
       <td class="mono">${l.optional ? '○' : esc(String(l.position))}</td>
       <td><strong>${esc(l.descriptionEn)}</strong>${l.optional ? ' <span class="mono">[OPTION]</span>' : ''}
@@ -445,7 +582,8 @@ async function renderQuote(id, host, reloadList, reloadStats) {
       <td class="num mono">${l.discountSatang ? `−${fmtSatang(l.discountSatang)}` : '—'}</td>
       <td class="num mono">${fmtSatang(l.subtotalSatang)}</td>
       <td class="actions">${unlocked
-        ? `<button class="quiet sm" data-edit="${esc(l.id)}">Edit</button>
+        ? `${reorderBtns}
+           <button class="quiet sm" data-edit="${esc(l.id)}">Edit</button>
            <button class="quiet sm" data-del="${esc(l.id)}">Remove</button>`
         : ''}</td>
     </tr>`;
@@ -548,7 +686,8 @@ async function renderQuote(id, host, reloadList, reloadStats) {
         return toast('Editing unlocked — re-issue when the correction is done');
       }
       if (btn.dataset.act === 'lock') { revising = false; editingLine = null; return draw(); }
-
+      if (btn.dataset.act === 'clone') return openClone();
+      if (btn.dataset.act === 'raise-invoice') return openRaiseInvoice();
       if (btn.dataset.move) {
         const to = btn.dataset.move;
         if (to === 'cancelled' || to === 'declined') {
@@ -624,6 +763,28 @@ async function renderQuote(id, host, reloadList, reloadStats) {
     if (btn.hasAttribute('data-close-dialog')) { btn.closest('dialog')?.close(); return; }
     if (btn.hasAttribute('data-edit-details')) return openDetails();
     if (btn.hasAttribute('data-edit-sow')) return openScope();
+    if (btn.dataset.previewLang) {
+      previewLang = btn.dataset.previewLang === 'th' ? 'th' : 'en';
+      previewHtml = '';
+      draw();
+      return loadPreview();
+    }
+    if (btn.hasAttribute('data-preview-refresh')) {
+      previewHtml = '';
+      return loadPreview();
+    }
+    if (btn.dataset.moveLine) {
+      const dir = btn.dataset.moveLine === 'up' ? -1 : 1;
+      const ids = doc.lines.map((l) => Number(l.id));
+      const idx = ids.indexOf(Number(btn.dataset.lineId));
+      const target = idx + dir;
+      if (idx < 0 || target < 0 || target >= ids.length) return;
+      [ids[idx], ids[target]] = [ids[target], ids[idx]];
+      return run(btn, async () => {
+        await api('POST', `/quotations/${id}/lines/reorder`, { line_ids: ids });
+        await refresh({ list: false });
+      }, 'Line order updated');
+    }
 
     if (btn.hasAttribute('data-add-sow')) {
       const code = host.querySelector('[data-sow-template]')?.value;
@@ -734,6 +895,47 @@ async function renderQuote(id, host, reloadList, reloadStats) {
   });
 
   host.addEventListener('submit', async (e) => {
+    if (e.target.dataset.form === 'clone') {
+      e.preventDefault();
+      const form = e.target;
+      const f = new FormData(form);
+      const body = {
+        client_id: Number(f.get('client_id')),
+        lang: String(f.get('lang') ?? 'en'),
+        issue_date: String(f.get('issue_date') ?? ''),
+        notes: String(f.get('notes') ?? ''),
+      };
+      return run(form.querySelector('button[type="submit"]'), async () => {
+        const res = await api('POST', `/quotations/${id}/clone`, body);
+        cloneDialog.close();
+        toast(`Cloned into draft ${res.quotation.number}`);
+        if (wbApi) {
+          await wbApi.reloadAll();
+          wbApi.select(res.quotation.id);
+        } else {
+          await reloadList();
+        }
+      });
+    }
+    if (e.target.dataset.form === 'raiseInvoice') {
+      e.preventDefault();
+      const form = e.target;
+      const f = new FormData(form);
+      const optIds = f.getAll('include_optional_line_id').map(Number).filter(Number.isInteger);
+      const body = {
+        quotation_id: Number(id),
+        notes: String(f.get('notes') ?? ''),
+        include_optional_line_ids: optIds,
+      };
+      if (f.get('lang')) body.lang = String(f.get('lang'));
+      if (f.get('issue_date')) body.issue_date = String(f.get('issue_date'));
+      return run(form.querySelector('button[type="submit"]'), async () => {
+        const res = await api('POST', '/invoices', body);
+        invoiceDialog.close();
+        toast(`Created draft invoice ${res.invoice.number}`);
+        location.href = `invoices.html?id=${encodeURIComponent(res.invoice.id)}`;
+      });
+    }
     if (e.target.dataset.form === 'sow') {
       e.preventDefault();
       const form = e.target;
@@ -745,7 +947,6 @@ async function renderQuote(id, host, reloadList, reloadStats) {
       }, 'SOW saved');
     }
     if (e.target.dataset.form !== 'addLine') return;
-    e.preventDefault();
     const form = e.target;
     const f = new FormData(form);
     const body = {

@@ -475,14 +475,21 @@ export function createApi(db) {
         return buildQuoteDocument(db, id);
       });
       return json(201, docEnvelope(doc));
+    if (path === '/quotations/deleted' && method === 'GET') {
+      return json(200, { deleted: listDeletedQuotations(db) });
+    }
+
+    if (seg[0] === 'quotations' && seg[1] && seg[2] === 'restore' && method === 'POST') {
+      const id = Number(seg[1]);
+      if (!Number.isInteger(id)) throw bad('quotation id must be an integer');
+      const restored = restoreDeletedQuotation(db, id, { actor });
+      return json(200, docEnvelope(restored, { restored: true }));
     }
 
     if (seg[0] === 'quotations' && seg[1]) {
       const id = Number(seg[1]);
       const row = db.prepare('SELECT * FROM quotations WHERE id = ?').get(id);
       if (!row) throw missing('quotation');
-
-      if (!seg[2]) {
         if (method === 'GET') return json(200, docEnvelope(buildQuoteDocument(db, id)));
         if (method === 'PUT') {
           const fields = ['lang', 'currency', 'notes', 'issue_date', 'fx_base', 'fx_rate', 'fx_as_of'];

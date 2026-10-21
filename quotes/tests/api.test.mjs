@@ -863,3 +863,114 @@ describe('revise in place (the PDF guard, over http)', () => {
     } finally { app.close(); }
   });
 });
+
+describe('quotation preview, clone, and line reorder', () => {
+  test('GET /quotations/:id/preview renders EN and TH A4 HTML even when an issued quotation is stale', async () => {
+    const { call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Preview Co' } })).body).client;
+    const created = JSON.parse((await call('POST', '/quotations', {
+      body: {
+        client_id: client.id,
+        template: 'nkp',
+        lines: [{
+          kind: 'service',
+          description_en: 'NKP Platform Deployment',
+          description_th: 'ติดตั้งระบบ NKP',
+          qty: '2',
+          unit: 'day',
+          unit_price: '45000.00',
+        }],
+      },
+    })).body);
+    const qid = created.quotation.id;
+
+    await call('POST', `/quotations/${qid}/issue`);
+    await call('PUT', `/quotations/${qid}`, { body: { notes: 'Updated after issue' } });
+
+    const enPreview = await call('GET', `/quotations/${qid}/preview`, { query: { lang: 'en' } });
+    assert.equal(enPreview.status, 200);
+    const enBody = JSON.parse(enPreview.body);
+    assert.equal(enBody.lang, 'en');
+    assert.equal(enBody.stale, true);
+    assert.match(enBody.html, /NKP Platform Deployment/);
+    assert.match(enBody.html, new RegExp(created.quotation.number));
+
+    const thPreview = await call('GET', `/quotations/${qid}/preview`, { query: { lang: 'th' } });
+    assert.equal(thPreview.status, 200);
+    const thBody = JSON.parse(thPreview.body);
+    assert.equal(thBody.lang, 'th');
+    assert.match(thBody.html, /ติดตั้งระบบ NKP/);
+  });
+
+  test('POST /quotations/:id/clone duplicates SOW and lines into a fresh draft number and audits quotation.clone', async () => {
+    const { db, call } = boot();
+    const c1 = JSON.parse((await call('POST', '/clients', { body: { name: 'Origin Client' } })).body).client;
+    const c2 = JSON.parse((await call('POST', '/clients', { body: { name: 'Target Client' } })).body).client;
+    const src = JSON.parse((await call('POST', '/quotations', {
+      body: {
+        client_id: c1.id,
+        template: 'enterprise-ai',
+        issue_date: '2026-10-01',
+        notes: 'Original engagement note',
+        lines: [
+          { kind: 'service', description_en: 'Stage 1', description_th: 'ระยะที่ 1', qty: '1', unit: 'lot', unit_price: '120000.00', optional: false },
+          { kind: 'service', description_en: 'Optional GPU node', qty: '1', unit: 'node', unit_price: '80000.00', optional: true },
+        ],
+      },
+    })).body);
+    await call('POST', `/quotations/${src.quotation.id}/issue`);
+
+    const clonedRes = await call('POST', `/quotations/${src.quotation.id}/clone`, {
+      body: { client_id: c2.id },
+    });
+    assert.equal(clonedRes.status, 201);
+    const cloned = JSON.parse(clonedRes.body);
+    assert.notEqual(cloned.quotation.id, src.quotation.id);
+    assert.notEqual(cloned.quotation.number, src.quotation.number);
+    assert.equal(cloned.quotation.status, 'draft');
+    assert.equal(cloned.quotation.issueDate, '');
+    assert.equal(cloned.client.id, c2.id);
+    assert.equal(cloned.lines.length, 2);
+    assert.equal(cloned.lines[0].descriptionEn, 'Stage 1');
+    assert.equal(cloned.lines[0].descriptionTh, 'ระยะที่ 1');
+    assert.equal(cloned.lines[1].optional, true);
+    assert.equal(cloned.sow.modules.length, src.sow.modules.length);
+    assert.equal(cloned.cloned_from.id, src.quotation.id);
+
+    const auditRow = db.prepare("SELECT action, detail FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='quotation.clone'").get(cloned.quotation.id);
+    assert.ok(auditRow);
+    assert.equal(JSON.parse(auditRow.detail).source_id, src.quotation.id);
+  });
+
+  test('POST /quotations/:id/lines/reorder updates line positions 1..N and rejects mismatched line_ids', async () => {
+    const { db, call } = boot();
+    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Reorder Client' } })).body).client;
+    const created = JSON.parse((await call('POST', '/quotations', {
+      body: {
+        client_id: client.id,
+        lines: [
+          { kind: 'service', description_en: 'First line', qty: '1', unit_price: '10000.00' },
+          { kind: 'service', description_en: 'Second line', qty: '1', unit_price: '20000.00' },
+          { kind: 'service', description_en: 'Third line', qty: '1', unit_price: '30000.00' },
+        ],
+      },
+    })).body);
+    const qid = created.quotation.id;
+    const [l1, l2, l3] = created.lines.map((l) => l.id);
+
+    const badReorder = await call('POST', `/quotations/${qid}/lines/reorder`, { body: { line_ids: [l3, l1] } });
+    assert.equal(badReorder.status, 400);
+
+    const okReorder = await call('POST', `/quotations/${qid}/lines/reorder`, { body: { line_ids: [l3, l1, l2] } });
+    assert.equal(okReorder.status, 200);
+    const reordered = JSON.parse(okReorder.body).lines;
+    assert.deepEqual(reordered.map((l) => [l.id, l.position, l.descriptionEn]), [
+      [l3, 1, 'Third line'],
+      [l1, 2, 'First line'],
+      [l2, 3, 'Second line'],
+    ]);
+
+    const auditRow = db.prepare("SELECT action FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='line.reorder'").get(qid);
+    assert.ok(auditRow);
+  });
+});

@@ -976,8 +976,11 @@ describe('quotation preview, clone, and line reorder', () => {
   });
 
   test('UI harness DOM audit passes in both light and dark themes across quotations and smart-quote', async () => {
-    const { spawn } = await import('node:child_process');
-    const { chromium } = await import('playwright');
+    const { spawn, execFile } = await import('node:child_process');
+    const { promisify } = await import('node:util');
+    const { findChromium } = await import('../lib/pdf.mjs');
+    const execFileAsync = promisify(execFile);
+    const { bin } = findChromium();
     const port = 18799;
     const srv = spawn(process.execPath, ['tests/ui-harness-server.mjs', String(port)], {
       cwd: new URL('..', import.meta.url),
@@ -997,21 +1000,21 @@ describe('quotation preview, clone, and line reorder', () => {
       });
     });
 
-    const browser = await chromium.launch({ headless: true });
     try {
-      const page = await browser.newPage({ viewport: { width: 1480, height: 960 } });
       for (const [screen, theme] of [['quotations.html', 'light'], ['quotations.html', 'dark'], ['smart-quote.html', 'dark']]) {
-        await page.goto(`http://127.0.0.1:${port}/tests/ui-harness.html?screen=${screen}&vp=1440&theme=${theme}`);
-        await page.waitForFunction(() => {
-          const el = document.querySelector('#summary');
-          return el && (el.classList.contains('all-pass') || el.classList.contains('has-fail'));
-        }, null, { timeout: 15000 });
-        const summaryText = await page.locator('#summary').innerText();
-        const failLines = await page.locator('#results .fail').allInnerTexts();
-        assert.equal(failLines.length, 0, `${screen} (${theme}) DOM audit failed (${summaryText}):\n${failLines.join('\n')}`);
+        const url = `http://127.0.0.1:${port}/tests/ui-harness.html?screen=${screen}&vp=1440&theme=${theme}`;
+        const { stdout } = await execFileAsync(bin, [
+          '--headless',
+          '--no-sandbox',
+          '--disable-gpu',
+          '--window-size=1480,960',
+          '--virtual-time-budget=8000',
+          '--dump-dom',
+          url,
+        ], { timeout: 20000, maxBuffer: 10 * 1024 * 1024 });
+        assert.match(stdout, /id="summary"[^>]*class="all-pass"/, `${screen} (${theme}) did not reach all-pass:\n${stdout.slice(0, 1500)}`);
       }
     } finally {
-      await browser.close();
       srv.kill('SIGTERM');
     }
   });

@@ -47,11 +47,6 @@ export function mountSowEditor(container, sow, { onChange = () => {}, readOnly =
       <button type="button" class="secondary sm" data-action="apply-json">Apply JSON</button></details>`;
     if (readOnly) container.querySelectorAll('input,textarea,button').forEach((field) => { field.disabled = true; });
   }
-  container.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && event.target.tagName === 'INPUT') {
-      event.preventDefault();
-    }
-  }, { signal: controller.signal });
   container.addEventListener('input', (event) => {
     const field = event.target;
     if (field.dataset.summary) sow.summary[field.dataset.summary] = field.value;

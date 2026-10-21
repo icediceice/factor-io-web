@@ -975,61 +975,6 @@ describe('quotation preview, clone, and line reorder', () => {
     assert.ok(auditRow);
   });
 
-  test('DELETE /quotations/:id snapshots full quotation/SOW/lines/revisions and POST /quotations/:id/restore recovers it intact', async () => {
-    const { db, call } = boot();
-    const client = JSON.parse((await call('POST', '/clients', { body: { name: 'Wish Enterprise Group' } })).body).client;
-    const created = JSON.parse((await call('POST', '/quotations', {
-      body: {
-        client_id: client.id,
-        template: 'enterprise-ai',
-        notes: 'Critical enterprise AI quote',
-        lines: [
-          {
-            kind: 'service',
-            description_en: 'AI with ERP implementation',
-            description_th: 'ติดตั้งระบบ AI และปรับการใช้งานกับระบบ ERP',
-            qty: '1',
-            unit: 'day',
-            unit_price: '35000.00',
-            section: 'Implementation',
-          },
-        ],
-      },
-    })).body);
-    const qid = created.quotation.id;
-    const qnum = created.quotation.number;
-    await call('POST', `/quotations/${qid}/issue`);
-
-    const delRes = await call('DELETE', `/quotations/${qid}`);
-    assert.equal(delRes.status, 200);
-    assert.equal((await call('GET', `/quotations/${qid}`)).status, 404);
-
-    const listed = JSON.parse((await call('GET', '/quotations/deleted')).body).deleted;
-    assert.equal(listed.length, 1);
-    assert.equal(listed[0].id, qid);
-    assert.equal(listed[0].number, qnum);
-    assert.equal(listed[0].line_count, 1);
-    assert.equal(listed[0].has_sow, true);
-
-    const restoredRes = await call('POST', `/quotations/${qid}/restore`, { body: {} });
-    assert.equal(restoredRes.status, 200);
-    const restored = JSON.parse(restoredRes.body);
-    assert.equal(restored.restored, true);
-    assert.equal(restored.quotation.id, qid);
-    assert.equal(restored.quotation.number, qnum);
-    assert.equal(restored.quotation.status, 'issued');
-    assert.equal(restored.quotation.revision, 1);
-    assert.equal(restored.lines.length, 1);
-    assert.equal(restored.lines[0].descriptionEn, 'AI with ERP implementation');
-    assert.equal(restored.lines[0].descriptionTh, 'ติดตั้งระบบ AI และปรับการใช้งานกับระบบ ERP');
-    assert.ok(restored.sow?.summary?.en);
-
-    const listedAfter = JSON.parse((await call('GET', '/quotations/deleted')).body).deleted;
-    assert.equal(listedAfter.length, 0);
-    const restoreAudit = db.prepare("SELECT action FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='quotation.restore'").get(String(qid));
-    assert.ok(restoreAudit);
-  });
-
   test('UI harness DOM audit passes in both light and dark themes across quotations and smart-quote', async () => {
     const { spawn, execFile } = await import('node:child_process');
     const { promisify } = await import('node:util');

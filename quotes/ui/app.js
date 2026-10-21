@@ -93,11 +93,8 @@ export function confirmAction({
   // An acknowledgement has nothing to cancel: it reports a refusal the server
   // already made. It gets one button, and never claims anything is permanent.
   acknowledge = false,
-  requireText = '',
-  requireLabel = '',
 }) {
   return new Promise((resolve) => {
-    const need = String(requireText ?? '').trim();
     const dlg = el(`<dialog class="confirm" data-tone="${esc(tone)}">
       <form method="dialog" class="dlg-body">
         <h2>${esc(title)}</h2>
@@ -105,42 +102,24 @@ export function confirmAction({
         ${consequences.length
           ? `<ul>${consequences.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>`
           : ''}
-        ${need ? `<label class="confirm-type-guard">${esc(requireLabel || `Type ${need} to confirm`)}
-          <input type="text" data-confirm-input autocomplete="off" spellcheck="false" placeholder="${esc(need)}" class="mono">
-        </label>` : ''}
-        ${tone === 'danger' && !acknowledge ? '<p class="consequence">This cannot be undone without restoring from audit history.</p>' : ''}
+        ${tone === 'danger' && !acknowledge ? '<p class="consequence">This cannot be undone.</p>' : ''}
       </form>
       <div class="dlg-actions">
         ${acknowledge ? '' : '<button type="button" class="secondary" data-act="cancel">Cancel</button>'}
-        <button type="button" class="${tone === 'danger' ? 'danger-solid' : 'secondary'}" data-act="ok"${need ? ' disabled' : ''}>${esc(confirmLabel)}</button>
+        <button type="button" class="${tone === 'danger' ? 'danger-solid' : 'secondary'}" data-act="ok">${esc(confirmLabel)}</button>
       </div>
     </dialog>`);
     document.body.append(dlg);
     const done = (v) => { dlg.close(); dlg.remove(); resolve(v); };
     const cancelBtn = dlg.querySelector('[data-act=cancel]');
-    const okBtn = dlg.querySelector('[data-act=ok]');
-    const guardInput = dlg.querySelector('[data-confirm-input]');
-    const matchesGuard = () => !need || (guardInput && guardInput.value.trim().toLowerCase() === need.toLowerCase());
-    if (guardInput) {
-      guardInput.addEventListener('input', () => {
-        okBtn.disabled = !matchesGuard();
-      });
-    }
-    dlg.querySelector('form')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (matchesGuard() && !need) done(true);
-    });
     if (cancelBtn) cancelBtn.addEventListener('click', () => done(false));
-    okBtn.addEventListener('click', () => {
-      if (!matchesGuard()) return;
-      done(true);
-    });
+    dlg.querySelector('[data-act=ok]').addEventListener('click', () => done(true));
     // Escape and the backdrop both mean no. A destructive dialog must never
     // resolve true by accident.
     dlg.addEventListener('cancel', (e) => { e.preventDefault(); done(false); });
     dlg.showModal();
     // Cancel takes focus, so Enter is safe on a destructive dialog.
-    (cancelBtn ?? okBtn).focus();
+    (cancelBtn ?? dlg.querySelector('[data-act=ok]')).focus();
   });
 }
 

@@ -13,8 +13,7 @@ import { openDb, tx, getSettings, setSetting, audit } from './lib/db.mjs';
 import { parseSatang, parseMilli, milliToDecimal, satangToDecimal, lineSubtotal } from './lib/money.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
-  saveRevision, markStatus, editRefusal, deleteQuotation,
-  listDeletedQuotations, restoreDeletedQuotation, QuotationDeleteRefusal,
+  saveRevision, markStatus, editRefusal, deleteQuotation, QuotationDeleteRefusal,
 } from './lib/quote.mjs';
 import {
   createInvoiceFromQuotation, issueInvoice, markInvoiceStatus,
@@ -475,17 +474,6 @@ export function createApi(db) {
         return buildQuoteDocument(db, id);
       });
       return json(201, docEnvelope(doc));
-    }
-
-    if (path === '/quotations/deleted' && method === 'GET') {
-      return json(200, { deleted: listDeletedQuotations(db) });
-    }
-
-    if (seg[0] === 'quotations' && seg[1] && seg[2] === 'restore' && method === 'POST') {
-      const id = Number(seg[1]);
-      if (!Number.isInteger(id)) throw bad('quotation id must be an integer');
-      const restored = restoreDeletedQuotation(db, id, { actor });
-      return json(200, docEnvelope(restored, { restored: true }));
     }
 
     if (seg[0] === 'quotations' && seg[1]) {

@@ -13,7 +13,8 @@ import { openDb, tx, getSettings, setSetting, audit } from './lib/db.mjs';
 import { parseSatang, parseMilli, milliToDecimal, satangToDecimal, lineSubtotal } from './lib/money.mjs';
 import {
   computeTotals, allocateQuoteNumber, buildQuoteDocument,
-  saveRevision, markStatus, editRefusal, deleteQuotation, QuotationDeleteRefusal,
+  saveRevision, markStatus, editRefusal, deleteQuotation,
+  listDeletedQuotations, restoreDeletedQuotation, QuotationDeleteRefusal,
 } from './lib/quote.mjs';
 import {
   createInvoiceFromQuotation, issueInvoice, markInvoiceStatus,

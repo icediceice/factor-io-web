@@ -409,7 +409,7 @@ export class QuotationDeleteRefusal extends Error {}
  * invoice's source number before unlinking it, within the same transaction. */
 export function deleteQuotation(db, quotationId, { actor = 'agent', expect = null } = {}) {
   return tx(db, () => {
-    const row = db.prepare('SELECT id, number, status FROM quotations WHERE id = ?').get(quotationId);
+    const row = db.prepare('SELECT * FROM quotations WHERE id = ?').get(quotationId);
     if (!row) throw new QuotationDeleteRefusal(`quotation ${quotationId} not found`);
     const invoices = db.prepare(
       'SELECT id, number, status, source_quotation_number FROM invoices WHERE quotation_id = ? ORDER BY id'
@@ -431,9 +431,13 @@ export function deleteQuotation(db, quotationId, { actor = 'agent', expect = nul
       );
     }
 
-    const revisions = db.prepare(
-      'SELECT COUNT(*) c FROM quotation_revisions WHERE quotation_id = ?'
-    ).get(quotationId).c;
+    const snapshotLines = db.prepare(
+      'SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id'
+    ).all(quotationId);
+    const snapshotRevisions = db.prepare(
+      'SELECT * FROM quotation_revisions WHERE quotation_id = ? ORDER BY rev'
+    ).all(quotationId);
+    const revisions = snapshotRevisions.length;
     for (const invoice of invoices) {
       if (invoice.source_quotation_number && invoice.source_quotation_number !== row.number) {
         throw new QuotationDeleteRefusal(`invoice ${invoice.number} has a different saved source quotation`);
@@ -448,9 +452,105 @@ export function deleteQuotation(db, quotationId, { actor = 'agent', expect = nul
     db.prepare('DELETE FROM quotations WHERE id = ?').run(quotationId);
     const unlinked_invoices = invoices.map(({ number }) => number);
     audit(db, actor, 'quotation.delete', 'quotation', quotationId, {
-      number: row.number, status: row.status, revisions_destroyed: revisions, unlinked_invoices,
+      number: row.number,
+      status: row.status,
+      revisions_destroyed: revisions,
+      unlinked_invoices,
+      snapshot: {
+        quotation: row,
+        lines: snapshotLines,
+        revisions: snapshotRevisions,
+      },
     });
     return { ok: true, number: row.number, revisions_destroyed: revisions, unlinked_invoices };
+  });
+}
+
+export function listDeletedQuotations(db) {
+  const rows = db.prepare(
+    "SELECT id, at, actor, entity_id, detail FROM audit_log WHERE action = 'quotation.delete' ORDER BY id DESC"
+  ).all();
+  const seen = new Set();
+  const out = [];
+  for (const r of rows) {
+    const eid = String(r.entity_id ?? '');
+    if (!eid || seen.has(eid)) continue;
+    seen.add(eid);
+    let parsed;
+    try { parsed = JSON.parse(r.detail || '{}'); } catch { continue; }
+    const q = parsed?.snapshot?.quotation;
+    if (!q || !q.id || !q.number) continue;
+    const exists = db.prepare('SELECT id FROM quotations WHERE id = ? OR number = ?').get(q.id, q.number);
+    if (exists) continue;
+    out.push({
+      id: Number(q.id),
+      number: String(q.number),
+      client_id: Number(q.client_id),
+      status: String(q.status ?? 'draft'),
+      deleted_at: String(r.at ?? ''),
+      deleted_by: String(r.actor ?? ''),
+      line_count: Array.isArray(parsed.snapshot.lines) ? parsed.snapshot.lines.length : 0,
+      has_sow: Boolean(q.sow_json),
+    });
+  }
+  return out;
+}
+
+export function restoreDeletedQuotation(db, quotationId, { actor = 'agent' } = {}) {
+  return tx(db, () => {
+    const existing = db.prepare('SELECT id, number FROM quotations WHERE id = ?').get(quotationId);
+    if (existing) throw new QuotationDeleteRefusal(`quotation ${existing.number} (id ${quotationId}) is already active`);
+    const auditRow = db.prepare(
+      "SELECT id, detail FROM audit_log WHERE action = 'quotation.delete' AND entity_id = ? ORDER BY id DESC LIMIT 1"
+    ).get(String(quotationId));
+    if (!auditRow) throw new QuotationDeleteRefusal(`quotation ${quotationId} has no deletion record`);
+    let parsed;
+    try { parsed = JSON.parse(auditRow.detail || '{}'); } catch { parsed = {}; }
+    const snap = parsed?.snapshot;
+    if (!snap?.quotation) {
+      throw new QuotationDeleteRefusal(`quotation ${quotationId} was deleted without a restorable snapshot`);
+    }
+    const q = snap.quotation;
+    if (db.prepare('SELECT id FROM quotations WHERE number = ?').get(q.number)) {
+      throw new QuotationDeleteRefusal(`quotation number ${q.number} is already in use`);
+    }
+    if (!db.prepare('SELECT id FROM clients WHERE id = ?').get(q.client_id)) {
+      throw new QuotationDeleteRefusal(`client ${q.client_id} for quotation ${q.number} no longer exists`);
+    }
+
+    const validCols = (table) => new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
+    const qAllowed = validCols('quotations');
+    const qCols = Object.keys(q).filter((k) => qAllowed.has(k));
+    db.prepare(
+      `INSERT INTO quotations (${qCols.join(', ')}) VALUES (${qCols.map(() => '?').join(', ')})`
+    ).run(...qCols.map((k) => q[k]));
+
+    const lAllowed = validCols('quotation_lines');
+    for (const l of (snap.lines ?? [])) {
+      const lCols = Object.keys(l).filter((k) => lAllowed.has(k));
+      db.prepare(
+        `INSERT INTO quotation_lines (${lCols.join(', ')}) VALUES (${lCols.map(() => '?').join(', ')})`
+      ).run(...lCols.map((k) => l[k]));
+    }
+
+    const rAllowed = validCols('quotation_revisions');
+    for (const rev of (snap.revisions ?? [])) {
+      const rCols = Object.keys(rev).filter((k) => rAllowed.has(k));
+      db.prepare(
+        `INSERT INTO quotation_revisions (${rCols.join(', ')}) VALUES (${rCols.map(() => '?').join(', ')})`
+      ).run(...rCols.map((k) => rev[k]));
+    }
+
+    db.prepare(
+      'UPDATE invoices SET quotation_id = ? WHERE quotation_id IS NULL AND source_quotation_number = ?'
+    ).run(q.id, q.number);
+
+    audit(db, actor, 'quotation.restore', 'quotation', q.id, {
+      number: q.number,
+      lines: (snap.lines ?? []).length,
+      revisions: (snap.revisions ?? []).length,
+    });
+    return buildQuoteDocument(db, q.id);
   });
 }
 

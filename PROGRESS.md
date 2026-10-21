@@ -1,9 +1,13 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-10-20 (Cat Countdown standalone landing page and catcountdown.factor-io.com launch preparation)
+> Last updated: 2026-10-21 (Quotes dual-theme ledger redesign, live A4 preview, clone, line reorder, direct quote-to-invoice, and Smart Quote catalog picker)
 
 ## Current Focus
+
+**Quotes dual-theme ledger redesign, live A4 preview, clone, line reorder, direct quote-to-invoice, and Smart Quote catalog picker (2026-10-21, plan `local:0b90cba2dd8dd44a6d6a050dcd4f33f2`).**
+- **What:** Added light/dark ledger theme tokens (`:root[data-theme=dark]` + OS `prefers-color-scheme: dark` fallback + persistent header `[data-theme-toggle]`), replaced the cramped nested vertical `.snav` inside `.quote-stack` with a full-width horizontal workspace bar (`overview`, `scope`, `pricing`, `preview`, `history`, `ai`), added `GET /quotations/:id/preview?lang=en|th` with an in-app live A4 iframe preview, `POST /quotations/:id/clone` (`data-act="clone"`), `POST /quotations/:id/lines/reorder` (`data-move-line="up|down"`), direct Quote-to-Invoice conversion (`data-act="raise-invoice"` on accepted quotes with optional-line selection), and catalog item picker + bilingual descriptions + reordering in the Smart Quote wizard.
+- **Verification:** `node --test tests/*.test.mjs` (201/201 passing) and `node smoke.mjs` (42/42 passing), deployed to `/home/ice/.factor-quotes/` and verified on `factor-quotes.service`.
 
 **Cat Countdown standalone landing page and `catcountdown.factor-io.com` launch preparation (2026-10-20, plan `local:118228f5a501034d7bce4d83fe33e58f`).**
 - **What:** Built the standalone Cat Countdown product landing page (`cat-countdown.html`) for `catcountdown.factor-io.com` with a live Android release link (`https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown`), a native disabled `<button data-store="ios" data-stub="true" disabled>` stub for the iPhone release, document-relative `assets/...` references that resolve from both `/` on `catcountdown.factor-io.com` and `/cat-countdown.html` on `studio.factor-io.com`, a `noindex, follow` redirect stub at `catcountdown/index.html`, deployment preparation configs under `catcountdown/deploy/`, and behavioral tests in `tests/website.test.mjs`.

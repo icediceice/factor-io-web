@@ -432,6 +432,11 @@ async function renderQuote(id, host, reloadList, reloadStats, wbApi) {
           </div>
         </div>
         <div class="quote-summary-figure">
+          <span class="label">Total payable</span>
+          <span class="value">${fmtSatang(doc.totals.payableSatang, doc.totals.currency)}</span>
+        </div>
+      </div>
+      <div class="quote-actions-bar">
         <div class="action-group">
           ${q.status === 'draft' ? '<button type="button" data-act="issue">Issue</button>' : ''}
           ${editable && q.status !== 'draft' && !revising ? '<button type="button" class="secondary" data-act="revise">Revise</button>' : ''}
@@ -451,9 +456,6 @@ async function renderQuote(id, host, reloadList, reloadStats, wbApi) {
         <div class="action-group">
           ${retiringMoves.map(([s, label]) => `<button type="button" class="danger" data-move="${s}">${esc(label)}</button>`).join('')}
           <button type="button" class="danger" data-act="delete">Delete</button>
-        </div>
-          ${retiringMoves.map(([s, label]) => `<button class="danger" data-move="${s}">${esc(label)}</button>`).join('')}
-          <button class="danger" data-act="delete">Delete</button>
         </div>
       </div>
       ${stale ? `<div class="banner mt-3" data-tone="warn">

@@ -26,6 +26,7 @@ import { parseKinds, isValidKind, kindCodes, normalisePeriod } from './lib/kinds
 import { createHash } from 'node:crypto';
 import { DEFAULT_SOW_TEMPLATES, validateSow, parseTemplates, sowFromTemplate } from './lib/sow.mjs';
 import { canonicalDocDigest } from './lib/quote.mjs';
+import { renderQuotationHtml } from './templates/quotation.mjs';
 
 /**
  * Validate a line/catalog `kind` against the operator-configured vocabulary.
@@ -514,6 +515,67 @@ export function createApi(db) {
         }
       }
 
+      if (seg[2] === 'preview' && method === 'GET') {
+        const doc = buildQuoteDocument(db, id);
+        const useLang = query.lang === 'th' || query.lang === 'en' ? query.lang : (doc.quotation.lang || 'en');
+        return json(200, {
+          html: renderQuotationHtml(doc, useLang),
+          lang: useLang,
+          stale: Boolean(doc.quotation.revisionStale),
+          status: doc.quotation.status,
+          number: doc.quotation.number,
+        });
+      }
+
+      if (seg[2] === 'clone' && method === 'POST') {
+        const clientId = body.client_id != null ? Number(body.client_id) : Number(row.client_id);
+        if (!Number.isInteger(clientId)) throw bad('client_id must be an integer');
+        if (!db.prepare('SELECT id FROM clients WHERE id = ?').get(clientId)) throw missing('client');
+        const lang = body.lang === 'th' || body.lang === 'en' ? body.lang : (row.lang === 'th' ? 'th' : 'en');
+        const issueDate = body.issue_date !== undefined ? optStr(body, 'issue_date', { max: 10 }) : '';
+        const notes = body.notes !== undefined ? optStr(body, 'notes') : String(row.notes ?? '');
+        const srcLines = db.prepare('SELECT * FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id').all(id);
+        const clonedDoc = tx(db, () => {
+          const settings = getSettings(db, '');
+          const number = allocateQuoteNumber(db, settings);
+          const { lastInsertRowid: newId } = db.prepare(
+            `INSERT INTO quotations (number, client_id, lang, currency, issue_date, fx_base, fx_rate, fx_as_of, notes, term_months, created_by, sow_json)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          ).run(
+            number,
+            clientId,
+            lang,
+            String(row.currency ?? settings['currency.code'] ?? 'THB'),
+            issueDate,
+            String(row.fx_base ?? ''),
+            String(row.fx_rate ?? ''),
+            String(row.fx_as_of ?? ''),
+            notes,
+            Number(row.term_months ?? 0),
+            actor,
+            String(row.sow_json ?? ''),
+          );
+          const insertLine = db.prepare(
+            `INSERT INTO quotation_lines
+               (quotation_id, position, kind, description_en, description_th, qty_milli, unit, unit_satang, discount_satang,
+                billing_period, section, optional, catalog_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          );
+          srcLines.forEach((l, idx) => {
+            insertLine.run(
+              newId, idx + 1, l.kind, l.description_en, l.description_th,
+              l.qty_milli, l.unit, l.unit_satang, l.discount_satang,
+              l.billing_period, l.section, l.optional, l.catalog_id ?? null,
+            );
+          });
+          audit(db, actor, 'quotation.clone', 'quotation', newId, {
+            source_id: id, source_number: row.number, number, client_id: clientId, lines: srcLines.length,
+          });
+          return buildQuoteDocument(db, newId);
+        });
+        return json(201, docEnvelope(clonedDoc, { cloned_from: { id, number: row.number } }));
+      }
+
       if (seg[2] === 'sow' && method === 'PUT') {
         const why = editRefusal(row.status);
         if (why) throw bad(why);
@@ -591,7 +653,25 @@ export function createApi(db) {
         // The PDF renders from live lines, so the customer's document could
         // change after issue with nothing recording that it had.
         { const why = editRefusal(row.status); if (why) throw bad(why); }
-        if (method === 'POST') {
+        if (method === 'POST' && seg[3] === 'reorder') {
+          if (!Array.isArray(body.line_ids) || !body.line_ids.length) {
+            throw bad('line_ids must be a non-empty array of line ids');
+          }
+          const existing = db.prepare('SELECT id FROM quotation_lines WHERE quotation_id = ? ORDER BY position, id').all(id).map((r) => Number(r.id));
+          const requested = body.line_ids.map((n) => Number(n));
+          if (requested.length !== existing.length || new Set(requested).size !== existing.length
+              || !requested.every((lid) => existing.includes(lid))) {
+            throw bad('line_ids must contain each line of this quotation exactly once');
+          }
+          tx(db, () => {
+            const stmt = db.prepare('UPDATE quotation_lines SET position = ? WHERE id = ? AND quotation_id = ?');
+            requested.forEach((lid, idx) => stmt.run(idx + 1, lid, id));
+            db.prepare("UPDATE quotations SET updated_at = datetime('now') WHERE id = ?").run(id);
+            audit(db, actor, 'line.reorder', 'quotation', id, { line_ids: requested });
+          });
+          return json(200, docEnvelope(buildQuoteDocument(db, id)));
+        }
+        if (method === 'POST' && !seg[3]) {
           const kind = kindOf(db, body);
           const billingPeriod = periodOf(body);
           const descEn = needStr(body, 'description_en', { max: 1000 });

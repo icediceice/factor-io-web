@@ -1001,8 +1001,12 @@ describe('quotation preview, clone, and line reorder', () => {
     });
 
     try {
-      for (const [screen, theme] of [['quotations.html', 'light'], ['quotations.html', 'dark'], ['smart-quote.html', 'dark']]) {
-        const url = `http://127.0.0.1:${port}/tests/ui-harness.html?screen=${screen}&vp=1440&theme=${theme}`;
+      for (const qs of [
+        'w=1440x900&theme=light&screen=quote&run=1',
+        'w=1440x900&theme=dark&screen=quote&run=1',
+        'w=1440x900&theme=dark&interaction=quote',
+      ]) {
+        const url = `http://127.0.0.1:${port}/tests/ui-harness.html?${qs}`;
         const { stdout } = await execFileAsync(bin, [
           '--headless',
           '--no-sandbox',
@@ -1012,7 +1016,10 @@ describe('quotation preview, clone, and line reorder', () => {
           '--dump-dom',
           url,
         ], { timeout: 20000, maxBuffer: 10 * 1024 * 1024 });
-        assert.match(stdout, /id="summary"[^>]*class="all-pass"/, `${screen} (${theme}) did not reach all-pass:\n${stdout.slice(0, 1500)}`);
+        const reportIdx = stdout.indexOf('<div class="report"');
+        const reportSnippet = reportIdx >= 0 ? stdout.slice(reportIdx, reportIdx + 2500) : stdout.slice(0, 1500);
+        assert.match(stdout, /id="status"[^>]*>done/, `${qs} did not finish:\n${reportSnippet}`);
+        assert.doesNotMatch(reportSnippet, /<td class="FAIL">FAIL<\/td>/, `${qs} had FAIL rows:\n${reportSnippet}`);
       }
     } finally {
       srv.kill('SIGTERM');

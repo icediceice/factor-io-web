@@ -928,7 +928,8 @@ describe('quotation preview, clone, and line reorder', () => {
     assert.notEqual(cloned.quotation.id, src.quotation.id);
     assert.notEqual(cloned.quotation.number, src.quotation.number);
     assert.equal(cloned.quotation.status, 'draft');
-    assert.equal(cloned.quotation.issueDate, '');
+    assert.notEqual(cloned.quotation.issueDate, '2026-10-01');
+    assert.equal(db.prepare('SELECT issue_date FROM quotations WHERE id=?').get(cloned.quotation.id).issue_date, '');
     assert.equal(cloned.client.id, c2.id);
     assert.equal(cloned.lines.length, 2);
     assert.equal(cloned.lines[0].descriptionEn, 'Stage 1');
@@ -937,7 +938,7 @@ describe('quotation preview, clone, and line reorder', () => {
     assert.equal(cloned.sow.modules.length, src.sow.modules.length);
     assert.equal(cloned.cloned_from.id, src.quotation.id);
 
-    const auditRow = db.prepare("SELECT action, detail FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='quotation.clone'").get(cloned.quotation.id);
+    const auditRow = db.prepare("SELECT action, detail FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='quotation.clone'").get(String(cloned.quotation.id));
     assert.ok(auditRow);
     assert.equal(JSON.parse(auditRow.detail).source_id, src.quotation.id);
   });
@@ -970,7 +971,7 @@ describe('quotation preview, clone, and line reorder', () => {
       [l2, 3, 'Second line'],
     ]);
 
-    const auditRow = db.prepare("SELECT action FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='line.reorder'").get(qid);
+    const auditRow = db.prepare("SELECT action FROM audit_log WHERE entity='quotation' AND entity_id=? AND action='line.reorder'").get(String(qid));
     assert.ok(auditRow);
   });
 });

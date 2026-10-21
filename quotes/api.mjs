@@ -475,6 +475,8 @@ export function createApi(db) {
         return buildQuoteDocument(db, id);
       });
       return json(201, docEnvelope(doc));
+    }
+
     if (path === '/quotations/deleted' && method === 'GET') {
       return json(200, { deleted: listDeletedQuotations(db) });
     }
@@ -490,6 +492,8 @@ export function createApi(db) {
       const id = Number(seg[1]);
       const row = db.prepare('SELECT * FROM quotations WHERE id = ?').get(id);
       if (!row) throw missing('quotation');
+
+      if (!seg[2]) {
         if (method === 'GET') return json(200, docEnvelope(buildQuoteDocument(db, id)));
         if (method === 'PUT') {
           const fields = ['lang', 'currency', 'notes', 'issue_date', 'fx_base', 'fx_rate', 'fx_as_of'];

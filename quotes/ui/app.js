@@ -151,6 +151,33 @@ export async function withBusy(btn, fn) {
   }
 }
 
+/* ------------------------------------------------------------------ theme -- */
+
+const THEME_KEY = 'factor-quotes-theme';
+
+export function getTheme() {
+  const attr = document.documentElement.dataset.theme;
+  if (attr === 'dark' || attr === 'light') return attr;
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+  } catch { /* localStorage unavailable */ }
+  return window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light';
+}
+
+export function applyTheme(theme, { persist = true } = {}) {
+  const next = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = next;
+  if (persist) {
+    try { localStorage.setItem(THEME_KEY, next); } catch { /* ignore */ }
+  }
+  for (const btn of document.querySelectorAll('[data-theme-toggle]')) {
+    btn.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+    btn.textContent = next === 'dark' ? 'Theme: Dark' : 'Theme: Light';
+  }
+  return next;
+}
+
 /* ----------------------------------------------------------------- shell -- */
 
 const navLinks = [
@@ -164,6 +191,8 @@ const navLinks = [
 
 export function renderShell(active, title, subtitle, actions = '') {
   document.title = `${title} · Factor IO Quotes`;
+  const initialTheme = getTheme();
+  document.documentElement.dataset.theme = initialTheme;
   // `active` wins over the URL so a detail page can light up its section:
   // invoice.html asks for 'invoices.html', quote.html for 'index.html'.
   const here = active || location.pathname.split('/').pop() || 'index.html';
@@ -173,8 +202,14 @@ export function renderShell(active, title, subtitle, actions = '') {
     <nav id="main-nav" aria-label="Main">
       ${navLinks.map(([label, href]) => `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
     </nav>
-    <span data-auth-actions></span>
+    <span class="header-tools" data-auth-actions>
+      <button type="button" class="secondary theme-toggle" data-theme-toggle aria-pressed="${initialTheme === 'dark' ? 'true' : 'false'}" aria-label="Switch color theme">${initialTheme === 'dark' ? 'Theme: Dark' : 'Theme: Light'}</button>
+    </span>
   </div></header>`);
+  header.querySelector('[data-theme-toggle]').addEventListener('click', () => {
+    const next = applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
+    announce(`Theme switched to ${next}`);
+  });
   document.body.append(header);
   fetch('/healthz').then((res) => res.ok ? res.json() : null).then((health) => {
     if (health?.authMode !== 'oauth') return;

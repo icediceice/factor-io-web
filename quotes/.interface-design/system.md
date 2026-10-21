@@ -48,22 +48,30 @@ the marketing site and the calculator. This is the first product UI in the log.
 | Quotation lines, invoice lines, Catalog | **Ledger** (nested in the detail pane) | The table *is* the job. |
 | Reports, Settings | **Stacked Sections** | Independent worksheets and grouped facts; an anchored section nav, no rail. |
 
-Within a selected quotation, a narrow **section rail** exposes Overview, Scope of
-work, Pricing and lines, History, and AI exchange. Only one section shows at a
-time. Detail and SOW edits open native dialogs so the quotation remains short;
-the scope editor groups modules as disclosures and keeps the JSON form under an
-Advanced disclosure. The rail repeats the Workbench pattern deliberately: the
-operator is still working one selected record, now choosing one part of it.
+Within a selected quotation, a **full-width horizontal section bar** exposes
+Overview, Scope of work, Pricing & lines, Live A4 preview, History, and AI
+exchange. An earlier revision used a nested 200px vertical left rail inside the
+328px Workbench rail (`528px` of navigation rails), which cramped the quotation
+detail pane; moving the section switcher to a horizontal ledger bar restores
+100% of the detail pane width while keeping each view focused. Header actions
+are grouped into three bands: Lifecycle (Issue, Revise, Re-issue, forward moves,
+Raise invoice), Output & Clone (Live A4 preview, PDF EN/TH, Duplicate), and
+Retiring/Destructive (Decline, Cancel, Delete).
 
 **Not Command Deck.** There is a small stat row on the quotations screen, but it
 is three figures that exist to keep *forecast* and *recognised income* apart —
 it is not the shape of the screen, and it never becomes four equal KPI cards
 with a chart.
 
-## Colour
+## Colour (Dual-Theme: Warm Paper & Dark Carbon Ledger)
 
-Two hues on paper. Teal is the system; orange is attention and destruction.
+Two hues across both themes: teal is the system and money-bearing state;
+orange/coral is attention and destruction. A sticky header toggle (`Theme:
+Light` / `Theme: Dark`) switches `document.documentElement.dataset.theme` and
+persists to `localStorage` (`factor-quotes-theme`), falling back to
+`prefers-color-scheme: dark`.
 
+### Light (`:root`, default)
 ```
 --paper   #f4f3ed   page ground
 --white   #fff      raised surface (cards, rail, inputs)
@@ -76,6 +84,18 @@ Two hues on paper. Teal is the system; orange is attention and destruction.
 --danger  #8c3b00   destructive actions and refusals (7.7:1 on white)
 ```
 
+### Dark (`:root[data-theme="dark"]`)
+```
+--paper   #0e1514   page ground
+--white   #15201e   raised surface (cards, rail, inputs)
+--ink     #ecf4f2   primary text (15.2:1 on --white, 12.7:1 on --tint)
+--muted   #9eb5af   secondary text AND control boundaries (7.8:1 on --white, 6.54:1 on --tint)
+--line    #2a3d39   decorative hairline ONLY — never a control boundary
+--tint    #1d2f2b   selected row, hover, table zebra
+--accent  #43d6b5   mint-teal — primary fill (9.29:1 with --white text) & links (7.78:1 on --tint)
+--focus   #f5a65b   focus ring and "needs attention" status family (7.08:1 on --tint)
+--danger  #ff8b6b   destructive actions and refusals (7.38:1 on --white)
+```
 `--line` and `--muted` are **not interchangeable**. A 1px `--line` between table
 rows is decoration and may sit at 1.7:1; the border of an input, select or
 outlined button is a control boundary and must be `--muted` to clear the 3:1

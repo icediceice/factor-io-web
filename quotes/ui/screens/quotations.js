@@ -432,17 +432,12 @@ async function renderQuote(id, host, reloadList, reloadStats, wbApi) {
           </div>
         </div>
         <div class="quote-summary-figure">
-          <span class="label">Total payable</span>
-          <span class="value">${fmtSatang(doc.totals.payableSatang, doc.totals.currency)}</span>
-        </div>
-      </div>
-      <div class="quote-actions-bar">
         <div class="action-group">
-          ${q.status === 'draft' ? '<button data-act="issue">Issue</button>' : ''}
-          ${editable && q.status !== 'draft' && !revising ? '<button class="secondary" data-act="revise">Revise</button>' : ''}
-          ${q.status !== 'draft' && revising ? '<button class="quiet" data-act="lock">Done editing</button>' : ''}
-          ${stale && editable ? `<button data-act="reissue">Re-issue as Rev. ${nextRev}</button>` : ''}
-          ${forwardMoves.map(([s, label]) => `<button${s === leadMove ? '' : ' class="secondary"'} data-move="${s}">${esc(label)}</button>`).join('')}
+          ${q.status === 'draft' ? '<button type="button" data-act="issue">Issue</button>' : ''}
+          ${editable && q.status !== 'draft' && !revising ? '<button type="button" class="secondary" data-act="revise">Revise</button>' : ''}
+          ${q.status !== 'draft' && revising ? '<button type="button" class="quiet" data-act="lock">Done editing</button>' : ''}
+          ${stale && editable ? `<button type="button" data-act="reissue">Re-issue as Rev. ${nextRev}</button>` : ''}
+          ${forwardMoves.map(([s, label]) => `<button type="button"${s === leadMove ? '' : ' class="secondary"'} data-move="${s}">${esc(label)}</button>`).join('')}
           ${q.status === 'accepted' ? '<button type="button" data-act="raise-invoice">Raise invoice</button>' : ''}
         </div>
         <div class="action-group">
@@ -454,6 +449,9 @@ async function renderQuote(id, host, reloadList, reloadStats, wbApi) {
           <button type="button" class="secondary" data-act="clone">Duplicate</button>
         </div>
         <div class="action-group">
+          ${retiringMoves.map(([s, label]) => `<button type="button" class="danger" data-move="${s}">${esc(label)}</button>`).join('')}
+          <button type="button" class="danger" data-act="delete">Delete</button>
+        </div>
           ${retiringMoves.map(([s, label]) => `<button class="danger" data-move="${s}">${esc(label)}</button>`).join('')}
           <button class="danger" data-act="delete">Delete</button>
         </div>

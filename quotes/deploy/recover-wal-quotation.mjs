@@ -76,30 +76,16 @@ export function recoverWalQuotation(dbPath, { targetId = 10, apply = false } = {
     db.exec('PRAGMA foreign_keys = ON;');
     return tx(db, () => {
       const q = recovered.quotation;
+      const qCols = Object.keys(q);
       db.prepare(
-        `INSERT INTO quotations
-           (id, number, client_id, status, lang, currency, issue_date, valid_days,
-            fx_base, fx_rate, fx_as_of, notes, revision, term_months, created_by, created_at, updated_at, sow_json)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      ).run(
-        q.id, q.number, q.client_id, q.status, q.lang, q.currency, q.issue_date ?? '',
-        q.valid_days ?? 0, q.fx_base ?? '', q.fx_rate ?? '', q.fx_as_of ?? '',
-        q.notes ?? '', q.revision ?? 0, q.term_months ?? 0, q.created_by ?? '',
-        q.created_at, q.updated_at, q.sow_json ?? ''
-      );
+        `INSERT INTO quotations (${qCols.join(', ')}) VALUES (${qCols.map(() => '?').join(', ')})`
+      ).run(...qCols.map((c) => q[c]));
 
-      const insLine = db.prepare(
-        `INSERT INTO quotation_lines
-           (id, quotation_id, position, kind, description_en, description_th, qty_milli,
-            unit, unit_satang, discount_satang, billing_period, section, optional, created_at, catalog_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      );
       for (const l of recovered.lines) {
-        insLine.run(
-          l.id, l.quotation_id, l.position, l.kind, l.description_en, l.description_th ?? '',
-          l.qty_milli, l.unit, l.unit_satang, l.discount_satang ?? 0, l.billing_period ?? 'once',
-          l.section ?? '', l.optional ?? 0, l.created_at, l.catalog_id ?? null
-        );
+        const lCols = Object.keys(l);
+        db.prepare(
+          `INSERT INTO quotation_lines (${lCols.join(', ')}) VALUES (${lCols.map(() => '?').join(', ')})`
+        ).run(...lCols.map((c) => l[c]));
       }
 
       const delAudit = db.prepare(
@@ -126,7 +112,7 @@ export function recoverWalQuotation(dbPath, { targetId = 10, apply = false } = {
       return {
         alreadyPresent: false,
         applied: true,
-        quotation: { id: q.id, number: q.number, client_id: q.client_id, status: q.status, created_at: q.created_at },
+        quotation: { id: q.id, number: q.number, client_id: q.client_id, status: q.status, created_at: q.created_at, sow_json: q.sow_json },
         lines: recovered.lines,
       };
     });

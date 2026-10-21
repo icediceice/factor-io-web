@@ -1,17 +1,11 @@
-/* light-design · macrostructure: Workbench with nested quotation section rail /
+/* light-design · macrostructure: Workbench with horizontal quotation workspace & Live A4 Preview /
  * Ledger (Stacked Sections on reports+settings)
- * density: dense-balanced · depth: borders-only (one exception: the confirm dialog scrim)
- * system: quotes/.interface-design/system.md — NOT the repo-root system.md, which governs
- *         the TCO calculator's dark instrument panel.
- * tokens: Engineering Field Guide (assets/site.css:17), plus --danger for destructive actions
- * gates: 51/54 · exceptions T5 · N2 · A4, carried in the 2026-09-23 entry of the
- *        repo-root .interface-design/log.json — one design history for the whole
- *        repo, which is what a later light-design run reads to diversify against.
- *        (The SYSTEM is per-app and stays at quotes/; only the LOG is shared.)
- * critique: H4 D4 S4 O5 R4 P4 · data: live API only (the fixture label belongs to
- *           tests/ui-harness-server.mjs and cannot reach a deployed page)
- * measured: detail at 390×844 and 1440×900, 0 fail / 1 target-size warning;
- *           five quotation interactions pass at both sizes — tests/ui-harness.html
+ * density: dense-balanced · depth: borders-only (one exception: modal dialog scrim)
+ * system: quotes/.interface-design/system.md — dual-theme (Light warm paper / Dark carbon ledger)
+ * tokens: Engineering Field Guide light + dark ledger tokens (:root[data-theme=dark])
+ * gates: 52/54 · exceptions T5 · N2, carried in the repo-root .interface-design/log.json
+ * critique: H5 D4 S5 O5 R4 P5 · data: live API only (fixture label in tests/ui-harness-server.mjs)
+ * measured: light & dark at 390×844 and 1440×900, 0 fail; quotation interactions pass at both sizes
  */
 
 /* ---------------------------------------------------------------- tokens -- */
@@ -27,31 +21,36 @@
   --mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Thai","Loma",monospace;
   /* Spacing scale. Every margin/padding below references one of these. */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:28px; --s7:40px;
-  /* Type scale. Six steps, no half-pixels and nothing under 12px. The sheet
-     used to carry 11, 11.5, 12.5 and 13.5px in fourteen rules — sizes that
-     mean "a bit smaller than the one above", which is a decision taken
-     per-rule instead of once. 11px went with them: it was only ever used for
-     the uppercase mono micro-labels (column heads, .section-label, the status
-     pill, the stat captions), and measuring found fourteen of them under the
-     12px floor across four screens. One step up costs a Ledger row nothing —
-     row height is set by the cell's controls, not by its column head — and it
-     removed the whole class of finding rather than documenting an exception.
-     The only declaration allowed outside this scale is h1, which is fluid. */
+  /* Type scale. Six steps, no half-pixels and nothing under 12px. */
   --t-sm:12px; --t-md:13px; --t-base:14px; --t-lg:15px;
   --t-xl:17px; --t-2xl:22px;
   --r-input:2px; --r-btn:3px;
   --rail-w:328px;
-  /* The header's own height. 76px, 84px and 96px were scattered through the
-     sticky offsets below as bare numbers, each silently depending on it. */
   --header-h:60px;
-  /* The one translucent value in the sheet. It exists because a modal scrim
-     has to dim what is behind it — nothing else here floats. */
   --scrim:rgba(23,45,42,.42);
-  /* Measures. A form column wider than this stops being scannable; a single
-     date or amount field wider than this just looks broken. */
   --w-form:520px; --w-field:320px;
 }
 
+/* Dark ledger palette: deep slate-pine surfaces (--paper #0e1514, --white #15201e,
+   --tint #1d2f2b) paired with high-contrast mint-teal (--accent #43d6b5, 9.29:1
+   against --white and 7.78:1 on --tint), warm amber (--focus #f5a65b, 7.08:1),
+   coral-orange (--danger #ff8b6b, 7.38:1), and sage-grey (--muted #9eb5af,
+   6.54:1 on --tint, clearing both WCAG 1.4.3 4.5:1 text and 1.4.11 3:1 control
+   edges). */
+:root[data-theme=dark]{
+  color-scheme:dark;
+  --paper:#0e1514; --white:#15201e; --ink:#ecf4f2; --muted:#9eb5af;
+  --accent:#43d6b5; --tint:#1d2f2b; --line:#2a3d39; --focus:#f5a65b;
+  --danger:#ff8b6b; --scrim:rgba(5,10,9,.68);
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme=light]){
+    color-scheme:dark;
+    --paper:#0e1514; --white:#15201e; --ink:#ecf4f2; --muted:#9eb5af;
+    --accent:#43d6b5; --tint:#1d2f2b; --line:#2a3d39; --focus:#f5a65b;
+    --danger:#ff8b6b; --scrim:rgba(5,10,9,.68);
+  }
+}
 /* Spacing utilities — the ONLY sanctioned way to nudge a margin from markup.
    These replaced 16 inline style="margin:…" declarations carrying 12/14/18px,
    none of which were on the --s scale. An inline value is a spacing decision
@@ -79,7 +78,7 @@ h1,h2,h3,p,dl,dd,figure{margin:0}
 .skip:focus{top:var(--s3)}
 
 /* ---------------------------------------------------------------- header -- */
-.site-header{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.site-header{background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .header-inner{width:min(1560px,calc(100% - var(--s7)));margin:auto;display:flex;align-items:center;gap:var(--s6);min-height:var(--header-h);flex-wrap:wrap}
 .brand{font-size:var(--t-xl);letter-spacing:.06em;font-weight:750;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
 .brand span{font-family:var(--mono);color:var(--accent)}
@@ -87,8 +86,8 @@ h1,h2,h3,p,dl,dd,figure{margin:0}
 #main-nav a{display:flex;align-items:center;min-height:44px;padding:var(--s1) var(--s3);font-size:var(--t-base);color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
 #main-nav a[aria-current=page]{color:var(--ink);border-color:var(--accent);font-weight:600}
 #main-nav a:hover{color:var(--accent);background:var(--tint)}
-.header-inner [data-auth-actions]{margin-left:auto}
-
+.header-inner [data-auth-actions]{margin-left:auto;display:inline-flex;align-items:center;gap:var(--s2)}
+.theme-toggle{font-family:var(--mono);font-size:var(--t-sm);letter-spacing:.04em}
 /* ---------------------------------------------------------------- layout -- */
 .wrap{width:min(1560px,calc(100% - var(--s7)));margin:var(--s5) auto var(--s7)}
 /* The ONE fluid size in the sheet, and the only type declaration that is not a
@@ -435,12 +434,36 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
   button:active,.button:active{transform:none}
 }
 
-/* Quotation detail: a short section workbench inside the selected record. */
-.quote-stack{margin-top:var(--s4);gap:var(--s5)}
-.quote-stack .snav{min-width:0}
+/* Quotation detail: full-width horizontal workspace (no nested left rail). */
+.quote-head{background:var(--paper);border:1px solid var(--line);padding:var(--s4) var(--s5);margin-bottom:var(--s4)}
+.wb-detail>.quote-surface>.card.quote-head{border:1px solid var(--line);padding:var(--s4) var(--s5);background:var(--paper);margin-bottom:var(--s4)}
+.quote-identity{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);flex-wrap:wrap;padding-bottom:var(--s3);border-bottom:1px solid var(--line);margin-bottom:var(--s3)}
+.quote-title-block{display:grid;gap:var(--s1);min-width:0}
+.quote-title-row{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.quote-title-row h2{margin:0;font-size:var(--t-xl)}
+.quote-client-meta{font-size:var(--t-base);color:var(--muted);display:flex;gap:var(--s2);flex-wrap:wrap;align-items:baseline}
+.quote-client-meta strong{color:var(--ink);font-weight:600}
+.quote-summary-figure{text-align:right;display:grid;gap:var(--s1)}
+.quote-summary-figure .label{font:var(--t-sm) var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.quote-summary-figure .value{font:700 var(--t-xl) var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.quote-actions-bar{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.action-group{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.action-group+.action-group{padding-left:var(--s3);border-left:1px solid var(--line)}
+.quote-stack{display:flex;flex-direction:column;gap:var(--s4);margin-top:0}
+.quote-stack .snav{position:static;display:flex;flex-direction:row;flex-wrap:wrap;gap:var(--s1);border-left:0;border-bottom:2px solid var(--line);background:var(--paper);padding:var(--s1) var(--s2) 0}
+.quote-stack .snav a{border-left:0;border-bottom:3px solid transparent;margin:0 0 -2px 0;min-height:44px;padding:var(--s2) var(--s3);font-size:var(--t-base);color:var(--muted);white-space:nowrap}
+.quote-stack .snav a[aria-current=true]{color:var(--ink);font-weight:600;border-bottom-color:var(--accent);background:var(--white)}
 .quote-stack .stack-body>[data-quote-section][hidden]{display:none!important}
 .quote-stack .stack-body>[data-quote-section]{min-width:0}
 .quote-stack .stack-body>[data-quote-section]>.card+ .card{margin-top:var(--s4)}
+.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);margin-top:var(--s3)}
+.overview-stat{border:1px solid var(--line);background:var(--paper);padding:var(--s3)}
+.overview-stat .k{font:var(--t-sm) var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.overview-stat .v{font-size:var(--t-base);font-weight:600;margin-top:var(--s1);overflow-wrap:anywhere}
+.a4-preview-card{display:grid;gap:var(--s3)}
+.a4-preview-stage{background:var(--paper);border:1px solid var(--line);padding:var(--s3);overflow-x:auto}
+.a4-preview-frame{width:100%;min-height:840px;border:1px solid var(--line);background:#fff;display:block}
+.line-order-btns{display:inline-flex;gap:var(--s1);align-items:center}
 .quote-add-line{margin-top:var(--s4);border-top:1px solid var(--line);padding-top:var(--s3)}
 .quote-add-line summary,.scope-summary summary{cursor:pointer;font-weight:600;padding:var(--s2) 0}
 .quote-add-line form{padding-top:var(--s3)}
@@ -467,4 +490,10 @@ dialog.confirm[data-tone=danger]{border-color:var(--danger)}
 .sow-advanced{border-top:1px solid var(--line);padding-top:var(--s3)}
 .sow-advanced summary{cursor:pointer;font-weight:600}
 .sow-advanced textarea{width:100%}
-@media(max-width:700px){.sow-text-row{grid-template-columns:1fr}.quote-edit-dialog{padding:var(--s3)}}
+.optional-lines-pick{display:grid;gap:var(--s2);margin:var(--s3) 0;padding:var(--s3);border:1px solid var(--line);background:var(--white)}
+@media(max-width:700px){
+  .sow-text-row{grid-template-columns:1fr}
+  .quote-edit-dialog{padding:var(--s3)}
+  .action-group+.action-group{padding-left:0;border-left:0}
+  .quote-summary-figure{text-align:left}
+}

@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-10-23 (Live launch of `catcountdown.factor-io.com` with Android Google Play auto-redirect, iPhone App Store review Coming Soon notice, and `/catcountdown/` query/hash-preserving redirect)
+> Last updated: 2026-10-23 (Live launch of `catcountdown.factor-io.com` with Android Google Play auto-redirect, iPhone App Store review Coming Soon notice, `/catcountdown/` query/hash-preserving redirect, and Version 3-M QR code card)
 
 ## Current Focus
 

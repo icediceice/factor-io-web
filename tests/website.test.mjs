@@ -523,8 +523,8 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
       for (let r = r0; r < r0 + h; r++) for (let c = c0; c < c0 + w; c++) isFunc[r][c] = true;
     };
     markBox(0, 0, 9, 9);
-    markBox(0, 20, 9, 9);
-    markBox(20, 0, 9, 9);
+    markBox(0, 21, 9, 8);
+    markBox(21, 0, 8, 9);
     markBox(20, 20, 5, 5);
     for (let i = 0; i < 29; i++) { isFunc[6][i] = true; isFunc[i][6] = true; }
 

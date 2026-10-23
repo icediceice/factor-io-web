@@ -503,11 +503,11 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   };
   const decodeQrV3M = grid => {
     let fmtA = 0;
-    for (let i = 0; i <= 5; i++) fmtA |= grid[8][i] << i;
-    fmtA |= grid[8][7] << 6;
+    for (let i = 0; i <= 5; i++) fmtA |= grid[i][8] << i;
+    fmtA |= grid[7][8] << 6;
     fmtA |= grid[8][8] << 7;
-    fmtA |= grid[7][8] << 8;
-    for (let i = 9; i < 15; i++) fmtA |= grid[14 - i][8] << i;
+    fmtA |= grid[8][7] << 8;
+    for (let i = 9; i < 15; i++) fmtA |= grid[8][14 - i] << i;
     let fmtB = 0;
     for (let i = 0; i < 8; i++) fmtB |= grid[8][28 - i] << i;
     for (let i = 8; i < 15; i++) fmtB |= grid[28 - 15 + i][8] << i;

@@ -483,6 +483,146 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   const nginxConf = await read('catcountdown/deploy/nginx-catcountdown.conf');
   assert.match(nginxConf, /location = \/catcountdown \{\s*return 302 \/cat-countdown\.html\$is_args\$args;\s*\}/);
   assert.match(nginxConf, /location = \/catcountdown\/ \{\s*return 302 \/cat-countdown\.html\$is_args\$args;\s*\}/);
+
+  const qrSvg = await read('assets/work/cat-countdown-qr.svg');
+  const parseQrModules = svgSource => {
+    const grid = Array.from({ length: 29 }, () => Array(29).fill(0));
+    const pathMatch = svgSource.match(/<path fill="#000000" d="([^"]+)"\/>/);
+    assert.ok(pathMatch, 'expected #000000 module path in QR SVG');
+    for (const m of pathMatch[1].matchAll(/M(\d+),(\d+)h1v1h-1z/g)) {
+      const mx = Number(m[1]) - 4;
+      const my = Number(m[2]) - 4;
+      assert.ok(mx >= 0 && mx < 29 && my >= 0 && my < 29, `module (${mx},${my}) out of Version 3 bounds`);
+      grid[my][mx] = 1;
+    }
+    return grid;
+  };
+  const decodeQrV3M = grid => {
+    let fmtA = 0;
+    for (let i = 0; i <= 5; i++) fmtA |= grid[8][i] << i;
+    fmtA |= grid[8][7] << 6;
+    fmtA |= grid[8][8] << 7;
+    fmtA |= grid[7][8] << 8;
+    for (let i = 9; i < 15; i++) fmtA |= grid[14 - i][8] << i;
+    let fmtB = 0;
+    for (let i = 0; i < 8; i++) fmtB |= grid[8][28 - i] << i;
+    for (let i = 8; i < 15; i++) fmtB |= grid[21 + i - 8][8] << i;
+    assert.equal(fmtA, fmtB, 'both 15-bit format information copies must match');
+    assert.equal(grid[21][8], 1, 'dark module at (8, 21) must be 1');
+    const rawFmt = fmtA ^ 0x5412;
+    const ecl = (rawFmt >> 13) & 0b11;
+    const mask = (rawFmt >> 10) & 0b111;
+    assert.equal(ecl, 0b00, 'expected Medium (M) error correction level');
+
+    const isFunc = Array.from({ length: 29 }, () => Array(29).fill(false));
+    const markBox = (r0, c0, h, w) => {
+      for (let r = r0; r < r0 + h; r++) for (let c = c0; c < c0 + w; c++) isFunc[r][c] = true;
+    };
+    markBox(0, 0, 9, 9);
+    markBox(0, 20, 9, 9);
+    markBox(20, 0, 9, 9);
+    markBox(20, 20, 5, 5);
+    for (let i = 0; i < 29; i++) { isFunc[6][i] = true; isFunc[i][6] = true; }
+
+    const bits = [];
+    let up = true;
+    for (let right = 28; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let vert = 0; vert < 29; vert++) {
+        const r = up ? 28 - vert : vert;
+        for (let j = 0; j < 2; j++) {
+          const c = right - j;
+          if (!isFunc[r][c]) {
+            const maskBit = mask === 2 ? (c % 3 === 0) : false;
+            bits.push(grid[r][c] ^ (maskBit ? 1 : 0));
+          }
+        }
+      }
+      up = !up;
+    }
+    const codewords = [];
+    for (let i = 0; i + 8 <= bits.length; i += 8) {
+      let byte = 0;
+      for (let b = 0; b < 8; b++) byte = (byte << 1) | bits[i + b];
+      codewords.push(byte);
+    }
+    assert.equal(codewords.length, 70, 'Version 3-M has 70 total codewords (44 data + 26 EC)');
+    const dataBits = [];
+    for (let i = 0; i < 44; i++) {
+      for (let b = 7; b >= 0; b--) dataBits.push((codewords[i] >> b) & 1);
+    }
+    const readBits = (offset, len) => {
+      let val = 0;
+      for (let i = 0; i < len; i++) val = (val << 1) | dataBits[offset + i];
+      return val;
+    };
+    assert.equal(readBits(0, 4), 0b0100, 'expected byte mode indicator (0100)');
+    const len = readBits(4, 8);
+    const bytes = [];
+    for (let i = 0; i < len; i++) bytes.push(readBits(12 + i * 8, 8));
+    return Buffer.from(bytes).toString('utf8');
+  };
+
+  const svgGrid = parseQrModules(qrSvg);
+  const inlineSvgMatch = html.match(/<svg id="cat-countdown-qr-svg"[\s\S]*?<\/svg>/);
+  assert.ok(inlineSvgMatch, 'expected inline #cat-countdown-qr-svg in cat-countdown.html');
+  const inlineGrid = parseQrModules(inlineSvgMatch[0]);
+  assert.deepEqual(inlineGrid, svgGrid, 'inline SVG QR matrix must match assets/work/cat-countdown-qr.svg');
+  assert.equal(decodeQrV3M(svgGrid), 'https://catcountdown.factor-io.com/');
+
+  const scale = 32, totalModules = 37, imgSize = totalModules * scale;
+  const rawScanlines = Buffer.alloc(imgSize * (1 + imgSize * 3), 255);
+  for (let y = 0; y < imgSize; y++) {
+    const rowStart = y * (1 + imgSize * 3);
+    rawScanlines[rowStart] = 0;
+    const my = Math.floor(y / scale) - 4;
+    if (my >= 0 && my < 29) {
+      for (let x = 0; x < imgSize; x++) {
+        const mx = Math.floor(x / scale) - 4;
+        if (mx >= 0 && mx < 29 && svgGrid[my][mx] === 1) {
+          const px = rowStart + 1 + x * 3;
+          rawScanlines[px] = 0;
+          rawScanlines[px + 1] = 0;
+          rawScanlines[px + 2] = 0;
+        }
+      }
+    }
+  }
+  const crcTable = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    crcTable[n] = c >>> 0;
+  }
+  const crc32 = buf => {
+    let c = 0xffffffff;
+    for (let i = 0; i < buf.length; i++) c = crcTable[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  };
+  const pngChunk = (type, data) => {
+    const lenBuf = Buffer.alloc(4);
+    lenBuf.writeUInt32BE(data.length, 0);
+    const typeAndData = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+    const crcBuf = Buffer.alloc(4);
+    crcBuf.writeUInt32BE(crc32(typeAndData), 0);
+    return Buffer.concat([lenBuf, typeAndData, crcBuf]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(imgSize, 0);
+  ihdr.writeUInt32BE(imgSize, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  const pngBytes = Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', deflateSync(rawScanlines, { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+  const pngPath = resolve(ROOT, 'assets/work/cat-countdown-qr.png');
+  const existingPng = await readFile(pngPath).catch(() => null);
+  if (!existingPng || !existingPng.equals(pngBytes)) {
+    await writeFile(pngPath, pngBytes);
+  }
 });
 
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {

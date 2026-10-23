@@ -489,11 +489,15 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     const grid = Array.from({ length: 29 }, () => Array(29).fill(0));
     const pathMatch = svgSource.match(/<path fill="#000000" d="([^"]+)"\/>/);
     assert.ok(pathMatch, 'expected #000000 module path in QR SVG');
-    for (const m of pathMatch[1].matchAll(/M(\d+),(\d+)h1v1h-1z/g)) {
-      const mx = Number(m[1]) - 4;
+    for (const m of pathMatch[1].matchAll(/M(\d+),(\d+)h(\d+)v1h-\d+z/g)) {
+      const mx0 = Number(m[1]) - 4;
       const my = Number(m[2]) - 4;
-      assert.ok(mx >= 0 && mx < 29 && my >= 0 && my < 29, `module (${mx},${my}) out of Version 3 bounds`);
-      grid[my][mx] = 1;
+      const runLen = Number(m[3]);
+      for (let k = 0; k < runLen; k++) {
+        const mx = mx0 + k;
+        assert.ok(mx >= 0 && mx < 29 && my >= 0 && my < 29, `module (${mx},${my}) out of Version 3 bounds`);
+        grid[my][mx] = 1;
+      }
     }
     return grid;
   };

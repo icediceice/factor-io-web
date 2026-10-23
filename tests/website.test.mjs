@@ -506,7 +506,7 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     for (let i = 9; i < 15; i++) fmtA |= grid[14 - i][8] << i;
     let fmtB = 0;
     for (let i = 0; i < 8; i++) fmtB |= grid[8][28 - i] << i;
-    for (let i = 8; i < 15; i++) fmtB |= grid[21 + i - 8][8] << i;
+    for (let i = 8; i < 15; i++) fmtB |= grid[28 - 15 + i][8] << i;
     assert.equal(fmtA, fmtB, 'both 15-bit format information copies must match');
     assert.equal(grid[21][8], 1, 'dark module at (8, 21) must be 1');
     const rawFmt = fmtA ^ 0x5412;

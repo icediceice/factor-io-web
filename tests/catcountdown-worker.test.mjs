@@ -58,7 +58,7 @@ test('once APP_STORE_URL is configured, iPhone scanners are sent to the App Stor
 });
 
 test('desktop visitors and crawlers get the full landing page from GitHub Pages', async () => {
-  for (const ua of [UA.desktop, UA.applebot, UA.googlebot]) {
+  for (const ua of [UA.desktop, UA.applebot, UA.googlebot, UA.inspectionTool, UA.googleOther, UA.bingbot]) {
     const { res, body, upstream } = await visit('/', ua);
     assert.equal(res.status, 200);
     assert.equal(body, '<html>studio copy of /cat-countdown.html</html>');

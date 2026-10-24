@@ -126,8 +126,11 @@ export default {
     }
     const appStoreUrl = String(env.APP_STORE_URL || "");
 
+    if (path === "/robots.txt") return text(robotsTxt(), "text/plain; charset=utf-8", request);
+    if (path === "/sitemap.xml") return text(sitemapXml(), "application/xml; charset=utf-8", request);
     if (path === "/" || path === "/cat-countdown.html") {
-      const scanner = url.searchParams.get("noredirect") === "1" ? "other" : classify(request.headers.get("user-agent"));
+      const stay = url.searchParams.get("noredirect") === "1" || fromElsewhere(request, url);
+      const scanner = stay ? "other" : classify(request.headers.get("user-agent"));
       if (scanner === "android") return redirect(PLAY_URL);
       if (scanner === "ios") return iphone(request, appStoreUrl);
       const page = await proxy("/cat-countdown.html", request);

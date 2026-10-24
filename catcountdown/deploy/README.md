@@ -11,6 +11,7 @@
 ```
 browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.factor-io.com/*)
                                   |-- /robots.txt, /sitemap.xml --> answered by the Worker (src/seo.js)
+                                  |-- /app (any device)  --> the page, never a store redirect; /app/ --> 302 /app
                                   |-- Android, no outside Referer --> 302 Google Play
                                   |-- iPhone, no outside Referer, /iphone --> coming-soon page (302 App Store once APP_STORE_URL is set)
                                   |-- /free/<campaign>   --> giveaway claim page (Google sign-in), POST /free/<campaign>/claim

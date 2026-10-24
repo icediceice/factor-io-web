@@ -655,6 +655,44 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   }
 });
 
+test('Cat Countdown landing page answers the FAQ it declares and every capture, cat and scene it shows exists', async () => {
+  const html = await read('cat-countdown.html');
+  const graph = schema(html);
+
+  // Google only shows FAQ results whose questions and answers are visible on the page.
+  const visible = [...html.matchAll(/<details>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g)].map(m => [decode(m[1]), decode(m[2])]);
+  const faq = graph.find(node => node['@type'] === 'FAQPage');
+  assert.ok(visible.length >= 8, 'expected a visible FAQ');
+  assert.deepEqual(faq.mainEntity.map(q => [q.name, q.acceptedAnswer.text]), visible);
+
+  const exists = async ref => { const info = await stat(resolve(ROOT, ref)).catch(() => null); assert.ok(info && info.size > 0, `missing ${ref}`); };
+  const refs = [...html.matchAll(/\b(?:src|poster|srcset|data-video|data-poster)="([^"]+)"/g)].map(m => m[1]);
+  for (const ref of refs) { assert.match(ref, /^assets\//, ref); await exists(ref); }
+  for (const kind of ['tour', 'wizard', 'notes', 'tasks', 'alarm']) assert.ok(refs.includes(`assets/cat-countdown/captures/${kind}.mp4`), kind);
+
+  // The scene dialog builds each tile's five looks from its cat and category, and the cat stage
+  // swaps in every cat's alarm animation and poses; all of those files must be published.
+  const tiles = [...html.matchAll(/<li data-cat="([a-z]+)" data-cg="([a-z-]+)">/g)].map(m => [m[1], m[2]]);
+  assert.equal(new Set(tiles.map(t => t.join('/'))).size, tiles.length);
+  assert.ok(tiles.length >= 100, `expected the full scene gallery, got ${tiles.length}`);
+  for (const [cat, cg] of tiles) for (let n = 1; n <= 5; n++) await exists(`assets/cat-countdown/looks/${cat}-${cg}-${n}.webp`);
+  const poses = html.match(/var POSES = (\[[^\]]+\])/);
+  for (const [, cat] of html.matchAll(/data-cat="([a-z]+)" data-name=/g)) {
+    await exists(`assets/cat-countdown/cats/${cat}-alarm.webp`);
+    for (const pose of JSON.parse(poses[1])) await exists(`assets/cat-countdown/poses/${cat}-${pose}.webp`);
+  }
+
+  // Structured-data media resolve to published files on the app host.
+  const app = graph.find(node => node['@type'] === 'SoftwareApplication');
+  const urls = [app.image, ...app.screenshot, ...graph.filter(node => node['@type'] === 'VideoObject').flatMap(v => [v.contentUrl, v.thumbnailUrl])];
+  assert.ok(urls.length >= 10);
+  for (const url of urls) {
+    assert.match(url, /^https:\/\/catcountdown\.factor-io\.com\/assets\//, url);
+    await exists(url.replace('https://catcountdown.factor-io.com/', ''));
+  }
+  assert.match(html, /<meta property="og:image" content="https:\/\/catcountdown\.factor-io\.com\/assets\/cat-countdown\/og\.jpg">/);
+});
+
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {
   const child = spawn(process.execPath, ['scripts/serve.mjs', '0'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
   t.after(async () => { if (child.exitCode === null) { child.kill('SIGTERM'); await once(child, 'exit'); } });

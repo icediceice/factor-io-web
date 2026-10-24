@@ -437,7 +437,38 @@
     </div>
   </section>
 
-  <section id="demo" class="section section-tint" aria-labelledby="demo-title">
+  <section id="backdrops" class="section section-tint" aria-labelledby="backdrops-title">
+    <div class="wrap player player-feature">
+      <div class="phone">
+        <video id="backdrop-video" data-auto controls muted loop playsinline preload="none" width="442" height="960" poster="assets/cat-countdown/captures/bg-weather.jpg" src="assets/cat-countdown/captures/bg-weather.mp4" aria-label="Screen recording of the home screen with the chosen background."></video>
+      </div>
+      <div>
+        <div class="section-head">
+          <p class="eyebrow">Live backgrounds</p>
+          <h2 id="backdrops-title">A home screen that follows the weather.</h2>
+          <p class="section-lead">Rain outside, rain behind your countdowns. The background can match the sky, the season, or drift with a little ambient magic, and every cat's scene sits on top of it.</p>
+        </div>
+        <div class="modes">
+          <div class="mode"><h3>Weather</h3><p>Optional live weather from Open-Meteo: rain, snow, sun and cloud, drawn behind your cards.</p></div>
+          <div class="mode"><h3>Season</h3><p>Snow in winter, blossom in spring, sunshine in summer and rain in autumn.</p></div>
+          <div class="mode"><h3>Dynamic</h3><p>A random pick of starlight, fireflies, embers, hearts, flowers or glitter.</p></div>
+          <div class="mode"><h3>Light or dark</h3><p>Both themes, with night backdrops that glow in dark mode.</p></div>
+        </div>
+        <ul class="swatches" data-picker="backdrop-video" aria-label="Background styles">
+          <li><button type="button" class="swatch" aria-pressed="true" data-video="assets/cat-countdown/captures/bg-weather.mp4" data-poster="assets/cat-countdown/captures/bg-weather.jpg"><img src="assets/cat-countdown/captures/bg-weather.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Weather<small>with Luna</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-season.mp4" data-poster="assets/cat-countdown/captures/bg-season.jpg"><img src="assets/cat-countdown/captures/bg-season.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Season<small>with Nori</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-heart.mp4" data-poster="assets/cat-countdown/captures/bg-heart.jpg"><img src="assets/cat-countdown/captures/bg-heart.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Hearts<small>with Nimbus</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-flower.mp4" data-poster="assets/cat-countdown/captures/bg-flower.jpg"><img src="assets/cat-countdown/captures/bg-flower.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Flowers<small>with Yuki</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-glitter.mp4" data-poster="assets/cat-countdown/captures/bg-glitter.jpg"><img src="assets/cat-countdown/captures/bg-glitter.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Glitter<small>with Tangerine</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-starlight.mp4" data-poster="assets/cat-countdown/captures/bg-starlight.jpg"><img src="assets/cat-countdown/captures/bg-starlight.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Starlight<small>with Coco</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-fireflies.mp4" data-poster="assets/cat-countdown/captures/bg-fireflies.jpg"><img src="assets/cat-countdown/captures/bg-fireflies.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Fireflies<small>with Mallow</small></button></li>
+          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-ember.mp4" data-poster="assets/cat-countdown/captures/bg-ember.jpg"><img src="assets/cat-countdown/captures/bg-ember.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Embers<small>with Chai</small></button></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo" class="section" aria-labelledby="demo-title">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Recorded in the app</p>
@@ -455,36 +486,6 @@
           <li><button type="button" class="chapter" aria-pressed="false" data-video="assets/cat-countdown/captures/tasks.mp4" data-poster="assets/cat-countdown/captures/tasks.jpg"><span class="chapter-num">4</span><b>Tick off today</b><span>To-dos sorted into Overdue, Today and This week, with a progress ring for the day.</span></button></li>
           <li><button type="button" class="chapter" aria-pressed="false" data-video="assets/cat-countdown/captures/alarm.mp4" data-poster="assets/cat-countdown/captures/alarm.jpg"><span class="chapter-num">5</span><b>Hear the alarm</b><span>Set a reminder to ring as an alarm, and your cat rings until you snooze or dismiss it.</span></button></li>
           <li><button type="button" class="chapter" aria-pressed="false" data-video="assets/cat-countdown/captures/widget.mp4" data-poster="assets/cat-countdown/captures/widget.jpg"><span class="chapter-num">6</span><b>Add the widget</b><span>Put your cat on the home screen in small or medium, with the days left always in view.</span></button></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="backdrops" class="section" aria-labelledby="backdrops-title">
-    <div class="wrap player">
-      <div class="phone">
-        <video id="backdrop-video" data-auto controls muted loop playsinline preload="none" width="442" height="960" poster="assets/cat-countdown/captures/bg-heart.jpg" src="assets/cat-countdown/captures/bg-heart.mp4" aria-label="Screen recording of the home screen with the chosen background."></video>
-      </div>
-      <div>
-        <div class="section-head">
-          <h2 id="backdrops-title">A home screen that follows the weather.</h2>
-          <p class="section-lead">The background behind your countdowns can match the sky outside, the season, or drift with a little ambient magic.</p>
-        </div>
-        <div class="modes">
-          <div class="mode"><h3>Weather</h3><p>Optional live weather from Open-Meteo: rain, snow, sun and cloud, drawn behind your cards.</p></div>
-          <div class="mode"><h3>Season</h3><p>Snow in winter, blossom in spring, sunshine in summer and rain in autumn.</p></div>
-          <div class="mode"><h3>Dynamic</h3><p>A random pick of starlight, fireflies, embers, hearts, flowers or glitter.</p></div>
-          <div class="mode"><h3>Light or dark</h3><p>Both themes, with night backdrops that glow in dark mode.</p></div>
-        </div>
-        <ul class="swatches" data-picker="backdrop-video" aria-label="Background styles">
-          <li><button type="button" class="swatch" aria-pressed="true" data-video="assets/cat-countdown/captures/bg-heart.mp4" data-poster="assets/cat-countdown/captures/bg-heart.jpg"><img src="assets/cat-countdown/captures/bg-heart.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Hearts</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-flower.mp4" data-poster="assets/cat-countdown/captures/bg-flower.jpg"><img src="assets/cat-countdown/captures/bg-flower.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Flowers</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-glitter.mp4" data-poster="assets/cat-countdown/captures/bg-glitter.jpg"><img src="assets/cat-countdown/captures/bg-glitter.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Glitter</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-season.mp4" data-poster="assets/cat-countdown/captures/bg-season.jpg"><img src="assets/cat-countdown/captures/bg-season.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Season</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-weather.mp4" data-poster="assets/cat-countdown/captures/bg-weather.jpg"><img src="assets/cat-countdown/captures/bg-weather.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Weather</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-starlight.mp4" data-poster="assets/cat-countdown/captures/bg-starlight.jpg"><img src="assets/cat-countdown/captures/bg-starlight.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Starlight</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-fireflies.mp4" data-poster="assets/cat-countdown/captures/bg-fireflies.jpg"><img src="assets/cat-countdown/captures/bg-fireflies.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Fireflies</button></li>
-          <li><button type="button" class="swatch" aria-pressed="false" data-video="assets/cat-countdown/captures/bg-ember.mp4" data-poster="assets/cat-countdown/captures/bg-ember.jpg"><img src="assets/cat-countdown/captures/bg-ember.jpg" width="442" height="960" alt="" loading="lazy" decoding="async">Embers</button></li>
         </ul>
       </div>
     </div>

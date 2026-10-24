@@ -74,6 +74,21 @@ test('?noredirect=1 shows phones the full landing page', async () => {
   }
 });
 
+test('/app always shows the landing page, so store listings and social links can sell the app', async () => {
+  for (const ua of [UA.android, UA.iphone, UA.desktop]) {
+    const { res, body, upstream } = await visit('/app', ua);
+    assert.equal(res.status, 200, ua);
+    assert.equal(body, '<html>studio copy of /cat-countdown.html</html>');
+    assert.deepEqual(upstream, [{ url: 'https://studio.factor-io.com/cat-countdown.html', method: 'GET' }]);
+    assert.match(res.headers.get('cache-control'), /no-store/);
+  }
+  const slash = await visit('/app/?utm_source=play', UA.android);
+  assert.equal(slash.res.status, 302);
+  assert.equal(slash.res.headers.get('location'), '/app?utm_source=play');
+  const scan = await visit('/', UA.android);
+  assert.equal(scan.res.headers.get('location'), PLAY);
+});
+
 test('a phone that followed a search result reads the landing page; a QR scan or same-site click still goes to the store', async () => {
   for (const method of ['GET', 'HEAD']) for (const ua of [UA.android, UA.iphone]) {
     for (const referer of ['https://www.google.com/', 'https://t.co/link', 'https://studio.factor-io.com/cat-countdown.html']) {

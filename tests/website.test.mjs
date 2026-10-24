@@ -700,6 +700,46 @@ test('Cat Countdown keeps manual playback and still cats under reduced motion or
   }
 });
 
+test('Cat Countdown opens on its live backgrounds, each visit on a background and a cat that agree with what is shown', { timeout: 30000 }, async t => {
+  const { catPage } = await import('./support/cat-countdown-browser.mjs');
+  const read = page => page.evaluate(`(() => {
+    const sections = [...document.querySelectorAll('main > section')];
+    const swatch = document.querySelector('#backdrops .swatch[aria-pressed="true"]');
+    const cat = document.querySelector('.roster button[aria-pressed="true"]');
+    return {
+      afterRelease: sections[sections.findIndex(s => s.classList.contains('release')) + 1].id,
+      pressedSwatches: document.querySelectorAll('#backdrops .swatch[aria-pressed="true"]').length,
+      swatchVideo: swatch.dataset.video,
+      shownVideo: document.getElementById('backdrop-video').getAttribute('src'),
+      cat: cat.dataset.name,
+      stageName: document.getElementById('cat-stage-name').textContent,
+      stageImg: document.getElementById('cat-stage-img').getAttribute('src'),
+      featured: [...document.querySelectorAll('#backdrops .swatch small')].map(s => s.textContent),
+    };
+  })()`);
+  const plain = await read((await catPage(t, { scripts: false })).page);
+  assert.equal(plain.afterRelease, 'backdrops', 'the backgrounds come straight after the release strip');
+  assert.equal(plain.swatchVideo, 'assets/cat-countdown/captures/bg-weather.mp4', 'without scripts the section shows the weather');
+  assert.equal(plain.shownVideo, plain.swatchVideo);
+  assert.equal(new Set(plain.featured).size, plain.featured.length, 'every background features a different cat');
+  assert.ok(!plain.featured.some(f => /Sakura/.test(f)), 'the backgrounds are not all Sakura');
+
+  const live = await read((await catPage(t)).page);
+  assert.equal(live.pressedSwatches, 1);
+  assert.equal(live.shownVideo, live.swatchVideo, 'the chosen background is the one playing');
+  assert.equal(live.stageName, live.cat, 'the cat on stage is the chosen cat');
+  assert.equal(live.stageImg, `assets/cat-countdown/cats/${live.cat.toLowerCase()}-still.webp`);
+});
+
+test('Cat Countdown promises only what the app does: attachments, History, renaming but no custom cats', async () => {
+  const html = await read('cat-countdown.html');
+  const text = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ');
+  assert.doesNotMatch(html, /create (?:a cat of )?your own|add my own/i, 'creating your own cat is not in the app yet');
+  assert.match(text, /moves to History/);
+  assert.match(text, /Attach photos to (?:a note|your notes)/);
+  assert.match(text, /ticket[\s\S]{0,40}reservation/);
+});
+
 test('Cat Countdown renders its FAQ and serves the media selected by real page interactions', { timeout: 60000 }, async t => {
   const { catPage } = await import('./support/cat-countdown-browser.mjs');
   const { page, origin } = await catPage(t);

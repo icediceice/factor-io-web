@@ -14,7 +14,7 @@ const ART = `${SITE}/assets/cat-countdown`;
 const CATS = ["sakura", "nimbus", "luna", "nori", "tangerine", "chai", "coco", "mallow", "yuki"];
 const CATEGORIES = ["anniversary", "birthday", "trip", "exam", "pregnancy", "baby", "me-time",
   "medical", "work", "family", "festival", "shopping", "others"];
-const CAPTURES = ["tour", "wizard", "notes", "tasks", "alarm", "bg-weather", "bg-season", "bg-heart",
+const CAPTURES = ["tour", "wizard", "notes", "tasks", "alarm", "widget", "bg-weather", "bg-season", "bg-heart",
   "bg-flower", "bg-glitter", "bg-starlight", "bg-fireflies", "bg-ember"];
 
 export function robotsTxt() {

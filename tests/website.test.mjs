@@ -738,6 +738,10 @@ test('Cat Countdown renders its FAQ and serves the media selected by real page i
     const shown = [...document.querySelectorAll('#art-grid > li')].filter(li => li.getClientRects().length);
     const result = shown.map(li => [li.dataset.cat, li.dataset.cg]);
     click('cat', ''); click('cg', '');
+    const values = kind => [...document.querySelectorAll('.chips[data-filter="' + kind + '"] button[data-value]')].map(b => b.dataset.value).filter(Boolean);
+    for (const cat of values('cat')) for (const cg of values('cg')) {
+      if (!document.querySelector('#art-grid > li[data-cat="' + cat + '"][data-cg="' + cg + '"]')) throw new Error('missing scene for ' + cat + '/' + cg);
+    }
     const media = [];
     document.querySelectorAll('#art-grid .art-tile').forEach(tile => {
       tile.click();

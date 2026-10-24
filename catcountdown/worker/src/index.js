@@ -37,9 +37,9 @@ export function comingSoonPage() {
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <style>
   @font-face { font-family: 'Geist'; src: url(/assets/fonts/geist-latin.woff2) format('woff2'); font-weight: 300 700; font-display: swap; }
-  :root { --bg: #FAF6F0; --surface: #FFFFFF; --ink: #1F1B24; --muted: #5E5866; --line: #E4DCCF; --accent: #B4532A; }
+  :root { --bg: #FAF6F0; --surface: #FFFFFF; --ink: #1C1714; --muted: #574C45; --line: #DCCFC0; --accent: #B43E1C; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #141216; --surface: #1E1B21; --ink: #F3EEE7; --muted: #B4ADB9; --line: #34303A; --accent: #F0A27A; }
+    :root { --bg: #141216; --surface: #1E1B22; --ink: #F5EFE8; --muted: #BDB3A8; --line: #352F3D; --accent: #FF8E6E; }
   }
   * { box-sizing: border-box; margin: 0; }
   body { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: var(--bg); color: var(--ink); font-family: 'Geist', system-ui, -apple-system, sans-serif; line-height: 1.5; }

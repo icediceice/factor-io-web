@@ -655,6 +655,35 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   }
 });
 
+test('Cat Countdown only autoplays visible captures and swaps chapters while playing', { timeout: 15000 }, async t => {
+  const { catPage, eventually } = await import('./support/cat-countdown-browser.mjs');
+  const { page } = await catPage(t, { reducedMotion: 'no-preference' });
+  await page.evaluate(`document.getElementById('demo-video').scrollIntoView({ block: 'center', behavior: 'instant' })`);
+  await eventually(page, `!document.getElementById('demo-video').paused && document.getElementById('demo-video').currentTime > 0`);
+  await page.evaluate(`document.querySelector('#demo button[data-video$="tour.mp4"]').click()`);
+  await eventually(page, `document.getElementById('demo-video').currentSrc.endsWith('/tour.mp4') && !document.getElementById('demo-video').paused`);
+  await page.evaluate(`window.scrollTo({ top: 0, behavior: 'instant' })`);
+  await eventually(page, `document.getElementById('demo-video').paused`);
+});
+
+test('Cat Countdown keeps manual playback and still cats under reduced motion or Save-Data', { timeout: 15000 }, async t => {
+  const { catPage } = await import('./support/cat-countdown-browser.mjs');
+  for (const options of [{ reducedMotion: 'reduce' }, { reducedMotion: 'no-preference', saveData: true }]) {
+    const { page } = await catPage(t, options);
+    const result = await page.evaluate(`new Promise(resolve => {
+      document.getElementById('demo-video').scrollIntoView({ block: 'center', behavior: 'instant' });
+      document.querySelector('#demo button[data-video$="tour.mp4"]').click();
+      document.querySelector('.roster button[data-cat="yuki"]').click();
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve({
+        manual: [...document.querySelectorAll('video[data-auto]')].every(v => v.paused && v.controls),
+        still: document.getElementById('cat-stage-img').getAttribute('src'),
+      })));
+    })`);
+    assert.equal(result.manual, true, JSON.stringify(options));
+    assert.equal(result.still, 'assets/cat-countdown/cats/yuki-still.webp');
+  }
+});
+
 test('Cat Countdown renders its FAQ and serves the media selected by real page interactions', { timeout: 60000 }, async t => {
   const { catPage } = await import('./support/cat-countdown-browser.mjs');
   const { page, origin } = await catPage(t);

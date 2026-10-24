@@ -24,3 +24,17 @@ test('the landing-page film retains byte-range delivery through the Worker', asy
   expect(response.headers.get('content-range')).toBe('bytes 100-199/1024');
   expect((await response.arrayBuffer()).byteLength).toBe(100);
 });
+
+// Explicit opt-in: upstream/CDN state is not part of the deterministic unit proof.
+if (process.env.CATCOUNTDOWN_LIVE_VERIFY === '1') {
+  test('the deployed Worker preserves the origin video range response', async () => {
+    const path = '/assets/work/cat-countdown-promo.mp4';
+    const [origin, edge] = await Promise.all([
+      fetch('https://studio.factor-io.com' + path, { headers: { range: 'bytes=100-199' } }),
+      fetch('https://catcountdown.factor-io.com' + path, { headers: { range: 'bytes=100-199' } }),
+    ]);
+    const observed = { originStatus: origin.status, edgeStatus: edge.status, edgeRange: edge.headers.get('content-range') };
+    await Promise.all([origin.body?.cancel(), edge.body?.cancel()]);
+    expect(observed).toEqual({ originStatus: 206, edgeStatus: 206, edgeRange: 'bytes 100-199/3358980' });
+  }, 20000);
+}

@@ -425,13 +425,13 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
 
   const controllerMatch = html.match(/<script id="scanner-controller">([\s\S]*?)<\/script>/);
   assert.ok(controllerMatch, 'expected inline #scanner-controller script in cat-countdown.html');
-  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '', hostname = 'studio.factor-io.com' }) => {
+  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '', hostname = 'studio.factor-io.com', referrer }) => {
     let replaced = null;
     const attrs = new Map();
     vm.runInNewContext(controllerMatch[1], {
       navigator: { userAgent, platform, maxTouchPoints },
       location: { search, hostname, replace: url => { replaced = url; } },
-      document: { documentElement: { setAttribute: (k, v) => attrs.set(k, String(v)) } },
+      document: { referrer, documentElement: { setAttribute: (k, v) => attrs.set(k, String(v)) } },
       URLSearchParams,
     });
     return { scanner: attrs.get('data-scanner'), replaced };

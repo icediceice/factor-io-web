@@ -360,7 +360,7 @@ const STYLE = `
   a { color: var(--accent); }
 `;
 
-function shell(title, inner, nonceAttr = "") {
+function shell(title, inner) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

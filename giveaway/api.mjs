@@ -170,9 +170,11 @@ export function createApi(db, { log = console.log } = {}) {
     const codes = [...new Set(parseCodes(body.codes))];
     if (!codes.length) throw new ApiError(400, 'no codes given');
     let revoked = 0;
-    for (const chunk of chunkRows(codes, 1).length ? chunkRows(codes, 1) : []) {
+    // One parameter is the platform, so 99 codes per statement.
+    for (let i = 0; i < codes.length; i += 99) {
+      const chunk = codes.slice(i, i + 99);
       const meta = await db.run(`UPDATE codes SET revoked = 1 WHERE revoked = 0 AND platform = ? AND code IN (${chunk.map(() => '?').join(', ')})`,
-        [platform, ...chunk].slice(0, 100));
+        [platform, ...chunk]);
       revoked += meta.changes ?? 0;
     }
     log(`${actor} revoked ${revoked} ${platform} codes`);

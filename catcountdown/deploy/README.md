@@ -10,10 +10,11 @@
 
 ```
 browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.factor-io.com/*)
-                                  |-- Android            --> 302 Google Play
-                                  |-- iPhone, /iphone    --> coming-soon page (302 App Store once APP_STORE_URL is set)
+                                  |-- /robots.txt, /sitemap.xml --> answered by the Worker (src/seo.js)
+                                  |-- Android, no outside Referer --> 302 Google Play
+                                  |-- iPhone, no outside Referer, /iphone --> coming-soon page (302 App Store once APP_STORE_URL is set)
                                   |-- /free/<campaign>   --> giveaway claim page (Google sign-in), POST /free/<campaign>/claim
-                                  '-- desktop, crawlers  --> proxy https://studio.factor-io.com/cat-countdown.html + /assets/*
+                                  '-- desktop, crawlers, phones from a search result --> proxy https://studio.factor-io.com/cat-countdown.html + /assets/*
 ```
 
 - The Worker is attached by a **route**, not a custom domain. The proxied `catcountdown` DNS record (a CNAME to tunnel `7f569c27`) stays as it is, and the Worker answers before that origin is reached.

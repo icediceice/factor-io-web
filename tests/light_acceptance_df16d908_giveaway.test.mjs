@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../catcountdown/worker/src/index.js';
-import { GOOGLE_JWKS_URL } from '../catcountdown/worker/src/giveaway.js';
+import { createGoogleVerifier, GOOGLE_JWKS_URL } from '../catcountdown/worker/src/giveaway.js';
 import { d1Binding } from './support/d1-sqlite.mjs';
 
 const SITE = 'https://catcountdown.factor-io.com';
@@ -14,8 +14,8 @@ globalThis.fetch = async (url) => {
   return Response.json({ keys: [jwk] }, { headers: { 'cache-control': 'max-age=3600' } });
 };
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
-async function credential() {
-  const input = `${b64({ alg: 'RS256', kid: jwk.kid })}.${b64({ iss: 'https://accounts.google.com', aud: CLIENT, sub: 'same-account', email: 'a@example.com', email_verified: true, exp: Math.floor(Date.now() / 1000) + 600 })}`;
+async function credential(kid = jwk.kid) {
+  const input = `${b64({ alg: 'RS256', kid })}.${b64({ iss: 'https://accounts.google.com', aud: CLIENT, sub: 'same-account', email: 'a@example.com', email_verified: true, exp: Math.floor(Date.now() / 1000) + 600 })}`;
   return input + '.' + Buffer.from(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key.privateKey, Buffer.from(input))).toString('base64url');
 }
 function fixture() {
@@ -72,4 +72,27 @@ test('a JSON-null JWT header is invalid input and yields 401 instead of an uncau
   assert.equal(response.status, 401);
   assert.equal((await response.json()).error, 'sign_in_failed');
   assert.equal(env.GIVEAWAY_DB.raw.prepare('SELECT COUNT(*) AS n FROM codes WHERE claimant IS NOT NULL').get().n, 0);
+});
+
+test('concurrent tokens with a newly published kid all await the one forced JWKS refresh', async () => {
+  let calls = 0;
+  let release;
+  let started;
+  const refreshing = new Promise((resolve) => { started = resolve; });
+  const verify = createGoogleVerifier({ fetchImpl: async () => {
+    calls++;
+    if (calls === 1) return Response.json({ keys: [jwk] }, { headers: { 'cache-control': 'max-age=3600' } });
+    started();
+    return new Promise((resolve) => { release = () => resolve(Response.json({ keys: [jwk, { ...jwk, kid: 'verify-g2' }] }, { headers: { 'cache-control': 'max-age=3600' } })); });
+  } });
+  assert.equal((await verify(await credential(), CLIENT)).sub, 'same-account');
+  const token = await credential('verify-g2');
+  const first = verify(token, CLIENT);
+  await refreshing;
+  const second = verify(token, CLIENT);
+  const outcomes = Promise.allSettled([first, second]);
+  release();
+  const results = await outcomes;
+  assert.deepEqual(results.map((r) => r.status), ['fulfilled', 'fulfilled'], results.map((r) => r.reason?.message).join(', '));
+  assert.equal(calls, 2, 'one initial fetch and one coalesced rotation refresh');
 });

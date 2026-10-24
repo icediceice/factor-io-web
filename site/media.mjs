@@ -14,11 +14,14 @@ export const filmPoster = (id, locale) => `/assets/films/${id}-${locale}.jpg`;
 
 // Real captures only: device screenshots from the app's own store kit, and headless
 // captures of the live web tools. Blink ships no interface capture on purpose.
+// primary: the item has its own selling page, so its link is a filled button on home and studio work.
 export const work = {
   'tco-calculator': { frame: 'browser', href: '/tco-calculator.html', shots: [{ file: 'tco-calculator.webp', width: 1440, height: 900 }] },
   'light-tools': { frame: 'browser', href: '/light-tools.html', shots: [{ file: 'light-tools.webp', width: 1440, height: 900 }] },
   'cat-countdown': {
     frame: 'phone',
+    href: 'https://catcountdown.factor-io.com/app',
+    primary: true,
     shots: [
       { file: 'cat-countdown-home.webp', width: 540, height: 1212 },
       { file: 'cat-countdown-detail.webp', width: 540, height: 1212 },

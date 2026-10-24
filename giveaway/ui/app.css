@@ -53,7 +53,7 @@ h1,h2,h3,p{margin:0}
 /* ---------------------------------------------------------------- header -- */
 .site-header{position:sticky;top:0;z-index:20;background:var(--white);border-bottom:1px solid var(--line)}
 .header-inner{width:min(var(--w-page),calc(100% - 2 * var(--s4)));margin:auto;min-height:var(--header-h);display:flex;align-items:center;gap:var(--s5);flex-wrap:wrap}
-.brand{font-size:var(--t-xl);font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.brand{font-size:var(--t-xl);font-weight:700;letter-spacing:.02em;white-space:nowrap;margin:0}
 .brand span{font-family:var(--mono);color:var(--accent)}
 .section-nav{display:flex;gap:var(--s1);flex-wrap:wrap}
 .section-nav a{display:flex;align-items:center;min-height:var(--target);padding:0 var(--s3);color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}

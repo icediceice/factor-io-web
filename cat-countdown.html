@@ -214,7 +214,15 @@
   .player-feature { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); align-items: center; }
   .player-feature .phone { max-width: 380px; }
   .swatch small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
-  @media (max-width: 760px) { .player-feature { grid-template-columns: 1fr; } .player-feature .phone { max-width: 320px; } }
+  /* One column on phones: heading, then the video, then the swatches that switch it, then the modes. */
+  @media (max-width: 760px) {
+    .player-feature { grid-template-columns: 1fr; gap: 24px; }
+    .player-feature .phone { max-width: 320px; }
+    .player-feature > div:last-child { display: contents; }
+    .player-feature .section-head { order: -1; margin-bottom: 0; }
+    .player-feature .swatches { order: 1; margin-top: 0; }
+    .player-feature .modes { order: 2; }
+  }
 
   /* Cats */
   .cat-stage { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(24px, 5vw, 56px); align-items: center; padding: clamp(20px, 4vw, 40px); border-radius: calc(var(--radius) + 8px); background-color: var(--surface); border: 1px solid var(--line); }

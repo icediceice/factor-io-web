@@ -34,7 +34,7 @@ Dates are editorial source fields, never the build clock. Sitemap retains root, 
 
 - “Nearly 20 years” and leading Thai SI enablement come from the operator's current prompt. Role history for Red Hat/Nutanix is inherited public site copy, not independently verified employment evidence. The old five-year duration is deliberately omitted under specification §24. No invented clients, metrics, certifications, badges or endorsement.
 - Keep `Thanat Manasakool` in Latin script on English pages. Thai pages have used `ธนัช มานะสกุล` since the 2026-09-17 rewrite; a 2026-09-24 copy patch introduced a second spelling, `ธนัท มนัสสกุล`, on Home only, and the 2026-09-30 redesign standardised every Thai page back to `ธนัช มานะสกุล`. The operator has not confirmed an official Thai spelling, so treat it as unverified.
-- Thai copy is authored explicitly, not translated at runtime. Native-language review remains outstanding. The 2026-09 launch kept Thai `noindex`; on 2026-10-24 the operator directed that every public page be indexed, so `config.locales.th.indexable = true` now emits `index, follow` on all six Thai routes and lists them in `sitemap.xml`. That directive is an indexing decision, not a review sign-off: the editorial date was not bumped because the Thai copy did not change. Never record review as completed without the operator's sign-off.
+- Thai copy is authored explicitly, not translated at runtime. Native-language review remains outstanding. The approved launch makes Thai publicly accessible and language-linked but `noindex`; this is not privacy. After the operator reviews/corrects all Thai copy, a separate scoped change sets `config.locales.th.indexable = true`, updates the editorial date, rebuilds and checks metadata/sitemap. Never record review as completed without the operator's sign-off.
 - The old bilingual sales deck remains byte-for-byte unchanged, noindex and unlinked, with its own historical review/distribution decision intact. Historical progress entries are not rewritten to look current.
 
 ## Specification coverage
@@ -65,7 +65,7 @@ Six routes: Home, Services, Studio work (`/mobile-apps/`), About, Profile, Conta
 | 20 Visual direction | Studio system: off-white and ink with one orange accent, Geist and IBM Plex Sans Thai; three motion-graphic films; real screenshots in device frames |
 | 21 Tone | Separate English/professional Thai copy, normal enterprise terminology |
 | 22 Technical requirements | Static `.mjs` export, semantic HTML, progressive contact, metadata |
-| 23 SEO | Per-language titles/descriptions/alternates, sitemap with both locales; both locales indexed since 2026-10-24 (Thai native review still outstanding) |
+| 23 SEO | Per-language titles/descriptions/alternates, sitemap; Thai review hold disclosed |
 | 24 Claims | Config/provenance rules above, no fabricated quantitative proof |
 | 25 First impression | Home hero: the platform first, AI named as the specialisation, with the `story` film; restated outright in Home `focus` |
 

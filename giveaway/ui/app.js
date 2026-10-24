@@ -5,6 +5,8 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 const STORES = { android: 'Google Play', ios: 'App Store' };
 let campaigns = [];
+const CLAIM_ROWS = 500; // beyond this the CSV is the full record
+const RETRY = ' Check that factor-giveaway is running on light-worker, then press Refresh all.';
 
 // ---------------------------------------------------------------- helpers --
 async function api(method, path, body) {

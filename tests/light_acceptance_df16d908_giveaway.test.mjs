@@ -1,4 +1,6 @@
-// Quarantined verify-ship regressions for plan df16d908. Expected red until repaired.
+// Giveaway claim edge cases found by the verify-ship pass for plan df16d908: same-account
+// races at the cap, the byte-counted body limit, malformed JWT shapes and concurrent
+// key-rotation sign-ins.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../catcountdown/worker/src/index.js';

@@ -16,3 +16,14 @@ routes = [
 # Empty while the iPhone app is in App Store review: iPhone scanners get the
 # coming-soon page. Set this to the App Store listing URL and redeploy to release.
 APP_STORE_URL = ""
+# Public OAuth Web client id for the /free/<campaign> Google sign-in (not a secret).
+# Empty = the giveaway pages say "not available" and allocate nothing.
+GOOGLE_CLIENT_ID = "86938020142-h3ig47j7brj8ltlpedbqklt6muc6mrke.apps.googleusercontent.com"
+
+# Promo-code pool for /free/<campaign>; the tailnet admin (../../giveaway) writes
+# campaigns and codes through the Cloudflare D1 REST API.
+[[d1_databases]]
+binding = "GIVEAWAY_DB"
+database_name = "catcountdown-giveaway"
+database_id = "db64b355-02bc-4264-a360-cb4fb3827d2a"
+migrations_dir = "migrations"

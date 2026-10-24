@@ -1,0 +1,33 @@
+# Cat Countdown giveaway admin — systemd USER unit for light-worker.
+# Modelled on quotes/deploy/factor-quotes.service. Install steps: giveaway/README.md.
+#
+# Listens only on loopback plus light-worker's Tailscale address. There is no nginx,
+# Cloudflare proxy or public route; the public claim page is the catcountdown Worker.
+
+[Unit]
+Description=Cat Countdown giveaway admin — campaigns, promo-code pool and claims (tailnet only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ice/.factor-giveaway
+EnvironmentFile=/home/ice/.factor-giveaway/.env
+# NODE_ENV=production makes the boot gate refuse unless tailscaled whois works and the
+# allowlists, agent token and Cloudflare D1 settings in .env are all present.
+# deploy/write-env.mjs writes .env (0600), including:
+#   GIVEAWAY_BIND=127.0.0.1,100.111.93.20
+#   GIVEAWAY_ALLOWED_HOSTS=giveaway.factor-io.com:8788,100.111.93.20:8788,127.0.0.1:8788
+Environment=NODE_ENV=production
+Environment=GIVEAWAY_PORT=8788
+ExecStart=/usr/bin/env node /home/ice/.factor-giveaway/server.mjs
+Restart=on-failure
+RestartSec=3
+
+# Hardening: the app writes nothing locally; all state is in Cloudflare D1.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=default.target

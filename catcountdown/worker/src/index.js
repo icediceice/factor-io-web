@@ -20,6 +20,8 @@ const CRAWLABLE = { "cache-control": "public, max-age=3600" };
 
 // A QR scan or typed URL carries no Referer; a phone that followed a search result or a
 // link from another site came to read about the app, so it gets the page, not the store.
+// Store listings, social bios and in-app browsers send no Referer either, so marketing
+// links use /app, which always serves the page.
 function fromElsewhere(request, url) {
   const referer = request.headers.get("referer");
   if (!referer) return false;
@@ -128,8 +130,8 @@ export default {
 
     if (path === "/robots.txt") return text(robotsTxt(), "text/plain; charset=utf-8", request);
     if (path === "/sitemap.xml") return text(sitemapXml(), "application/xml; charset=utf-8", request);
-    if (path === "/" || path === "/cat-countdown.html") {
-      const stay = url.searchParams.get("noredirect") === "1" || fromElsewhere(request, url);
+    if (path === "/" || path === "/cat-countdown.html" || path === "/app") {
+      const stay = path === "/app" || url.searchParams.get("noredirect") === "1" || fromElsewhere(request, url);
       const scanner = stay ? "other" : classify(request.headers.get("user-agent"));
       if (scanner === "android") return redirect(PLAY_URL);
       if (scanner === "ios") return iphone(request, appStoreUrl);
@@ -137,6 +139,8 @@ export default {
       for (const [name, value] of Object.entries(NO_STORE)) page.headers.set(name, value);
       return page;
     }
+    // The page's assets are document-relative, so /app/ would load /app/assets/...; keep one form.
+    if (path === "/app/") return redirect("/app" + url.search);
     if (path === "/iphone") return iphone(request, appStoreUrl);
     if (path === "/catcountdown" || path === "/catcountdown/") return redirect("/cat-countdown.html" + url.search);
     if (path.startsWith("/assets/")) return proxy(path, request);

@@ -52,6 +52,7 @@ CLIPS = {
     "tasks": ("tasks", 0.3, 6.0),
     "wizard": ("wizard", 1.0, 21.0),
     "alarm": ("alarm", 8.0, 12.0),  # ringing screen starts ~8s in
+    "widget": ("widget", 9.0, 14.9),  # picker idles ~9s; ends on the home screen
     "bg-heart": ("bg_heart", 0.5, 5.0),
     "bg-flower": ("bg_flower", 0.5, 5.0),
     "bg-glitter": ("bg_glitter", 0.5, 5.0),

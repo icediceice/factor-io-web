@@ -725,6 +725,12 @@ test('Cat Countdown renders its FAQ and serves the media selected by real page i
     return selected;
   })()`);
   chapters.forEach(src => requested.add(src));
+  for (const kind of ['tour', 'wizard', 'notes', 'tasks', 'alarm']) {
+    assert.ok(chapters.includes(`assets/cat-countdown/captures/${kind}.mp4`), `missing promised ${kind} chapter`);
+  }
+  const capturePaths = new Set([...initial.assets, ...chapters].filter(src => src.endsWith('.mp4')).map(src => new URL(src, origin + '/').pathname));
+  assert.deepEqual(new Set(videos.map(v => new URL(v.contentUrl).pathname)), capturePaths, 'each playable capture has exactly one corresponding VideoObject URL');
+  assert.ok(app.screenshot.includes('https://catcountdown.factor-io.com/assets/cat-countdown/captures/tour.jpg'), 'the app schema includes an actual app screenshot');
 
   const scenes = await page.evaluate(`(() => {
     const click = (kind, value) => document.querySelector('.chips[data-filter="' + kind + '"] button[data-value="' + value + '"]').click();

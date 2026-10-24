@@ -129,6 +129,9 @@ export function createGoogleVerifier({ fetchImpl = (url) => fetch(url), now = ()
         if (!keys.size) throw err; // stale keys beat no keys while Google is unreachable
       }
     }
+    // A refresh another sign-in already started may carry the new key: wait for it
+    // rather than calling the kid unknown. The cooldown limits fetches, not waiters.
+    if (!keys.has(kid) && inflight) await inflight;
     if (!keys.has(kid) && now() - lastMissRefresh >= missCooldownMs) {
       lastMissRefresh = now();
       await refresh();
@@ -148,6 +151,8 @@ export function createGoogleVerifier({ fetchImpl = (url) => fetch(url), now = ()
     } catch {
       throw new SignInError("malformed");
     }
+    const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+    if (!isObject(header) || !isObject(claims)) throw new SignInError("malformed");
     if (header.alg !== "RS256" || typeof header.kid !== "string") throw new SignInError("algorithm");
     const key = await keyFor(header.kid);
     if (!key) throw new SignInError("unknown key");
@@ -202,11 +207,27 @@ WHERE id = (SELECT id FROM codes
   AND NOT EXISTS (SELECT 1 FROM codes y WHERE y.claimant = ?1)
 RETURNING code`;
 
+// MAX_BODY is in bytes: the stream is counted as it arrives and abandoned once over,
+// so neither multibyte text nor a chunked body without Content-Length gets past it.
 async function readJsonBody(request) {
-  const text = await request.text();
-  if (text.length > MAX_BODY) return null;
+  if (Number(request.headers.get("content-length")) > MAX_BODY) return null;
+  const bytes = new Uint8Array(MAX_BODY);
+  let size = 0;
+  if (request.body) {
+    const reader = request.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (size + value.byteLength > MAX_BODY) {
+        await reader.cancel();
+        return null;
+      }
+      bytes.set(value, size);
+      size += value.byteLength;
+    }
+  }
   try {
-    const body = JSON.parse(text);
+    const body = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(0, size)));
     return body && typeof body === "object" ? body : null;
   } catch {
     return null;
@@ -237,18 +258,24 @@ async function claim(request, env, slug) {
   const now = nowSeconds();
   const existing = await issuanceFor(db, who.sub);
   if (existing) return json(200, issued(existing, "existing", now));
+  // Every refusal from here re-reads first: a concurrent sign-in by this same account
+  // may have committed (and even filled the cap) since the read above.
+  const refuse = async (status, body) => {
+    const late = await issuanceFor(db, who.sub);
+    return late ? json(200, issued(late, "existing", now)) : json(status, body);
+  };
   // Closed links say so before asking anything else; ALLOCATE re-checks at write time.
   if (campaign.status !== "active" || (await atCap(db, campaign))) {
-    return json(409, { error: await closedReason(db, campaign, null, now) });
+    return refuse(409, { error: await closedReason(db, campaign, null, now) });
   }
 
   const offered = offeredPlatforms(campaign);
   let platform = body.platform;
   if (platform === undefined || platform === null || platform === "") {
-    if (offered.length !== 1) return json(400, { error: "choose_platform", platforms: offered });
+    if (offered.length !== 1) return refuse(400, { error: "choose_platform", platforms: offered });
     platform = offered[0];
   }
-  if (!offered.includes(platform)) return json(400, { error: "platform_not_offered", platforms: offered });
+  if (!offered.includes(platform)) return refuse(400, { error: "platform_not_offered", platforms: offered });
 
   let allocated = false;
   try {

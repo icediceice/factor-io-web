@@ -737,14 +737,15 @@ test('Cat Countdown opens on its live backgrounds, each visit on a background an
     for (const [randomValue, background, cat] of [[0, 'weather', 'Sakura'], [0.999999, 'ember', 'Yuki']]) {
       const { page } = await catPage(t, { reducedMotion, randomValue });
       await page.evaluate(`document.getElementById('cat-stage-img').scrollIntoView({ block: 'center', behavior: 'instant' })`);
-      await eventually(page, `document.getElementById('cat-stage-name').textContent === ${JSON.stringify(cat)}`);
+      const expectedImage = `assets/cat-countdown/cats/${cat.toLowerCase()}-${reducedMotion === 'reduce' ? 'still' : 'alarm'}.webp`;
+      await eventually(page, `document.getElementById('cat-stage-name').textContent === ${JSON.stringify(cat)} && document.getElementById('cat-stage-img').getAttribute('src') === ${JSON.stringify(expectedImage)}`);
       const live = await read(page);
       assert.equal(live.pressedSwatches, 1);
       assert.equal(live.swatchVideo, `assets/cat-countdown/captures/bg-${background}.mp4`);
       assert.equal(live.shownVideo, live.swatchVideo, 'the randomly chosen background is the one shown');
       assert.equal(live.cat, cat);
       assert.equal(live.stageName, cat, 'the cat on stage is the randomly chosen cat');
-      assert.equal(live.stageImg, `assets/cat-countdown/cats/${cat.toLowerCase()}-${reducedMotion === 'reduce' ? 'still' : 'alarm'}.webp`);
+      assert.equal(live.stageImg, expectedImage);
       assert.equal(live.galleryMoreVisible, true);
       assert.equal(live.shownScenes, 24, 'scripts collapse the gallery only while its expansion control works');
       const expanded = await page.evaluate(`(() => {

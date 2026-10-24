@@ -58,6 +58,7 @@ CLIPS = {
     "bg-fireflies": ("bg_fireflies", 0.5, 5.0),
     "bg-ember": ("bg_ember", 0.5, 5.0),
     "bg-season": ("bg_season", 0.5, 5.0),
+    "bg-weather": ("bg_weather", 0.5, 5.0),
 }
 
 

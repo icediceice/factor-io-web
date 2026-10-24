@@ -268,7 +268,7 @@ async function closedReason(db, campaign, platform, now) {
   const fresh = (await db.prepare("SELECT * FROM campaigns WHERE id = ?1").bind(campaign.id).first()) ?? campaign;
   if (fresh.status !== "active") return fresh.status;
   if (await atCap(db, fresh)) return "capped";
-  if (!offeredPlatforms(fresh).includes(platform)) return "platform_not_offered";
+  if (platform && !offeredPlatforms(fresh).includes(platform)) return "platform_not_offered";
   return "empty";
 }
 

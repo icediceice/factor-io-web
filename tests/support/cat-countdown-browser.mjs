@@ -1,11 +1,14 @@
 import { launch, openPage, serve } from '../../scripts/films/cdp.mjs';
 
-export async function catPage(t, { scripts = true, reducedMotion = 'reduce', saveData = false } = {}) {
+export async function catPage(t, { scripts = true, reducedMotion = 'reduce', saveData = false, randomValue } = {}) {
   const server = await serve();
   t.after(() => server.close());
   const browser = await launch();
   t.after(() => browser.close());
   const page = await openPage(browser, { width: 390, height: 844, reducedMotion });
+  if (randomValue !== undefined) await page.send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `Math.random = () => ${JSON.stringify(randomValue)};`,
+  });
   if (!scripts) await page.send('Emulation.setScriptExecutionDisabled', { value: true });
   if (saveData) await page.send('Page.addScriptToEvaluateOnNewDocument', {
     source: 'Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true });',

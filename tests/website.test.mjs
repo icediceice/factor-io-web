@@ -700,8 +700,8 @@ test('Cat Countdown keeps manual playback and still cats under reduced motion or
   }
 });
 
-test('Cat Countdown opens on its live backgrounds, each visit on a background and a cat that agree with what is shown', { timeout: 30000 }, async t => {
-  const { catPage } = await import('./support/cat-countdown-browser.mjs');
+test('Cat Countdown opens on its live backgrounds, each visit on a background and a cat that agree with what is shown', { timeout: 60000 }, async t => {
+  const { catPage, eventually } = await import('./support/cat-countdown-browser.mjs');
   const read = page => page.evaluate(`(() => {
     const sections = [...document.querySelectorAll('main > section')];
     const swatch = document.querySelector('#backdrops .swatch[aria-pressed="true"]');
@@ -715,29 +715,69 @@ test('Cat Countdown opens on its live backgrounds, each visit on a background an
       stageName: document.getElementById('cat-stage-name').textContent,
       stageImg: document.getElementById('cat-stage-img').getAttribute('src'),
       featured: [...document.querySelectorAll('#backdrops .swatch small')].map(s => s.textContent),
+      galleryMoreVisible: document.getElementById('gallery-more').getClientRects().length > 0,
+      shownScenes: [...document.querySelectorAll('#art-grid > li')].filter(li => li.getClientRects().length > 0).length,
     };
   })()`);
   const plain = await read((await catPage(t, { scripts: false })).page);
   assert.equal(plain.afterRelease, 'backdrops', 'the backgrounds come straight after the release strip');
   assert.equal(plain.swatchVideo, 'assets/cat-countdown/captures/bg-weather.mp4', 'without scripts the section shows the weather');
   assert.equal(plain.shownVideo, plain.swatchVideo);
+  assert.equal(plain.cat, 'Sakura');
+  assert.equal(plain.stageName, 'Sakura');
+  assert.equal(plain.stageImg, 'assets/cat-countdown/cats/sakura-still.webp');
+  assert.equal(plain.galleryMoreVisible, false, 'no-JS visitors need no inactive gallery control');
+  assert.equal(plain.shownScenes, 117, 'no-JS visitors can see every scene');
   assert.equal(new Set(plain.featured).size, plain.featured.length, 'every background features a different cat');
   assert.ok(!plain.featured.some(f => /Sakura/.test(f)), 'the backgrounds are not all Sakura');
 
-  const live = await read((await catPage(t)).page);
-  assert.equal(live.pressedSwatches, 1);
-  assert.equal(live.shownVideo, live.swatchVideo, 'the chosen background is the one playing');
-  assert.equal(live.stageName, live.cat, 'the cat on stage is the chosen cat');
-  assert.equal(live.stageImg, `assets/cat-countdown/cats/${live.cat.toLowerCase()}-still.webp`);
+  // Both ends of the random range must change the actual selection. Merely checking
+  // that the labels and images agree would also pass with initialization removed.
+  for (const reducedMotion of ['reduce', 'no-preference']) {
+    for (const [randomValue, background, cat] of [[0, 'weather', 'Sakura'], [0.999999, 'ember', 'Yuki']]) {
+      const { page } = await catPage(t, { reducedMotion, randomValue });
+      await page.evaluate(`document.getElementById('cat-stage-img').scrollIntoView({ block: 'center', behavior: 'instant' })`);
+      await eventually(page, `document.getElementById('cat-stage-name').textContent === ${JSON.stringify(cat)}`);
+      const live = await read(page);
+      assert.equal(live.pressedSwatches, 1);
+      assert.equal(live.swatchVideo, `assets/cat-countdown/captures/bg-${background}.mp4`);
+      assert.equal(live.shownVideo, live.swatchVideo, 'the randomly chosen background is the one shown');
+      assert.equal(live.cat, cat);
+      assert.equal(live.stageName, cat, 'the cat on stage is the randomly chosen cat');
+      assert.equal(live.stageImg, `assets/cat-countdown/cats/${cat.toLowerCase()}-${reducedMotion === 'reduce' ? 'still' : 'alarm'}.webp`);
+      assert.equal(live.galleryMoreVisible, true);
+      assert.equal(live.shownScenes, 24, 'scripts collapse the gallery only while its expansion control works');
+      const expanded = await page.evaluate(`(() => {
+        const more = document.getElementById('gallery-more');
+        const label = more.innerText;
+        more.click();
+        return { label, visible: more.getClientRects().length > 0,
+          scenes: [...document.querySelectorAll('#art-grid > li')].filter(li => li.getClientRects().length > 0).length };
+      })()`);
+      assert.deepEqual(expanded, { label: 'Show all 117 scenes', visible: false, scenes: 117 });
+    }
+  }
 });
 
-test('Cat Countdown promises only what the app does: attachments, History, renaming but no custom cats', async () => {
-  const html = await read('cat-countdown.html');
-  const text = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ');
-  assert.doesNotMatch(html, /create (?:a cat of )?your own|add my own/i, 'creating your own cat is not in the app yet');
-  assert.match(text, /moves to History/);
-  assert.match(text, /Attach photos to (?:a note|your notes)/);
-  assert.match(text, /ticket[\s\S]{0,40}reservation/);
+test('Cat Countdown promises only what the app does: attachments, History, renaming but no custom cats', { timeout: 15000 }, async t => {
+  const { catPage } = await import('./support/cat-countdown-browser.mjs');
+  const { page } = await catPage(t);
+  const copy = await page.evaluate(`(() => {
+    const details = [...document.querySelectorAll('#faq details')];
+    details.forEach(d => d.querySelector('summary').click());
+    const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@graph'];
+    return { text: document.body.innerText,
+      answers: details.map(d => [d.querySelector('summary').innerText, d.querySelector('p').innerText]),
+      schemaAnswers: graph.find(n => n['@type'] === 'FAQPage').mainEntity.map(q => [q.name, q.acceptedAnswer.text]),
+      features: graph.find(n => n['@type'] === 'SoftwareApplication').featureList };
+  })()`);
+  const history = copy.answers.find(([question]) => question === 'What happens when the day arrives?');
+  assert.deepEqual(history, ['What happens when the day arrives?', 'The countdown is not deleted. It moves to History, so you can look back on every day you counted down to.']);
+  assert.deepEqual(copy.answers, copy.schemaAnswers, 'the answers visitors can open agree with rich-result answers');
+  assert.match(copy.text, /Attach photos to (?:a note|your notes)/);
+  assert.match(copy.text, /clipboard for the day:[\s\S]*concert ticket[\s\S]*hotel reservation[\s\S]*boarding pass/);
+  assert.doesNotMatch(copy.text, /create (?:a cat of )?your own|add my own/i);
+  assert.doesNotMatch(JSON.stringify([copy.schemaAnswers, copy.features]), /create (?:a cat of )?your own|add my own/i);
 });
 
 test('Cat Countdown renders its FAQ and serves the media selected by real page interactions', { timeout: 60000 }, async t => {

@@ -131,6 +131,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
 /* ---------------------------------------------------------------- notices -- */
 .alert{margin-top:var(--s3);padding:var(--s2) var(--s3);border:1px solid var(--danger);border-left-width:3px;border-radius:var(--r-btn);color:var(--danger);font-size:var(--t-md)}
 .alert:empty{display:none}
+.alert[data-sheet-alert]{margin:var(--s3) var(--s4)}
+.mt-3{margin-top:var(--s3)}
 .result{margin-top:var(--s3);font-size:var(--t-md)}
 .result:empty{display:none}
 .warn{color:var(--focus);font-weight:600}

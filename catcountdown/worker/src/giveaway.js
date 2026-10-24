@@ -237,6 +237,10 @@ async function claim(request, env, slug) {
   const now = nowSeconds();
   const existing = await issuanceFor(db, who.sub);
   if (existing) return json(200, issued(existing, "existing", now));
+  // Closed links say so before asking anything else; ALLOCATE re-checks at write time.
+  if (campaign.status !== "active" || (await atCap(db, campaign))) {
+    return json(409, { error: await closedReason(db, campaign, null, now) });
+  }
 
   const offered = offeredPlatforms(campaign);
   let platform = body.platform;

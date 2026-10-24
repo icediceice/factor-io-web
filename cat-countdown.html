@@ -226,6 +226,7 @@
   .roster button[aria-pressed="true"] { border-color: var(--accent); background-color: var(--accent-soft); }
   .roster img { width: 100%; max-width: 76px; aspect-ratio: 1; }
   @media (max-width: 860px) { .cat-stage { grid-template-columns: 1fr; } .cat-stage-art { max-width: 280px; width: 100%; margin: 0 auto; } .roster { grid-template-columns: repeat(5, minmax(0, 1fr)); } .poses { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .roster { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
   /* Categories */
   .cg-grid { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker from '../catcountdown/worker/src/index.js';
+import { readFile, stat } from 'node:fs/promises';
+import vm from 'node:vm';
+import worker, { classify } from '../catcountdown/worker/src/index.js';
 
 const PLAY = 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown';
 const APP_STORE = 'https://apps.apple.com/app/id0000000000';

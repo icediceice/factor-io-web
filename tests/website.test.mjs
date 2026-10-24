@@ -430,7 +430,7 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     const attrs = new Map();
     vm.runInNewContext(controllerMatch[1], {
       navigator: { userAgent, platform, maxTouchPoints },
-      location: { search, replace: url => { replaced = url; } },
+      location: { search, hostname, replace: url => { replaced = url; } },
       document: { documentElement: { setAttribute: (k, v) => attrs.set(k, String(v)) } },
       URLSearchParams,
     });

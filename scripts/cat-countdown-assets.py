@@ -126,11 +126,14 @@ def ffmpeg(*args: str) -> None:
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", *args], check=True)
 
 
-def clips(src: Path) -> None:
+def clips(src: Path, prefix: str | None = None) -> None:
     dst = OUT / "captures"
-    shutil.rmtree(dst, ignore_errors=True)
-    dst.mkdir(parents=True)
+    if prefix is None:
+        shutil.rmtree(dst, ignore_errors=True)
+    dst.mkdir(parents=True, exist_ok=True)
     for name, (raw, start, dur) in CLIPS.items():
+        if prefix is not None and not name.startswith(prefix):
+            continue
         mov = src / f"{raw}.mov"
         if not mov.exists():
             sys.exit(f"missing capture {mov}")

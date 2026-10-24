@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createApp, bindAddresses } from '../server.mjs';
 import { assertProductionConfig } from '../lib/auth.mjs';
+import { isTailnetAddr, tailnetWhois, whoisAvailable, clearTailnetCache } from '../lib/tailnet.mjs';
 import { migratedSqlite } from '../../tests/support/d1-sqlite.mjs';
 
 const TOKEN = 'a'.repeat(40);
@@ -128,8 +129,28 @@ test('the admin binds only to loopback and tailnet addresses', () => {
   }
 });
 
-test('lib/tailnet.mjs stays byte-identical to the quotes copy it was taken from', () => {
+test('the copied tailnet helper enforces address and whois identity rules as well as byte identity', async () => {
   assert.equal(readFileSync(new URL('../lib/tailnet.mjs', import.meta.url), 'utf8'), readFileSync(new URL('../../quotes/lib/tailnet.mjs', import.meta.url), 'utf8'));
+  for (const addr of ['100.64.0.0', '100.127.255.255', '::ffff:100.101.102.103']) assert.equal(isTailnetAddr(addr), true, addr);
+  for (const addr of ['100.63.255.255', '100.128.0.0', '127.0.0.1', '100.999.1.1']) assert.equal(isTailnetAddr(addr), false, addr);
+  clearTailnetCache();
+  let calls = 0;
+  const run = async (args) => {
+    calls++;
+    assert.deepEqual(args, ['whois', '--json', TAILNET_PEER]);
+    return JSON.stringify({ UserProfile: { LoginName: ' OPS@FACTOR-IO.COM ' } });
+  };
+  assert.equal(await tailnetWhois(TAILNET_PEER, { run, now: () => 1000, cacheTtlMs: 100 }), OPERATOR);
+  assert.equal(await tailnetWhois(TAILNET_PEER, { run, now: () => 1050 }), OPERATOR);
+  assert.equal(calls, 1, 'an unexpired identity is cached');
+  assert.equal(await tailnetWhois(TAILNET_PEER, { run: async () => { throw new Error('offline'); }, now: () => 1200 }), '', 'expired identity fails closed');
+  assert.equal(await tailnetWhois('203.0.113.1', { run: async () => assert.fail('public address must not reach whois') }), '');
+  clearTailnetCache();
+  const available = async (args) => args[0] === 'status'
+    ? JSON.stringify({ BackendState: 'Running', TailscaleIPs: [TAILNET_PEER] })
+    : JSON.stringify({ UserProfile: { LoginName: OPERATOR } });
+  assert.equal(await whoisAvailable({ run: available }), true);
+  assert.equal(await whoisAvailable({ run: async () => '{bad json' }), false);
 });
 
 // --------------------------------------------------------------- campaigns --

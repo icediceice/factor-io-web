@@ -55,14 +55,16 @@ CLIPS = {
     "wizard": ("wizard", 1.0, 21.0),
     "alarm": ("alarm", 8.0, 12.0),  # ringing screen starts ~8s in
     "widget": ("widget", 9.0, 14.9),  # picker idles ~9s; ends on the home screen
-    "bg-heart": ("bg_heart", 0.5, 5.0),
-    "bg-flower": ("bg_flower", 0.5, 5.0),
-    "bg-glitter": ("bg_glitter", 0.5, 5.0),
-    "bg-starlight": ("bg_starlight", 0.5, 5.0),
-    "bg-fireflies": ("bg_fireflies", 0.5, 5.0),
-    "bg-ember": ("bg_ember", 0.5, 5.0),
-    "bg-season": ("bg_season", 0.5, 5.0),
-    "bg-weather": ("bg_weather", 0.5, 5.0),
+    # Backgrounds: Home with the nearest countdown featuring a different cat in each
+    # (the #backdrops swatch labels name them); 1s skips the first-frame fade-in.
+    "bg-heart": ("bg_heart", 1.0, 7.0),
+    "bg-flower": ("bg_flower", 1.0, 7.0),
+    "bg-glitter": ("bg_glitter", 1.0, 7.0),
+    "bg-starlight": ("bg_starlight", 1.0, 7.0),
+    "bg-fireflies": ("bg_fireflies", 1.0, 7.0),
+    "bg-ember": ("bg_ember", 1.0, 7.0),
+    "bg-season": ("bg_season", 1.0, 7.0),
+    "bg-weather": ("bg_weather", 1.0, 7.0),
 }
 
 

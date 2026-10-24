@@ -306,7 +306,11 @@ async function loadClaims() {
   try {
     const claims = await api('GET', `/claims${q}`);
     $('#claim-count').textContent = String(claims.length);
-    $('#claim-rows').replaceChildren(...(claims.length ? claims.map((c) => el('tr', {},
+    const shown = claims.slice(0, CLAIM_ROWS);
+    const more = claims.length > CLAIM_ROWS
+      ? [emptyRow(5, `Showing the newest ${CLAIM_ROWS} of ${claims.length} claims. Download the CSV for all of them.`)]
+      : [];
+    $('#claim-rows').replaceChildren(...(claims.length ? [...shown.map((c) => el('tr', {},
       el('td', { class: 'mono', text: when(c.claimed) }),
       el('td', { class: 'mono', text: c.campaign }),
       el('td', { text: STORES[c.platform] ?? c.platform }),

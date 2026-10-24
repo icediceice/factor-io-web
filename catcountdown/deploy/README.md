@@ -77,6 +77,8 @@ Set `APP_STORE_URL` under `[vars]` in `catcountdown/worker/wrangler.toml` to the
 
 `npx wrangler@4 delete --config /Git/factor-io-web/catcountdown/worker/wrangler.toml` removes the Worker and its route. Requests then fall through to the legacy path below, which is still installed on light-worker.
 
+Before deleting the Worker, reinstall `nginx-catcountdown.conf` over `/etc/nginx/sites-available/factor-catcountdown`, then run `nginx -t` and reload nginx. The installed file is a copy, not a symlink, and the copy from Oct 23 has no `/app` route. Without the reinstall, `/app` returns 404, and `/app` is the link that the studio site and the Play listing point to.
+
 ## Legacy origin (light-worker)
 
 Before the Worker, the subdomain was served as `browser --> cloudflared --> nginx :80 --> /Git/factor-io-web/cat-countdown.html`, using the files in this directory:

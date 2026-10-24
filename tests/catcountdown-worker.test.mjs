@@ -89,6 +89,35 @@ test('page assets load from GitHub Pages and the old /catcountdown/ alias still 
   }
 });
 
+test('the landing-page film can be seeked through the Worker with byte ranges', async () => {
+  const film = Uint8Array.from({ length: 1024 }, (_, i) => i % 256);
+  const stub = globalThis.fetch;
+  // An origin that honours Range, and If-Range only while the ETag still matches.
+  globalThis.fetch = async (url, init = {}) => {
+    const headers = new Headers(init.headers);
+    const range = headers.get('range');
+    const ifRange = headers.get('if-range');
+    if (range === 'bytes=100-199' && (ifRange === null || ifRange === '"v1"')) {
+      return new Response(film.slice(100, 200), { status: 206, headers: { 'content-range': 'bytes 100-199/1024', etag: '"v1"' } });
+    }
+    return new Response(film, { status: 200, headers: { etag: '"v1"' } });
+  };
+  const get = (headers) => worker.fetch(new Request('https://catcountdown.factor-io.com/assets/work/cat-countdown-promo.mp4', { headers }), {});
+  try {
+    for (const headers of [{ range: 'bytes=100-199' }, { range: 'bytes=100-199', 'if-range': '"v1"' }]) {
+      const res = await get(headers);
+      assert.equal(res.status, 206);
+      assert.equal(res.headers.get('content-range'), 'bytes 100-199/1024');
+      assert.deepEqual(new Uint8Array(await res.arrayBuffer()), film.slice(100, 200));
+    }
+    const stale = await get({ range: 'bytes=100-199', 'if-range': '"v0"' });
+    assert.equal(stale.status, 200);
+    assert.equal((await stale.arrayBuffer()).byteLength, 1024);
+  } finally {
+    globalThis.fetch = stub;
+  }
+});
+
 test('the studio consulting pages are not exposed on the app subdomain', async () => {
   for (const path of ['/index.html', '/en/', '/privacy.html', '/PROGRESS.md']) {
     const { res, upstream } = await visit(path);

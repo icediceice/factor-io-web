@@ -19,8 +19,10 @@ browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.fac
 
 - The Worker is attached by a **route**, not a custom domain. The proxied `catcountdown` DNS record (a CNAME to tunnel `7f569c27`) stays as it is, and the Worker answers before that origin is reached.
 - Routing mirrors the old nginx site: `/` and `/cat-countdown.html` serve the page, `/catcountdown` and `/catcountdown/` 302 to `/cat-countdown.html` with the query kept, `/assets/*` is proxied, and everything else returns `404`, so the consulting pages are never exposed on the app subdomain.
-- `?noredirect=1` always shows the full page. Crawlers (the same bot list as `#scanner-controller`) always get the full page.
-- Device-dependent responses carry `Vary: User-Agent` and `Cache-Control: private, no-store`.
+- `?noredirect=1` always shows the full page. Crawlers always get the full page. The Worker's `BOT_RE` is a byte copy of the one in `#scanner-controller`, and a test checks that both sort the same user agents the same way. It has no `\b` before `bot`, so Googlebot and bingbot match, and it names Google-InspectionTool and GoogleOther. Before that, Search Console's live test was redirected to Play.
+- **Referrer rule.** A phone is sent to a store only when the request has no Referer or a Referer from this host, as with a QR scan, a typed URL or a same-site click. A phone that arrives from Google or any other site came to read about the app, so it gets the page. The page script applies the same rule to `document.referrer`.
+- `/robots.txt` disallows nothing; the `/free/` and `/iphone` pages carry their own `noindex`. `/sitemap.xml` lists the landing page with its share image, capture posters, cat stills and every scene. Bump `LASTMOD` in `src/seo.js` when the page or its assets change. Search Console property: `sc-domain:factor-io.com`.
+- Device-dependent responses carry `Vary: User-Agent, Referer` and `Cache-Control: private, no-store`.
 - iPadOS Safari sends a desktop Mac UA that the Worker cannot classify. The page's inline `#scanner-controller` detects it (`Macintosh` with `maxTouchPoints > 1`) and, only on `catcountdown.factor-io.com`, replaces the location with `/iphone`.
 - The full page comes from GitHub Pages, so a page change goes live on the subdomain once it is pushed to `main`.
 

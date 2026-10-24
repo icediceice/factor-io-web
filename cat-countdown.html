@@ -316,7 +316,9 @@
 <script id="scanner-controller">
 (function () {
   var PLAY_URL = "https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown";
-  var BOT_RE = /\b(?:bot|crawler|spider|slurp|mediapartners|adsbot|bingpreview|facebookexternalhit|whatsapp|twitterbot|slackbot|discordbot|telegrambot|applebot|headlesschrome|lighthouse)\b/i;
+  // No \b before "bot": Googlebot, bingbot and YandexBot end in it. Google-InspectionTool and
+  // GoogleOther carry no "bot" at all and must be named, or Search Console's live test is redirected.
+  var BOT_RE = /(?:bot|crawler|spider)\b|\b(?:slurp|mediapartners|google-inspectiontool|googleother|google-read-aloud|feedfetcher|bingpreview|facebookexternalhit|whatsapp|vkshare|embedly|ia_archiver|headlesschrome|lighthouse)\b/i;
   var nav = typeof navigator === "object" && navigator ? navigator : {};
   var loc = typeof location === "object" && location ? location : {};
   var doc = typeof document === "object" && document ? document : null;

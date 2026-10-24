@@ -18,6 +18,7 @@ Outputs (names are what cat-countdown.html references):
   widgets/<cat>-<shape>-<mood>.webp   home-screen widget art, 480px wide
   captures/<name>.mp4 + .jpg          simulator recordings, H.264, 960px tall, no audio
   og.jpg                              1200x630 share card from the store feature graphic
+  fonts/baloo2-700.ttf                the app's display face (no fontTools here to subset it)
   manifest.json                       counts and bytes, read by the page build checks
 """
 from __future__ import annotations

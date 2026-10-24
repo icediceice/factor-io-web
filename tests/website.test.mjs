@@ -369,6 +369,18 @@ test('studio work stays secondary on home and every tile resolves to a full entr
   assert.equal(work.blink.frame, 'icon'); assert.equal(work.blink.shots.length, 1);
 });
 
+// Cat Countdown has its own selling page; the studio sends readers there with a filled
+// button, to /app, which never bounces a phone to the store.
+test('home and studio work send readers to the Cat Countdown page with a filled button', async () => {
+  for (const locale of ['en', 'th']) {
+    for (const page of ['home', 'mobile-apps']) {
+      const html = output.get(outputPath(locale, page));
+      assert.match(html, /<a class="button" href="https:\/\/catcountdown\.factor-io\.com\/app">[^<]+<\/a>/, `${locale} ${page}`);
+    }
+    assert.doesNotMatch(output.get(outputPath(locale, 'mobile-apps')), /Not yet released|ยังไม่เปิดตัว/, locale);
+  }
+});
+
 test('the redesign leaves no deck, HUD or terminal markup behind, and content carries no em or en dash', async () => {
   for (const [path, html] of [...output, ['cat-countdown.html', await read('cat-countdown.html')], ['catcountdown/index.html', await read('catcountdown/index.html')]]) {
     assert.doesNotMatch(html, /class="[^"]*\b(?:deck|hud|cyber|scene|terminal)-|\bkicker\b/, path);

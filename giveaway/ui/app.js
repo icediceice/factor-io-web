@@ -120,7 +120,7 @@ async function loadCampaigns() {
     campaigns = await api('GET', '/campaigns');
     renderCampaigns();
   } catch (e) {
-    $('#campaign-error').textContent = `Could not load campaigns: ${e.message}`;
+    $('#campaign-error').textContent = `Could not load campaigns: ${e.message}.${RETRY}`;
   } finally {
     wrap.setAttribute('aria-busy', 'false');
   }

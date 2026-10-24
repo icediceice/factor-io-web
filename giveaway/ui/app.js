@@ -230,8 +230,9 @@ async function loadPool() {
     const offered = new Set(campaigns.filter((c) => c.status === 'active').flatMap((c) => c.platforms.split(',')));
     $('#pool-rows').replaceChildren(...stats.map((s) => el('tr', {},
       el('th', { scope: 'row', text: STORES[s.platform] ?? s.platform }),
-      el('td', { class: `num${s.available === 0 && offered.has(s.platform) ? ' warn' : ''}`, text: String(s.available),
-        title: s.available === 0 && offered.has(s.platform) ? 'An active campaign offers this store but no codes are available' : null }),
+      // Colour plus words: an active campaign offering an empty store turns visitors away.
+      el('td', { class: `num${s.available === 0 && offered.has(s.platform) ? ' warn' : ''}`,
+        text: s.available === 0 && offered.has(s.platform) ? '0 · empty, campaign live' : String(s.available) }),
       el('td', { class: 'num', text: String(s.issued) }),
       el('td', { class: 'num', text: String(s.revoked) }),
       el('td', { class: 'num', text: String(s.expired) }),

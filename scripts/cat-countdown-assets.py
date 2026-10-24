@@ -134,8 +134,8 @@ def clips(src: Path) -> None:
         ffmpeg(*cut, "-i", str(mov), "-an", "-vf", "scale=-2:960:flags=lanczos,fps=30",
                "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", crf,
                "-preset", "slow", "-movflags", "+faststart", str(dst / f"{name}.mp4"))
-        # Poster: one second in, so the screen has settled and is not the launch frame.
-        ffmpeg("-ss", "1", "-i", str(dst / f"{name}.mp4"), "-frames:v", "1",
+        # Poster: three seconds in; at one second the tab and push transitions are mid-slide.
+        ffmpeg("-ss", "3", "-i", str(dst / f"{name}.mp4"), "-frames:v", "1",
                "-q:v", "4", str(dst / f"{name}.jpg"))
 
 

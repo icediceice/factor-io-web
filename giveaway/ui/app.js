@@ -313,7 +313,7 @@ async function loadClaims() {
       el('td', { class: 'code', text: c.code }),
       el('td', { text: c.email }))) : [emptyRow(5, campaign ? `Nobody has claimed through ${campaign} yet.` : 'No claims yet.')]));
   } catch (e) {
-    $('#claim-error').textContent = `Could not load claims: ${e.message}`;
+    $('#claim-error').textContent = `Could not load claims: ${e.message}.${RETRY}`;
   } finally {
     wrap.setAttribute('aria-busy', 'false');
   }

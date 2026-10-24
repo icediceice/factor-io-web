@@ -425,12 +425,12 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
 
   const controllerMatch = html.match(/<script id="scanner-controller">([\s\S]*?)<\/script>/);
   assert.ok(controllerMatch, 'expected inline #scanner-controller script in cat-countdown.html');
-  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '', hostname = 'studio.factor-io.com', referrer }) => {
+  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '', hostname = 'studio.factor-io.com', pathname = '/cat-countdown.html', referrer }) => {
     let replaced = null;
     const attrs = new Map();
     vm.runInNewContext(controllerMatch[1], {
       navigator: { userAgent, platform, maxTouchPoints },
-      location: { search, hostname, replace: url => { replaced = url; } },
+      location: { search, hostname, pathname, replace: url => { replaced = url; } },
       document: { referrer, documentElement: { setAttribute: (k, v) => attrs.set(k, String(v)) } },
       URLSearchParams,
     });
@@ -483,6 +483,10 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', referrer: '' }), { scanner: 'android', replaced: play });
   assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', referrer: 'https://catcountdown.factor-io.com/iphone' }), { scanner: 'android', replaced: play });
   assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', referrer: 'https://www.bing.com/' }), { scanner: 'ios', replaced: null });
+  // A phone opening /app from the Play listing or a social bio has no referrer but keeps the page.
+  assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', pathname: '/app', referrer: '' }), { scanner: 'android', replaced: null });
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', pathname: '/app', referrer: '' }), { scanner: 'ios', replaced: null });
+  assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', pathname: '/', referrer: '' }), { scanner: 'android', replaced: play });
   // Search Console's live test and Bing's mobile crawler send Android UAs without a word-bounded "bot".
   for (const userAgent of [
     'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0;)',

@@ -572,6 +572,11 @@
   if (scanner === "android" && !noRedirect && typeof loc.replace === "function") {
     loc.replace(PLAY_URL);
   }
+  // iPadOS sends a desktop Mac UA the edge Worker cannot classify, so it reaches this
+  // page; on the app subdomain send it to the Worker's iPhone release-status page.
+  if (scanner === "ios" && !noRedirect && loc.hostname === "catcountdown.factor-io.com" && typeof loc.replace === "function") {
+    loc.replace("/iphone" + search);
+  }
 })();
 </script>
 </head>

@@ -1,56 +1,48 @@
-# Cat Countdown Subdomain Launch Preparation (`catcountdown.factor-io.com`)
+# Cat Countdown Subdomain (`catcountdown.factor-io.com`)
 
-This directory holds the prepared configuration to serve the dedicated Cat Countdown landing page at `https://catcountdown.factor-io.com/`.
-
-**Current status:** Live at `https://catcountdown.factor-io.com/`. The page is authored at `/Git/factor-io-web/cat-countdown.html` with a query/hash-preserving directory redirect at `/Git/factor-io-web/catcountdown/index.html`, and uses document-relative `assets/...` URLs so it renders identically under:
+**Current status:** Live at `https://catcountdown.factor-io.com/`, served by the Cloudflare Worker `catcountdown-site` (`catcountdown/worker/`). The Worker answers at the edge, so the printed QR code keeps working when light-worker or its uplink is down. The page is authored at `/Git/factor-io-web/cat-countdown.html`, with a query/hash-preserving directory redirect at `/Git/factor-io-web/catcountdown/index.html`. It uses document-relative `assets/...` URLs, so it renders identically under:
 
 1. Local verification (`node scripts/serve.mjs` at `/cat-countdown.html` and `/catcountdown/`, or `file:///Git/factor-io-web/cat-countdown.html`)
 2. GitHub Pages (`https://studio.factor-io.com/cat-countdown.html` and `https://studio.factor-io.com/catcountdown/`)
 3. Subdomain root (`https://catcountdown.factor-io.com/` and `https://catcountdown.factor-io.com/catcountdown/`)
 
-## Scanner Redirect & Coming Soon Behavior
-
-- **Android scanners:** Inline `#scanner-controller` in `/Git/factor-io-web/cat-countdown.html` detects human Android user agents (excluding known crawlers) and calls `location.replace("https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown")` unless `?noredirect=1` is present.
-- **iPhone / iPad scanners:** Detects iOS and iPadOS (`Macintosh` with `maxTouchPoints > 1`), stays on the page, and highlights the `#iphone-review-notice` banner stating that Cat Countdown for iPhone is coming soon and currently waiting for App Store review.
-
 ## Architecture
 
 ```
-browser --> cloudflared (catcountdown.factor-io.com) --> nginx :80 --> /Git/factor-io-web/cat-countdown.html
+browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.factor-io.com/*)
+                                  |-- Android            --> 302 Google Play
+                                  |-- iPhone, /iphone    --> coming-soon page (302 App Store once APP_STORE_URL is set)
+                                  '-- desktop, crawlers  --> proxy https://studio.factor-io.com/cat-countdown.html + /assets/*
 ```
 
-- `nginx-catcountdown.conf` sets `root /Git/factor-io-web;` and maps `location = /` explicitly to `/cat-countdown.html`, `location = /cat-countdown.html` to itself, `location = /catcountdown` and `location = /catcountdown/` as `302` redirects to `/cat-countdown.html$is_args$args`, and `location ^~ /assets/` to `/Git/factor-io-web/assets/` (for screenshots, launch film, favicon, and Geist fonts). All other paths return `404` so consulting pages are never exposed on the app subdomain.
-- `cloudflared-catcountdown.yml` is an **additive ingress fragment** inserted into `/etc/cloudflared/config.yml` above `- service: http_status:404` (pre-launch backup saved at `/etc/cloudflared/config.yml.bak.v10-precatcountdown`).
+- The Worker is attached by a **route**, not a custom domain. The proxied `catcountdown` DNS record (a CNAME to tunnel `7f569c27`) stays as it is, and the Worker answers before that origin is reached.
+- Routing mirrors the old nginx site: `/` and `/cat-countdown.html` serve the page, `/catcountdown` and `/catcountdown/` 302 to `/cat-countdown.html` with the query kept, `/assets/*` is proxied, and everything else returns `404`, so the consulting pages are never exposed on the app subdomain.
+- `?noredirect=1` always shows the full page. Crawlers (the same bot list as `#scanner-controller`) always get the full page.
+- Device-dependent responses carry `Vary: User-Agent` and `Cache-Control: private, no-store`.
+- iPadOS Safari sends a desktop Mac UA that the Worker cannot classify. The page's inline `#scanner-controller` detects it (`Macintosh` with `maxTouchPoints > 1`) and, only on `catcountdown.factor-io.com`, replaces the location with `/iphone`.
+- The full page comes from GitHub Pages, so a page change goes live on the subdomain once it is pushed to `main`.
 
-## Launch Steps (When Ready to Go Live)
+## Deploy
+
+Credentials come from the light-worker vault (`cf-apitoken`, `cf-accountid`) through `env_refs`; `wrangler login` is never used.
 
 ```bash
-# 1. Install and enable the nginx site
-sudo cp /Git/factor-io-web/catcountdown/deploy/nginx-catcountdown.conf /etc/nginx/sites-available/factor-catcountdown
-sudo ln -sfn /etc/nginx/sites-available/factor-catcountdown /etc/nginx/sites-enabled/factor-catcountdown
-sudo nginx -t
-sudo systemctl reload nginx
-
-# 2. Verify local nginx Host routing before touching DNS
-curl -sSI -H 'Host: catcountdown.factor-io.com' http://127.0.0.1/
-curl -sSI -H 'Host: catcountdown.factor-io.com' http://127.0.0.1/assets/work/cat-countdown-home.webp
-
-# 3. Back up /etc/cloudflared/config.yml and insert the ingress rule ABOVE "- service: http_status:404"
-#    - hostname: catcountdown.factor-io.com
-#      service: http://localhost:80
-sudo cp /etc/cloudflared/config.yml /etc/cloudflared/config.yml.bak.$(date +%Y%m%d%H%M%S)
-# Edit /etc/cloudflared/config.yml to insert the fragment from cloudflared-catcountdown.yml
-
-# 4. Route DNS to the tunnel and restart cloudflared
-cloudflared tunnel route dns 7f569c27-159a-409d-b5f1-16a39df11d0f catcountdown.factor-io.com
-sudo systemctl restart cloudflared
+npx wrangler@4 deploy --config /Git/factor-io-web/catcountdown/worker/wrangler.toml
 ```
+
+## Releasing on the App Store
+
+Set `APP_STORE_URL` under `[vars]` in `catcountdown/worker/wrangler.toml` to the App Store listing URL and redeploy. iPhone scanners are then sent straight to the App Store. Also update the iPhone stub button and notice in `cat-countdown.html`.
 
 ## Rollback
 
-```bash
-sudo rm -f /etc/nginx/sites-enabled/factor-catcountdown
-sudo systemctl reload nginx
-# Restore the previous /etc/cloudflared/config.yml backup and restart cloudflared
-sudo systemctl restart cloudflared
-```
+`npx wrangler@4 delete --config /Git/factor-io-web/catcountdown/worker/wrangler.toml` removes the Worker and its route. Requests then fall through to the legacy path below, which is still installed on light-worker.
+
+## Legacy origin (light-worker)
+
+Before the Worker, the subdomain was served as `browser --> cloudflared --> nginx :80 --> /Git/factor-io-web/cat-countdown.html`, using the files in this directory:
+
+- `nginx-catcountdown.conf`, installed at `/etc/nginx/sites-enabled/factor-catcountdown`.
+- `cloudflared-catcountdown.yml`, an ingress fragment in `/etc/cloudflared/config.yml` above `- service: http_status:404` (pre-launch backup at `/etc/cloudflared/config.yml.bak.v10-precatcountdown`).
+
+Both are left in place as the rollback target. Do not delete the DNS record: the Worker route needs a proxied record to attach to.

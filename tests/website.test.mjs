@@ -425,12 +425,12 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
 
   const controllerMatch = html.match(/<script id="scanner-controller">([\s\S]*?)<\/script>/);
   assert.ok(controllerMatch, 'expected inline #scanner-controller script in cat-countdown.html');
-  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '' }) => {
+  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '', hostname = 'studio.factor-io.com' }) => {
     let replaced = null;
     const attrs = new Map();
     vm.runInNewContext(controllerMatch[1], {
       navigator: { userAgent, platform, maxTouchPoints },
-      location: { search, replace: url => { replaced = url; } },
+      location: { search, hostname, replace: url => { replaced = url; } },
       document: { documentElement: { setAttribute: (k, v) => attrs.set(k, String(v)) } },
       URLSearchParams,
     });
@@ -463,6 +463,16 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   );
   assert.deepEqual(
     runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36', platform: 'MacIntel', maxTouchPoints: 0 }),
+    { scanner: 'other', replaced: null }
+  );
+  // On the app subdomain an iPad (desktop Mac UA, which the edge Worker cannot classify)
+  // is sent to the release-status page; the studio.factor-io.com copy keeps the full page.
+  const ipad = { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', platform: 'MacIntel', maxTouchPoints: 5 };
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', search: '?utm_source=qr' }), { scanner: 'ios', replaced: '/iphone?utm_source=qr' });
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', search: '?noredirect=1' }), { scanner: 'ios', replaced: null });
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'studio.factor-io.com' }), { scanner: 'ios', replaced: null });
+  assert.deepEqual(
+    runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36', platform: 'MacIntel', maxTouchPoints: 0, hostname: 'catcountdown.factor-io.com' }),
     { scanner: 'other', replaced: null }
   );
 

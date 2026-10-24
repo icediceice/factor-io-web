@@ -1,0 +1,18 @@
+# Cat Countdown edge router (src/index.js). See ../deploy/README.md for the
+# architecture, release and rollback steps.
+
+name = "catcountdown-site"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = false
+
+# A route, not a custom domain: the existing proxied catcountdown DNS record stays
+# untouched, and the Worker answers before the old tunnel origin is ever reached.
+routes = [
+  { pattern = "catcountdown.factor-io.com/*", zone_name = "factor-io.com" }
+]
+
+[vars]
+# Empty while the iPhone app is in App Store review: iPhone scanners get the
+# coming-soon page. Set this to the App Store listing URL and redeploy to release.
+APP_STORE_URL = ""

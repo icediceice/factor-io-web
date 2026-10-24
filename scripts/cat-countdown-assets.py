@@ -166,6 +166,7 @@ def main() -> int:
     argv = sys.argv[1:]
     src = Path(argv[argv.index("--clips") + 1]) if "--clips" in argv else None
     only = argv[argv.index("--only") + 1] if "--only" in argv else None
+    prefix = argv[argv.index("--clip") + 1] if "--clip" in argv else None
     OUT.mkdir(parents=True, exist_ok=True)
     if only in (None, "art"):
         art()

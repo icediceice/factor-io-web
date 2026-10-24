@@ -12,7 +12,6 @@
 browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.factor-io.com/*)
                                   |-- Android            --> 302 Google Play
                                   |-- iPhone, /iphone    --> coming-soon page (302 App Store once APP_STORE_URL is set)
-                                  |-- /free/<campaign>   --> giveaway claim page (Google sign-in), POST /free/<campaign>/claim
                                   '-- desktop, crawlers  --> proxy https://studio.factor-io.com/cat-countdown.html + /assets/*
 ```
 
@@ -22,25 +21,6 @@ browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.fac
 - Device-dependent responses carry `Vary: User-Agent` and `Cache-Control: private, no-store`.
 - iPadOS Safari sends a desktop Mac UA that the Worker cannot classify. The page's inline `#scanner-controller` detects it (`Macintosh` with `maxTouchPoints > 1`) and, only on `catcountdown.factor-io.com`, replaces the location with `/iphone`.
 - The full page comes from GitHub Pages, so a page change goes live on the subdomain once it is pushed to `main`.
-
-## Giveaway
-
-`/free/<campaign>` hands out free copies as store promo codes, one per Google account. Code: `catcountdown/worker/src/giveaway.js`. Schema: `catcountdown/worker/migrations/`. Data: D1 database `catcountdown-giveaway` (binding `GIVEAWAY_DB`). Campaigns and codes are managed from the tailnet-only admin in [`giveaway/`](../../giveaway/README.md), never through the Worker.
-
-- **Sign-in.** The page loads Google Identity Services with the public client id `GOOGLE_CLIENT_ID` from `wrangler.toml`. It posts the ID token as JSON to `/free/<campaign>/claim`.
-  - The Worker accepts the post only with `Origin: https://catcountdown.factor-io.com`.
-  - It checks the token itself: RS256 against Google's JWKS, issuer, audience, expiry, and `email_verified === true`.
-  - It keeps the Google `sub`, email, campaign, time and code. `privacy.html#giveaway` discloses this.
-- **Allocation.** Allocation is one guarded `UPDATE … RETURNING`. It checks, at the moment of the write:
-  - the pool and code expiry,
-  - the campaign's status, store and cap,
-  - and that the account has no code yet.
-  A unique index on `codes(claimant)` is the backstop. A repeat sign-in returns the original code, even after the campaign closes.
-- **Not configured.** If `GOOGLE_CLIENT_ID` is empty or the binding is missing, `/free/*` answers "not open yet" and every other route is unaffected.
-- **Schema changes.** Add a new numbered file in `migrations/`, then `npx wrangler@4 d1 migrations apply catcountdown-giveaway --remote --config /Git/factor-io-web/catcountdown/worker/wrangler.toml`.
-- **Deletion on request.** The privacy page promises this. Replace the identity but keep the code issued:
-  `npx wrangler@4 d1 execute catcountdown-giveaway --remote --config … --command "UPDATE codes SET claimant = 'deleted-' || id, email = NULL WHERE email = '<address>'"`.
-- **Google Cloud.** The OAuth consent screen is External with scopes `openid email`. One Web client has the Authorized JavaScript origin `https://catcountdown.factor-io.com`. The client id is public and lives in `wrangler.toml`; there is no client secret.
 
 ## Deploy
 

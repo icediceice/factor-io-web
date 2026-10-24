@@ -15,6 +15,7 @@
       "theme": "dark-carbon-precision"
     },
     {
+    {
       "date": "2026-10-20",
       "file": "cat-countdown.html",
       "macrostructure": "Asymmetric Device Hero + 4-Screen Grid + Promo Bento + Local-First Trust",
@@ -27,14 +28,7 @@
       "macrostructure": "Workbench / Horizontal Document Workspace + Live A4 Preview",
       "accent": "#006a57 / #43d6b5",
       "theme": "engineering-field-guide-light-dark"
-    },
-    {
-      "date": "2026-10-24",
-      "file": "giveaway/ui/app.css",
-      "macrostructure": "Stacked Sections (Campaigns, Pool, Import & revoke, Claims) with nested Ledgers; claims ledger unboxed",
-      "accent": "#006a57 / #43d6b5",
-      "theme": "engineering-field-guide-light-dark (inherits quotes/.interface-design/system.md)",
-      "notes": "Workbench excluded (2 of last 5). Exception V11: native select/date kept (CSP default-src 'self', no widget library, native a11y). Measure gates (S6, N1-N3, A1, A2) run on the live admin in plan step 14."
     }
   ]
+}
 }

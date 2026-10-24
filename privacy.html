@@ -49,15 +49,14 @@
   </div>
 
   <h1>Privacy Statement</h1>
-  <div class="meta">Factor I O Co., Ltd. &middot; Effective 24 October 2026</div>
+  <div class="meta">Factor I O Co., Ltd. &middot; Effective 29 September 2026</div>
 
   <div class="scope">
     This statement applies to <strong>Cat Countdown</strong> on Android and iPhone, and to every
     Factor IO application that does not ship its own privacy policy.
     The <strong>AI Inference TCO Calculator</strong> is covered here, including its public price/FX refresh and optional AI conversation described in section 04.
     It covers what the app sends, what it keeps on your device, and the yearly backup subscription it
-    sells; section 03 names each item individually. Website enquiries and the Cat Countdown
-    <a href="#giveaway">free-copy giveaway</a> page are covered separately below.
+    sells; section 03 names each item individually. Website enquiries are covered separately below.
     (Blink maintains its own
     <a href="https://blink.factor-io.com/privacy-policy" rel="noopener">privacy policy</a>.)
   </div>
@@ -65,7 +64,7 @@
   <div class="kicker"><b>01</b> / The short version</div>
   <ul class="short">
     <li><strong>No advertising.</strong> Our apps show no ads, ever.</li>
-    <li><strong>No accounts with us, and no tracking.</strong> Our apps have no Factor IO sign-in, no usage analytics and no telemetry. The one sign-in anywhere is the optional Google sign-in on the free-copy giveaway page, which keeps only what it needs to give one code per Google account (see <a href="#giveaway">the giveaway section</a>). Your countdowns, dates, attachments and settings stay on your device, or in your own iCloud if you turn on cloud backup on iPhone; Factor IO cannot see them. The calculator's explicit AI request is forwarded without storing its question or answer (section 04).</li>
+    <li><strong>No accounts with us, and no tracking.</strong> There is no Factor IO sign-in, no usage analytics and no telemetry. Your countdowns, dates, attachments and settings stay on your device, or in your own iCloud if you turn on cloud backup on iPhone; Factor IO cannot see them. The calculator's explicit AI request is forwarded without storing its question or answer (section 04).</li>
     <li><strong>We do handle three specific things, and section 03 names each one.</strong> Your <strong>purchase history</strong>, if you buy the yearly backup subscription, is processed by RevenueCat. Your <strong>approximate location</strong>, only if you grant the permission, is sent to Open-Meteo to look up a forecast. On Android only, a stable per-install <strong>licence identifier</strong> is sent to our own server to confirm your copy is genuine. None of it is used for advertising, and none of it is sold.</li>
     <li>Email enquiries that you send are received as ordinary correspondence; see the website section below.</li>
     <li><strong>The calculator makes two kinds of network request:</strong> automatic public price/FX GETs with no calculator context, and an AI POST only when you press Send or Ask.</li>
@@ -77,16 +76,7 @@
     <p>The consulting website has no contact form and no contact backend. It offers two ways to reach us, and they do not handle your data the same way.</p>
     <p><strong>LINE.</strong> The contact page shows a QR code and a link to our LINE profile. Opening a conversation there means <strong>LINE Corporation carries the message</strong>, under its own privacy policy and retention rules, not ours. We receive whatever you send, plus the LINE display name and profile photo of the account you send it from. This is a change from the site's previous email-draft form, which deliberately kept everything on your device: if you would rather no third party carry the conversation, use email instead. Please do not send credentials or confidential production data over either channel.</p>
     <p><strong>Email.</strong> Writing to <!--email_off--><a href="mailto:admin@factor-io.com">admin@factor-io.com</a><!--/email_off--> is ordinary correspondence between you, your email provider and ours. We do not promise that email is never retained; ask about access or deletion at the same address. The governance example elsewhere on the site is a local simulation; it operates no infrastructure.</p>
-    <p>The website adds no analytics, tracking scripts or contact backend, and stores nothing in cookies or browser storage. Its static host receives standard web-request metadata to serve pages. The free-copy giveaway page is the one part with a backend, and the next section describes it. The app and calculator behaviors below are separate and unchanged.</p>
-  </section>
-
-  <section id="giveaway" aria-labelledby="giveaway-title">
-    <div class="kicker">Free-copy giveaway</div>
-    <h2 id="giveaway-title">Google sign-in on the giveaway page, and what it keeps</h2>
-    <p>From time to time we give away free copies of Cat Countdown as store promo codes, through links of the form <code>catcountdown.factor-io.com/free/&hellip;</code>. So that each person gets one code, the page asks you to <strong>sign in with Google</strong>. Signing in is optional, applies only to that page, and is never needed to use the app.</p>
-    <p><strong>What we receive and keep.</strong> When you sign in, Google gives the page a signed token saying who you are. We check it and keep a record of <strong>your Google account id, your email address, which giveaway link you came through, the time, and the code you received</strong>. The record is stored in a database run by <strong>Cloudflare</strong>, which also serves the page. We do not receive your Google password, contacts or anything else in your Google account, and signing in gives us no access to it.</p>
-    <p><strong>Why.</strong> Only to give one code per Google account, to show you the same code if you sign in again, and to count how many codes each link gave out. We do not send you marketing email, and the record is never sold, shared or used for advertising. The page sets no cookies and runs no analytics. Google&rsquo;s sign-in button is loaded from Google and is covered by <a href="https://policies.google.com/privacy" rel="noopener">Google&rsquo;s privacy policy</a>.</p>
-    <p><strong>How long, and deletion.</strong> We keep the record while we run Cat Countdown giveaways, so the one-code limit holds across them. Write to <!--email_off--><a href="mailto:admin@factor-io.com">admin@factor-io.com</a><!--/email_off--> to have your Google account id and email address deleted from it; the code itself stays marked as given out. After that we can no longer tell that your account already received a code.</p>
+    <p>The website adds no analytics, tracking scripts or contact backend, and stores nothing in cookies or browser storage. Its static host receives standard web-request metadata to serve pages. The app and calculator behaviors below are separate and unchanged.</p>
   </section>
 
   <div class="kicker"><b>02</b> / No advertising</div>
@@ -152,9 +142,8 @@
   that the app can verify itself; iPhone builds make no such request. Apart from the weather lookups
   above and that licence check, neither app sends anything off your device without you doing
   something.</p>
-  <p><strong>Automatic, on the web calculator.</strong> The calculator makes
-  automatic public GET requests at startup for OpenRouter model pricing and a USD-to-THB rate from
-  Frankfurter, an ECB-data mirror.
+  <p><strong>Automatic, on the web calculator.</strong> The calculator makes public GET requests at
+  startup for OpenRouter model pricing and a USD-to-THB rate from Frankfurter, an ECB-data mirror.
   These requests carry standard browser network metadata such as your IP address and user agent to
   those services, but include <strong>no calculator inputs, transcript, or result</strong>. A failed
   or incomplete refresh leaves the dated local fallback unchanged.</p>
@@ -172,9 +161,8 @@
 
   <div class="kicker"><b>05</b> / Third-party services</div>
   <h2>The ones that are actually involved</h2>
-  <p>Seven outside services are involved, and each is listed here with the reason it appears. Google and
-  Apple hold the account that receives your cloud backup, and Google also confirms your sign-in on the
-  free-copy giveaway page. Cloudflare serves that page and stores its claim records. RevenueCat processes the yearly
+  <p>Six outside services are involved, and each is listed here with the reason it appears. Google and
+  Apple hold the account that receives your cloud backup. RevenueCat processes the yearly
   subscription you buy. Open-Meteo returns a weather forecast. OpenRouter and Frankfurter serve public
   pricing and exchange-rate data to the calculator, and MiniMax receives calculator AI requests that
   Factor IO&rsquo;s own endpoint forwards.</p>
@@ -184,8 +172,7 @@
   <a href="https://policies.google.com/privacy" rel="noopener">Google</a> &middot;
   <a href="https://www.apple.com/legal/privacy/" rel="noopener">Apple</a> &middot;
   <a href="https://www.revenuecat.com/privacy" rel="noopener">RevenueCat</a> &middot;
-  <a href="https://open-meteo.com/en/terms" rel="noopener">Open-Meteo</a> &middot;
-  <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare</a>.</p>
+  <a href="https://open-meteo.com/en/terms" rel="noopener">Open-Meteo</a>.</p>
 
   <div class="kicker"><b>06</b> / Children&rsquo;s privacy</div>
   <h2>Safe for everyone</h2>
@@ -195,9 +182,7 @@
   installation key rather than anything about a person. None of them is used for tracking, and none is
   shared with an advertiser. On the web calculator the one action that sends anything to a Factor IO
   server is pressing Send or Ask; it never happens on its own, and what it sends is forwarded and not
-  stored. The free-copy giveaway page is the exception that does keep something about a person: the
-  Google account id and email address of whoever signs in to claim a code, as its section above sets
-  out. It is not directed at children.</p>
+  stored.</p>
 
   <div class="kicker"><b>07</b> / Changes to this statement</div>
   <h2>We will tell you</h2>

@@ -133,19 +133,3 @@ test('HEAD requests are answered without a body and other methods are refused', 
   const post = await visit('/', UA.desktop, { method: 'POST' });
   assert.equal(post.res.status, 405);
 });
-
-test('only the exact giveaway paths answer POST; every other path still refuses it', async () => {
-  for (const path of ['/assets/favicon.svg', '/iphone', '/free/', '/free/Showcase/claim', '/free/a/b/claim', '/free/showcase/claim/']) {
-    const { res, upstream } = await visit(path, UA.desktop, { method: 'POST' });
-    assert.equal(res.status, 405, path);
-    assert.deepEqual(upstream, [], path);
-  }
-});
-
-test('malformed giveaway paths are plain 404s that touch no database', async () => {
-  for (const path of ['/free', '/free/', '/free/UPPER', '/free/a/b', '/free/x/claim/extra']) {
-    const { res, upstream } = await visit(path);
-    assert.equal(res.status, 404, path);
-    assert.deepEqual(upstream, [], path);
-  }
-});

@@ -4,8 +4,6 @@
 // edge so the printed QR code keeps working when light-worker or its uplink is down.
 // The full landing page is proxied from the GitHub Pages copy on studio.factor-io.com.
 
-import { handleGiveaway, matchGiveaway } from "./giveaway.js";
-
 export const PLAY_URL = "https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown";
 export const ORIGIN = "https://studio.factor-io.com";
 // Copied byte-for-byte from cat-countdown.html:#scanner-controller; a test keeps them equal.
@@ -94,16 +92,11 @@ async function proxy(path, request) {
 
 export default {
   async fetch(request, env = {}) {
-    const url = new URL(request.url);
-    const path = url.pathname;
-    // Only the exact /free/<campaign> and /free/<campaign>/claim paths; it answers its
-    // own methods. Everything else keeps the GET/HEAD-only rule below.
-    const giveaway = matchGiveaway(path);
-    if (giveaway) return handleGiveaway(request, env, giveaway);
-
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
     }
+    const url = new URL(request.url);
+    const path = url.pathname;
     const appStoreUrl = String(env.APP_STORE_URL || "");
 
     if (path === "/" || path === "/cat-countdown.html") {

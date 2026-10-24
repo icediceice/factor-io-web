@@ -347,15 +347,25 @@ function wireTheme() {
 
 function wireSectionNav() {
   const links = [...document.querySelectorAll('.section-nav a')];
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      // At the very top the observed band sits below a short first section; the first section is current.
-      const hash = window.scrollY < 8 ? links[0].hash : `#${entry.target.id}`;
-      for (const a of links) a.setAttribute('aria-current', String(a.hash === hash));
-    }
-  }, { rootMargin: '-40% 0px -55% 0px' });
-  for (const a of links) observer.observe($(a.hash));
+  // Current = the last section whose top has passed 40% of the viewport, the first one at the
+  // very top and the last one at the very bottom. Recomputed from the scroll position, so a
+  // restored scroll on reload is right too.
+  const update = () => {
+    const line = window.innerHeight * 0.4;
+    let current = links[0];
+    for (const a of links) if ($(a.hash).getBoundingClientRect().top <= line) current = a;
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = links.at(-1);
+    for (const a of links) a.setAttribute('aria-current', String(a === current));
+  };
+  let queued = false;
+  window.addEventListener('scroll', () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; update(); });
+  }, { passive: true });
+  window.addEventListener('resize', update);
+  window.addEventListener('load', update);
+  update();
 }
 
 async function refreshAll() {

@@ -50,7 +50,7 @@ CLIPS = {
     "notes": ("notes", 0.5, 12.0),
     "tasks": ("tasks", 0.3, 6.0),
     "wizard": ("wizard", 1.0, 21.0),
-    "alarm": ("alarm", 0.0, 0.0),  # 0 = whole file
+    "alarm": ("alarm", 8.0, 12.0),  # ringing screen starts ~8s in
     "bg-heart": ("bg_heart", 0.5, 5.0),
     "bg-flower": ("bg_flower", 0.5, 5.0),
     "bg-glitter": ("bg_glitter", 0.5, 5.0),

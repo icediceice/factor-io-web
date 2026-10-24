@@ -248,8 +248,8 @@ function frames(item, count) {
 function studioWork(c, s) {
   const page = routePath(c.locale, 'mobile-apps');
   if (s.variant === 'strip') {
-    return `<ul class="tiles">${s.items.map(item => `<li class="tile tile-${work[item.id].frame}"><div class="tile-media">${frames(item, 1)}</div>
-      <h3><a href="${page}#${item.id}">${esc(item.title)}</a></h3><p class="tile-meta">${esc(item.meta)}</p><p>${esc(item.body)}</p></li>`).join('')}</ul>
+    return `<ul class="tiles">${s.items.map(item => { const m = work[item.id]; return `<li class="tile tile-${m.frame}"><div class="tile-media">${frames(item, 1)}</div>
+      <h3><a href="${page}#${item.id}">${esc(item.title)}</a></h3><p class="tile-meta">${esc(item.meta)}</p><p>${esc(item.body)}</p>${m.primary && m.href && item.action ? `<p class="tile-action">${link(m.href, item.action, 'button')}</p>` : ''}</li>`; }).join('')}</ul>
     <p class="section-link">${link(page, c.ui.workLink)}</p>`;
   }
   return `<div class="work-list">${s.items.map(item => {
@@ -258,7 +258,7 @@ function studioWork(c, s) {
     return `<article class="work-item work-${m.frame}" id="${item.id}" aria-labelledby="${item.id}-title">
       <div class="work-media">${promo}${frames(item, m.shots.length)}</div>
       <div class="work-text"><p class="work-meta">${esc(item.meta)}</p><h3 id="${item.id}-title">${esc(item.title)}</h3><p>${esc(item.body)}</p>
-      <p class="work-status">${esc(item.status)}</p>${m.href && item.action ? link(m.href, item.action, 'button button-quiet') : ''}</div>
+      <p class="work-status">${esc(item.status)}</p>${m.href && item.action ? link(m.href, item.action, m.primary ? 'button' : 'button button-quiet') : ''}</div>
     </article>`;
   }).join('')}</div>`;
 }

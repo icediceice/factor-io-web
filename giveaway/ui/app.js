@@ -238,7 +238,7 @@ async function loadPool() {
       el('td', { class: 'num', text: String(s.total) }))));
     if (stats.every((s) => s.total === 0)) $('#pool-error').textContent = 'The pool is empty: import codes below before posting a link.';
   } catch (e) {
-    $('#pool-error').textContent = `Could not load the pool: ${e.message}`;
+    $('#pool-error').textContent = `Could not load the pool: ${e.message}.${RETRY}`;
   } finally {
     wrap.setAttribute('aria-busy', 'false');
   }

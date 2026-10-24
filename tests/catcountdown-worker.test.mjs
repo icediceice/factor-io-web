@@ -1,0 +1,106 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import worker from '../catcountdown/worker/src/index.js';
+
+const PLAY = 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown';
+const APP_STORE = 'https://apps.apple.com/app/id0000000000';
+const UA = {
+  android: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/129.0.0.0 Mobile Safari/537.36',
+  iphone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+  desktop: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36',
+  applebot: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1 (Applebot/0.1; +http://www.apple.com/go/applebot)',
+  googlebot: 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 Chrome/129.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+};
+
+// The Worker's only upstream is the GitHub Pages copy; record what it asks for.
+const upstream = [];
+globalThis.fetch = async (url, init = {}) => {
+  upstream.push({ url: String(url), method: init.method || 'GET' });
+  return new Response(`<html>studio copy of ${new URL(url).pathname}</html>`, { status: 200, headers: { 'content-type': 'text/html' } });
+};
+
+const visit = async (path, ua = UA.desktop, { env = {}, method = 'GET' } = {}) => {
+  upstream.length = 0;
+  const res = await worker.fetch(new Request(`https://catcountdown.factor-io.com${path}`, { method, headers: { 'user-agent': ua } }), env);
+  return { res, body: method === 'HEAD' ? '' : await res.text(), upstream: [...upstream] };
+};
+
+test('an Android phone scanning the QR code goes straight to Google Play without reaching any origin', async () => {
+  const { res, upstream } = await visit('/', UA.android);
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get('location'), PLAY);
+  assert.deepEqual(upstream, []);
+});
+
+test('an iPhone scanning the QR code sees only the App Store release status, not the landing page', async () => {
+  for (const path of ['/', '/cat-countdown.html', '/iphone']) {
+    const { res, body, upstream } = await visit(path, UA.iphone);
+    assert.equal(res.status, 200, path);
+    assert.match(res.headers.get('content-type'), /text\/html/);
+    assert.match(body, /Coming soon to the App Store/);
+    assert.match(body, /in App Store review/);
+    assert.doesNotMatch(body, /studio copy/, path);
+    assert.deepEqual(upstream, [], path);
+  }
+});
+
+test('once APP_STORE_URL is configured, iPhone scanners are sent to the App Store', async () => {
+  for (const path of ['/', '/iphone']) {
+    const { res } = await visit(path, UA.iphone, { env: { APP_STORE_URL: APP_STORE } });
+    assert.equal(res.status, 302, path);
+    assert.equal(res.headers.get('location'), APP_STORE, path);
+  }
+});
+
+test('desktop visitors and crawlers get the full landing page from GitHub Pages', async () => {
+  for (const ua of [UA.desktop, UA.applebot, UA.googlebot]) {
+    const { res, body, upstream } = await visit('/', ua);
+    assert.equal(res.status, 200);
+    assert.equal(body, '<html>studio copy of /cat-countdown.html</html>');
+    assert.deepEqual(upstream, [{ url: 'https://studio.factor-io.com/cat-countdown.html', method: 'GET' }]);
+  }
+});
+
+test('?noredirect=1 shows phones the full landing page', async () => {
+  for (const ua of [UA.android, UA.iphone]) {
+    const { res, body } = await visit('/cat-countdown.html?noredirect=1', ua);
+    assert.equal(res.status, 200);
+    assert.equal(body, '<html>studio copy of /cat-countdown.html</html>');
+  }
+});
+
+test('responses that depend on the device are never shared through a cache', async () => {
+  for (const ua of [UA.android, UA.iphone, UA.desktop]) {
+    const { res } = await visit('/', ua);
+    assert.equal(res.headers.get('vary'), 'User-Agent');
+    assert.match(res.headers.get('cache-control'), /no-store/);
+  }
+});
+
+test('page assets load from GitHub Pages and the old /catcountdown/ alias still lands on the page', async () => {
+  const asset = await visit('/assets/favicon.svg');
+  assert.equal(asset.res.status, 200);
+  assert.deepEqual(asset.upstream, [{ url: 'https://studio.factor-io.com/assets/favicon.svg', method: 'GET' }]);
+
+  for (const path of ['/catcountdown', '/catcountdown/']) {
+    const { res } = await visit(`${path}?utm_source=qr`);
+    assert.equal(res.status, 302);
+    assert.equal(res.headers.get('location'), '/cat-countdown.html?utm_source=qr');
+  }
+});
+
+test('the studio consulting pages are not exposed on the app subdomain', async () => {
+  for (const path of ['/index.html', '/en/', '/privacy.html', '/PROGRESS.md']) {
+    const { res, upstream } = await visit(path);
+    assert.equal(res.status, 404, path);
+    assert.deepEqual(upstream, [], path);
+  }
+});
+
+test('HEAD requests are answered without a body and other methods are refused', async () => {
+  const head = await visit('/', UA.iphone, { method: 'HEAD' });
+  assert.equal(head.res.status, 200);
+  assert.equal(head.res.body, null);
+  const post = await visit('/', UA.desktop, { method: 'POST' });
+  assert.equal(post.res.status, 405);
+});

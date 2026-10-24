@@ -113,6 +113,8 @@ def art() -> None:
         fg = im.convert("RGB").resize((1200, 586), Image.LANCZOS)
         bg.paste(fg, (0, 22))
         bg.save(OUT / "og.jpg", "JPEG", quality=84, optimize=True, progressive=True)
+    (OUT / "fonts").mkdir(exist_ok=True)
+    shutil.copyfile(APP / "store/panels/fonts/baloo_2_700.ttf", OUT / "fonts/baloo2-700.ttf")
 
 
 def ffmpeg(*args: str) -> None:

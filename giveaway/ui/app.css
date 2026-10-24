@@ -66,6 +66,10 @@ main{width:min(var(--w-page),calc(100% - 2 * var(--s4)));margin:var(--s5) auto v
 .sheet{background:var(--white);border:1px solid var(--line);border-radius:var(--r-btn)}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);flex-wrap:wrap;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}
 .sheet-head h2{font-size:var(--t-lg);font-weight:600}
+/* The claims ledger is the one region that is not boxed: it is the record, not a worksheet. */
+.sheet.plain{background:transparent;border:0}
+.sheet.plain .sheet-head{padding-left:0;padding-right:0}
+.sheet.plain .table-wrap{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .sheet-head .count{font-family:var(--mono);font-size:var(--t-md);color:var(--muted);margin-left:var(--s2);font-weight:400}
 .sheet-body{padding:var(--s4)}
 .toolbar{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}

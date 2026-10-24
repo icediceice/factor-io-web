@@ -655,42 +655,102 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   }
 });
 
-test('Cat Countdown landing page answers the FAQ it declares and every capture, cat and scene it shows exists', async () => {
-  const html = await read('cat-countdown.html');
-  const graph = schema(html);
-
-  // Google only shows FAQ results whose questions and answers are visible on the page.
-  const visible = [...html.matchAll(/<details>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g)].map(m => [decode(m[1]), decode(m[2])]);
-  const faq = graph.find(node => node['@type'] === 'FAQPage');
-  assert.ok(visible.length >= 8, 'expected a visible FAQ');
-  assert.deepEqual(faq.mainEntity.map(q => [q.name, q.acceptedAnswer.text]), visible);
-
-  const exists = async ref => { const info = await stat(resolve(ROOT, ref)).catch(() => null); assert.ok(info && info.size > 0, `missing ${ref}`); };
-  const refs = [...html.matchAll(/\b(?:src|poster|srcset|data-video|data-poster)="([^"]+)"/g)].map(m => m[1]);
-  for (const ref of refs) { assert.match(ref, /^assets\//, ref); await exists(ref); }
-  for (const kind of ['tour', 'wizard', 'notes', 'tasks', 'alarm']) assert.ok(refs.includes(`assets/cat-countdown/captures/${kind}.mp4`), kind);
-
-  // The scene dialog builds each tile's five looks from its cat and category, and the cat stage
-  // swaps in every cat's alarm animation and poses; all of those files must be published.
-  const tiles = [...html.matchAll(/<li data-cat="([a-z]+)" data-cg="([a-z-]+)">/g)].map(m => [m[1], m[2]]);
-  assert.equal(new Set(tiles.map(t => t.join('/'))).size, tiles.length);
-  assert.ok(tiles.length >= 100, `expected the full scene gallery, got ${tiles.length}`);
-  for (const [cat, cg] of tiles) for (let n = 1; n <= 5; n++) await exists(`assets/cat-countdown/looks/${cat}-${cg}-${n}.webp`);
-  const poses = html.match(/var POSES = (\[[^\]]+\])/);
-  for (const [, cat] of html.matchAll(/data-cat="([a-z]+)" data-name=/g)) {
-    await exists(`assets/cat-countdown/cats/${cat}-alarm.webp`);
-    for (const pose of JSON.parse(poses[1])) await exists(`assets/cat-countdown/poses/${cat}-${pose}.webp`);
+test('Cat Countdown renders its FAQ and serves the media selected by real page interactions', { timeout: 60000 }, async t => {
+  const { catPage } = await import('./support/cat-countdown-browser.mjs');
+  const { page, origin } = await catPage(t);
+  const initial = await page.evaluate(`(() => {
+    const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@graph'];
+    const faq = graph.find(n => n['@type'] === 'FAQPage');
+    const details = [...document.querySelectorAll('#faq details')];
+    details.forEach(d => d.querySelector('summary').click());
+    return {
+      visible: details.map(d => [d.querySelector('summary').innerText, d.querySelector('p').innerText]),
+      declared: faq.mainEntity.map(q => [q.name, q.acceptedAnswer.text]),
+      answersShown: details.every(d => d.open && d.querySelector('p').getClientRects().length > 0),
+      graph,
+      assets: [...document.querySelectorAll('img, video')].flatMap(el => [el.getAttribute('src'), el.getAttribute('poster')]).filter(Boolean),
+      share: document.querySelector('meta[property="og:image"]').content,
+    };
+  })()`);
+  assert.ok(initial.answersShown, 'FAQ summaries open their visible answers');
+  assert.deepEqual(initial.visible, initial.declared, 'rendered answers equal the structured data');
+  assert.equal(initial.share, 'https://catcountdown.factor-io.com/assets/cat-countdown/og.jpg');
+  const requested = new Set(initial.assets);
+  const videos = initial.graph.filter(n => n['@type'] === 'VideoObject');
+  const app = initial.graph.find(n => n['@type'] === 'SoftwareApplication');
+  for (const url of [app.image, ...app.screenshot, ...videos.flatMap(v => [v.contentUrl, v.thumbnailUrl])]) {
+    assert.equal(new URL(url).origin, 'https://catcountdown.factor-io.com');
+    requested.add(new URL(url).pathname);
   }
 
-  // Structured-data media resolve to published files on the app host.
-  const app = graph.find(node => node['@type'] === 'SoftwareApplication');
-  const urls = [app.image, ...app.screenshot, ...graph.filter(node => node['@type'] === 'VideoObject').flatMap(v => [v.contentUrl, v.thumbnailUrl])];
-  assert.ok(urls.length >= 10);
-  for (const url of urls) {
-    assert.match(url, /^https:\/\/catcountdown\.factor-io\.com\/assets\//, url);
-    await exists(url.replace('https://catcountdown.factor-io.com/', ''));
+  const chapters = await page.evaluate(`(() => {
+    const selected = [];
+    document.querySelectorAll('[data-picker]').forEach(group => {
+      const video = document.getElementById(group.dataset.picker);
+      group.querySelectorAll('button[data-video]').forEach(button => {
+        button.click();
+        if (video.getAttribute('src') !== button.dataset.video || video.getAttribute('poster') !== button.dataset.poster || button.getAttribute('aria-pressed') !== 'true') throw new Error('chapter did not select its media');
+        selected.push(video.getAttribute('src'), video.getAttribute('poster'));
+      });
+    });
+    return selected;
+  })()`);
+  chapters.forEach(src => requested.add(src));
+
+  const scenes = await page.evaluate(`(() => {
+    const click = (kind, value) => document.querySelector('.chips[data-filter="' + kind + '"] button[data-value="' + value + '"]').click();
+    click('cat', 'yuki'); click('cg', 'trip');
+    const shown = [...document.querySelectorAll('#art-grid > li')].filter(li => li.getClientRects().length);
+    const result = shown.map(li => [li.dataset.cat, li.dataset.cg]);
+    click('cat', ''); click('cg', '');
+    const media = [];
+    document.querySelectorAll('#art-grid .art-tile').forEach(tile => {
+      tile.click();
+      const dialog = document.getElementById('art-dialog');
+      if (!dialog.open) throw new Error('scene preview did not open');
+      dialog.querySelectorAll('#art-dialog-looks button').forEach(button => {
+        button.click();
+        if (button.getAttribute('aria-pressed') !== 'true') throw new Error('look not selected');
+        const src = document.getElementById('art-dialog-img').getAttribute('src');
+        if (src !== button.querySelector('img').getAttribute('src')) throw new Error('look did not update scene');
+        media.push(src);
+      });
+      dialog.querySelector('[data-close]').click();
+      if (dialog.open) throw new Error('scene preview did not close');
+    });
+    return { result, media };
+  })()`);
+  assert.deepEqual(scenes.result, [['yuki', 'trip']], 'both gallery filters affect what the visitor sees');
+  scenes.media.forEach(src => requested.add(src));
+  const cats = await page.evaluate(`(() => {
+    const media = [];
+    document.querySelectorAll('.roster button').forEach(button => {
+      button.click();
+      const image = document.getElementById('cat-stage-img');
+      if (!image.getAttribute('src').endsWith('/' + button.dataset.cat + '-still.webp')) throw new Error('reduced-motion cat did not select a still');
+      if (document.getElementById('cat-stage-name').textContent !== button.dataset.name) throw new Error('cat name did not change');
+      media.push(image.getAttribute('src'), ...[...document.querySelectorAll('#cat-poses img')].map(img => img.getAttribute('src')));
+    });
+    return media;
+  })()`);
+  cats.forEach(src => requested.add(src));
+  for (const src of requested) {
+    const response = await fetch(new URL(src, origin + '/cat-countdown.html'));
+    assert.equal(response.status, 200, src);
+    assert.match(response.headers.get('content-type'), /^(image\/|video\/)/, src);
+    assert.ok((await response.arrayBuffer()).byteLength > 0, src);
   }
-  assert.match(html, /<meta property="og:image" content="https:\/\/catcountdown\.factor-io\.com\/assets\/cat-countdown\/og\.jpg">/);
+  const durations = await page.evaluate(`Promise.all(${JSON.stringify(videos.map(v => new URL(v.contentUrl).pathname))}.map(src => new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    const timer = setTimeout(() => reject(new Error('metadata timeout: ' + src)), 5000);
+    video.onloadedmetadata = () => { clearTimeout(timer); resolve(video.duration); video.removeAttribute('src'); video.load(); };
+    video.onerror = () => { clearTimeout(timer); reject(new Error('unplayable media: ' + src)); };
+    video.preload = 'metadata'; video.src = src; video.load();
+  })))`);
+  for (let i = 0; i < videos.length; i++) {
+    const expected = Number(/^PT([\d.]+)S$/.exec(videos[i].duration)?.[1]);
+    assert.ok(Number.isFinite(durations[i]) && Math.abs(durations[i] - expected) < 0.15, `${videos[i].contentUrl}: ${durations[i]} seconds vs ${videos[i].duration}`);
+  }
 });
 
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {

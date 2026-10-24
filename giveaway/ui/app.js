@@ -315,7 +315,7 @@ async function loadClaims() {
       el('td', { class: 'mono', text: c.campaign }),
       el('td', { text: STORES[c.platform] ?? c.platform }),
       el('td', { class: 'code', text: c.code }),
-      el('td', { text: c.email }))) : [emptyRow(5, campaign ? `Nobody has claimed through ${campaign} yet.` : 'No claims yet.')]));
+      el('td', { text: c.email }))), ...more] : [emptyRow(5, campaign ? `Nobody has claimed through ${campaign} yet.` : 'No claims yet.')]));
   } catch (e) {
     $('#claim-error').textContent = `Could not load claims: ${e.message}.${RETRY}`;
   } finally {

@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792736513333",
-  "generated_at": "2026-10-23T06:21:53.333Z",
-  "snapshot_digest": "806786882cabb1e4",
+  "refresh_id": "refresh-1792821986450",
+  "generated_at": "2026-10-24T06:06:26.450Z",
+  "snapshot_digest": "68f974cd0f8a4a88",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-806786882cabb1e4.json",
-      "digest": "806786882cabb1e4",
-      "bytes": 3574507
+      "path": "catalog-68f974cd0f8a4a88.json",
+      "digest": "68f974cd0f8a4a88",
+      "bytes": 3576097
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "5b5e2dcae3cc45a3",
+      "digest": "b3857cd728414ac6",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-23T06:21:53.333Z",
-      "last_success_at": "2026-10-23T06:21:53.333Z",
-      "expires_at": "2026-10-26T06:21:53.333Z",
-      "root_digest": "160315773e916325",
-      "record_count": 449,
+      "observed_at": "2026-10-24T06:06:26.450Z",
+      "last_success_at": "2026-10-24T06:06:26.450Z",
+      "expires_at": "2026-10-27T06:06:26.450Z",
+      "root_digest": "e97a1fcb878e8b3c",
+      "record_count": 450,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-23T06:21:53.333Z",
-      "last_success_at": "2026-10-23T06:21:53.333Z",
-      "expires_at": "2026-10-26T06:21:53.333Z",
-      "root_digest": "3e3878f185d120d3",
-      "record_count": 3049,
+      "observed_at": "2026-10-24T06:06:26.450Z",
+      "last_success_at": "2026-10-24T06:06:26.450Z",
+      "expires_at": "2026-10-27T06:06:26.450Z",
+      "root_digest": "1ed8117344473330",
+      "record_count": 3050,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-22T00:00:00.000Z",
-      "last_success_at": "2026-10-23T06:22:20.050Z",
-      "expires_at": "2026-10-29T23:59:59.999Z",
-      "root_digest": "5b5e2dcae3cc45a3",
+      "observed_at": "2026-10-23T00:00:00.000Z",
+      "last_success_at": "2026-10-24T06:06:50.726Z",
+      "expires_at": "2026-10-30T23:59:59.999Z",
+      "root_digest": "b3857cd728414ac6",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -29387,6 +29387,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/MiniMaxAI/MiniMax-M3.1-Flash",
+      "name": "together_ai/MiniMaxAI/MiniMax-M3.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
       "name": "together_ai/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
       "tariff": "token",
@@ -33464,7 +33475,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -33474,7 +33487,9 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -36242,16 +36257,6 @@
       ]
     },
     {
-      "id": "openrouter:deepseek/deepseek-r1",
-      "name": "DeepSeek: R1",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:deepseek/deepseek-r1-0528",
       "name": "DeepSeek: R1 0528",
       "tariff": "token",
@@ -36458,21 +36463,6 @@
       ]
     },
     {
-      "id": "openrouter:google/gemini-2.5-flash:batch",
-      "name": "Google: Gemini 2.5 Flash (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "image_in",
-        "audio_in",
-        "web_search",
-        "reasoning",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:google/gemini-2.5-pro",
       "name": "Google: Gemini 2.5 Pro",
       "tariff": "token",
@@ -36502,21 +36492,6 @@
         "reasoning",
         "cache_read",
         "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:google/gemini-2.5-pro:batch",
-      "name": "Google: Gemini 2.5 Pro (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "image_in",
-        "audio_in",
-        "web_search",
-        "reasoning",
-        "cache_read"
       ]
     },
     {
@@ -37365,16 +37340,6 @@
       ]
     },
     {
-      "id": "openrouter:microsoft/wizardlm-2-8x22b",
-      "name": "WizardLM-2 8x22B",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-01",
       "name": "MiniMax: MiniMax-01",
       "tariff": "token",
@@ -37782,6 +37747,17 @@
     {
       "id": "openrouter:moonshotai/kimi-k3",
       "name": "MoonshotAI: Kimi K3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:moonshotai/kimi-k3.1-pro",
+      "name": "MoonshotAI: Kimi K3.1 Pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -39907,16 +39883,6 @@
       "name": "Sao10K: Llama 3.1 Euryale 70B v2.2",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:sao10k/l3.3-euryale-70b",
-      "name": "Sao10K: Llama 3.3 Euryale 70B",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -42339,6 +42305,41 @@
         "mode": "audio_speech"
       },
       {
+        "offer": "litellm:elevenlabs/eleven_v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:elevenlabs/eleven_v4_turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:elevenlabs/eleven_v3_conversational",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:elevenlabs/eleven_flash_v2_5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:elevenlabs/eleven_flash_v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:elevenlabs/eleven_turbo_v2_5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:elevenlabs/eleven_turbo_v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
         "offer": "litellm:embed-english-light-v3.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -44320,6 +44321,46 @@
       },
       {
         "offer": "litellm:mistral/voxtral-mini-tts-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-transcribe-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-transcribe-3-0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-small-transcribe-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-small-transcribe-3-0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-transcribe-realtime-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-transcribe-realtime-3-0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-tts-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:mistral/voxtral-mini-tts-3-0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
       },

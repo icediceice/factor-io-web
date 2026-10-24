@@ -68,7 +68,7 @@ for (const locale of ['en', 'th']) for (const page of routes) test(`${locale}/${
   for (const lang of ['en', 'th', 'x-default']) assert.ok(html.includes(`hreflang="${lang}"`));
   assert.ok(html.includes(`href="${routePath(locale === 'en' ? 'th' : 'en', page)}" lang=`));
   for (const r of routes) assert.ok(html.includes(`href="${routePath(locale, r)}"`));
-  assert.match(html, locale === 'th' ? /content="noindex, follow"/ : /content="index, follow"/);
+  assert.match(html, /<meta name="robots" content="index, follow">/);
   if (locale === 'th') assert.ok((html.match(/[ก-๙]/g) || []).length > 300);
   assert.doesNotMatch(html, /__bundler\/template|og-image\.png|logo\.png|Twenty-plus|20\+ years|five years/);
   for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
@@ -107,12 +107,12 @@ test('root and resource JSON-LD retain consistent cross-page identities and foun
   assert.ok(calculator.includes(`${config.origin}/#founder`)); assert.ok(calculator.includes(`${config.origin}/#organization`));
 });
 
-test('sitemap retains every original URL, omits noindex Thai and fixture, and uses explicit dates', () => {
+test('sitemap offers search engines every page in both languages, keeps every original URL, and leaves out the fixture and old deck', () => {
   const xml = output.get('sitemap.xml');
   for (const path of ['/', '/light-tools.html', '/tco-calculator.html', '/privacy.html', '/terms.html']) assert.ok(xml.includes(`<loc>${config.origin}${path}</loc>`));
   assert.ok(xml.includes('<lastmod>2026-08-28</lastmod>'));
-  assert.doesNotMatch(xml, /\/th\/|\/tests\/|services\.html/);
-  for (const route of routes) assert.ok(xml.includes(routePath('en', route)));
+  assert.doesNotMatch(xml, /\/tests\/|services\.html/);
+  for (const locale of ['en', 'th']) for (const route of routes) assert.ok(xml.includes(`<loc>${config.origin}${routePath(locale, route)}</loc>`), `${locale}/${route}`);
 });
 
 test('historical services deck stays byte-for-byte unchanged', async () => {

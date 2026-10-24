@@ -73,8 +73,17 @@ function iphone(request, appStoreUrl) {
   });
 }
 
+// The landing-page film needs byte ranges (Safari will not play a <video> without 206s);
+// forward only those headers, since the origin is fixed and needs no cookies or Host.
+const FORWARDED = ["range", "if-range"];
+
 async function proxy(path, request) {
-  const upstream = await fetch(ORIGIN + path, { method: request.method });
+  const headers = new Headers();
+  for (const name of FORWARDED) {
+    const value = request.headers.get(name);
+    if (value !== null) headers.set(name, value);
+  }
+  const upstream = await fetch(ORIGIN + path, { method: request.method, headers });
   return new Response(request.method === "HEAD" ? null : upstream.body, {
     status: upstream.status,
     headers: upstream.headers,

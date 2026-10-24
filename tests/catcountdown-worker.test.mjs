@@ -24,9 +24,9 @@ globalThis.fetch = async (url, init = {}) => {
   return new Response(`<html>studio copy of ${new URL(url).pathname}</html>`, { status: 200, headers: { 'content-type': 'text/html' } });
 };
 
-const visit = async (path, ua = UA.desktop, { env = {}, method = 'GET' } = {}) => {
+const visit = async (path, ua = UA.desktop, { env = {}, method = 'GET', headers = {} } = {}) => {
   upstream.length = 0;
-  const res = await worker.fetch(new Request(`https://catcountdown.factor-io.com${path}`, { method, headers: { 'user-agent': ua } }), env);
+  const res = await worker.fetch(new Request(`https://catcountdown.factor-io.com${path}`, { method, headers: { 'user-agent': ua, ...headers } }), env);
   return { res, body: method === 'HEAD' ? '' : await res.text(), upstream: [...upstream] };
 };
 

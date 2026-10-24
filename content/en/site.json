@@ -358,8 +358,9 @@
             {
               "id": "cat-countdown",
               "title": "Cat Countdown",
-              "meta": "Android and iPhone · Not yet released",
+              "meta": "Google Play · iPhone coming soon",
               "body": "A cosy life organiser with nine cats: countdowns, tasks, sticker notes and alarms.",
+              "action": "See the Cat Countdown page",
               "shots": [
                 "Cat Countdown home screen: a birthday twelve days away, above a card for each countdown."
               ]
@@ -540,8 +541,9 @@
               "title": "Cat Countdown",
               "meta": "Android and iPhone",
               "body": "A cosy life organiser with nine cats. Countdowns, tasks, sticker notes and alarms, with backup and restore.",
-              "status": "Not yet released",
-              "promo": "Launch film, made in the studio ahead of the store release.",
+              "status": "On Google Play · iPhone coming soon",
+              "action": "See the Cat Countdown page",
+              "promo": "Launch film, made in the studio for the store release.",
               "shots": [
                 "Cat Countdown home screen: a birthday twelve days away, above a card for each countdown.",
                 "A countdown in detail: final exams in 23 days, split into weeks and days, with checklist and journal tabs.",

@@ -88,7 +88,7 @@ td.code{font-family:var(--mono);font-weight:600;letter-spacing:.03em;white-space
 /* Link cell: the one column the operator acts on. Readonly input so it can be
    selected and copied over plain HTTP, where navigator.clipboard is unavailable. */
 .link-cell{display:flex;align-items:center;gap:var(--s1);min-width:280px}
-.link-cell input{flex:1;min-width:0;font-family:var(--mono);font-size:var(--t-md);border:1px solid var(--line);border-radius:var(--r-input);background:var(--paper);padding:var(--s1) var(--s2);min-height:32px}
+.link-cell input{flex:1;min-width:0;font-family:var(--mono);font-size:var(--t-md);border:1px solid var(--line);border-radius:var(--r-input);background:var(--paper);padding:var(--s1) var(--s2);min-height:var(--target)}
 
 /* Status: colour AND border style, so it survives greyscale. */
 .chip{display:inline-block;font:600 var(--t-sm)/1.6 var(--mono);padding:0 var(--s2);border-radius:var(--r-btn);border:1px solid var(--muted);white-space:nowrap}

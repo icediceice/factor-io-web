@@ -31,7 +31,7 @@ Web tools and apps the studio builds for itself, to the same standard as client 
 - [Local AI cost calculator](https://studio.factor-io.com/tco-calculator.html): Web tool. Weighs running AI on your own hardware against paying for an API. Live.
 - [light-tools](https://github.com/icediceice/light-tools): Open source MCP server, one Go binary, GPL-3.0-or-later.
 - [Blink](https://blink.factor-io.com/): Android privacy app. Runs entirely on-device with zero data collection: no account, no analytics, and no network traffic of its own. On Google Play.
-- Cat Countdown: countdown app for Android and iPhone. Nine cats across fifteen categories. Local-first; no advertising, no usage analytics and no account with Factor IO. A paid yearly plan unlocks cloud backup, and purchases are processed by RevenueCat with an anonymous app-user id. Not yet released; no public store URL is listed here yet.
+- [Cat Countdown](https://catcountdown.factor-io.com/): countdown app with 1,000+ illustrated cat scenes and nine cats, plus tasks, decorated notes, alarms that ring and home screen widgets. Pay once, no ads. Local-first; no usage analytics and no account with Factor IO. Optional yearly Cloud Backup to the user's own Google Drive or iCloud, with purchases processed by RevenueCat under an anonymous app-user id. On [Google Play](https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown); the iPhone version is waiting for App Store review.
 
 ## Separate products
 

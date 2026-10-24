@@ -354,7 +354,8 @@ function wireSectionNav() {
     const line = window.innerHeight * 0.4;
     let current = links[0];
     for (const a of links) if ($(a.hash).getBoundingClientRect().top <= line) current = a;
-    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = links.at(-1);
+    if (window.scrollY < 8) current = links[0];
+    else if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = links.at(-1);
     for (const a of links) a.setAttribute('aria-current', String(a === current));
   };
   let queued = false;

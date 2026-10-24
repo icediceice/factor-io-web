@@ -370,7 +370,7 @@ function shell(title, inner) {
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-<style${nonceAttr}>${STYLE}</style>
+<style>${STYLE}</style>
 </head>
 <body>
 <main>

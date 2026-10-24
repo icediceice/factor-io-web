@@ -339,12 +339,17 @@
   } else {
     noRedirect = /(?:^\?|&)noredirect=1(?:&|$)/.test(search);
   }
-  if (scanner === "android" && !noRedirect && typeof loc.replace === "function") {
+  // A QR scan or typed URL has no referrer and goes straight to the store. A phone arriving from
+  // a search result or another site came to read about the app, so it keeps this page.
+  var referrer = doc && typeof doc.referrer === "string" ? doc.referrer : "";
+  var refHost = (/^[a-z][a-z0-9+.-]*:\/\/([^\/?#:]+)/i.exec(referrer) || [])[1] || "";
+  var fromElsewhere = refHost !== "" && refHost.toLowerCase() !== String(loc.hostname || "").toLowerCase();
+  if (scanner === "android" && !noRedirect && !fromElsewhere && typeof loc.replace === "function") {
     loc.replace(PLAY_URL);
   }
   // iPadOS sends a desktop Mac UA the edge Worker cannot classify, so it reaches this
   // page; on the app subdomain send it to the Worker's iPhone release-status page.
-  if (scanner === "ios" && !noRedirect && loc.hostname === "catcountdown.factor-io.com" && typeof loc.replace === "function") {
+  if (scanner === "ios" && !noRedirect && !fromElsewhere && loc.hostname === "catcountdown.factor-io.com" && typeof loc.replace === "function") {
     loc.replace("/iphone" + search);
   }
 })();

@@ -1,10 +1,12 @@
 /* light-design · macrostructure: Stacked Sections (Campaigns · Pool · Import & revoke · Claims),
- * Campaigns and Claims nested as Ledgers
+ * Campaigns nested as a Ledger, Claims an unboxed Ledger
  * density: dense-balanced · depth: borders-only (one exception: confirm dialog scrim)
  * system: inherits quotes/.interface-design/system.md (Engineering Field Guide light / dark ledger);
  *   sibling tailnet back-office for the same operator. Root system.md (TCO calculator) refused.
  * differs from: quotes Workbench (rail → detail); here every worksheet is visible on one page
- * data: live API only, no fixtures
+ * gates: 47/48 code-read (exception V11: native select/date under CSP, no widget library);
+ *   measure gates S6 N1 N2 N3 A1 A2 pending the live render (plan step 14)
+ * critique: H4 D5 S4 O5 R4 P4 · data: live API only, no fixtures
  */
 
 /* ---------------------------------------------------------------- tokens -- */

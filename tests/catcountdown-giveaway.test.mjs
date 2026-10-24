@@ -304,6 +304,7 @@ test('a token signed with a key Google rotated in before our cache expired is ac
   assert.equal(server.calls, 2);
 
   // A kid Google never published is refused, without another fetch inside the cooldown.
+  clock += 31_000;
   await assert.rejects(verify(await idToken({}, { key: impostor.privateKey, kid: 'g3' }), CLIENT_ID), SignInError);
   await assert.rejects(verify(await idToken({}, { key: impostor.privateKey, kid: 'g4' }), CLIENT_ID), SignInError);
   assert.equal(server.calls, 3);

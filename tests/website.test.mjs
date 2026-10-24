@@ -425,7 +425,7 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
 
   const controllerMatch = html.match(/<script id="scanner-controller">([\s\S]*?)<\/script>/);
   assert.ok(controllerMatch, 'expected inline #scanner-controller script in cat-countdown.html');
-  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '' }) => {
+  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '', hostname = 'studio.factor-io.com' }) => {
     let replaced = null;
     const attrs = new Map();
     vm.runInNewContext(controllerMatch[1], {

@@ -11,7 +11,7 @@ assets/cat-countdown/ and is safe to re-run: every output is regenerated from so
 Outputs (names are what cat-countdown.html references):
   scenes/<cat>-<category>.webp        117 storybook scenes (the card art), 360px
   looks/<cat>-<category>-<n>.webp     the five "Choose the look" variants per scene, 240px
-  poses/<cat>-<pose>.webp             nine poses per cat, 240px
+  poses/<cat>-<pose>.webp             eight poses per cat, 240px
   cats/<cat>-alarm.webp               the alarm-screen animation, animated WebP, 256px
   cats/<cat>-still.webp               its first frame, for reduced motion
   categories/<category>.webp          the 13 category icons, 160px

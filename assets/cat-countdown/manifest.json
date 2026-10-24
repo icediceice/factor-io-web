@@ -1,0 +1,41 @@
+{
+  "total_bytes": 20539391,
+  "dirs": {
+    "captures": {
+      "files": 26,
+      "bytes": 2227625
+    },
+    "categories": {
+      "files": 13,
+      "bytes": 58370
+    },
+    "cats": {
+      "files": 18,
+      "bytes": 6168466
+    },
+    "fonts": {
+      "files": 1,
+      "bytes": 417960
+    },
+    "looks": {
+      "files": 585,
+      "bytes": 7288510
+    },
+    ".": {
+      "files": 1,
+      "bytes": 72340
+    },
+    "poses": {
+      "files": 72,
+      "bytes": 703022
+    },
+    "scenes": {
+      "files": 117,
+      "bytes": 2601646
+    },
+    "widgets": {
+      "files": 72,
+      "bytes": 1001452
+    }
+  }
+}

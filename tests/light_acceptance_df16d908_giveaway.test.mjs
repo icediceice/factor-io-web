@@ -66,6 +66,22 @@ test('the 8192-byte claim-body limit rejects multibyte JSON without allocation',
   assert.equal(env.GIVEAWAY_DB.raw.prepare('SELECT COUNT(*) AS n FROM codes WHERE claimant IS NOT NULL').get().n, 0);
 });
 
+test('a body of exactly 8192 bytes is accepted and a chunked body one byte over is refused', async () => {
+  const env = fixture();
+  const base = JSON.stringify({ credential: await credential(), padding: '' });
+  const exact = base.replace('"padding":""', `"padding":"${'x'.repeat(8192 - Buffer.byteLength(base))}"`);
+  assert.equal(Buffer.byteLength(exact), 8192);
+  assert.equal((await post(env, exact)).status, 200);
+
+  const over = new TextEncoder().encode(exact.replace('"padding":"', '"padding":"y'));
+  assert.equal(over.byteLength, 8193);
+  const stream = new ReadableStream({ start(c) { c.enqueue(over.subarray(0, 4000)); c.enqueue(over.subarray(4000)); c.close(); } });
+  const fresh = fixture();
+  const response = await worker.fetch(new Request(`${SITE}/free/cap/claim`, { method: 'POST', duplex: 'half', headers: { origin: SITE, 'content-type': 'application/json' }, body: stream }), fresh);
+  assert.equal(response.status, 400);
+  assert.equal(fresh.GIVEAWAY_DB.raw.prepare('SELECT COUNT(*) AS n FROM codes WHERE claimant IS NOT NULL').get().n, 0);
+});
+
 test('a JSON-null JWT header is invalid input and yields 401 instead of an uncaught exception', async () => {
   const env = fixture();
   const response = await post(env, { credential: `${b64(null)}.${b64({})}.AA` });

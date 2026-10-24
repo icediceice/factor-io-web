@@ -475,6 +475,22 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36', platform: 'MacIntel', maxTouchPoints: 0, hostname: 'catcountdown.factor-io.com' }),
     { scanner: 'other', replaced: null }
   );
+  // A phone that arrives from a search result came to read about the app and keeps the page;
+  // a QR scan (no referrer) or a click from the page's own host still goes to the store.
+  const pixel = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/129.0.0.0 Mobile Safari/537.36';
+  const play = 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown';
+  assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', referrer: 'https://www.google.com/' }), { scanner: 'android', replaced: null });
+  assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', referrer: '' }), { scanner: 'android', replaced: play });
+  assert.deepEqual(runScanner({ userAgent: pixel, hostname: 'catcountdown.factor-io.com', referrer: 'https://catcountdown.factor-io.com/iphone' }), { scanner: 'android', replaced: play });
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', referrer: 'https://www.bing.com/' }), { scanner: 'ios', replaced: null });
+  // Search Console's live test and Bing's mobile crawler send Android UAs without a word-bounded "bot".
+  for (const userAgent of [
+    'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0;)',
+    'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36 (compatible; GoogleOther)',
+    'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.1938.76 Mobile Safari/537.36 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+  ]) {
+    assert.deepEqual(runScanner({ userAgent, hostname: 'catcountdown.factor-io.com' }), { scanner: 'other', replaced: null }, userAgent);
+  }
 
   const aliasMatch = stub.match(/<script id="alias-redirect">([\s\S]*?)<\/script>/);
   assert.ok(aliasMatch, 'expected inline #alias-redirect script in catcountdown/index.html');

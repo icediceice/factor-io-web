@@ -91,7 +91,7 @@ td.code{font-family:var(--mono);font-weight:600;letter-spacing:.03em;white-space
 .link-cell input{flex:1;min-width:0;font-family:var(--mono);font-size:var(--t-md);border:1px solid var(--line);border-radius:var(--r-input);background:var(--paper);padding:var(--s1) var(--s2);min-height:32px}
 
 /* Status: colour AND border style, so it survives greyscale. */
-.chip{display:inline-block;font:600 var(--t-sm)/1.4 var(--mono);padding:2px var(--s2);border-radius:var(--r-btn);border:1px solid var(--muted);white-space:nowrap}
+.chip{display:inline-block;font:600 var(--t-sm)/1.6 var(--mono);padding:0 var(--s2);border-radius:var(--r-btn);border:1px solid var(--muted);white-space:nowrap}
 .chip.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .chip.paused{border-style:dashed;color:var(--focus);border-color:var(--focus)}
 .chip.ended{color:var(--muted);text-decoration:line-through}

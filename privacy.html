@@ -152,8 +152,9 @@
   that the app can verify itself; iPhone builds make no such request. Apart from the weather lookups
   above and that licence check, neither app sends anything off your device without you doing
   something.</p>
-  <p><strong>Automatic, on the web calculator.</strong> The calculator makes public GET requests at
-  startup for OpenRouter model pricing and a USD-to-THB rate from Frankfurter, an ECB-data mirror.
+  <p><strong>Automatic, on the web calculator.</strong> The calculator makes
+  automatic public GET requests at startup for OpenRouter model pricing and a USD-to-THB rate from
+  Frankfurter, an ECB-data mirror.
   These requests carry standard browser network metadata such as your IP address and user agent to
   those services, but include <strong>no calculator inputs, transcript, or result</strong>. A failed
   or incomplete refresh leaves the dated local fallback unchanged.</p>

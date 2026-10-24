@@ -304,6 +304,8 @@
   /* Closing CTA */
   .cta { text-align: center; padding: clamp(40px, 6vw, 64px) clamp(20px, 4vw, 48px); border-radius: calc(var(--radius) + 10px); background: radial-gradient(100% 120% at 50% 0%, var(--accent-soft), var(--surface-2)); }
   .cta img { width: 140px; margin: 0 auto 10px; }
+  .cta .cta-qr { display: grid; justify-items: center; gap: 10px; margin-top: 26px; color: var(--muted); font-size: 15px; }
+  .cta .cta-qr img { width: 128px; height: 128px; margin: 0; }
   .cta p { margin: 12px auto 0; max-width: 520px; color: var(--muted); font-size: 18px; }
   .cta .store-actions { justify-content: center; }
 
@@ -586,7 +588,7 @@
           <button type="button" class="chip" aria-pressed="false" data-value="others">Others</button>
         </div>
       </div>
-      <ul id="art-grid" class="art-grid clipped">
+      <ul id="art-grid" class="art-grid">
         <li data-cat="sakura" data-cg="anniversary"><button type="button" class="art-tile"><img src="assets/cat-countdown/scenes/sakura-anniversary.webp" width="360" height="360" alt="Sakura, Anniversary scene" loading="lazy" decoding="async"></button></li>
         <li data-cat="nimbus" data-cg="birthday"><button type="button" class="art-tile"><img src="assets/cat-countdown/scenes/nimbus-birthday.webp" width="360" height="360" alt="Nimbus, Birthday scene" loading="lazy" decoding="async"></button></li>
         <li data-cat="luna" data-cg="trip"><button type="button" class="art-tile"><img src="assets/cat-countdown/scenes/luna-trip.webp" width="360" height="360" alt="Luna, Trip scene" loading="lazy" decoding="async"></button></li>
@@ -705,7 +707,7 @@
         <li data-cat="mallow" data-cg="me-time"><button type="button" class="art-tile"><img src="assets/cat-countdown/scenes/mallow-me-time.webp" width="360" height="360" alt="Mallow, Me Time scene" loading="lazy" decoding="async"></button></li>
         <li data-cat="yuki" data-cg="medical"><button type="button" class="art-tile"><img src="assets/cat-countdown/scenes/yuki-medical.webp" width="360" height="360" alt="Yuki, Medical scene" loading="lazy" decoding="async"></button></li>
       </ul>
-      <div class="gallery-more"><button type="button" class="btn-soft" id="gallery-more">Show every scene</button></div>
+      <div class="gallery-more"><button type="button" class="btn-soft" id="gallery-more" hidden>Show every scene</button></div>
       <dialog id="art-dialog" class="art-dialog" aria-labelledby="art-dialog-title">
         <div class="dialog-head">
           <h3 id="art-dialog-title">Scene</h3>
@@ -894,6 +896,10 @@
         <div class="store-actions">
           <a class="btn-store btn-android" href="https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown" rel="noopener">Get it on Google Play</a>
         </div>
+        <div class="cta-qr">
+          <div class="qr-frame"><img src="assets/work/cat-countdown-qr.svg" width="128" height="128" alt="QR code that opens Cat Countdown on your phone" loading="lazy" decoding="async"></div>
+          <span>On a computer? Scan with your phone camera.</span>
+        </div>
       </div>
     </div>
   </section>
@@ -975,6 +981,9 @@
   // Gallery filters.
   var grid = doc.getElementById("art-grid");
   var more = doc.getElementById("gallery-more");
+  // Without this script the whole gallery stays visible; collapse it only once "Show every scene" works.
+  grid.classList.add("clipped");
+  more.hidden = false;
   var filter = { cat: "", cg: "" };
   var apply = function () {
     var any = filter.cat || filter.cg;

@@ -260,9 +260,9 @@ async function claim(request, env, slug) {
   if (existing) return json(200, issued(existing, "existing", now));
   // Every refusal from here re-reads first: a concurrent sign-in by this same account
   // may have committed (and even filled the cap) since the read above.
-  const refuse = async (status, body) => {
+  const refuse = async (status, payload) => {
     const late = await issuanceFor(db, who.sub);
-    return late ? json(200, issued(late, "existing", now)) : json(status, body);
+    return late ? json(200, issued(late, "existing", now)) : json(status, payload);
   };
   // Closed links say so before asking anything else; ALLOCATE re-checks at write time.
   if (campaign.status !== "active" || (await atCap(db, campaign))) {

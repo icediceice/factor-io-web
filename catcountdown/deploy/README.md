@@ -54,7 +54,10 @@ browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.fac
 ```bash
 ~/.venv-rembg/bin/python3 -I scripts/cat-countdown-assets.py --clips <dir of .mov captures>   # everything
 ~/.venv-rembg/bin/python3 -I scripts/cat-countdown-assets.py --only clips --clips <dir>      # re-encode captures only
+~/.venv-rembg/bin/python3 -I scripts/cat-countdown-assets.py --only clips --clips <dir> --clip bg-   # only the bg-* set, keeps the rest
 ```
+
+The eight `bg-*` background clips each feature a different cat (named under each swatch on the page). For each one, the nearest countdown in the seeded data was set to five days out with that cat, and Settings > Background was set to that scene alone. Starlight, fireflies and embers were recorded with Appearance set to Dark.
 
 The captures were recorded on mac-mini with the iPhone 17 Pro simulator, using `xcrun simctl io <udid> recordVideo --codec=h264` on seeded demo data. The animated cats take most of the roughly 18-minute full run. Only the 700 weight of Baloo 2 ships, as a TTF, because fontTools is not installed for subsetting it to woff2.
 

@@ -350,7 +350,9 @@ function wireSectionNav() {
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
-      for (const a of links) a.setAttribute('aria-current', String(a.hash === `#${entry.target.id}`));
+      // At the very top the observed band sits below a short first section; the first section is current.
+      const hash = window.scrollY < 8 ? links[0].hash : `#${entry.target.id}`;
+      for (const a of links) a.setAttribute('aria-current', String(a.hash === hash));
     }
   }, { rootMargin: '-40% 0px -55% 0px' });
   for (const a of links) observer.observe($(a.hash));

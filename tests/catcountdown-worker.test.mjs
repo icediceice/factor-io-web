@@ -75,15 +75,25 @@ test('?noredirect=1 shows phones the full landing page', async () => {
 });
 
 test('a phone that followed a search result reads the landing page; a QR scan or same-site click still goes to the store', async () => {
-  for (const ua of [UA.android, UA.iphone]) {
-    const { res, body } = await visit('/', ua, { headers: { referer: 'https://www.google.com/' } });
-    assert.equal(res.status, 200, ua);
-    assert.equal(body, '<html>studio copy of /cat-countdown.html</html>');
-  }
-  for (const referer of ['https://catcountdown.factor-io.com/iphone', 'not a url']) {
-    const { res } = await visit('/', UA.android, { headers: { referer } });
-    assert.equal(res.status, 302, referer);
-    assert.equal(res.headers.get('location'), PLAY);
+  for (const method of ['GET', 'HEAD']) for (const ua of [UA.android, UA.iphone]) {
+    for (const referer of ['https://www.google.com/', 'https://t.co/link', 'https://studio.factor-io.com/cat-countdown.html']) {
+      const { res, body, upstream } = await visit('/', ua, { method, headers: { referer } });
+      assert.equal(res.status, 200, `${method} ${referer} ${ua}`);
+      assert.equal(body, method === 'HEAD' ? '' : '<html>studio copy of /cat-countdown.html</html>');
+      assert.deepEqual(upstream, [{ url: 'https://studio.factor-io.com/cat-countdown.html', method }]);
+    }
+    for (const referer of ['https://catcountdown.factor-io.com/iphone', 'http://catcountdown.factor-io.com/', 'https://CATCOUNTDOWN.factor-io.com:8443/', 'not a url']) {
+      const { res, body, upstream } = await visit('/', ua, { method, headers: { referer } });
+      assert.deepEqual(upstream, [], `${method} ${referer}`);
+      if (ua === UA.android) {
+        assert.equal(res.status, 302, referer);
+        assert.equal(res.headers.get('location'), PLAY);
+      } else {
+        assert.equal(res.status, 200, referer);
+        assert.equal(res.headers.get('location'), null);
+        if (method === 'GET') assert.match(body, /Coming soon to the App Store/);
+      }
+    }
   }
 });
 

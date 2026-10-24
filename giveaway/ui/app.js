@@ -227,7 +227,9 @@ async function loadPool() {
   $('#pool-error').textContent = '';
   try {
     const stats = await api('GET', '/stats');
-    const offered = new Set(campaigns.filter((c) => c.status === 'active').flatMap((c) => c.platforms.split(',')));
+    // Only campaigns that can still issue a code: active and below their cap.
+    const live = campaigns.filter((c) => c.status === 'active' && (c.max_claims == null || c.claims < c.max_claims));
+    const offered = new Set(live.flatMap((c) => c.platforms.split(',')));
     $('#pool-rows').replaceChildren(...stats.map((s) => el('tr', {},
       el('th', { scope: 'row', text: STORES[s.platform] ?? s.platform }),
       // Colour plus words: an active campaign offering an empty store turns visitors away.

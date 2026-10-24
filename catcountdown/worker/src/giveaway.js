@@ -480,5 +480,5 @@ ${intro}  <div id="signin"></div>
   <p class="small">We keep your Google account id and email to give one code per account. <a href="https://studio.factor-io.com/privacy.html#giveaway">Privacy</a></p>
   <script type="application/json" id="cfg">${cfg}</script>
   <script nonce="${nonce}">${CLIENT_SCRIPT}</script>
-  <script nonce="${nonce}" src="https://accounts.google.com/gsi/client" async></script>`, ` nonce="${nonce}"`);
+  <script nonce="${nonce}" src="https://accounts.google.com/gsi/client" async></script>`);
 }

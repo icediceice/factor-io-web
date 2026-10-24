@@ -5,14 +5,34 @@
 // The full landing page is proxied from the GitHub Pages copy on studio.factor-io.com.
 
 import { handleGiveaway, matchGiveaway } from "./giveaway.js";
+import { robotsTxt, sitemapXml } from "./seo.js";
 
 export const PLAY_URL = "https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown";
 export const ORIGIN = "https://studio.factor-io.com";
-// Copied byte-for-byte from cat-countdown.html:#scanner-controller; a test keeps them equal.
-export const BOT_RE = /\b(?:bot|crawler|spider|slurp|mediapartners|adsbot|bingpreview|facebookexternalhit|whatsapp|twitterbot|slackbot|discordbot|telegrambot|applebot|headlesschrome|lighthouse)\b/i;
+// Copied byte-for-byte from cat-countdown.html:#scanner-controller; a test checks both
+// classify the same user agents the same way. No \b before "bot": Googlebot and bingbot
+// end in it, and Google-InspectionTool / GoogleOther have to be named.
+export const BOT_RE = /(?:bot|crawler|spider)\b|\b(?:slurp|mediapartners|google-inspectiontool|googleother|google-read-aloud|feedfetcher|bingpreview|facebookexternalhit|whatsapp|vkshare|embedly|ia_archiver|headlesschrome|lighthouse)\b/i;
 
-// Every response here depends on the User-Agent, so no shared cache may keep one.
-const NO_STORE = { "cache-control": "private, no-store", vary: "User-Agent" };
+// Every response here depends on the User-Agent and Referer, so no shared cache may keep one.
+const NO_STORE = { "cache-control": "private, no-store", vary: "User-Agent, Referer" };
+const CRAWLABLE = { "cache-control": "public, max-age=3600" };
+
+// A QR scan or typed URL carries no Referer; a phone that followed a search result or a
+// link from another site came to read about the app, so it gets the page, not the store.
+function fromElsewhere(request, url) {
+  const referer = request.headers.get("referer");
+  if (!referer) return false;
+  try {
+    return new URL(referer).hostname.toLowerCase() !== url.hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+}
+
+function text(body, type, request) {
+  return new Response(request.method === "HEAD" ? null : body, { headers: { "content-type": type, ...CRAWLABLE } });
+}
 
 // iPadOS Safari sends a Mac desktop UA by default, so it lands on the full page and
 // the page's own #scanner-controller sends it to /iphone from the client side.

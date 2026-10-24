@@ -13,7 +13,7 @@ export const config = {
   linkedin: 'https://www.linkedin.com/in/thanat-manasakool-3101905a/', github: 'https://github.com/icediceice',
   founderDescription: "Nearly 20 years in enterprise infrastructure, with experience as an Ecosystem Solutions Architect for Red Hat and Nutanix, delivering architecture guidance and technical enablement to Thailand's leading SI partners.",
   organizationDescription: 'Infrastructure engineering and governed enterprise AI consulting in Thailand. Architecture, migration, private AI and technical enablement for systems integrators.',
-  locales: { en: { label: 'EN', indexable: true, og: 'en_US' }, th: { label: 'ไทย', indexable: false, og: 'th_TH' } },
+  locales: { en: { label: 'EN', indexable: true, og: 'en_US' }, th: { label: 'ไทย', indexable: true, og: 'th_TH' } },
   legacyUrls: [
     { path: '/', updated: '2026-09-11' },
     { path: '/offerings.html', updated: '2026-10-13' },

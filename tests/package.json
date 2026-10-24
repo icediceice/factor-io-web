@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "node --test website.test.mjs catcountdown-worker.test.mjs catcountdown-giveaway.test.mjs"
+  }
+}

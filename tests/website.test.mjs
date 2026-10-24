@@ -465,6 +465,16 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36', platform: 'MacIntel', maxTouchPoints: 0 }),
     { scanner: 'other', replaced: null }
   );
+  // On the app subdomain an iPad (desktop Mac UA, which the edge Worker cannot classify)
+  // is sent to the release-status page; the studio.factor-io.com copy keeps the full page.
+  const ipad = { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', platform: 'MacIntel', maxTouchPoints: 5 };
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', search: '?utm_source=qr' }), { scanner: 'ios', replaced: '/iphone?utm_source=qr' });
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', search: '?noredirect=1' }), { scanner: 'ios', replaced: null });
+  assert.deepEqual(runScanner({ ...ipad, hostname: 'studio.factor-io.com' }), { scanner: 'ios', replaced: null });
+  assert.deepEqual(
+    runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36', platform: 'MacIntel', maxTouchPoints: 0, hostname: 'catcountdown.factor-io.com' }),
+    { scanner: 'other', replaced: null }
+  );
 
   const aliasMatch = stub.match(/<script id="alias-redirect">([\s\S]*?)<\/script>/);
   assert.ok(aliasMatch, 'expected inline #alias-redirect script in catcountdown/index.html');

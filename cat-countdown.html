@@ -998,6 +998,19 @@
     press(roster, b);
     showCat(b);
   });
+
+  // Every visit opens on a different background and a different cat; the markup stays on
+  // Weather and Sakura for visitors without this script.
+  var pick = function (list) { return list[Math.floor(Math.random() * list.length)]; };
+  var swatches = doc.querySelector('[data-picker="backdrop-video"]');
+  var swatch = pick(swatches.querySelectorAll("button[data-video]"));
+  var backdrop = doc.getElementById("backdrop-video");
+  press(swatches, swatch);
+  backdrop.setAttribute("poster", swatch.getAttribute("data-poster"));
+  backdrop.setAttribute("src", swatch.getAttribute("data-video"));
+  var firstCat = pick(roster.querySelectorAll("button[data-cat]"));
+  press(roster, firstCat);
+  if (!motion) showCat(firstCat);
   if (motion && "IntersectionObserver" in window) {
     var stageIO = new IntersectionObserver(function (entries) {
       if (entries[0].isIntersecting) { showCat(roster.querySelector("button[aria-pressed=true]")); stageIO.disconnect(); }

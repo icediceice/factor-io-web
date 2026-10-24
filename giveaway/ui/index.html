@@ -30,7 +30,7 @@
     </div>
     <form class="sheet-body" id="new-campaign" hidden novalidate>
       <p class="intro">One campaign per place you post the link, so every claim records where it came from. The link is <span class="mono">https://catcountdown.factor-io.com/free/&lt;id&gt;</span>.</p>
-      <div class="form-grid" style="margin-top:12px">
+      <div class="form-grid mt-3">
         <label class="field"><span>Id</span><input type="text" name="id" required pattern="[a-z0-9-]{1,64}" maxlength="64" autocomplete="off" spellcheck="false"><small>a-z, 0-9 and -, e.g. showcase-oct</small></label>
         <label class="field"><span>Name</span><input type="text" name="name" maxlength="200"><small>Shown at the top of the claim page</small></label>
         <label class="field wide"><span>Source</span><input type="text" name="source" maxlength="200"><small>Where you posted it (notes only, not shown publicly)</small></label>
@@ -83,7 +83,7 @@
       <form id="revoke-form" novalidate>
         <h3>Revoke</h3>
         <p class="intro">Stops a code from being handed out. A code someone already claimed stays theirs; it shows as withdrawn when they sign in again.</p>
-        <div class="form-grid" style="margin-top:12px">
+        <div class="form-grid mt-3">
           <label class="field"><span>Store</span><select name="platform"><option value="android">Google Play</option><option value="ios">App Store</option></select></label>
           <label class="field wide"><span>Codes</span><textarea name="codes" required spellcheck="false" autocomplete="off" placeholder="One code per line"></textarea></label>
         </div>

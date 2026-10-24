@@ -173,7 +173,7 @@ def main() -> int:
     if only in (None, "clips"):
         if src is None:
             sys.exit("--clips DIR is required to encode captures")
-        clips(src)
+        clips(src, prefix)
     manifest()
     return 0
 

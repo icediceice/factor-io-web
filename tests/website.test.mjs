@@ -749,7 +749,8 @@ test('Cat Countdown renders its FAQ and serves the media selected by real page i
   })))`);
   for (let i = 0; i < videos.length; i++) {
     const expected = Number(/^PT([\d.]+)S$/.exec(videos[i].duration)?.[1]);
-    assert.ok(Number.isFinite(durations[i]) && Math.abs(durations[i] - expected) < 0.15, `${videos[i].contentUrl}: ${durations[i]} seconds vs ${videos[i].duration}`);
+    // JSON-LD expresses whole seconds; compare at that published precision.
+    assert.equal(Math.round(durations[i]), expected, `${videos[i].contentUrl}: ${durations[i]} seconds vs ${videos[i].duration}`);
   }
 });
 

@@ -7,6 +7,8 @@ Reads the app's own art from /Git/cat_countdown_flutter (READ-ONLY; nothing ther
 written) and the simulator recordings in --clips (raw .mov files made on mac-mini with
 `xcrun simctl io <udid> recordVideo --codec=h264`, never committed). Writes only under
 assets/cat-countdown/ and is safe to re-run: every output is regenerated from source.
+--clip PREFIX re-encodes only the clips whose name starts with PREFIX (e.g. bg-) and keeps
+the other captures, so one re-recorded set does not need every raw .mov.
 
 Outputs (names are what cat-countdown.html references):
   scenes/<cat>-<category>.webp        117 storybook scenes (the card art), 360px

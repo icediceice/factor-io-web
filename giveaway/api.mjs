@@ -156,7 +156,7 @@ export function createApi(db, { log = console.log } = {}) {
       } catch (e) {
         log(`${actor} import stopped after ${done} of ${unique.length} ${platform} codes: ${e.message}`);
         throw new ApiError(502, `import stopped after ${done} of ${unique.length} codes (${inserted} new). `
-          + 'Codes already stored are skipped, so it is safe to import the same list again.', { inserted, processed: done, error: e.message });
+          + 'Codes already stored are skipped, so it is safe to import the same list again.', { inserted, processed: done, cause: e.message });
       }
       done += chunk.length;
     }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build assets/cat-countdown/ for the catcountdown.factor-io.com landing page.
 
-    ~/.venv-rembg/bin/python3 -I scripts/cat-countdown-assets.py [--clips DIR] [--only art|clips]
+    ~/.venv-rembg/bin/python3 -I scripts/cat-countdown-assets.py [--clips DIR] [--only art|clips] [--clip PREFIX]
 
 Reads the app's own art from /Git/cat_countdown_flutter (READ-ONLY; nothing there is
 written) and the simulator recordings in --clips (raw .mov files made on mac-mini with

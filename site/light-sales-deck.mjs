@@ -1384,13 +1384,13 @@ export function renderLightSales() {
     .mg-badge-coral {
       border-color: var(--border-coral);
       color: #fecdd3;
-      background: rgba(251, 113, 133, 0.14);
+      background: #28121c;
     }
 
     .mg-badge-teal {
       border-color: var(--border-teal);
       color: #99f6e4;
-      background: rgba(45, 212, 191, 0.14);
+      background: #0d2528;
     }
 
     .mg-svg-wrap {

@@ -2170,4 +2170,808 @@ html[data-presentation-mode="presentation"] .presentation-chapter.is-active-chap
 }`;
 }
 
+export function renderLight() {
+  const t = lightContent.en;
+  const initCalc = calculateEconomics(DEFAULT_WORKLOAD);
+  const fmtUsd = val => {
+    const sign = val < 0 ? '-' : '';
+    const abs = Math.abs(Math.round(val));
+    return sign + '$' + abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+  const safeJson = val => JSON.stringify(val).replace(/</g, '\\u003c');
+
+  return `<!doctype html>
+<html lang="en" data-lang="en" data-presentation-mode="reading" data-active-chapter="0">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${esc(t.metaTitle)}</title>
+  <meta name="description" content="${esc(t.metaDescription)}">
+  <link rel="canonical" href="${config.origin}/light.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="${esc(config.name)}">
+  <meta property="og:title" content="${esc(t.metaTitle)}">
+  <meta property="og:description" content="${esc(t.metaDescription)}">
+  <meta property="og:url" content="${config.origin}/light.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(t.metaTitle)}">
+  <meta name="twitter:description" content="${esc(t.metaDescription)}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">${renderJsonLd('light', 'en')}</script>
+  <style>${renderPresentationStyles()}</style>
+</head>
+<body>
+  <a class="presentation-skip-link" href="#main-content" data-i18n="skipLink">${esc(t.skipLink)}</a>
+
+  <header class="presentation-topbar">
+    <div class="presentation-topbar-inner">
+      <div class="presentation-brand-group">
+        <a class="presentation-brand-link" href="/en/" data-locale-route="home">
+          <span>Factor IO / Light</span>
+        </a>
+        <span class="presentation-brand-sub" data-i18n="brandSub">${esc(t.brandSub)}</span>
+      </div>
+
+      <nav class="presentation-cross-links" aria-label="Studio cross navigation">
+        <a class="presentation-cross-link" href="/en/" data-locale-route="home" data-i18n="backToStudio">${esc(t.backToStudio)}</a>
+        <a class="presentation-cross-link" href="/offerings.html?lang=en" data-locale-route="offerings" data-i18n="offeringsLink">${esc(t.offeringsLink)}</a>
+        <a class="presentation-cross-link" href="/lightops-ai.html?lang=en" data-locale-route="lightops" data-i18n="lightopsLink">${esc(t.lightopsLink)}</a>
+      </nav>
+
+      <div class="presentation-controls">
+        <div class="presentation-seg-group" role="group" aria-label="Presentation reading mode">
+          <button type="button" class="presentation-btn is-active" data-mode-btn="reading" aria-pressed="true" data-i18n="modeReading">${esc(t.modeReading)}</button>
+          <button type="button" class="presentation-btn" data-mode-btn="presentation" aria-pressed="false" data-i18n="modePresentation">${esc(t.modePresentation)}</button>
+        </div>
+        <button type="button" class="presentation-btn" data-fullscreen-btn data-i18n="fullscreenBtn">${esc(t.fullscreenBtn)}</button>
+        <div class="presentation-seg-group" role="group" aria-label="Language selector">
+          <button type="button" class="presentation-btn is-active" data-lang-btn="en" aria-pressed="true">EN</button>
+          <button type="button" class="presentation-btn" data-lang-btn="th" aria-pressed="false">ไทย</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="presentation-rail" aria-label="Presentation chapters">
+    <div class="presentation-rail-inner">
+      <ul class="presentation-rail-list">
+        <li><a class="presentation-rail-link is-active" href="#problem" data-chapter-nav="0" aria-current="step" data-i18n="navProblem">${esc(t.navProblem)}</a></li>
+        <li><a class="presentation-rail-link" href="#architecture" data-chapter-nav="1" aria-current="false" data-i18n="navArchitecture">${esc(t.navArchitecture)}</a></li>
+        <li><a class="presentation-rail-link" href="#velocity" data-chapter-nav="2" aria-current="false" data-i18n="navVelocity">${esc(t.navVelocity)}</a></li>
+        <li><a class="presentation-rail-link" href="#economics" data-chapter-nav="3" aria-current="false" data-i18n="navEconomics">${esc(t.navEconomics)}</a></li>
+        <li><a class="presentation-rail-link" href="#evidence" data-chapter-nav="4" aria-current="false" data-i18n="navEvidence">${esc(t.navEvidence)}</a></li>
+        <li><a class="presentation-rail-link" href="#pilot" data-chapter-nav="5" aria-current="false" data-i18n="navPilot">${esc(t.navPilot)}</a></li>
+      </ul>
+      <div class="presentation-walk-bar">
+        <button type="button" class="presentation-btn" data-chapter-step="prev" disabled data-i18n="prevChapter">${esc(t.prevChapter)}</button>
+        <span class="presentation-indicator" data-chapter-indicator>${esc(t.chapterIndicatorPrefix)} 1 / 6</span>
+        <button type="button" class="presentation-btn" data-chapter-step="next" data-i18n="nextChapter">${esc(t.nextChapter)}</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="presentation-main">
+    <section class="presentation-hero" aria-labelledby="hero-title">
+      <p class="presentation-eyebrow" data-i18n="heroEyebrow">${esc(t.heroEyebrow)}</p>
+      <h1 id="hero-title" class="presentation-h1" data-i18n="heroTitle">${esc(t.heroTitle)}</h1>
+      <p class="presentation-lead" data-i18n="heroLead">${esc(t.heroLead)}</p>
+      <div class="presentation-cta-row">
+        <a class="presentation-btn presentation-btn-primary" href="#economics" data-chapter-nav="3" data-i18n="heroPrimaryCta">${esc(t.heroPrimaryCta)}</a>
+        <a class="presentation-btn" href="#architecture" data-chapter-nav="1" data-i18n="heroSecondaryCta">${esc(t.heroSecondaryCta)}</a>
+        <a class="presentation-btn" href="/en/contact/" data-locale-route="contact" data-i18n="heroBriefingCta">${esc(t.heroBriefingCta)}</a>
+      </div>
+
+      <div class="presentation-stat-strip" role="region" aria-label="Reference deployment telemetry summary">
+        <div class="presentation-stat-item">
+          <p class="presentation-stat-val" data-i18n="stat1Value">${esc(t.stat1Value)}</p>
+          <p class="presentation-stat-lbl" data-i18n="stat1Label">${esc(t.stat1Label)}</p>
+        </div>
+        <div class="presentation-stat-item">
+          <p class="presentation-stat-val" data-i18n="stat2Value">${esc(t.stat2Value)}</p>
+          <p class="presentation-stat-lbl" data-i18n="stat2Label">${esc(t.stat2Label)}</p>
+        </div>
+        <div class="presentation-stat-item">
+          <p class="presentation-stat-val" data-i18n="stat3Value">${esc(t.stat3Value)}</p>
+          <p class="presentation-stat-lbl" data-i18n="stat3Label">${esc(t.stat3Label)}</p>
+        </div>
+        <div class="presentation-stat-item">
+          <p class="presentation-stat-val" data-i18n="stat4Value">${esc(t.stat4Value)}</p>
+          <p class="presentation-stat-lbl" data-i18n="stat4Label">${esc(t.stat4Label)}</p>
+        </div>
+      </div>
+
+      <div class="presentation-boundary-strip">
+        <p class="presentation-boundary-title" data-i18n="heroBoundaryTitle">${esc(t.heroBoundaryTitle)}</p>
+        <p class="presentation-boundary-body" data-i18n="heroBoundaryBody">${esc(t.heroBoundaryBody)}</p>
+      </div>
+    </section>
+
+    <!-- Chapter 1: #problem (Split Monitor) -->
+    <section id="problem" class="presentation-chapter is-active-chapter" data-chapter-index="0" aria-labelledby="ch1-title">
+      <div class="presentation-chapter-head">
+        <p class="presentation-eyebrow" data-i18n="ch1Code">${esc(t.ch1Code)}</p>
+        <h2 id="ch1-title" class="presentation-h2" data-i18n="ch1Title">${esc(t.ch1Title)}</h2>
+        <p class="presentation-summary" data-i18n="ch1Summary">${esc(t.ch1Summary)}</p>
+      </div>
+
+      <div class="split-monitor-grid">
+        <div class="split-monitor-pane">
+          <span class="split-pane-badge" data-i18n="splitLeftBadge">${esc(t.splitLeftBadge)}</span>
+          <h3 class="presentation-h3" data-i18n="splitLeftTitle">${esc(t.splitLeftTitle)}</h3>
+          <p class="presentation-summary" data-i18n="splitLeftSub">${esc(t.splitLeftSub)}</p>
+          <ul class="split-pane-list">
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitLeftItem1Metric">${esc(t.splitLeftItem1Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitLeftItem1Body">${esc(t.splitLeftItem1Body)}</p>
+            </li>
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitLeftItem2Metric">${esc(t.splitLeftItem2Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitLeftItem2Body">${esc(t.splitLeftItem2Body)}</p>
+            </li>
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitLeftItem3Metric">${esc(t.splitLeftItem3Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitLeftItem3Body">${esc(t.splitLeftItem3Body)}</p>
+            </li>
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitLeftItem4Metric">${esc(t.splitLeftItem4Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitLeftItem4Body">${esc(t.splitLeftItem4Body)}</p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="split-monitor-pane split-monitor-pane-governed">
+          <span class="split-pane-badge" data-i18n="splitRightBadge">${esc(t.splitRightBadge)}</span>
+          <h3 class="presentation-h3" data-i18n="splitRightTitle">${esc(t.splitRightTitle)}</h3>
+          <p class="presentation-summary" data-i18n="splitRightSub">${esc(t.splitRightSub)}</p>
+          <ul class="split-pane-list">
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitRightItem1Metric">${esc(t.splitRightItem1Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitRightItem1Body">${esc(t.splitRightItem1Body)}</p>
+            </li>
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitRightItem2Metric">${esc(t.splitRightItem2Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitRightItem2Body">${esc(t.splitRightItem2Body)}</p>
+            </li>
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitRightItem3Metric">${esc(t.splitRightItem3Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitRightItem3Body">${esc(t.splitRightItem3Body)}</p>
+            </li>
+            <li class="split-pane-row">
+              <p class="split-pane-metric" data-i18n="splitRightItem4Metric">${esc(t.splitRightItem4Metric)}</p>
+              <p class="split-pane-body" data-i18n="splitRightItem4Body">${esc(t.splitRightItem4Body)}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="presentation-boundary-strip">
+        <p class="presentation-boundary-title" data-i18n="analystNoteTitle">${esc(t.analystNoteTitle)}</p>
+        <p class="presentation-boundary-body" data-i18n="analystNoteBody">${esc(t.analystNoteBody)}</p>
+      </div>
+    </section>
+
+    <!-- Chapter 2: #architecture (Paired Two-Track Topology + Plain 6-Layer Stack + Harness Ledger) -->
+    <section id="architecture" class="presentation-chapter" data-chapter-index="1" aria-labelledby="ch2-title">
+      <div class="presentation-chapter-head">
+        <p class="presentation-eyebrow" data-i18n="ch2Code">${esc(t.ch2Code)}</p>
+        <h2 id="ch2-title" class="presentation-h2" data-i18n="ch2Title">${esc(t.ch2Title)}</h2>
+        <p class="presentation-summary" data-i18n="ch2Summary">${esc(t.ch2Summary)}</p>
+      </div>
+
+      <div class="topology-tracks">
+        <div class="topology-track-box">
+          <h3 class="presentation-h3" data-i18n="track1Title">${esc(t.track1Title)}</h3>
+          <p class="presentation-summary" data-i18n="track1Sub">${esc(t.track1Sub)}</p>
+          <div class="topology-node-row">
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="fsm1Code">${esc(t.fsm1Code)}</p>
+              <p class="topology-node-title" data-i18n="fsm1Name">${esc(t.fsm1Name)}</p>
+              <p class="topology-node-desc" data-i18n="fsm1Desc">${esc(t.fsm1Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="fsm2Code">${esc(t.fsm2Code)}</p>
+              <p class="topology-node-title" data-i18n="fsm2Name">${esc(t.fsm2Name)}</p>
+              <p class="topology-node-desc" data-i18n="fsm2Desc">${esc(t.fsm2Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="fsm3Code">${esc(t.fsm3Code)}</p>
+              <p class="topology-node-title" data-i18n="fsm3Name">${esc(t.fsm3Name)}</p>
+              <p class="topology-node-desc" data-i18n="fsm3Desc">${esc(t.fsm3Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="fsm4Code">${esc(t.fsm4Code)}</p>
+              <p class="topology-node-title" data-i18n="fsm4Name">${esc(t.fsm4Name)}</p>
+              <p class="topology-node-desc" data-i18n="fsm4Desc">${esc(t.fsm4Desc)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="topology-track-box">
+          <h3 class="presentation-h3" data-i18n="track2Title">${esc(t.track2Title)}</h3>
+          <p class="presentation-summary" data-i18n="track2Sub">${esc(t.track2Sub)}</p>
+          <div class="topology-node-row-5">
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="work1Code">${esc(t.work1Code)}</p>
+              <p class="topology-node-title" data-i18n="work1Name">${esc(t.work1Name)}</p>
+              <p class="topology-node-desc" data-i18n="work1Desc">${esc(t.work1Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="work2Code">${esc(t.work2Code)}</p>
+              <p class="topology-node-title" data-i18n="work2Name">${esc(t.work2Name)}</p>
+              <p class="topology-node-desc" data-i18n="work2Desc">${esc(t.work2Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="work3Code">${esc(t.work3Code)}</p>
+              <p class="topology-node-title" data-i18n="work3Name">${esc(t.work3Name)}</p>
+              <p class="topology-node-desc" data-i18n="work3Desc">${esc(t.work3Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="work4Code">${esc(t.work4Code)}</p>
+              <p class="topology-node-title" data-i18n="work4Name">${esc(t.work4Name)}</p>
+              <p class="topology-node-desc" data-i18n="work4Desc">${esc(t.work4Desc)}</p>
+            </div>
+            <div class="topology-node">
+              <p class="topology-node-code" data-i18n="work5Code">${esc(t.work5Code)}</p>
+              <p class="topology-node-title" data-i18n="work5Name">${esc(t.work5Name)}</p>
+              <p class="topology-node-desc" data-i18n="work5Desc">${esc(t.work5Desc)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="presentation-h3" data-i18n="layersHeading">${esc(t.layersHeading)}</h3>
+      <div class="layer-stack-plain">
+        <div class="layer-row">
+          <span class="layer-code" data-i18n="layer1Code">${esc(t.layer1Code)}</span>
+          <p class="layer-title" data-i18n="layer1Title">${esc(t.layer1Title)}</p>
+          <p class="layer-body" data-i18n="layer1Body">${esc(t.layer1Body)}</p>
+        </div>
+        <div class="layer-row">
+          <span class="layer-code" data-i18n="layer2Code">${esc(t.layer2Code)}</span>
+          <p class="layer-title" data-i18n="layer2Title">${esc(t.layer2Title)}</p>
+          <p class="layer-body" data-i18n="layer2Body">${esc(t.layer2Body)}</p>
+        </div>
+        <div class="layer-row">
+          <span class="layer-code" data-i18n="layer3Code">${esc(t.layer3Code)}</span>
+          <p class="layer-title" data-i18n="layer3Title">${esc(t.layer3Title)}</p>
+          <p class="layer-body" data-i18n="layer3Body">${esc(t.layer3Body)}</p>
+        </div>
+        <div class="layer-row">
+          <span class="layer-code" data-i18n="layer4Code">${esc(t.layer4Code)}</span>
+          <p class="layer-title" data-i18n="layer4Title">${esc(t.layer4Title)}</p>
+          <p class="layer-body" data-i18n="layer4Body">${esc(t.layer4Body)}</p>
+        </div>
+        <div class="layer-row">
+          <span class="layer-code" data-i18n="layer5Code">${esc(t.layer5Code)}</span>
+          <p class="layer-title" data-i18n="layer5Title">${esc(t.layer5Title)}</p>
+          <p class="layer-body" data-i18n="layer5Body">${esc(t.layer5Body)}</p>
+        </div>
+        <div class="layer-row">
+          <span class="layer-code" data-i18n="layer6Code">${esc(t.layer6Code)}</span>
+          <p class="layer-title" data-i18n="layer6Title">${esc(t.layer6Title)}</p>
+          <p class="layer-body" data-i18n="layer6Body">${esc(t.layer6Body)}</p>
+        </div>
+      </div>
+
+      <h3 class="presentation-h3" data-i18n="harnessHeading">${esc(t.harnessHeading)}</h3>
+      <p class="presentation-summary" data-i18n="harnessSub">${esc(t.harnessSub)}</p>
+      <div class="ledger-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th data-i18n="harnessColSpec">${esc(t.harnessColSpec)}</th>
+              <th data-i18n="harnessColFamily">${esc(t.harnessColFamily)}</th>
+              <th data-i18n="harnessColHook">${esc(t.harnessColHook)}</th>
+              <th data-i18n="harnessColStatus">${esc(t.harnessColStatus)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="harnessRow1Spec">${esc(t.harnessRow1Spec)}</td>
+              <td data-i18n="harnessRow1Family">${esc(t.harnessRow1Family)}</td>
+              <td data-i18n="harnessRow1Hook">${esc(t.harnessRow1Hook)}</td>
+              <td class="ledger-code-cell" data-i18n="harnessRow1Status">${esc(t.harnessRow1Status)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="harnessRow2Spec">${esc(t.harnessRow2Spec)}</td>
+              <td data-i18n="harnessRow2Family">${esc(t.harnessRow2Family)}</td>
+              <td data-i18n="harnessRow2Hook">${esc(t.harnessRow2Hook)}</td>
+              <td class="ledger-code-cell" data-i18n="harnessRow2Status">${esc(t.harnessRow2Status)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="harnessRow3Spec">${esc(t.harnessRow3Spec)}</td>
+              <td data-i18n="harnessRow3Family">${esc(t.harnessRow3Family)}</td>
+              <td data-i18n="harnessRow3Hook">${esc(t.harnessRow3Hook)}</td>
+              <td class="ledger-code-cell" data-i18n="harnessRow3Status">${esc(t.harnessRow3Status)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="harnessRow4Spec">${esc(t.harnessRow4Spec)}</td>
+              <td data-i18n="harnessRow4Family">${esc(t.harnessRow4Family)}</td>
+              <td data-i18n="harnessRow4Hook">${esc(t.harnessRow4Hook)}</td>
+              <td class="ledger-code-cell" data-i18n="harnessRow4Status">${esc(t.harnessRow4Status)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="harnessRow5Spec">${esc(t.harnessRow5Spec)}</td>
+              <td data-i18n="harnessRow5Family">${esc(t.harnessRow5Family)}</td>
+              <td data-i18n="harnessRow5Hook">${esc(t.harnessRow5Hook)}</td>
+              <td class="ledger-code-cell" data-i18n="harnessRow5Status">${esc(t.harnessRow5Status)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="harnessRow6Spec">${esc(t.harnessRow6Spec)}</td>
+              <td data-i18n="harnessRow6Family">${esc(t.harnessRow6Family)}</td>
+              <td data-i18n="harnessRow6Hook">${esc(t.harnessRow6Hook)}</td>
+              <td class="ledger-code-cell" data-i18n="harnessRow6Status">${esc(t.harnessRow6Status)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Chapter 3: #velocity -->
+    <section id="velocity" class="presentation-chapter" data-chapter-index="2" aria-labelledby="ch3-title">
+      <div class="presentation-chapter-head">
+        <p class="presentation-eyebrow" data-i18n="ch3Code">${esc(t.ch3Code)}</p>
+        <h2 id="ch3-title" class="presentation-h2" data-i18n="ch3Title">${esc(t.ch3Title)}</h2>
+        <p class="presentation-summary" data-i18n="ch3Summary">${esc(t.ch3Summary)}</p>
+      </div>
+
+      <div class="velocity-grid">
+        <article class="velocity-panel">
+          <p class="velocity-tag" data-i18n="velCard1Tag">${esc(t.velCard1Tag)}</p>
+          <h3 class="presentation-h3" data-i18n="velCard1Title">${esc(t.velCard1Title)}</h3>
+          <div class="velocity-metric-bar" data-i18n="velCard1Metric">${esc(t.velCard1Metric)}</div>
+          <p class="split-pane-body" data-i18n="velCard1Body">${esc(t.velCard1Body)}</p>
+        </article>
+
+        <article class="velocity-panel">
+          <p class="velocity-tag" data-i18n="velCard2Tag">${esc(t.velCard2Tag)}</p>
+          <h3 class="presentation-h3" data-i18n="velCard2Title">${esc(t.velCard2Title)}</h3>
+          <div class="velocity-metric-bar" data-i18n="velCard2Metric">${esc(t.velCard2Metric)}</div>
+          <p class="split-pane-body" data-i18n="velCard2Body">${esc(t.velCard2Body)}</p>
+        </article>
+
+        <article class="velocity-panel">
+          <p class="velocity-tag" data-i18n="velCard3Tag">${esc(t.velCard3Tag)}</p>
+          <h3 class="presentation-h3" data-i18n="velCard3Title">${esc(t.velCard3Title)}</h3>
+          <div class="velocity-metric-bar" data-i18n="velCard3Metric">${esc(t.velCard3Metric)}</div>
+          <p class="split-pane-body" data-i18n="velCard3Body">${esc(t.velCard3Body)}</p>
+        </article>
+
+        <article class="velocity-panel">
+          <p class="velocity-tag" data-i18n="velCard4Tag">${esc(t.velCard4Tag)}</p>
+          <h3 class="presentation-h3" data-i18n="velCard4Title">${esc(t.velCard4Title)}</h3>
+          <div class="velocity-metric-bar" data-i18n="velCard4Metric">${esc(t.velCard4Metric)}</div>
+          <p class="split-pane-body" data-i18n="velCard4Body">${esc(t.velCard4Body)}</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Chapter 4: #economics -->
+    <section id="economics" class="presentation-chapter" data-chapter-index="3" aria-labelledby="ch4-title">
+      <div class="presentation-chapter-head">
+        <p class="presentation-eyebrow" data-i18n="ch4Code">${esc(t.ch4Code)}</p>
+        <h2 id="ch4-title" class="presentation-h2" data-i18n="ch4Title">${esc(t.ch4Title)}</h2>
+        <p class="presentation-summary" data-i18n="ch4Summary">${esc(t.ch4Summary)}</p>
+      </div>
+
+      <div class="presentation-boundary-strip">
+        <p class="presentation-boundary-body" data-i18n="econPolicyBanner">${esc(t.econPolicyBanner)}</p>
+      </div>
+
+      <div class="econ-cost-lines">
+        <div class="econ-cost-item">
+          <p class="velocity-tag" data-i18n="costLine1Code">${esc(t.costLine1Code)}</p>
+          <h3 class="presentation-h3" data-i18n="costLine1Title">${esc(t.costLine1Title)}</h3>
+          <p class="split-pane-body" data-i18n="costLine1Body">${esc(t.costLine1Body)}</p>
+        </div>
+        <div class="econ-cost-item">
+          <p class="velocity-tag" data-i18n="costLine2Code">${esc(t.costLine2Code)}</p>
+          <h3 class="presentation-h3" data-i18n="costLine2Title">${esc(t.costLine2Title)}</h3>
+          <p class="split-pane-body" data-i18n="costLine2Body">${esc(t.costLine2Body)}</p>
+        </div>
+        <div class="econ-cost-item">
+          <p class="velocity-tag" data-i18n="costLine3Code">${esc(t.costLine3Code)}</p>
+          <h3 class="presentation-h3" data-i18n="costLine3Title">${esc(t.costLine3Title)}</h3>
+          <p class="split-pane-body" data-i18n="costLine3Body">${esc(t.costLine3Body)}</p>
+        </div>
+        <div class="econ-cost-item">
+          <p class="velocity-tag" data-i18n="costLine4Code">${esc(t.costLine4Code)}</p>
+          <h3 class="presentation-h3" data-i18n="costLine4Title">${esc(t.costLine4Title)}</h3>
+          <p class="split-pane-body" data-i18n="costLine4Body">${esc(t.costLine4Body)}</p>
+        </div>
+      </div>
+
+      <div class="econ-workbench">
+        <div class="econ-inputs-pane">
+          <h3 class="presentation-h3" data-i18n="calcHeading">${esc(t.calcHeading)}</h3>
+          <p class="presentation-summary" data-i18n="calcSub">${esc(t.calcSub)}</p>
+
+          <div class="econ-toolbar" role="group" aria-label="Sample workload presets">
+            <button type="button" class="presentation-btn" data-econ-preset="mid" data-i18n="calcPresetMid">${esc(t.calcPresetMid)}</button>
+            <button type="button" class="presentation-btn" data-econ-preset="enterprise" data-i18n="calcPresetEnt">${esc(t.calcPresetEnt)}</button>
+            <button type="button" class="presentation-btn" data-econ-preset="srePod" data-i18n="calcPresetSre">${esc(t.calcPresetSre)}</button>
+            <button type="button" class="presentation-btn" data-econ-preset="mid" data-i18n="calcResetBtn">${esc(t.calcResetBtn)}</button>
+          </div>
+
+          <div class="econ-field-group" style="margin-bottom: 16px;">
+            <span class="econ-label" data-i18n="calcBillingLabel">${esc(t.calcBillingLabel)}</span>
+            <div class="econ-toolbar" role="group" aria-label="Agent seat billing mode">
+              <button type="button" class="presentation-btn is-active" data-billing-mode="flat-rate" aria-pressed="true" data-i18n="calcBillingFlat">${esc(t.calcBillingFlat)}</button>
+              <button type="button" class="presentation-btn" data-billing-mode="metered" aria-pressed="false" data-i18n="calcBillingMetered">${esc(t.calcBillingMetered)}</button>
+            </div>
+          </div>
+
+          <div class="econ-error-banner" data-econ-error hidden role="alert"></div>
+
+          <div class="econ-form-grid">
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcSeatsLabel">${esc(t.calcSeatsLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="seats" min="0" step="1" value="${DEFAULT_WORKLOAD.seats}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcHourlyLabel">${esc(t.calcHourlyLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="hourlyRate" min="0" step="5" value="${DEFAULT_WORKLOAD.hourlyRate}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcReviewHrsLabel">${esc(t.calcReviewHrsLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="reviewHoursPerWeek" min="0" step="0.5" value="${DEFAULT_WORKLOAD.reviewHoursPerWeek}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcReviewRedLabel">${esc(t.calcReviewRedLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="reviewReductionPct" min="0" max="100" step="5" value="${DEFAULT_WORKLOAD.reviewReductionPct}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcMeteredSpendLabel">${esc(t.calcMeteredSpendLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="meteredTokenSpendPerSeatMonth" min="0" step="10" value="${DEFAULT_WORKLOAD.meteredTokenSpendPerSeatMonth}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcTokenShareLabel">${esc(t.calcTokenShareLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="tokenReturnSharePct" min="0" max="100" step="5" value="${DEFAULT_WORKLOAD.tokenReturnSharePct}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcIncidentsLabel">${esc(t.calcIncidentsLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="incidentsPerYear" min="0" step="1" value="${DEFAULT_WORKLOAD.incidentsPerYear}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcIncidentCostLabel">${esc(t.calcIncidentCostLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="incidentCost" min="0" step="1000" value="${DEFAULT_WORKLOAD.incidentCost}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcIncidentRedLabel">${esc(t.calcIncidentRedLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="incidentReductionPct" min="0" max="100" step="5" value="${DEFAULT_WORKLOAD.incidentReductionPct}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcReleaseHrsLabel">${esc(t.calcReleaseHrsLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="releaseHoursPerWeek" min="0" step="1" value="${DEFAULT_WORKLOAD.releaseHoursPerWeek}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcReleaseRedLabel">${esc(t.calcReleaseRedLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="releaseReductionPct" min="0" max="100" step="5" value="${DEFAULT_WORKLOAD.releaseReductionPct}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcSubCostLabel">${esc(t.calcSubCostLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="subscriptionCostPerSeatMonth" min="0" step="5" value="${DEFAULT_WORKLOAD.subscriptionCostPerSeatMonth}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcSreSeatsLabel">${esc(t.calcSreSeatsLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="sreSeats" min="0" step="1" value="${DEFAULT_WORKLOAD.sreSeats}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcSreHourlyLabel">${esc(t.calcSreHourlyLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="sreHourlyRate" min="0" step="5" value="${DEFAULT_WORKLOAD.sreHourlyRate}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcTriageHrsLabel">${esc(t.calcTriageHrsLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="triageHoursPerWeek" min="0" step="0.5" value="${DEFAULT_WORKLOAD.triageHoursPerWeek}">
+            </label>
+            <label class="econ-field-group">
+              <span class="econ-label" data-i18n="calcTriageRedLabel">${esc(t.calcTriageRedLabel)}</span>
+              <input type="number" class="econ-input" data-econ-field="triageReductionPct" min="0" max="100" step="5" value="${DEFAULT_WORKLOAD.triageReductionPct}">
+            </label>
+          </div>
+        </div>
+
+        <div class="econ-results-pane" aria-live="polite">
+          <span class="econ-status-pill" data-econ-status data-state="ready" data-i18n="calcStatusReady">${esc(t.calcStatusReady)}</span>
+
+          <div class="econ-breakeven-box">
+            <p class="econ-label" data-i18n="calcOutBreakEvenLabel">${esc(t.calcOutBreakEvenLabel)}</p>
+            <p class="econ-breakeven-val" data-econ-out="breakEven">${initCalc.breakEvenMinutesPerSeatMonth} ${esc(t.calcOutBreakEvenUnit)}</p>
+            <p class="topology-node-desc" data-i18n="calcOutBreakEvenDesc">${esc(t.calcOutBreakEvenDesc)}</p>
+          </div>
+
+          <div class="econ-summary-grid">
+            <div class="econ-summary-cell">
+              <span class="econ-label" data-i18n="calcOutGrossMonthlyLabel">${esc(t.calcOutGrossMonthlyLabel)}</span>
+              <p class="econ-summary-val" data-econ-out="grossMonthly">${fmtUsd(initCalc.grossMonthlyValue)}</p>
+            </div>
+            <div class="econ-summary-cell">
+              <span class="econ-label" data-i18n="calcOutNetAnnualLabel">${esc(t.calcOutNetAnnualLabel)}</span>
+              <p class="econ-summary-val" data-econ-out="netAnnual">${fmtUsd(initCalc.netAnnualValue)}</p>
+            </div>
+            <div class="econ-summary-cell">
+              <span class="econ-label" data-i18n="calcOutMultipleLabel">${esc(t.calcOutMultipleLabel)}</span>
+              <p class="econ-summary-val" data-econ-out="multiple">${initCalc.paybackMultiple}x</p>
+            </div>
+            <div class="econ-summary-cell">
+              <span class="econ-label" data-i18n="calcOutHoursSeatLabel">${esc(t.calcOutHoursSeatLabel)}</span>
+              <p class="econ-summary-val" data-econ-out="hoursSeat">${initCalc.hoursSavedPerSeatMonth} hrs</p>
+            </div>
+          </div>
+
+          <div class="ledger-wrap">
+            <table class="ledger-table">
+              <tbody>
+                <tr>
+                  <td data-i18n="calcOutLine1Label">${esc(t.calcOutLine1Label)}</td>
+                  <td class="num-col" data-econ-out="line1">${fmtUsd(initCalc.line1ContextMonthly)}</td>
+                </tr>
+                <tr>
+                  <td data-i18n="calcOutLine2Label">${esc(t.calcOutLine2Label)}</td>
+                  <td class="num-col" data-econ-out="line2">${fmtUsd(initCalc.line2ReviewMonthly)}</td>
+                </tr>
+                <tr>
+                  <td data-i18n="calcOutLine3Label">${esc(t.calcOutLine3Label)}</td>
+                  <td class="num-col" data-econ-out="line3">${fmtUsd(initCalc.line3IncidentMonthly)}</td>
+                </tr>
+                <tr>
+                  <td data-i18n="calcOutLine4Label">${esc(t.calcOutLine4Label)}</td>
+                  <td class="num-col" data-econ-out="line4">${fmtUsd(initCalc.line4ReleaseMonthly)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="topology-node-desc" data-econ-mode-note data-i18n="calcFlatRateNote">${esc(t.calcFlatRateNote)}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 5: #evidence -->
+    <section id="evidence" class="presentation-chapter" data-chapter-index="4" aria-labelledby="ch5-title">
+      <div class="presentation-chapter-head">
+        <p class="presentation-eyebrow" data-i18n="ch5Code">${esc(t.ch5Code)}</p>
+        <h2 id="ch5-title" class="presentation-h2" data-i18n="ch5Title">${esc(t.ch5Title)}</h2>
+        <p class="presentation-summary" data-i18n="ch5Summary">${esc(t.ch5Summary)}</p>
+      </div>
+
+      <div class="presentation-boundary-strip" style="margin-bottom: 24px;">
+        <p class="presentation-boundary-body" data-i18n="telemetryNote">${esc(t.telemetryNote)}</p>
+      </div>
+
+      <h3 class="presentation-h3" data-i18n="compHeading">${esc(t.compHeading)}</h3>
+      <p class="presentation-summary" data-i18n="compSub">${esc(t.compSub)}</p>
+
+      <div class="econ-toolbar" style="margin-top: 12px;" role="group" aria-label="Market comparison filter">
+        <button type="button" class="presentation-btn is-active" data-comp-filter="all" aria-pressed="true" data-i18n="compFilterAll">${esc(t.compFilterAll)}</button>
+        <button type="button" class="presentation-btn" data-comp-filter="documented-hook" aria-pressed="false" data-i18n="compFilterDoc">${esc(t.compFilterDoc)}</button>
+        <button type="button" class="presentation-btn" data-comp-filter="gate-gap" aria-pressed="false" data-i18n="compFilterGap">${esc(t.compFilterGap)}</button>
+      </div>
+
+      <div class="econ-error-banner" data-comp-empty hidden>
+        <span data-i18n="compEmptyState">${esc(t.compEmptyState)}</span>
+        <button type="button" class="presentation-btn" data-comp-reset data-i18n="compResetFilter">${esc(t.compResetFilter)}</button>
+      </div>
+
+      <div class="ledger-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th data-i18n="compColCategory">${esc(t.compColCategory)}</th>
+              <th data-i18n="compColPreExec">${esc(t.compColPreExec)}</th>
+              <th data-i18n="compColManifest">${esc(t.compColManifest)}</th>
+              <th data-i18n="compColPeer">${esc(t.compColPeer)}</th>
+              <th data-i18n="compColReceipt">${esc(t.compColReceipt)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-comp-row="all documented-hook">
+              <td class="ledger-code-cell" data-i18n="compRow1Cat">${esc(t.compRow1Cat)}</td>
+              <td data-i18n="compRow1Pre">${esc(t.compRow1Pre)}</td>
+              <td data-i18n="compRow1Man">${esc(t.compRow1Man)}</td>
+              <td data-i18n="compRow1Peer">${esc(t.compRow1Peer)}</td>
+              <td data-i18n="compRow1Rec">${esc(t.compRow1Rec)}</td>
+            </tr>
+            <tr data-comp-row="all documented-hook">
+              <td class="ledger-code-cell" data-i18n="compRow2Cat">${esc(t.compRow2Cat)}</td>
+              <td data-i18n="compRow2Pre">${esc(t.compRow2Pre)}</td>
+              <td data-i18n="compRow2Man">${esc(t.compRow2Man)}</td>
+              <td data-i18n="compRow2Peer">${esc(t.compRow2Peer)}</td>
+              <td data-i18n="compRow2Rec">${esc(t.compRow2Rec)}</td>
+            </tr>
+            <tr data-comp-row="all gate-gap">
+              <td class="ledger-code-cell" data-i18n="compRow3Cat">${esc(t.compRow3Cat)}</td>
+              <td data-i18n="compRow3Pre">${esc(t.compRow3Pre)}</td>
+              <td data-i18n="compRow3Man">${esc(t.compRow3Man)}</td>
+              <td data-i18n="compRow3Peer">${esc(t.compRow3Peer)}</td>
+              <td data-i18n="compRow3Rec">${esc(t.compRow3Rec)}</td>
+            </tr>
+            <tr data-comp-row="all gate-gap">
+              <td class="ledger-code-cell" data-i18n="compRow4Cat">${esc(t.compRow4Cat)}</td>
+              <td data-i18n="compRow4Pre">${esc(t.compRow4Pre)}</td>
+              <td data-i18n="compRow4Man">${esc(t.compRow4Man)}</td>
+              <td data-i18n="compRow4Peer">${esc(t.compRow4Peer)}</td>
+              <td data-i18n="compRow4Rec">${esc(t.compRow4Rec)}</td>
+            </tr>
+            <tr data-comp-row="all gate-gap">
+              <td class="ledger-code-cell" data-i18n="compRow5Cat">${esc(t.compRow5Cat)}</td>
+              <td data-i18n="compRow5Pre">${esc(t.compRow5Pre)}</td>
+              <td data-i18n="compRow5Man">${esc(t.compRow5Man)}</td>
+              <td data-i18n="compRow5Peer">${esc(t.compRow5Peer)}</td>
+              <td data-i18n="compRow5Rec">${esc(t.compRow5Rec)}</td>
+            </tr>
+            <tr data-comp-row="all gate-gap">
+              <td class="ledger-code-cell" data-i18n="compRow6Cat">${esc(t.compRow6Cat)}</td>
+              <td data-i18n="compRow6Pre">${esc(t.compRow6Pre)}</td>
+              <td data-i18n="compRow6Man">${esc(t.compRow6Man)}</td>
+              <td data-i18n="compRow6Peer">${esc(t.compRow6Peer)}</td>
+              <td data-i18n="compRow6Rec">${esc(t.compRow6Rec)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="ledger-caption-note" data-i18n="compOverflowNote">${esc(t.compOverflowNote)}</p>
+
+      <h3 class="presentation-h3" style="margin-top: 28px;" data-i18n="cisoHeading">${esc(t.cisoHeading)}</h3>
+      <p class="presentation-summary" data-i18n="cisoDisclaimer">${esc(t.cisoDisclaimer)}</p>
+
+      <div class="ledger-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th data-i18n="cisoColId">${esc(t.cisoColId)}</th>
+              <th data-i18n="cisoColReq">${esc(t.cisoColReq)}</th>
+              <th data-i18n="cisoColMech">${esc(t.cisoColMech)}</th>
+              <th data-i18n="cisoColFramework">${esc(t.cisoColFramework)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="cisoRow1Id">${esc(t.cisoRow1Id)}</td>
+              <td data-i18n="cisoRow1Req">${esc(t.cisoRow1Req)}</td>
+              <td data-i18n="cisoRow1Mech">${esc(t.cisoRow1Mech)}</td>
+              <td class="ledger-code-cell" data-i18n="cisoRow1Fw">${esc(t.cisoRow1Fw)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="cisoRow2Id">${esc(t.cisoRow2Id)}</td>
+              <td data-i18n="cisoRow2Req">${esc(t.cisoRow2Req)}</td>
+              <td data-i18n="cisoRow2Mech">${esc(t.cisoRow2Mech)}</td>
+              <td class="ledger-code-cell" data-i18n="cisoRow2Fw">${esc(t.cisoRow2Fw)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="cisoRow3Id">${esc(t.cisoRow3Id)}</td>
+              <td data-i18n="cisoRow3Req">${esc(t.cisoRow3Req)}</td>
+              <td data-i18n="cisoRow3Mech">${esc(t.cisoRow3Mech)}</td>
+              <td class="ledger-code-cell" data-i18n="cisoRow3Fw">${esc(t.cisoRow3Fw)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="cisoRow4Id">${esc(t.cisoRow4Id)}</td>
+              <td data-i18n="cisoRow4Req">${esc(t.cisoRow4Req)}</td>
+              <td data-i18n="cisoRow4Mech">${esc(t.cisoRow4Mech)}</td>
+              <td class="ledger-code-cell" data-i18n="cisoRow4Fw">${esc(t.cisoRow4Fw)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="cisoRow5Id">${esc(t.cisoRow5Id)}</td>
+              <td data-i18n="cisoRow5Req">${esc(t.cisoRow5Req)}</td>
+              <td data-i18n="cisoRow5Mech">${esc(t.cisoRow5Mech)}</td>
+              <td class="ledger-code-cell" data-i18n="cisoRow5Fw">${esc(t.cisoRow5Fw)}</td>
+            </tr>
+            <tr>
+              <td class="ledger-code-cell" data-i18n="cisoRow6Id">${esc(t.cisoRow6Id)}</td>
+              <td data-i18n="cisoRow6Req">${esc(t.cisoRow6Req)}</td>
+              <td data-i18n="cisoRow6Mech">${esc(t.cisoRow6Mech)}</td>
+              <td class="ledger-code-cell" data-i18n="cisoRow6Fw">${esc(t.cisoRow6Fw)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="presentation-h3" style="margin-top: 28px;" data-i18n="personaHeading">${esc(t.personaHeading)}</h3>
+      <div class="econ-toolbar" role="group" aria-label="Persona role filter">
+        <button type="button" class="presentation-btn is-active" data-persona-filter="all" aria-pressed="true" data-i18n="personaFilterAll">${esc(t.personaFilterAll)}</button>
+        <button type="button" class="presentation-btn" data-persona-filter="exec" aria-pressed="false" data-i18n="personaFilterExec">${esc(t.personaFilterExec)}</button>
+        <button type="button" class="presentation-btn" data-persona-filter="eng" aria-pressed="false" data-i18n="personaFilterEng">${esc(t.personaFilterEng)}</button>
+      </div>
+
+      <div class="persona-grid">
+        <div class="persona-item" data-persona-group="exec">
+          <p class="velocity-tag" data-i18n="persona1Role">${esc(t.persona1Role)}</p>
+          <p class="split-pane-metric" data-i18n="persona1Focus">${esc(t.persona1Focus)}</p>
+          <p class="split-pane-body" data-i18n="persona1Gain">${esc(t.persona1Gain)}</p>
+        </div>
+        <div class="persona-item" data-persona-group="exec">
+          <p class="velocity-tag" data-i18n="persona2Role">${esc(t.persona2Role)}</p>
+          <p class="split-pane-metric" data-i18n="persona2Focus">${esc(t.persona2Focus)}</p>
+          <p class="split-pane-body" data-i18n="persona2Gain">${esc(t.persona2Gain)}</p>
+        </div>
+        <div class="persona-item" data-persona-group="exec">
+          <p class="velocity-tag" data-i18n="persona3Role">${esc(t.persona3Role)}</p>
+          <p class="split-pane-metric" data-i18n="persona3Focus">${esc(t.persona3Focus)}</p>
+          <p class="split-pane-body" data-i18n="persona3Gain">${esc(t.persona3Gain)}</p>
+        </div>
+        <div class="persona-item" data-persona-group="eng">
+          <p class="velocity-tag" data-i18n="persona4Role">${esc(t.persona4Role)}</p>
+          <p class="split-pane-metric" data-i18n="persona4Focus">${esc(t.persona4Focus)}</p>
+          <p class="split-pane-body" data-i18n="persona4Gain">${esc(t.persona4Gain)}</p>
+        </div>
+        <div class="persona-item" data-persona-group="eng">
+          <p class="velocity-tag" data-i18n="persona5Role">${esc(t.persona5Role)}</p>
+          <p class="split-pane-metric" data-i18n="persona5Focus">${esc(t.persona5Focus)}</p>
+          <p class="split-pane-body" data-i18n="persona5Gain">${esc(t.persona5Gain)}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 6: #pilot -->
+    <section id="pilot" class="presentation-chapter" data-chapter-index="5" aria-labelledby="ch6-title">
+      <div class="presentation-chapter-head">
+        <p class="presentation-eyebrow" data-i18n="ch6Code">${esc(t.ch6Code)}</p>
+        <h2 id="ch6-title" class="presentation-h2" data-i18n="ch6Title">${esc(t.ch6Title)}</h2>
+        <p class="presentation-summary" data-i18n="ch6Summary">${esc(t.ch6Summary)}</p>
+      </div>
+
+      <div class="pilot-timeline">
+        <div class="pilot-step">
+          <p class="velocity-tag" data-i18n="week1Code">${esc(t.week1Code)}</p>
+          <h3 class="presentation-h3" data-i18n="week1Title">${esc(t.week1Title)}</h3>
+          <p class="split-pane-body" data-i18n="week1Body">${esc(t.week1Body)}</p>
+        </div>
+        <div class="pilot-step">
+          <p class="velocity-tag" data-i18n="week2Code">${esc(t.week2Code)}</p>
+          <h3 class="presentation-h3" data-i18n="week2Title">${esc(t.week2Title)}</h3>
+          <p class="split-pane-body" data-i18n="week2Body">${esc(t.week2Body)}</p>
+        </div>
+        <div class="pilot-step">
+          <p class="velocity-tag" data-i18n="week3Code">${esc(t.week3Code)}</p>
+          <h3 class="presentation-h3" data-i18n="week3Title">${esc(t.week3Title)}</h3>
+          <p class="split-pane-body" data-i18n="week3Body">${esc(t.week3Body)}</p>
+        </div>
+        <div class="pilot-step">
+          <p class="velocity-tag" data-i18n="week4Code">${esc(t.week4Code)}</p>
+          <h3 class="presentation-h3" data-i18n="week4Title">${esc(t.week4Title)}</h3>
+          <p class="split-pane-body" data-i18n="week4Body">${esc(t.week4Body)}</p>
+        </div>
+      </div>
+
+      <div class="pilot-cta-banner">
+        <div>
+          <h3 class="presentation-h3" data-i18n="ctaBoxTitle">${esc(t.ctaBoxTitle)}</h3>
+          <p class="presentation-summary" data-i18n="ctaBoxBody">${esc(t.ctaBoxBody)}</p>
+        </div>
+        <div class="presentation-cta-row" style="margin: 0;">
+          <a class="presentation-btn presentation-btn-primary" href="/en/contact/" data-locale-route="contact" data-i18n="ctaPrimary">${esc(t.ctaPrimary)}</a>
+          <a class="presentation-btn" href="/offerings.html?lang=en" data-locale-route="offerings" data-i18n="ctaSecondary">${esc(t.ctaSecondary)}</a>
+          <!--email_off--><a class="presentation-btn" href="mailto:${esc(config.email)}">${esc(config.email)}</a><!--/email_off-->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="presentation-footer">
+    <span data-i18n="footerLegal">${esc(t.footerLegal)}</span>
+    <div>
+      <span data-i18n="ctaEmailLabel">${esc(t.ctaEmailLabel)}</span>
+      <!--email_off--><a class="presentation-cross-link" href="mailto:${esc(config.email)}">${esc(config.email)}</a><!--/email_off-->
+    </div>
+  </footer>
+
+  <script>
+    const lightContent = ${safeJson(lightContent)};
+    const DEFAULT_WORKLOAD = ${safeJson(DEFAULT_WORKLOAD)};
+    const WORKLOAD_PRESETS = ${safeJson(WORKLOAD_PRESETS)};
+    ${calculateEconomics.toString()}
+    ${bindPresentation.toString()}
+    if (typeof document !== 'undefined') {
+      bindPresentation(document.documentElement, { window });
+    }
+  </script>
+</body>
+</html>
+`;
+}
+
+
 

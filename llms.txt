@@ -21,7 +21,6 @@ Public consulting presence published statically from this repository:
 
 ## Tools
 
-- [Light Executive Sales Pitch Deck (8 Slides)](https://studio.factor-io.com/light-sales.html): Short, punchy 8-slide bilingual (EN / TH) motion-graphic executive & sales presentation explaining why ungoverned AI accelerates bottlenecks and incidents, how Light's 4-gate control plane governs enterprise AI, and how teams break even at ~30 minutes saved per engineer per month.
 - [Light Declarative AI Governance & ROI Presentation](https://studio.factor-io.com/light.html): Bilingual (EN / TH) product dossier and interactive workload/break-even estimator for Light, the declarative governance and execution control plane for enterprise AI coding and operations agents across six harness families.
 - [Enterprise AI TCO Calculator](https://studio.factor-io.com/tco-calculator.html): In-browser total cost of ownership calculator for enterprise AI and infrastructure investments. Compares cloud API consumption against private inference and GPU infrastructure across token volumes, concurrency and depreciation schedules.
 - [TCO Assistant](https://studio.factor-io.com/tco-assistant.html): Interactive natural language interface that guides operators through sizing, architecture trade-offs and cost modelling.

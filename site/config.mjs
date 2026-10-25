@@ -17,7 +17,6 @@ export const config = {
   legacyUrls: [
     { path: '/', updated: '2026-09-11' },
     { path: '/light.html', updated: '2026-10-25' },
-    { path: '/light-sales.html', updated: '2026-10-25' },
     { path: '/offerings.html', updated: '2026-10-13' },
     { path: '/lightops-ai.html', updated: '2026-10-13' },
     { path: '/light-tools.html', updated: '2026-09-11' },

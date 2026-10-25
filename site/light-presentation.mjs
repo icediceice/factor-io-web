@@ -723,3 +723,520 @@ export const lightContent = {
     footerLegal: 'บริษัท แฟคเคอร์ ไอ โอ จำกัด (Factor IO Co., Ltd.) · เลขทะเบียนนิติบุคคล / เลขประจำตัวผู้เสียภาษี 0105562205512 · กรุงเทพมหานคร',
   },
 };
+
+export const DEFAULT_WORKLOAD = {
+  billingMode: 'flat-rate',
+  seats: 50,
+  hourlyRate: 100,
+  reviewHoursPerWeek: 4,
+  reviewReductionPct: 35,
+  meteredTokenSpendPerSeatMonth: 180,
+  tokenReturnSharePct: 55,
+  incidentsPerYear: 12,
+  incidentCost: 15000,
+  incidentReductionPct: 35,
+  releaseHoursPerWeek: 12,
+  releaseReductionPct: 50,
+  subscriptionCostPerSeatMonth: 50,
+  sreSeats: 0,
+  sreHourlyRate: 110,
+  triageHoursPerWeek: 6,
+  triageReductionPct: 40,
+  sreSubscriptionPerSeatMonth: 150,
+};
+
+export const WORKLOAD_PRESETS = {
+  mid: { ...DEFAULT_WORKLOAD },
+  enterprise: {
+    ...DEFAULT_WORKLOAD,
+    seats: 250,
+    hourlyRate: 115,
+    reviewHoursPerWeek: 4.5,
+    reviewReductionPct: 35,
+    incidentsPerYear: 28,
+    incidentCost: 25000,
+    incidentReductionPct: 35,
+    releaseHoursPerWeek: 36,
+    releaseReductionPct: 50,
+    subscriptionCostPerSeatMonth: 50,
+    sreSeats: 15,
+    sreHourlyRate: 125,
+    triageHoursPerWeek: 6,
+    triageReductionPct: 40,
+    sreSubscriptionPerSeatMonth: 150,
+  },
+  srePod: {
+    ...DEFAULT_WORKLOAD,
+    sreSeats: 15,
+    sreHourlyRate: 115,
+    triageHoursPerWeek: 6,
+    triageReductionPct: 40,
+    sreSubscriptionPerSeatMonth: 150,
+  },
+};
+
+export function calculateEconomics(input = {}) {
+  const merged = { ...DEFAULT_WORKLOAD, ...(input && typeof input === 'object' ? input : {}) };
+  const billingMode = merged.billingMode === 'metered' ? 'metered' : 'flat-rate';
+  const numericKeys = [
+    'seats',
+    'hourlyRate',
+    'reviewHoursPerWeek',
+    'reviewReductionPct',
+    'meteredTokenSpendPerSeatMonth',
+    'tokenReturnSharePct',
+    'incidentsPerYear',
+    'incidentCost',
+    'incidentReductionPct',
+    'releaseHoursPerWeek',
+    'releaseReductionPct',
+    'subscriptionCostPerSeatMonth',
+    'sreSeats',
+    'sreHourlyRate',
+    'triageHoursPerWeek',
+    'triageReductionPct',
+    'sreSubscriptionPerSeatMonth',
+  ];
+  const pctKeys = new Set([
+    'reviewReductionPct',
+    'tokenReturnSharePct',
+    'incidentReductionPct',
+    'releaseReductionPct',
+    'triageReductionPct',
+  ]);
+
+  const invalidFields = [];
+  const nums = {};
+  for (const key of numericKeys) {
+    const raw = merged[key];
+    const val = typeof raw === 'number' ? raw : Number(raw);
+    if (raw === '' || raw === null || raw === undefined || !Number.isFinite(val) || val < 0) {
+      invalidFields.push(key);
+      continue;
+    }
+    if (pctKeys.has(key) && val > 100) {
+      invalidFields.push(key);
+      continue;
+    }
+    nums[key] = val;
+  }
+
+  if (invalidFields.length > 0) {
+    return {
+      valid: false,
+      errorCode: 'OUT_OF_RANGE',
+      invalidFields,
+      billingMode,
+      line1ContextMonthly: 0,
+      line2ReviewMonthly: 0,
+      line3IncidentMonthly: 0,
+      line4ReleaseMonthly: 0,
+      grossMonthlyValue: 0,
+      grossAnnualValue: 0,
+      subscriptionMonthlyCost: 0,
+      netMonthlyValue: 0,
+      netAnnualValue: 0,
+      breakEvenMinutesPerSeatMonth: null,
+      paybackMultiple: null,
+      hoursSavedPerSeatMonth: 0,
+    };
+  }
+
+  const weeksPerMonth = 4.33;
+  const toolReturnReductionFactor = 0.975;
+
+  // E-6: On flat-rate seats, cash token savings are $0 (gain is seat quota headroom).
+  const line1ContextMonthly = billingMode === 'metered'
+    ? Math.round(nums.seats * nums.meteredTokenSpendPerSeatMonth * (nums.tokenReturnSharePct / 100) * toolReturnReductionFactor)
+    : 0;
+
+  const line2ReviewMonthly = Math.round(
+    nums.seats * nums.reviewHoursPerWeek * weeksPerMonth * (nums.reviewReductionPct / 100) * nums.hourlyRate
+  );
+
+  const line3IncidentMonthly = Math.round(
+    (nums.incidentsPerYear / 12) * nums.incidentCost * (nums.incidentReductionPct / 100)
+  );
+
+  const engReleaseMonthly = nums.releaseHoursPerWeek * weeksPerMonth * (nums.releaseReductionPct / 100) * nums.hourlyRate;
+  const sreTriageMonthly = nums.sreSeats * nums.triageHoursPerWeek * weeksPerMonth * (nums.triageReductionPct / 100) * nums.sreHourlyRate;
+  const line4ReleaseMonthly = Math.round(engReleaseMonthly + sreTriageMonthly);
+
+  const grossMonthlyValue = line1ContextMonthly + line2ReviewMonthly + line3IncidentMonthly + line4ReleaseMonthly;
+  const grossAnnualValue = grossMonthlyValue * 12;
+
+  const subscriptionMonthlyCost = Math.round(
+    (nums.seats * nums.subscriptionCostPerSeatMonth) + (nums.sreSeats * nums.sreSubscriptionPerSeatMonth)
+  );
+  const netMonthlyValue = grossMonthlyValue - subscriptionMonthlyCost;
+  const netAnnualValue = netMonthlyValue * 12;
+
+  const breakEvenMinutesPerSeatMonth = nums.hourlyRate > 0
+    ? Math.round(((nums.subscriptionCostPerSeatMonth / nums.hourlyRate) * 60) * 10) / 10
+    : null;
+
+  const paybackMultiple = subscriptionMonthlyCost > 0
+    ? Math.round((grossMonthlyValue / subscriptionMonthlyCost) * 10) / 10
+    : null;
+
+  const reviewHoursSavedPerSeatMonth = nums.reviewHoursPerWeek * weeksPerMonth * (nums.reviewReductionPct / 100);
+  const releaseHoursSavedPerSeatMonth = nums.seats > 0
+    ? (nums.releaseHoursPerWeek * weeksPerMonth * (nums.releaseReductionPct / 100)) / nums.seats
+    : 0;
+  const hoursSavedPerSeatMonth = nums.seats > 0
+    ? Math.round((reviewHoursSavedPerSeatMonth + releaseHoursSavedPerSeatMonth) * 10) / 10
+    : 0;
+
+  return {
+    valid: true,
+    errorCode: null,
+    invalidFields: [],
+    billingMode,
+    inputs: nums,
+    line1ContextMonthly,
+    line2ReviewMonthly,
+    line3IncidentMonthly,
+    line4ReleaseMonthly,
+    grossMonthlyValue,
+    grossAnnualValue,
+    subscriptionMonthlyCost,
+    netMonthlyValue,
+    netAnnualValue,
+    breakEvenMinutesPerSeatMonth,
+    paybackMultiple,
+    hoursSavedPerSeatMonth,
+  };
+}
+
+export function bindPresentation(root, env = {}) {
+  const win = env.window || (typeof window !== 'undefined' ? window : null);
+  const doc = root && root.ownerDocument ? root.ownerDocument : (win && win.document ? win.document : null);
+  const totalChapters = 6;
+  const state = {
+    lang: 'en',
+    mode: 'reading',
+    activeChapter: 0,
+    compFilter: 'all',
+    personaFilter: 'all',
+    workload: { ...DEFAULT_WORKLOAD },
+    lastCalculation: calculateEconomics(DEFAULT_WORKLOAD),
+  };
+
+  const formatUsd = val => {
+    const sign = val < 0 ? '-' : '';
+    const abs = Math.abs(Math.round(val));
+    return sign + '$' + abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const qAll = sel => (root && typeof root.querySelectorAll === 'function' ? Array.from(root.querySelectorAll(sel)) : []);
+  const qOne = sel => (root && typeof root.querySelector === 'function' ? root.querySelector(sel) : null);
+
+  function renderEconomicsView(statusKey = 'calcStatusReady') {
+    const dict = lightContent[state.lang] || lightContent.en;
+    const res = calculateEconomics(state.workload);
+    state.lastCalculation = res;
+
+    const errBanner = qOne('[data-econ-error]');
+    const statusBadge = qOne('[data-econ-status]');
+    if (errBanner) {
+      errBanner.hidden = res.valid;
+      errBanner.textContent = res.valid ? '' : dict.calcErrorOutOfRange;
+    }
+    if (statusBadge) {
+      statusBadge.textContent = res.valid ? (dict[statusKey] || dict.calcStatusReady) : '[ERROR · CHECK INPUTS]';
+      statusBadge.setAttribute('data-state', res.valid ? 'ready' : 'error');
+    }
+
+    for (const inputEl of qAll('[data-econ-field]')) {
+      const field = inputEl.getAttribute('data-econ-field');
+      const isBad = res.invalidFields.includes(field);
+      inputEl.setAttribute('aria-invalid', isBad ? 'true' : 'false');
+    }
+
+    for (const btn of qAll('[data-billing-mode]')) {
+      const m = btn.getAttribute('data-billing-mode');
+      const active = m === state.workload.billingMode;
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (btn.classList) btn.classList.toggle('is-active', active);
+    }
+
+    const modeNote = qOne('[data-econ-mode-note]');
+    if (modeNote) {
+      modeNote.textContent = state.workload.billingMode === 'metered' ? dict.calcMeteredNote : dict.calcFlatRateNote;
+    }
+
+    if (!res.valid) return res;
+
+    const setOut = (sel, text) => {
+      const el = qOne(sel);
+      if (el) el.textContent = text;
+    };
+
+    setOut('[data-econ-out="breakEven"]', res.breakEvenMinutesPerSeatMonth === null ? 'N/A' : `${res.breakEvenMinutesPerSeatMonth} ${dict.calcOutBreakEvenUnit}`);
+    setOut('[data-econ-out="grossMonthly"]', formatUsd(res.grossMonthlyValue));
+    setOut('[data-econ-out="netAnnual"]', formatUsd(res.netAnnualValue));
+    setOut('[data-econ-out="multiple"]', res.paybackMultiple === null ? 'N/A' : `${res.paybackMultiple}x`);
+    setOut('[data-econ-out="hoursSeat"]', `${res.hoursSavedPerSeatMonth} hrs`);
+    setOut('[data-econ-out="line1"]', formatUsd(res.line1ContextMonthly));
+    setOut('[data-econ-out="line2"]', formatUsd(res.line2ReviewMonthly));
+    setOut('[data-econ-out="line3"]', formatUsd(res.line3IncidentMonthly));
+    setOut('[data-econ-out="line4"]', formatUsd(res.line4ReleaseMonthly));
+    return res;
+  }
+
+  function syncWorkloadInputs() {
+    for (const inputEl of qAll('[data-econ-field]')) {
+      const field = inputEl.getAttribute('data-econ-field');
+      if (field && Object.prototype.hasOwnProperty.call(state.workload, field)) {
+        inputEl.value = String(state.workload[field]);
+      }
+    }
+  }
+
+  function setLang(nextLang) {
+    state.lang = nextLang === 'th' ? 'th' : 'en';
+    const dict = lightContent[state.lang];
+    if (root && typeof root.setAttribute === 'function') {
+      root.setAttribute('lang', state.lang);
+      root.setAttribute('data-lang', state.lang);
+    }
+    if (doc && doc.title !== undefined) {
+      doc.title = dict.metaTitle;
+    }
+    for (const el of qAll('[data-i18n]')) {
+      const key = el.getAttribute('data-i18n');
+      if (key && dict[key] !== undefined) {
+        el.textContent = dict[key];
+      }
+    }
+    for (const btn of qAll('[data-lang-btn]')) {
+      const active = btn.getAttribute('data-lang-btn') === state.lang;
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (btn.classList) btn.classList.toggle('is-active', active);
+    }
+    for (const linkEl of qAll('[data-locale-route]')) {
+      const route = linkEl.getAttribute('data-locale-route');
+      if (route === 'home') linkEl.setAttribute('href', `/${state.lang}/`);
+      else if (route === 'contact') linkEl.setAttribute('href', `/${state.lang}/contact/`);
+      else if (route === 'offerings') linkEl.setAttribute('href', `/offerings.html?lang=${state.lang}`);
+      else if (route === 'lightops') linkEl.setAttribute('href', `/lightops-ai.html?lang=${state.lang}`);
+    }
+    updateChapterIndicator();
+    renderEconomicsView();
+    if (win && win.history && typeof win.history.replaceState === 'function' && win.location) {
+      try {
+        const url = new URL(win.location.href);
+        url.searchParams.set('lang', state.lang);
+        win.history.replaceState({}, '', url.toString());
+      } catch {}
+    }
+    return state.lang;
+  }
+
+  function updateChapterIndicator() {
+    const dict = lightContent[state.lang] || lightContent.en;
+    const ind = qOne('[data-chapter-indicator]');
+    if (ind) {
+      ind.textContent = `${dict.chapterIndicatorPrefix} ${state.activeChapter + 1} / ${totalChapters}`;
+    }
+    const chapters = qAll('.presentation-chapter');
+    chapters.forEach((ch, idx) => {
+      const active = idx === state.activeChapter;
+      if (ch.classList) ch.classList.toggle('is-active-chapter', active);
+      ch.setAttribute('data-active', active ? 'true' : 'false');
+    });
+    for (const navBtn of qAll('[data-chapter-nav]')) {
+      const idx = Number(navBtn.getAttribute('data-chapter-nav'));
+      const active = idx === state.activeChapter;
+      navBtn.setAttribute('aria-current', active ? 'step' : 'false');
+      if (navBtn.classList) navBtn.classList.toggle('is-active', active);
+    }
+    const prevBtn = qOne('[data-chapter-step="prev"]');
+    const nextBtn = qOne('[data-chapter-step="next"]');
+    if (prevBtn) prevBtn.disabled = state.activeChapter <= 0;
+    if (nextBtn) nextBtn.disabled = state.activeChapter >= totalChapters - 1;
+  }
+
+  function setMode(nextMode) {
+    state.mode = nextMode === 'presentation' ? 'presentation' : 'reading';
+    if (root && typeof root.setAttribute === 'function') {
+      root.setAttribute('data-presentation-mode', state.mode);
+    }
+    for (const btn of qAll('[data-mode-btn]')) {
+      const active = btn.getAttribute('data-mode-btn') === state.mode;
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (btn.classList) btn.classList.toggle('is-active', active);
+    }
+    updateChapterIndicator();
+    return state.mode;
+  }
+
+  function setChapter(index) {
+    const parsed = Number(index);
+    if (!Number.isFinite(parsed)) return state.activeChapter;
+    state.activeChapter = Math.max(0, Math.min(totalChapters - 1, Math.trunc(parsed)));
+    if (root && typeof root.setAttribute === 'function') {
+      root.setAttribute('data-active-chapter', String(state.activeChapter));
+    }
+    updateChapterIndicator();
+    return state.activeChapter;
+  }
+
+  function setCompFilter(filterVal) {
+    state.compFilter = filterVal || 'all';
+    for (const btn of qAll('[data-comp-filter]')) {
+      const active = btn.getAttribute('data-comp-filter') === state.compFilter;
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (btn.classList) btn.classList.toggle('is-active', active);
+    }
+    let visibleCount = 0;
+    for (const row of qAll('[data-comp-row]')) {
+      const tags = (row.getAttribute('data-comp-row') || '').split(/\s+/);
+      const show = state.compFilter === 'all' || tags.includes(state.compFilter);
+      row.hidden = !show;
+      if (show) visibleCount += 1;
+    }
+    const emptyEl = qOne('[data-comp-empty]');
+    if (emptyEl) emptyEl.hidden = visibleCount > 0;
+    return visibleCount;
+  }
+
+  function setPersonaFilter(filterVal) {
+    state.personaFilter = filterVal || 'all';
+    for (const btn of qAll('[data-persona-filter]')) {
+      const active = btn.getAttribute('data-persona-filter') === state.personaFilter;
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (btn.classList) btn.classList.toggle('is-active', active);
+    }
+    for (const card of qAll('[data-persona-group]')) {
+      const grp = card.getAttribute('data-persona-group');
+      const show = state.personaFilter === 'all' || grp === state.personaFilter;
+      card.hidden = !show;
+    }
+  }
+
+  function isInteractiveTarget(target) {
+    if (!target || typeof target !== 'object') return false;
+    if (target.isContentEditable) return true;
+    const tag = String(target.tagName || '').toUpperCase();
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON' || tag === 'A';
+  }
+
+  function onKeyDown(event) {
+    if (!event) return false;
+    if (isInteractiveTarget(event.target)) return false;
+    if (event.key === 'Escape' && state.mode === 'presentation') {
+      setMode('reading');
+      return true;
+    }
+    if (state.mode !== 'presentation') return false;
+    if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+      if (typeof event.preventDefault === 'function') event.preventDefault();
+      setChapter(state.activeChapter + 1);
+      return true;
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+      if (typeof event.preventDefault === 'function') event.preventDefault();
+      setChapter(state.activeChapter - 1);
+      return true;
+    }
+    return false;
+  }
+
+  function updateWorkload(patch, statusKey = 'calcStatusSaved') {
+    state.workload = { ...state.workload, ...patch };
+    syncWorkloadInputs();
+    return renderEconomicsView(statusKey);
+  }
+
+  function applyPreset(presetName) {
+    const preset = WORKLOAD_PRESETS[presetName] || DEFAULT_WORKLOAD;
+    state.workload = { ...preset };
+    syncWorkloadInputs();
+    return renderEconomicsView('calcStatusSaved');
+  }
+
+  // Bind DOM listeners if root is a live DOM node
+  for (const btn of qAll('[data-lang-btn]')) {
+    btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang-btn')));
+  }
+  for (const btn of qAll('[data-mode-btn]')) {
+    btn.addEventListener('click', () => setMode(btn.getAttribute('data-mode-btn')));
+  }
+  for (const btn of qAll('[data-chapter-nav]')) {
+    btn.addEventListener('click', e => {
+      const idx = Number(btn.getAttribute('data-chapter-nav'));
+      setChapter(idx);
+      if (state.mode === 'presentation' && e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+      }
+    });
+  }
+  const prevBtn = qOne('[data-chapter-step="prev"]');
+  if (prevBtn) prevBtn.addEventListener('click', () => setChapter(state.activeChapter - 1));
+  const nextBtn = qOne('[data-chapter-step="next"]');
+  if (nextBtn) nextBtn.addEventListener('click', () => setChapter(state.activeChapter + 1));
+
+  const fsBtn = qOne('[data-fullscreen-btn]');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      if (doc && doc.documentElement && typeof doc.documentElement.requestFullscreen === 'function') {
+        Promise.resolve(doc.documentElement.requestFullscreen()).catch(() => {});
+      }
+    });
+  }
+
+  for (const btn of qAll('[data-billing-mode]')) {
+    btn.addEventListener('click', () => updateWorkload({ billingMode: btn.getAttribute('data-billing-mode') }));
+  }
+  for (const btn of qAll('[data-econ-preset]')) {
+    btn.addEventListener('click', () => applyPreset(btn.getAttribute('data-econ-preset')));
+  }
+  for (const inputEl of qAll('[data-econ-field]')) {
+    inputEl.addEventListener('input', () => {
+      const field = inputEl.getAttribute('data-econ-field');
+      state.workload[field] = inputEl.value === '' ? '' : Number(inputEl.value);
+      renderEconomicsView('calcStatusSaved');
+    });
+  }
+  for (const btn of qAll('[data-comp-filter]')) {
+    btn.addEventListener('click', () => setCompFilter(btn.getAttribute('data-comp-filter')));
+  }
+  for (const btn of qAll('[data-comp-reset]')) {
+    btn.addEventListener('click', () => setCompFilter('all'));
+  }
+  for (const btn of qAll('[data-persona-filter]')) {
+    btn.addEventListener('click', () => setPersonaFilter(btn.getAttribute('data-persona-filter')));
+  }
+
+  if (win && typeof win.addEventListener === 'function') {
+    win.addEventListener('keydown', onKeyDown);
+  }
+
+  // Initialize from URL query if present
+  let initialLang = 'en';
+  if (win && win.location && typeof win.location.search === 'string') {
+    try {
+      const params = new URLSearchParams(win.location.search);
+      if (params.get('lang') === 'th') initialLang = 'th';
+      if (params.get('mode') === 'presentation') state.mode = 'presentation';
+    } catch {}
+  }
+  syncWorkloadInputs();
+  setMode(state.mode);
+  setChapter(0);
+  setLang(initialLang);
+
+  return {
+    state,
+    setLang,
+    setMode,
+    setChapter,
+    setCompFilter,
+    setPersonaFilter,
+    updateWorkload,
+    applyPreset,
+    onKeyDown,
+  };
+}
+

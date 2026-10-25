@@ -646,6 +646,7 @@
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-th" onclick="setLang('th')">ไทย</button>
       </div>
+      <a class="back-link" id="nav-light-sales-link" href="/light-sales.html?lang=en" data-i18n="navLightSales">Light Sales Pitch (8 Slides) →</a>
       <a class="back-link" id="nav-light-link" href="/light.html?lang=en" data-i18n="navLight">Light Governance &amp; ROI →</a>
       <a class="back-link" href="/lightops-ai.html" data-i18n="navWorkbench">Live AI Workbench →</a>
       <a class="back-link" href="/">← <span data-i18n="backHome">Main site</span></a>
@@ -1017,6 +1018,7 @@
   const i18n = {
     en: {
       docHeader: "Commercial Offerings & Delivery Catalog",
+      navLightSales: "Light Sales Pitch (8 Slides) →",
       navLight: "Light Governance & ROI →",
       navWorkbench: "Live AI Workbench →",
       backHome: "Main site",
@@ -1107,6 +1109,7 @@
     },
     th: {
       docHeader: "แคตตาล็อกผลิตภัณฑ์และบริการสำหรับองค์กร (Commercial Catalog)",
+      navLightSales: "สไลด์นำเสนอฝ่ายขาย Light (8 หน้า) →",
       navLight: "ระบบกำกับดูแล Light และ ROI →",
       navWorkbench: "ทดสอบคอนโซล AI จริง →",
       backHome: "หน้าหลัก",
@@ -1201,6 +1204,8 @@
     document.getElementById('btn-en').classList.toggle('active', lang === 'en');
     document.getElementById('btn-th').classList.toggle('active', lang === 'th');
     document.documentElement.lang = lang;
+    const lightSalesLink = document.getElementById('nav-light-sales-link');
+    if (lightSalesLink) lightSalesLink.setAttribute('href', `/light-sales.html?lang=${lang}`);
     const lightLink = document.getElementById('nav-light-link');
     if (lightLink) lightLink.setAttribute('href', `/light.html?lang=${lang}`);
     document.querySelectorAll('[data-i18n]').forEach(el => {

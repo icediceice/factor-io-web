@@ -1014,26 +1014,34 @@ function renderSalesSchema() {
     '@graph': [
       {
         '@type': 'Organization',
-        '@id': `${config.siteUrl}/#organization`,
-        name: config.company.legalNameEn,
-        alternateName: [config.company.brandName, config.company.legalNameTh],
-        url: config.siteUrl,
-        taxID: config.company.taxId,
-        email: config.company.email
+        '@id': `${config.origin}/#organization`,
+        name: config.legalName,
+        alternateName: [config.name, 'บริษัท แฟคเคอร์ ไอ โอ จำกัด'],
+        url: config.origin,
+        taxID: config.registration,
+        email: config.email
+      },
+      {
+        '@type': 'Person',
+        '@id': `${config.origin}/#founder`,
+        name: config.founder,
+        jobTitle: config.role,
+        worksFor: { '@id': `${config.origin}/#organization` },
+        sameAs: [config.linkedin, config.github]
       },
       {
         '@type': 'WebPage',
-        '@id': `${config.siteUrl}/light-sales.html#webpage`,
-        url: `${config.siteUrl}/light-sales.html`,
+        '@id': `${config.origin}/light-sales.html#webpage`,
+        url: `${config.origin}/light-sales.html`,
         name: lightSalesContent.en.pageTitle,
         description: lightSalesContent.en.pageDescription,
         inLanguage: ['en', 'th'],
-        isPartOf: { '@id': `${config.siteUrl}/#organization` }
+        isPartOf: { '@id': `${config.origin}/#organization` }
       },
       {
         '@type': 'SoftwareApplication',
-        '@id': `${config.siteUrl}/light-sales.html#software`,
-        name: 'Light by Factor-IO',
+        '@id': `${config.origin}/light-sales.html#software`,
+        name: 'Light by Factor IO',
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Linux, macOS, Windows',
         description: lightSalesContent.en.pageDescription,
@@ -1042,7 +1050,7 @@ function renderSalesSchema() {
           price: '49.00',
           priceCurrency: 'USD'
         },
-        publisher: { '@id': `${config.siteUrl}/#organization` }
+        publisher: { '@id': `${config.origin}/#organization` }
       }
     ]
   };
@@ -1062,20 +1070,18 @@ export function renderLightSales() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t.pageTitle}</title>
   <meta name="description" content="${t.pageDescription}">
-  <link rel="canonical" href="${config.siteUrl}/light-sales.html">
-  <link rel="alternate" hreflang="en" href="${config.siteUrl}/light-sales.html">
-  <link rel="alternate" hreflang="th" href="${config.siteUrl}/light-sales.html?lang=th">
-  <link rel="alternate" hreflang="x-default" href="${config.siteUrl}/light-sales.html">
+  <link rel="canonical" href="${config.origin}/light-sales.html">
+  <link rel="alternate" hreflang="en" href="${config.origin}/light-sales.html">
+  <link rel="alternate" hreflang="th" href="${config.origin}/light-sales.html?lang=th">
+  <link rel="alternate" hreflang="x-default" href="${config.origin}/light-sales.html">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="${config.company.brandName}">
+  <meta property="og:site_name" content="${config.name}">
   <meta property="og:title" content="${t.pageTitle}">
   <meta property="og:description" content="${t.pageDescription}">
-  <meta property="og:url" content="${config.siteUrl}/light-sales.html">
-  <meta property="og:image" content="${config.siteUrl}${config.socialImagePath}">
+  <meta property="og:url" content="${config.origin}/light-sales.html">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${t.pageTitle}">
   <meta name="twitter:description" content="${t.pageDescription}">
-  <meta name="twitter:image" content="${config.siteUrl}${config.socialImagePath}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -826,7 +826,6 @@
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-th" onclick="setLang('th')">ไทย</button>
       </div>
-      <a class="back-link" id="nav-light-link" href="/light.html?lang=en" data-i18n="navLight">Light Governance &amp; ROI →</a>
       <a class="back-link" href="/offerings.html">← <span data-i18n="navOfferings">All Commercial Offerings</span></a>
       <a class="back-link" href="/">← <span data-i18n="backHome">Back to main site</span></a>
     </div>
@@ -1288,7 +1287,6 @@
   const i18n = {
     en: {
       docHeader: "LightOps AI · Enterprise Platform Dossier",
-      navLight: "Light Governance & ROI →",
       backHome: "Back to main site",
       badgeSovereign: "100% On-Premises · Zero Cloud Egress",
       badgePdpa: "PDPA s.28/29 Zero Cross-Border Transfer",
@@ -1360,7 +1358,6 @@
     },
     th: {
       docHeader: "LightOps AI · เอกสารสถาปัตยกรรมและโซลูชันระดับองค์กร",
-      navLight: "ระบบกำกับดูแล Light และ ROI →",
       backHome: "กลับสู่หน้าหลัก",
       badgeSovereign: "ติดตั้งในองค์กร 100% · ไม่ส่งข้อมูลออกคลาวด์",
       badgePdpa: "รองรับ PDPA มาตรา 28/29 ไม่ส่งข้อมูลข้ามประเทศ",
@@ -1438,8 +1435,6 @@
     currentLang = lang;
     document.getElementById('btn-en').classList.toggle('active', lang === 'en');
     document.getElementById('btn-th').classList.toggle('active', lang === 'th');
-    const lightLink = document.getElementById('nav-light-link');
-    if (lightLink) lightLink.setAttribute('href', `/light.html?lang=${lang}`);
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (i18n[lang] && i18n[lang][key]) {

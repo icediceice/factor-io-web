@@ -1,14 +1,6 @@
 {
   "runs": [
     {
-      "date": "2026-10-25",
-      "file": "light.html",
-      "macrostructure": "Split Monitor + nested Topology + nested Ledger",
-      "accent": "#1e40af",
-      "theme": "light (warm stone editorial paper #f6f4ef / #121519)",
-      "notes": "Workbench excluded (2 of last 5); Stacked Sections excluded (last entry). Split Monitor compares Ungoverned Agent Sprawl vs Light Declarative Governance; nested Dual-Track Topology separates Session FSM (L-02) from Work Lifecycle (L-10); nested Ledgers cover H-1..H-7, 6-category market comparison, CISO C-1..C-6/R-1..R-4, and E-1/E-6 buyer workload estimator."
-    },
-    {
       "date": "2026-10-13",
       "file": "lightops-ai.html",
       "macrostructure": "Workbench / Split Monitor",

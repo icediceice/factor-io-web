@@ -424,8 +424,8 @@ export function bindSalesDeck(root, env = {}) {
     env.storage ||
     (win && win.localStorage ? win.localStorage : null);
   const locationObj = env.location || (win && win.location ? win.location : { search: '' });
-  const setTimer = env.setInterval || (win && typeof win.setInterval === 'function' ? win.setInterval.bind(win) : setInterval);
-  const clearTimer = env.clearInterval || (win && typeof win.clearInterval === 'function' ? win.clearInterval.bind(win) : clearInterval);
+  const setTimer = env.setInterval || (win && typeof win.setInterval === 'function' ? win.setInterval.bind(win) : (typeof setInterval === 'function' ? setInterval : () => 0));
+  const clearTimer = env.clearInterval || (win && typeof win.clearInterval === 'function' ? win.clearInterval.bind(win) : (typeof clearInterval === 'function' ? clearInterval : () => {}));
 
   const TOTAL_SLIDES = 8;
   const STORAGE_KEY = 'factor-io-light-lang';

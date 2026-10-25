@@ -1554,7 +1554,7 @@ export function renderLightSales() {
     .mode-status-banner {
       padding: 8px 16px;
       border-radius: 8px;
-      background: rgba(45, 212, 191, 0.12);
+      background: #0d2528;
       border: 1px solid var(--border-teal);
       font-size: 14px;
       font-weight: 600;
@@ -1562,7 +1562,7 @@ export function renderLightSales() {
     }
 
     [data-pipeline-stage][data-motion-mode="chaos"] .mode-status-banner {
-      background: rgba(251, 113, 133, 0.14);
+      background: #28121c;
       border-color: var(--border-coral);
       color: #fecdd3;
     }
@@ -1623,6 +1623,7 @@ export function renderLightSales() {
     .sim-range {
       width: 100%;
       height: 36px;
+      font-size: 17px;
       accent-color: var(--accent-amber);
       cursor: pointer;
     }

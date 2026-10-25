@@ -9,6 +9,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
+import { lightContent, DEFAULT_WORKLOAD, WORKLOAD_PRESETS, calculateEconomics, bindPresentation, renderLight } from '../site/light-presentation.mjs';
 import { ROOT, generate, loadContent, assertParity, samePreviewBytes, checkPreview, publishedMedia } from '../scripts/build-site.mjs';
 import { createDemo, flowStates, bindFilm } from '../assets/site.js';
 import { chapterTag } from '../scripts/films/kit.js';

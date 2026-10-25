@@ -77,6 +77,7 @@ export async function generate() {
   for (const name of assetNames) assets[name] = hash(await readFile(resolve(ROOT, 'assets', name))).slice(0, 12);
   const output = new Map();
   output.set('index.html', renderPage(content.en, 'home', assets));
+  output.set('light.html', renderLight());
   for (const locale of Object.keys(config.locales)) for (const page of routes) output.set(outputPath(locale, page), renderPage(content[locale], page, assets));
   output.set('sitemap.xml', renderSitemap(content));
   return output;

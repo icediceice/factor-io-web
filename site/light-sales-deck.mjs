@@ -2325,7 +2325,7 @@ export function renderLightSales() {
           <div class="cta-buttons-group">
             <a href="/en/contact/" class="pitch-btn pitch-btn-cta cta-large-btn" data-localized-contact data-i18n="s8CtaPrimary">${t.s8CtaPrimary}</a>
             <a href="/light.html" class="pitch-btn cta-large-btn" data-localized-dossier data-i18n="s8CtaSecondary">${t.s8CtaSecondary}</a>
-            <!--email_off--><a href="mailto:${config.company.email}" class="pitch-nav-link">${config.company.email}</a><!--/email_off-->
+            <!--email_off--><a href="mailto:${config.email}" class="pitch-nav-link">${config.email}</a><!--/email_off-->
           </div>
           <p class="card-qualifier" style="border-top: none; padding-top: 0;" data-i18n="s8FooterCompany">${t.s8FooterCompany}</p>
         </div>

@@ -1441,6 +1441,8 @@
     currentLang = lang;
     document.getElementById('btn-en').classList.toggle('active', lang === 'en');
     document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+    const lightSalesLink = document.getElementById('nav-light-sales-link');
+    if (lightSalesLink) lightSalesLink.setAttribute('href', `/light-sales.html?lang=${lang}`);
     const lightLink = document.getElementById('nav-light-link');
     if (lightLink) lightLink.setAttribute('href', `/light.html?lang=${lang}`);
     document.querySelectorAll('[data-i18n]').forEach(el => {

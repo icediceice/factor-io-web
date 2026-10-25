@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { films, filmFile, filmPoster, work, workFile } from '../site/media.mjs';
 import { renderPage, esc } from '../site/templates.mjs';
+import { renderLight } from '../site/light-presentation.mjs';
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -76,6 +77,7 @@ export async function generate() {
   for (const name of assetNames) assets[name] = hash(await readFile(resolve(ROOT, 'assets', name))).slice(0, 12);
   const output = new Map();
   output.set('index.html', renderPage(content.en, 'home', assets));
+  output.set('light.html', renderLight());
   for (const locale of Object.keys(config.locales)) for (const page of routes) output.set(outputPath(locale, page), renderPage(content[locale], page, assets));
   output.set('sitemap.xml', renderSitemap(content));
   return output;

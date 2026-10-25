@@ -676,42 +676,42 @@ export function bindSalesDeck(root, env = {}) {
 
     const hoursEl = root.querySelector('[data-calc-out="hoursReturned"]');
     if (hoursEl) {
-      const hrs = Math.round(econ.monthlyReclaimedReviewHours + econ.monthlyReleaseHoursSaved);
+      const hrs = Math.round((econ.hoursSavedPerSeatMonth || 0) * ((econ.inputs && econ.inputs.seats) || 0));
       hoursEl.textContent = isTh ? `${hrs.toLocaleString('en-US')} ชม. / เดือน` : `${hrs.toLocaleString('en-US')} hrs / mo`;
     }
 
     const netAnnualEl = root.querySelector('[data-calc-out="netAnnual"]');
     if (netAnnualEl) {
       netAnnualEl.textContent = isTh
-        ? `${formatUsd(econ.netAnnualBenefit)} / ปี`
-        : `${formatUsd(econ.netAnnualBenefit)} / yr`;
+        ? `${formatUsd(econ.netAnnualValue)} / ปี`
+        : `${formatUsd(econ.netAnnualValue)} / yr`;
     }
 
     const tokenEl = root.querySelector('[data-calc-out="tokenSavings"]');
     if (tokenEl) {
-      if (econ.inputs.billingMode === 'flat-rate') {
+      if (econ.billingMode === 'flat-rate') {
         tokenEl.textContent = isTh
           ? '$0 / เดือน (ถนอมโควตาเหมาจ่าย)'
           : '$0 / mo (protects flat-rate quota)';
       } else {
         tokenEl.textContent = isTh
-          ? `${formatUsd(econ.monthlyTokenSavings)} / เดือน (ลดค่า API 97.5%)`
-          : `${formatUsd(econ.monthlyTokenSavings)} / mo (97.5% API cut)`;
+          ? `${formatUsd(econ.line1ContextMonthly)} / เดือน (ลดค่า API 97.5%)`
+          : `${formatUsd(econ.line1ContextMonthly)} / mo (97.5% API cut)`;
       }
     }
 
     const costBarVal = root.querySelector('[data-calc-out="barCostValue"]');
     if (costBarVal) {
-      costBarVal.textContent = `${formatUsd(econ.monthlySubscriptionCost)} / mo`;
+      costBarVal.textContent = `${formatUsd(econ.subscriptionMonthlyCost)} / mo`;
     }
     const grossBarVal = root.querySelector('[data-calc-out="barGrossValue"]');
     if (grossBarVal) {
-      grossBarVal.textContent = `${formatUsd(econ.grossMonthlyBenefit)} / mo`;
+      grossBarVal.textContent = `${formatUsd(econ.grossMonthlyValue)} / mo`;
     }
 
-    const maxBar = Math.max(1, econ.monthlySubscriptionCost, econ.grossMonthlyBenefit);
-    const costPct = Math.max(6, Math.round((econ.monthlySubscriptionCost / maxBar) * 100));
-    const grossPct = Math.max(6, Math.round((econ.grossMonthlyBenefit / maxBar) * 100));
+    const maxBar = Math.max(1, econ.subscriptionMonthlyCost, econ.grossMonthlyValue);
+    const costPct = Math.max(6, Math.round((econ.subscriptionMonthlyCost / maxBar) * 100));
+    const grossPct = Math.max(6, Math.round((econ.grossMonthlyValue / maxBar) * 100));
 
     const costFill = root.querySelector('[data-calc-bar="cost"]');
     if (costFill && costFill.style && typeof costFill.style.setProperty === 'function') {

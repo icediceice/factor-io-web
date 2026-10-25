@@ -1,5 +1,51 @@
 import { config } from './config.mjs';
-import { esc, renderJsonLd } from './templates.mjs';
+import { esc } from './templates.mjs';
+
+function renderLightSchema() {
+  const graph = [
+    {
+      '@type': 'Organization',
+      '@id': `${config.origin}/#organization`,
+      name: config.name,
+      legalName: config.legalName,
+      url: `${config.origin}/`,
+      email: config.email,
+      telephone: config.phone,
+      taxID: config.registration,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: config.address.street,
+        addressLocality: config.address.locality,
+        addressRegion: config.address.region,
+        postalCode: config.address.postalCode,
+        addressCountry: config.address.country,
+      },
+      description: config.organizationDescription,
+      founder: { '@id': `${config.origin}/#founder` },
+      sameAs: [config.linkedin, config.github],
+    },
+    {
+      '@type': 'Person',
+      '@id': `${config.origin}/#founder`,
+      name: config.founder,
+      jobTitle: config.role,
+      description: config.founderDescription,
+      worksFor: { '@id': `${config.origin}/#organization` },
+      sameAs: [config.linkedin, config.github],
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': `${config.origin}/light.html#software`,
+      name: 'Light Declarative AI Governance Control Plane',
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'Linux, macOS',
+      creator: { '@id': `${config.origin}/#organization` },
+      description: lightContent.en.metaDescription,
+      url: `${config.origin}/light.html`,
+    },
+  ];
+  return `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
+}
 
 export const lightContent = {
   en: {

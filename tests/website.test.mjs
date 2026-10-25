@@ -12,6 +12,7 @@ import { esc, renderPage } from '../site/templates.mjs';
 import { lightContent, DEFAULT_WORKLOAD, WORKLOAD_PRESETS, calculateEconomics, bindPresentation, renderLight } from '../site/light-presentation.mjs';
 import { lightSalesContent, bindSalesDeck, renderLightSales } from '../site/light-sales-deck.mjs';
 import { ROOT, generate, loadContent, assertParity, samePreviewBytes, checkPreview, publishedMedia } from '../scripts/build-site.mjs';
+import { createDemo, flowStates, bindFilm } from '../assets/site.js';
 import { chapterTag } from '../scripts/films/kit.js';
 import { films, filmFile, filmPoster, work, workFile } from '../site/media.mjs';
 

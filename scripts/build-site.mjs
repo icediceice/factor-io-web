@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { films, filmFile, filmPoster, work, workFile } from '../site/media.mjs';
 import { renderPage, esc } from '../site/templates.mjs';
+import { renderLight } from '../site/light-presentation.mjs';
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const hash = value => createHash('sha256').update(value).digest('hex');

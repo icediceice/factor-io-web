@@ -1238,7 +1238,7 @@ export function renderLightSales() {
 
     .pitch-btn.active {
       border-color: var(--accent-amber);
-      background: rgba(251, 191, 36, 0.16);
+      background: #1f1a0a;
       color: var(--accent-amber);
     }
 
@@ -1288,6 +1288,7 @@ export function renderLightSales() {
       width: 1920px;
       height: 1080px;
       padding: 104px 64px 96px 64px;
+      font-size: 17px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;

@@ -78,6 +78,7 @@ export async function generate() {
   const output = new Map();
   output.set('index.html', renderPage(content.en, 'home', assets));
   output.set('light.html', renderLight());
+  output.set('light-sales.html', renderLightSales());
   for (const locale of Object.keys(config.locales)) for (const page of routes) output.set(outputPath(locale, page), renderPage(content[locale], page, assets));
   output.set('sitemap.xml', renderSitemap(content));
   return output;

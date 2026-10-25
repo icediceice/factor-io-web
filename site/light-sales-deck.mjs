@@ -2182,11 +2182,11 @@ export function renderLightSales() {
               </article>
               <article class="sales-card sales-card-teal">
                 <p class="card-eyebrow card-eyebrow-teal" data-i18n="s5OutHoursLabel">${t.s5OutHoursLabel}</p>
-                <p class="card-metric" data-calc-out="hoursReturned">${Math.round(econ.monthlyReclaimedReviewHours + econ.monthlyReleaseHoursSaved)} hrs / mo</p>
+                <p class="card-metric" data-calc-out="hoursReturned">${Math.round(econ.hoursSavedPerSeatMonth * econ.inputs.seats).toLocaleString('en-US')} hrs / mo</p>
               </article>
               <article class="sales-card sales-card-teal">
                 <p class="card-eyebrow card-eyebrow-teal" data-i18n="s5OutNetAnnualLabel">${t.s5OutNetAnnualLabel}</p>
-                <p class="card-metric" data-calc-out="netAnnual">$${Math.round(econ.netAnnualBenefit).toLocaleString('en-US')} / yr</p>
+                <p class="card-metric" data-calc-out="netAnnual">$${Math.round(econ.netAnnualValue).toLocaleString('en-US')} / yr</p>
               </article>
               <article class="sales-card">
                 <p class="card-eyebrow" data-i18n="s5OutTokenLabel">${t.s5OutTokenLabel}</p>
@@ -2199,7 +2199,7 @@ export function renderLightSales() {
               <div class="sim-bar-row">
                 <div class="sim-bar-meta">
                   <span data-i18n="s5BarCostLabel">${t.s5BarCostLabel}</span>
-                  <span data-calc-out="barCostValue">$${Math.round(econ.monthlySubscriptionCost).toLocaleString('en-US')} / mo</span>
+                  <span data-calc-out="barCostValue">$${Math.round(econ.subscriptionMonthlyCost).toLocaleString('en-US')} / mo</span>
                 </div>
                 <div class="sim-bar-track">
                   <div class="sim-bar-fill-cost" data-calc-bar="cost"></div>
@@ -2208,7 +2208,7 @@ export function renderLightSales() {
               <div class="sim-bar-row">
                 <div class="sim-bar-meta">
                   <span data-i18n="s5BarValueLabel">${t.s5BarValueLabel}</span>
-                  <span data-calc-out="barGrossValue">$${Math.round(econ.grossMonthlyBenefit).toLocaleString('en-US')} / mo</span>
+                  <span data-calc-out="barGrossValue">$${Math.round(econ.grossMonthlyValue).toLocaleString('en-US')} / mo</span>
                 </div>
                 <div class="sim-bar-track">
                   <div class="sim-bar-fill-value" data-calc-bar="value"></div>

@@ -1252,3 +1252,220 @@ test('bindPresentation switches EN/TH, toggles presentation mode, steps chapters
   assert.equal(errBanner.hidden, true);
   assert.equal(ctrl.state.workload.seats, WORKLOAD_PRESETS.enterprise.seats);
 });
+
+test('light-sales.html: 8-slide motion-graphic sales deck, EN/TH key parity, slide-scoped claim-register qualifiers, and unchanged light.html dossier', async () => {
+  assertParity(lightSalesContent.en, lightSalesContent.th, 'lightSalesContent');
+  const html = output.get('light-sales.html');
+  assert.ok(html, 'light-sales.html must be in generated output');
+  assert.equal(html, renderLightSales());
+
+  // Verify light.html and site/light-presentation.mjs remain completely unchanged
+  assert.equal(output.get('light.html'), renderLight());
+  assert.equal(await read('light.html'), output.get('light.html'));
+
+  // 8 slides with id="slide-1" .. id="slide-8"
+  for (let i = 1; i <= 8; i += 1) {
+    assert.match(html, new RegExp(`id="slide-${i}"`), `missing #slide-${i}`);
+  }
+
+  // Slide-scoped EN & TH claim-register coupling (C5)
+  assert.match(lightSalesContent.en.s1Stat1Sub, /reference deployment/i);
+  assert.match(lightSalesContent.th.s1Stat1Sub, /ระบบอ้างอิงของ Light/);
+  assert.match(lightSalesContent.en.s1Stat2Sub, /32,000 to 800/);
+  assert.match(lightSalesContent.en.s1Stat2Sub, /\$0 direct token cash savings/i);
+  assert.match(lightSalesContent.th.s1Stat2Sub, /32,000 เหลือ 800 โทเคน/);
+  assert.match(lightSalesContent.th.s1Stat2Sub, /\$0/);
+
+  assert.match(lightSalesContent.en.s2Card3Body, /Gartner \(June 2025\)/);
+  assert.match(lightSalesContent.en.s2Card3Body, /end of 2027/);
+  assert.match(lightSalesContent.th.s2Card3Body, /Gartner \(มิถุนายน 2025\)/);
+  assert.match(lightSalesContent.th.s2Card3Body, /2027/);
+
+  for (const key of ['s3Boundary', 's8Boundary']) {
+    assert.match(lightSalesContent.en[key], /Light governs every action routed through the Light MCP server/);
+    assert.match(lightSalesContent.en[key], /outside automatic gate coverage/);
+    assert.match(lightSalesContent.th[key], /Light MCP/);
+    assert.match(lightSalesContent.th[key], /อยู่นอกขอบเขตการกั้นอัตโนมัติ/);
+  }
+
+  assert.match(lightSalesContent.en.s4Card1Qual, /1,400\+ sequenced release runs recorded in Light reference deployment/);
+  assert.match(lightSalesContent.en.s4Card2Qual, /8,600\+ out-of-scope edits and commands refused pre-execution in Light reference deployment/);
+  assert.match(lightSalesContent.en.s4Card3Qual, /including aborted plans/);
+  assert.match(lightSalesContent.th.s4Card1Qual, /ระบบอ้างอิงของ Light/);
+  assert.match(lightSalesContent.th.s4Card2Qual, /ระบบอ้างอิงของ Light/);
+  assert.match(lightSalesContent.th.s4Card3Qual, /รวมแผนที่สั่งยกเลิก/);
+
+  assert.match(lightSalesContent.en.s5Assumptions, /DEFAULT_WORKLOAD/);
+  assert.match(lightSalesContent.en.s5Assumptions, /\$0 direct token cash savings/);
+  assert.match(lightSalesContent.th.s5Assumptions, /DEFAULT_WORKLOAD/);
+  assert.match(lightSalesContent.th.s5Assumptions, /\$0/);
+
+  // Idiomatic Thai check: no stiff literal jargon or superseded company spellings
+  const allThai = Object.values(lightSalesContent.th).join(' ');
+  assert.ok((allThai.match(/[ก-๙]/g) || []).length > 800, 'Thai copy must be substantial');
+  assert.doesNotMatch(allThai, /ระนาบควบคุมแบบประกาศ|เครื่องจักรสถานะเซสชัน|สมุดบัญชีแฮชลูกโซ่|แฟกเตอร์|แฟคเตอร์/);
+  assert.match(allThai, /บริษัท แฟคเคอร์ ไอ โอ จำกัด/);
+  assert.match(allThai, /0105562205512/);
+});
+
+test('bindSalesDeck and emitted light-sales.html inline script: slide navigation, inert inactive slides, keyboard input guard, reduced-motion tour guard, and ROI calculator', () => {
+  const makeNode = (tag = 'DIV', attrs = {}) => {
+    const n = new FakeNode();
+    n.tagName = tag;
+    n.textContent = '';
+    n.value = attrs.value || '';
+    n.inert = false;
+    const classes = new Set((attrs.class || '').split(/\s+/).filter(Boolean));
+    n.classList = {
+      add: c => classes.add(c),
+      remove: c => classes.delete(c),
+      toggle: (c, force) => {
+        const on = force === undefined ? !classes.has(c) : Boolean(force);
+        if (on) classes.add(c); else classes.delete(c);
+        return on;
+      },
+      contains: c => classes.has(c),
+    };
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    return n;
+  };
+
+  const viewport = makeNode('DIV', { class: 'pitch-viewport' });
+  const slides = Array.from({ length: 8 }, (_, i) => makeNode('SECTION', { class: i === 0 ? 'slide active visible' : 'slide', id: `slide-${i + 1}` }));
+  const dots = Array.from({ length: 8 }, (_, i) => makeNode('BUTTON', { 'data-slide-to': String(i), 'data-i18n-aria': `dot${i + 1}Aria` }));
+  const s1Title = makeNode('H1', { 'data-i18n': 's1Title' });
+  const tourBtn = makeNode('BUTTON', { 'data-action': 'toggle-tour', 'data-i18n': 'tourPlay' });
+  const prevBtn = makeNode('BUTTON', { 'data-action': 'prev-slide', 'data-i18n-aria': 'prevSlideAria' });
+  const nextBtn = makeNode('BUTTON', { 'data-action': 'next-slide', 'data-i18n-aria': 'nextSlideAria' });
+  const counterEl = makeNode('DIV', { 'data-slide-counter': '' });
+  const progressEl = makeNode('DIV', { 'data-slide-progress': '' });
+  const pipelineStage = makeNode('SECTION', { 'data-pipeline-stage': '', 'data-motion-mode': 'governed' });
+  const motionStatus = makeNode('P', { 'data-motion-status': '' });
+  const contactLink = makeNode('A', { 'data-localized-contact': '', href: '/en/contact/' });
+  const dossierLink = makeNode('A', { 'data-localized-dossier': '', href: '/light.html' });
+  const seatsDisplay = makeNode('SPAN', { 'data-calc-display': 'seats' });
+  const rateDisplay = makeNode('SPAN', { 'data-calc-display': 'hourlyRate' });
+  const breakEvenOut = makeNode('P', { 'data-calc-out': 'breakEvenMinutes' });
+  const hoursOut = makeNode('P', { 'data-calc-out': 'hoursReturned' });
+  const netAnnualOut = makeNode('P', { 'data-calc-out': 'netAnnual' });
+  const tokenOut = makeNode('P', { 'data-calc-out': 'tokenSavings' });
+  const barCostOut = makeNode('SPAN', { 'data-calc-out': 'barCostValue' });
+  const barGrossOut = makeNode('SPAN', { 'data-calc-out': 'barGrossValue' });
+  const costBar = makeNode('DIV', { 'data-calc-bar': 'cost' });
+  const valBar = makeNode('DIV', { 'data-calc-bar': 'value' });
+  const seatsInput = makeNode('INPUT', { 'data-calc-input': 'seats', value: '50' });
+  const rateInput = makeNode('INPUT', { 'data-calc-input': 'hourlyRate', value: '100' });
+  const billingSelect = makeNode('SELECT', { 'data-calc-input': 'billingMode', value: 'flat-rate' });
+
+  const root = makeNode('DOCUMENT');
+  root.documentElement = makeNode('HTML', { lang: 'en' });
+  const allMap = {
+    '.slide': slides,
+    '[data-slide-to]': dots,
+    '[data-i18n]': [s1Title, tourBtn],
+    '[data-i18n-aria]': [...dots, prevBtn, nextBtn],
+    '[data-set-lang]': [],
+    '[data-localized-contact]': [contactLink],
+    '[data-localized-services]': [],
+    '[data-localized-dossier]': [dossierLink],
+    '[data-set-motion-mode]': [],
+  };
+  const oneMap = {
+    '.pitch-viewport': viewport,
+    '[data-action="toggle-tour"]': tourBtn,
+    '[data-action="prev-slide"]': prevBtn,
+    '[data-action="next-slide"]': nextBtn,
+    '[data-slide-counter]': counterEl,
+    '[data-slide-progress]': progressEl,
+    '[data-pipeline-stage]': pipelineStage,
+    '[data-motion-status]': motionStatus,
+    '[data-calc-display="seats"]': seatsDisplay,
+    '[data-calc-display="hourlyRate"]': rateDisplay,
+    '[data-calc-out="breakEvenMinutes"]': breakEvenOut,
+    '[data-calc-out="hoursReturned"]': hoursOut,
+    '[data-calc-out="netAnnual"]': netAnnualOut,
+    '[data-calc-out="tokenSavings"]': tokenOut,
+    '[data-calc-out="barCostValue"]': barCostOut,
+    '[data-calc-out="barGrossValue"]': barGrossOut,
+    '[data-calc-bar="cost"]': costBar,
+    '[data-calc-bar="value"]': valBar,
+    '[data-calc-input="seats"]': seatsInput,
+    '[data-calc-input="hourlyRate"]': rateInput,
+    '[data-calc-input="billingMode"]': billingSelect,
+  };
+  root.querySelectorAll = sel => allMap[sel] || [];
+  root.querySelector = sel => oneMap[sel] || null;
+
+  let timerCallback = null;
+  let clearedCount = 0;
+  let mqListener = null;
+  const mockWin = {
+    innerWidth: 1366,
+    innerHeight: 768,
+    location: { search: '?lang=en' },
+    addEventListener: () => {},
+    matchMedia: () => ({
+      matches: false,
+      addEventListener: (_ev, fn) => { mqListener = fn; },
+    }),
+  };
+
+  const deck = bindSalesDeck(root, {
+    window: mockWin,
+    setInterval: fn => { timerCallback = fn; return 77; },
+    clearInterval: () => { clearedCount += 1; timerCallback = null; },
+  });
+
+  // Initial state & stage scaling at 1366x768
+  assert.equal(deck.getState().lang, 'en');
+  assert.equal(deck.getState().activeSlide, 0);
+  assert.equal(slides[0].inert, false);
+  assert.equal(slides[1].inert, true);
+  assert.equal(slides[1].getAttribute('aria-hidden'), 'true');
+  assert.equal(tokenOut.textContent, '$0 / mo (protects flat-rate quota)');
+
+  // Language switch to Thai updates text, aria-label, html.lang, and localized links
+  deck.setLanguage('th');
+  assert.equal(root.documentElement.getAttribute('lang'), 'th');
+  assert.equal(s1Title.textContent, lightSalesContent.th.s1Title);
+  assert.equal(prevBtn.getAttribute('aria-label'), lightSalesContent.th.prevSlideAria);
+  assert.equal(contactLink.getAttribute('href'), '/th/contact/');
+  assert.equal(dossierLink.getAttribute('href'), '/light.html?lang=th');
+
+  // Keyboard navigation advances on BODY, but is ignored on INPUT/SELECT (C4)
+  deck.handleKeyDown({ key: 'ArrowRight', target: { tagName: 'BODY' }, preventDefault() {} });
+  assert.equal(deck.getState().activeSlide, 1);
+  assert.equal(slides[0].inert, true);
+  assert.equal(slides[1].inert, false);
+
+  deck.handleKeyDown({ key: 'ArrowRight', target: { tagName: 'INPUT' }, preventDefault() {} });
+  assert.equal(deck.getState().activeSlide, 1);
+
+  // Autoplay tour starts, advances slide, and cancels when reduced-motion turns on (C3)
+  assert.equal(deck.startTour(), true);
+  assert.equal(deck.getState().tourPlaying, true);
+  assert.ok(typeof timerCallback === 'function');
+  timerCallback();
+  assert.equal(deck.getState().activeSlide, 2);
+
+  // Trigger prefers-reduced-motion change -> immediately stops tour and disables restart
+  mqListener({ matches: true });
+  assert.equal(deck.getState().reducedMotion, true);
+  assert.equal(deck.getState().tourPlaying, false);
+  assert.equal(viewport.getAttribute('data-reduced-motion'), 'true');
+  assert.equal(deck.startTour(), false);
+
+  // Calculator metered mode vs flat-rate $0 and $0/hr break-even null guard
+  deck.setLanguage('en');
+  deck.updateWorkload({ billingMode: 'metered', seats: 100, hourlyRate: 120 });
+  assert.match(tokenOut.textContent, /97\.5% API cut/);
+  deck.updateWorkload({ hourlyRate: 0 });
+  assert.equal(breakEvenOut.textContent, 'N/A ($0/hr)');
+
+  // C2: Evaluate actual emitted inline <script> from light-sales.html in an isolated vm context
+  const html = output.get('light-sales.html');
+  const inlineScript = html.match(/<script>([\s\S]*?)<\/script>\s*<\/body>/)[1];
+  assert.doesNotThrow(() => {
+    vm.runInNewContext(inlineScript, { document: root, window: mockWin, URLSearchParams, Math, Number, String, Object, Array, Boolean, Set });
+  });
+});

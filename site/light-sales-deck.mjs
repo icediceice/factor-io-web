@@ -1098,6 +1098,11 @@ export function bindSalesDeck(root, env = {}) {
 
   if (typeof root.addEventListener === 'function') {
     root.addEventListener('keydown', handleKeyDown);
+    root.addEventListener('wheel', handleWheel, { passive: false });
+    root.addEventListener('touchstart', handleTouchStart, { passive: true });
+    root.addEventListener('touchmove', handleTouchMove, { passive: true });
+    root.addEventListener('touchcancel', handleTouchCancel, { passive: true });
+    root.addEventListener('touchend', handleTouchEnd, { passive: true });
   }
 
   if (win && typeof win.addEventListener === 'function') {

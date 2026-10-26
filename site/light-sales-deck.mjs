@@ -1508,7 +1508,7 @@ export function renderLightSales() {
       font-family: var(--font-display);
       font-size: 48px;
       font-weight: 700;
-      line-height: 1.12;
+      line-height: 1.22;
       letter-spacing: -0.025em;
       color: var(--text-primary);
     }

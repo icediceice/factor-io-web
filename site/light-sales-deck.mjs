@@ -819,16 +819,34 @@ export function bindSalesDeck(root, env = {}) {
     renderEconomics();
   }
 
-  function isInteractiveInput(target) {
-    if (!target || typeof target !== 'object') {
-      return false;
+  function isInteractiveInput(target, options = {}) {
+    const includeButtons = Boolean(options && options.includeButtons);
+    let node = target;
+    while (node && typeof node === 'object') {
+      const tag = String(node.tagName || '').toUpperCase();
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+        return true;
+      }
+      if (node.isContentEditable) {
+        return true;
+      }
+      if (includeButtons) {
+        const role = typeof node.getAttribute === 'function'
+          ? String(node.getAttribute('role') || '').toLowerCase()
+          : String(node.role || '').toLowerCase();
+        if (tag === 'BUTTON' || tag === 'A' || tag === 'SUMMARY' || role === 'button' || role === 'link') {
+          return true;
+        }
+      }
+      node = node.parentElement || node.parentNode || null;
     }
-    const tag = String(target.tagName || '').toUpperCase();
-    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
-      return true;
-    }
-    if (target.isContentEditable) {
-      return true;
+    if (target && typeof target.closest === 'function') {
+      const selector = includeButtons
+        ? 'button, a, summary, [role="button"], [role="link"], input, select, textarea, [contenteditable="true"]'
+        : 'input, select, textarea, [contenteditable="true"]';
+      if (target.closest(selector)) {
+        return true;
+      }
     }
     return false;
   }
@@ -837,17 +855,20 @@ export function bindSalesDeck(root, env = {}) {
     if (!event) {
       return;
     }
-    if (isInteractiveInput(event.target)) {
+    if (isInteractiveInput(event.target, { includeButtons: false })) {
       return;
     }
     const key = event.key;
-    if (key === 'ArrowRight' || key === 'PageDown' || key === ' ') {
+    if ((key === ' ' || key === 'Spacebar' || key === 'Enter') && isInteractiveInput(event.target, { includeButtons: true })) {
+      return;
+    }
+    if (key === 'ArrowRight' || key === 'ArrowDown' || key === 'PageDown' || key === ' ') {
       if (typeof event.preventDefault === 'function') {
         event.preventDefault();
       }
       stopTour();
       goToSlide(state.activeSlide + 1);
-    } else if (key === 'ArrowLeft' || key === 'PageUp') {
+    } else if (key === 'ArrowLeft' || key === 'ArrowUp' || key === 'PageUp') {
       if (typeof event.preventDefault === 'function') {
         event.preventDefault();
       }
@@ -866,6 +887,121 @@ export function bindSalesDeck(root, env = {}) {
       stopTour();
       goToSlide(TOTAL_SLIDES - 1);
     }
+  }
+
+  let lastWheelAt = null;
+  let lastWheelSign = 0;
+  let wheelBurstConsumed = false;
+  let wheelAccum = 0;
+
+  function handleWheel(event) {
+    if (!event) {
+      return;
+    }
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+    if (isInteractiveInput(event.target, { includeButtons: false })) {
+      return;
+    }
+    const mode = Number(event.deltaMode) || 0;
+    const multiplier = mode === 1 ? 16 : mode === 2 ? 100 : 1;
+    const dy = (Number(event.deltaY) || 0) * multiplier;
+    const dx = (Number(event.deltaX) || 0) * multiplier;
+    const dominant = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
+    if (dominant === 0) {
+      return;
+    }
+    const sign = dominant > 0 ? 1 : -1;
+    const rawTs = Number(event.timeStamp);
+    const now = Number.isFinite(rawTs) && rawTs >= 0
+      ? rawTs
+      : (typeof Date !== 'undefined' && typeof Date.now === 'function' ? Date.now() : 0);
+
+    if (
+      lastWheelAt === null ||
+      now - lastWheelAt > 180 ||
+      now < lastWheelAt ||
+      (sign !== lastWheelSign && Math.abs(dominant) >= 24)
+    ) {
+      wheelBurstConsumed = false;
+      wheelAccum = 0;
+    }
+    lastWheelAt = now;
+    lastWheelSign = sign;
+
+    if (wheelBurstConsumed) {
+      return;
+    }
+
+    wheelAccum += dominant;
+    if (Math.abs(wheelAccum) >= 24) {
+      wheelBurstConsumed = true;
+      wheelAccum = 0;
+      if (typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+      stopTour();
+      goToSlide(state.activeSlide + (sign > 0 ? 1 : -1));
+    }
+  }
+
+  let touchGesture = null;
+
+  function handleTouchStart(event) {
+    if (!event) {
+      return;
+    }
+    const touches = event.touches || event.changedTouches || [];
+    if (touches.length !== 1 || isInteractiveInput(event.target, { includeButtons: true })) {
+      touchGesture = null;
+      return;
+    }
+    const t = touches[0];
+    touchGesture = {
+      startX: Number(t && t.clientX) || 0,
+      startY: Number(t && t.clientY) || 0,
+      active: true
+    };
+  }
+
+  function handleTouchMove(event) {
+    if (!touchGesture || !touchGesture.active) {
+      return;
+    }
+    if (event && event.touches && event.touches.length > 1) {
+      touchGesture = null;
+    }
+  }
+
+  function handleTouchCancel() {
+    touchGesture = null;
+  }
+
+  function handleTouchEnd(event) {
+    if (!touchGesture || !touchGesture.active) {
+      touchGesture = null;
+      return;
+    }
+    if (event && event.touches && event.touches.length > 0) {
+      touchGesture = null;
+      return;
+    }
+    const start = touchGesture;
+    touchGesture = null;
+    const changed = (event && (event.changedTouches || event.touches)) || [];
+    if (!changed.length) {
+      return;
+    }
+    const t = changed[0];
+    const dx = (Number(t && t.clientX) || 0) - start.startX;
+    const dy = (Number(t && t.clientY) || 0) - start.startY;
+    if (Math.abs(dx) < 40 && Math.abs(dy) < 40) {
+      return;
+    }
+    const primaryDelta = Math.abs(dx) >= Math.abs(dy) ? dx : dy;
+    stopTour();
+    goToSlide(state.activeSlide + (primaryDelta < 0 ? 1 : -1));
   }
 
   const prevBtn = root.querySelector('[data-action="prev-slide"]');

@@ -2339,96 +2339,166 @@ export function renderLightSales() {
         <div class="pitch-progress-fill" data-slide-progress></div>
       </div>
 
-      <!-- SLIDE 1: THE HOOK (MOTION GRAPHIC ENGINE VS AIR TRAFFIC CONTROL) -->
+      <!-- SLIDE 1: THE HOOK (ASYMMETRIC HERO POSTER + RADAR CONTROL TOWER) -->
       <section class="slide active visible" id="slide-1" data-slide-index="0" aria-hidden="false">
-        <div class="slide-header">
-          <p class="slide-eyebrow" data-i18n="s1Tag">${t.s1Tag}</p>
-          <h1 class="slide-title" data-i18n="s1Title">${t.s1Title}</h1>
-          <p class="slide-lead" data-i18n="s1Lead">${t.s1Lead}</p>
-        </div>
+        <div class="s1-hero-split">
+          <div class="s1-left-col">
+            <div class="slide-header">
+              <p class="slide-eyebrow" data-i18n="s1Tag">${t.s1Tag}</p>
+              <h1 class="slide-title" data-i18n="s1Title">${t.s1Title}</h1>
+              <p class="slide-lead" data-i18n="s1Lead">${t.s1Lead}</p>
+            </div>
 
-        <div class="mg-panel">
-          <div class="mg-panel-header">
-            <span class="mg-panel-label" data-i18n="s1VisualTitle">${t.s1VisualTitle}</span>
-            <div class="mg-badge-row">
-              <span class="mg-badge mg-badge-coral" data-i18n="s1VisualLeftBadge">${t.s1VisualLeftBadge}</span>
-              <span class="mg-badge mg-badge-teal" data-i18n="s1VisualRightBadge">${t.s1VisualRightBadge}</span>
+            <div class="s1-stat-stack">
+              <article class="s1-stat-row">
+                <div class="s1-stat-pillar">
+                  <p class="card-metric" data-i18n="s1Stat1Num">${t.s1Stat1Num}</p>
+                </div>
+                <div class="s1-stat-copy">
+                  <h2 class="card-title" data-i18n="s1Stat1Title">${t.s1Stat1Title}</h2>
+                  <p class="card-qualifier" data-i18n="s1Stat1Sub">${t.s1Stat1Sub}</p>
+                </div>
+              </article>
+              <article class="s1-stat-row s1-stat-row-teal">
+                <div class="s1-stat-pillar">
+                  <p class="card-metric" data-i18n="s1Stat2Num">${t.s1Stat2Num}</p>
+                </div>
+                <div class="s1-stat-copy">
+                  <h2 class="card-title" data-i18n="s1Stat2Title">${t.s1Stat2Title}</h2>
+                  <p class="card-qualifier" data-i18n="s1Stat2Sub">${t.s1Stat2Sub}</p>
+                </div>
+              </article>
+              <article class="s1-stat-row">
+                <div class="s1-stat-pillar">
+                  <p class="card-metric" data-i18n="s1Stat3Num">${t.s1Stat3Num}</p>
+                </div>
+                <div class="s1-stat-copy">
+                  <h2 class="card-title" data-i18n="s1Stat3Title">${t.s1Stat3Title}</h2>
+                  <p class="card-qualifier" data-i18n="s1Stat3Sub">${t.s1Stat3Sub}</p>
+                </div>
+              </article>
             </div>
           </div>
-          <div class="mg-svg-wrap">
-            <svg viewBox="0 0 1680 220" role="img" aria-label="Animated motion graphic comparing ungoverned AI streams with Light Air Traffic Control">
-              <rect x="24" y="26" width="380" height="168" rx="14" fill="#111a2e" stroke="#475569" stroke-width="2" />
-              <text x="214" y="88" text-anchor="middle" fill="#f8fafc" font-size="22" font-weight="700" data-i18n="s1SvgNode1">${t.s1SvgNode1}</text>
-              <text x="214" y="132" text-anchor="middle" fill="#94a3b8" font-size="16" font-weight="600">50 to 500 Parallel AI Seats</text>
 
-              <!-- Unchecked red lane deflecting at the gate -->
-              <path d="M 404 72 C 510 72, 540 52, 636 52" fill="none" stroke="#fb7185" stroke-width="4" class="mg-stream-fast" />
-              <circle cx="642" cy="52" r="9" fill="#fb7185" class="mg-pulse-node" />
+          <aside class="s1-radar-console" aria-label="Light Air Traffic Control Telemetry Stage">
+            <div class="mg-panel-header">
+              <span class="mg-panel-label" data-i18n="s1VisualTitle">${t.s1VisualTitle}</span>
+              <div class="mg-badge-row">
+                <span class="mg-badge mg-badge-coral" data-i18n="s1VisualLeftBadge">${t.s1VisualLeftBadge}</span>
+                <span class="mg-badge mg-badge-teal" data-i18n="s1VisualRightBadge">${t.s1VisualRightBadge}</span>
+              </div>
+            </div>
 
-              <!-- Governed amber/teal stream through Light -->
-              <path d="M 404 118 L 640 118" fill="none" stroke="#fbbf24" stroke-width="5" class="mg-stream-line" />
-              <rect x="646" y="22" width="440" height="176" rx="16" fill="#17233a" stroke="#fbbf24" stroke-width="3" />
-              <text x="866" y="84" text-anchor="middle" fill="#fbbf24" font-size="24" font-weight="700" data-i18n="s1SvgNode2">${t.s1SvgNode2}</text>
-              <text x="866" y="124" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="600">Scope Lock + 2nd-Model Audit + Human Go</text>
-              <text x="866" y="160" text-anchor="middle" fill="#2dd4bf" font-size="15" font-weight="600">8,600+ Out-of-Scope Actions Refused</text>
+            <div class="mg-svg-wrap" style="height: 360px;">
+              <svg viewBox="0 0 760 320" role="img" aria-label="Schematic radar graphic comparing ungoverned AI streams with Light Air Traffic Control">
+                <defs>
+                  <radialGradient id="s1RadarGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.22" />
+                    <stop offset="60%" stop-color="#2dd4bf" stop-opacity="0.08" />
+                    <stop offset="100%" stop-color="#070b14" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <!-- Radar Sweep Rings -->
+                <circle cx="380" cy="160" r="145" fill="url(#s1RadarGlow)" stroke="#1e293b" stroke-width="1.5" />
+                <circle cx="380" cy="160" r="102" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 6" />
+                <circle cx="380" cy="160" r="58" fill="#131e35" stroke="#fbbf24" stroke-width="3" />
+                <line x1="380" y1="12" x2="380" y2="308" stroke="#1e293b" stroke-width="1" />
+                <line x1="40" y1="160" x2="720" y2="160" stroke="#1e293b" stroke-width="1" />
 
-              <path d="M 1086 118 L 1254 118" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
-              <rect x="1260" y="26" width="396" height="168" rx="14" fill="#11282b" stroke="#2dd4bf" stroke-width="2.5" />
-              <text x="1458" y="92" text-anchor="middle" fill="#5eead4" font-size="22" font-weight="700" data-i18n="s1SvgNode3">${t.s1SvgNode3}</text>
-              <text x="1458" y="134" text-anchor="middle" fill="#cbd5e1" font-size="16" font-weight="600">Sequenced Queue + Audit Receipt</text>
-            </svg>
-          </div>
-        </div>
+                <!-- Incoming Parallel AI Flight Vectors (Left) -->
+                <path d="M 36 68 C 140 68, 210 92, 312 108" fill="none" stroke="#fb7185" stroke-width="4" class="mg-stream-fast" />
+                <path d="M 312 108 L 268 42" fill="none" stroke="#fb7185" stroke-width="3" stroke-dasharray="5 5" />
+                <circle cx="268" cy="42" r="8" fill="#fb7185" class="mg-pulse-node" />
 
-        <div class="cards-grid-3">
-          <article class="sales-card sales-card-amber">
-            <p class="card-metric" data-i18n="s1Stat1Num">${t.s1Stat1Num}</p>
-            <h2 class="card-title" data-i18n="s1Stat1Title">${t.s1Stat1Title}</h2>
-            <p class="card-qualifier" data-i18n="s1Stat1Sub">${t.s1Stat1Sub}</p>
-          </article>
-          <article class="sales-card sales-card-teal">
-            <p class="card-metric" data-i18n="s1Stat2Num">${t.s1Stat2Num}</p>
-            <h2 class="card-title" data-i18n="s1Stat2Title">${t.s1Stat2Title}</h2>
-            <p class="card-qualifier" data-i18n="s1Stat2Sub">${t.s1Stat2Sub}</p>
-          </article>
-          <article class="sales-card sales-card-amber">
-            <p class="card-metric" data-i18n="s1Stat3Num">${t.s1Stat3Num}</p>
-            <h2 class="card-title" data-i18n="s1Stat3Title">${t.s1Stat3Title}</h2>
-            <p class="card-qualifier" data-i18n="s1Stat3Sub">${t.s1Stat3Sub}</p>
-          </article>
+                <path d="M 36 132 L 322 148" fill="none" stroke="#fbbf24" stroke-width="4.5" class="mg-stream-line" />
+                <path d="M 36 188 L 322 172" fill="none" stroke="#fbbf24" stroke-width="4.5" class="mg-stream-line" />
+                <path d="M 36 252 C 140 252, 210 228, 312 212" fill="none" stroke="#fb7185" stroke-width="4" class="mg-stream-fast" />
+                <path d="M 312 212 L 268 278" fill="none" stroke="#fb7185" stroke-width="3" stroke-dasharray="5 5" />
+                <circle cx="268" cy="278" r="8" fill="#fb7185" class="mg-pulse-node" />
+
+                <!-- Central Control Tower Core -->
+                <circle cx="380" cy="160" r="18" fill="#fbbf24" class="mg-pulse-node" />
+                <circle cx="380" cy="160" r="8" fill="#070b14" />
+
+                <!-- Sequenced Cleared Output Tracks (Right) -->
+                <path d="M 438 148 L 716 124" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
+                <path d="M 438 160 L 716 160" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
+                <path d="M 438 172 L 716 196" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
+                <circle cx="716" cy="124" r="7" fill="#2dd4bf" />
+                <circle cx="716" cy="160" r="7" fill="#2dd4bf" />
+                <circle cx="716" cy="196" r="7" fill="#2dd4bf" />
+              </svg>
+            </div>
+
+            <div class="s1-node-grid">
+              <div class="s1-node-card">
+                <span class="s1-node-step">01 // PARALLEL AGENTS</span>
+                <p class="s1-node-title" data-i18n="s1SvgNode1">${t.s1SvgNode1}</p>
+              </div>
+              <div class="s1-node-card s1-node-card-tower">
+                <span class="s1-node-step">02 // CONTROL TOWER</span>
+                <p class="s1-node-title" data-i18n="s1SvgNode2">${t.s1SvgNode2}</p>
+              </div>
+              <div class="s1-node-card s1-node-card-release">
+                <span class="s1-node-step">03 // VERIFIED SHIP</span>
+                <p class="s1-node-title" data-i18n="s1SvgNode3">${t.s1SvgNode3}</p>
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
 
       <!-- SLIDE 2: HOW UNGOVERNED AI ACCELERATES THE PROBLEM -->
       <section class="slide" id="slide-2" data-slide-index="1" aria-hidden="true" inert>
-        <div class="slide-header">
+        <div class="slide-header slide-header-coral">
           <p class="slide-eyebrow" data-i18n="s2Tag">${t.s2Tag}</p>
           <h2 class="slide-title" data-i18n="s2Title">${t.s2Title}</h2>
           <p class="slide-lead" data-i18n="s2Lead">${t.s2Lead}</p>
         </div>
 
-        <div class="mg-panel">
+        <div class="mg-panel mg-panel-coral">
           <div class="mg-panel-header">
             <span class="mg-panel-label" data-i18n="s2SvgTitle">${t.s2SvgTitle}</span>
+            <div class="mg-badge-row">
+              <span class="mg-badge mg-badge-coral">3X AI CODE FLOOD VS. HUMAN REVIEW CAPACITY</span>
+            </div>
           </div>
-          <div class="mg-svg-wrap">
-            <svg viewBox="0 0 1680 220" role="img" aria-label="Animated causal chain showing how ungoverned AI accelerates bottlenecks and production incidents">
-              <rect x="28" y="30" width="460" height="160" rx="14" fill="#1e1b2e" stroke="#fbbf24" stroke-width="2" />
-              <text x="258" y="92" text-anchor="middle" fill="#fbbf24" font-size="22" font-weight="700" data-i18n="s2SvgStep1">${t.s2SvgStep1}</text>
-              <text x="258" y="134" text-anchor="middle" fill="#cbd5e1" font-size="16" font-weight="600">Unplanned edits across repositories</text>
 
-              <path d="M 488 110 L 606 110" fill="none" stroke="#fb7185" stroke-width="6" class="mg-stream-fast" />
+          <div class="s2-crisis-split">
+            <div class="s2-divergence-wrap">
+              <svg viewBox="0 0 680 214" role="img" aria-label="Schematic divergence diagram showing 3x AI code output outpacing flat human review capacity">
+                <!-- Grid & Axes -->
+                <line x1="48" y1="28" x2="48" y2="182" stroke="#334155" stroke-width="2" />
+                <line x1="48" y1="182" x2="644" y2="182" stroke="#334155" stroke-width="2" />
+                <line x1="48" y1="105" x2="644" y2="105" stroke="#1e293b" stroke-width="1" stroke-dasharray="6 6" />
+                <!-- Shaded Bottleneck Wedge -->
+                <path d="M 48 164 C 240 156, 410 108, 628 32 L 628 160 L 48 164 Z" fill="#fb7185" fill-opacity="0.16" />
+                <!-- Flat Human Review Capacity Line -->
+                <path d="M 48 164 L 628 160" fill="none" stroke="#2dd4bf" stroke-width="4" stroke-dasharray="10 8" />
+                <!-- Rising 3x Unchecked AI Output Curve -->
+                <path d="M 48 164 C 240 156, 410 108, 628 32" fill="none" stroke="#fb7185" stroke-width="5" class="mg-stream-fast" />
+                <circle cx="240" cy="144" r="7" fill="#fbbf24" />
+                <circle cx="436" cy="92" r="8" fill="#fb7185" class="mg-pulse-node" />
+                <circle cx="628" cy="32" r="9" fill="#fb7185" class="mg-pulse-node" />
+                <text x="68" y="54" fill="#fda4af" font-size="16" font-weight="700">3x Unchecked AI Code Flood</text>
+                <text x="68" y="150" fill="#5eead4" font-size="15" font-weight="600">1x Human Review Capacity</text>
+              </svg>
+            </div>
 
-              <rect x="610" y="30" width="460" height="160" rx="14" fill="#2a1626" stroke="#fb7185" stroke-width="2.5" />
-              <text x="840" y="92" text-anchor="middle" fill="#fda4af" font-size="22" font-weight="700" data-i18n="s2SvgStep2">${t.s2SvgStep2}</text>
-              <text x="840" y="134" text-anchor="middle" fill="#cbd5e1" font-size="16" font-weight="600">2,000-line diffs stall human review</text>
-
-              <path d="M 1070 110 L 1188 110" fill="none" stroke="#fb7185" stroke-width="6" class="mg-stream-fast" />
-
-              <rect x="1192" y="30" width="460" height="160" rx="14" fill="#311321" stroke="#fb7185" stroke-width="3" />
-              <text x="1422" y="92" text-anchor="middle" fill="#fb7185" font-size="22" font-weight="700" data-i18n="s2SvgStep3">${t.s2SvgStep3}</text>
-              <text x="1422" y="134" text-anchor="middle" fill="#fecdd3" font-size="16" font-weight="600">&gt;40% Canceled by 2027 (Gartner, June 2025)</text>
-            </svg>
+            <div class="s2-causal-list">
+              <div class="s2-causal-node s2-causal-node-amber">
+                <span class="s2-causal-badge">CAUSE 01 // VOLUME SPIKE</span>
+                <p class="s2-causal-title" data-i18n="s2SvgStep1">${t.s2SvgStep1}</p>
+              </div>
+              <div class="s2-causal-node">
+                <span class="s2-causal-badge">CAUSE 02 // REVIEW JAM</span>
+                <p class="s2-causal-title" data-i18n="s2SvgStep2">${t.s2SvgStep2}</p>
+              </div>
+              <div class="s2-causal-node">
+                <span class="s2-causal-badge">CAUSE 03 // PROD FALLOUT</span>
+                <p class="s2-causal-title" data-i18n="s2SvgStep3">${t.s2SvgStep3}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2453,7 +2523,7 @@ export function renderLightSales() {
 
       <!-- SLIDE 3: HOW LIGHT SOLVES IT (INTERACTIVE 4-GATE MOTION PIPELINE) -->
       <section class="slide" id="slide-3" data-slide-index="2" data-pipeline-stage data-motion-mode="governed" aria-hidden="true" inert>
-        <div class="slide-header">
+        <div class="slide-header slide-header-teal">
           <p class="slide-eyebrow" data-i18n="s3Tag">${t.s3Tag}</p>
           <h2 class="slide-title" data-i18n="s3Title">${t.s3Title}</h2>
           <p class="slide-lead" data-i18n="s3Lead">${t.s3Lead}</p>
@@ -2468,36 +2538,44 @@ export function renderLightSales() {
             </div>
             <p class="mode-status-banner" data-motion-status data-i18n="s3ModeStatusGoverned">${t.s3ModeStatusGoverned}</p>
           </div>
-          <div class="mg-svg-wrap" style="height: 175px;">
-            <svg viewBox="0 0 1680 175" role="img" aria-label="Interactive 4-gate Light governance pipeline">
+          <div class="mg-svg-wrap" style="height: 165px;">
+            <svg viewBox="0 0 1680 165" role="img" aria-label="Interactive 4-gate Light governance airlock pipeline">
               <!-- Chaos bypass trajectory -->
               <g class="svg-chaos-group">
-                <path d="M 60 32 C 420 12, 1180 12, 1620 32" fill="none" stroke="#fb7185" stroke-width="4" class="mg-stream-fast" />
-                <text x="840" y="28" text-anchor="middle" fill="#fda4af" font-size="15" font-weight="600">UNCHECKED BYPASS: No Plan -> Unreviewed Diffs -> Release Collision</text>
+                <path d="M 60 28 C 420 8, 1260 8, 1620 28" fill="none" stroke="#fb7185" stroke-width="4" class="mg-stream-fast" />
+                <circle cx="840" cy="14" r="7" fill="#fb7185" class="mg-pulse-node" />
               </g>
-              <!-- Governed 4-gate trajectory -->
+              <!-- Governed 4-gate airlock chambers -->
               <g class="svg-governed-group">
-                <rect x="36" y="58" width="350" height="96" rx="12" fill="#152238" stroke="#fbbf24" stroke-width="2.5" />
-                <text x="211" y="102" text-anchor="middle" fill="#fbbf24" font-size="20" font-weight="700">01. Scope Lock</text>
-                <text x="211" y="132" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">Manifest declared upfront</text>
+                <rect x="36" y="46" width="350" height="98" rx="14" fill="#162038" stroke="#fbbf24" stroke-width="3" />
+                <circle cx="86" cy="95" r="22" fill="#1f1a0a" stroke="#fbbf24" stroke-width="2" />
+                <text x="86" y="102" text-anchor="middle" fill="#fbbf24" font-size="18" font-weight="700">G1</text>
+                <text x="232" y="92" text-anchor="middle" fill="#fbbf24" font-size="20" font-weight="700">01. Scope Lock</text>
+                <text x="232" y="122" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">Manifest declared upfront</text>
 
-                <path d="M 386 106 L 458 106" fill="none" stroke="#fbbf24" stroke-width="5" class="mg-stream-line" />
+                <path d="M 386 95 L 458 95" fill="none" stroke="#fbbf24" stroke-width="5" class="mg-stream-line" />
 
-                <rect x="462" y="58" width="350" height="96" rx="12" fill="#152238" stroke="#fbbf24" stroke-width="2.5" />
-                <text x="637" y="102" text-anchor="middle" fill="#fbbf24" font-size="20" font-weight="700">02. Rival AI Audit</text>
-                <text x="637" y="132" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">2nd model falsifies plan</text>
+                <rect x="462" y="46" width="350" height="98" rx="14" fill="#162038" stroke="#fbbf24" stroke-width="3" />
+                <circle cx="512" cy="95" r="22" fill="#1f1a0a" stroke="#fbbf24" stroke-width="2" />
+                <text x="512" y="102" text-anchor="middle" fill="#fbbf24" font-size="18" font-weight="700">G2</text>
+                <text x="658" y="92" text-anchor="middle" fill="#fbbf24" font-size="20" font-weight="700">02. Rival AI Audit</text>
+                <text x="658" y="122" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">2nd model falsifies plan</text>
 
-                <path d="M 812 106 L 884 106" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
+                <path d="M 812 95 L 884 95" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
 
-                <rect x="888" y="58" width="350" height="96" rx="12" fill="#152238" stroke="#2dd4bf" stroke-width="2.5" />
-                <text x="1063" y="102" text-anchor="middle" fill="#5eead4" font-size="20" font-weight="700">03. Human Go</text>
-                <text x="1063" y="132" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">1-click operator approval</text>
+                <rect x="888" y="46" width="350" height="98" rx="14" fill="#112432" stroke="#2dd4bf" stroke-width="3" />
+                <circle cx="938" cy="95" r="22" fill="#0d2528" stroke="#2dd4bf" stroke-width="2" />
+                <text x="938" y="102" text-anchor="middle" fill="#5eead4" font-size="18" font-weight="700">G3</text>
+                <text x="1084" y="92" text-anchor="middle" fill="#5eead4" font-size="20" font-weight="700">03. Human Go</text>
+                <text x="1084" y="122" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">1-click operator approval</text>
 
-                <path d="M 1238 106 L 1304 106" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
+                <path d="M 1238 95 L 1304 95" fill="none" stroke="#2dd4bf" stroke-width="5" class="mg-stream-line" />
 
-                <rect x="1308" y="58" width="336" height="96" rx="12" fill="#11282b" stroke="#2dd4bf" stroke-width="2.5" />
-                <text x="1476" y="102" text-anchor="middle" fill="#5eead4" font-size="20" font-weight="700">04. Safe Release</text>
-                <text x="1476" y="132" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">Ordered deploy + receipt</text>
+                <rect x="1308" y="46" width="336" height="98" rx="14" fill="#0f282c" stroke="#2dd4bf" stroke-width="3" />
+                <circle cx="1356" cy="95" r="22" fill="#0d2528" stroke="#2dd4bf" stroke-width="2" />
+                <text x="1356" y="102" text-anchor="middle" fill="#5eead4" font-size="18" font-weight="700">G4</text>
+                <text x="1496" y="92" text-anchor="middle" fill="#5eead4" font-size="20" font-weight="700">04. Safe Release</text>
+                <text x="1496" y="122" text-anchor="middle" fill="#cbd5e1" font-size="15" font-weight="600">Ordered deploy + receipt</text>
               </g>
             </svg>
           </div>
@@ -2529,47 +2607,51 @@ export function renderLightSales() {
         <p class="boundary-strip" data-i18n="s3Boundary">${t.s3Boundary}</p>
       </section>
 
-      <!-- SLIDE 4: WHAT NON-TECHNICAL LEADERS CONCRETELY GET -->
+      <!-- SLIDE 4: WHAT NON-TECHNICAL LEADERS CONCRETELY GET (BROADSIDE TRIPTYCH) -->
       <section class="slide" id="slide-4" data-slide-index="3" aria-hidden="true" inert>
-        <div class="slide-header">
+        <div class="slide-header slide-header-teal">
           <p class="slide-eyebrow" data-i18n="s4Tag">${t.s4Tag}</p>
           <h2 class="slide-title" data-i18n="s4Title">${t.s4Title}</h2>
           <p class="slide-lead" data-i18n="s4Lead">${t.s4Lead}</p>
         </div>
 
-        <div class="mg-svg-wrap" style="height: 170px;">
-          <svg viewBox="0 0 1680 170" role="img" aria-label="Executive outcome telemetry bars">
-            <rect x="28" y="24" width="510" height="122" rx="14" fill="#132238" stroke="#2dd4bf" stroke-width="2" />
-            <text x="58" y="70" fill="#5eead4" font-size="22" font-weight="700">DELIVERY CADENCE</text>
-            <rect x="58" y="94" width="440" height="18" rx="9" fill="#070b13" />
-            <rect x="58" y="94" width="390" height="18" rx="9" fill="#2dd4bf" />
-
-            <rect x="585" y="24" width="510" height="122" rx="14" fill="#132238" stroke="#fbbf24" stroke-width="2" />
-            <text x="615" y="70" fill="#fbbf24" font-size="22" font-weight="700">PRE-EXECUTION SCOPE CONTAINMENT</text>
-            <rect x="615" y="94" width="440" height="18" rx="9" fill="#070b13" />
-            <rect x="615" y="94" width="415" height="18" rx="9" fill="#fbbf24" />
-
-            <rect x="1142" y="24" width="510" height="122" rx="14" fill="#132238" stroke="#2dd4bf" stroke-width="2" />
-            <text x="1172" y="70" fill="#5eead4" font-size="22" font-weight="700">CRYPTOGRAPHIC AUDIT TRACEABILITY</text>
-            <rect x="1172" y="94" width="440" height="18" rx="9" fill="#070b13" />
-            <rect x="1172" y="94" width="430" height="18" rx="9" fill="#2dd4bf" />
-          </svg>
-        </div>
-
-        <div class="cards-grid-3">
-          <article class="sales-card sales-card-teal">
+        <div class="cards-grid-3" style="flex: 1; align-items: stretch;">
+          <article class="triptych-col">
+            <div class="triptych-gauge" aria-hidden="true">
+              <svg viewBox="0 0 480 54">
+                <rect x="18" y="18" width="444" height="18" rx="9" fill="#0d1726" />
+                <rect x="18" y="18" width="396" height="18" rx="9" fill="#2dd4bf" />
+                <circle cx="414" cy="27" r="6" fill="#f8fafc" class="mg-pulse-node" />
+              </svg>
+            </div>
             <p class="card-metric" data-i18n="s4Card1Metric">${t.s4Card1Metric}</p>
             <h3 class="card-title" data-i18n="s4Card1Title">${t.s4Card1Title}</h3>
             <p class="card-body" data-i18n="s4Card1Body">${t.s4Card1Body}</p>
             <p class="card-qualifier" data-i18n="s4Card1Qual">${t.s4Card1Qual}</p>
           </article>
-          <article class="sales-card sales-card-amber">
+
+          <article class="triptych-col triptych-col-amber">
+            <div class="triptych-gauge" aria-hidden="true">
+              <svg viewBox="0 0 480 54">
+                <rect x="18" y="18" width="444" height="18" rx="9" fill="#0d1726" />
+                <rect x="18" y="18" width="418" height="18" rx="9" fill="#fbbf24" />
+                <circle cx="436" cy="27" r="6" fill="#f8fafc" class="mg-pulse-node" />
+              </svg>
+            </div>
             <p class="card-metric" data-i18n="s4Card2Metric">${t.s4Card2Metric}</p>
             <h3 class="card-title" data-i18n="s4Card2Title">${t.s4Card2Title}</h3>
             <p class="card-body" data-i18n="s4Card2Body">${t.s4Card2Body}</p>
             <p class="card-qualifier" data-i18n="s4Card2Qual">${t.s4Card2Qual}</p>
           </article>
-          <article class="sales-card sales-card-teal">
+
+          <article class="triptych-col">
+            <div class="triptych-gauge" aria-hidden="true">
+              <svg viewBox="0 0 480 54">
+                <rect x="18" y="18" width="444" height="18" rx="9" fill="#0d1726" />
+                <rect x="18" y="18" width="432" height="18" rx="9" fill="#2dd4bf" />
+                <circle cx="450" cy="27" r="6" fill="#f8fafc" class="mg-pulse-node" />
+              </svg>
+            </div>
             <p class="card-metric" data-i18n="s4Card3Metric">${t.s4Card3Metric}</p>
             <h3 class="card-title" data-i18n="s4Card3Title">${t.s4Card3Title}</h3>
             <p class="card-body" data-i18n="s4Card3Body">${t.s4Card3Body}</p>

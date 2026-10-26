@@ -486,16 +486,29 @@ export function bindSalesDeck(root, env = {}) {
 
   function updateStageScale() {
     const viewportEl = root.querySelector('.pitch-viewport');
-    if (!viewportEl) {
-      return 1;
-    }
+    const stageEl = root.querySelector('.pitch-stage');
     const vw = Number(win && win.innerWidth) || 1920;
     const vh = Number(win && win.innerHeight) || 1080;
     const scale = Math.min(vw / 1920, vh / 1080);
-    if (viewportEl.style && typeof viewportEl.style.setProperty === 'function') {
+    const x = Math.round((vw - 1920 * scale) / 2);
+    const y = Math.round((vh - 1080 * scale) / 2);
+    if (viewportEl && viewportEl.style && typeof viewportEl.style.setProperty === 'function') {
       viewportEl.style.setProperty('--slide-scale', String(scale));
+      viewportEl.style.setProperty('--stage-x', `${x}px`);
+      viewportEl.style.setProperty('--stage-y', `${y}px`);
     }
-    return scale;
+    if (stageEl && stageEl.style && typeof stageEl.style.setProperty === 'function') {
+      stageEl.style.setProperty('--slide-scale', String(scale));
+      stageEl.style.setProperty('--stage-x', `${x}px`);
+      stageEl.style.setProperty('--stage-y', `${y}px`);
+    }
+    return {
+      scale,
+      x,
+      y,
+      width: Math.round(1920 * scale),
+      height: Math.round(1080 * scale)
+    };
   }
 
   function stopTour() {

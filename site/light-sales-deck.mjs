@@ -1302,12 +1302,13 @@ export function renderLightSales() {
 
     .pitch-viewport {
       --slide-scale: 1;
-      position: relative;
+      --stage-x: 0px;
+      --stage-y: 0px;
+      position: fixed;
+      inset: 0;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      display: grid;
-      place-items: center;
       background:
         radial-gradient(circle at 16% 18%, rgba(251, 191, 36, 0.08), transparent 42%),
         radial-gradient(circle at 84% 80%, rgba(45, 212, 191, 0.08), transparent 45%),
@@ -1315,11 +1316,13 @@ export function renderLightSales() {
     }
 
     .pitch-stage {
-      position: relative;
+      position: absolute;
+      left: 0;
+      top: 0;
       width: 1920px;
       height: 1080px;
-      transform: scale(var(--slide-scale, 1));
-      transform-origin: center center;
+      transform-origin: 0 0;
+      transform: translate(var(--stage-x, 0px), var(--stage-y, 0px)) scale(var(--slide-scale, 1));
       background: var(--bg-stage);
       border: 1px solid var(--border-subtle);
       box-shadow: 0 28px 90px rgba(0, 0, 0, 0.65);

@@ -1306,6 +1306,16 @@ test('light-sales.html: 8-slide motion-graphic sales deck, EN/TH key parity, sli
   assert.doesNotMatch(allThai, /ระนาบควบคุมแบบประกาศ|เครื่องจักรสถานะเซสชัน|สมุดบัญชีแฮชลูกโซ่|แฟกเตอร์|แฟคเตอร์/);
   assert.match(allThai, /บริษัท แฟคเคอร์ ไอ โอ จำกัด/);
   assert.match(allThai, /0105562205512/);
+
+  // Slide 1 & Slide 2 localized node/step copy must never live on unwrapped SVG <text>, and all data-i18n / data-calc-out hooks must be pure text leaves
+  assert.doesNotMatch(html, /<text\b[^>]*data-i18n="/);
+  for (const key of ['s1SvgNode1', 's1SvgNode2', 's1SvgNode3', 's2SvgStep1', 's2SvgStep2', 's2SvgStep3']) {
+    assert.match(html, new RegExp(`<p\\b[^>]*data-i18n="${key}"[^>]*>`));
+  }
+  const bodyMarkup = html.replace(/<script\b[\s\S]*?<\/script>/g, '');
+  for (const m of bodyMarkup.matchAll(/<([a-z0-9]+)\b[^>]*\b(?:data-i18n|data-calc-out)="([^"]+)"[^>]*>([\s\S]*?)<\/\1>/gi)) {
+    assert.doesNotMatch(m[3], /<[a-z]/i, `non-leaf hook ${m[2]} contains child element markup that textContent replacement would clobber`);
+  }
 });
 
 test('bindSalesDeck and emitted light-sales.html inline script: slide navigation, inert inactive slides, keyboard input guard, reduced-motion tour guard, and ROI calculator', () => {

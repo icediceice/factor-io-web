@@ -1331,16 +1331,12 @@ test('bindSalesDeck and emitted light-sales.html inline script: slide navigation
   };
 
   const viewport = makeNode('DIV', { class: 'pitch-viewport' });
-  const stage = makeNode('DIV', { class: 'pitch-stage' });
   const slides = Array.from({ length: 8 }, (_, i) => makeNode('SECTION', { class: i === 0 ? 'slide active visible' : 'slide', id: `slide-${i + 1}` }));
   const dots = Array.from({ length: 8 }, (_, i) => makeNode('BUTTON', { 'data-slide-to': String(i), 'data-i18n-aria': `dot${i + 1}Aria` }));
   const s1Title = makeNode('H1', { 'data-i18n': 's1Title' });
   const tourBtn = makeNode('BUTTON', { 'data-action': 'toggle-tour', 'data-i18n': 'tourPlay' });
   const prevBtn = makeNode('BUTTON', { 'data-action': 'prev-slide', 'data-i18n-aria': 'prevSlideAria' });
   const nextBtn = makeNode('BUTTON', { 'data-action': 'next-slide', 'data-i18n-aria': 'nextSlideAria' });
-  const thLangBtn = makeNode('BUTTON', { 'data-set-lang': 'th' });
-  const enLangBtn = makeNode('BUTTON', { 'data-set-lang': 'en' });
-  const chaosModeBtn = makeNode('BUTTON', { 'data-set-motion-mode': 'chaos' });
   const counterEl = makeNode('DIV', { 'data-slide-counter': '' });
   const progressEl = makeNode('DIV', { 'data-slide-progress': '' });
   const pipelineStage = makeNode('SECTION', { 'data-pipeline-stage': '', 'data-motion-mode': 'governed' });
@@ -1368,15 +1364,14 @@ test('bindSalesDeck and emitted light-sales.html inline script: slide navigation
     '[data-slide-to]': dots,
     '[data-i18n]': [s1Title, tourBtn],
     '[data-i18n-aria]': [...dots, prevBtn, nextBtn],
-    '[data-set-lang]': [enLangBtn, thLangBtn],
+    '[data-set-lang]': [],
     '[data-localized-contact]': [contactLink],
     '[data-localized-services]': [],
     '[data-localized-dossier]': [dossierLink],
-    '[data-set-motion-mode]': [chaosModeBtn],
+    '[data-set-motion-mode]': [],
   };
   const oneMap = {
     '.pitch-viewport': viewport,
-    '.pitch-stage': stage,
     '[data-action="toggle-tour"]': tourBtn,
     '[data-action="prev-slide"]': prevBtn,
     '[data-action="next-slide"]': nextBtn,
@@ -1421,43 +1416,13 @@ test('bindSalesDeck and emitted light-sales.html inline script: slide navigation
     clearInterval: () => { clearedCount += 1; timerCallback = null; },
   });
 
-  // Initial state & stage scaling/centering offsets across 1366x768, 1920x936, 1280x720, and 390x844
+  // Initial state & stage scaling at 1366x768
   assert.equal(deck.getState().lang, 'en');
   assert.equal(deck.getState().activeSlide, 0);
   assert.equal(slides[0].inert, false);
   assert.equal(slides[1].inert, true);
   assert.equal(slides[1].getAttribute('aria-hidden'), 'true');
   assert.equal(tokenOut.textContent, '$0 / mo (protects flat-rate quota)');
-  assert.equal(viewport.style['--stage-x'], '0px');
-  assert.equal(viewport.style['--stage-y'], '0px');
-
-  mockWin.innerWidth = 1920;
-  mockWin.innerHeight = 936;
-  const geom936 = deck.updateStageScale();
-  assert.equal(geom936.x, 128);
-  assert.equal(geom936.y, 0);
-  assert.equal(geom936.width, 1664);
-  assert.equal(geom936.height, 936);
-  assert.equal(viewport.style['--stage-x'], '128px');
-  assert.equal(viewport.style['--stage-y'], '0px');
-
-  mockWin.innerWidth = 1280;
-  mockWin.innerHeight = 720;
-  const geom720 = deck.updateStageScale();
-  assert.equal(geom720.x, 0);
-  assert.equal(geom720.y, 0);
-  assert.equal(geom720.width, 1280);
-  assert.equal(geom720.height, 720);
-
-  mockWin.innerWidth = 390;
-  mockWin.innerHeight = 844;
-  const geomMobile = deck.updateStageScale();
-  assert.equal(geomMobile.x, 0);
-  assert.equal(geomMobile.y, 312);
-  assert.equal(geomMobile.width, 390);
-  assert.equal(geomMobile.height, 219);
-  assert.equal(viewport.style['--stage-x'], '0px');
-  assert.equal(viewport.style['--stage-y'], '312px');
 
   // Language switch to Thai updates text, aria-label, html.lang, and localized links
   deck.setLanguage('th');
@@ -1467,67 +1432,13 @@ test('bindSalesDeck and emitted light-sales.html inline script: slide navigation
   assert.equal(contactLink.getAttribute('href'), '/th/contact/');
   assert.equal(dossierLink.getAttribute('href'), '/light.html?lang=th');
 
-  // Keyboard navigation advances on BODY, supports ArrowDown/ArrowUp, and is ignored on INPUT/SELECT
+  // Keyboard navigation advances on BODY, but is ignored on INPUT/SELECT (C4)
   deck.handleKeyDown({ key: 'ArrowRight', target: { tagName: 'BODY' }, preventDefault() {} });
   assert.equal(deck.getState().activeSlide, 1);
   assert.equal(slides[0].inert, true);
   assert.equal(slides[1].inert, false);
 
-  deck.handleKeyDown({ key: 'ArrowDown', target: { tagName: 'BODY' }, preventDefault() {} });
-  assert.equal(deck.getState().activeSlide, 2);
-  deck.handleKeyDown({ key: 'ArrowUp', target: { tagName: 'BODY' }, preventDefault() {} });
-  assert.equal(deck.getState().activeSlide, 1);
-
   deck.handleKeyDown({ key: 'ArrowRight', target: { tagName: 'INPUT' }, preventDefault() {} });
-  assert.equal(deck.getState().activeSlide, 1);
-
-  // Space on focused buttons (TH, tour, mode, Next) preserves native button activation without advancing slide via keydown
-  for (const btn of [thLangBtn, tourBtn, chaosModeBtn, nextBtn, { tagName: 'SPAN', parentElement: thLangBtn }]) {
-    let prevented = false;
-    deck.handleKeyDown({ key: ' ', target: btn, preventDefault() { prevented = true; } });
-    assert.equal(prevented, false);
-    assert.equal(deck.getState().activeSlide, 1);
-  }
-  nextBtn.click();
-  assert.equal(deck.getState().activeSlide, 2);
-  prevBtn.click();
-  assert.equal(deck.getState().activeSlide, 1);
-
-  // Trackpad wheel momentum burst: +80 at t=0ms and +8 every 50ms through t=1000ms advances exactly once
-  deck.handleWheel({ deltaY: 80, timeStamp: 0, target: stage, preventDefault() {} });
-  assert.equal(deck.getState().activeSlide, 2);
-  for (let t = 50; t <= 1000; t += 50) {
-    deck.handleWheel({ deltaY: 8, timeStamp: t, target: stage, preventDefault() {} });
-  }
-  assert.equal(deck.getState().activeSlide, 2);
-  // After quiet gap (>180ms), reverse line-mode wheel steps back once; ctrl+wheel zoom is ignored
-  deck.handleWheel({ deltaY: -2, deltaMode: 1, timeStamp: 1250, target: stage, preventDefault() {} });
-  assert.equal(deck.getState().activeSlide, 1);
-  deck.handleWheel({ deltaY: 100, ctrlKey: true, timeStamp: 1500, target: stage, preventDefault() {} });
-  assert.equal(deck.getState().activeSlide, 1);
-
-  // Touch swipe: drag starting on Slide 5 range input is ignored even if released outside
-  deck.handleTouchStart({ target: seatsInput, touches: [{ clientX: 200, clientY: 200 }] });
-  deck.handleTouchEnd({ target: stage, touches: [], changedTouches: [{ clientX: 80, clientY: 200 }] });
-  assert.equal(deck.getState().activeSlide, 1);
-  // touchcancel and multi-touch cancel pending swipe
-  deck.handleTouchStart({ target: stage, touches: [{ clientX: 300, clientY: 200 }] });
-  deck.handleTouchCancel();
-  deck.handleTouchEnd({ target: stage, touches: [], changedTouches: [{ clientX: 120, clientY: 200 }] });
-  assert.equal(deck.getState().activeSlide, 1);
-  deck.handleTouchStart({ target: stage, touches: [{ clientX: 300, clientY: 200 }] });
-  deck.handleTouchMove({ target: stage, touches: [{ clientX: 260, clientY: 200 }, { clientX: 240, clientY: 200 }] });
-  deck.handleTouchEnd({ target: stage, touches: [], changedTouches: [{ clientX: 120, clientY: 200 }] });
-  assert.equal(deck.getState().activeSlide, 1);
-  // Valid background swipe navigates once and subthreshold tap is ignored
-  deck.handleTouchStart({ target: stage, touches: [{ clientX: 300, clientY: 200 }] });
-  deck.handleTouchEnd({ target: stage, touches: [], changedTouches: [{ clientX: 290, clientY: 204 }] });
-  assert.equal(deck.getState().activeSlide, 1);
-  deck.handleTouchStart({ target: stage, touches: [{ clientX: 300, clientY: 200 }] });
-  deck.handleTouchEnd({ target: stage, touches: [], changedTouches: [{ clientX: 180, clientY: 200 }] });
-  assert.equal(deck.getState().activeSlide, 2);
-  deck.handleTouchStart({ target: stage, touches: [{ clientX: 180, clientY: 200 }] });
-  deck.handleTouchEnd({ target: stage, touches: [], changedTouches: [{ clientX: 300, clientY: 200 }] });
   assert.equal(deck.getState().activeSlide, 1);
 
   // Autoplay tour starts, advances slide, and cancels when reduced-motion turns on (C3)

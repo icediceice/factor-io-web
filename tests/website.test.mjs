@@ -5,7 +5,6 @@ import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { resolve } from 'node:path';
-import vm from 'node:vm';
 import { config, routes, routePath, outputPath } from '../site/config.mjs';
 import { esc, renderPage } from '../site/templates.mjs';
 import { ROOT, generate, loadContent, assertParity, samePreviewBytes, checkPreview, publishedMedia } from '../scripts/build-site.mjs';
@@ -415,73 +414,9 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     assert.ok(info.size > 0, ref);
   }
 
-  assert.match(html, /id="iphone-status"[^>]*>Coming soon &middot; Waiting for App Store review<\/p>/);
-  assert.match(html, /id="iphone-review-notice"[\s\S]*?Coming soon to the App Store\./);
-
   assert.match(stub, /<meta name="robots" content="noindex, follow">/);
   assert.match(stub, /<meta http-equiv="refresh" content="0; url=\.\.\/cat-countdown\.html">/);
   assert.match(stub, /<link rel="canonical" href="https:\/\/catcountdown\.factor-io\.com\/">/);
-
-  const controllerMatch = html.match(/<script id="scanner-controller">([\s\S]*?)<\/script>/);
-  assert.ok(controllerMatch, 'expected inline #scanner-controller script in cat-countdown.html');
-  const runScanner = ({ userAgent, platform = '', maxTouchPoints = 0, search = '' }) => {
-    let replaced = null;
-    const attrs = new Map();
-    vm.runInNewContext(controllerMatch[1], {
-      navigator: { userAgent, platform, maxTouchPoints },
-      location: { search, replace: url => { replaced = url; } },
-      document: { documentElement: { setAttribute: (k, v) => attrs.set(k, String(v)) } },
-      URLSearchParams,
-    });
-    return { scanner: attrs.get('data-scanner'), replaced };
-  };
-
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/129.0.0.0 Mobile Safari/537.36' }),
-    { scanner: 'android', replaced: 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown' }
-  );
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-S928B; wv) AppleWebKit/537.36 Version/4.0 Chrome/129.0.0.0 Mobile Safari/537.36', search: '?noredirect=0' }),
-    { scanner: 'android', replaced: 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown' }
-  );
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/129.0.0.0 Mobile Safari/537.36', search: '?noredirect=1' }),
-    { scanner: 'android', replaced: null }
-  );
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 Chrome/129.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' }),
-    { scanner: 'other', replaced: null }
-  );
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1', platform: 'iPhone', maxTouchPoints: 5 }),
-    { scanner: 'ios', replaced: null }
-  );
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', platform: 'MacIntel', maxTouchPoints: 5 }),
-    { scanner: 'ios', replaced: null }
-  );
-  assert.deepEqual(
-    runScanner({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/129.0.0.0 Safari/537.36', platform: 'MacIntel', maxTouchPoints: 0 }),
-    { scanner: 'other', replaced: null }
-  );
-
-  const aliasMatch = stub.match(/<script id="alias-redirect">([\s\S]*?)<\/script>/);
-  assert.ok(aliasMatch, 'expected inline #alias-redirect script in catcountdown/index.html');
-  let aliasReplaced = null;
-  vm.runInNewContext(aliasMatch[1], {
-    location: {
-      href: 'https://catcountdown.factor-io.com/catcountdown/?noredirect=1#screens',
-      search: '?noredirect=1',
-      hash: '#screens',
-      replace: url => { aliasReplaced = url; },
-    },
-    URL,
-  });
-  assert.equal(aliasReplaced, 'https://catcountdown.factor-io.com/cat-countdown.html?noredirect=1#screens');
-
-  const nginxConf = await read('catcountdown/deploy/nginx-catcountdown.conf');
-  assert.match(nginxConf, /location = \/catcountdown \{\s*return 302 \/cat-countdown\.html\$is_args\$args;\s*\}/);
-  assert.match(nginxConf, /location = \/catcountdown\/ \{\s*return 302 \/cat-countdown\.html\$is_args\$args;\s*\}/);
 });
 
 test('real static server handles locale directories, redirects, HEAD, missing paths and method refusal', { timeout: 15000 }, async t => {

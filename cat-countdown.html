@@ -251,31 +251,6 @@
     font-size: 13px;
     color: var(--muted);
   }
-  .scanner-notice {
-    margin-top: 16px;
-    max-width: 540px;
-    padding: 14px 16px;
-    border-radius: var(--radius);
-    background-color: var(--surface-2);
-    border: 1px solid var(--line-strong);
-  }
-  .scanner-notice-meta {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 4px;
-  }
-  .scanner-notice p {
-    font-size: 16px;
-    color: var(--ink);
-  }
-  html[data-scanner="ios"] .store-card-ios,
-  html[data-scanner="ios"] .scanner-notice {
-    border-color: var(--accent);
-  }
   .hero-visual {
     display: flex;
     justify-content: center;
@@ -506,35 +481,6 @@
     .store-actions { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
-<script id="scanner-controller">
-(function () {
-  var PLAY_URL = "https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown";
-  var BOT_RE = /\b(?:bot|crawler|spider|slurp|mediapartners|adsbot|bingpreview|facebookexternalhit|whatsapp|twitterbot|slackbot|discordbot|telegrambot|applebot|headlesschrome|lighthouse)\b/i;
-  var nav = typeof navigator === "object" && navigator ? navigator : {};
-  var loc = typeof location === "object" && location ? location : {};
-  var doc = typeof document === "object" && document ? document : null;
-  var ua = String(nav.userAgent || "");
-  var platform = String(nav.platform || "");
-  var touchPoints = Number(nav.maxTouchPoints || 0);
-  var isBot = BOT_RE.test(ua);
-  var isIOS = !isBot && (/\b(?:iPhone|iPad|iPod)\b/i.test(ua) || (/\bMacintosh\b/i.test(ua + " " + platform) && touchPoints > 1));
-  var isAndroid = !isBot && !isIOS && /\bAndroid\b/i.test(ua);
-  var scanner = isIOS ? "ios" : (isAndroid ? "android" : "other");
-  if (doc && doc.documentElement) {
-    doc.documentElement.setAttribute("data-scanner", scanner);
-  }
-  var search = String(loc.search || "");
-  var noRedirect = false;
-  if (typeof URLSearchParams === "function") {
-    noRedirect = new URLSearchParams(search).get("noredirect") === "1";
-  } else {
-    noRedirect = /(?:^\?|&)noredirect=1(?:&|$)/.test(search);
-  }
-  if (scanner === "android" && !noRedirect && typeof loc.replace === "function") {
-    loc.replace(PLAY_URL);
-  }
-})();
-</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -566,14 +512,10 @@
             <a class="btn-store btn-android" data-store="android" href="https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown" rel="noopener">Get it on Google Play</a>
             <p class="store-note">Android release &middot; v1.0.2</p>
           </div>
-          <div class="store-card store-card-ios">
+          <div class="store-card">
             <button type="button" class="btn-store btn-ios-stub" data-store="ios" data-stub="true" disabled aria-describedby="iphone-status">App Store for iPhone</button>
-            <p id="iphone-status" class="store-note">Coming soon &middot; Waiting for App Store review</p>
+            <p id="iphone-status" class="store-note">Coming soon &middot; iPhone release stub</p>
           </div>
-        </div>
-        <div id="iphone-review-notice" class="scanner-notice" role="status" aria-live="polite">
-          <div class="scanner-notice-meta">iPhone &amp; iPad Release Status</div>
-          <p><strong>Coming soon to the App Store.</strong> Cat Countdown for iPhone is currently waiting for App Store review. Android scanners open Google Play automatically; iPhone scanners will redirect to the App Store as soon as review completes.</p>
         </div>
       </div>
       <div class="hero-visual">
@@ -669,9 +611,9 @@
                 <p>Package <code>com.catcountdown.cat_countdown</code>. Includes home screen widgets and optional Google Drive backup.</p>
               </div>
               <div class="ledger-row">
-                <span class="ledger-meta">IPHONE &middot; WAITING FOR REVIEW</span>
-                <h3>Coming soon to the App Store</h3>
-                <p>Currently waiting for App Store review. The iPhone button above remains a non-navigating stub until review completes. Includes iOS widgets and optional iCloud backup.</p>
+                <span class="ledger-meta">IPHONE &middot; APP STORE STUB</span>
+                <h3>Preparing iPhone release</h3>
+                <p>The iPhone link above is a non-navigating stub while App Store review completes. Includes iOS widgets and optional iCloud backup.</p>
               </div>
             </div>
           </div>

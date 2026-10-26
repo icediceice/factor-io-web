@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792736513333",
-  "generated_at": "2026-10-23T06:21:53.333Z",
-  "snapshot_digest": "806786882cabb1e4",
+  "refresh_id": "refresh-1792564067426",
+  "generated_at": "2026-10-21T06:27:47.426Z",
+  "snapshot_digest": "2fe21c0415371014",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-806786882cabb1e4.json",
-      "digest": "806786882cabb1e4",
-      "bytes": 3574507
+      "path": "catalog-2fe21c0415371014.json",
+      "digest": "2fe21c0415371014",
+      "bytes": 3572021
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "5b5e2dcae3cc45a3",
+      "digest": "16f1a21ba3e130c6",
       "bytes": 377
     }
   },
@@ -21,19 +21,19 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-23T06:21:53.333Z",
-      "last_success_at": "2026-10-23T06:21:53.333Z",
-      "expires_at": "2026-10-26T06:21:53.333Z",
-      "root_digest": "160315773e916325",
+      "observed_at": "2026-10-21T06:27:47.426Z",
+      "last_success_at": "2026-10-21T06:27:47.426Z",
+      "expires_at": "2026-10-24T06:27:47.426Z",
+      "root_digest": "1600d1b0a9d1dc3f",
       "record_count": 449,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-23T06:21:53.333Z",
-      "last_success_at": "2026-10-23T06:21:53.333Z",
-      "expires_at": "2026-10-26T06:21:53.333Z",
+      "observed_at": "2026-10-21T06:27:47.426Z",
+      "last_success_at": "2026-10-21T06:27:47.426Z",
+      "expires_at": "2026-10-24T06:27:47.426Z",
       "root_digest": "3e3878f185d120d3",
       "record_count": 3049,
       "missing_streak": 0
@@ -41,10 +41,10 @@
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-22T00:00:00.000Z",
-      "last_success_at": "2026-10-23T06:22:20.050Z",
-      "expires_at": "2026-10-29T23:59:59.999Z",
-      "root_digest": "5b5e2dcae3cc45a3",
+      "observed_at": "2026-10-20T00:00:00.000Z",
+      "last_success_at": "2026-10-21T06:28:13.788Z",
+      "expires_at": "2026-10-27T23:59:59.999Z",
+      "root_digest": "16f1a21ba3e130c6",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -36446,7 +36446,7 @@
       "id": "openrouter:google/gemini-2.5-flash-lite:batch",
       "name": "Google: Gemini 2.5 Flash Lite (batch)",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output",
@@ -37460,21 +37460,10 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m3.1-flash",
-      "name": "MiniMax: MiniMax M3.1 Flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m3.1-flash:free",
       "name": "MiniMax: MiniMax M3.1 Flash (free)",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output"
@@ -39582,8 +39571,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -39593,7 +39581,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -39781,16 +39770,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:recursive/flint-v1.0:free",
-      "name": "Recursive: Flint (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {

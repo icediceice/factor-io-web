@@ -1158,6 +1158,11 @@ export function bindSalesDeck(root, env = {}) {
       return renderEconomics();
     },
     handleKeyDown,
+    handleWheel,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchCancel,
+    handleTouchEnd,
     updateStageScale
   };
 }

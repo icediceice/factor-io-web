@@ -1467,19 +1467,39 @@ export function renderLightSales() {
       z-index: 10;
     }
 
+    /* Architectural Stage Blueprint Atmosphere */
+    .pitch-stage {
+      background-image:
+        radial-gradient(circle at 14% 22%, rgba(251, 191, 36, 0.11), transparent 40%),
+        radial-gradient(circle at 86% 78%, rgba(45, 212, 191, 0.10), transparent 44%),
+        linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 64px 64px, 64px 64px;
+    }
+
     /* Strict 4-size typographic hierarchy inside slides: 48px, 24px, 17px, 14px */
     .slide-header {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       max-width: 1680px;
+      padding-left: 18px;
+      border-left: 4px solid var(--accent-amber);
+    }
+
+    .slide-header-coral {
+      border-left-color: var(--accent-coral);
+    }
+
+    .slide-header-teal {
+      border-left-color: var(--accent-teal);
     }
 
     .slide-eyebrow {
       font-family: var(--font-mono);
       font-size: 14px;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--accent-amber);
       text-transform: uppercase;
     }
@@ -1489,27 +1509,153 @@ export function renderLightSales() {
       font-size: 48px;
       font-weight: 700;
       line-height: 1.12;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
       color: var(--text-primary);
     }
 
     .slide-lead {
       font-size: 17px;
       font-weight: 400;
-      line-height: 1.48;
+      line-height: 1.45;
       color: var(--text-secondary);
-      max-width: 1500px;
+      max-width: 1520px;
+    }
+
+    /* Slide 1: Asymmetric Hero Poster + Radar Control Tower */
+    .s1-hero-split {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 28px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .s1-left-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .s1-stat-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .s1-stat-row {
+      display: grid;
+      grid-template-columns: 196px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      padding: 16px 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #131d33 0%, #0d1526 100%);
+      border: 1px solid var(--border-subtle);
+      border-left: 5px solid var(--accent-amber);
+    }
+
+    .s1-stat-row-teal {
+      border-left-color: var(--accent-teal);
+      background: linear-gradient(135deg, #0f242c 0%, #0b1724 100%);
+    }
+
+    .s1-stat-pillar {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #070b13;
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      text-align: center;
+    }
+
+    .s1-stat-row-teal .s1-stat-pillar {
+      border-color: rgba(45, 212, 191, 0.32);
+    }
+
+    .s1-stat-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .s1-radar-console {
+      background: linear-gradient(165deg, #131f38 0%, #09101f 100%);
+      border: 1px solid var(--border-amber);
+      border-radius: 18px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .s1-node-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .s1-node-card {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #0b1323;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .s1-node-card-tower {
+      background: #1c180c;
+      border: 2px solid var(--accent-amber);
+    }
+
+    .s1-node-card-release {
+      background: #0c2327;
+      border: 2px solid var(--accent-teal);
+    }
+
+    .s1-node-step {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-amber);
+    }
+
+    .s1-node-card-release .s1-node-step {
+      color: var(--accent-teal);
+    }
+
+    .s1-node-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-primary);
+      overflow-wrap: anywhere;
     }
 
     /* Motion Graphic Visual Frames */
     .mg-panel {
-      background: var(--bg-card);
+      background: linear-gradient(180deg, #131e33 0%, #0c1424 100%);
       border: 1px solid var(--border-subtle);
       border-radius: 16px;
-      padding: 22px 28px;
+      padding: 20px 24px;
       display: flex;
       flex-direction: column;
       gap: 14px;
+      min-width: 0;
+    }
+
+    .mg-panel-coral {
+      border-color: var(--border-coral);
+      background: linear-gradient(180deg, #1d1222 0%, #0e1120 100%);
     }
 
     .mg-panel-header {
@@ -1517,6 +1663,7 @@ export function renderLightSales() {
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
     .mg-panel-label {
@@ -1524,13 +1671,14 @@ export function renderLightSales() {
       font-size: 14px;
       font-weight: 600;
       color: var(--accent-teal);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
     .mg-badge-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .mg-badge {
@@ -1557,10 +1705,10 @@ export function renderLightSales() {
 
     .mg-svg-wrap {
       width: 100%;
-      height: 230px;
+      height: 220px;
       border-radius: 12px;
-      background: #080d18;
-      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: #070b14;
+      border: 1px solid rgba(148, 163, 184, 0.18);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -1571,6 +1719,77 @@ export function renderLightSales() {
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    /* Slide 2: Schematic Divergence Graphic + Wrapping HTML Causal Cascade */
+    .s2-crisis-split {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 20px;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .s2-divergence-wrap {
+      height: 214px;
+      border-radius: 12px;
+      background: #080c17;
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      overflow: hidden;
+    }
+
+    .s2-divergence-wrap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .s2-causal-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .s2-causal-node {
+      background: #181224;
+      border: 1px solid rgba(251, 113, 133, 0.42);
+      border-top: 4px solid var(--accent-coral);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .s2-causal-node-amber {
+      background: #191812;
+      border-color: rgba(251, 191, 36, 0.42);
+      border-top-color: var(--accent-amber);
+    }
+
+    .s2-causal-badge {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-coral);
+      letter-spacing: 0.06em;
+    }
+
+    .s2-causal-node-amber .s2-causal-badge {
+      color: var(--accent-amber);
+    }
+
+    .s2-causal-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.22;
+      color: var(--text-primary);
+      overflow-wrap: anywhere;
     }
 
     /* Animated SVG Motion Keyframes */
@@ -1598,45 +1817,86 @@ export function renderLightSales() {
       animation: mgPulseRing 2.4s ease-in-out infinite;
     }
 
-    /* Grid Cards */
+    /* Grid Cards & Architectural Monoliths */
     .cards-grid-3 {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
     }
 
     .cards-grid-4 {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
     }
 
     .buyers-grid-2x2 {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 22px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
     }
 
     .sales-card {
-      background: var(--bg-card);
+      background: linear-gradient(180deg, #141f35 0%, #0e1628 100%);
       border: 1px solid var(--border-subtle);
+      border-top: 4px solid var(--accent-amber);
       border-radius: 14px;
-      padding: 22px 24px;
+      padding: 20px 22px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      min-width: 0;
     }
 
     .sales-card-amber {
       border-color: var(--border-amber);
+      border-top: 4px solid var(--accent-amber);
     }
 
     .sales-card-teal {
       border-color: var(--border-teal);
+      border-top: 4px solid var(--accent-teal);
+      background: linear-gradient(180deg, #10242c 0%, #0c1724 100%);
     }
 
     .sales-card-coral {
       border-color: var(--border-coral);
+      border-top: 4px solid var(--accent-coral);
+      background: linear-gradient(180deg, #211324 0%, #111322 100%);
+    }
+
+    /* Slide 4 Broadside Outcome Triptych */
+    .triptych-col {
+      background: linear-gradient(180deg, #132136 0%, #0b1322 100%);
+      border: 1px solid var(--border-subtle);
+      border-top: 5px solid var(--accent-teal);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .triptych-col-amber {
+      border-top-color: var(--accent-amber);
+      border-color: var(--border-amber);
+      background: linear-gradient(180deg, #1d1b14 0%, #0d1322 100%);
+    }
+
+    .triptych-gauge {
+      width: 100%;
+      height: 54px;
+      border-radius: 10px;
+      background: #070b13;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      overflow: hidden;
+    }
+
+    .triptych-gauge svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .card-eyebrow {
@@ -1644,6 +1904,7 @@ export function renderLightSales() {
       font-size: 14px;
       font-weight: 600;
       color: var(--accent-amber);
+      letter-spacing: 0.05em;
     }
 
     .card-eyebrow-coral {
@@ -1658,7 +1919,17 @@ export function renderLightSales() {
       font-family: var(--font-display);
       font-size: 24px;
       font-weight: 700;
-      line-height: 1.25;
+      line-height: 1.22;
+      color: var(--accent-amber);
+      overflow-wrap: anywhere;
+    }
+
+    .sales-card-teal .card-metric,
+    .triptych-col .card-metric {
+      color: #5eead4;
+    }
+
+    .triptych-col-amber .card-metric {
       color: var(--accent-amber);
     }
 
@@ -1666,15 +1937,17 @@ export function renderLightSales() {
       font-family: var(--font-display);
       font-size: 24px;
       font-weight: 700;
-      line-height: 1.25;
+      line-height: 1.24;
       color: var(--text-primary);
+      overflow-wrap: anywhere;
     }
 
     .card-body {
       font-size: 17px;
       font-weight: 400;
-      line-height: 1.48;
+      line-height: 1.46;
       color: var(--text-secondary);
+      overflow-wrap: anywhere;
     }
 
     .card-qualifier {
@@ -1685,13 +1958,15 @@ export function renderLightSales() {
       padding-top: 8px;
       border-top: 1px solid rgba(148, 163, 184, 0.16);
       margin-top: auto;
+      overflow-wrap: anywhere;
     }
 
     .boundary-strip {
       padding: 12px 20px;
       border-radius: 10px;
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.92);
       border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-teal);
       font-size: 14px;
       font-weight: 600;
       line-height: 1.4;

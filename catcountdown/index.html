@@ -3,6 +3,16 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cat Countdown | Factor IO</title><meta name="robots" content="noindex, follow">
 <link rel="canonical" href="https://catcountdown.factor-io.com/">
+<script id="alias-redirect">
+(function () {
+  var loc = typeof location === "object" && location ? location : null;
+  if (!loc || typeof loc.replace !== "function" || typeof URL !== "function") return;
+  var target = new URL("../cat-countdown.html", String(loc.href || "https://catcountdown.factor-io.com/catcountdown/"));
+  target.search = String(loc.search || "");
+  target.hash = String(loc.hash || "");
+  loc.replace(target.href);
+})();
+</script>
 <meta http-equiv="refresh" content="0; url=../cat-countdown.html">
 <link rel="stylesheet" href="../assets/site.css"></head>
 <body id="top"><main id="main"><div class="wrap"><section class="hero" aria-labelledby="page-title">

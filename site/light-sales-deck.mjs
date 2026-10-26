@@ -2145,33 +2145,38 @@ export function renderLightSales() {
     .matrix-table {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .matrix-row {
       display: grid;
-      grid-template-columns: 1.05fr 1.35fr 1.35fr;
-      gap: 20px;
-      align-items: center;
-      padding: 16px 22px;
-      border-radius: 12px;
-      background: var(--bg-card);
+      grid-template-columns: 1.02fr 1.34fr 1.34fr;
+      gap: 22px;
+      align-items: stretch;
+      padding: 18px 24px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #131e33 0%, #0e1627 100%);
       border: 1px solid var(--border-subtle);
+      border-left: 5px solid #475569;
     }
 
     .matrix-row-header {
       background: #070b13;
-      padding: 12px 22px;
+      padding: 14px 24px;
+      border-left: 5px solid var(--accent-amber);
       font-family: var(--font-mono);
       font-size: 14px;
       font-weight: 600;
       color: var(--accent-amber);
       text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
 
     .matrix-row-highlight {
-      background: rgba(251, 191, 36, 0.1);
+      background: linear-gradient(90deg, #1d1a0e 0%, #0d2428 100%);
       border: 2px solid var(--accent-amber);
+      border-left: 6px solid var(--accent-teal);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
     }
 
     .matrix-cell-title {
@@ -2180,6 +2185,13 @@ export function renderLightSales() {
       font-weight: 700;
       line-height: 1.25;
       color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .matrix-row-highlight .matrix-cell-title {
+      color: var(--accent-amber);
     }
 
     .matrix-cell-body {
@@ -2187,6 +2199,9 @@ export function renderLightSales() {
       font-weight: 400;
       line-height: 1.45;
       color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      min-width: 0;
     }
 
     .matrix-cell-gap {
@@ -2194,10 +2209,19 @@ export function renderLightSales() {
       font-weight: 400;
       line-height: 1.45;
       color: #fecdd3;
+      background: #22111c;
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      min-width: 0;
     }
 
     .matrix-row-highlight .matrix-cell-gap {
       color: #99f6e4;
+      background: #0b2528;
+      border-color: rgba(45, 212, 191, 0.45);
       font-weight: 600;
     }
 
@@ -2207,10 +2231,11 @@ export function renderLightSales() {
       align-items: center;
       justify-content: space-between;
       gap: 24px;
-      padding: 20px 26px;
-      border-radius: 14px;
-      background: var(--bg-card-elevated);
-      border: 1px solid var(--border-amber);
+      padding: 22px 28px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #1d190b 0%, #10222b 100%);
+      border: 2px solid var(--accent-amber);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
     }
 
     .cta-buttons-group {

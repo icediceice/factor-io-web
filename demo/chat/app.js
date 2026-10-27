@@ -103,10 +103,10 @@ async function connect(report = () => {}) {
   } catch (e) {
     if (e.status === 401) {
       report('Access key not accepted', false);
-      return fail('The access key was not accepted. Use the full link you were sent, or paste the key in Connection.');
+      return fail('Use the full link you were sent, or paste the key in Connection.', 'Access key not accepted');
     }
     report(`Health check failed (${e.message})`, false);
-    return fail('The backend answered, but its status check failed.');
+    return fail('The backend answered, but its status check failed.', 'Backend status unknown');
   }
   if (!state.health.model.ready) {
     report(`Model not ready yet: ${state.health.model.detail || 'loading'}`, false);
@@ -119,15 +119,15 @@ async function connect(report = () => {}) {
     await ensureSession();
   } catch (e) {
     report(`Could not start a session (${e.message})`, false);
-    return fail('The backend is up but would not start a session for this page.');
+    return fail('The backend is up but would not start a session for this page.', 'Could not start a session');
   }
   setPhase('ready');
   schedule(20000);
   return true;
 }
 
-function fail(problem) {
-  state.problem = problem;
+function fail(problem, title = 'Demo backend offline') {
+  Object.assign(state, { problem, problemTitle: title });
   setPhase('error');
   schedule(20000);
   return false;

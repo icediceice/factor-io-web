@@ -244,7 +244,7 @@ test('a start script that reports failed ends the demo and releases the VM', asy
   const failed = await waitFor(port, (s) => s.phase === 'failed', 'failed');
   assert.match(failed.message, /did not fit in GPU memory/);
   assert.equal(failed.vmHeld, false);
-  assert.equal(calls(fix, 'stop').length, 1);
+  assert.equal(calls(fix, 'stop').length, 1, JSON.stringify(calls(fix)));
 });
 
 test('a start script that exits before the demo is ready ends the demo and releases the VM', async (t) => {

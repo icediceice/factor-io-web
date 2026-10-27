@@ -81,7 +81,9 @@ main{width:min(var(--w-page),calc(100% - 2 * var(--s4)));margin:var(--s5) auto v
 
 /* ----------------------------------------------------------------- ready -- */
 .ready{display:grid;gap:var(--s2)}
-.field{display:grid;gap:var(--s1)}
+/* align-content:start keeps a field's select at its own height when a sibling
+   field in the same grid row is taller (the Model field carries a hint). */
+.field{display:grid;gap:var(--s1);align-content:start}
 .field>span{font-size:var(--t-md);font-weight:600}
 .field small{color:var(--muted);font-size:var(--t-sm)}
 /* Readonly input so the link can be selected and copied over plain HTTP,
@@ -90,6 +92,7 @@ main{width:min(var(--w-page),calc(100% - 2 * var(--s4)));margin:var(--s5) auto v
 .link-row input{flex:1 1 280px;min-width:0;min-height:var(--target);font:var(--t-md) var(--mono);border:1px solid var(--line);border-radius:var(--r-input);background:var(--paper);padding:var(--s1) var(--s2)}
 
 /* ---------------------------------------------------------------- forms -- */
+.start-form{display:grid;gap:var(--s4)}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--s3) var(--s4);max-width:var(--w-form)}
 select{width:100%;min-height:var(--target);padding:var(--s2) var(--s3);border:1px solid var(--muted);border-radius:var(--r-input);background:var(--white)}
 .form-actions{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap}

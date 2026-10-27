@@ -111,6 +111,10 @@ async function waitFor(port, pred, what) {
   assert.fail(`timed out waiting for ${what}; last state: ${JSON.stringify(last)}`);
 }
 
+// After clock.advance(), the flow that timer started has finished once the
+// state carries the new time.
+const caughtUp = (port, clock, what) => waitFor(port, (s) => s.updatedAt === clock.now(), what);
+
 async function startToBooting(port, settings = {}) {
   const res = await post(port, '/api/start', settings);
   assert.equal(res.status, 202, res.body);
@@ -182,6 +186,79 @@ test('a Colab stop that is not confirmed keeps the demo blocked and Stop retries
   await post(port, '/api/stop');
   await waitFor(port, (s) => s.phase === 'stopped' && s.vmHeld === false, 'stopped');
   assert.equal(calls(fix, 'stop').length, 2);
+});
+
+test('a stop Colab does not confirm is retried by itself, and again first thing after a restart past 6 h', async (t) => {
+  const unconfirmed = { ok: false, error: 'stop_unconfirmed' };
+  const fix = fixture(t, { ...HAPPY, stop: [unconfirmed, unconfirmed, { ok: true, gone: true }] });
+  const clock = manualClock();
+  const first = await serve(t, fix, clock);
+  const { session } = await startToBooting(first.port);
+
+  await post(first.port, '/api/stop');
+  await waitFor(first.port, (s) => s.phase === 'failed' && s.vmHeld, 'held');
+  clock.advance(POLL.ready);
+  const held = await caughtUp(first.port, clock, 'the automatic retry');
+  assert.equal(calls(fix, 'stop').length, 2, 'retried without anyone pressing Stop');
+  assert.equal(held.vmHeld, true);
+  first.close();
+
+  clock.advance(6 * HOUR);
+  const second = await serve(t, fix, clock);
+  const stopped = await waitFor(second.port, (s) => s.phase === 'stopped', 'released on resume');
+  assert.equal(stopped.vmHeld, false);
+  assert.deepEqual(calls(fix, 'stop').map((c) => c.session), [session, session, session]);
+});
+
+test('a GPU rented but not attributed keeps Start blocked until Colab no longer lists it', async (t) => {
+  // The helper's stop answers not_found for a session it could not attribute,
+  // which says nothing about whether Colab still bills it.
+  const fix = fixture(t, {
+    ...HAPPY,
+    start: { ok: false, error: 'unattributed', message: 'colab new succeeded but its endpoint could not be identified' },
+    stop: { ok: false, error: 'not_found', message: 'no live or journaled session' },
+    sessions: [{ ok: true, raw: 'NAME  ENDPOINT\n$SESSION  gpu-g4-zzz\n' }, { ok: true, raw: 'NAME  ENDPOINT\n' }],
+  });
+  const clock = manualClock();
+  const { port } = await serve(t, fix, clock);
+  await post(port, '/api/start');
+  const held = await waitFor(port, (s) => s.phase === 'failed', 'failed');
+  assert.equal(held.vmHeld, true);
+  assert.match(held.message, /may still be billing/);
+  assert.equal((await post(port, '/api/start')).status, 409);
+  assert.equal(calls(fix, 'run').length, 0);
+
+  clock.advance(POLL.ready);
+  const released = await waitFor(port, (s) => s.phase === 'failed' && s.vmHeld === false, 'released');
+  assert.match(released.message, /endpoint could not be identified/);
+  assert.equal((await post(port, '/api/start')).status, 202);
+});
+
+test('three helper crashes in a row while watching the VM end the demo and release it; fewer do not', async (t) => {
+  const crash = { crash: true };
+  const fix = fixture(t, { ...HAPPY, status: [crash, RUNNING_HB, RUNNING_HB, crash, crash, crash], pull: [crash, BOOTING_VM] });
+  const clock = manualClock();
+  const { port } = await serve(t, fix, clock);
+  await startToBooting(port);
+
+  for (let i = 1; i <= 2; i++) {
+    clock.advance(POLL.booting);
+    const warned = await caughtUp(port, clock, `crash ${i}`);
+    assert.match(warned.warning, /no result/, 'a crash is shown, not hidden');
+  }
+  clock.advance(POLL.booting);
+  const healthy = await caughtUp(port, clock, 'a clean poll');
+  assert.equal(healthy.warning, '');
+  assert.equal(calls(fix, 'stop').length, 0, 'two crashes with a clean poll after them keep the demo');
+
+  for (let i = 0; i < 3; i++) {
+    clock.advance(POLL.booting);
+    await caughtUp(port, clock, 'the next poll');
+  }
+  const failed = await waitFor(port, (s) => s.phase === 'failed', 'failed');
+  assert.match(failed.message, /failed 3 times in a row/);
+  assert.equal(failed.vmHeld, false);
+  assert.equal(calls(fix, 'stop').length, 1);
 });
 
 test('the demo stops by itself 6 hours after Start', async (t) => {

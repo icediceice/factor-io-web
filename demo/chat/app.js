@@ -444,6 +444,7 @@ function toggleSource(answer, sources, c, n) {
     box.append(head, el('p', 'source-text', c.text));
     const after = [...sources.children].find((s) => +s.dataset.n > n);
     sources.insertBefore(box, after || null);
+    box.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
   answer.querySelectorAll(`.cite[data-n="${n}"]`).forEach((b) => b.setAttribute('aria-expanded', String(!existing)));
 }

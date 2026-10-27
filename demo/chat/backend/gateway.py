@@ -263,6 +263,8 @@ def create_app(settings: Settings, llm_transport: httpx.AsyncBaseTransport | Non
         yield sse("citations", {"mode": mode, "items": citations})
         queue.waiting += 1
         try:
+            if queue.sem.locked():
+                yield sse("status", {"state": "queued", "waiting": queue.waiting, "running": queue.running})
             while True:
                 try:
                     await asyncio.wait_for(queue.sem.acquire(), timeout=4)

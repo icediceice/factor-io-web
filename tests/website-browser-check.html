@@ -9,7 +9,7 @@ const report = document.querySelector('#report'), stage = document.querySelector
 // Kept in step with site/config.mjs routes[]. This list is INDEPENDENT of the generator:
 // adding a route there does not extend fixture coverage, and a missing entry here reports
 // a clean pass while never loading the page. Add the route in both places or measure nothing.
-const pages = ['', 'services/', 'mobile-apps/', 'about/', 'profile/', 'contact/'];
+const pages = ['', 'services/', 'mobile-apps/', 'about/', 'profile/', 'security/', 'contact/'];
 const frameAt = async (path, width, noScript = false) => {
   const frame = document.createElement('iframe'); frame.width = width; frame.title = `${path} at ${width}px`;
   if (noScript) frame.setAttribute('sandbox', 'allow-same-origin');

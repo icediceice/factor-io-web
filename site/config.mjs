@@ -26,6 +26,6 @@ export const config = {
     { path: '/terms.html', updated: '2026-09-30' },
   ],
 };
-export const routes = ['home', 'services', 'mobile-apps', 'about', 'profile', 'contact'];
+export const routes = ['home', 'services', 'mobile-apps', 'about', 'profile', 'security', 'contact'];
 export const routePath = (locale, page) => `/${locale}/${page === 'home' ? '' : `${page}/`}`;
 export const outputPath = (locale, page) => `${routePath(locale, page).slice(1)}index.html`;

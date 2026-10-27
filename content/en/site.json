@@ -760,6 +760,143 @@
         }
       ]
     },
+    "security": {
+      "nav": "Security",
+      "title": "Security & Research",
+      "description": "Security engineering and defensive research at Factor I O Co., Ltd., led by Thanat Manasakool: AI agent security, CVE and vulnerability assessment, and infrastructure security automation.",
+      "eyebrow": "Security & Research",
+      "headline": "Security engineering and research, led by Thanat Manasakool.",
+      "lede": "Thanat Manasakool, Founder & Principal Engineer, is the Security Lead of Factor I O Co., Ltd., responsible for security architecture, defensive research, vulnerability assessment and the development of secure AI infrastructure systems across the company's work.",
+      "sections": [
+        {
+          "id": "lead",
+          "kind": "exceptions",
+          "title": "Who is responsible for security.",
+          "body": "The person accountable for security architecture and research at Factor IO, stated plainly so it can be checked against the company profile.",
+          "items": [
+            {
+              "title": "Name",
+              "body": "Thanat Manasakool"
+            },
+            {
+              "title": "Role",
+              "body": "Founder & Principal Engineer, Security Lead"
+            },
+            {
+              "title": "Organisation",
+              "body": "Factor I O Co., Ltd. (registration 0105562205512), Bangkok, Thailand"
+            },
+            {
+              "title": "Responsibilities",
+              "body": "Security architecture, defensive research, vulnerability assessment, and the development of secure AI infrastructure systems."
+            },
+            {
+              "title": "Security contact",
+              "body": "admin@factor-io.com"
+            }
+          ]
+        },
+        {
+          "id": "leadership",
+          "kind": "founder",
+          "title": "Security leadership across governance and infrastructure.",
+          "body": "Factor IO's security leadership oversees the architecture and development of defensive security capabilities across the company's AI governance and infrastructure automation work. Responsibilities include security research, vulnerability assessment, agent authorization boundaries, credential protection, infrastructure hardening and the development of controlled security automation. Current engineering initiatives include Light, an AI agent governance platform, and Light Ops Box, an infrastructure security and operations solution under development. Thanat brings nearly 20 years in enterprise infrastructure, including time as an Ecosystem Solutions Architect for Red Hat and Nutanix.",
+          "items": []
+        },
+        {
+          "id": "disciplines",
+          "kind": "cards",
+          "title": "Three areas of defensive security engineering.",
+          "body": "The disciplines the security work is organised around. All of it is defensive: finding weaknesses so they can be fixed, and proving that the fix holds.",
+          "items": [
+            {
+              "title": "AI agent security",
+              "body": "Agent identity and authorization boundaries. Least-privilege tool execution and policy enforcement. Prevention of prompt injection and unauthorized actions. Credential isolation and secrets management. Governed execution with an audit trail."
+            },
+            {
+              "title": "Vulnerability research and CVE assessment",
+              "body": "Analysis of publicly disclosed CVEs. Whether a vulnerability applies, and how exposed a system really is. Operating system, container, Kubernetes and infrastructure security. Exploitability analysis for defensive risk assessment. Patch prioritisation and validation that remediation worked."
+            },
+            {
+              "title": "Infrastructure security automation",
+              "body": "Security configuration assessment. Compliance and hardening validation. Governed remediation workflows. Security operations automation. Repeatable verification that defensive controls still hold."
+            }
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "exceptions",
+          "title": "What is in use today, and what is still being built.",
+          "body": "Implemented capabilities and work under development are listed separately, so nothing planned reads as available.",
+          "items": [
+            {
+              "title": "Light · in use",
+              "body": "AI agent governance platform, used in the company's own reference deployment. An agent declares the files and commands it intends to touch before it acts, and anything outside that declaration is refused. An independent model reviews the plan, a person approves it, and releases run in one ordered queue with a receipt linking plan, reviewer and commit. Enforcement covers actions routed through Light; commands run outside a Light session are outside automatic coverage."
+            },
+            {
+              "title": "light-tools · open source",
+              "body": "The agent file and shell tools, plan engine and safety gates, published on GitHub under GPL-3.0-or-later."
+            },
+            {
+              "title": "Light Ops Box · under development",
+              "body": "An infrastructure security and operations solution. It is under development and is not generally available."
+            }
+          ]
+        },
+        {
+          "id": "scope",
+          "kind": "ledger",
+          "title": "Where the research is carried out.",
+          "body": "Factor IO conducts defensive security engineering and validation only on systems it has the right to test. The purpose is to identify vulnerabilities, validate defensive controls, improve security and see remediation through responsibly.",
+          "items": [
+            {
+              "title": "Company-owned software and infrastructure",
+              "body": "Systems Factor IO builds, owns and operates, including its own products and internal platforms."
+            },
+            {
+              "title": "Internally controlled development and testing environments",
+              "body": "Environments the company controls end to end, where testing cannot reach anyone else's systems."
+            },
+            {
+              "title": "Isolated security research laboratories",
+              "body": "Separated lab environments for examining vulnerabilities and exploitability without exposure to production systems or third parties."
+            },
+            {
+              "title": "Third-party systems, only with explicit authorisation",
+              "body": "Customer or partner systems are tested only when their owner has explicitly authorised it, and only within the agreed scope."
+            }
+          ]
+        },
+        {
+          "id": "practices",
+          "kind": "cards",
+          "title": "How security work is conducted.",
+          "body": "The same rules apply to the company's own systems and to every client engagement.",
+          "items": [
+            {
+              "title": "Authorisation and defined scope",
+              "body": "Testing begins only after the owner of the system has authorised it and the scope is defined. Anything outside that scope is out of bounds."
+            },
+            {
+              "title": "Least-privilege access",
+              "body": "People and agents get the narrowest access the task needs, for as long as it needs it."
+            },
+            {
+              "title": "Protecting credentials and customer information",
+              "body": "Credentials are kept out of source code and logs, and handed to tools only when needed. Customer information is used only for the purpose it was shared for."
+            },
+            {
+              "title": "Reproducible testing and verified remediation",
+              "body": "Findings are recorded with the steps to reproduce them, and a fix counts as done only when the same test shows it holds."
+            },
+            {
+              "title": "Responsible handling of findings",
+              "body": "Findings go first to the people responsible for the affected system, stay confidential while a fix is prepared, and are not published without their agreement."
+            }
+          ]
+        }
+      ]
+    },
     "contact": {
       "nav": "Contact",
       "title": "Discuss an enterprise AI, Kubernetes or governance project",

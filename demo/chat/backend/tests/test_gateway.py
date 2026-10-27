@@ -161,8 +161,9 @@ async def test_a_removed_document_no_longer_reaches_the_model():
 async def test_a_large_upload_sends_the_model_only_the_relevant_passages():
     c, fake = build(stuff_tokens=300, top_k=3)
     h = await new_session(c)
-    paras = [f"Clause {i}. Standard delivery and packaging terms, revision {i}." for i in range(120)]
-    paras.insert(77, "Invoice INV-77421 for Siam Logistics totals 8,950 THB.")
+    # ~80 KB, so ~33 chunks: three of them are a small slice of the whole.
+    paras = [f"Clause {i}. Standard delivery and packaging terms, revision {i}." for i in range(1200)]
+    paras.insert(777, "Invoice INV-77421 for Siam Logistics totals 8,950 THB.")
     corpus = "\n\n".join(paras)
     await upload(c, h, ("ledger.txt", corpus.encode(), "text/plain"))
     ev = await ask(c, h, "What does invoice INV-77421 total?")

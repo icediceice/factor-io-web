@@ -392,8 +392,11 @@ function appendExchange(question) {
   let frame = 0, latest = null;
   const paint = () => {
     frame = 0;
+    // Follow the stream only if the reader is already at the bottom; never yank them back up or down.
+    const following = innerHeight + scrollY >= document.documentElement.scrollHeight - 160;
     answer.innerHTML = renderMarkdown(latest.text, latest.citations.length);
     wireCitations(answer, sources, latest.citations);
+    if (following) scrollTo({ top: document.documentElement.scrollHeight });
   };
   return {
     status(t) { status.textContent = t; },

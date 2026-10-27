@@ -115,7 +115,12 @@ async function connect(report = () => {}) {
     return false;
   }
   report(`${state.health.model.label} is ready`, true);
-  await ensureSession();
+  try {
+    await ensureSession();
+  } catch (e) {
+    report(`Could not start a session (${e.message})`, false);
+    return fail('The backend is up but would not start a session for this page.');
+  }
   setPhase('ready');
   schedule(20000);
   return true;

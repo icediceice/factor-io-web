@@ -21,6 +21,24 @@ const content = await loadContent(), output = await generate();
 const decode = s => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 const schema = html => JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
 
+// Exercise the published HTTP surface for static content contracts, rather
+// than treating an unread source file as proof that the route still serves it.
+async function staticOrigin(t) {
+  const child = spawn(process.execPath, ['scripts/serve.mjs', '0'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
+  t.after(async () => { if (child.exitCode === null) { child.kill('SIGTERM'); await once(child, 'exit'); } });
+  return new Promise((ready, reject) => {
+    let log = '';
+    const timer = setTimeout(() => reject(new Error('static content server readiness timeout')), 5000);
+    child.on('error', error => { clearTimeout(timer); reject(error); });
+    child.stderr.on('data', bytes => { clearTimeout(timer); reject(new Error(String(bytes))); });
+    child.stdout.on('data', bytes => {
+      log += bytes;
+      const match = log.match(/http:\/\/127\.0\.0\.1:\d+/);
+      if (match) { clearTimeout(timer); ready(match[0]); }
+    });
+  });
+}
+
 test('direct email links opt out of edge obfuscation so the no-JS fallback survives publication', async () => {
   for (const html of [...output.values(), await read('light-tools.html'), await read('privacy.html'), await read('terms.html'), await read('cat-countdown.html')]) {
     for (const match of html.matchAll(/<a\b[^>]*href="mailto:[^"]*"[^>]*>[\s\S]*?<\/a>/g)) {
@@ -117,8 +135,12 @@ test('sitemap offers search engines every page in both languages, keeps every or
   for (const locale of ['en', 'th']) for (const route of routes) assert.ok(xml.includes(`<loc>${config.origin}${routePath(locale, route)}</loc>`), `${locale}/${route}`);
 });
 
-test('historical services deck stays byte-for-byte unchanged', async () => {
-  const bytes = await readFile(resolve(ROOT, 'services.html'));
+test('the historical services route serves the unchanged deck', async t => {
+  const origin = await staticOrigin(t);
+  const response = await fetch(origin + '/services.html');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /text\/html/);
+  const bytes = Buffer.from(await response.arrayBuffer());
   const blob = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
   assert.equal(blob, '67fa2bba803cb9840dead1ccbf2a4a94067e21ce');
 });
@@ -191,17 +213,21 @@ test('governance flowchart renders one node per declared stage, in both locales'
   }
 });
 
-test('vendor product framing is gone while the founder employment history is preserved', async () => {
+test('published output omits vendor product framing and preserves founder employment history', async t => {
   for (const locale of ['en', 'th']) {
-    const json = await read(`content/${locale}/site.json`);
-    assert.doesNotMatch(json, /Nutanix Enterprise AI|Nutanix Ready|Nutanix AI/);
-    assert.match(json, /Ecosystem Solutions Architect/);
-    assert.doesNotMatch(json, /nutanix"/);
+    const pages = routes.map(page => output.get(outputPath(locale, page))).join('\n');
+    assert.doesNotMatch(pages, /Nutanix Enterprise AI|Nutanix Ready|Nutanix AI/);
+    assert.match(pages, /Ecosystem Solutions Architect/);
+    assert.doesNotMatch(pages, /nutanix"/);
+    const founder = schema(output.get(outputPath(locale, 'about'))).find(node => node['@type'] === 'Person');
+    assert.match(founder.description, /Red Hat and Nutanix/);
   }
-  assert.match(await read('llms.txt'), /Ecosystem Solutions Architect/);
-  assert.doesNotMatch(await read('llms.txt'), /Nutanix inference|optional Nutanix/);
-  // The founder schema description is a cross-page contract; it must not drift.
-  assert.match(config.founderDescription, /Red Hat and Nutanix/);
+  const origin = await staticOrigin(t);
+  const response = await fetch(origin + '/llms.txt');
+  assert.equal(response.status, 200);
+  const text = await response.text();
+  assert.match(text, /Ecosystem Solutions Architect/);
+  assert.doesNotMatch(text, /Nutanix inference|optional Nutanix/);
 });
 
 // The site had drifted off its own research spec: docs/service-offer-spec.md:102 argues the
@@ -325,11 +351,15 @@ test('the deleted draft form leaves nothing behind: no form, no draft panel, no 
   assert.doesNotMatch(css, /\.field-row|\.draft-panel|\.email-draft|\.form-status|\.hint\{/);
 });
 
-test('the LINE url is built from the configured id, so the link and the displayed id can never name different accounts', () => {
+test('the rendered LINE action and displayed id name the same configured account', () => {
   // This binds the URL to the ID and nothing more. line-qr.jpg is an opaque
   // operator asset -- nothing here decodes it, so a replaced QR stays green
   // even if it encodes a different account. That check is manual by design.
-  assert.equal(config.lineUrl, `https://line.me/ti/p/~${config.lineId}`);
+  for (const locale of ['en', 'th']) {
+    const html = output.get(outputPath(locale, 'contact'));
+    assert.ok(html.includes(`href="https://line.me/ti/p/~${config.lineId}"`), `${locale}: LINE action names a different account`);
+    assert.ok(html.includes(esc(config.lineId)), `${locale}: displayed LINE id is missing`);
+  }
 });
 
 test('contact leads with LINE: the primary action precedes the email fallback in both locales', () => {
@@ -346,10 +376,13 @@ test('contact leads with LINE: the primary action precedes the email fallback in
   }
 });
 
-test('the llms.txt contact route describes LINE, not the deleted email draft', async () => {
+test('the served llms.txt contact route describes LINE, not the deleted email draft', async t => {
   // The channel change updated the Optional links but left this primary route
   // summary selling a workflow that no longer exists.
-  const bullet = (await read('llms.txt')).split('\n').find(l => l.startsWith('- [Contact]('));
+  const origin = await staticOrigin(t);
+  const response = await fetch(origin + '/llms.txt');
+  assert.equal(response.status, 200);
+  const bullet = (await response.text()).split('\n').find(l => l.startsWith('- [Contact]('));
   assert.ok(bullet, 'llms.txt has no Contact route bullet');
   assert.ok(bullet.includes(config.lineUrl), 'the Contact bullet does not name the LINE url');
   assert.doesNotMatch(bullet, /draft/i);

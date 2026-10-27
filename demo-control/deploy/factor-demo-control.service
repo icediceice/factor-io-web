@@ -1,0 +1,35 @@
+# Chat demo control — systemd USER unit for light-worker.
+# Modelled on giveaway/deploy/factor-giveaway.service. Install: demo-control/deploy/install.sh.
+#
+# Listens only on loopback plus light-worker's Tailscale address. demo.factor-io.com
+# is a DNS-only A record to that address, so only tailnet devices reach it.
+# No login: the tailnet is the gate (demo-control/README.md, "Access").
+
+[Unit]
+Description=Factor IO chat demo control — one-click Colab G4 demo, 6 h cap (tailnet only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ice/.factor-demo-control
+# NODE_ENV=production refuses to boot without the host allowlist, the Colab helper,
+# its Python, the colab CLI and the four backend files.
+Environment=NODE_ENV=production
+Environment=DEMO_BIND=127.0.0.1,100.111.93.20
+Environment=DEMO_PORT=8789
+Environment=DEMO_ALLOWED_HOSTS=demo.factor-io.com,demo.factor-io.com:8789,100.111.93.20:8789,127.0.0.1:8789
+Environment=DEMO_BACKEND=/home/ice/.factor-demo-control/backend
+Environment=DEMO_DATA=/home/ice/.factor-demo-control/data
+ExecStart=/usr/bin/env node /home/ice/.factor-demo-control/server.mjs
+Restart=on-failure
+RestartSec=3
+
+# The helper writes Light's Colab journals under ~/.config/colab-cli and the app
+# keeps its state in data/, so the home directory stays writable.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=default.target

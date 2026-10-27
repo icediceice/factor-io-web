@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo control · Factor IO</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="/app.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <h1 class="brand">Factor IO <span>demo control</span></h1>
+    <span class="muted header-note">Tailnet only</span>
+  </div>
+</header>
+
+<main>
+  <section class="sheet" aria-labelledby="demo-title">
+    <div class="sheet-head">
+      <h2 id="demo-title">Chat-with-your-data demo</h2>
+      <span class="chip" id="phase-chip" data-phase="idle">Not running</span>
+    </div>
+    <div class="sheet-body">
+      <p class="headline" id="headline">Loading…</p>
+      <p class="detail muted" id="detail"></p>
+      <p class="alert" id="alert" role="alert"></p>
+
+      <ol class="steps" id="steps" aria-label="Start-up steps" hidden>
+        <li data-step="0">Rent a G4 GPU on Colab</li>
+        <li data-step="1">Upload the demo backend</li>
+        <li data-step="2">Download and load the model <span class="muted">(the long part)</span></li>
+        <li data-step="3">Start the gateway and the public tunnel</li>
+      </ol>
+
+      <div class="ready" id="ready" hidden>
+        <label class="field" for="link">
+          <span>Customer link</span>
+        </label>
+        <div class="link-row">
+          <input id="link" type="text" readonly spellcheck="false">
+          <button type="button" class="btn primary" id="copy">Copy link</button>
+          <a class="btn" id="open" target="_blank" rel="noopener noreferrer">Open chat page</a>
+        </div>
+        <p class="muted small">Send it only to the customer in the meeting: anyone holding it can use the demo until it stops.</p>
+      </div>
+
+      <form class="start-form" id="start-form" hidden>
+        <div class="form-grid">
+          <label class="field">
+            <span>Model</span>
+            <select name="model" id="model"></select>
+            <small>auto picks NVFP4 on a G4</small>
+          </label>
+          <label class="field">
+            <span>Context</span>
+            <select name="context" id="context"></select>
+          </label>
+          <label class="field">
+            <span>Answers at once</span>
+            <select name="parallel" id="parallel"></select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary" id="start">Start demo</button>
+          <span class="muted small">Takes about 15 minutes. Stops by itself after 6 hours.</span>
+        </div>
+      </form>
+
+      <div class="form-actions" id="stop-row" hidden>
+        <button type="button" class="btn danger" id="stop">Stop demo</button>
+        <span class="muted small" id="stop-note"></span>
+      </div>
+
+      <dl class="facts" id="facts" hidden></dl>
+    </div>
+  </section>
+
+  <details class="sheet log" id="log-box" hidden>
+    <summary class="sheet-head"><h2>VM log <span class="count">start script, last lines</span></h2></summary>
+    <pre class="log-text" id="log" tabindex="0"></pre>
+  </details>
+</main>
+</body>
+</html>

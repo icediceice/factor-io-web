@@ -198,7 +198,7 @@ test('a stop Colab does not confirm is retried by itself, and again first thing 
   await post(first.port, '/api/stop');
   await waitFor(first.port, (s) => s.phase === 'failed' && s.vmHeld, 'held');
   clock.advance(POLL.ready);
-  const held = await caughtUp(first.port, clock, 'the automatic retry');
+  const held = await waitFor(first.port, (s) => s.phase === 'failed' && s.updatedAt === clock.now(), 'the automatic retry');
   assert.equal(calls(fix, 'stop').length, 2, 'retried without anyone pressing Stop');
   assert.equal(held.vmHeld, true);
   first.close();

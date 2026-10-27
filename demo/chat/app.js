@@ -183,6 +183,27 @@ async function sessionLost() {
   render();
 }
 
+// Start over keeps the connection but drops this session's files and
+// conversation, on the server and here. It waits for uploads to finish, so a
+// late upload cannot land in the new session.
+async function startOver() {
+  if (state.busy || state.docs.some((d) => d.state === 'uploading' || d.state === 'reading')) return;
+  try {
+    await callJson('/api/session', { method: 'DELETE' });
+  } catch (e) {
+    if (!(e instanceof HttpError)) return fail('Could not reach the demo backend to start over.');
+  }
+  Object.assign(state, { docs: [], history: [] });
+  $('messages').replaceChildren();
+  try {
+    await newSession();
+  } catch {
+    return fail('The backend would not start a new session for this page.', 'Could not start a session');
+  }
+  render();
+  announce('Started over: no files and no conversation.');
+}
+
 // ------------------------------------------------------------------ files
 
 async function addFiles(list) {
@@ -285,7 +306,13 @@ async function ask(text) {
     if (e.name === 'AbortError') stopped = true;
     else error = e instanceof TypeError ? 'Lost the connection to the demo backend.' : e.message;
   }
-  view.finish({ answer, citations, mode, done, error, stopped });
+  try {
+    view.finish({ answer, citations, mode, done, error, stopped });
+  } catch {
+    // Never leave the composer locked because one answer would not display.
+    error = 'The answer arrived but could not be displayed.';
+    view.status(error);
+  }
   if (answer && !error) state.history.push({ role: 'user', content: text }, { role: 'assistant', content: answer });
   Object.assign(state, { busy: false, abort: null });
   renderControls();
@@ -340,10 +367,16 @@ function renderMarkdown(md, maxN) {
       out.push(`<h4>${inline(line.replace(/^#+\s*/, ''), maxN)}</h4>`);
       i++;
     } else if (/^\s*\|/.test(line)) {
+      const start = i;
       const rows = [];
       for (; i < lines.length && /^\s*\|/.test(lines[i]); i++) {
         if (/^\s*\|?\s*:?-{2,}/.test(lines[i])) continue;
         rows.push(lines[i].trim().replace(/^\||\|$/g, '').split('|').map((c) => inline(c.trim(), maxN)));
+      }
+      if (!rows.length) {
+        // Separator lines only (a quoted fragment, or a stream stopped mid-table): show them as text.
+        out.push(`<p>${lines.slice(start, i).map((l) => inline(l, maxN)).join('<br>')}</p>`);
+        continue;
       }
       const [head, ...body] = rows;
       out.push(`<table><thead><tr>${head.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>${
@@ -501,6 +534,7 @@ function render() {
     b.type = 'button';
     b.onclick = onClick;
     actions.append(b);
+    return b;
   };
 
   if (phase === 'unset') {
@@ -531,6 +565,7 @@ function render() {
     if (health.queue.waiting) parts.push(`${health.queue.waiting} waiting now`);
     detail.textContent = parts.join(' · ');
     $('conn-pill-text').textContent = health.model.label;
+    button('Start over', startOver, true).id = 'start-over';
   }
   renderDocs();
   renderControls();
@@ -552,6 +587,8 @@ function renderControls() {
     const d = state.docs[i];
     b.disabled = state.busy || !d || d.state === 'uploading' || d.state === 'reading';
   });
+  const reset = $('start-over');
+  if (reset) reset.disabled = state.busy || state.docs.some((d) => d.state === 'uploading' || d.state === 'reading');
 }
 
 function hostOf(u) {

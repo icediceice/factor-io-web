@@ -24,6 +24,7 @@ const REMOTE_DIR = '/content/factor-chat';
 const ACTIVE = new Set(['renting', 'uploading', 'booting', 'ready', 'stopping']);
 const STARTING = new Set(['renting', 'uploading']);
 const RUNNING = new Set(['booting', 'ready']);
+const CRASH_LIMIT = 3;
 const REAL_CLOCK = { now: () => Date.now(), setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (t) => clearTimeout(t) };
 
 export class DemoError extends Error {
@@ -53,6 +54,8 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
   let s = load();
   let pollTimer = null;
   let deadlineTimer = null;
+  let retryTimer = null;
+  let crashes = 0;
   let work = Promise.resolve();
 
   function load() {
@@ -75,7 +78,8 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
   function clearTimers() {
     clock.clearTimeout(pollTimer);
     clock.clearTimeout(deadlineTimer);
-    pollTimer = deadlineTimer = null;
+    clock.clearTimeout(retryTimer);
+    pollTimer = deadlineTimer = retryTimer = null;
   }
 
   function armDeadline() {
@@ -90,26 +94,41 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
 
   async function call(req) {
     try {
-      return await colab.call(req);
+      return (await colab.call(req)) ?? { ok: false, error: 'helper_failed', message: 'no result' };
     } catch (e) {
       return { ok: false, error: 'helper_failed', message: e.message };
     }
   }
 
   // Releases the VM and ends in `endPhase`. A stop Colab does not confirm leaves
-  // the demo failed with the VM still held, so Start stays blocked and Stop retries.
+  // the demo failed with the VM still held: Start stays blocked, and the release
+  // is retried every poll interval, before and after the 6 h mark, until it is.
   async function release(message, endPhase = 'stopped') {
     clearTimers();
     update({ phase: 'stopping', message: endPhase === 'failed' ? `${message} Releasing the GPU…` : 'Releasing the GPU…' });
-    const r = await call({ verb: 'stop', session: s.session });
-    if ((r.ok && r.gone) || r.error === 'not_found') {
-      return update({ phase: endPhase, vmHeld: false, link: '', endedAt: clock.now(), message, stopRequested: false });
+    const r = await call({ verb: 'stop', session: s.session, ...(s.endpoint ? { endpoint: s.endpoint } : {}) });
+    if ((r.ok && r.gone) || (r.error === 'not_found' && await goneFromColab())) {
+      return update({ phase: endPhase, vmHeld: false, link: '', endedAt: clock.now(), message, stopRequested: false, stopEnd: null });
     }
     update({
-      phase: 'failed', vmHeld: true, stopRequested: false,
+      phase: 'failed', vmHeld: true, stopRequested: false, stopMessage: message, stopEnd: endPhase,
       message: `${message} The GPU may still be billing: Colab did not confirm the stop (${r.message || r.error || r.detail}). `
         + `Press Stop again, or run light_colab stop session:${s.session}.`,
     });
+    retryTimer = clock.setTimeout(() => enqueue(retryRelease), pollMs.ready);
+  }
+
+  function retryRelease() {
+    if (s.phase === 'failed' && s.vmHeld) return release(s.stopMessage || 'Stopped.', s.stopEnd || 'stopped');
+  }
+
+  // The helper answers not_found when it holds no name or endpoint for the session.
+  // That is not proof the VM is gone: an unattributed start leaves a claim with no
+  // endpoint. Only a Colab server listing that no longer names it counts.
+  async function goneFromColab() {
+    const r = await call({ verb: 'sessions' });
+    return r.ok === true && typeof r.raw === 'string'
+      && !r.raw.includes(s.session) && !(s.endpoint && r.raw.includes(s.endpoint));
   }
 
   async function boot() {
@@ -133,10 +152,23 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
     schedulePoll();
   }
 
+  // Until the start script writes logs/status.json the pull fails with
+  // download_failed; that is normal and leaves `vm` null.
   async function readVmStatus() {
     const r = await call({ verb: 'pull', session: s.session, remote_path: `${REMOTE_DIR}/logs/status.json`, local_path: vmStatusFile });
-    if (!r.ok) return null;
-    try { return JSON.parse(readFileSync(vmStatusFile, 'utf8')); } catch { return null; }
+    if (!r.ok) return { r, vm: null };
+    try { return { r, vm: JSON.parse(readFileSync(vmStatusFile, 'utf8')) }; } catch { return { r, vm: null }; }
+  }
+
+  // One crashed helper call can be a passing hiccup, but CRASH_LIMIT polls in a
+  // row mean the VM can no longer be watched, so it is released. Other errors
+  // (lock_busy, a sessions probe that failed) only warn and poll again.
+  function pollFailed(r) {
+    if (r.error === 'helper_failed' && ++crashes >= CRASH_LIMIT) {
+      return release(`The Colab helper failed ${crashes} times in a row, so the demo was ended: ${r.message}.`, 'failed');
+    }
+    update({ warning: `Could not check the VM (${r.message || r.error}); retrying.` });
+    return schedulePoll();
   }
 
   async function poll() {
@@ -152,13 +184,12 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
           : 'The Colab VM is gone, so the demo link no longer works.',
       });
     }
-    if (!st.ok) {
-      update({ warning: `Could not check the VM (${st.message || st.error}); retrying.` });
-      return schedulePoll();
-    }
+    if (!st.ok) return pollFailed(st);
     const hb = st.hb || null;
-    const vm = await readVmStatus();
+    const { r: pulled, vm } = await readVmStatus();
     if (!RUNNING.has(s.phase)) return;
+    if (pulled.error === 'helper_failed') return pollFailed(pulled);
+    crashes = 0;
     update({ warning: '', logTail: hb?.log_tail ? String(hb.log_tail).slice(-4000) : s.logTail ?? '' });
     if (vm?.state === 'failed') return release(`The demo failed to start: ${vm.message || 'see the log'}.`, 'failed');
     if (hb?.state === 'exited') return release(`The demo's start script ended (exit code ${hb.exit_code ?? 'unknown'}).`, 'failed');
@@ -178,6 +209,7 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
     if (ACTIVE.has(s.phase) || s.vmHeld) throw new DemoError(409, 'A demo is already running. Stop it first.');
     const t = clock.now();
     s = { phase: 'renting', session: `factor-demo-${random(3)}`, settings, startedAt: t, stopAt: t + CAP_MS };
+    crashes = 0;
     update({ message: 'Renting a G4 GPU on Colab', vmHeld: false });
     armDeadline();
     enqueue(boot);
@@ -196,15 +228,18 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
   }
 
   function view() {
-    const { stopRequested, stopMessage, ...rest } = s;
+    const { stopRequested, stopMessage, stopEnd, ...rest } = s;
     return { ...rest, capHours: CAP_MS / 3600_000, now: clock.now(), choices: CHOICES };
   }
 
-  // Resume after an app restart: the 6 h deadline still holds.
+  // Resume after an app restart: the 6 h deadline still holds, and a VM whose
+  // release Colab never confirmed is released again at once.
   if (STARTING.has(s.phase) || (s.phase === 'stopping' && !s.runId)) {
     enqueue(() => release('The control app restarted while the demo was starting, so the GPU was released. Start again.', 'failed'));
   } else if (s.phase === 'stopping') {
     enqueue(() => release(s.stopMessage || 'Stopped.'));
+  } else if (s.phase === 'failed' && s.vmHeld) {
+    enqueue(retryRelease);
   } else if (RUNNING.has(s.phase)) {
     if (clock.now() >= s.stopAt) enqueue(() => release('Stopped automatically after 6 hours.'));
     else {

@@ -8,7 +8,7 @@ operator's computer or on light-worker.
 customer browser ──▶ studio.factor-io.com/demo/chat/   (static page, no login)
                  ──HTTPS──▶ cloudflared quick tunnel    (*.trycloudflare.com, new name every boot)
                  ──▶ gateway.py  :8000                   (sessions, file parsing, retrieval, queue, access key)
-                 ──▶ Strata      127.0.0.1:8080          (Qwen3.8-Flash-Next; never exposed)
+                 ──▶ Strata      127.0.0.1:8081          (Qwen3.8-Flash-Next; never exposed)
 ```
 
 ## Run a demo
@@ -65,7 +65,7 @@ until the VM stops: send it only to the customer in the meeting.
 ```
 python3 -m venv .venv && .venv/bin/pip install -r requirements-test.txt
 .venv/bin/python -m pytest tests -q
-.venv/bin/python tests/fake_strata.py --serve-stack   # fake model :8080 + gateway :8000, key "devkey"
+.venv/bin/python tests/fake_strata.py --serve-stack   # fake model :8081 + gateway :8000, key "devkey"
 python3 -m http.server 8781 --directory ../../..      # page at http://127.0.0.1:8781/demo/chat/
 ```
 

@@ -176,16 +176,15 @@ async function post(path, body, button) {
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || `request failed (${r.status})`);
     state = data;
-    render(state);
   } catch (e) {
     el.alert.textContent = e.message;
+  } finally {
     busy = false;
-    button.removeAttribute('aria-busy');
     button.disabled = false;
-    return;
+    button.removeAttribute('aria-busy');
   }
-  busy = false;
-  button.removeAttribute('aria-busy');
+  // render() owns the buttons' visibility and the Stop button's disabled state.
+  if (state) render(state);
   refresh();
 }
 

@@ -30,6 +30,7 @@ let state = null;
 let skew = 0; // server clock minus browser clock, so countdowns use server time
 let busy = false;
 let timer = null;
+let postError = ''; // a refused Start/Stop stays visible until the next click
 
 const fmtTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 function fmtSpan(ms) {
@@ -107,7 +108,7 @@ function render(s) {
   else if (phase === 'stopped') detail = s.message || 'Stopped.';
   else if (phase === 'idle') detail = 'Start one when the customer is about to join.';
   el.detail.textContent = detail;
-  el.alert.textContent = phase === 'failed' ? (s.message || 'The demo failed.') : (s.warning || '');
+  el.alert.textContent = postError || (phase === 'failed' ? (s.message || 'The demo failed.') : (s.warning || ''));
 
   el.steps.hidden = !starting;
   if (starting) renderSteps(s);
@@ -166,7 +167,7 @@ async function post(path, body, button) {
   busy = true;
   button.disabled = true;
   button.setAttribute('aria-busy', 'true');
-  el.alert.textContent = '';
+  postError = '';
   try {
     const r = await fetch(path, {
       method: 'POST',
@@ -177,7 +178,7 @@ async function post(path, body, button) {
     if (!r.ok) throw new Error(data.error || `request failed (${r.status})`);
     state = data;
   } catch (e) {
-    el.alert.textContent = e.message;
+    postError = e.message;
   } finally {
     busy = false;
     button.disabled = false;

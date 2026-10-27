@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793082065900",
-  "generated_at": "2026-10-27T06:21:05.900Z",
-  "snapshot_digest": "9d7beadbee0731d4",
+  "refresh_id": "refresh-1792821986450",
+  "generated_at": "2026-10-24T06:06:26.450Z",
+  "snapshot_digest": "68f974cd0f8a4a88",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-9d7beadbee0731d4.json",
-      "digest": "9d7beadbee0731d4",
-      "bytes": 3632044
+      "path": "catalog-68f974cd0f8a4a88.json",
+      "digest": "68f974cd0f8a4a88",
+      "bytes": 3576097
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "7ef3d52bea7d5239",
+      "digest": "b3857cd728414ac6",
       "bytes": 377
     }
   },
@@ -21,80 +21,36 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-27T06:21:05.900Z",
-      "last_success_at": "2026-10-27T06:21:05.900Z",
-      "expires_at": "2026-10-30T06:21:05.900Z",
-      "root_digest": "b3d2edf0a86a1526",
-      "record_count": 445,
+      "observed_at": "2026-10-24T06:06:26.450Z",
+      "last_success_at": "2026-10-24T06:06:26.450Z",
+      "expires_at": "2026-10-27T06:06:26.450Z",
+      "root_digest": "e97a1fcb878e8b3c",
+      "record_count": 450,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-27T06:21:05.900Z",
-      "last_success_at": "2026-10-27T06:21:05.900Z",
-      "expires_at": "2026-10-30T06:21:05.900Z",
-      "root_digest": "b1a64f440141585f",
-      "record_count": 3104,
+      "observed_at": "2026-10-24T06:06:26.450Z",
+      "last_success_at": "2026-10-24T06:06:26.450Z",
+      "expires_at": "2026-10-27T06:06:26.450Z",
+      "root_digest": "1ed8117344473330",
+      "record_count": 3050,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-26T00:00:00.000Z",
-      "last_success_at": "2026-10-27T06:21:31.134Z",
-      "expires_at": "2026-11-02T23:59:59.999Z",
-      "root_digest": "7ef3d52bea7d5239",
+      "observed_at": "2026-10-23T00:00:00.000Z",
+      "last_success_at": "2026-10-24T06:06:50.726Z",
+      "expires_at": "2026-10-30T23:59:59.999Z",
+      "root_digest": "b3857cd728414ac6",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
     }
   },
   "models": [
-    {
-      "id": "litellm:abliteration/abliterated-model",
-      "name": "abliteration/abliterated-model",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:abliteration/abliterated-model-large",
-      "name": "abliteration/abliterated-model-large",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:abliteration/abliterated-model-large-flash",
-      "name": "abliteration/abliterated-model-large-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:abliteration/abliterated-model-large-v2",
-      "name": "abliteration/abliterated-model-large-v2",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
     {
       "id": "litellm:ai21.j2-mid-v1",
       "name": "ai21.j2-mid-v1",
@@ -7066,253 +7022,6 @@
       ]
     },
     {
-      "id": "litellm:bedrock/claude_platform/claude-fable-5",
-      "name": "bedrock/claude_platform/claude-fable-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-fable-5-1",
-      "name": "bedrock/claude_platform/claude-fable-5-1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-haiku-4-5",
-      "name": "bedrock/claude_platform/claude-haiku-4-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-haiku-5-5",
-      "name": "bedrock/claude_platform/claude-haiku-5-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input|>100000|tier=batches",
-        "output|>100000|tier=batches",
-        "cache_write|>100000|tier=batches",
-        "cache_read|>100000|tier=batches",
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches",
-        "input|>100000",
-        "output|>100000",
-        "cache_write|>100000",
-        "cache_write|>100000|age=1hr",
-        "cache_read|>100000"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-opus-4-5",
-      "name": "bedrock/claude_platform/claude-opus-4-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-opus-4-6",
-      "name": "bedrock/claude_platform/claude-opus-4-6",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-opus-4-7",
-      "name": "bedrock/claude_platform/claude-opus-4-7",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-opus-4-8",
-      "name": "bedrock/claude_platform/claude-opus-4-8",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-opus-5",
-      "name": "bedrock/claude_platform/claude-opus-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-opus-5-5",
-      "name": "bedrock/claude_platform/claude-opus-5-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-sonnet-4-5",
-      "name": "bedrock/claude_platform/claude-sonnet-4-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_read",
-        "input",
-        "cache_write|tier=batches",
-        "cache_read|tier=batches",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-sonnet-4-6",
-      "name": "bedrock/claude_platform/claude-sonnet-4-6",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-sonnet-5",
-      "name": "bedrock/claude_platform/claude-sonnet-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:bedrock/claude_platform/claude-sonnet-5-5",
-      "name": "bedrock/claude_platform/claude-sonnet-5-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|age=1hr",
-        "cache_write|tier=batches",
-        "cache_read",
-        "cache_read|tier=batches",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
       "id": "litellm:bedrock/eu-central-1/anthropic.claude-instant-v1",
       "name": "bedrock/eu-central-1/anthropic.claude-instant-v1",
       "tariff": "token",
@@ -9222,26 +8931,6 @@
     {
       "id": "litellm:cerebras/gpt-oss-120b",
       "name": "cerebras/gpt-oss-120b",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:cerebras/llama-3.1-70b",
-      "name": "cerebras/llama-3.1-70b",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:cerebras/llama-3.1-8b",
-      "name": "cerebras/llama-3.1-8b",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -17788,15 +17477,11 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
-        "cache_read_audio|tier=batches",
-        "cache_read_audio|tier=flex",
-        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
-        "audio_in_tok|tier=flex",
         "input",
         "output",
         "audio_in_tok|tier=batches",
@@ -17816,15 +17501,11 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
-        "cache_read_audio|tier=batches",
-        "cache_read_audio|tier=flex",
-        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
-        "audio_in_tok|tier=flex",
         "input",
         "output",
         "audio_in_tok|tier=batches",
@@ -17885,14 +17566,10 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
-        "cache_read_audio|tier=batches",
-        "cache_read_audio|tier=flex",
-        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "audio_in_tok",
-        "audio_in_tok|tier=flex",
         "input",
         "output",
         "input|tier=priority",
@@ -17913,15 +17590,11 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
-        "cache_read_audio|tier=batches",
-        "cache_read_audio|tier=flex",
-        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
-        "audio_in_tok|tier=flex",
         "input",
         "input|tier=batches",
         "input|tier=flex",
@@ -19091,22 +18764,6 @@
     {
       "id": "litellm:global.openai.gpt-6.1-sol",
       "name": "global.openai.gpt-6.1-sol",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|>272000",
-        "cache_read",
-        "cache_read|>272000",
-        "input",
-        "input|>272000",
-        "output",
-        "output|>272000"
-      ]
-    },
-    {
-      "id": "litellm:global.openai.gpt-6.1-terra",
-      "name": "global.openai.gpt-6.1-terra",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20560,46 +20217,6 @@
     {
       "id": "litellm:gpt-6.1-sol",
       "name": "gpt-6.1-sol",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|>272000",
-        "cache_write|>272000|tier=batches",
-        "cache_write|>272000|tier=flex",
-        "cache_write|>272000|tier=priority",
-        "cache_write|tier=batches",
-        "cache_write|tier=flex",
-        "cache_write|tier=priority",
-        "cache_read",
-        "cache_read|>272000",
-        "cache_read|>272000|tier=batches",
-        "cache_read|>272000|tier=flex",
-        "cache_read|>272000|tier=priority",
-        "cache_read|tier=batches",
-        "cache_read|tier=flex",
-        "cache_read|tier=priority",
-        "input",
-        "input|>272000",
-        "input|>272000|tier=batches",
-        "input|>272000|tier=flex",
-        "input|>272000|tier=priority",
-        "input|tier=batches",
-        "input|tier=flex",
-        "input|tier=priority",
-        "output",
-        "output|>272000",
-        "output|>272000|tier=batches",
-        "output|>272000|tier=flex",
-        "output|>272000|tier=priority",
-        "output|tier=batches",
-        "output|tier=flex",
-        "output|tier=priority"
-      ]
-    },
-    {
-      "id": "litellm:gpt-6.1-terra",
-      "name": "gpt-6.1-terra",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -23346,17 +22963,6 @@
     {
       "id": "litellm:mistral/zai-glm-5-3",
       "name": "mistral/zai-glm-5-3",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:mistral/zai-glm-5-3-flash",
-      "name": "mistral/zai-glm-5-3-flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -26634,303 +26240,6 @@
       ]
     },
     {
-      "id": "litellm:opencode_go/beam-free",
-      "name": "opencode_go/beam-free",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/claude-haiku-5-5",
-      "name": "opencode_go/claude-haiku-5-5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write",
-        "input|tier=range0",
-        "output|tier=range0",
-        "cache_read|tier=range0",
-        "cache_write|tier=range0",
-        "input|>100000|tier=range1",
-        "output|>100000|tier=range1",
-        "cache_read|>100000|tier=range1",
-        "cache_write|>100000|tier=range1"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/deepseek-v4-pro",
-      "name": "opencode_go/deepseek-v4-pro",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/deepseek-v4.1-flash",
-      "name": "opencode_go/deepseek-v4.1-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/gemini-4-argon",
-      "name": "opencode_go/gemini-4-argon",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/glm-5.2",
-      "name": "opencode_go/glm-5.2",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/glm-5.3",
-      "name": "opencode_go/glm-5.3",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/glm-5.3-flash",
-      "name": "opencode_go/glm-5.3-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/hy3",
-      "name": "opencode_go/hy3",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/hy4-preview",
-      "name": "opencode_go/hy4-preview",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/kimi-k2.7-code",
-      "name": "opencode_go/kimi-k2.7-code",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/kimi-k3",
-      "name": "opencode_go/kimi-k3",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/kimi-k3.1-pro",
-      "name": "opencode_go/kimi-k3.1-pro",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/longcat-2.0",
-      "name": "opencode_go/longcat-2.0",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/longcat-2.5-preview-free",
-      "name": "opencode_go/longcat-2.5-preview-free",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/mimo-v2.5",
-      "name": "opencode_go/mimo-v2.5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/mimo-v2.5-pro",
-      "name": "opencode_go/mimo-v2.5-pro",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/mimo-v2.6-flash",
-      "name": "opencode_go/mimo-v2.6-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/mimo-v2.6-pro",
-      "name": "opencode_go/mimo-v2.6-pro",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/minimax-m3",
-      "name": "opencode_go/minimax-m3",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/minimax-m3.1-flash",
-      "name": "opencode_go/minimax-m3.1-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/qwen3.7-plus",
-      "name": "opencode_go/qwen3.7-plus",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write",
-        "input|tier=range0",
-        "output|tier=range0",
-        "cache_read|tier=range0",
-        "cache_write|tier=range0",
-        "input|>256000|tier=range1",
-        "output|>256000|tier=range1",
-        "cache_read|>256000|tier=range1",
-        "cache_write|>256000|tier=range1"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/qwen3.8-flash",
-      "name": "opencode_go/qwen3.8-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/qwen3.8-max",
-      "name": "opencode_go/qwen3.8-max",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "litellm:opencode_go/step-5-preview",
-      "name": "opencode_go/step-5-preview",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "litellm:openinfer/@oi/GLM-5.3-Flash",
       "name": "openinfer/@oi/GLM-5.3-Flash",
       "tariff": "token",
@@ -28529,61 +27838,6 @@
       "tariff": "token",
       "state": "active",
       "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:refuseless/deepseek-v4.1-flash-abliterated",
-      "name": "refuseless/deepseek-v4.1-flash-abliterated",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:refuseless/deepseek-v4.1-flash-fast",
-      "name": "refuseless/deepseek-v4.1-flash-fast",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:refuseless/glm-5.3-abliterated",
-      "name": "refuseless/glm-5.3-abliterated",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:refuseless/glm-5.3-flash-abliterated",
-      "name": "refuseless/glm-5.3-flash-abliterated",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:refuseless/minimax-m3.1-flash",
-      "name": "refuseless/minimax-m3.1-flash",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
         "input",
         "output"
       ]
@@ -31877,22 +31131,6 @@
     {
       "id": "litellm:us.openai.gpt-6.1-sol",
       "name": "us.openai.gpt-6.1-sol",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_write",
-        "cache_write|>272000",
-        "cache_read",
-        "cache_read|>272000",
-        "input",
-        "input|>272000",
-        "output",
-        "output|>272000"
-      ]
-    },
-    {
-      "id": "litellm:us.openai.gpt-6.1-terra",
-      "name": "us.openai.gpt-6.1-terra",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -36834,6 +36072,17 @@
       ]
     },
     {
+      "id": "openrouter:arcee-ai/trinity-large-thinking",
+      "name": "Arcee AI: Trinity Large Thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:bytedance-seed/seed-1.6",
       "name": "ByteDance Seed: Seed 1.6",
       "tariff": "token",
@@ -37196,6 +36445,21 @@
         "reasoning",
         "cache_read",
         "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-2.5-flash-lite:batch",
+      "name": "Google: Gemini 2.5 Flash Lite (batch)",
+      "tariff": "token",
+      "state": "suspect_missing",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read"
       ]
     },
     {
@@ -37663,7 +36927,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -37741,7 +37006,7 @@
       "id": "openrouter:ibm-granite/granite-4.0-h-micro",
       "name": "IBM: Granite 4.0 Micro",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output"
@@ -37838,17 +37103,6 @@
     {
       "id": "openrouter:inference-net/schematron-v2-turbo",
       "name": "Inference.net: Schematron V2 Turbo",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:liquid/lfm-2.5-2.6b",
-      "name": "LiquidAI: LFM2.5-2.6B",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -38179,6 +37433,16 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:minimax/minimax-m3.1-flash:free",
+      "name": "MiniMax: MiniMax M3.1 Flash (free)",
+      "tariff": "token",
+      "state": "suspect_missing",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -38701,7 +37965,7 @@
       "id": "openrouter:openai/gpt-3.5-turbo",
       "name": "OpenAI: GPT-3.5 Turbo",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output"
@@ -38731,7 +37995,7 @@
       "id": "openrouter:openai/gpt-3.5-turbo-instruct",
       "name": "OpenAI: GPT-3.5 Turbo Instruct",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output"
@@ -38741,7 +38005,7 @@
       "id": "openrouter:openai/gpt-3.5-turbo:batch",
       "name": "OpenAI: GPT-3.5 Turbo (batch)",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output",
@@ -39690,58 +38954,6 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-6.1-terra",
-      "name": "OpenAI: GPT-6.1 Terra",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-6.1-terra-pro",
-      "name": "OpenAI: GPT-6.1 Terra Pro",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-6.1-terra-pro:batch",
-      "name": "OpenAI: GPT-6.1 Terra Pro (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-6.1-terra:batch",
-      "name": "OpenAI: GPT-6.1 Terra (batch)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read",
-        "cache_write"
-      ]
-    },
-    {
       "id": "openrouter:openai/gpt-audio",
       "name": "OpenAI: GPT Audio",
       "tariff": "token",
@@ -40324,7 +39536,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40397,7 +39610,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -41347,7 +40561,7 @@
       {
         "offer": "openrouter:~openai/gpt-terra-latest",
         "rule": "alias_skipped",
-        "target": "openai/gpt-6.1-terra"
+        "target": "openai/gpt-5.6-terra"
       },
       {
         "offer": "openrouter:~openai/gpt-luna-latest",
@@ -47622,51 +46836,6 @@
       },
       {
         "offer": "litellm:meta/sam-3.1",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:opencode_go/grok-4.7",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:opencode_go/gpt-6-luna",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:opencode_go/gpt-5.6-luna",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:opencode_go/muse-spark-1.3-contributor",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:opencode_go/muse-spark-1.2-contributor",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:chatgpt/gpt-6.1-terra",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "responses"
-      },
-      {
-        "offer": "litellm:baseten/decision-models/baseten-elephant-9b-latest",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "decisions"
-      },
-      {
-        "offer": "litellm:baseten/decision-models/baseten-mammoth-27b-latest",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "decisions"
-      },
-      {
-        "offer": "litellm:github_copilot/gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       }

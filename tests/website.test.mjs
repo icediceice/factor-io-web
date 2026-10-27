@@ -51,7 +51,7 @@ test('published comparison allows only removal of exact opt-out comments, not ob
 });
 
 test('all committed output matches deterministic generation with no wall-clock dependency', async () => {
-  assert.equal(output.size, 18);
+  assert.equal(output.size, 16);
   for (const [path, bytes] of output) assert.equal(await read(path), bytes, path);
   const OldDate = globalThis.Date;
   try {
@@ -268,26 +268,6 @@ test('the company profile carries the registered particulars verbatim, in both l
   assert.equal(org.address.postalCode, '10510');
   assert.equal(org.address.addressCountry, 'TH');
   assert.equal(org.address.addressLocality, config.address.locality);
-});
-
-// The security page exists so an outside reviewer can tell, from the page text alone, who leads
-// security, how to reach them, and which work ships today versus what is still being built. It is
-// a permanent corporate page, so it must not name the programme it was first written for, and it
-// must not claim certifications, audits or a bounty the company does not hold.
-test('security page states its lead, contact and product status as visible text, and claims nothing unsupported', () => {
-  for (const locale of ['en', 'th']) {
-    const html = output.get(outputPath(locale, 'security'));
-    const text = decode(html.replace(/<head>[\s\S]*?<\/head>/, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
-    for (const fact of [config.founder, 'Security Lead', config.email, config.registration]) assert.ok(text.includes(fact), `${locale}: page text omits ${fact}`);
-    assert.match(text, /Light Ops Box · (under development|อยู่ระหว่างพัฒนา)/, `${locale}: Light Ops Box is not marked as under development`);
-    assert.match(text, /Light · (in use|ใช้งานอยู่)/, `${locale}: Light is not marked as in use`);
-    assert.doesNotMatch(html, /Anthropic|Claude|\bCVP\b|ISO\/?IEC|27001|SOC ?2|bug bounty/i, `${locale}: unsupported or programme-specific wording`);
-  }
-  // Reachable from the people a reviewer would look up first: the founder blocks on About and Profile.
-  for (const locale of ['en', 'th']) for (const page of ['about', 'profile']) {
-    const founder = output.get(outputPath(locale, page)).match(/<div class="founder-links">[\s\S]*?<\/div>/)[0];
-    assert.ok(founder.includes(`href="${routePath(locale, 'security')}"`), `${locale}/${page}: founder block does not link to the security page`);
-  }
 });
 
 test('both contact pages lead with LINE: the profile link, the QR with a cache-busting hash, and the LINE id', () => {

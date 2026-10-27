@@ -281,7 +281,7 @@ function section(c, s, page, asset, extra = '') {
   else if (s.kind === 'demo') body = `${head}${demo(c)}`;
   else if (s.kind === 'contact') body = `${head}${contact(c, asset)}`;
   else if (s.kind === 'work') body = `${head}${studioWork(c, s)}`;
-  else if (s.kind === 'founder') body = `<div class="split">${head}<div class="founder-links">${link(config.linkedin, 'LinkedIn ↗')}${link(config.github, 'GitHub ↗')}${page === 'about' ? '' : link(routePath(c.locale, 'about'), c.pages.about.nav)}${page === 'security' ? '' : link(routePath(c.locale, 'security'), c.pages.security.nav)}</div></div>`;
+  else if (s.kind === 'founder') body = `<div class="split">${head}<div class="founder-links">${link(config.linkedin, 'LinkedIn ↗')}${link(config.github, 'GitHub ↗')}${page === 'about' ? '' : link(routePath(c.locale, 'about'), c.pages.about.nav)}</div></div>`;
   else if (s.kind === 'exceptions' || s.kind === 'statement') body = `<div class="split">${head}${list(c, s)}</div>`;
   else body = `${head}${list(c, s)}`;
   return `<section id="${s.id}" class="section section-${s.kind}${s.variant ? ` section-${s.variant}` : ''}" aria-labelledby="${s.id}-title">${body}${extra}</section>`;
@@ -325,7 +325,7 @@ ${page !== 'contact' ? `<section class="cta" aria-labelledby="cta-title"><div><h
 </div></main>
 <footer class="site-footer"><div class="wrap footer-grid"><div class="footer-brand">${brand}<p>${esc(u.footer)}</p></div>
 <div><h2>${esc(u.resources)}</h2>${link(`/light-sales.html?lang=${locale}`, u.lightSales)}${link(`/light.html?lang=${locale}`, u.lightPresentation)}${link('/offerings.html', u.offerings)}${link('/lightops-ai.html', u.lightops)}${link('/tco-calculator.html', u.calculator)}${link('/light-tools.html', u.tools)}${link(routePath(locale, 'mobile-apps'), c.pages['mobile-apps'].nav)}</div>
-<div><h2>${esc(u.company)}</h2>${link(`mailto:${config.email}`, config.email)}${link(routePath(locale, 'security'), c.pages.security.nav)}${link('/privacy.html', u.privacy)}${link('/terms.html', u.terms)}${link('#top', u.backTop)}</div>
+<div><h2>${esc(u.company)}</h2>${link(`mailto:${config.email}`, config.email)}${link('/privacy.html', u.privacy)}${link('/terms.html', u.terms)}${link('#top', u.backTop)}</div>
 <p class="legal">© ${c.updated.slice(0, 4)} ${esc(config.legalName)}</p></div></footer></body></html>
 `;
 }

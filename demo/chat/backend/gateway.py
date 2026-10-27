@@ -1,6 +1,6 @@
 """Factor IO chat demo gateway: runs on the Colab VM between the tunnel and Strata.
 
-    page (studio.factor-io.com) --HTTPS--> cloudflared --> this app :8000 --> Strata 127.0.0.1:8080/v1
+    page (studio.factor-io.com) --HTTPS--> cloudflared --> this app :8000 --> Strata 127.0.0.1:8081/v1
 
 Strata itself is never tunnelled. This app is the only thing the internet can
 reach, and it holds what Strata has no notion of: per-customer sessions,
@@ -41,7 +41,7 @@ SESSION_RE = re.compile(r"^[0-9a-f]{32}$")
 class Settings:
     keys: list[str] = field(default_factory=list)
     origins: list[str] = field(default_factory=lambda: DEFAULT_ORIGINS.split(","))
-    llm_base_url: str = "http://127.0.0.1:8080/v1"
+    llm_base_url: str = "http://127.0.0.1:8081/v1"
     llm_model: str = "strata"
     model_label: str = "Qwen3.8-Flash-Next"
     parallel: int = 2

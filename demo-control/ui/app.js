@@ -31,6 +31,7 @@ let skew = 0; // server clock minus browser clock, so countdowns use server time
 let busy = false;
 let timer = null;
 let postError = ''; // a refused Start/Stop stays visible until the next click
+let stopArmed = null; // timer while Stop waits for its confirming second click
 
 const fmtTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 function fmtSpan(ms) {
@@ -132,7 +133,7 @@ function render(s) {
   const canStop = running || (phase === 'failed' && s.vmHeld);
   el.stopRow.hidden = !(canStop || phase === 'stopping');
   el.stop.disabled = !canStop || busy;
-  el.stop.textContent = phase === 'failed' ? 'Stop the GPU' : 'Stop demo';
+  if (!stopArmed) el.stop.textContent = phase === 'failed' ? 'Stop the GPU' : 'Stop demo';
   el.stopNote.textContent = running && s.stopAt
     ? `Stops by itself at ${fmtTime(s.stopAt)} (in ${fmtSpan(s.stopAt - now)}).`
     : phase === 'stopping' ? 'Releasing the GPU…' : '';
@@ -198,11 +199,20 @@ el.form.addEventListener('submit', (ev) => {
   }, el.start);
 });
 
+// Stop takes a second click within 4 s instead of window.confirm(), which
+// freezes the page (and its status polling) while the dialog is open.
 el.stop.addEventListener('click', () => {
-  const msg = state?.phase === 'ready'
-    ? 'Stop the demo? The customer link stops working at once.'
-    : 'Stop and release the GPU?';
-  if (window.confirm(msg)) post('/api/stop', {}, el.stop);
+  if (!stopArmed) {
+    el.stop.textContent = state?.phase === 'ready' ? 'Click again: the link stops working' : 'Click again to stop';
+    stopArmed = setTimeout(() => {
+      stopArmed = null;
+      if (state) render(state);
+    }, 4000);
+    return;
+  }
+  clearTimeout(stopArmed);
+  stopArmed = null;
+  post('/api/stop', {}, el.stop);
 });
 
 // navigator.clipboard needs a secure context; plain http://…:8789 falls back

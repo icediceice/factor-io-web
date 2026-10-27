@@ -24,8 +24,9 @@ customer      https://studio.factor-io.com/demo/chat/?api=https://<random>.trycl
 2. Leave the defaults (auto model, 64k context, 2 answers at once) or change them,
    then press **Start demo**. The page shows the four start-up steps and the VM's log.
 3. When it says **Ready**, press **Copy link** and send the link to the customer.
-4. Press **Stop demo** when the meeting ends. If you forget, it stops by itself
-   6 hours after Start.
+4. Press **Stop demo** when the meeting ends, then press it again within 4 seconds
+   to confirm (an in-page confirm: a browser dialog would freeze the page's status
+   updates). If you forget, it stops by itself 6 hours after Start.
 
 One demo runs at a time. If Colab does not confirm a stop, the page says the GPU
 may still be billing and keeps **Stop the GPU** available; you can also run

@@ -318,6 +318,11 @@ test('the deleted draft form leaves nothing behind: no form, no draft panel, no 
   for (const html of output.values()) {
     assert.doesNotMatch(html, /draft-panel|form-status|data-contact|email-draft|data-copy-draft|data-mail/);
   }
+  const script = await read('assets/site.js');
+  assert.doesNotMatch(script, /prepareMailDraft|copyDraft|MAILTO_LIMIT|bindContact/);
+  assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|document\.cookie|\.submit\(/);
+  const css = await read('assets/site.css');
+  assert.doesNotMatch(css, /\.field-row|\.draft-panel|\.email-draft|\.form-status|\.hint\{/);
 });
 
 test('the LINE url is built from the configured id, so the link and the displayed id can never name different accounts', () => {

@@ -125,7 +125,7 @@ else
   log "Launching Strata (download + load; this is the long part)"
   "$STRATA" launch --family "$FAMILY" --model "$SIZE" --data-dir "$DATA_DIR" \
     --context "$CONTEXT" --parallel "$PARALLEL" --vision off --tune skip \
-    --access local --port 8080 --no-api-key --yes --no-tui 2>&1 | tee "$LOGS/strata-launch.log"
+    --access local --port 8080 --no-api-key --yes --no-tui 2>&1 | tee "$LOGS/strata-launch.log" || true  # judged by /health below
   status state=loading message="Waiting for the model to answer"
   wait_for http://127.0.0.1:8080/health "$STRATA_WAIT_S" "Strata /health" \
     || { "$STRATA" launch --status >> "$LOGS/strata-launch.log" 2>&1 || true; fail "Strata did not become healthy (no engine for this GPU, out of memory or disk?)"; }

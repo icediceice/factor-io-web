@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-10-24 (Cat Countdown chapter 1 re-recorded with Mallow; /app selling page, Live backgrounds, Play listing and 1.0.3 sent for review)
+> Last updated: 2026-10-27 (Security & Research page at /en/security/ and /th/security/)
 
 ## Current Focus
 

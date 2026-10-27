@@ -220,3 +220,15 @@ async def test_an_expired_session_is_refused_with_a_clear_message():
     h = await new_session(c)
     r = await c.get("/api/docs", headers=h)
     assert r.status_code == 404 and "upload the files again" in r.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_two_uploads_at_once_cannot_take_a_session_past_the_file_limit():
+    # The page can start a second upload (a new drop) while the first is still being read.
+    c, _ = build(max_files=2)
+    h = await new_session(c)
+    await upload(c, h, ("a.txt", b"first document"))
+    a, b = await asyncio.gather(upload(c, h, ("b.txt", b"second document")),
+                                upload(c, h, ("c.txt", b"third document")))
+    assert sorted(r["results"][0]["ok"] for r in (a, b)) == [False, True]
+    assert len((await c.get("/api/docs", headers=h)).json()["docs"]) == 2

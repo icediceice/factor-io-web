@@ -105,6 +105,9 @@ class ChatIn(BaseModel):
 class Session:
     store: rag.DocStore
     last_used: float = field(default_factory=time.monotonic)
+    # Serialises this session's ingest, delete and retrieval: the file limit is
+    # checked before parsing awaits, and the indexes change in a worker thread.
+    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 
 class Queue:
@@ -215,12 +218,17 @@ def create_app(settings: Settings, llm_transport: httpx.AsyncBaseTransport | Non
 
     @app.delete("/api/docs/{doc_id}")
     async def delete_doc(doc_id: str, s: Session = Depends(session)):
-        if not s.store.remove_document(doc_id):
-            raise HTTPException(404, "No such document in this session.")
+        async with s.lock:
+            if not s.store.remove_document(doc_id):
+                raise HTTPException(404, "No such document in this session.")
         return {"ok": True}
 
     @app.post("/api/ingest")
     async def ingest(files: list[UploadFile] = File(...), s: Session = Depends(session)):
+        async with s.lock:
+            return await ingest_locked(files, s)
+
+    async def ingest_locked(files: list[UploadFile], s: Session) -> dict:
         limit = settings.max_file_mb * 1024 * 1024
         results = []
         for up in files:
@@ -247,8 +255,9 @@ def create_app(settings: Settings, llm_transport: httpx.AsyncBaseTransport | Non
 
     @app.post("/api/chat")
     async def chat(body: ChatIn, request: Request, s: Session = Depends(session)):
-        mode, chunks = await run_in_threadpool(
-            s.store.select, body.message, settings.stuff_tokens, settings.top_k, settings.retrieval_tokens)
+        async with s.lock:
+            mode, chunks = await run_in_threadpool(
+                s.store.select, body.message, settings.stuff_tokens, settings.top_k, settings.retrieval_tokens)
         history = [t.model_dump() for t in body.history][-2 * settings.history_turns:]
         messages, citations = rag.build_messages(chunks, history, body.message)
         payload = {"model": settings.llm_model, "messages": messages, "stream": True,

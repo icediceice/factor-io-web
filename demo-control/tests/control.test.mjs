@@ -53,12 +53,10 @@ function manualClock(start = Date.UTC(2026, 9, 27, 9)) {
 function fixture(t, scenario) {
   const dir = mkdtempSync(join(tmpdir(), 'demo-control-test-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
-  const fix = { dir, log: join(dir, 'helper.jsonl'), scenarioFile: join(dir, 'scenario.json') };
+  // fake_helper.py finds helper.jsonl and scenario.json next to the request's cli path.
+  const fix = { dir, log: join(dir, 'helper.jsonl'), cli: join(dir, 'colab') };
   writeFileSync(fix.log, '');
-  writeFileSync(fix.scenarioFile, JSON.stringify(scenario));
-  // The app spawns the helper with this process's environment.
-  process.env.FAKE_LOG = fix.log;
-  process.env.FAKE_SCENARIO = fix.scenarioFile;
+  writeFileSync(join(dir, 'scenario.json'), JSON.stringify(scenario));
   return fix;
 }
 
@@ -72,7 +70,7 @@ async function serve(t, fix, clock) {
     DEMO_ALLOWED_HOSTS: HOST,
     DEMO_COLAB_PYTHON: 'python3',
     DEMO_COLAB_HELPER: join(HERE, 'fake_helper.py'),
-    DEMO_COLAB_CLI: '/nonexistent/colab',
+    DEMO_COLAB_CLI: fix.cli,
     DEMO_BACKEND: BACKEND,
     DEMO_DATA: join(fix.dir, 'data'),
   }, { clock, pollMs: POLL, log: () => {} });

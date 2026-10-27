@@ -76,7 +76,9 @@ async function serve(t, fix, clock) {
   }, { clock, pollMs: POLL, log: () => {} });
   const server = createServer((req, res) => app.handle(req, res));
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
-  const stop = () => { app.close(); server.close(); };
+  // Waits for a flow still talking to the helper, so a restarted app never
+  // overlaps it and the fixture is not removed under it.
+  const stop = async () => { server.close(); await app.close(); };
   t.after(stop);
   return { port: server.address().port, close: stop };
 }

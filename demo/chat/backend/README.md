@@ -20,8 +20,9 @@ customer browser ──▶ studio.factor-io.com/demo/chat/   (static page, no lo
    `https://studio.factor-io.com/demo/chat/#api=<tunnel>&key=<key>`.
 4. Send that link. The page reads the backend address and key from it and needs
    no login. You can also paste both into the page's **Connection** panel.
-5. When done, run the **Stop** cell (or Runtime → Disconnect and delete runtime).
-   That ends the GPU billing, and the link stops working.
+5. When done, tick **STOP_DEMO** in the last cell and run that cell (or Runtime →
+   Disconnect and delete runtime). That ends the GPU billing, and the link stops
+   working. Run all leaves the box unticked, so it never stops the demo by itself.
 
 The notebook fetches `colab_start.sh`, `gateway.py`, `rag.py` and
 `requirements.txt` from the published site, so publish changes here before

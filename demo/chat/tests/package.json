@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test light_acceptance_t11fcaafc_chat.test.mjs"
+  }
+}

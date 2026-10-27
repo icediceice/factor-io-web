@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1792994722994",
-  "generated_at": "2026-10-26T06:05:22.994Z",
-  "snapshot_digest": "c08e9f83c1e909e8",
+  "refresh_id": "refresh-1793082065900",
+  "generated_at": "2026-10-27T06:21:05.900Z",
+  "snapshot_digest": "9d7beadbee0731d4",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-c08e9f83c1e909e8.json",
-      "digest": "c08e9f83c1e909e8",
-      "bytes": 3615997
+      "path": "catalog-9d7beadbee0731d4.json",
+      "digest": "9d7beadbee0731d4",
+      "bytes": 3632044
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "b3857cd728414ac6",
+      "digest": "7ef3d52bea7d5239",
       "bytes": 377
     }
   },
@@ -21,36 +21,80 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-26T06:05:22.994Z",
-      "last_success_at": "2026-10-26T06:05:22.994Z",
-      "expires_at": "2026-10-29T06:05:22.994Z",
-      "root_digest": "9224ca8e5ad0dd2a",
-      "record_count": 448,
+      "observed_at": "2026-10-27T06:21:05.900Z",
+      "last_success_at": "2026-10-27T06:21:05.900Z",
+      "expires_at": "2026-10-30T06:21:05.900Z",
+      "root_digest": "b3d2edf0a86a1526",
+      "record_count": 445,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-26T06:05:22.994Z",
-      "last_success_at": "2026-10-26T06:05:22.994Z",
-      "expires_at": "2026-10-29T06:05:22.994Z",
-      "root_digest": "6eeaf00109452a4d",
-      "record_count": 3092,
+      "observed_at": "2026-10-27T06:21:05.900Z",
+      "last_success_at": "2026-10-27T06:21:05.900Z",
+      "expires_at": "2026-10-30T06:21:05.900Z",
+      "root_digest": "b1a64f440141585f",
+      "record_count": 3104,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-23T00:00:00.000Z",
-      "last_success_at": "2026-10-26T06:05:47.921Z",
-      "expires_at": "2026-10-30T23:59:59.999Z",
-      "root_digest": "b3857cd728414ac6",
+      "observed_at": "2026-10-26T00:00:00.000Z",
+      "last_success_at": "2026-10-27T06:21:31.134Z",
+      "expires_at": "2026-11-02T23:59:59.999Z",
+      "root_digest": "7ef3d52bea7d5239",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
     }
   },
   "models": [
+    {
+      "id": "litellm:abliteration/abliterated-model",
+      "name": "abliteration/abliterated-model",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:abliteration/abliterated-model-large",
+      "name": "abliteration/abliterated-model-large",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:abliteration/abliterated-model-large-flash",
+      "name": "abliteration/abliterated-model-large-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:abliteration/abliterated-model-large-v2",
+      "name": "abliteration/abliterated-model-large-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
     {
       "id": "litellm:ai21.j2-mid-v1",
       "name": "ai21.j2-mid-v1",
@@ -19061,6 +19105,22 @@
       ]
     },
     {
+      "id": "litellm:global.openai.gpt-6.1-terra",
+      "name": "global.openai.gpt-6.1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:global.twelvelabs.pegasus-1-2-v1:0",
       "name": "global.twelvelabs.pegasus-1-2-v1:0",
       "tariff": "token",
@@ -20500,6 +20560,46 @@
     {
       "id": "litellm:gpt-6.1-sol",
       "name": "gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=batches",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=batches",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=batches",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=batches",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=batches",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:gpt-6.1-terra",
+      "name": "gpt-6.1-terra",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28434,6 +28534,61 @@
       ]
     },
     {
+      "id": "litellm:refuseless/deepseek-v4.1-flash-abliterated",
+      "name": "refuseless/deepseek-v4.1-flash-abliterated",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:refuseless/deepseek-v4.1-flash-fast",
+      "name": "refuseless/deepseek-v4.1-flash-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:refuseless/glm-5.3-abliterated",
+      "name": "refuseless/glm-5.3-abliterated",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:refuseless/glm-5.3-flash-abliterated",
+      "name": "refuseless/glm-5.3-flash-abliterated",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:refuseless/minimax-m3.1-flash",
+      "name": "refuseless/minimax-m3.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/anthropic/claude-3.5-haiku",
       "name": "replicate/anthropic/claude-3.5-haiku",
       "tariff": "token",
@@ -31722,6 +31877,22 @@
     {
       "id": "litellm:us.openai.gpt-6.1-sol",
       "name": "us.openai.gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:us.openai.gpt-6.1-terra",
+      "name": "us.openai.gpt-6.1-terra",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -37492,8 +37663,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -37524,8 +37694,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -37572,7 +37741,7 @@
       "id": "openrouter:ibm-granite/granite-4.0-h-micro",
       "name": "IBM: Granite 4.0 Micro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -39521,6 +39690,58 @@
       ]
     },
     {
+      "id": "openrouter:openai/gpt-6.1-terra",
+      "name": "OpenAI: GPT-6.1 Terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-6.1-terra-pro",
+      "name": "OpenAI: GPT-6.1 Terra Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-6.1-terra-pro:batch",
+      "name": "OpenAI: GPT-6.1 Terra Pro (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:openai/gpt-6.1-terra:batch",
+      "name": "OpenAI: GPT-6.1 Terra (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:openai/gpt-audio",
       "name": "OpenAI: GPT Audio",
       "tariff": "token",
@@ -40103,8 +40324,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -41127,7 +41347,7 @@
       {
         "offer": "openrouter:~openai/gpt-terra-latest",
         "rule": "alias_skipped",
-        "target": "openai/gpt-5.6-terra"
+        "target": "openai/gpt-6.1-terra"
       },
       {
         "offer": "openrouter:~openai/gpt-luna-latest",
@@ -47427,6 +47647,26 @@
       },
       {
         "offer": "litellm:opencode_go/muse-spark-1.2-contributor",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6.1-terra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:baseten/decision-models/baseten-elephant-9b-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "decisions"
+      },
+      {
+        "offer": "litellm:baseten/decision-models/baseten-mammoth-27b-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "decisions"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       }

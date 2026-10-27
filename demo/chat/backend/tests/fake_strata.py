@@ -2,7 +2,7 @@
 
 Used two ways:
   - by the tests, mounted in-process through httpx.ASGITransport;
-  - `python tests/fake_strata.py --serve-stack` runs this on 127.0.0.1:8080 and
+  - `python tests/fake_strata.py --serve-stack` runs this on 127.0.0.1:8081 and
     the real gateway on 127.0.0.1:8000 (access key "devkey", hash embeddings)
     so the page can be exercised in a browser without spending Colab time.
 
@@ -74,10 +74,10 @@ async def _serve_stack(delay: float):
     gw = create_app(Settings(keys=["devkey"], embedder="hash", model_label="fake model (dev stack)"),
                     embedder=rag.HashEmbedder())
     servers = [
-        uvicorn.Server(uvicorn.Config(fake, host="127.0.0.1", port=8080, log_level="warning")),
+        uvicorn.Server(uvicorn.Config(fake, host="127.0.0.1", port=8081, log_level="warning")),
         uvicorn.Server(uvicorn.Config(gw, host="127.0.0.1", port=8000, log_level="info")),
     ]
-    print("fake Strata on :8080, gateway on :8000, access key 'devkey'", flush=True)
+    print("fake Strata on :8081, gateway on :8000, access key 'devkey'", flush=True)
     await asyncio.gather(*(s.serve() for s in servers))
 
 

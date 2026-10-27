@@ -56,6 +56,7 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
   let deadlineTimer = null;
   let retryTimer = null;
   let crashes = 0;
+  let closed = false;
   let work = Promise.resolve();
 
   function load() {
@@ -89,7 +90,7 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
 
   function schedulePoll() {
     clock.clearTimeout(pollTimer);
-    pollTimer = RUNNING.has(s.phase) ? clock.setTimeout(() => enqueue(poll), pollMs[s.phase]) : null;
+    pollTimer = !closed && RUNNING.has(s.phase) ? clock.setTimeout(() => enqueue(poll), pollMs[s.phase]) : null;
   }
 
   async function call(req) {
@@ -115,7 +116,7 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
       message: `${message} The GPU may still be billing: Colab did not confirm the stop (${r.message || r.error || r.detail}). `
         + `Press Stop again, or run light_colab stop session:${s.session}.`,
     });
-    retryTimer = clock.setTimeout(() => enqueue(retryRelease), pollMs.ready);
+    if (!closed) retryTimer = clock.setTimeout(() => enqueue(retryRelease), pollMs.ready);
   }
 
   function retryRelease() {
@@ -248,5 +249,13 @@ export function createDemo({ colab, backendDir, dataDir, floor = 10, clock = REA
     }
   }
 
-  return { start, stop, view, close: clearTimers };
+  // A flow already running finishes and records its result; nothing new is
+  // scheduled. Resolves once that flow is done.
+  function close() {
+    closed = true;
+    clearTimers();
+    return work;
+  }
+
+  return { start, stop, view, close };
 }

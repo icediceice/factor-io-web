@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Document Chat Demo · Factor IO</title>
+<meta name="description" content="Live demo: upload your own documents and ask questions, answered by an open model running on a GPU we control.">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="app.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#composer-input">Skip to the question box</a>
+
+<header class="demo-header">
+  <a class="brand" href="/">Factor<span>IO</span></a>
+  <span class="demo-tag">Live demo</span>
+  <button class="conn-pill" id="conn-pill" type="button" aria-haspopup="dialog" aria-controls="conn-dialog" data-state="unset">
+    <span class="dot" aria-hidden="true"></span><span id="conn-pill-text">Not connected</span>
+  </button>
+</header>
+
+<main class="rail" id="main">
+  <section class="state" aria-labelledby="state-title">
+    <p class="state-kicker" id="state-kicker">Chat with your documents</p>
+    <h1 id="state-title">Not connected</h1>
+    <p class="state-detail" id="state-detail">Open the link you were sent, or set up the connection.</p>
+    <div class="state-actions" id="state-actions">
+      <button class="button button-small" type="button" id="state-connect">Set up connection</button>
+    </div>
+    <div class="state-status" role="status" aria-live="polite" id="live"></div>
+  </section>
+
+  <section class="shelf" aria-labelledby="shelf-title" id="shelf">
+    <div class="shelf-head">
+      <h2 id="shelf-title">Your documents</h2>
+      <span class="shelf-total" id="shelf-total"></span>
+      <label class="button button-quiet button-small add-files" id="add-files">
+        <input type="file" id="file-input" multiple accept=".pdf,.docx,.xlsx,.xlsm,.csv,.tsv,.txt,.md,.markdown,.json,.log,.xml,.yaml,.yml,.rst,.html,.htm">
+        <span>Add files</span>
+      </label>
+    </div>
+    <ul class="docs" id="docs" aria-label="Uploaded documents"></ul>
+    <p class="shelf-empty" id="shelf-empty">PDF, Word, Excel, CSV or text, up to 25 MB each. Drop them anywhere on this page.
+      They are held in the demo server's memory only, and deleted when the demo stops.</p>
+  </section>
+
+  <section class="thread" aria-label="Conversation">
+    <ol class="messages" id="messages" aria-live="off"></ol>
+    <div class="starters" id="starters" hidden>
+      <button type="button" class="starter">Summarise these documents in five bullet points.</button>
+      <button type="button" class="starter">List the key figures and dates, with their sources.</button>
+      <button type="button" class="starter">What questions do these documents leave unanswered?</button>
+    </div>
+  </section>
+</main>
+
+<form class="composer" id="composer" autocomplete="off">
+  <div class="composer-inner">
+    <label class="visually-hidden" for="composer-input">Your question</label>
+    <textarea id="composer-input" rows="1" maxlength="8000" placeholder="Ask about your documents…" disabled></textarea>
+    <div class="composer-bar">
+      <div class="mode" role="radiogroup" aria-label="Answer mode">
+        <label><input type="radio" name="mode" value="none" checked><span>Quick</span></label>
+        <label><input type="radio" name="mode" value="low"><span>Think first</span></label>
+      </div>
+      <span class="composer-hint" id="composer-hint">Enter to send · Shift+Enter for a new line</span>
+      <button class="button button-quiet button-small" type="button" id="stop" hidden>Stop</button>
+      <button class="button button-small" type="submit" id="send" disabled>Send</button>
+    </div>
+  </div>
+</form>
+
+<div class="drop-veil" id="drop-veil" hidden><p>Drop files to add them</p></div>
+
+<dialog class="sheet" id="conn-dialog" aria-labelledby="conn-title">
+  <form method="dialog" id="conn-form" novalidate>
+    <h2 id="conn-title">Connection</h2>
+    <p class="sheet-lede">The demo's model runs on a Colab GPU. The link from the operator fills these in; you can also paste them.</p>
+    <label class="field">
+      <span>Backend URL</span>
+      <input type="url" id="conn-url" inputmode="url" spellcheck="false" placeholder="https://….trycloudflare.com" required>
+    </label>
+    <label class="field">
+      <span>Access key</span>
+      <span class="key-row">
+        <input type="password" id="conn-key" spellcheck="false" autocomplete="off" required>
+        <button type="button" class="button button-text" id="conn-key-show" aria-pressed="false">Show</button>
+      </span>
+    </label>
+    <ul class="checks" id="conn-checks" aria-live="polite"></ul>
+    <div class="sheet-actions">
+      <button type="button" class="button button-text" id="conn-forget">Forget</button>
+      <button type="button" class="button button-quiet button-small" id="conn-cancel">Close</button>
+      <button type="submit" class="button button-small" id="conn-save">Test and connect</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>

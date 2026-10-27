@@ -94,3 +94,37 @@ test('G3: a helper crash during status releases a rented VM instead of continuin
   assert.equal(f.demo.view().phase, 'failed');
   assert.equal(f.demo.view().vmHeld, false);
 });
+
+test('G3: a helper crash during pull releases a rented VM instead of silently losing readiness', async t => {
+  const f = fixture(t, { pull: () => { throw new Error('helper process crashed during status.json download'); } });
+  await f.boot();
+  f.time.advance(1000); await settle();
+  assert.equal(f.calls.filter(req => req.verb === 'stop').length, 1, 'promise 7 also covers helper crashes after a successful status probe');
+  assert.equal(f.demo.view().phase, 'failed');
+  assert.equal(f.demo.view().vmHeld, false);
+});
+
+test('control: the same clock enforces a normal booting deadline', async t => {
+  const f = fixture(t);
+  await f.boot(); f.time.advance(CAP_MS); await settle();
+  assert.equal(f.calls.filter(req => req.verb === 'stop').length, 1);
+  assert.equal(f.demo.view().phase, 'stopped');
+  assert.equal(f.demo.view().vmHeld, false);
+});
+
+for (const phase of ['renting', 'uploading']) test(`control: Stop during ${phase} is deferred until the helper returns`, async t => {
+  let resume;
+  const gate = new Promise(resolve => { resume = resolve; });
+  const verb = phase === 'renting' ? 'start' : 'run';
+  const reply = verb === 'start' ? { ok: true, endpoint: 'ep-demo' } : { ok: true, run_id: 'run-demo' };
+  const f = fixture(t, { [verb]: () => gate });
+  f.demo.start({}); await settle();
+  assert.equal(f.demo.view().phase, phase);
+  f.demo.stop();
+  assert.equal(f.calls.filter(req => req.verb === 'stop').length, 0, 'in-flight helper must finish before stop');
+  resume(reply); await settle();
+  assert.equal(f.calls.filter(req => req.verb === 'stop').length, 1);
+  assert.equal(f.demo.view().phase, 'stopped');
+  assert.equal(f.demo.view().vmHeld, false);
+  if (verb === 'start') assert.equal(f.calls.filter(req => req.verb === 'run').length, 0);
+});

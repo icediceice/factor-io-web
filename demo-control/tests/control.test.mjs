@@ -203,7 +203,7 @@ test('a stop Colab does not confirm is retried by itself, and again first thing 
   const held = await waitFor(first.port, (s) => s.phase === 'failed' && s.updatedAt === clock.now(), 'the automatic retry');
   assert.equal(calls(fix, 'stop').length, 2, 'retried without anyone pressing Stop');
   assert.equal(held.vmHeld, true);
-  first.close();
+  await first.close();
 
   clock.advance(6 * HOUR);
   const second = await serve(t, fix, clock);
@@ -284,14 +284,14 @@ test('the 6 h cap survives a restart of the control app', async (t) => {
   const clock = manualClock();
   const first = await serve(t, fix, clock);
   await startToBooting(first.port);
-  first.close();
+  await first.close();
 
   // Back up within the window: the demo keeps running, and still stops at 6 h.
   clock.advance(HOUR);
   const second = await serve(t, fix, clock);
   const resumed = await waitFor(second.port, (s) => s.phase === 'booting' || s.phase === 'ready', 'resume');
   assert.equal(calls(fix, 'stop').length, 0);
-  second.close();
+  await second.close();
 
   // Down across the deadline: the first thing the app does is stop the VM.
   clock.advance(5 * HOUR);

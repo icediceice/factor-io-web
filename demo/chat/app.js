@@ -517,9 +517,9 @@ function render() {
     detail.textContent = `${health.model.label} is still starting on the GPU (${health.model.detail || 'loading'}). This page checks again every 10 seconds.`;
     $('conn-pill-text').textContent = 'Model loading';
   } else if (phase === 'error') {
-    title.textContent = 'Demo backend offline';
+    title.textContent = state.problemTitle;
     detail.textContent = `${state.problem} Checking again every 20 seconds.`;
-    $('conn-pill-text').textContent = 'Offline';
+    $('conn-pill-text').textContent = state.problemTitle === 'Demo backend offline' ? 'Offline' : 'Not connected';
     button('Retry now', () => connect());
     button('Connection settings', openDialog, true);
   } else if (phase === 'ready') {

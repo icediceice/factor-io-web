@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793082065900",
-  "generated_at": "2026-10-27T06:21:05.900Z",
-  "snapshot_digest": "9d7beadbee0731d4",
+  "refresh_id": "refresh-1793168429714",
+  "generated_at": "2026-10-28T06:20:29.714Z",
+  "snapshot_digest": "a7a0c06c763e32c7",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-9d7beadbee0731d4.json",
-      "digest": "9d7beadbee0731d4",
-      "bytes": 3632044
+      "path": "catalog-a7a0c06c763e32c7.json",
+      "digest": "a7a0c06c763e32c7",
+      "bytes": 3638471
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "7ef3d52bea7d5239",
+      "digest": "273d2e4549666425",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-27T06:21:05.900Z",
-      "last_success_at": "2026-10-27T06:21:05.900Z",
-      "expires_at": "2026-10-30T06:21:05.900Z",
-      "root_digest": "b3d2edf0a86a1526",
+      "observed_at": "2026-10-28T06:20:29.714Z",
+      "last_success_at": "2026-10-28T06:20:29.714Z",
+      "expires_at": "2026-10-31T06:20:29.714Z",
+      "root_digest": "d5bf4bd65feae063",
       "record_count": 445,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-27T06:21:05.900Z",
-      "last_success_at": "2026-10-27T06:21:05.900Z",
-      "expires_at": "2026-10-30T06:21:05.900Z",
-      "root_digest": "b1a64f440141585f",
-      "record_count": 3104,
+      "observed_at": "2026-10-28T06:20:29.714Z",
+      "last_success_at": "2026-10-28T06:20:29.714Z",
+      "expires_at": "2026-10-31T06:20:29.714Z",
+      "root_digest": "6df75acdd26104d1",
+      "record_count": 3112,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-26T00:00:00.000Z",
-      "last_success_at": "2026-10-27T06:21:31.134Z",
-      "expires_at": "2026-11-02T23:59:59.999Z",
-      "root_digest": "7ef3d52bea7d5239",
+      "observed_at": "2026-10-27T00:00:00.000Z",
+      "last_success_at": "2026-10-28T06:20:54.004Z",
+      "expires_at": "2026-11-03T23:59:59.999Z",
+      "root_digest": "273d2e4549666425",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -23541,6 +23541,94 @@
       ]
     },
     {
+      "id": "litellm:morph/morph-dsv41flash",
+      "name": "morph/morph-dsv41flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv41flash-1017",
+      "name": "morph/morph-dsv41flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv41flash-abliterated",
+      "name": "morph/morph-dsv41flash-abliterated",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv4flash",
+      "name": "morph/morph-dsv4flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-glm53-744b",
+      "name": "morph/morph-glm53-744b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-glm53flash",
+      "name": "morph/morph-glm53flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-kimik3",
+      "name": "morph/morph-kimik3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-kimik3-fast",
+      "name": "morph/morph-kimik3-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:morph/morph-v3-fast",
       "name": "morph/morph-v3-fast",
       "tariff": "token",
@@ -37916,8 +38004,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -38560,7 +38647,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38570,7 +38658,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38598,7 +38687,7 @@
       "id": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
       "name": "NVIDIA: Nemotron 3 Super (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -38698,16 +38787,6 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-3.5-turbo",
-      "name": "OpenAI: GPT-3.5 Turbo",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:openai/gpt-3.5-turbo-0613",
       "name": "OpenAI: GPT-3.5 Turbo (older v0613)",
       "tariff": "token",
@@ -38725,27 +38804,6 @@
       "meters": [
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-3.5-turbo-instruct",
-      "name": "OpenAI: GPT-3.5 Turbo Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-3.5-turbo:batch",
-      "name": "OpenAI: GPT-3.5 Turbo (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search"
       ]
     },
     {
@@ -40140,6 +40198,17 @@
       ]
     },
     {
+      "id": "openrouter:prism-ml/ternary-bonsai-2-9b",
+      "name": "PrismML: Ternary Bonsai 2 9B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen-2.5-72b-instruct",
       "name": "Qwen2.5 72B Instruct",
       "tariff": "token",
@@ -40229,7 +40298,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -47667,6 +47737,11 @@
       },
       {
         "offer": "litellm:github_copilot/gpt-6.1-terra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/openai.gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       }

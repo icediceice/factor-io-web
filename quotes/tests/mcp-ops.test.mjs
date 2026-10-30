@@ -9,6 +9,8 @@ import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
+import { readFileSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createApp } from '../server.mjs';
 import { openDb } from '../lib/db.mjs';
 

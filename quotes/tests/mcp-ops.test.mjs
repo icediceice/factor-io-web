@@ -114,7 +114,8 @@ test('every declared op maps to a live REST route and audits as actor agent', as
   await run('invoice', { op: 'payment_delete', id: iid, payment_id: pid, confirm: issuedInv.invoice.number || String(iid) });
 
   const pdf = await run('pdf', { op: 'quotation', id: qid, lang: 'en' });
-  assert.match(pdf.path, /[\\/]quotation-\\d+-en-[0-9a-f-]{36}\\.pdf$/, `pdf path: ${pdf.path}`);
+  assert.ok(pdf.path.split('/').pop().startsWith(`quotation-${qid}-en-`), `pdf path: ${pdf.path}`);
+  assert.ok(pdf.path.split('/').pop().endsWith('.pdf'), `pdf path: ${pdf.path}`);
   assert.ok(pdf.bytes > 1000, `pdf bytes: ${pdf.bytes}`);
   assert.equal(createHash('sha256').update(readFileSync(pdf.path)).digest('hex'), pdf.sha256);
   assert.equal(statSync(pdf.path).mode & 0o777, 0o600);

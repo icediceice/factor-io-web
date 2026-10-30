@@ -138,3 +138,25 @@ test('every declared op maps to a live REST route and audits as actor agent', as
 
   t.diagnostic(`ops exercised: ${seen.length} -> ${seen.join(', ')}`);
 });
+
+// Latent-hazard probe: mcp.mjs exits on stdin EOF. If a client half-closes its
+// write end right after a request (per-call spawn transports), does the reply
+// still arrive, or does process.exit(0) race the in-flight handler?
+test('a request written immediately before stdin EOF is still answered', async t => {
+  const dir = mkdtempSync(join(tmpdir(), 'quotes-eof-'));
+  const app = createApp({ QUOTES_AGENT_TOKEN: 'eof-token', QUOTES_DB_PATH: join(dir, 'eof.db') });
+  const server = createServer(app.handle); server.listen(0, '127.0.0.1'); await once(server, 'listening');
+  const url = `http://127.0.0.1:${server.address().port}`;
+  t.after(() => { app.close(); rmSync(dir, { recursive: true, force: true }); });
+  t.after(async () => { await new Promise(r => server.close(r)); });
+
+  const child = spawn(process.execPath, [script], { env: { ...process.env, QUOTES_URL: url, QUOTES_AGENT_TOKEN: 'eof-token' }, stdio: ['pipe', 'pipe', 'pipe'] });
+  let out = '';
+  createInterface({ input: child.stdout }).on('line', line => { out += line + '\n'; });
+  child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'read', arguments: { op: 'settings' } } }) + '\n');
+  child.stdin.end();                                   // EOF immediately after the request
+  const [code] = await Promise.race([once(child, 'exit'), new Promise(r => setTimeout(() => r(['timeout']), 5000))]);
+  t.diagnostic(`exit=${code} stdout=${JSON.stringify(out)}`);
+  assert.equal(code, 'timeout', 'process exited before the reply was read (see stdout)');
+  assert.match(out, /"id":1/, 'the request was never answered');
+});

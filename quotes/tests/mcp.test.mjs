@@ -41,7 +41,8 @@ test('MCP protocol and quotation lifecycle through authenticated HTTP', async t 
   const run = async (name, args) => { const result = await c.tool(name, args); assert.equal(result.isError, false, result.content[0].text); return result.structuredContent; };
   const settings = (await run('read', { op:'settings' })).settings;
   const key = Object.keys(settings)[0];
-  await run('settings', { op:'set', key, value:settings[key], confirm:key });
+  await run('settings', { op:'set', key, value:'test value', confirm:key });
+  assert.equal((await run('read', { op:'settings' })).settings[key], 'test value');
   assert.equal((await c.tool('settings', { op:'set', key:'currency.cod', value:'oops', confirm:'currency.cod' })).isError, true);
   assert.equal(Object.hasOwn((await run('read', { op:'settings' })).settings, 'currency.cod'), false);
   const clientRow = (await run('draft', { op:'client_save', name:'MCP Test' })).client;

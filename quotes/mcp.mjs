@@ -67,5 +67,5 @@ if (process.argv.includes('--selftest')) {
       pending.finally(() => inflight.delete(pending));
     } catch { output({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }); }
   });
-  input.on('close', async () => { await Promise.allSettled([...inflight]); process.exit(0); });
+  input.on('close', async () => { await Promise.allSettled([...inflight]); process.stdout.end(() => process.exit(0)); });
 }

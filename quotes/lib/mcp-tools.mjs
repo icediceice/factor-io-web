@@ -40,7 +40,7 @@ const fields = {
 export const TOOLS = Object.entries(ops).map(([name, values]) => ({
   name, title: `Quotes ${name}`, description: `Factor IO ${name} operations: ${values.join(', ')}.`,
   inputSchema: { type: 'object', properties: { op: { type: 'string', enum: values }, ...Object.fromEntries(fields[name].split(' ').map(k => [k, props[k]])) }, required: ['op'], additionalProperties: false },
-  annotations: name === 'read' || name === 'pdf' ? { readOnlyHint: true } : { destructiveHint: ['quotation','invoice','settings'].includes(name) },
+  annotations: name === 'read' ? { readOnlyHint: true } : { destructiveHint: name !== 'pdf' },
 }));
 const pick = (a, names) => Object.fromEntries(names.split(' ').filter(k => a[k] !== undefined).map(k => [k, a[k]]));
 function id(a, key = 'id') {
@@ -106,7 +106,11 @@ export async function callTool(call, name, a = {}) {
     if (op === 'create') {
       if (a.term_months !== undefined && (a.term_months < 0 || a.term_months > 600)) throw new Error('term_months must be 0..600');
       let result = await call('POST', '/api/quotations', pick(a, `${header} template sow lines`));
-      if (a.term_months !== undefined) result = await call('PUT', `/api/quotations/${result.quotation.id}`, { term_months: a.term_months });
+      if (a.term_months !== undefined) {
+        const createdId = result.quotation.id;
+        try { result = await call('PUT', `/api/quotations/${createdId}`, { term_months: a.term_months }); }
+        catch (error) { throw new Error(`quotation ${createdId} was created, but updating term_months failed: ${error.message}`, { cause: error }); }
+      }
       return result;
     }
     if (op === 'client_save' || op === 'catalog_save') {

@@ -59,8 +59,13 @@ if (process.argv.includes('--selftest')) {
     output(reply);
   }
   const input = createInterface({ input: process.stdin, crlfDelay: Infinity });
+  const inflight = new Set();
   input.on('line', line => {
-    try { void handle(JSON.parse(line)); } catch { output({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }); }
+    try {
+      const pending = handle(JSON.parse(line));
+      inflight.add(pending);
+      pending.finally(() => inflight.delete(pending));
+    } catch { output({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }); }
   });
-  input.on('close', () => process.exit(0));
+  input.on('close', async () => { await Promise.allSettled([...inflight]); process.exit(0); });
 }

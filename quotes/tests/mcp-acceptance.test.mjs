@@ -228,6 +228,8 @@ test('pdf saves the rendered document with a matching digest and private mode', 
   assert.equal(statSync(data.path).mode & 0o777, 0o600, 'pdf file must be private');
   assert.equal((await call('pdf', { op: 'quotation', id: q.id, lang: 'de' })).r.isError, true);
 
+  // An invoice may only be raised from an ACCEPTED quotation.
+  await run('quotation', { op: 'status', id: q.id, status: 'accepted' });
   const inv = (await run('invoice', { op: 'create', quotation_id: q.id })).invoice;
   await run('invoice', { op: 'issue', id: inv.id, confirm: inv.number || String(inv.id) });
   const ip = await run('pdf', { op: 'invoice', id: inv.id, lang: 'th' });

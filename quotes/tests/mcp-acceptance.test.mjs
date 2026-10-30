@@ -220,6 +220,7 @@ test('pdf saves the rendered document with a matching digest and private mode', 
   const wantPrefix = `quotation-${q.id}-en-`;
   assert.equal(data.path.split('/').pop().slice(0, wantPrefix.length), wantPrefix);
   assert.ok(data.path.endsWith('.pdf'), `pdf path: ${data.path}`);
+  assert.ok(data.path.startsWith(out), 'output stays inside QUOTES_MCP_OUT');
   assert.ok(data.bytes > 1000, `pdf bytes: ${data.bytes}`);
   const onDisk = readFileSync(data.path);
   assert.equal(onDisk.length, data.bytes);

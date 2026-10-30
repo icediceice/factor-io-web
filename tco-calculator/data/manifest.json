@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793082065900",
-  "generated_at": "2026-10-27T06:21:05.900Z",
-  "snapshot_digest": "9d7beadbee0731d4",
+  "refresh_id": "refresh-1793341520529",
+  "generated_at": "2026-10-30T06:25:20.529Z",
+  "snapshot_digest": "f43ccc2207692787",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-9d7beadbee0731d4.json",
-      "digest": "9d7beadbee0731d4",
-      "bytes": 3632044
+      "path": "catalog-f43ccc2207692787.json",
+      "digest": "f43ccc2207692787",
+      "bytes": 3784613
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "7ef3d52bea7d5239",
+      "digest": "589f44a052a06d71",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-27T06:21:05.900Z",
-      "last_success_at": "2026-10-27T06:21:05.900Z",
-      "expires_at": "2026-10-30T06:21:05.900Z",
-      "root_digest": "b3d2edf0a86a1526",
-      "record_count": 445,
+      "observed_at": "2026-10-30T06:25:20.529Z",
+      "last_success_at": "2026-10-30T06:25:20.529Z",
+      "expires_at": "2026-11-02T06:25:20.529Z",
+      "root_digest": "fdacf1a12e4a4bdd",
+      "record_count": 437,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-27T06:21:05.900Z",
-      "last_success_at": "2026-10-27T06:21:05.900Z",
-      "expires_at": "2026-10-30T06:21:05.900Z",
-      "root_digest": "b1a64f440141585f",
-      "record_count": 3104,
+      "observed_at": "2026-10-30T06:25:20.529Z",
+      "last_success_at": "2026-10-30T06:25:20.529Z",
+      "expires_at": "2026-11-02T06:25:20.529Z",
+      "root_digest": "5842c5cdbd0fd31a",
+      "record_count": 3290,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-26T00:00:00.000Z",
-      "last_success_at": "2026-10-27T06:21:31.134Z",
-      "expires_at": "2026-11-02T23:59:59.999Z",
-      "root_digest": "7ef3d52bea7d5239",
+      "observed_at": "2026-10-29T00:00:00.000Z",
+      "last_success_at": "2026-10-30T06:25:48.998Z",
+      "expires_at": "2026-11-05T23:59:59.999Z",
+      "root_digest": "589f44a052a06d71",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -141,6 +141,149 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/deepseek-ai/deepseek-v4-flash",
+      "name": "aiand/deepseek-ai/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/deepseek-ai/deepseek-v4-pro",
+      "name": "aiand/deepseek-ai/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/deepseek-ai/deepseek-v4.1-flash",
+      "name": "aiand/deepseek-ai/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/google/gemma-4-31b-it",
+      "name": "aiand/google/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/moonshotai/kimi-k2.7-code",
+      "name": "aiand/moonshotai/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/moonshotai/kimi-k3",
+      "name": "aiand/moonshotai/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/motif-technologies/motif-3",
+      "name": "aiand/motif-technologies/motif-3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/openai/gpt-oss-120b",
+      "name": "aiand/openai/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/qwen/qwen3.6-27b",
+      "name": "aiand/qwen/qwen3.6-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/qwen/qwen3.8-27b",
+      "name": "aiand/qwen/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/zai-org/glm-5.2",
+      "name": "aiand/zai-org/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/zai-org/glm-5.3",
+      "name": "aiand/zai-org/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/zai-org/glm-5.3-flash",
+      "name": "aiand/zai-org/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -2021,6 +2164,22 @@
       ]
     },
     {
+      "id": "litellm:azure/apac/gpt-6.1-terra",
+      "name": "azure/apac/gpt-6.1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure/chat-latest",
       "name": "azure/chat-latest",
       "tariff": "token",
@@ -2653,6 +2812,22 @@
       ]
     },
     {
+      "id": "litellm:azure/eu/gpt-6.1-terra",
+      "name": "azure/eu/gpt-6.1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure/eu/o1",
       "name": "azure/eu/o1",
       "tariff": "token",
@@ -3154,7 +3329,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -3215,7 +3392,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4035,6 +4214,22 @@
       ]
     },
     {
+      "id": "litellm:azure/gpt-6.1-terra",
+      "name": "azure/gpt-6.1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure/gpt-audio",
       "name": "azure/gpt-audio",
       "tariff": "token",
@@ -4205,7 +4400,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4229,7 +4426,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4253,7 +4452,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4932,6 +5133,22 @@
     {
       "id": "litellm:azure/us/gpt-6.1-sol",
       "name": "azure/us/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:azure/us/gpt-6.1-terra",
+      "name": "azure/us/gpt-6.1-terra",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -6087,6 +6304,22 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/gpt-6.1-terra",
+      "name": "azure_ai/gpt-6.1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/gpt-chat-latest",
       "name": "azure_ai/gpt-chat-latest",
       "tariff": "token",
@@ -6786,9 +7019,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6798,9 +7035,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6810,9 +7051,45 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/ap-northeast-1/mistral.voxtral-mini-3b-2507",
+      "name": "bedrock/ap-northeast-1/mistral.voxtral-mini-3b-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/ap-northeast-1/mistral.voxtral-small-24b-2507",
+      "name": "bedrock/ap-northeast-1/mistral.voxtral-small-24b-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6834,9 +7111,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6858,7 +7139,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6868,9 +7153,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6900,9 +7189,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6912,9 +7205,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6936,9 +7233,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6960,7 +7261,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -6970,9 +7277,45 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/ap-southeast-2/mistral.voxtral-mini-3b-2507",
+      "name": "bedrock/ap-southeast-2/mistral.voxtral-mini-3b-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/ap-southeast-2/mistral.voxtral-small-24b-2507",
+      "name": "bedrock/ap-southeast-2/mistral.voxtral-small-24b-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7349,9 +7692,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7361,9 +7708,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7385,9 +7736,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7397,9 +7752,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7409,9 +7768,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7421,9 +7784,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7489,9 +7856,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7501,9 +7872,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7525,7 +7900,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7555,9 +7934,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7567,9 +7950,45 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/eu-west-2/mistral.voxtral-mini-3b-2507",
+      "name": "bedrock/eu-west-2/mistral.voxtral-mini-3b-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/eu-west-2/mistral.voxtral-small-24b-2507",
+      "name": "bedrock/eu-west-2/mistral.voxtral-small-24b-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7579,9 +7998,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7591,9 +8014,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7603,7 +8030,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7679,9 +8110,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7711,9 +8146,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7723,9 +8162,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7747,9 +8190,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7771,7 +8218,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7811,9 +8262,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7843,9 +8298,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7855,9 +8314,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -7909,9 +8372,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7921,9 +8388,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7933,7 +8404,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7943,9 +8420,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7955,9 +8436,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7967,9 +8452,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7991,9 +8480,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8599,9 +9092,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8611,9 +9108,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8623,9 +9124,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8677,9 +9182,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8701,7 +9210,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9197,6 +9712,39 @@
         "input|tier=priority",
         "output|tier=flex",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bigmodel/glm-5.3",
+      "name": "bigmodel/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bigmodel/glm-5.3-flash",
+      "name": "bigmodel/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bigmodel/glm-5.3-flashx",
+      "name": "bigmodel/glm-5.3-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -9717,6 +10265,115 @@
         "input|tier=batches",
         "output",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/deepseek-v4-flash",
+      "name": "clf_ai_gateway/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/deepseek-v4-pro",
+      "name": "clf_ai_gateway/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/deepseek-v4.1-flash",
+      "name": "clf_ai_gateway/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-4.7-flash",
+      "name": "clf_ai_gateway/glm-4.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-5.2",
+      "name": "clf_ai_gateway/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-5.3",
+      "name": "clf_ai_gateway/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-5.3-flash",
+      "name": "clf_ai_gateway/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/kimi-k2.6",
+      "name": "clf_ai_gateway/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/kimi-k2.7-code",
+      "name": "clf_ai_gateway/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/qwen3.8-27b",
+      "name": "clf_ai_gateway/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -10834,6 +11491,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10848,6 +11506,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10862,10 +11521,31 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
         "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-claude-haiku-5-5",
+      "name": "databricks/databricks-claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>100000",
+        "cache_write|age=1hr",
+        "cache_write|>100000|age=1hr",
+        "cache_read",
+        "cache_read|>100000",
+        "input",
+        "input|>100000",
+        "op_dbu_in",
+        "output",
+        "output|>100000",
         "op_dbu_out"
       ]
     },
@@ -10876,6 +11556,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10890,6 +11571,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10904,6 +11586,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10918,6 +11601,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10932,6 +11616,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10946,6 +11631,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -10960,6 +11646,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -11017,6 +11704,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -11031,6 +11719,7 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "op_dbu_in",
@@ -11041,6 +11730,54 @@
     {
       "id": "litellm:databricks/databricks-claude-sonnet-5",
       "name": "databricks/databricks-claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-claude-sonnet-5-5",
+      "name": "databricks/databricks-claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-deepseek-v4-1-flash",
+      "name": "databricks/databricks-deepseek-v4-1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-deepseek-v4-1-flash-1017",
+      "name": "databricks/databricks-deepseek-v4-1-flash-1017",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -11095,6 +11832,23 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-gemini-2-5-flash-lite",
+      "name": "databricks/databricks-gemini-2-5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read_audio",
+        "cache_read",
+        "audio_in_tok",
+        "image_in_tok",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-gemini-2-5-pro",
       "name": "databricks/databricks-gemini-2-5-pro",
       "tariff": "token",
@@ -11109,15 +11863,54 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-gemini-3-1-flash-image",
+      "name": "databricks/databricks-gemini-3-1-flash-image",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "image_in_tok",
+        "input",
+        "image_out_tok",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-gemini-3-1-flash-lite",
       "name": "databricks/databricks-gemini-3-1-flash-lite",
       "tariff": "token",
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_read_audio",
         "cache_read",
+        "audio_in_tok",
+        "image_in_tok",
         "input",
         "op_dbu_in",
+        "output",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "audio_in_tok|tier=priority",
+        "cache_read_audio|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gemini-3-1-flash-lite-image",
+      "name": "databricks/databricks-gemini-3-1-flash-lite-image",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "image_in_tok",
+        "input",
+        "op_dbu_in",
+        "image_out_tok",
         "output",
         "op_dbu_out"
       ]
@@ -11130,10 +11923,20 @@
       "meters": [
         "cache_write",
         "cache_read",
+        "cache_read|>200000",
         "input",
+        "input|>200000",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "output|>200000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>200000|tier=priority",
+        "output|>200000|tier=priority",
+        "cache_read|>200000|tier=priority"
       ]
     },
     {
@@ -11147,7 +11950,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11161,7 +11968,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11175,7 +11986,43 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gemini-3-7-flash",
+      "name": "databricks/databricks-gemini-3-7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gemini-3-8-flash",
+      "name": "databricks/databricks-gemini-3-8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11185,11 +12032,20 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_read_audio",
         "cache_read",
+        "audio_in_tok",
+        "image_in_tok",
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "audio_in_tok|tier=priority",
+        "cache_read_audio|tier=priority"
       ]
     },
     {
@@ -11204,6 +12060,38 @@
         "op_dbu_in",
         "output",
         "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gemini-3-pro-image",
+      "name": "databricks/databricks-gemini-3-pro-image",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "image_in_tok",
+        "input",
+        "image_out_tok",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gemini-4-argon",
+      "name": "databricks/databricks-gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11231,7 +12119,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11245,7 +12137,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11259,7 +12155,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11273,7 +12173,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11287,7 +12191,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11301,7 +12209,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11312,10 +12224,20 @@
       "meters": [
         "cache_write",
         "cache_read",
+        "cache_read|>272000",
         "input",
+        "input|>272000",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "output|>272000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>272000|tier=priority",
+        "output|>272000|tier=priority",
+        "cache_read|>272000|tier=priority"
       ]
     },
     {
@@ -11329,7 +12251,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11353,11 +12279,23 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|>272000",
         "cache_read",
+        "cache_read|>272000",
         "input",
+        "input|>272000",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "output|>272000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>272000|tier=priority",
+        "output|>272000|tier=priority",
+        "cache_read|>272000|tier=priority",
+        "cache_write|>272000|tier=priority"
       ]
     },
     {
@@ -11367,11 +12305,23 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|>272000",
         "cache_read",
+        "cache_read|>272000",
         "input",
+        "input|>272000",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "output|>272000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>272000|tier=priority",
+        "output|>272000|tier=priority",
+        "cache_read|>272000|tier=priority",
+        "cache_write|>272000|tier=priority"
       ]
     },
     {
@@ -11381,11 +12331,23 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|>272000",
         "cache_read",
+        "cache_read|>272000",
         "input",
+        "input|>272000",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "output|>272000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>272000|tier=priority",
+        "output|>272000|tier=priority",
+        "cache_read|>272000|tier=priority",
+        "cache_write|>272000|tier=priority"
       ]
     },
     {
@@ -11399,7 +12361,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11414,6 +12380,58 @@
         "op_dbu_in",
         "output",
         "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gpt-6-1-terra",
+      "name": "databricks/databricks-gpt-6-1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "op_dbu_in",
+        "output",
+        "output|>272000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>272000|tier=priority",
+        "output|>272000|tier=priority",
+        "cache_read|>272000|tier=priority",
+        "cache_write|>272000|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gpt-6-astra",
+      "name": "databricks/databricks-gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "op_dbu_in",
+        "output",
+        "output|>272000",
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority",
+        "input|>272000|tier=priority",
+        "output|>272000|tier=priority",
+        "cache_read|>272000|tier=priority",
+        "cache_write|>272000|tier=priority"
       ]
     },
     {
@@ -11459,8 +12477,36 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-grok-4-7",
+      "name": "databricks/databricks-grok-4-7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-inkling",
       "name": "databricks/databricks-inkling",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-kimi-k2-7",
+      "name": "databricks/databricks-kimi-k2-7",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -11483,7 +12529,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -11553,7 +12603,11 @@
         "input",
         "op_dbu_in",
         "output",
-        "op_dbu_out"
+        "op_dbu_out",
+        "input|tier=priority",
+        "output|tier=priority",
+        "cache_read|tier=priority",
+        "cache_write|tier=priority"
       ]
     },
     {
@@ -13421,7 +14475,7 @@
       "id": "litellm:eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -16400,6 +17454,20 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/ultramarine-1-flash-us",
+      "name": "fireworks_ai/accounts/fireworks/models/ultramarine-1-flash-us",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/yi-34b",
       "name": "fireworks_ai/accounts/fireworks/models/yi-34b",
       "tariff": "token",
@@ -16455,6 +17523,28 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-spot",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-spot",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -16532,6 +17622,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-5p3-spot",
+      "name": "fireworks_ai/accounts/fireworks/routers/glm-5p3-spot",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-5p3-us",
       "name": "fireworks_ai/accounts/fireworks/routers/glm-5p3-us",
       "tariff": "token",
@@ -16579,6 +17680,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k3-spot",
+      "name": "fireworks_ai/accounts/fireworks/routers/kimi-k3-spot",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k3-us",
       "name": "fireworks_ai/accounts/fireworks/routers/kimi-k3-us",
       "tariff": "token",
@@ -16590,6 +17702,17 @@
         "input|tier=priority",
         "output",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/spot-deepseek-v4-flash",
+      "name": "fireworks_ai/accounts/fireworks/routers/spot-deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -17371,10 +18494,12 @@
         "input|>200000",
         "output",
         "output|>200000",
+        "input|>200000|tier=batches",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
+        "output|>200000|tier=batches",
         "output|>200000|tier=priority",
         "output|tier=batches",
         "output|tier=flex",
@@ -17466,6 +18591,7 @@
         "cache_read|tier=priority",
         "input",
         "input|>200000",
+        "input|>200000|tier=batches",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
@@ -17473,6 +18599,7 @@
         "image_out",
         "output",
         "output|>200000",
+        "output|>200000|tier=batches",
         "output|>200000|tier=priority",
         "output|tier=batches",
         "output|tier=flex",
@@ -19890,7 +21017,6 @@
         "input",
         "input|tier=batches",
         "input|tier=flex",
-        "input|tier=priority",
         "output",
         "output|tier=batches",
         "output|tier=flex"
@@ -19907,7 +21033,6 @@
         "cache_read|tier=flex",
         "input",
         "input|tier=batches",
-        "input|tier=priority",
         "input|tier=flex",
         "output",
         "output|tier=batches",
@@ -21771,6 +22896,900 @@
       ]
     },
     {
+      "id": "litellm:kyma/claude-fable-5",
+      "name": "kyma/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-fable-5.1",
+      "name": "kyma/claude-fable-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-haiku-4-5",
+      "name": "kyma/claude-haiku-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-haiku-5.5",
+      "name": "kyma/claude-haiku-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-opus-4-7",
+      "name": "kyma/claude-opus-4-7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-opus-5",
+      "name": "kyma/claude-opus-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-opus-5.5",
+      "name": "kyma/claude-opus-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-sonnet-4-6",
+      "name": "kyma/claude-sonnet-4-6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-sonnet-5",
+      "name": "kyma/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-sonnet-5.5",
+      "name": "kyma/claude-sonnet-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-r1",
+      "name": "kyma/deepseek-r1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v3",
+      "name": "kyma/deepseek-v3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v4-flash",
+      "name": "kyma/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v4-flash-vision-exp",
+      "name": "kyma/deepseek-v4-flash-vision-exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v4.1-flash",
+      "name": "kyma/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3-flash",
+      "name": "kyma/gemini-3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.1-pro",
+      "name": "kyma/gemini-3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.5-flash",
+      "name": "kyma/gemini-3.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.5-flash-lite",
+      "name": "kyma/gemini-3.5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.6-flash",
+      "name": "kyma/gemini-3.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.7-flash",
+      "name": "kyma/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.8-flash",
+      "name": "kyma/gemini-3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-4-argon",
+      "name": "kyma/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemma-4-31b",
+      "name": "kyma/gemma-4-31b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-4.5-air",
+      "name": "kyma/glm-4.5-air",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-4.7-flash",
+      "name": "kyma/glm-4.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.1",
+      "name": "kyma/glm-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.2",
+      "name": "kyma/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.3",
+      "name": "kyma/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.3-flash",
+      "name": "kyma/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-luna",
+      "name": "kyma/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-luna-pro",
+      "name": "kyma/gpt-5.6-luna-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-sol",
+      "name": "kyma/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-sol-pro",
+      "name": "kyma/gpt-5.6-sol-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-terra",
+      "name": "kyma/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>272000",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-terra-pro",
+      "name": "kyma/gpt-5.6-terra-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-6-astra",
+      "name": "kyma/gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-6-luna",
+      "name": "kyma/gpt-6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>272000",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-6.1-sol",
+      "name": "kyma/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>272000",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-oss-120b",
+      "name": "kyma/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.20",
+      "name": "kyma/grok-4.20",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.20-multi-agent",
+      "name": "kyma/grok-4.20-multi-agent",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.3",
+      "name": "kyma/grok-4.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>200000",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.5",
+      "name": "kyma/grok-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.6",
+      "name": "kyma/grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.7",
+      "name": "kyma/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-build",
+      "name": "kyma/grok-build",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>200000",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/hy3",
+      "name": "kyma/hy3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/hy4-preview",
+      "name": "kyma/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k2.6",
+      "name": "kyma/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k2.7-code",
+      "name": "kyma/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k3",
+      "name": "kyma/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k3.1-pro",
+      "name": "kyma/kimi-k3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/llama-3.3-70b",
+      "name": "kyma/llama-3.3-70b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/llama-4-maverick",
+      "name": "kyma/llama-4-maverick",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/mimo-v2.5",
+      "name": "kyma/mimo-v2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/mimo-v2.6-flash",
+      "name": "kyma/mimo-v2.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/mimo-v2.6-pro",
+      "name": "kyma/mimo-v2.6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m2.5",
+      "name": "kyma/minimax-m2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m2.7",
+      "name": "kyma/minimax-m2.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m3",
+      "name": "kyma/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m3.1-flash",
+      "name": "kyma/minimax-m3.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-glimmer-30b",
+      "name": "kyma/muse-glimmer-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-1.1",
+      "name": "kyma/muse-spark-1.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-1.2",
+      "name": "kyma/muse-spark-1.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-1.3",
+      "name": "kyma/muse-spark-1.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-open",
+      "name": "kyma/muse-spark-open",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-wonder",
+      "name": "kyma/muse-wonder",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/nemotron-3-ultra-550b",
+      "name": "kyma/nemotron-3-ultra-550b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/nemotron-3.5-super-vl",
+      "name": "kyma/nemotron-3.5-super-vl",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3-32b",
+      "name": "kyma/qwen-3-32b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3-coder",
+      "name": "kyma/qwen-3-coder",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.6-plus",
+      "name": "kyma/qwen-3.6-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.7-max",
+      "name": "kyma/qwen-3.7-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.7-plus",
+      "name": "kyma/qwen-3.7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.8-max",
+      "name": "kyma/qwen-3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen3.7-flash",
+      "name": "kyma/qwen3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen3.8-27b",
+      "name": "kyma/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen3.8-flash",
+      "name": "kyma/qwen3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/sonar",
+      "name": "kyma/sonar",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/sonar-pro",
+      "name": "kyma/sonar-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/step-3.7-flash",
+      "name": "kyma/step-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/step-5-preview",
+      "name": "kyma/step-5-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:lambda_ai/deepseek-llama3.3-70b",
       "name": "lambda_ai/deepseek-llama3.3-70b",
       "tariff": "token",
@@ -22862,6 +24881,17 @@
       ]
     },
     {
+      "id": "litellm:mistral/deepseek-v4-1-flash-1017",
+      "name": "mistral/deepseek-v4-1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:mistral/devstral-latest",
       "name": "mistral/devstral-latest",
       "tariff": "token",
@@ -23429,6 +25459,21 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:moonshot/kimi-k3.1-pro",
+      "name": "moonshot/kimi-k3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
         "output"
@@ -23538,6 +25583,94 @@
         "output",
         "output|tier=flex",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv41flash",
+      "name": "morph/morph-dsv41flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv41flash-1017",
+      "name": "morph/morph-dsv41flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv41flash-abliterated",
+      "name": "morph/morph-dsv41flash-abliterated",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-dsv4flash",
+      "name": "morph/morph-dsv4flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-glm53-744b",
+      "name": "morph/morph-glm53-744b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-glm53flash",
+      "name": "morph/morph-glm53flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-kimik3",
+      "name": "morph/morph-kimik3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:morph/morph-kimik3-fast",
+      "name": "morph/morph-kimik3-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -27559,7 +29692,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -29731,6 +31868,296 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/DeepSeek-V3",
+      "name": "streamlake/DeepSeek-V3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/DeepSeek-V4-Pro-0813",
+      "name": "streamlake/DeepSeek-V4-Pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/GLM-5.3",
+      "name": "streamlake/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/GLM-5.3-Flash",
+      "name": "streamlake/GLM-5.3-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/Kimi-K2-Instruct-0905",
+      "name": "streamlake/Kimi-K2-Instruct-0905",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-r1",
+      "name": "streamlake/deepseek-r1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-v3.1",
+      "name": "streamlake/deepseek-v3.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-v4-flash",
+      "name": "streamlake/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-v4-flash-0731",
+      "name": "streamlake/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-v4-pro",
+      "name": "streamlake/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-v4.1-flash-1017",
+      "name": "streamlake/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/deepseek-v4.1-flash-260910",
+      "name": "streamlake/deepseek-v4.1-flash-260910",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/glm-5",
+      "name": "streamlake/glm-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/glm-5.1",
+      "name": "streamlake/glm-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/glm-5.2",
+      "name": "streamlake/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/kimi-k2.6",
+      "name": "streamlake/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/kimi-k2.7-code",
+      "name": "streamlake/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/mimo-v2.6-flash",
+      "name": "streamlake/mimo-v2.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/mimo-v2.6-pro",
+      "name": "streamlake/mimo-v2.6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/minimax-m2.5",
+      "name": "streamlake/minimax-m2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/minimax-m3",
+      "name": "streamlake/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>512000",
+        "input",
+        "input|>512000",
+        "output",
+        "output|>512000"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/qwen3.5-397b-a17b",
+      "name": "streamlake/qwen3.5-397b-a17b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/qwen3.6-27b",
+      "name": "streamlake/qwen3.6-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/qwen3.6-35b-a3b",
+      "name": "streamlake/qwen3.6-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/qwen3.8-2.4t-a95b",
+      "name": "streamlake/qwen3.8-2.4t-a95b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "litellm:streamlake/qwen3.8-27b",
+      "name": "streamlake/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output",
+        "cache_write"
       ]
     },
     {
@@ -33854,6 +36281,7 @@
         "cache_read|tier=priority",
         "input",
         "input|>200000",
+        "input|>200000|tier=batches",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
@@ -33861,6 +36289,7 @@
         "image_out",
         "output",
         "output|>200000",
+        "output|>200000|tier=batches",
         "output|>200000|tier=priority",
         "output|tier=batches",
         "output|tier=flex",
@@ -35959,11 +38388,17 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "cache_read|>200000|tier=batches",
+        "cache_read|tier=batches",
         "image_in_tok",
         "input",
         "input|>200000",
+        "input|>200000|tier=batches",
+        "input|tier=batches",
         "output",
-        "output|>200000"
+        "output|>200000",
+        "output|>200000|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -36282,6 +38717,158 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zai/glm-5v-turbo",
+      "name": "zai/glm-5v-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/LFM2.5-1.2B-Instruct",
+      "name": "zerogpu/LFM2.5-1.2B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/LFM2.5-1.2B-Thinking",
+      "name": "zerogpu/LFM2.5-1.2B-Thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/deepseek-v4.1-flash",
+      "name": "zerogpu/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/glm-5.3-flash",
+      "name": "zerogpu/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/gpt-4.1-mini",
+      "name": "zerogpu/gpt-4.1-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/gpt-5.4-nano",
+      "name": "zerogpu/gpt-5.4-nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/gpt-5.6-luna",
+      "name": "zerogpu/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/gpt-6-luna",
+      "name": "zerogpu/gpt-6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/gpt-oss-120b",
+      "name": "zerogpu/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/llama-3.1-8b-instruct-fast",
+      "name": "zerogpu/llama-3.1-8b-instruct-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/llama-3.2-3b-instruct-fast",
+      "name": "zerogpu/llama-3.2-3b-instruct-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/qwen3-30b-a3b-fp8",
+      "name": "zerogpu/qwen3-30b-a3b-fp8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:zerogpu/qwen3.6-35b-a3b",
+      "name": "zerogpu/qwen3.6-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "cache_read",
         "input",
         "output"
@@ -37738,16 +40325,6 @@
       ]
     },
     {
-      "id": "openrouter:ibm-granite/granite-4.0-h-micro",
-      "name": "IBM: Granite 4.0 Micro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:ibm-granite/granite-4.2-8b",
       "name": "IBM: Granite 4.2 8B",
       "tariff": "token",
@@ -38560,7 +41137,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38570,7 +41148,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -38592,16 +41171,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
-      "name": "NVIDIA: Nemotron 3 Super (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -38698,16 +41267,6 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-3.5-turbo",
-      "name": "OpenAI: GPT-3.5 Turbo",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:openai/gpt-3.5-turbo-0613",
       "name": "OpenAI: GPT-3.5 Turbo (older v0613)",
       "tariff": "token",
@@ -38728,27 +41287,6 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-3.5-turbo-instruct",
-      "name": "OpenAI: GPT-3.5 Turbo Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-3.5-turbo:batch",
-      "name": "OpenAI: GPT-3.5 Turbo (batch)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search"
-      ]
-    },
-    {
       "id": "openrouter:openai/gpt-4",
       "name": "OpenAI: GPT-4",
       "tariff": "token",
@@ -38762,7 +41300,7 @@
       "id": "openrouter:openai/gpt-4-turbo",
       "name": "OpenAI: GPT-4 Turbo",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -39824,7 +42362,7 @@
       "id": "openrouter:openai/o1",
       "name": "OpenAI: o1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -39836,7 +42374,7 @@
       "id": "openrouter:openai/o1-pro",
       "name": "OpenAI: o1-pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -39859,7 +42397,7 @@
       "id": "openrouter:openai/o3-mini",
       "name": "OpenAI: o3 Mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -39871,7 +42409,7 @@
       "id": "openrouter:openai/o3-mini-high",
       "name": "OpenAI: o3 Mini High",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -39918,7 +42456,7 @@
       "id": "openrouter:openai/o4-mini",
       "name": "OpenAI: o4 Mini",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -39930,7 +42468,7 @@
       "id": "openrouter:openai/o4-mini-high",
       "name": "OpenAI: o4 Mini High",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -40008,6 +42546,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:particle-ai/particle-1",
+      "name": "Particle AI: Particle-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40140,6 +42689,17 @@
       ]
     },
     {
+      "id": "openrouter:prism-ml/ternary-bonsai-2-9b",
+      "name": "PrismML: Ternary Bonsai 2 9B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen-2.5-72b-instruct",
       "name": "Qwen2.5 72B Instruct",
       "tariff": "token",
@@ -40229,7 +42789,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40930,7 +43491,7 @@
       "id": "openrouter:upstage/solar-pro-3",
       "name": "Upstage: Solar Pro 3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -42454,6 +45015,31 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:dashscope/qwen3-tts-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.1-tts-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.1-tts-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.0-tts-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.0-tts-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
         "offer": "litellm:dashscope/wan3.0-video",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -42762,6 +45348,11 @@
       },
       {
         "offer": "litellm:databricks/databricks-openjev-qwen35-4b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:databricks/databricks-typesafeai-jev-1-14-0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
       },
@@ -46726,6 +49317,51 @@
         "mode": "audio_transcription"
       },
       {
+        "offer": "litellm:soniox/stt-rt-v5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-preview-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v3-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:tencent/seedream-image-v5.0-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:tencent/seedream-image-v5.0-lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:tencent/seedream-image-v5.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
         "offer": "litellm:xai/grok-4.20-multi-agent-0309",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -47426,6 +50062,16 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:eu_jev/eu-jeff-1.0.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:eu_jev/eu-jeff-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -47669,6 +50315,61 @@
         "offer": "litellm:github_copilot/gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:fireworks_ai/accounts/fireworks/models/rune",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "decisions"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/openai.gpt-6.1-terra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-5-4-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-6-1-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-6-luna",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-6-sol",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-image-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-image-1-5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-image-1-mini",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:databricks/databricks-gpt-image-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:baseten/decision-models/baseten-joey-2b-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "decisions"
       }
     ],
     "source_errors": {

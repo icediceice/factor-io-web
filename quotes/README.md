@@ -115,6 +115,43 @@ Every command accepts `--json` for the raw API envelope. Money crosses the
 boundary as decimal STRINGS; quantities as decimal strings ("0.5" = half a
 day).
 
+## MCP server (AI agents)
+
+`node quotes/mcp.mjs` serves newline-delimited JSON-RPC over stdio. It exposes six
+risk-separated tools, each selected by an `op` argument:
+
+- `read`: context, list, get, revisions, preview, deleted, clients, client,
+  catalog, settings, invoices, invoice, payments, report, draft_export.
+- `draft`: create, update, set_sow, line_add, line_update, line_remove, reorder,
+  draft_apply, clone, client_save, catalog_save. Draft apply defaults to dry-run;
+  set `dry_run` to `false` to apply an exported draft with its current digest.
+- `quotation`: issue, status, delete, restore. Status includes proposed,
+  accepted and declined.
+- `invoice`: create, issue, status, pay, payment_delete, wht, delete.
+- `settings`: set. `pdf`: quotation, invoice.
+
+List operations accept `limit` (1–100, default 25) and `offset`, returning
+`truncated` and `next`. Decimal quantities and money are strings. Quotation
+ deletion, invoice issue/deletion/payment deletion and settings changes require
+`confirm` equal to the current quotation or invoice number (invoice ID if no
+number exists), or the settings key. This echo helps prevent accidental calls;
+it is not a human approval boundary.
+
+`QUOTES_URL` defaults to `http://127.0.0.1:8787`; the token comes from
+`QUOTES_AGENT_TOKEN` or `QUOTES_ENV_FILE` (default `.env` beside `mcp.mjs`).
+`node quotes/mcp.mjs --selftest` checks the bearer lane without printing the
+token. PDFs are written under `QUOTES_MCP_OUT` (default `/tmp/quotes-mcp`)
+and return their path, size and SHA-256; retrieve them from `light-worker` with
+`light_scp` or `light_file`. Keep the environment file private.
+
+Register the stdio server in Light with `light_mcp` upsert: name `quotes`,
+transport `stdio`, endpoint `/usr/bin/node /home/ice/.factor-quotes/mcp.mjs`,
+egress host `light-worker`, and sync enabled. Federated tools default to the
+mutate phase. An operator can re-phase `quotes__read` and `quotes__pdf` to
+`orient` on `/settings/tool-governance` to use them outside an approved plan;
+ban a tool there to switch it off. WebMCP is not used because it requires a
+secure context and this service currently uses HTTP on the tailnet.
+
 ## Correcting a quotation that has already gone out
 
 Information is sometimes wrong only once the document is in front of someone.

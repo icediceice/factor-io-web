@@ -105,7 +105,7 @@ test('every declared op maps to a live REST route and audits as actor agent', as
   const paid = await run('invoice', { op: 'pay', id: iid, amount: '100.00', method: 'transfer', reference: 'probe' });
   assert.equal(paid.payments.length, 1);
   await run('read', { op: 'payments', id: iid });
-  await run('invoice', { op: 'wht', id: iid, base: '1000.00', wht: '30.00', cert_number: 'C1' });
+  await run('invoice', { op: 'wht', id: iid, base: '300.00', wht: '3.00', cert_number: 'C1' });
   await run('read', { op: 'invoice', id: iid });
   assert.ok((await run('read', { op: 'invoices' })).invoices.length >= 1);
   const pid = paid.payments[0].id;

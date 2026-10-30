@@ -201,11 +201,8 @@ test('read pagination retains every record across pages', async t => {
 
 test('pdf saves the rendered document with a matching digest and private mode', async t => {
   const out = mkdtempSync(join(tmpdir(), 'quotes-pdf-out-'));
-  const { c, call, run } = await boot(t, 'quotes-pdf-', 'pdf-token');
+  const { call, run } = await boot(t, 'quotes-pdf-', 'pdf-token', { clientEnv: { QUOTES_MCP_OUT: out } });
   t.after(() => rmSync(out, { recursive: true, force: true }));
-  // Point the server's output directory at a temp dir for this process only.
-  c.child.kill();
-  const cl0 = null;
 
   const cl = (await run('draft', { op: 'client_save', name: 'PDF Client' })).client;
   const q = (await run('draft', {

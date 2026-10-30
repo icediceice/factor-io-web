@@ -115,7 +115,7 @@ test('every declared op maps to a live REST route and audits as actor agent', as
 
   const yr = new Date().getFullYear();
   await run('read', { op: 'report', report: 'income', year: yr });
-  await run('read', { op: 'report', report: 'pp30', year: yr, month: 1 });
+  await run('read', { op: 'report', report: 'pp30', year: yr, month: '1' });
   await run('read', { op: 'report', report: 'pipeline', year: yr });
   await run('read', { op: 'report', report: 'wht', from: `${yr}-01-01`, to: `${yr}-12-31` });
   await run('read', { op: 'report', report: 'pnd', year: yr, half: 1 });

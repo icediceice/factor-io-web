@@ -39,6 +39,11 @@ test('MCP protocol and quotation lifecycle through authenticated HTTP', async t 
   assert.ok(tools.every(x => x.inputSchema.type === 'object' && !JSON.stringify(x.inputSchema).includes('oneOf')));
   assert.equal(c.lines.length, 4);
   const run = async (name, args) => { const result = await c.tool(name, args); assert.equal(result.isError, false, result.content[0].text); return result.structuredContent; };
+  const settings = (await run('read', { op:'settings' })).settings;
+  const key = Object.keys(settings)[0];
+  await run('settings', { op:'set', key, value:settings[key], confirm:key });
+  assert.equal((await c.tool('settings', { op:'set', key:'currency.cod', value:'oops', confirm:'currency.cod' })).isError, true);
+  assert.equal(Object.hasOwn((await run('read', { op:'settings' })).settings, 'currency.cod'), false);
   const clientRow = (await run('draft', { op:'client_save', name:'MCP Test' })).client;
   const q = (await run('draft', { op:'create', client_id:clientRow.id, term_months:12 })).quotation;
   const first = await run('draft', { op:'line_add', id:q.id, kind:'service', description_en:'Work', qty:'2', unit_price:'100.00' });
@@ -68,6 +73,12 @@ test('MCP protocol and quotation lifecycle through authenticated HTTP', async t 
   const bad = client({ QUOTES_URL:url, QUOTES_AGENT_TOKEN:'bad' });
   assert.equal((await bad.tool('read', { op:'settings' })).isError, true);
   const badEnded = once(bad.child, 'exit'); bad.child.stdin.end(); await badEnded;
+  const halfClosed = client({ QUOTES_URL:url, QUOTES_AGENT_TOKEN:'test-token' });
+  const response = halfClosed.tool('read', { op:'settings' });
+  const halfClosedExit = once(halfClosed.child, 'exit');
+  halfClosed.child.stdin.end();
+  assert.equal((await response).isError, false);
+  assert.equal((await halfClosedExit)[0], 0);
   // Spawn asynchronously: the HTTP server runs in this process and must service the request.
   for (const [credential, expected] of [['test-token', 0], ['bad', 1]]) {
     const proc = spawn(process.execPath, [script, '--selftest'], { env:{ ...process.env, QUOTES_URL:url, QUOTES_AGENT_TOKEN:credential } });

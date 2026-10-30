@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793254035415",
-  "generated_at": "2026-10-29T06:07:15.415Z",
-  "snapshot_digest": "443da0d603f52747",
+  "refresh_id": "refresh-1793341520529",
+  "generated_at": "2026-10-30T06:25:20.529Z",
+  "snapshot_digest": "f43ccc2207692787",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-443da0d603f52747.json",
-      "digest": "443da0d603f52747",
-      "bytes": 3712230
+      "path": "catalog-f43ccc2207692787.json",
+      "digest": "f43ccc2207692787",
+      "bytes": 3784613
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "1bfee8dac1c5b869",
+      "digest": "589f44a052a06d71",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-29T06:07:15.415Z",
-      "last_success_at": "2026-10-29T06:07:15.415Z",
-      "expires_at": "2026-11-01T06:07:15.415Z",
-      "root_digest": "4a3fb7e76f38e93d",
-      "record_count": 438,
+      "observed_at": "2026-10-30T06:25:20.529Z",
+      "last_success_at": "2026-10-30T06:25:20.529Z",
+      "expires_at": "2026-11-02T06:25:20.529Z",
+      "root_digest": "fdacf1a12e4a4bdd",
+      "record_count": 437,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-29T06:07:15.415Z",
-      "last_success_at": "2026-10-29T06:07:15.415Z",
-      "expires_at": "2026-11-01T06:07:15.415Z",
-      "root_digest": "d53a1e9c432c468a",
-      "record_count": 3193,
+      "observed_at": "2026-10-30T06:25:20.529Z",
+      "last_success_at": "2026-10-30T06:25:20.529Z",
+      "expires_at": "2026-11-02T06:25:20.529Z",
+      "root_digest": "5842c5cdbd0fd31a",
+      "record_count": 3290,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-28T00:00:00.000Z",
-      "last_success_at": "2026-10-29T06:07:40.437Z",
-      "expires_at": "2026-11-04T23:59:59.999Z",
-      "root_digest": "1bfee8dac1c5b869",
+      "observed_at": "2026-10-29T00:00:00.000Z",
+      "last_success_at": "2026-10-30T06:25:48.998Z",
+      "expires_at": "2026-11-05T23:59:59.999Z",
+      "root_digest": "589f44a052a06d71",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -3329,7 +3329,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -3390,7 +3392,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4396,7 +4400,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4420,7 +4426,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -4444,7 +4452,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -7009,9 +7019,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7021,9 +7035,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7033,9 +7051,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7089,9 +7111,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7113,7 +7139,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7123,9 +7153,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7155,9 +7189,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7167,9 +7205,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7191,9 +7233,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7215,7 +7261,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7225,9 +7277,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7636,9 +7692,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7648,9 +7708,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7672,9 +7736,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7684,9 +7752,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7696,9 +7768,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7708,9 +7784,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7776,9 +7856,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7788,9 +7872,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7812,7 +7900,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7842,9 +7934,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7854,9 +7950,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7898,9 +7998,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7910,9 +8014,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7922,7 +8030,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -7998,9 +8110,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8030,9 +8146,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8042,9 +8162,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8066,9 +8190,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8090,7 +8218,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8130,9 +8262,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8162,9 +8298,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8174,9 +8314,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8228,9 +8372,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8240,9 +8388,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8252,7 +8404,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8262,9 +8420,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8274,9 +8436,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8286,9 +8452,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8310,9 +8480,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8918,9 +9092,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8930,9 +9108,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8942,9 +9124,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=batches",
+        "output|tier=priority"
       ]
     },
     {
@@ -8996,9 +9182,13 @@
       "state": "active",
       "meters": [
         "input",
+        "input|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9020,7 +9210,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9516,6 +9712,39 @@
         "input|tier=priority",
         "output|tier=flex",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bigmodel/glm-5.3",
+      "name": "bigmodel/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bigmodel/glm-5.3-flash",
+      "name": "bigmodel/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:bigmodel/glm-5.3-flashx",
+      "name": "bigmodel/glm-5.3-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -10036,6 +10265,115 @@
         "input|tier=batches",
         "output",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/deepseek-v4-flash",
+      "name": "clf_ai_gateway/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/deepseek-v4-pro",
+      "name": "clf_ai_gateway/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/deepseek-v4.1-flash",
+      "name": "clf_ai_gateway/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-4.7-flash",
+      "name": "clf_ai_gateway/glm-4.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-5.2",
+      "name": "clf_ai_gateway/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-5.3",
+      "name": "clf_ai_gateway/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/glm-5.3-flash",
+      "name": "clf_ai_gateway/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/kimi-k2.6",
+      "name": "clf_ai_gateway/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/kimi-k2.7-code",
+      "name": "clf_ai_gateway/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:clf_ai_gateway/qwen3.8-27b",
+      "name": "clf_ai_gateway/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -14137,7 +14475,7 @@
       "id": "litellm:eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -17113,6 +17451,20 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/ultramarine-1-flash-us",
+      "name": "fireworks_ai/accounts/fireworks/models/ultramarine-1-flash-us",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
       ]
     },
     {
@@ -22540,6 +22892,900 @@
       "state": "active",
       "meters": [
         "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-fable-5",
+      "name": "kyma/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-fable-5.1",
+      "name": "kyma/claude-fable-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-haiku-4-5",
+      "name": "kyma/claude-haiku-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-haiku-5.5",
+      "name": "kyma/claude-haiku-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-opus-4-7",
+      "name": "kyma/claude-opus-4-7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-opus-5",
+      "name": "kyma/claude-opus-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-opus-5.5",
+      "name": "kyma/claude-opus-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-sonnet-4-6",
+      "name": "kyma/claude-sonnet-4-6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-sonnet-5",
+      "name": "kyma/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/claude-sonnet-5.5",
+      "name": "kyma/claude-sonnet-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-r1",
+      "name": "kyma/deepseek-r1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v3",
+      "name": "kyma/deepseek-v3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v4-flash",
+      "name": "kyma/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v4-flash-vision-exp",
+      "name": "kyma/deepseek-v4-flash-vision-exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/deepseek-v4.1-flash",
+      "name": "kyma/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3-flash",
+      "name": "kyma/gemini-3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.1-pro",
+      "name": "kyma/gemini-3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.5-flash",
+      "name": "kyma/gemini-3.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.5-flash-lite",
+      "name": "kyma/gemini-3.5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.6-flash",
+      "name": "kyma/gemini-3.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.7-flash",
+      "name": "kyma/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-3.8-flash",
+      "name": "kyma/gemini-3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemini-4-argon",
+      "name": "kyma/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gemma-4-31b",
+      "name": "kyma/gemma-4-31b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-4.5-air",
+      "name": "kyma/glm-4.5-air",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-4.7-flash",
+      "name": "kyma/glm-4.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.1",
+      "name": "kyma/glm-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.2",
+      "name": "kyma/glm-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.3",
+      "name": "kyma/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/glm-5.3-flash",
+      "name": "kyma/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-luna",
+      "name": "kyma/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-luna-pro",
+      "name": "kyma/gpt-5.6-luna-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-sol",
+      "name": "kyma/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-sol-pro",
+      "name": "kyma/gpt-5.6-sol-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-terra",
+      "name": "kyma/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>272000",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-5.6-terra-pro",
+      "name": "kyma/gpt-5.6-terra-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-6-astra",
+      "name": "kyma/gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-6-luna",
+      "name": "kyma/gpt-6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>272000",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-6.1-sol",
+      "name": "kyma/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>272000",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/gpt-oss-120b",
+      "name": "kyma/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.20",
+      "name": "kyma/grok-4.20",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.20-multi-agent",
+      "name": "kyma/grok-4.20-multi-agent",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.3",
+      "name": "kyma/grok-4.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>200000",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.5",
+      "name": "kyma/grok-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.6",
+      "name": "kyma/grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-4.7",
+      "name": "kyma/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/grok-build",
+      "name": "kyma/grok-build",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>200000",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/hy3",
+      "name": "kyma/hy3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/hy4-preview",
+      "name": "kyma/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k2.6",
+      "name": "kyma/kimi-k2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k2.7-code",
+      "name": "kyma/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k3",
+      "name": "kyma/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/kimi-k3.1-pro",
+      "name": "kyma/kimi-k3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/llama-3.3-70b",
+      "name": "kyma/llama-3.3-70b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/llama-4-maverick",
+      "name": "kyma/llama-4-maverick",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/mimo-v2.5",
+      "name": "kyma/mimo-v2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/mimo-v2.6-flash",
+      "name": "kyma/mimo-v2.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/mimo-v2.6-pro",
+      "name": "kyma/mimo-v2.6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m2.5",
+      "name": "kyma/minimax-m2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m2.7",
+      "name": "kyma/minimax-m2.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m3",
+      "name": "kyma/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/minimax-m3.1-flash",
+      "name": "kyma/minimax-m3.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-glimmer-30b",
+      "name": "kyma/muse-glimmer-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-1.1",
+      "name": "kyma/muse-spark-1.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-1.2",
+      "name": "kyma/muse-spark-1.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-1.3",
+      "name": "kyma/muse-spark-1.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-spark-open",
+      "name": "kyma/muse-spark-open",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/muse-wonder",
+      "name": "kyma/muse-wonder",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/nemotron-3-ultra-550b",
+      "name": "kyma/nemotron-3-ultra-550b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/nemotron-3.5-super-vl",
+      "name": "kyma/nemotron-3.5-super-vl",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3-32b",
+      "name": "kyma/qwen-3-32b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3-coder",
+      "name": "kyma/qwen-3-coder",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.6-plus",
+      "name": "kyma/qwen-3.6-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.7-max",
+      "name": "kyma/qwen-3.7-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.7-plus",
+      "name": "kyma/qwen-3.7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen-3.8-max",
+      "name": "kyma/qwen-3.8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen3.7-flash",
+      "name": "kyma/qwen3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen3.8-27b",
+      "name": "kyma/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/qwen3.8-flash",
+      "name": "kyma/qwen3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/sonar",
+      "name": "kyma/sonar",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/sonar-pro",
+      "name": "kyma/sonar-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/step-3.7-flash",
+      "name": "kyma/step-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:kyma/step-5-preview",
+      "name": "kyma/step-5-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
         "output"
       ]
     },
@@ -28446,7 +29692,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -37473,6 +38723,17 @@
       ]
     },
     {
+      "id": "litellm:zai/glm-5v-turbo",
+      "name": "zai/glm-5v-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:zerogpu/LFM2.5-1.2B-Instruct",
       "name": "zerogpu/LFM2.5-1.2B-Instruct",
       "tariff": "token",
@@ -39913,16 +41174,6 @@
       ]
     },
     {
-      "id": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
-      "name": "NVIDIA: Nemotron 3 Super (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:nvidia/nemotron-3-ultra-550b-a55b",
       "name": "NVIDIA: Nemotron 3 Ultra",
       "tariff": "token",
@@ -42240,7 +43491,7 @@
       "id": "openrouter:upstage/solar-pro-3",
       "name": "Upstage: Solar Pro 3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -43762,6 +45013,31 @@
         "offer": "litellm:dashscope/qwen-image-3.0-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:dashscope/qwen3-tts-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.1-tts-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.1-tts-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.0-tts-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-audio-3.0-tts-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
       },
       {
         "offer": "litellm:dashscope/wan3.0-video",
@@ -48041,6 +49317,36 @@
         "mode": "audio_transcription"
       },
       {
+        "offer": "litellm:soniox/stt-rt-v5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-preview-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v3-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
         "offer": "litellm:tencent/seedream-image-v5.0-flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -48756,6 +50062,16 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:eu_jev/eu-jeff-1.0.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:eu_jev/eu-jeff-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49049,6 +50365,11 @@
         "offer": "litellm:databricks/databricks-gpt-image-2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:baseten/decision-models/baseten-joey-2b-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "decisions"
       }
     ],
     "source_errors": {

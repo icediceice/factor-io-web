@@ -132,7 +132,7 @@ risk-separated tools, each selected by an `op` argument:
 
 List operations accept `limit` (1–100, default 25) and `offset`, returning
 `truncated` and `next`. Decimal quantities and money are strings. Quotation
- deletion, invoice issue/deletion/payment deletion and settings changes require
+deletion, invoice issue/deletion/payment deletion and settings changes require
 `confirm` equal to the current quotation or invoice number (invoice ID if no
 number exists), or the settings key. This echo helps prevent accidental calls;
 it is not a human approval boundary.

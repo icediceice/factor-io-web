@@ -34,7 +34,7 @@ test('every declared op maps to a live REST route and audits as actor agent', as
   const server = createServer(app.handle); server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const url = `http://127.0.0.1:${server.address().port}`;
   t.after(() => { app.close(); rmSync(dir, { recursive: true, force: true }); });
-  const c = client({ QUOTES_URL: url, QUOTES_AGENT_TOKEN: 'ops-token' });
+  const c = client({ QUOTES_URL: url, QUOTES_AGENT_TOKEN: 'ops-token', QUOTES_MCP_OUT: join(dir, 'pdfs') });
   t.after(async () => { if (!c.child.killed) c.child.kill(); await new Promise(r => server.close(r)); });
 
   const seen = [];

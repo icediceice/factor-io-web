@@ -120,7 +120,7 @@ test('every declared op maps to a live REST route and audits as actor agent', as
   assert.equal(statSync(pdf.path).mode & 0o777, 0o600);
   const invPdf = await run('pdf', { op: 'invoice', id: iid, lang: 'th' });
   assert.match(invPdf.path, /[\\/]invoice-\\d+-th-[0-9a-f-]{36}\\.pdf$/);
-  await run('pdf', { op: 'quotation', id: qid, lang: 'de' }).catch?.(() => {});
+  assert.equal((await c.tool('pdf', { op: 'quotation', id: qid, lang: 'de' })).isError, true);
 
   await run('settings', { op: 'set', key: 'currency.code', value: 'THB', confirm: 'currency.code' });
 

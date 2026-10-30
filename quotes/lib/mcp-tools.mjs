@@ -81,8 +81,8 @@ export async function callTool(call, name, a = {}) {
   const get = path => call('GET', path);
   if (name === 'read') {
     if (op === 'context') {
-      const [settings, templates, kinds] = await Promise.all([get('/api/settings'), get('/api/sow-templates'), get('/api/line-kinds')]);
-      return { ...settings, ...templates, ...kinds };
+      const [settings, templates, kinds, catalog] = await Promise.all([get('/api/settings'), get('/api/sow-templates'), get('/api/line-kinds'), get('/api/catalog')]);
+      return { ...settings, ...templates, ...kinds, catalog: page(catalog, 'items', a) };
     }
     const listPaths = { list: ['/api/quotations', 'quotations'], deleted: ['/api/quotations/deleted', 'deleted'], clients: ['/api/clients', 'clients'], catalog: ['/api/catalog', 'items'], invoices: ['/api/invoices', 'invoices'] };
     if (listPaths[op]) { const [path,key] = listPaths[op]; return page(await get(path + query(a, op === 'list' ? 'status client_id' : op === 'invoices' ? 'status client_id month' : '')), key, a); }

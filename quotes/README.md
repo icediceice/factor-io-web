@@ -134,8 +134,9 @@ List operations accept `limit` (1–100, default 25) and `offset`, returning
 `truncated` and `next`. Decimal quantities and money are strings. Quotation
 deletion, invoice issue/deletion/payment deletion and settings changes require
 `confirm` equal to the current quotation or invoice number (invoice ID if no
-number exists), or the settings key. This echo helps prevent accidental calls;
-it is not a human approval boundary.
+number exists), or the settings key. Settings changes only accept keys already
+present in the service. This echo helps prevent accidental calls; it is not a
+human approval boundary.
 
 `QUOTES_URL` defaults to `http://127.0.0.1:8787`; the token comes from
 `QUOTES_AGENT_TOKEN` or `QUOTES_ENV_FILE` (default `.env` beside `mcp.mjs`).

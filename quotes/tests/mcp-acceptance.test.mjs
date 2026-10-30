@@ -30,13 +30,13 @@ function client(env) {
   return { child, rpc, tool };
 }
 
-async function boot(t, prefix, token, extra = {}) {
+async function boot(t, prefix, token, { serverEnv = {}, clientEnv = {} } = {}) {
   const dir = mkdtempSync(join(tmpdir(), prefix));
   const dbPath = join(dir, 'app.db');
-  const app = createApp({ QUOTES_AGENT_TOKEN: token, QUOTES_DB_PATH: dbPath, ...extra });
+  const app = createApp({ QUOTES_AGENT_TOKEN: token, QUOTES_DB_PATH: dbPath, ...serverEnv });
   const server = createServer(app.handle); server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const url = `http://127.0.0.1:${server.address().port}`;
-  const c = client({ QUOTES_URL: url, QUOTES_AGENT_TOKEN: token });
+  const c = client({ QUOTES_URL: url, QUOTES_AGENT_TOKEN: token, ...clientEnv });
   t.after(async () => {
     if (!c.child.killed) c.child.kill();
     await new Promise(r => server.close(r));

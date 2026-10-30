@@ -67,7 +67,7 @@ test('every declared op maps to a live REST route and audits as actor agent', as
   assert.equal(created.totals.netSatang, 30000);
   await run('draft', { op: 'update', id: qid, notes: 'updated', term_months: 6 });
   const afterUpdate = await run('read', { op: 'get', id: qid });
-  assert.equal(afterUpdate.quotation.term_months, 6);
+  assert.equal(afterUpdate.quotation.termMonths, 6);
   await run('draft', { op: 'set_sow', id: qid, sow });
   const a = await run('draft', { op: 'line_add', id: qid, kind: 'service', description_en: 'A', qty: '1', unit_price: '10.00' });
   const b = await run('draft', { op: 'line_add', id: qid, kind: 'service', description_en: 'B', qty: '1', unit_price: '20.00' });

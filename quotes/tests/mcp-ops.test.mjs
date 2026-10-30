@@ -58,7 +58,7 @@ test('every declared op maps to a live REST route and audits as actor agent', as
   assert.equal((await run('read', { op: 'client', id: cl.id })).client.name, 'Ops Client');
   assert.ok((await run('read', { op: 'catalog' })).items.length >= 1);
 
-  const sow = { version: 1, modules: [{ code: 'ops', titleEn: 'Ops', included: true, items: [] }], assumptions: [], exclusions: [] };
+  const sow = { version: 1, summary: { en: 'Ops scope', th: '' }, modules: [{ code: 'ops', titleEn: 'Ops', included: true, items: [] }], assumptions: [], exclusions: [] };
   const created = await run('draft', {
     op: 'create', client_id: cl.id, lang: 'en', term_months: 12, notes: 'probe', sow,
     lines: [{ kind: 'service', description_en: 'Work', qty: '2', unit_price: '150.00' }],

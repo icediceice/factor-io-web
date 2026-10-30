@@ -16,6 +16,21 @@ import { once } from 'node:events';
 import { createHash } from 'node:crypto';
 import { createApp } from '../server.mjs';
 import { openDb } from '../lib/db.mjs';
+import { TOOLS, callTool } from '../lib/mcp-tools.mjs';
+
+test('tool annotations describe draft and PDF side effects', () => {
+  assert.equal(TOOLS.find(t => t.name === 'read').annotations.readOnlyHint, true);
+  assert.equal(TOOLS.find(t => t.name === 'draft').annotations.destructiveHint, true);
+  assert.notEqual(TOOLS.find(t => t.name === 'pdf').annotations.readOnlyHint, true);
+});
+
+test('creation reports the committed quotation when the term update fails', async () => {
+  const call = async method => {
+    if (method === 'POST') return { quotation: { id: 42 } };
+    throw new Error('service unavailable');
+  };
+  await assert.rejects(callTool(call, 'draft', { op: 'create', term_months: 12 }), /quotation 42 was created, but updating term_months failed: service unavailable/);
+});
 
 const script = new URL('../mcp.mjs', import.meta.url).pathname;
 function client(env) {

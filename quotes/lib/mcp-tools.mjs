@@ -146,7 +146,8 @@ export async function callTool(call, name, a = {}) {
   }
   if (name === 'settings') {
     if (typeof a.key !== 'string' || !a.key || a.confirm !== a.key) throw new Error('confirmation required: confirm must equal the settings key');
-    await get('/api/settings');
+    const { settings } = await get('/api/settings');
+    if (!Object.hasOwn(settings, a.key)) throw new Error(`unknown settings key: ${a.key}`);
     return call('PUT', '/api/settings', pick(a, 'key value'));
   }
   if (name === 'pdf') {

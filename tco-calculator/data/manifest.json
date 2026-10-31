@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793341520529",
-  "generated_at": "2026-10-30T06:25:20.529Z",
-  "snapshot_digest": "f43ccc2207692787",
+  "refresh_id": "refresh-1793427182669",
+  "generated_at": "2026-10-31T06:13:02.669Z",
+  "snapshot_digest": "aa4c9e18246bb4fb",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-f43ccc2207692787.json",
-      "digest": "f43ccc2207692787",
-      "bytes": 3784613
+      "path": "catalog-aa4c9e18246bb4fb.json",
+      "digest": "aa4c9e18246bb4fb",
+      "bytes": 3787874
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "589f44a052a06d71",
+      "digest": "5df83522c9bb8528",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-30T06:25:20.529Z",
-      "last_success_at": "2026-10-30T06:25:20.529Z",
-      "expires_at": "2026-11-02T06:25:20.529Z",
-      "root_digest": "fdacf1a12e4a4bdd",
+      "observed_at": "2026-10-31T06:13:02.669Z",
+      "last_success_at": "2026-10-31T06:13:02.669Z",
+      "expires_at": "2026-11-03T06:13:02.669Z",
+      "root_digest": "b593af853c58a766",
       "record_count": 437,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-30T06:25:20.529Z",
-      "last_success_at": "2026-10-30T06:25:20.529Z",
-      "expires_at": "2026-11-02T06:25:20.529Z",
-      "root_digest": "5842c5cdbd0fd31a",
-      "record_count": 3290,
+      "observed_at": "2026-10-31T06:13:02.669Z",
+      "last_success_at": "2026-10-31T06:13:02.669Z",
+      "expires_at": "2026-11-03T06:13:02.669Z",
+      "root_digest": "9ba8b9215a3214ff",
+      "record_count": 3294,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-29T00:00:00.000Z",
-      "last_success_at": "2026-10-30T06:25:48.998Z",
-      "expires_at": "2026-11-05T23:59:59.999Z",
-      "root_digest": "589f44a052a06d71",
+      "observed_at": "2026-10-30T00:00:00.000Z",
+      "last_success_at": "2026-10-31T06:13:31.479Z",
+      "expires_at": "2026-11-06T23:59:59.999Z",
+      "root_digest": "5df83522c9bb8528",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -179,8 +179,30 @@
       ]
     },
     {
+      "id": "litellm:aiand/deepseek-ai/deepseek-v4.1-flash-1017",
+      "name": "aiand/deepseek-ai/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:aiand/google/gemma-4-31b-it",
       "name": "aiand/google/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/meta/muse-spark-open",
+      "name": "aiand/meta/muse-spark-open",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -4082,7 +4104,11 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex"
       ]
     },
     {
@@ -4098,7 +4124,11 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex"
       ]
     },
     {
@@ -14475,7 +14505,7 @@
       "id": "litellm:eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -18987,7 +19017,10 @@
         "input|tier=batches",
         "input|tier=flex",
         "output|tier=batches",
-        "output|tier=flex"
+        "output|tier=flex",
+        "cache_read|>200000|tier=batches",
+        "input|>200000|tier=batches",
+        "output|>200000|tier=batches"
       ]
     },
     {
@@ -19107,7 +19140,10 @@
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "input|tier=flex",
-        "output|tier=flex"
+        "output|tier=flex",
+        "cache_read|>200000|tier=batches",
+        "input|>200000|tier=batches",
+        "output|>200000|tier=batches"
       ]
     },
     {
@@ -19133,7 +19169,10 @@
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "input|tier=flex",
-        "output|tier=flex"
+        "output|tier=flex",
+        "cache_read|>200000|tier=batches",
+        "input|>200000|tier=batches",
+        "output|>200000|tier=batches"
       ]
     },
     {
@@ -21640,6 +21679,22 @@
         "output|>272000|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:gpt-6-rosalind",
+      "name": "gpt-6-rosalind",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
       ]
     },
     {
@@ -41297,16 +41352,6 @@
       ]
     },
     {
-      "id": "openrouter:openai/gpt-4-turbo",
-      "name": "OpenAI: GPT-4 Turbo",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:openai/gpt-4-turbo:batch",
       "name": "OpenAI: GPT-4 Turbo (batch)",
       "tariff": "token",
@@ -42359,57 +42404,10 @@
       ]
     },
     {
-      "id": "openrouter:openai/o1",
-      "name": "OpenAI: o1",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o1-pro",
-      "name": "OpenAI: o1-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search"
-      ]
-    },
-    {
       "id": "openrouter:openai/o3",
       "name": "OpenAI: o3",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o3-mini",
-      "name": "OpenAI: o3 Mini",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o3-mini-high",
-      "name": "OpenAI: o3 Mini High",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -42445,30 +42443,6 @@
       "name": "OpenAI: o3 (batch)",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o4-mini",
-      "name": "OpenAI: o4 Mini",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o4-mini-high",
-      "name": "OpenAI: o4 Mini High",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -42633,48 +42607,6 @@
         "input",
         "output",
         "web_search"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-s-2.1",
-      "name": "Poolside: Laguna S 2.1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-s-2.1:free",
-      "name": "Poolside: Laguna S 2.1 (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-xs-2.1",
-      "name": "Poolside: Laguna XS 2.1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-xs-2.1:free",
-      "name": "Poolside: Laguna XS 2.1 (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -45365,6 +45297,16 @@
         "offer": "litellm:dataforseo/search",
         "rule": "skipped_out_of_scope_mode",
         "mode": "search"
+      },
+      {
+        "offer": "litellm:deepgram/aura",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:deepgram/aura-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:deepgram/base",
@@ -48132,6 +48074,16 @@
         "mode": "rerank"
       },
       {
+        "offer": "litellm:rerank-v5.0-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:rerank-v5.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
         "offer": "litellm:nvidia_nim/nvidia/nv-rerankqa-mistral-4b-v3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -50370,6 +50322,11 @@
         "offer": "litellm:baseten/decision-models/baseten-joey-2b-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "decisions"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6-rosalind",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       }
     ],
     "source_errors": {

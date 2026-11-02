@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793427182669",
-  "generated_at": "2026-10-31T06:13:02.669Z",
-  "snapshot_digest": "aa4c9e18246bb4fb",
+  "refresh_id": "refresh-1793599563347",
+  "generated_at": "2026-11-02T06:06:03.347Z",
+  "snapshot_digest": "aa70479460b6817e",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-aa4c9e18246bb4fb.json",
-      "digest": "aa4c9e18246bb4fb",
-      "bytes": 3787874
+      "path": "catalog-aa70479460b6817e.json",
+      "digest": "aa70479460b6817e",
+      "bytes": 3789267
     },
     "fx": {
       "kind": "external",
@@ -21,28 +21,28 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-31T06:13:02.669Z",
-      "last_success_at": "2026-10-31T06:13:02.669Z",
-      "expires_at": "2026-11-03T06:13:02.669Z",
-      "root_digest": "b593af853c58a766",
-      "record_count": 437,
+      "observed_at": "2026-11-02T06:06:03.347Z",
+      "last_success_at": "2026-11-02T06:06:03.347Z",
+      "expires_at": "2026-11-05T06:06:03.347Z",
+      "root_digest": "694467e222c3cf29",
+      "record_count": 433,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-31T06:13:02.669Z",
-      "last_success_at": "2026-10-31T06:13:02.669Z",
-      "expires_at": "2026-11-03T06:13:02.669Z",
-      "root_digest": "9ba8b9215a3214ff",
-      "record_count": 3294,
+      "observed_at": "2026-11-02T06:06:03.347Z",
+      "last_success_at": "2026-11-02T06:06:03.347Z",
+      "expires_at": "2026-11-05T06:06:03.347Z",
+      "root_digest": "63bb66c8bd13ba7d",
+      "record_count": 3297,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-10-30T00:00:00.000Z",
-      "last_success_at": "2026-10-31T06:13:31.479Z",
+      "last_success_at": "2026-11-02T06:06:26.312Z",
       "expires_at": "2026-11-06T23:59:59.999Z",
       "root_digest": "5df83522c9bb8528",
       "record_count": 1,
@@ -21642,6 +21642,17 @@
       ]
     },
     {
+      "id": "litellm:gpt-6-astra-law",
+      "name": "gpt-6-astra-law",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gpt-6-luna",
       "name": "gpt-6-luna",
       "tariff": "token",
@@ -22068,6 +22079,30 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:hostinger_router/claude-sonnet-5",
+      "name": "hostinger_router/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:hostinger_router/gpt-5.2",
+      "name": "hostinger_router/gpt-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -41166,26 +41201,6 @@
       ]
     },
     {
-      "id": "openrouter:nousresearch/hermes-3-llama-3.1-405b",
-      "name": "Nous: Hermes 3 405B Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:nousresearch/hermes-3-llama-3.1-70b",
-      "name": "Nous: Hermes 3 70B Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:nousresearch/hermes-4-405b",
       "name": "Nous: Hermes 4 405B",
       "tariff": "token",
@@ -43413,17 +43428,6 @@
       "name": "Upstage: Solar Mini 4",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:upstage/solar-pro-3",
-      "name": "Upstage: Solar Pro 3",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -47519,6 +47523,16 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:hostinger_router/text-embedding-3-large",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:hostinger_router/text-embedding-3-small",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
         "offer": "litellm:jina-reranker-v2-base-multilingual",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -50325,6 +50339,11 @@
       },
       {
         "offer": "litellm:chatgpt/gpt-6-rosalind",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6-astra-law",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       }

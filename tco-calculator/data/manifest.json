@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793599563347",
-  "generated_at": "2026-11-02T06:06:03.347Z",
-  "snapshot_digest": "aa70479460b6817e",
+  "refresh_id": "refresh-1793687367479",
+  "generated_at": "2026-11-03T06:29:27.479Z",
+  "snapshot_digest": "dfcbc79ff32089c1",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-aa70479460b6817e.json",
-      "digest": "aa70479460b6817e",
-      "bytes": 3789267
+      "path": "catalog-dfcbc79ff32089c1.json",
+      "digest": "dfcbc79ff32089c1",
+      "bytes": 3790383
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "5df83522c9bb8528",
+      "digest": "b2aa9f55cde80678",
       "bytes": 377
     }
   },
@@ -21,19 +21,19 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-02T06:06:03.347Z",
-      "last_success_at": "2026-11-02T06:06:03.347Z",
-      "expires_at": "2026-11-05T06:06:03.347Z",
-      "root_digest": "694467e222c3cf29",
-      "record_count": 433,
+      "observed_at": "2026-11-03T06:29:27.479Z",
+      "last_success_at": "2026-11-03T06:29:27.479Z",
+      "expires_at": "2026-11-06T06:29:27.479Z",
+      "root_digest": "7c9d6cb808e51e3f",
+      "record_count": 432,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-02T06:06:03.347Z",
-      "last_success_at": "2026-11-02T06:06:03.347Z",
-      "expires_at": "2026-11-05T06:06:03.347Z",
+      "observed_at": "2026-11-03T06:29:27.479Z",
+      "last_success_at": "2026-11-03T06:29:27.479Z",
+      "expires_at": "2026-11-06T06:29:27.479Z",
       "root_digest": "63bb66c8bd13ba7d",
       "record_count": 3297,
       "missing_streak": 0
@@ -41,10 +41,10 @@
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-30T00:00:00.000Z",
-      "last_success_at": "2026-11-02T06:06:26.312Z",
-      "expires_at": "2026-11-06T23:59:59.999Z",
-      "root_digest": "5df83522c9bb8528",
+      "observed_at": "2026-11-02T00:00:00.000Z",
+      "last_success_at": "2026-11-03T06:29:49.258Z",
+      "expires_at": "2026-11-09T23:59:59.999Z",
+      "root_digest": "b2aa9f55cde80678",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -40567,16 +40567,6 @@
       ]
     },
     {
-      "id": "openrouter:meta-llama/llama-3.1-70b-instruct",
-      "name": "Meta: Llama 3.1 70B Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:meta-llama/llama-3.1-8b-instruct",
       "name": "Meta: Llama 3.1 8B Instruct",
       "tariff": "token",
@@ -43781,6 +43771,17 @@
       ]
     },
     {
+      "id": "openrouter:z-ai/glm-5.3-flashx-legal",
+      "name": "Z.ai: GLM 5.3 FlashX Legal",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:z-ai/glm-5.3-prime",
       "name": "Z.ai: GLM 5.3 Prime",
       "tariff": "token",
@@ -45464,6 +45465,11 @@
       },
       {
         "offer": "litellm:deepgram/streaming/nova-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/nova-3-medical",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
       },
@@ -47866,6 +47872,11 @@
         "offer": "litellm:omni-moderation-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "moderation"
+      },
+      {
+        "offer": "litellm:parallel_ai/decision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
       },
       {
         "offer": "litellm:parallel_ai/search",

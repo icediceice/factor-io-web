@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793772610248",
-  "generated_at": "2026-11-04T06:10:10.248Z",
-  "snapshot_digest": "be085cea222058e0",
+  "refresh_id": "refresh-1793858559618",
+  "generated_at": "2026-11-05T06:02:39.618Z",
+  "snapshot_digest": "57651b1f2ccc1df0",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-be085cea222058e0.json",
-      "digest": "be085cea222058e0",
-      "bytes": 3823661
+      "path": "catalog-57651b1f2ccc1df0.json",
+      "digest": "57651b1f2ccc1df0",
+      "bytes": 3987934
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "5d1b8aba88897194",
+      "digest": "9a90429cb627f7b7",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-04T06:10:10.248Z",
-      "last_success_at": "2026-11-04T06:10:10.248Z",
-      "expires_at": "2026-11-07T06:10:10.248Z",
-      "root_digest": "8776800e3c0664ae",
-      "record_count": 436,
+      "observed_at": "2026-11-05T06:02:39.618Z",
+      "last_success_at": "2026-11-05T06:02:39.618Z",
+      "expires_at": "2026-11-08T06:02:39.618Z",
+      "root_digest": "3845d52a0208c2c4",
+      "record_count": 435,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-04T06:10:10.248Z",
-      "last_success_at": "2026-11-04T06:10:10.248Z",
-      "expires_at": "2026-11-07T06:10:10.248Z",
-      "root_digest": "acfcbdfd012ff575",
-      "record_count": 3267,
+      "observed_at": "2026-11-05T06:02:39.618Z",
+      "last_success_at": "2026-11-05T06:02:39.618Z",
+      "expires_at": "2026-11-08T06:02:39.618Z",
+      "root_digest": "2cdb75c940eac8c3",
+      "record_count": 3478,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-03T00:00:00.000Z",
-      "last_success_at": "2026-11-04T06:10:31.168Z",
-      "expires_at": "2026-11-10T23:59:59.999Z",
-      "root_digest": "5d1b8aba88897194",
+      "observed_at": "2026-11-04T00:00:00.000Z",
+      "last_success_at": "2026-11-05T06:03:01.498Z",
+      "expires_at": "2026-11-11T23:59:59.999Z",
+      "root_digest": "9a90429cb627f7b7",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -4114,7 +4114,11 @@
         "cache_write|>272000|tier=flex",
         "cache_read|>272000|tier=flex",
         "input|>272000|tier=flex",
-        "output|>272000|tier=flex"
+        "output|>272000|tier=flex",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex"
       ]
     },
     {
@@ -4134,7 +4138,11 @@
         "cache_write|>272000|tier=flex",
         "cache_read|>272000|tier=flex",
         "input|>272000|tier=flex",
-        "output|>272000|tier=flex"
+        "output|>272000|tier=flex",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex"
       ]
     },
     {
@@ -4150,7 +4158,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_read|tier=flex",
+        "input|>272000|tier=flex",
+        "input|tier=flex",
+        "output|>272000|tier=flex",
+        "output|tier=flex"
       ]
     },
     {
@@ -4166,7 +4182,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_read|tier=flex",
+        "input|>272000|tier=flex",
+        "input|tier=flex",
+        "output|>272000|tier=flex",
+        "output|tier=flex"
       ]
     },
     {
@@ -4190,7 +4214,15 @@
         "output",
         "output|>272000",
         "output|>272000|tier=priority",
-        "output|tier=priority"
+        "output|tier=priority",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -4214,7 +4246,15 @@
         "output",
         "output|>272000",
         "output|>272000|tier=priority",
-        "output|tier=priority"
+        "output|tier=priority",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -4230,7 +4270,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -4246,7 +4294,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -6870,6 +6926,17 @@
       ]
     },
     {
+      "id": "litellm:baseten/moonshotai/Kimi-K3.1-Pro",
+      "name": "baseten/moonshotai/Kimi-K3.1-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:baseten/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
       "name": "baseten/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
       "tariff": "token",
@@ -8592,6 +8659,18 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-fable-5-1",
       "name": "bedrock/us-gov-east-1/anthropic.claude-fable-5-1",
       "tariff": "token",
@@ -8749,13 +8828,41 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/moonshotai.kimi-k3",
+      "name": "bedrock/us-gov-east-1/moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
       "name": "bedrock/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8765,7 +8872,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8775,7 +8888,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8785,7 +8904,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8795,7 +8920,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8805,7 +8936,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8816,7 +8953,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -8827,7 +8966,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -8837,8 +8978,16 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9029,13 +9178,41 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-west-1/moonshotai.kimi-k3",
+      "name": "bedrock/us-gov-west-1/moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
       "name": "bedrock/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9045,7 +9222,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9055,7 +9238,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9065,7 +9254,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9075,7 +9270,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9085,7 +9286,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9584,13 +9791,83 @@
       ]
     },
     {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-3-30b",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-3-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-9b-v2",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-9b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-super-3-120b",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-super-3-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-oss-120b",
       "name": "bedrock_mantle/us-gov-east-1/openai.gpt-oss-120b",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9600,7 +9877,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9611,7 +9894,32 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/xai.grok-4.7",
+      "name": "bedrock_mantle/us-gov-east-1/xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9665,7 +9973,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9675,7 +9989,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9685,7 +10005,76 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-3-30b",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-3-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-9b-v2",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-9b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-super-3-120b",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-super-3-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9695,7 +10084,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9705,7 +10100,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9716,7 +10117,16 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9727,7 +10137,32 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/xai.grok-4.7",
+      "name": "bedrock_mantle/us-gov-west-1/xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9763,6 +10198,25 @@
         "cache_read|tier=priority",
         "input|tier=flex",
         "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/xai.grok-4.7",
+      "name": "bedrock_mantle/xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
       ]
@@ -14379,6 +14833,1018 @@
       ]
     },
     {
+      "id": "litellm:empiriolabs/aplomb-1",
+      "name": "empiriolabs/aplomb-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-1-flash-1017",
+      "name": "empiriolabs/deepseek-v4-1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-flash-0731",
+      "name": "empiriolabs/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-flash-0731:variant1",
+      "name": "empiriolabs/deepseek-v4-flash-0731:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro",
+      "name": "empiriolabs/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro-0813",
+      "name": "empiriolabs/deepseek-v4-pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro:variant1",
+      "name": "empiriolabs/deepseek-v4-pro:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro:variant2",
+      "name": "empiriolabs/deepseek-v4-pro:variant2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro:variant3",
+      "name": "empiriolabs/deepseek-v4-pro:variant3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-max",
+      "name": "empiriolabs/fugu-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-ultra-v1-0",
+      "name": "empiriolabs/fugu-ultra-v1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>272000",
+        "output|>272000",
+        "cache_read|>272000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-ultra-v1-1",
+      "name": "empiriolabs/fugu-ultra-v1-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>272000",
+        "output|>272000",
+        "cache_read|>272000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-ultra-v2-0",
+      "name": "empiriolabs/fugu-ultra-v2-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>272000",
+        "output|>272000",
+        "cache_read|>272000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/gemma-4-26b-a4b",
+      "name": "empiriolabs/gemma-4-26b-a4b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-4-6v-flashx",
+      "name": "empiriolabs/glm-4-6v-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-4-7-flashx",
+      "name": "empiriolabs/glm-4-7-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-1",
+      "name": "empiriolabs/glm-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "cache_read|>32000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-2",
+      "name": "empiriolabs/glm-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-2:variant1",
+      "name": "empiriolabs/glm-5-2:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-2:variant2",
+      "name": "empiriolabs/glm-5-2:variant2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-3",
+      "name": "empiriolabs/glm-5-3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-3-flash",
+      "name": "empiriolabs/glm-5-3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-6",
+      "name": "empiriolabs/kimi-k2-6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-7-code",
+      "name": "empiriolabs/kimi-k2-7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-7-code-highspeed",
+      "name": "empiriolabs/kimi-k2-7-code-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-7-code:variant1",
+      "name": "empiriolabs/kimi-k2-7-code:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k3",
+      "name": "empiriolabs/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mimo-v2-6-flash",
+      "name": "empiriolabs/mimo-v2-6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mimo-v2-6-pro",
+      "name": "empiriolabs/mimo-v2-6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mimo-v2-6-pro-ultraspeed",
+      "name": "empiriolabs/mimo-v2-6-pro-ultraspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m2-7",
+      "name": "empiriolabs/minimax-m2-7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m2-7-highspeed",
+      "name": "empiriolabs/minimax-m2-7-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m3",
+      "name": "empiriolabs/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>512000",
+        "output|>512000",
+        "cache_read|>512000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m3-1-flash",
+      "name": "empiriolabs/minimax-m3-1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m3:priority",
+      "name": "empiriolabs/minimax-m3:priority",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>512000",
+        "output|>512000",
+        "cache_read|>512000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mistral-small-4",
+      "name": "empiriolabs/mistral-small-4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-glimmer-30b",
+      "name": "empiriolabs/muse-glimmer-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-spark-1-1",
+      "name": "empiriolabs/muse-spark-1-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-spark-1-2",
+      "name": "empiriolabs/muse-spark-1-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-spark-1-3",
+      "name": "empiriolabs/muse-spark-1-3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-lite-1-0",
+      "name": "empiriolabs/nova-lite-1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-lite-2",
+      "name": "empiriolabs/nova-lite-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-micro-1-0",
+      "name": "empiriolabs/nova-micro-1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-pro-1-0",
+      "name": "empiriolabs/nova-pro-1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-advanced-deep-research",
+      "name": "empiriolabs/perplexity-advanced-deep-research",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-deep-research",
+      "name": "empiriolabs/perplexity-deep-research",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-pro-search",
+      "name": "empiriolabs/perplexity-pro-search",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-sonar",
+      "name": "empiriolabs/perplexity-sonar",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-sonar-pro",
+      "name": "empiriolabs/perplexity-sonar-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-sonar-reasoning-pro",
+      "name": "empiriolabs/perplexity-sonar-reasoning-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-122b-a10b",
+      "name": "empiriolabs/qwen3-5-122b-a10b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-27b",
+      "name": "empiriolabs/qwen3-5-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-35b-a3b",
+      "name": "empiriolabs/qwen3-5-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-397b-a17b",
+      "name": "empiriolabs/qwen3-5-397b-a17b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-4b",
+      "name": "empiriolabs/qwen3-5-4b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-9b",
+      "name": "empiriolabs/qwen3-5-9b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-flash",
+      "name": "empiriolabs/qwen3-5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-flash:variant1",
+      "name": "empiriolabs/qwen3-5-flash:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-omni-flash",
+      "name": "empiriolabs/qwen3-5-omni-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-omni-plus",
+      "name": "empiriolabs/qwen3-5-omni-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-plus",
+      "name": "empiriolabs/qwen3-5-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-plus:variant1",
+      "name": "empiriolabs/qwen3-5-plus:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-27b",
+      "name": "empiriolabs/qwen3-6-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-35b-a3b",
+      "name": "empiriolabs/qwen3-6-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-flash",
+      "name": "empiriolabs/qwen3-6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-flash:variant1",
+      "name": "empiriolabs/qwen3-6-flash:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-plus",
+      "name": "empiriolabs/qwen3-6-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-plus:variant1",
+      "name": "empiriolabs/qwen3-6-plus:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-flash",
+      "name": "empiriolabs/qwen3-7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "cache_read|>32000",
+        "input|>256000",
+        "output|>256000",
+        "cache_read|>256000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-flash:variant1",
+      "name": "empiriolabs/qwen3-7-flash:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "cache_read|>32000",
+        "input|>256000",
+        "output|>256000",
+        "cache_read|>256000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-max",
+      "name": "empiriolabs/qwen3-7-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-max:variant1",
+      "name": "empiriolabs/qwen3-7-max:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-plus",
+      "name": "empiriolabs/qwen3-7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-plus:variant1",
+      "name": "empiriolabs/qwen3-7-plus:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000",
+        "cache_read|>256000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-27b",
+      "name": "empiriolabs/qwen3-8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-flash",
+      "name": "empiriolabs/qwen3-8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-max",
+      "name": "empiriolabs/qwen3-8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-max-0902",
+      "name": "empiriolabs/qwen3-8-max-0902",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-max:variant1",
+      "name": "empiriolabs/qwen3-8-max:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-omni-flash",
+      "name": "empiriolabs/qwen3-8-omni-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-code",
+      "name": "empiriolabs/seed-2-0-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-lite",
+      "name": "empiriolabs/seed-2-0-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-mini",
+      "name": "empiriolabs/seed-2-0-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-pro",
+      "name": "empiriolabs/seed-2-0-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-1-turbo",
+      "name": "empiriolabs/seed-2-1-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-3-5-flash",
+      "name": "empiriolabs/step-3-5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-3-5-flash-2603",
+      "name": "empiriolabs/step-3-5-flash-2603",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-3-7-flash",
+      "name": "empiriolabs/step-3-7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-5-preview",
+      "name": "empiriolabs/step-5-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/stepaudio-2-5-chat",
+      "name": "empiriolabs/stepaudio-2-5-chat",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/stepaudio-3-chat",
+      "name": "empiriolabs/stepaudio-3-chat",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:eu.amazon.nova-2-lite-v1:0",
       "name": "eu.amazon.nova-2-lite-v1:0",
       "tariff": "token",
@@ -15916,6 +17382,20 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/kimi-k3",
       "name": "fireworks_ai/accounts/fireworks/models/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/kimi-k3p1-pro",
+      "name": "fireworks_ai/accounts/fireworks/models/kimi-k3p1-pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -17585,6 +19065,17 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
       "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-ultrafast",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-ultrafast",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20419,8 +21910,144 @@
       ]
     },
     {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M2",
+      "name": "gmi/MiniMaxAI/MiniMax-M2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/MiniMaxAI/MiniMax-M2.1",
       "name": "gmi/MiniMaxAI/MiniMax-M2.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M2.5",
+      "name": "gmi/MiniMaxAI/MiniMax-M2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M2.7",
+      "name": "gmi/MiniMaxAI/MiniMax-M2.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M3",
+      "name": "gmi/MiniMaxAI/MiniMax-M3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M3.1-Flash",
+      "name": "gmi/MiniMaxAI/MiniMax-M3.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-235B-A22B-FP8",
+      "name": "gmi/Qwen/Qwen3-235B-A22B-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+      "name": "gmi/Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-235B-A22B-Thinking-2507-FP8",
+      "name": "gmi/Qwen/Qwen3-235B-A22B-Thinking-2507-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-30B-A3B",
+      "name": "gmi/Qwen/Qwen3-30B-A3B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-32B-FP8",
+      "name": "gmi/Qwen/Qwen3-32B-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
+      "name": "gmi/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "name": "gmi/Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-Next-80B-A3B-Thinking",
+      "name": "gmi/Qwen/Qwen3-Next-80B-A3B-Thinking",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20434,6 +22061,153 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-122B-A10B",
+      "name": "gmi/Qwen/Qwen3.5-122B-A10B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-27B",
+      "name": "gmi/Qwen/Qwen3.5-27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-35B-A3B",
+      "name": "gmi/Qwen/Qwen3.5-35B-A3B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-397B-A17B",
+      "name": "gmi/Qwen/Qwen3.5-397B-A17B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.6-35B-A3B",
+      "name": "gmi/Qwen/Qwen3.6-35B-A3B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.6-Plus",
+      "name": "gmi/Qwen/Qwen3.6-Plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.6-Plus-2026-04-02",
+      "name": "gmi/Qwen/Qwen3.6-Plus-2026-04-02",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.7-Max",
+      "name": "gmi/Qwen/Qwen3.7-Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-27B",
+      "name": "gmi/Qwen/Qwen3.8-27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-Flash",
+      "name": "gmi/Qwen/Qwen3.8-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-Max",
+      "name": "gmi/Qwen/Qwen3.8-Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-Max-0902",
+      "name": "gmi/Qwen/Qwen3.8-Max-0902",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.5",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.5-Pro",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.5-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -20479,8 +22253,109 @@
       ]
     },
     {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-Prover-V2-671B",
+      "name": "gmi/deepseek-ai/DeepSeek-Prover-V2-671B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1",
+      "name": "gmi/deepseek-ai/DeepSeek-R1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-0528",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-0528",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/deepseek-ai/DeepSeek-V3-0324",
       "name": "gmi/deepseek-ai/DeepSeek-V3-0324",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.1",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.1-Terminus",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.1-Terminus",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20499,6 +22374,70 @@
       ]
     },
     {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.2-Exp",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.2-Exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.2-Speciale",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.2-Speciale",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4-Flash",
+      "name": "gmi/deepseek-ai/DeepSeek-V4-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "name": "gmi/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "name": "gmi/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/deepseek-v4-flash-vision-exp",
+      "name": "gmi/deepseek-ai/deepseek-v4-flash-vision-exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/google/gemini-3-flash-preview",
       "name": "gmi/google/gemini-3-flash-preview",
       "tariff": "token",
@@ -20509,11 +22448,258 @@
       ]
     },
     {
+      "id": "litellm:gmi/google/gemini-3.1-flash-lite-preview",
+      "name": "gmi/google/gemini-3.1-flash-lite-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.1-pro-preview",
+      "name": "gmi/google/gemini-3.1-pro-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.5-flash",
+      "name": "gmi/google/gemini-3.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.5-flash-lite",
+      "name": "gmi/google/gemini-3.5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.6-flash",
+      "name": "gmi/google/gemini-3.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.7-flash",
+      "name": "gmi/google/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.8-flash",
+      "name": "gmi/google/gemini-3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-4-argon",
+      "name": "gmi/google/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemma-4-26b-a4b-it",
+      "name": "gmi/google/gemma-4-26b-a4b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemma-4-31b-it",
+      "name": "gmi/google/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/meta-llama/Llama-3.3-70B-Instruct",
+      "name": "gmi/meta-llama/Llama-3.3-70B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "name": "gmi/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+      "name": "gmi/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/Kimi-K2-Instruct-0905",
+      "name": "gmi/moonshotai/Kimi-K2-Instruct-0905",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/moonshotai/Kimi-K2-Thinking",
       "name": "gmi/moonshotai/Kimi-K2-Thinking",
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/Kimi-K2.5",
+      "name": "gmi/moonshotai/Kimi-K2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/Kimi-K2.6",
+      "name": "gmi/moonshotai/Kimi-K2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k2.7-code",
+      "name": "gmi/moonshotai/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k2.7-code-highspeed",
+      "name": "gmi/moonshotai/kimi-k2.7-code-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k3",
+      "name": "gmi/moonshotai/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k3.1-pro",
+      "name": "gmi/moonshotai/kimi-k3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+      "name": "gmi/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "name": "gmi/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "gmi/nvidia/nemotron-3-ultra-550b-a55b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -20569,11 +22755,334 @@
       ]
     },
     {
+      "id": "litellm:gmi/openai/gpt-5.4",
+      "name": "gmi/openai/gpt-5.4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.4-mini",
+      "name": "gmi/openai/gpt-5.4-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.4-nano",
+      "name": "gmi/openai/gpt-5.4-nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.4-pro",
+      "name": "gmi/openai/gpt-5.4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.5",
+      "name": "gmi/openai/gpt-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.6-luna",
+      "name": "gmi/openai/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.6-sol",
+      "name": "gmi/openai/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.6-terra",
+      "name": "gmi/openai/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6-astra",
+      "name": "gmi/openai/gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6-luna",
+      "name": "gmi/openai/gpt-6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6-sol",
+      "name": "gmi/openai/gpt-6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6.1-sol",
+      "name": "gmi/openai/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-oss-120b",
+      "name": "gmi/openai/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/stepfun-ai/Step-3.7-Flash",
+      "name": "gmi/stepfun-ai/Step-3.7-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/stepfun-ai/Step-5-Preview",
+      "name": "gmi/stepfun-ai/Step-5-Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/HunyuanOCR",
+      "name": "gmi/tencent/HunyuanOCR",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/Hy3",
+      "name": "gmi/tencent/Hy3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/hy3-preview",
+      "name": "gmi/tencent/hy3-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/hy4-preview",
+      "name": "gmi/tencent/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/x-ai/grok-4.5",
+      "name": "gmi/x-ai/grok-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/xai/grok4.6",
+      "name": "gmi/xai/grok4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.5-Air-FP8",
+      "name": "gmi/zai-org/GLM-4.5-Air-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.5-FP8",
+      "name": "gmi/zai-org/GLM-4.5-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.6",
+      "name": "gmi/zai-org/GLM-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/zai-org/GLM-4.7-FP8",
       "name": "gmi/zai-org/GLM-4.7-FP8",
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.7-Flash",
+      "name": "gmi/zai-org/GLM-4.7-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5-FP8",
+      "name": "gmi/zai-org/GLM-5-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.1-FP8",
+      "name": "gmi/zai-org/GLM-5.1-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.2-FP8",
+      "name": "gmi/zai-org/GLM-5.2-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.3",
+      "name": "gmi/zai-org/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.3-Flash",
+      "name": "gmi/zai-org/GLM-5.3-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -33428,6 +35937,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/moonshotai/Kimi-K3.1-Pro",
+      "name": "together_ai/moonshotai/Kimi-K3.1-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
       "name": "together_ai/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
       "tariff": "token",
@@ -33492,6 +36012,17 @@
     {
       "id": "litellm:together_ai/reflection/Beam-1.0-501B-A23B",
       "name": "together_ai/reflection/Beam-1.0-501B-A23B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:together_ai/ricursive-ai/Ripple-65B-Preview",
+      "name": "together_ai/ricursive-ai/Ripple-65B-Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -40856,7 +43387,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40995,16 +43527,6 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-01",
-      "name": "MiniMax: MiniMax-01",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m1",
       "name": "MiniMax: MiniMax M1",
       "tariff": "token",
@@ -41015,51 +43537,8 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m2",
-      "name": "MiniMax: MiniMax M2",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m2-her",
-      "name": "MiniMax: MiniMax M2-her",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m2.1",
-      "name": "MiniMax: MiniMax M2.1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m2.5",
       "name": "MiniMax: MiniMax M2.5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m2.7",
-      "name": "MiniMax: MiniMax M2.7",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -43355,6 +45834,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:ricursiveai/ripple-65b-preview",
+      "name": "ricursiveAI/Ripple-65B-Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -50640,6 +53130,36 @@
         "offer": "litellm:chatgpt/gpt-6-astra-law",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:empiriolabs/skylark-embedding-vision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:empiriolabs/text-embedding-v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:empiriolabs/tongyi-embedding-vision-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:empiriolabs/tongyi-embedding-vision-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:gpt-image-2.6-sunburst",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:gpt-image-2.6-flare",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       }
     ],
     "source_errors": {

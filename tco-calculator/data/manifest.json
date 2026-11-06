@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793858559618",
-  "generated_at": "2026-11-05T06:02:39.618Z",
-  "snapshot_digest": "57651b1f2ccc1df0",
+  "refresh_id": "refresh-1793945345087",
+  "generated_at": "2026-11-06T06:09:05.087Z",
+  "snapshot_digest": "8caebba1798c5f5e",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-57651b1f2ccc1df0.json",
-      "digest": "57651b1f2ccc1df0",
-      "bytes": 3987934
+      "path": "catalog-8caebba1798c5f5e.json",
+      "digest": "8caebba1798c5f5e",
+      "bytes": 4001985
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "9a90429cb627f7b7",
+      "digest": "e6588421bf721ad6",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-05T06:02:39.618Z",
-      "last_success_at": "2026-11-05T06:02:39.618Z",
-      "expires_at": "2026-11-08T06:02:39.618Z",
-      "root_digest": "3845d52a0208c2c4",
+      "observed_at": "2026-11-06T06:09:05.087Z",
+      "last_success_at": "2026-11-06T06:09:05.087Z",
+      "expires_at": "2026-11-09T06:09:05.087Z",
+      "root_digest": "4f13e6fd5cf801fe",
       "record_count": 435,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-05T06:02:39.618Z",
-      "last_success_at": "2026-11-05T06:02:39.618Z",
-      "expires_at": "2026-11-08T06:02:39.618Z",
-      "root_digest": "2cdb75c940eac8c3",
-      "record_count": 3478,
+      "observed_at": "2026-11-06T06:09:05.087Z",
+      "last_success_at": "2026-11-06T06:09:05.087Z",
+      "expires_at": "2026-11-09T06:09:05.087Z",
+      "root_digest": "638aeafdc8a0a4b9",
+      "record_count": 3492,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-04T00:00:00.000Z",
-      "last_success_at": "2026-11-05T06:03:01.498Z",
-      "expires_at": "2026-11-11T23:59:59.999Z",
-      "root_digest": "9a90429cb627f7b7",
+      "observed_at": "2026-11-05T00:00:00.000Z",
+      "last_success_at": "2026-11-06T06:09:28.005Z",
+      "expires_at": "2026-11-12T23:59:59.999Z",
+      "root_digest": "e6588421bf721ad6",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -2219,16 +2219,6 @@
       ]
     },
     {
-      "id": "litellm:azure/command-r-plus",
-      "name": "azure/command-r-plus",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/computer-use-preview",
       "name": "azure/computer-use-preview",
       "tariff": "token",
@@ -2908,17 +2898,6 @@
       ]
     },
     {
-      "id": "litellm:azure/eu/o1-preview",
-      "name": "azure/eu/o1-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/eu/o3",
       "name": "azure/eu/o3",
       "tariff": "token",
@@ -3117,26 +3096,6 @@
       ]
     },
     {
-      "id": "litellm:azure/gpt-35-turbo-16k",
-      "name": "azure/gpt-35-turbo-16k",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-35-turbo-16k-0613",
-      "name": "azure/gpt-35-turbo-16k-0613",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/gpt-35-turbo-instruct",
       "name": "azure/gpt-35-turbo-instruct",
       "tariff": "token",
@@ -3157,16 +3116,6 @@
       ]
     },
     {
-      "id": "litellm:azure/gpt-4",
-      "name": "azure/gpt-4",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/gpt-4-0125-preview",
       "name": "azure/gpt-4-0125-preview",
       "tariff": "token",
@@ -3177,40 +3126,10 @@
       ]
     },
     {
-      "id": "litellm:azure/gpt-4-0613",
-      "name": "azure/gpt-4-0613",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/gpt-4-1106-preview",
       "name": "azure/gpt-4-1106-preview",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-4-32k",
-      "name": "azure/gpt-4-32k",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-4-32k-0613",
-      "name": "azure/gpt-4-32k-0613",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -3328,19 +3247,6 @@
       "name": "azure/gpt-4.1-nano-2025-04-14",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-4.5-preview",
-      "name": "azure/gpt-4.5-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "cache_read",
         "input",
@@ -5318,17 +5224,6 @@
       ]
     },
     {
-      "id": "litellm:azure/us/o1-preview",
-      "name": "azure/us/o1-preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/us/o3",
       "name": "azure/us/o3",
       "tariff": "token",
@@ -5742,116 +5637,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/Meta-Llama-3-70B-Instruct",
-      "name": "azure_ai/Meta-Llama-3-70B-Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Meta-Llama-3.1-70B-Instruct",
-      "name": "azure_ai/Meta-Llama-3.1-70B-Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-medium-128k-instruct",
-      "name": "azure_ai/Phi-3-medium-128k-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-medium-4k-instruct",
-      "name": "azure_ai/Phi-3-medium-4k-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-mini-128k-instruct",
-      "name": "azure_ai/Phi-3-mini-128k-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-mini-4k-instruct",
-      "name": "azure_ai/Phi-3-mini-4k-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-small-128k-instruct",
-      "name": "azure_ai/Phi-3-small-128k-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-small-8k-instruct",
-      "name": "azure_ai/Phi-3-small-8k-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3.5-MoE-instruct",
-      "name": "azure_ai/Phi-3.5-MoE-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3.5-mini-instruct",
-      "name": "azure_ai/Phi-3.5-mini-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3.5-vision-instruct",
-      "name": "azure_ai/Phi-3.5-vision-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/Phi-4",
       "name": "azure_ai/Phi-4",
       "tariff": "token",
@@ -6120,16 +5905,6 @@
       "name": "azure_ai/cohere-command-a",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/deepseek-v3",
-      "name": "azure_ai/deepseek-v3",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -6560,16 +6335,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/jamba-instruct",
-      "name": "azure_ai/jamba-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/kimi-k2-thinking",
       "name": "azure_ai/kimi-k2-thinking",
       "tariff": "token",
@@ -6623,26 +6388,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/mistral-large",
-      "name": "azure_ai/mistral-large",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/mistral-large-2407",
-      "name": "azure_ai/mistral-large-2407",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/mistral-large-3",
       "name": "azure_ai/mistral-large-3",
       "tariff": "token",
@@ -6687,16 +6432,6 @@
       "name": "azure_ai/mistral-nemo",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/mistral-small",
-      "name": "azure_ai/mistral-small",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -10315,16 +10050,6 @@
       ]
     },
     {
-      "id": "litellm:cerebras/llama3.1-70b",
-      "name": "cerebras/llama3.1-70b",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:cerebras/llama3.1-8b",
       "name": "cerebras/llama3.1-8b",
       "tariff": "token",
@@ -13044,6 +12769,20 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-kimi-k3-1-pro",
+      "name": "databricks/databricks-kimi-k3-1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-llama-4-maverick",
       "name": "databricks/databricks-llama-4-maverick",
       "tariff": "token",
@@ -15127,6 +14866,17 @@
       ]
     },
     {
+      "id": "litellm:empiriolabs/kimi-k3-1-pro",
+      "name": "empiriolabs/kimi-k3-1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:empiriolabs/mimo-v2-6-flash",
       "name": "empiriolabs/mimo-v2-6-flash",
       "tariff": "token",
@@ -15461,7 +15211,11 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "input|>128000",
+        "output|>128000",
+        "input|>256000",
+        "output|>256000"
       ]
     },
     {
@@ -20563,7 +20317,9 @@
         "output|tier=flex",
         "cache_read|>200000|tier=batches",
         "input|>200000|tier=batches",
-        "output|>200000|tier=batches"
+        "input|>200000|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex"
       ]
     },
     {
@@ -20686,7 +20442,9 @@
         "output|tier=flex",
         "cache_read|>200000|tier=batches",
         "input|>200000|tier=batches",
-        "output|>200000|tier=batches"
+        "input|>200000|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex"
       ]
     },
     {
@@ -20715,7 +20473,9 @@
         "output|tier=flex",
         "cache_read|>200000|tier=batches",
         "input|>200000|tier=batches",
-        "output|>200000|tier=batches"
+        "input|>200000|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex"
       ]
     },
     {
@@ -20929,6 +20689,17 @@
       "state": "active",
       "meters": [
         "audio_in_tok",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gemini/gemini-omni-1.2-flash",
+      "name": "gemini/gemini-omni-1.2-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "image_in_tok",
         "input",
         "output"
       ]
@@ -22213,6 +21984,28 @@
       ]
     },
     {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.6-Flash",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.6-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.6-Pro",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.6-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/anthropic/claude-opus-4",
       "name": "gmi/anthropic/claude-opus-4",
       "tariff": "token",
@@ -22427,8 +22220,41 @@
       ]
     },
     {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4.1-Flash",
+      "name": "gmi/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/deepseek-ai/deepseek-v4-flash-vision-exp",
       "name": "gmi/deepseek-ai/deepseek-v4-flash-vision-exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/deepseek-v4.1-flash-1017",
+      "name": "gmi/deepseek-ai/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/gmicloud/Ripple-65B-Preview",
+      "name": "gmi/gmicloud/Ripple-65B-Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -22896,6 +22722,16 @@
       ]
     },
     {
+      "id": "litellm:gmi/openai/gpt-oss-20b",
+      "name": "gmi/openai/gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/stepfun-ai/Step-3.7-Flash",
       "name": "gmi/stepfun-ai/Step-3.7-Flash",
       "tariff": "token",
@@ -22941,6 +22777,17 @@
     {
       "id": "litellm:gmi/tencent/hy3-preview",
       "name": "gmi/tencent/hy3-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/hy4",
+      "name": "gmi/tencent/hy4",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -24216,6 +24063,18 @@
       ]
     },
     {
+      "id": "litellm:gpt-6-cyber",
+      "name": "gpt-6-cyber",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gpt-6-luna",
       "name": "gpt-6-luna",
       "tariff": "token",
@@ -24568,16 +24427,6 @@
       "name": "gradient_ai/openai-o3-mini",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:groq/llama-guard-3-8b",
-      "name": "groq/llama-guard-3-8b",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -28807,6 +28656,17 @@
     {
       "id": "litellm:nebius/moonshotai/Kimi-K3",
       "name": "nebius/moonshotai/Kimi-K3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:nebius/moonshotai/Kimi-K3.1-Pro",
+      "name": "nebius/moonshotai/Kimi-K3.1-Pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -35295,16 +35155,6 @@
       ]
     },
     {
-      "id": "litellm:together_ai/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-      "name": "together_ai/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/Prism-ML/Ternary-Bonsai-27B",
       "name": "together_ai/Prism-ML/Ternary-Bonsai-27B",
       "tariff": "token",
@@ -35315,40 +35165,10 @@
       ]
     },
     {
-      "id": "litellm:together_ai/Qwen/QwQ-32B",
-      "name": "together_ai/Qwen/QwQ-32B",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/Qwen/Qwen2-1.5B-Instruct",
       "name": "together_ai/Qwen/Qwen2-1.5B-Instruct",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/Qwen/Qwen2-72B-Instruct",
-      "name": "together_ai/Qwen/Qwen2-72B-Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/Qwen/Qwen2-VL-72B-Instruct",
-      "name": "together_ai/Qwen/Qwen2-VL-72B-Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -35389,16 +35209,6 @@
       "name": "together_ai/Qwen/Qwen2.5-7B-Instruct-Turbo",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/Qwen/Qwen2.5-Coder-32B-Instruct",
-      "name": "together_ai/Qwen/Qwen2.5-Coder-32B-Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -35578,36 +35388,6 @@
       ]
     },
     {
-      "id": "litellm:together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-      "name": "together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-      "name": "together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-      "name": "together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/deepseek-ai/DeepSeek-V3",
       "name": "together_ai/deepseek-ai/DeepSeek-V3",
       "tariff": "token",
@@ -35672,40 +35452,10 @@
       ]
     },
     {
-      "id": "litellm:together_ai/deepseek-ai/deepseek-coder-33b-instruct",
-      "name": "together_ai/deepseek-ai/deepseek-coder-33b-instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/google/gemma-2-27b-it",
-      "name": "together_ai/google/gemma-2-27b-it",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/google/gemma-4-31B-it",
       "name": "together_ai/google/gemma-4-31B-it",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/meta-llama/Llama-3-8b-chat-hf",
-      "name": "together_ai/meta-llama/Llama-3-8b-chat-hf",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -35756,26 +35506,6 @@
       "name": "together_ai/meta-llama/Llama-4-Scout-17B-16E-Instruct",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
-      "name": "together_ai/meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/meta-llama/Meta-Llama-3-8B-Instruct",
-      "name": "together_ai/meta-llama/Meta-Llama-3-8B-Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -35838,16 +35568,6 @@
       "name": "together_ai/mistralai/Ministral-3-14B-Instruct-2512",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/mistralai/Mistral-7B-Instruct-v0.1",
-      "name": "together_ai/mistralai/Mistral-7B-Instruct-v0.1",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -35943,16 +35663,6 @@
       "state": "active",
       "meters": [
         "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
-      "name": "together_ai/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
         "input",
         "output"
       ]
@@ -36341,6 +36051,25 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.xai.grok-4.7",
+      "name": "us-gov.xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -38260,26 +37989,6 @@
       ]
     },
     {
-      "id": "litellm:vertex_ai/claude-3-opus",
-      "name": "vertex_ai/claude-3-opus",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:vertex_ai/claude-3-opus@20240229",
-      "name": "vertex_ai/claude-3-opus@20240229",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:vertex_ai/claude-3-sonnet",
       "name": "vertex_ai/claude-3-sonnet",
       "tariff": "token",
@@ -39267,6 +38976,16 @@
     {
       "id": "litellm:vertex_ai/gemini-omni-1.1-flash-preview",
       "name": "vertex_ai/gemini-omni-1.1-flash-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/gemini-omni-1.2-flash",
+      "name": "vertex_ai/gemini-omni-1.2-flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -43086,6 +42805,28 @@
       ]
     },
     {
+      "id": "openrouter:google/gemini-omni-1.1-flash",
+      "name": "Google: Gemini Omni 1.1 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-omni-1.2-flash",
+      "name": "Google: Gemini Omni 1.2 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
       "id": "openrouter:google/gemma-2-27b-it",
       "name": "Google: Gemma 2 27B",
       "tariff": "token",
@@ -43255,6 +42996,17 @@
     {
       "id": "openrouter:inclusionai/ling-3.0-flash-vl",
       "name": "inclusionAI: Ling 3.0 Flash VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:inclusionai/ling-3.0-tiny",
+      "name": "inclusionAI: Ling 3.0 Tiny",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -45211,6 +44963,16 @@
     {
       "id": "openrouter:openrouter/auto-beta",
       "name": "Auto Router (Beta)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:openrouter/auto-code",
+      "name": "Auto Code",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -50310,6 +50072,16 @@
         "offer": "litellm:hostinger_router/text-embedding-3-small",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:jina-reranker-v3.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:jina-reranker-m0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
       },
       {
         "offer": "litellm:jina-reranker-v2-base-multilingual",

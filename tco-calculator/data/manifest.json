@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793945345087",
-  "generated_at": "2026-11-06T06:09:05.087Z",
-  "snapshot_digest": "8caebba1798c5f5e",
+  "refresh_id": "refresh-1794032307086",
+  "generated_at": "2026-11-07T06:18:27.086Z",
+  "snapshot_digest": "f9d1304a68bc3721",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-8caebba1798c5f5e.json",
-      "digest": "8caebba1798c5f5e",
-      "bytes": 4001985
+      "path": "catalog-f9d1304a68bc3721.json",
+      "digest": "f9d1304a68bc3721",
+      "bytes": 4010739
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "e6588421bf721ad6",
+      "digest": "a0bea7dc54ab17b3",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-06T06:09:05.087Z",
-      "last_success_at": "2026-11-06T06:09:05.087Z",
-      "expires_at": "2026-11-09T06:09:05.087Z",
-      "root_digest": "4f13e6fd5cf801fe",
-      "record_count": 435,
+      "observed_at": "2026-11-07T06:18:27.086Z",
+      "last_success_at": "2026-11-07T06:18:27.086Z",
+      "expires_at": "2026-11-10T06:18:27.086Z",
+      "root_digest": "c3e3acbd593b4835",
+      "record_count": 441,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-06T06:09:05.087Z",
-      "last_success_at": "2026-11-06T06:09:05.087Z",
-      "expires_at": "2026-11-09T06:09:05.087Z",
-      "root_digest": "638aeafdc8a0a4b9",
-      "record_count": 3492,
+      "observed_at": "2026-11-07T06:18:27.086Z",
+      "last_success_at": "2026-11-07T06:18:27.086Z",
+      "expires_at": "2026-11-10T06:18:27.086Z",
+      "root_digest": "e5e785572437464a",
+      "record_count": 3499,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-05T00:00:00.000Z",
-      "last_success_at": "2026-11-06T06:09:28.005Z",
-      "expires_at": "2026-11-12T23:59:59.999Z",
-      "root_digest": "e6588421bf721ad6",
+      "observed_at": "2026-11-06T00:00:00.000Z",
+      "last_success_at": "2026-11-07T06:18:49.812Z",
+      "expires_at": "2026-11-13T23:59:59.999Z",
+      "root_digest": "a0bea7dc54ab17b3",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -14588,7 +14588,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -20316,6 +20317,7 @@
         "output|tier=batches",
         "output|tier=flex",
         "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
         "input|>200000|tier=batches",
         "input|>200000|tier=flex",
         "output|>200000|tier=batches",
@@ -21429,6 +21431,26 @@
     {
       "id": "litellm:global.moonshotai.kimi-k3",
       "name": "global.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:global.moonshotai.kimi-k3.1",
+      "name": "global.moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -24682,6 +24704,26 @@
     {
       "id": "litellm:in.moonshotai.kimi-k3",
       "name": "in.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:in.moonshotai.kimi-k3.1",
+      "name": "in.moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -28072,6 +28114,26 @@
     {
       "id": "litellm:moonshotai.kimi-k3",
       "name": "moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:moonshotai.kimi-k3.1",
+      "name": "moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -34841,6 +34903,28 @@
       ]
     },
     {
+      "id": "litellm:tencent/hy4",
+      "name": "tencent/hy4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/hy4-preview",
+      "name": "tencent/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:tencent/kimi-k2.7-code",
       "name": "tencent/kimi-k2.7-code",
       "tariff": "token",
@@ -36639,6 +36723,26 @@
     {
       "id": "litellm:us.moonshotai.kimi-k3",
       "name": "us.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:us.moonshotai.kimi-k3.1",
+      "name": "us.moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -39844,6 +39948,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -39865,6 +39970,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -39916,6 +40022,17 @@
     {
       "id": "litellm:wandb/deepseek-ai/DeepSeek-V4.1-Flash",
       "name": "wandb/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wandb/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "name": "wandb/deepseek-ai/DeepSeek-V4.1-Flash-1017",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -41589,7 +41706,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43081,13 +43199,35 @@
       ]
     },
     {
+      "id": "openrouter:liquid/lfm-3-1.7b",
+      "name": "LiquidAI: LFM3-1.7B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:liquid/lfm-3-1.7b:free",
+      "name": "LiquidAI: LFM3-1.7B (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:mancer/weaver",
       "name": "Mancer: Weaver (alpha)",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43712,8 +43852,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -43751,7 +43890,7 @@
       "id": "openrouter:nvidia/nemotron-3.5-content-safety:free",
       "name": "NVIDIA: Nemotron 3.5 Content Safety (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -45494,6 +45633,17 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen3.8-27b:batch",
+      "name": "Qwen: Qwen3.8 27B (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen3.8-flash",
       "name": "Qwen: Qwen3.8 Flash",
       "tariff": "token",
@@ -45600,7 +45750,7 @@
     },
     {
       "id": "openrouter:ricursiveai/ripple-65b-preview",
-      "name": "ricursiveAI/Ripple-65B-Preview",
+      "name": "Ricursive: Ripple 65B Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -45916,7 +46066,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -52932,6 +53083,16 @@
         "offer": "litellm:gpt-image-2.6-flare",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:azure_ai/cohere-rerank-v5-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:azure_ai/cohere-rerank-v5-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
       }
     ],
     "source_errors": {

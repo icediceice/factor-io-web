@@ -266,8 +266,8 @@
     html.idle .pitch-controls:not(:hover):not(:focus-within) { opacity: 0; }
     .brand { font: 600 15px/1 var(--mono); color: var(--t1); padding: 0 12px 0 8px; white-space: nowrap; }
     .segs { display: flex; }
-    .seg { width: 30px; height: 44px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; border-radius: 6px; }
-    .seg i { display: block; width: 22px; height: 4px; border-radius: 2px; background: var(--line-3); transition: background-color .2s ease; }
+    .seg { width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; border-radius: var(--r1); }
+    .seg i { display: block; width: 28px; height: 4px; border-radius: var(--r0); background: var(--t4); transition: background-color .2s ease; }
     .seg:hover i { background: var(--t2); }
     .seg.done i { background: var(--t3); }
     .seg[aria-current="step"] i { background: var(--cyan); }

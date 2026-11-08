@@ -1217,7 +1217,9 @@
         var cv = null, ctx = null, raf = 0, parts = [], settled = [], fill = [], caps = [], rnd;
         var X0 = 1012, X1 = 1716, BOT = 508, TOP = 104, CW = 12, SZ = 9;
         var COLS = Math.floor((X1 - X0) / CW), CAP = Math.floor((BOT - TOP) / CW);
-        var PAL = ["#FB7185", "#FB7185", "#FB7185", "#FB7185", "#FB7185", "#FB7185", "#FBBF24", "#FBBF24", "#FBBF24", "#8B98AD"];
+        var rootCs = getComputedStyle(document.documentElement);
+        var cBad = rootCs.getPropertyValue("--bad").trim(), cHold = rootCs.getPropertyValue("--hold").trim(), cDim = rootCs.getPropertyValue("--t3").trim();
+        var PAL = [cBad, cBad, cBad, cBad, cBad, cBad, cHold, cHold, cHold, cDim];
         function lcg(n) { var x = n >>> 0; return function () { x = (Math.imul(x, 1664525) + 1013904223) >>> 0; return x / 4294967296; }; }
         function init(s) {
           if (ctx) return true;

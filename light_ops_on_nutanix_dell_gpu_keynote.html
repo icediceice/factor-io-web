@@ -94,9 +94,10 @@
 
     html[lang="th"] .display { font-size: 88px; line-height: 1.2; letter-spacing: 0; }
     html[lang="th"] .sub { line-height: 1.5; }
-    /* Thai labels run longer: s5's verdicts and lure chip take the free stage to their right (out to the 96px margin), s6's suppressed card grows into the space below */
-    html[lang="th"] #s5 .vd, html[lang="th"] #s5 [data-i18n="s5.ign"] { width: 428px; }
-    html[lang="th"] #s6 .node.tone-ok { height: 160px; }
+    /* Thai labels run longer: s5's verdicts and lure chip take the free stage to their right (out to the 96px margin), s6's suppressed card grows into the space below.
+       !important because these boxes are placed by inline style, which outranks any selector */
+    html[lang="th"] #s5 .vd, html[lang="th"] #s5 [data-i18n="s5.ign"] { width: 428px !important; }
+    html[lang="th"] #s6 .node.tone-ok { height: 160px !important; }
 
     /* graphic layer: SVG geometry with HTML label leaves on the same pixel grid */
     .gfx { position: absolute; left: 96px; width: 1728px; }

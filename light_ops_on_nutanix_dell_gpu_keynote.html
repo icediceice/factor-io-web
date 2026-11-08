@@ -244,7 +244,8 @@
 
     /* s10 sovereign stack */
     #s10 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
-    #s10 .tile { top: 0; width: 216px; height: 160px; padding: 16px; }
+    #s10 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
+    #s10 .tile + .tile { border-left-color: var(--line-2); }
     #s10 .tile .big { font-size: 42px; line-height: 1.1; }
     #s10 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
     #s10 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }

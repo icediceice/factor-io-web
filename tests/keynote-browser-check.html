@@ -174,6 +174,20 @@
         var wd = await load("?measure=1&slide=5");
         check("?slide=5 opens scene 5", wd.LightKeynote.state().cur === 4, wd.LightKeynote.state());
 
+        /* a scene opened at its final beat holds its end state: no one-shot motion replays (intended loops excepted) */
+        var wf = await load("?measure=1");
+        var replays = [], nSlides = wf.document.querySelectorAll(".slide").length;
+        for (var fi = 0; fi < nSlides; fi++) {
+          wf.LightKeynote.go(fi, "final");
+          await sleep(450);
+          var act = wf.document.querySelector(".slide.active");
+          (wf.document.getAnimations ? wf.document.getAnimations() : []).forEach(function (a) {
+            var tg = a.effect && a.effect.target, tm = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
+            if (a.animationName && tg && act.contains(tg) && a.playState === "running" && tm.iterations !== Infinity) replays.push((fi + 1) + ":" + a.animationName);
+          });
+        }
+        check("a scene opened at its final beat does not replay one-shot motion", wf.document.getAnimations && replays.length === 0, replays);
+
         /* story view */
         var ws = await load("?view=dossier&lang=en");
         var fr = [].slice.call(ws.document.querySelectorAll(".frame")), tops = fr.map(function (f) { return Math.round(f.getBoundingClientRect().top + ws.scrollY); });

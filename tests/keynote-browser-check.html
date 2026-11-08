@@ -227,6 +227,14 @@
         await settle(wf);
         var after = [].slice.call(wf.document.querySelectorAll(".slide.active"));
         check("print shows all 12 scenes, then the stage returns to the presenter's scene", printing === nSlides && after.length === 1 && after[0] === wf.document.querySelectorAll(".slide")[4] && wf.LightKeynote.state().cur === 4, { printing: printing, activeAfter: after.map(function (s) { return s.id; }) });
+        var pStage = printLayout(wf);
+        check("printing from the stage gives 12 full 1920x1080 pages, one scene each", pStage.pages === 12 && pStage.off.length === 0, pStage.off);
+
+        /* the same end state through the URL */
+        var wb = await load("?measure=1&slide=4&beat=final");
+        await sleep(450);
+        var stb = wb.LightKeynote.state(), s4 = wb.document.getElementById("s4"), mb4 = s4.getAttribute("data-times").split(",").length, run4 = oneShots(wb, s4);
+        check("?slide=4&beat=final opens scene 4 at its last beat with no one-shot motion replaying", wb.document.getAnimations && stb.cur === 3 && stb.beat === mb4 && run4.length === 0, { state: stb, lastBeat: mb4, running: run4 });
 
         /* story view */
         var ws = await load("?view=dossier&lang=en");

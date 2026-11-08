@@ -1220,9 +1220,19 @@
       bLang.addEventListener("click", function () { applyLang(lang === "en" ? "th" : "en"); });
       bView.addEventListener("click", function () { setView(view === "stage" ? "story" : "stage"); });
       window.addEventListener("resize", layout);
-      window.addEventListener("beforeprint", function () { slides.forEach(function (s, k) { s.classList.add("active"); reset(k); finalize(k); }); });
-      /* back from the print dialog: the stage shows the presenter's scene again, not the last one printed */
-      window.addEventListener("afterprint", function () { if (view === "stage") go(cur, "final"); });
+      /* printing shows every scene at its end state. Back from the dialog, the viewer gets their deck back:
+         the stage shows the presenter's scene; the scroll view returns the scenes not reached yet to unplayed,
+         so they still play as they scroll in, and leaves the ones already seen at their end state */
+      var playedBeforePrint = null;
+      window.addEventListener("beforeprint", function () {
+        if (!playedBeforePrint) playedBeforePrint = S.map(function (st) { return st.played; });
+        slides.forEach(function (s, k) { s.classList.add("active"); reset(k); finalize(k); });
+      });
+      window.addEventListener("afterprint", function () {
+        var was = playedBeforePrint; playedBeforePrint = null;
+        if (view === "stage") { go(cur, "final"); return; }
+        slides.forEach(function (s, k) { if (was && !was[k]) { reset(k); S[k].played = false; } });
+      });
 
       /* s3: advisories pile into the queue (seeded, so every render is the same) */
       function makeFlood() {

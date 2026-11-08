@@ -1255,7 +1255,7 @@
       applyLang(lang);
       if (autoplay) bPlay.setAttribute("aria-pressed", "true");
       if (view === "story") { setView("story"); }
-      else { layout(); go(cur, "play"); wake(); }
+      else { layout(); go(cur, q.get("beat") === "final" ? "final" : "play"); wake(); }
     })();
   </script>
 </body>

@@ -1011,7 +1011,7 @@
         var s = slides[i]; S[i].beat = 0;
         s.classList.add("instant");
         for (var k = 1; k <= 8; k++) s.classList.remove("b" + k);
-        s.classList.remove("on");
+        s.classList.remove("on", "fin");
         [].forEach.call(s.querySelectorAll("[data-count]"), function (el) { el.textContent = fmt(0, el.getAttribute("data-fmt")); });
         [].forEach.call(s.querySelectorAll("[data-rides]"), function (el) {
           var r = rides(el)[0], p = document.getElementById(r.path); if (p) place(el, p, lenAtX(p, r.from));

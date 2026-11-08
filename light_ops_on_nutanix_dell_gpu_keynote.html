@@ -946,10 +946,10 @@
       var cur = 0, autoplay = q.get("autoplay") === "1" && !measure, holdTimer = 0, HOLD = 5000, touched = false;
       var S = slides.map(function () { return { beat: 0, timers: [], anims: [], played: false }; });
 
-      /* English comes from the markup */
+      /* English comes from the markup. Collapse only indentation whitespace: \s would also eat a deliberate &nbsp; (U+00A0) */
       [].forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
         var k = el.getAttribute("data-i18n");
-        if (!STR.en[k]) STR.en[k] = el.textContent.replace(/\s+/g, " ").trim();
+        if (!STR.en[k]) STR.en[k] = el.textContent.replace(/[ \t\r\n\f]+/g, " ").trim();
       });
       function t(k) { return (STR[lang] && STR[lang][k]) || STR.en[k] || ""; }
       function pad(n) { return (n < 10 ? "0" : "") + n; }

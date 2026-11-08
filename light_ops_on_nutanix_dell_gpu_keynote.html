@@ -191,7 +191,7 @@
     #s4 .blk.pt { border-color: var(--ok-line); }
     #s4.b2 .blk { border-color: var(--bad); background-color: var(--bad-bg); }
     #s4 .scan { opacity: 0; transform-box: fill-box; }
-    .motion #s4.b2 .scan { animation: sweep 1.5s ease-in-out .2s both; }
+    .motion #s4.b2:not(.fin) .scan { animation: sweep 1.5s ease-in-out .2s both; }
     @keyframes sweep { 0% { opacity: 0; transform: translateX(0); } 12% { opacity: .85; } 88% { opacity: .85; transform: translateX(560px); } 100% { opacity: 0; transform: translateX(580px); } }
 
     /* s5 twin test */

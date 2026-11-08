@@ -1217,6 +1217,8 @@
       bView.addEventListener("click", function () { setView(view === "stage" ? "story" : "stage"); });
       window.addEventListener("resize", layout);
       window.addEventListener("beforeprint", function () { slides.forEach(function (s, k) { s.classList.add("active"); reset(k); finalize(k); }); });
+      /* back from the print dialog: the stage shows the presenter's scene again, not the last one printed */
+      window.addEventListener("afterprint", function () { if (view === "stage") go(cur, "final"); });
 
       /* s3: advisories pile into the queue (seeded, so every render is the same) */
       function makeFlood() {

@@ -262,7 +262,7 @@
     .slide a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; border-radius: var(--r0); }
 
     /* presentation chrome lives outside the 1920x1080 design */
-    .pitch-controls { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 4px; padding: 6px 8px; border: 1px solid var(--line-2); border-radius: 12px; background: rgba(7, 11, 19, .94); transition: opacity .4s ease; max-width: calc(100vw - 24px); }
+    .pitch-controls { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid var(--line-2); border-radius: var(--r3); background: var(--chrome-bg); transition: opacity .25s ease; max-width: calc(100vw - 24px); }
     html.idle .pitch-controls:not(:hover):not(:focus-within) { opacity: 0; }
     .brand { font: 600 15px/1 var(--mono); color: var(--t1); padding: 0 10px 0 8px; white-space: nowrap; }
     .segs { display: flex; }

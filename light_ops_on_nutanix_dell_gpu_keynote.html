@@ -1397,7 +1397,404 @@
           </div>
         </section>
 
-        <!-- SLIDES_6_TO_8 -->
+        <!-- SLIDE 06: 40,000+ CVE FUNNEL & END-TO-END LIVE HUNT TO REMEDIATION -->
+        <section class="slide-panel" data-slide-index="5" aria-label="Slide 06">
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <div class="eyebrow-row">
+                <span class="eyebrow-tag">06 · END-TO-END AUTONOMOUS HUNT TO GOVERNED FIX</span>
+                <span class="eyebrow-tag emerald" data-i18n="s6.badge2">40,000+ CVE FUNNEL -> TREE-SITTER REACHABILITY</span>
+                <span class="eyebrow-tag rose" data-i18n="s6.badge3">CVE-2026-109618 (PHP2SHELL) LIVE CASE</span>
+              </div>
+              <h2 class="slide-title" data-i18n="s6.title">From 40,000+ Noisy CVEs to Surgical Reachability &amp; Governed Containment</h2>
+              <p class="slide-sub" data-i18n="s6.sub">Traditional scanners dump thousands of unexploitable package alerts. Light Ops combines offline ed25519-signed CVE feeds, Tree-Sitter symbol reachability, and our internal Cyber Model to isolate the exact exploitable paths—and remediate them under EDCR lock.</p>
+            </div>
+            <div class="header-stat-pill">
+              <div class="header-stat-label" data-i18n="s6.statLabel">NOISE REDUCTION / CONTAINMENT</div>
+              <div class="header-stat-value" data-i18n="s6.statVal">40,000+ CVEs → 3 Reachable</div>
+            </div>
+          </div>
+
+          <div class="bento-2col">
+            <div class="surface-card highlight-cyan">
+              <div class="card-head">
+                <div>
+                  <span class="eyebrow-tag" data-i18n="s6.simTag">INTERACTIVE LIVE SCENE · PHP2SHELL (CVE-2026-109618) CONTAINMENT</span>
+                  <h3 class="card-title" style="margin-top:5px;" data-i18n="s6.simTitle">Scrub Through the 5-Stage Funnel &amp; Live Attack-to-Fix Timeline</h3>
+                </div>
+                <div class="seg-bar" role="group" aria-label="Live Hunt Scene Selector">
+                  <button type="button" class="seg-btn is-active" data-hunt-step="0" data-i18n="s6.btnStep1">Scene 1: 40k CVE Funnel</button>
+                  <button type="button" class="seg-btn" data-hunt-step="1" data-i18n="s6.btnStep2">Scene 2: Red-Analyze Proof</button>
+                  <button type="button" class="seg-btn" data-hunt-step="2" data-i18n="s6.btnStep3">Scene 3: Governed Patch &amp; Verify</button>
+                </div>
+              </div>
+
+              <div class="motion-stage">
+                <div class="svg-canvas-wrap">
+                  <svg viewBox="0 0 860 175" width="100%" height="165" role="img" aria-label="Five-Stage CVE Reachability Funnel Motion Graphic">
+                    <!-- Funnel Stage 1: 40,000+ Raw CVEs -->
+                    <polygon points="25,18 195,30 195,145 25,157" fill="#152033" stroke="#36507A" stroke-width="2" />
+                    <line x1="50" y1="55" x2="180" y2="58" stroke="#94A3B8" stroke-width="2.5" class="anim-beam" />
+                    <line x1="50" y1="88" x2="180" y2="88" stroke="#38BDF8" stroke-width="3" class="anim-beam-fast" />
+                    <line x1="50" y1="120" x2="180" y2="116" stroke="#94A3B8" stroke-width="2.5" class="anim-beam" />
+
+                    <!-- Funnel Stage 2: OS-Native + NVD Recognition -->
+                    <polygon points="205,32 375,44 375,131 205,143" fill="#0F1726" stroke="#38BDF8" stroke-width="2" />
+                    <line x1="220" y1="70" x2="360" y2="74" stroke="#38BDF8" stroke-width="3" class="anim-beam-fast" />
+                    <line x1="220" y1="105" x2="360" y2="101" stroke="#38BDF8" stroke-width="3" class="anim-beam" />
+
+                    <!-- Funnel Stage 3: Tree-Sitter OSV Symbol Reachability -->
+                    <polygon points="385,46 555,58 555,117 385,129" fill="#0B253A" stroke="#38BDF8" stroke-width="2.2" />
+                    <line x1="400" y1="88" x2="545" y2="88" stroke="#34D399" stroke-width="3.5" class="anim-beam-fast" />
+
+                    <!-- Funnel Stage 4: Internal Cyber Model Twin Verification -->
+                    <polygon points="565,58 705,65 705,110 565,117" fill="#082921" stroke="#34D399" stroke-width="2.2" />
+                    <circle cx="635" cy="88" r="10" fill="#34D399" class="anim-beacon" />
+
+                    <!-- Output Node: 3 Proven Actionable Plans -->
+                    <rect id="huntOutBox" x="720" y="45" width="122" height="86" rx="10" fill="#082921" stroke="#34D399" stroke-width="2.5" />
+                    <circle id="huntOutOrb" cx="781" cy="88" r="14" fill="#34D399" class="anim-beacon" />
+                  </svg>
+                </div>
+
+                <div class="console-box" id="huntConsoleBox">
+                  <div class="console-line"><span style="color:#38BDF8;">[ed25519 Feed + OSV]</span> <span id="huntLine1">42,180 raw advisories -> 412 installed packages -> 19 KEV/EPSS active -> 3 symbols actually called in AST (`Tree-Sitter`).</span></div>
+                  <div class="console-line"><span style="color:#FBBF24;">[Internal Cyber Model]</span> <span id="huntLine2">Suppresses 16 guarded packages (`SUPPRESS`); escalates CVE-2026-109618 on `web-edge-01` with `preview_digest` proof.</span></div>
+                  <div class="console-line"><span style="color:#34D399;" id="huntLine3Tag">[EDCR Plan + Receipt]</span> <span id="huntLine3">Operator approves Plan Manifest -> applies surgical patch -> `light_ops` confirms HTTP 200 &amp; exploit payload 403 blocked.</span></div>
+                </div>
+              </div>
+
+              <div class="kpi-strip-3">
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-cyan);" data-i18n="s6.k1Title">ed25519 Offline Bundle</div>
+                  <div class="kpi-sub" data-i18n="s6.k1Body">Cryptographically signed vulnerability feed works in air-gapped sites.</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-emerald);" data-i18n="s6.k2Title">Tree-Sitter Symbol Proof</div>
+                  <div class="kpi-sub" data-i18n="s6.k2Body">Proves whether the vulnerable function is actually reachable in code.</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-amber);" data-i18n="s6.k3Title">6 Closed Evidence Lanes</div>
+                  <div class="kpi-sub" data-i18n="s6.k3Body">Combines process, port, systemd, log, OpenSCAP CIS/STIG, and AST facts.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-stack">
+              <div class="surface-card highlight-emerald" style="flex:1;">
+                <div class="card-head">
+                  <div>
+                    <span class="eyebrow-tag emerald" data-i18n="s6.rTag">6 OPERATOR PROMISES · ZERO-GAP COVERAGE</span>
+                    <h3 class="card-title" style="margin-top:5px;" data-i18n="s6.rTitle">What Every Enterprise Operator Gets Out of the Box</h3>
+                  </div>
+                </div>
+                <ul class="feature-list">
+                  <li class="feature-item">
+                    <span class="feature-badge emerald">01 · HUNT</span>
+                    <span data-i18n="s6.p1"><strong>Multi-Hop Code &amp; Infra Threat Hunting:</strong> Correlates live host processes/ports (`light_ops`) with source-code sinks (`light_analyze`).</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge">02 · TRIAGE</span>
+                    <span data-i18n="s6.p2"><strong>Zero Alert Fatigue on Patched Code:</strong> Verifies upstream sanitizers and suppresses non-reachable CVEs (`0.0%` holdout FP).</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge amber">03 · GOVERN</span>
+                    <span data-i18n="s6.p3"><strong>Deterministic Execution Lock:</strong> Every remediation requires an approved Plan Manifest (`targets[]`, `requests[]`, `step:N`).</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge violet">04 · AUDIT</span>
+                    <span data-i18n="s6.p4"><strong>OpenSCAP CIS/STIG &amp; Compliance Receipts:</strong> Automated hardening drift checks with immutable SHA-256 execution receipts.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-drawer" data-i18n="s6.dossier">
+            <strong>Partner Executive Brief (Slide 06):</strong> Security teams hate vulnerability scanners because 95%+ of reported CVEs live in unused library functions. Light Ops parses the actual Abstract Syntax Tree (Tree-Sitter) and uses our internal Cyber Model to prove reachability before ever waking up an engineer.
+          </div>
+        </section>
+
+        <!-- SLIDE 07: NUTANIX AHV + DELL POWEREDGE GPU SOVEREIGN APPLIANCE -->
+        <section class="slide-panel" data-slide-index="6" aria-label="Slide 07">
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <div class="eyebrow-row">
+                <span class="eyebrow-tag">07 · TURNKEY HARDWARE &amp; CLOUD PLATFORM</span>
+                <span class="eyebrow-tag emerald" data-i18n="s7.badge2">DELL POWEREDGE + NVIDIA GPU (100% CUDA OFFLOAD)</span>
+                <span class="eyebrow-tag violet" data-i18n="s7.badge3">NUTANIX AHV · PRISM · FLOW · KARBON (`light.ova`)</span>
+              </div>
+              <h2 class="slide-title" data-i18n="s7.title">Sovereign Turnkey Stack: Nutanix Cloud Platform + Dell PowerEdge GPU</h2>
+              <p class="slide-sub" data-i18n="s7.sub">Deploys in 15 minutes as a hardened virtual appliance (`light.ova`) on Nutanix AHV backed by Dell PowerEdge NVIDIA GPUs. Verified on-box `gpu.json` telemetry proves 100% CUDA layer offload with 0% CPU fallback and 0 bytes of external egress.</p>
+            </div>
+            <div class="header-stat-pill">
+              <div class="header-stat-label" data-i18n="s7.statLabel">GPU WITNESS / DEPLOY TIME</div>
+              <div class="header-stat-value" data-i18n="s7.statVal">100% CUDA · 15m OVA Deploy</div>
+            </div>
+          </div>
+
+          <div class="bento-2col">
+            <div class="surface-card highlight-cyan">
+              <div class="card-head">
+                <div>
+                  <span class="eyebrow-tag" data-i18n="s7.simTag">INTERACTIVE SIZING &amp; ARCHITECTURE INSPECTOR</span>
+                  <h3 class="card-title" style="margin-top:5px;" data-i18n="s7.simTitle">Select Customer Footprint to Size Dell PowerEdge GPU + Nutanix AHV</h3>
+                </div>
+                <div class="seg-bar" role="group" aria-label="Appliance Tier Selector">
+                  <button type="button" class="seg-btn is-active" data-tier-case="starter" data-i18n="s7.btnStarter">Tier 1: Commercial SOC (≤250 VMs)</button>
+                  <button type="button" class="seg-btn" data-tier-case="regulated" data-i18n="s7.btnRegulated">Tier 2: Regulated Banking / Gov (≤1,000 VMs)</button>
+                  <button type="button" class="seg-btn" data-tier-case="enterprise" data-i18n="s7.btnEnterprise">Tier 3: Telco / National Grid (5,000+ VMs)</button>
+                </div>
+              </div>
+
+              <div class="motion-stage">
+                <div class="svg-canvas-wrap">
+                  <svg viewBox="0 0 860 175" width="100%" height="165" role="img" aria-label="Nutanix AHV and Dell PowerEdge GPU Layered Architecture">
+                    <!-- Layer 1: Light Ops Virtual Appliance (light.ova) -->
+                    <g transform="translate(20, 14)">
+                      <rect width="820" height="44" rx="8" fill="#0B253A" stroke="#38BDF8" stroke-width="2" />
+                      <circle cx="28" cy="22" r="7" fill="#38BDF8" class="anim-beacon" />
+                      <line x1="50" y1="22" x2="290" y2="22" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+                      <line x1="330" y1="22" x2="790" y2="22" stroke="#34D399" stroke-width="3" class="anim-beam-fast" />
+                    </g>
+
+                    <!-- Layer 2: Nutanix Cloud Platform (AHV + Prism + Flow + NKP) -->
+                    <g transform="translate(20, 68)">
+                      <rect width="820" height="44" rx="8" fill="#221338" stroke="#C084FC" stroke-width="2" />
+                      <circle cx="28" cy="22" r="7" fill="#C084FC" class="anim-beacon" />
+                      <line x1="50" y1="22" x2="290" y2="22" stroke="#C084FC" stroke-width="4" stroke-linecap="round" />
+                      <line x1="330" y1="22" x2="790" y2="22" stroke="#C084FC" stroke-width="3" class="anim-beam" />
+                    </g>
+
+                    <!-- Layer 3: Dell PowerEdge + NVIDIA Enterprise GPU (100% CUDA Tensor Offload) -->
+                    <g transform="translate(20, 122)">
+                      <rect width="820" height="44" rx="8" fill="#082921" stroke="#34D399" stroke-width="2.2" />
+                      <circle cx="28" cy="22" r="7" fill="#34D399" class="anim-beacon" />
+                      <line x1="50" y1="22" x2="290" y2="22" stroke="#34D399" stroke-width="4" stroke-linecap="round" />
+                      <!-- Animated GPU Tensor Bars -->
+                      <g transform="translate(335, 11)">
+                        <rect x="0" y="0" width="14" height="22" rx="2" fill="#34D399" />
+                        <rect x="20" y="3" width="14" height="19" rx="2" fill="#34D399" />
+                        <rect x="40" y="1" width="14" height="21" rx="2" fill="#38BDF8" />
+                        <rect x="60" y="0" width="14" height="22" rx="2" fill="#34D399" />
+                        <rect x="80" y="2" width="14" height="20" rx="2" fill="#38BDF8" />
+                        <rect x="100" y="0" width="14" height="22" rx="2" fill="#34D399" />
+                        <rect x="120" y="1" width="14" height="21" rx="2" fill="#34D399" />
+                      </g>
+                    </g>
+                  </svg>
+                </div>
+
+                <div class="console-box" id="tierConsoleBox">
+                  <div class="console-line"><span style="color:#38BDF8;">[Hardware Bill of Materials]</span> <span id="tierBomText">1x Dell PowerEdge R760xa (1–2x NVIDIA L40S 48GB GPU) + 3-Node Nutanix AHV Cluster.</span></div>
+                  <div class="console-line"><span style="color:#C084FC;">[Appliance &amp; Governance]</span> <span id="tierOvaText">Single `light.ova` deployment via Nutanix Prism Central; full EDCR gate + Internal Fine-Tuned Cyber Model on-box.</span></div>
+                  <div class="console-line"><span style="color:#34D399;">[Customer Outcome &amp; ROI]</span> <span id="tierRoiText">Covers up to 250 workloads + 40 code repos; cuts MTTR from 14 days to &lt;15 minutes with 0 external token fees.</span></div>
+                </div>
+              </div>
+
+              <div class="kpi-strip-3">
+                <div class="kpi-box">
+                  <div class="kpi-num emerald" id="tierGpuKpi">1–2x L40S</div>
+                  <div class="kpi-label" data-i18n="s7.k1Label">Dell PowerEdge GPU Spec</div>
+                  <div class="kpi-sub" data-i18n="s7.k1Sub">100% CUDA offload (`gpu.json` verified)</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-num violet" id="tierNodesKpi">3 Nodes</div>
+                  <div class="kpi-label" data-i18n="s7.k2Label">Nutanix AHV Footprint</div>
+                  <div class="kpi-sub" data-i18n="s7.k2Sub">Prism + Flow + NKP Kubernetes native</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-num cyan" id="tierSavingsKpi">88% Faster</div>
+                  <div class="kpi-label" data-i18n="s7.k3Label">Triage &amp; Patch Velocity</div>
+                  <div class="kpi-sub" data-i18n="s7.k3Sub">Zero false alarms on patched twins</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-stack">
+              <div class="surface-card highlight-violet" style="flex:1;">
+                <div class="card-head">
+                  <div>
+                    <span class="eyebrow-tag violet" data-i18n="s7.rTag">FULL-STACK INTEGRATION</span>
+                    <h3 class="card-title" style="margin-top:5px;" data-i18n="s7.rTitle">Why Dell + Nutanix + Light Ops Wins Every Sovereign RFP</h3>
+                  </div>
+                </div>
+                <ul class="feature-list">
+                  <li class="feature-item">
+                    <span class="feature-badge emerald">DELL GPU</span>
+                    <span data-i18n="s7.b1"><strong>Dell PowerEdge R760xa / XE9680:</strong> Dedicated NVIDIA L40S / H100 PCIe tensor lanes run our internal Cyber Model at low latency with hardware root-of-trust (iDRAC Silicon RoT).</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge violet">NUTANIX AHV</span>
+                    <span data-i18n="s7.b2"><strong>Nutanix AHV, Flow &amp; NKP (`light_nkp`):</strong> Native integration with Nutanix Kubernetes Platform (`light_nkp` typed `kubectl`/`helm` governance), Prism VM snapshots, and Objects WORM audit storage.</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge">LIGHT OVA</span>
+                    <span data-i18n="s7.b3"><strong>Hardened Virtual Appliance (`light.ova`):</strong> Ships pre-loaded with our internal fine-tuned Cyber Model weights, offline ed25519 CVE feed, and the EDCR governance control plane.</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge amber">PDPA / AIR-GAP</span>
+                    <span data-i18n="s7.b4"><strong>True Air-Gap &amp; Sovereign Compliance:</strong> Zero outbound API calls, zero cloud telemetry leakage, and full Thai PDPA / Bank of Thailand / Defense compliance out of the box.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-drawer" data-i18n="s7.dossier">
+            <strong>Partner Executive Brief (Slide 07):</strong> For Dell and Nutanix account executives, Light Ops is the killer enterprise workload that justifies immediate GPU-acceleratedHCI refreshes. Instead of selling bare GPU servers for vague "future AI experiments," partners sell a turnkey, production-ready Sovereign Threat Hunting &amp; Governance Appliance with immediate CISO budget attached.
+          </div>
+        </section>
+
+        <!-- SLIDE 08: PARTNER GTM, COMMERCIAL MODEL & 30-DAY POV PLAYBOOK -->
+        <section class="slide-panel" data-slide-index="7" aria-label="Slide 08">
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <div class="eyebrow-row">
+                <span class="eyebrow-tag">08 · PARTNER RECRUITMENT &amp; JOINT GTM</span>
+                <span class="eyebrow-tag emerald" data-i18n="s8.badge2">HIGH-MARGIN HARDWARE + SOFTWARE + SERVICES BUNDLE</span>
+                <span class="eyebrow-tag amber" data-i18n="s8.badge3">30-DAY TURNKEY POV PLAYBOOK</span>
+              </div>
+              <h2 class="slide-title" data-i18n="s8.title">Partner With Us: Turn Every Nutanix &amp; Dell GPU Deal Into a Sovereign Cyber Win</h2>
+              <p class="slide-sub" data-i18n="s8.sub">We equip Dell Technologies and Nutanix partners with a complete, repeatable Go-To-Market motion—combining hardware pull-through, annual Light Ops appliance licensing, and partner-led deployment &amp; managed governance services.</p>
+            </div>
+            <div class="header-stat-pill">
+              <div class="header-stat-label" data-i18n="s8.statLabel">PARTNER POV CONVERSION VELOCITY</div>
+              <div class="header-stat-value" data-i18n="s8.statVal">30-Day PoV · 3x Deal Pull-Through</div>
+            </div>
+          </div>
+
+          <div class="bento-2col">
+            <div class="surface-card highlight-emerald">
+              <div class="card-head">
+                <div>
+                  <span class="eyebrow-tag emerald" data-i18n="s8.mTag">30-DAY PARTNER PROOF-OF-VALUE (POV) VELOCITY FLYWHEEL</span>
+                  <h3 class="card-title" style="margin-top:5px;" data-i18n="s8.mTitle">How We Close Enterprise Accounts Together in 4 Weeks</h3>
+                </div>
+              </div>
+
+              <div class="motion-stage">
+                <div class="svg-canvas-wrap">
+                  <svg viewBox="0 0 860 155" width="100%" height="145" role="img" aria-label="30-Day Partner PoV Execution Timeline">
+                    <!-- Week 1 -->
+                    <g transform="translate(15, 22)">
+                      <rect width="190" height="105" rx="10" fill="#0F1726" stroke="#38BDF8" stroke-width="2" />
+                      <circle cx="30" cy="34" r="9" fill="#38BDF8" class="anim-beacon" />
+                      <line x1="50" y1="34" x2="165" y2="34" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+                      <line x1="25" y1="65" x2="165" y2="65" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+                      <line x1="25" y1="84" x2="135" y2="84" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <line x1="205" y1="74" x2="230" y2="74" stroke="#38BDF8" stroke-width="3.5" class="anim-beam-fast" />
+
+                    <!-- Week 2 -->
+                    <g transform="translate(230, 22)">
+                      <rect width="190" height="105" rx="10" fill="#0F1726" stroke="#C084FC" stroke-width="2" />
+                      <circle cx="30" cy="34" r="9" fill="#C084FC" class="anim-beacon" />
+                      <line x1="50" y1="34" x2="165" y2="34" stroke="#C084FC" stroke-width="4" stroke-linecap="round" />
+                      <line x1="25" y1="65" x2="165" y2="65" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+                      <line x1="25" y1="84" x2="135" y2="84" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <line x1="420" y1="74" x2="445" y2="74" stroke="#C084FC" stroke-width="3.5" class="anim-beam-fast" />
+
+                    <!-- Week 3 -->
+                    <g transform="translate(445, 22)">
+                      <rect width="190" height="105" rx="10" fill="#0F1726" stroke="#FBBF24" stroke-width="2" />
+                      <circle cx="30" cy="34" r="9" fill="#FBBF24" class="anim-beacon" />
+                      <line x1="50" y1="34" x2="165" y2="34" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" />
+                      <line x1="25" y1="65" x2="165" y2="65" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+                      <line x1="25" y1="84" x2="135" y2="84" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <line x1="635" y1="74" x2="660" y2="74" stroke="#34D399" stroke-width="3.5" class="anim-beam-fast" />
+
+                    <!-- Week 4 -->
+                    <g transform="translate(660, 22)">
+                      <rect width="185" height="105" rx="10" fill="#082921" stroke="#34D399" stroke-width="2.5" />
+                      <circle cx="30" cy="34" r="9" fill="#34D399" class="anim-beacon" />
+                      <line x1="50" y1="34" x2="160" y2="34" stroke="#34D399" stroke-width="4" stroke-linecap="round" />
+                      <line x1="25" y1="65" x2="160" y2="65" stroke="#F8FAFC" stroke-width="3" stroke-linecap="round" />
+                      <line x1="25" y1="84" x2="135" y2="84" stroke="#34D399" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                  </svg>
+                </div>
+
+                <div class="kpi-strip">
+                  <div class="kpi-box">
+                    <div class="kpi-label" style="color:var(--accent-cyan);" data-i18n="s8.w1Title">Week 1 · OVA Drop</div>
+                    <div class="kpi-sub" data-i18n="s8.w1Body">Deploy `light.ova` on customer or partner Nutanix + Dell GPU lab in 15m; connect read-only SSH/repo targets.</div>
+                  </div>
+                  <div class="kpi-box">
+                    <div class="kpi-label" style="color:var(--accent-violet);" data-i18n="s8.w2Title">Week 2 · Blind Hunt</div>
+                    <div class="kpi-sub" data-i18n="s8.w2Body">Run 40k+ CVE funnel &amp; Internal Cyber Model twin sweep; eliminate 90%+ false-positive backlog.</div>
+                  </div>
+                  <div class="kpi-box">
+                    <div class="kpi-label" style="color:var(--accent-amber);" data-i18n="s8.w3Title">Week 3 · Gate Drill</div>
+                    <div class="kpi-sub" data-i18n="s8.w3Body">Live CISO &amp; CAB stress-test: prove unapproved/hallucinated commands are blocked at wire level.</div>
+                  </div>
+                  <div class="kpi-box">
+                    <div class="kpi-label" style="color:var(--accent-emerald);" data-i18n="s8.w4Title">Week 4 · BOM Sign-Off</div>
+                    <div class="kpi-sub" data-i18n="s8.w4Body">Deliver executive risk-reduction report + full Dell PowerEdge GPU + Nutanix + Light Ops commercial quote.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-strip-3">
+                <div class="kpi-box">
+                  <div class="kpi-num cyan" data-i18n="s8.k1Val">Hardware Pull-Through</div>
+                  <div class="kpi-label" data-i18n="s8.k1Label">Dell R760xa / XE + Nutanix HCI</div>
+                  <div class="kpi-sub" data-i18n="s8.k1Sub">Unlocks CISO security budget for GPU + HCI expansion</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-num emerald" data-i18n="s8.k2Val">Recurring Margin</div>
+                  <div class="kpi-label" data-i18n="s8.k2Label">Annual Appliance + Cyber Feed</div>
+                  <div class="kpi-sub" data-i18n="s8.k2Sub">Protected partner deal registration &amp; renewal margin</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-num amber" data-i18n="s8.k3Val">Partner Services</div>
+                  <div class="kpi-label" data-i18n="s8.k3Label">Deployment &amp; Managed SOC/Ops</div>
+                  <div class="kpi-sub" data-i18n="s8.k3Sub">High-margin implementation, custom runbooks &amp; MSSP</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-stack">
+              <div class="surface-card highlight-cyan" style="flex:1;">
+                <div class="card-head">
+                  <div>
+                    <span class="eyebrow-tag" data-i18n="s8.rTag">PARTNER RECRUITMENT CHARTER · FACTOR.IO STUDIO</span>
+                    <h3 class="card-title" style="margin-top:5px;" data-i18n="s8.rTitle">Target Industries &amp; Immediate Next Steps</h3>
+                  </div>
+                </div>
+                <p class="card-body" data-i18n="s8.rBody">We are recruiting select Dell Technologies and Nutanix solution partners to lead sovereign cyber-AI deployments across Banking &amp; FSI, Government &amp; Defense, Healthcare, Telecom, and Critical Energy/Manufacturing.</p>
+                <ul class="feature-list">
+                  <li class="feature-item">
+                    <span class="feature-badge emerald">STEP 01</span>
+                    <span data-i18n="s8.s1"><strong>Joint Account Mapping:</strong> Identify 3 existing Nutanix or Dell accounts struggling with vulnerability backlog, audit compliance, or cloud-AI data sovereignty blocks.</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge">STEP 02</span>
+                    <span data-i18n="s8.s2"><strong>Live Demo &amp; NFR Appliance Kit:</strong> Factor.io engineers co-deliver the live PHP2Shell + EDCR Gate demonstration and provision partner NFR `light.ova` images.</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge amber">STEP 03</span>
+                    <span data-i18n="s8.s3"><strong>Co-Branded Executive PoV:</strong> Launch a 30-day customer PoV with full engineering backing from Factor.io Studio.</span>
+                  </li>
+                </ul>
+                <div class="kpi-box" style="border-color:var(--accent-cyan-border); background-color:var(--accent-cyan-bg);">
+                  <div class="kpi-label" style="color:var(--accent-cyan);" data-i18n="s8.ctaTitle">BOOK YOUR PARTNER ONBOARDING &amp; LIVE DEMO SESSION</div>
+                  <div class="kpi-sub" style="color:var(--text-primary); margin-top:4px;">
+                    <span data-i18n="s8.ctaBody">Contact Factor.io Studio Partner Team:</span>
+                    <strong><!--email_off--><a href="mailto:admin@factor-io.com" style="color:var(--accent-cyan); margin-left:6px;">admin@factor-io.com</a><!--/email_off--></strong>
+                    <span style="margin-left:10px; font-family:var(--font-mono);">https://studio.factor-io.com</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-drawer" data-i18n="s8.dossier">
+            <strong>Partner Executive Brief (Slide 08):</strong> Share this URL (`https://studio.factor-io.com/light_ops_on_nutanix_dell_gpu_keynote.html?lang=th` or `?lang=en`) directly with Dell and Nutanix partner executives and customer stakeholders. Toggle "Dossier Mode" in the top bar at any time to read or print all 8 slides as a continuous technical brief.
+          </div>
+        </section>
       </div>
 
       <footer class="bottom-bar">

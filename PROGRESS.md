@@ -1,7 +1,7 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-10-27 (demo.factor-io.com: one-click control app for the chat demo, 6 h cap)
+> Last updated: 2026-11-08 (Light Ops partner keynote rebuilt as a 12-scene motion-graphic journey)
 
 ## Current Focus
 

@@ -47,7 +47,9 @@
             var ready = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
             ready.then(function () { return sleep(200); }).then(function () { resolve(w); });
           };
-          frame.src = DECK + qs;
+          /* a fresh URL per run: a static server sends Last-Modified without Cache-Control, so a repeat run
+             inside Chrome's heuristic freshness window would otherwise measure the previous bytes of the deck */
+          frame.src = DECK + qs + (qs.indexOf("?") < 0 ? "?" : "&") + "run=" + RUN;
         });
       }
       function check(name, pass, detail) { out.checks.push({ name: name, pass: !!pass, detail: detail === undefined ? null : detail }); }

@@ -979,7 +979,425 @@
           </div>
         </section>
 
-        <!-- SLIDES_3_TO_8 -->
+        <!-- SLIDE 03: INTERNAL FINE-TUNED CYBER MODEL -->
+        <section class="slide-panel" data-slide-index="2" aria-label="Slide 03">
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <div class="eyebrow-row">
+                <span class="eyebrow-tag">03 · LAYER 1: INTERNAL CYBER MODEL</span>
+                <span class="eyebrow-tag emerald" data-i18n="s3.badge2">SFT + TRACE-COT + GRPO/DAPO RLVR</span>
+                <span class="eyebrow-tag" data-i18n="s3.badge3">ANTI-SHORTCUT TWIN TRAINING</span>
+              </div>
+              <h2 class="slide-title" data-i18n="s3.title">How Our Internal Fine-Tuned Cyber Model Hunts Real Threats Without Alert Fatigue</h2>
+              <p class="slide-sub" data-i18n="s3.sub">Instead of pattern-matching keywords, our internal Cyber Watchdog model uses multi-hop code &amp; infra tools (`light_analyze`, `light_cve`, `light_ops`) to trace from entry route to caller sanitizer to sink—and ignores adversarial prompt-injection comments.</p>
+            </div>
+            <div class="header-stat-pill">
+              <div class="header-stat-label" data-i18n="s3.statLabel">BLIND HUNT / POISON RESISTANCE</div>
+              <div class="header-stat-value" data-i18n="s3.statVal">93.3% Blind · 0/95 Flips</div>
+            </div>
+          </div>
+
+          <div class="bento-2col">
+            <div class="surface-card highlight-cyan">
+              <div class="card-head">
+                <div>
+                  <span class="eyebrow-tag" data-i18n="s3.simTag">INTERACTIVE SIMULATOR · MULTI-HOP CALL-GRAPH TRACER</span>
+                  <h3 class="card-title" style="margin-top:5px;" data-i18n="s3.simTitle">Test Our Internal Model on Vulnerable vs. Patched Twins &amp; Poisoned Code</h3>
+                </div>
+                <div class="seg-bar" role="group" aria-label="Twin Case Selector">
+                  <button type="button" class="seg-btn is-active" data-twin-case="escalate" data-i18n="s3.btnEscalate">1. Vulnerable Twin (ESCALATE)</button>
+                  <button type="button" class="seg-btn" data-twin-case="suppress" data-i18n="s3.btnSuppress">2. Guarded Twin (SUPPRESS)</button>
+                  <button type="button" class="seg-btn" data-twin-case="poison" data-i18n="s3.btnPoison">3. Poisoned Comment Lure</button>
+                </div>
+              </div>
+
+              <div class="motion-stage">
+                <div class="svg-canvas-wrap">
+                  <svg viewBox="0 0 860 175" width="100%" height="165" role="img" aria-label="Multi-Hop AST and Call-Graph Threat Hunt">
+                    <g transform="translate(20, 36)">
+                      <rect width="175" height="92" rx="10" fill="#0F1726" stroke="#38BDF8" stroke-width="2" />
+                      <circle cx="28" cy="46" r="8" fill="#38BDF8" class="anim-beacon" />
+                      <line x1="48" y1="34" x2="152" y2="34" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+                      <line x1="48" y1="54" x2="132" y2="54" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <line id="twinBeam1" x1="195" y1="82" x2="255" y2="82" stroke="#38BDF8" stroke-width="3.5" class="anim-beam-fast" />
+                    <g transform="translate(255, 26)">
+                      <rect id="twinGuardBox" width="205" height="112" rx="12" fill="#0F1726" stroke="#FB7185" stroke-width="2.5" />
+                      <circle id="twinGuardOrb" cx="32" cy="56" r="11" fill="#FB7185" class="anim-beacon" />
+                      <line x1="56" y1="38" x2="180" y2="38" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round" />
+                      <line x1="56" y1="58" x2="164" y2="58" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+                      <line x1="56" y1="78" x2="140" y2="78" stroke="#FB7185" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <line id="twinBeam2" x1="460" y1="82" x2="520" y2="82" stroke="#FB7185" stroke-width="3.5" class="anim-beam-fast" />
+                    <g transform="translate(520, 36)">
+                      <rect id="twinSinkBox" width="165" height="92" rx="10" fill="#0F1726" stroke="#FB7185" stroke-width="2" />
+                      <line x1="24" y1="34" x2="140" y2="34" stroke="#FB7185" stroke-width="4" stroke-linecap="round" />
+                      <line x1="24" y1="56" x2="120" y2="56" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+                    </g>
+                    <line id="twinBeam3" x1="685" y1="82" x2="725" y2="82" stroke="#FB7185" stroke-width="3.5" class="anim-beam" />
+                    <g transform="translate(725, 36)">
+                      <rect id="twinVerdictBox" width="118" height="92" rx="10" fill="#2E101B" stroke="#FB7185" stroke-width="2.5" />
+                      <circle id="twinVerdictDot" cx="59" cy="46" r="15" fill="#FB7185" class="anim-beacon" />
+                    </g>
+                  </svg>
+                </div>
+
+                <div class="console-box" id="twinConsoleBox">
+                  <div class="console-line"><span style="color:#38BDF8;">[Hop 1 · light_analyze]</span> <span id="twinHop1Text">symbol="run_diagnostic_ping" -> locates sink subprocess.Popen(cmd, shell=True) at api/diag.py:84</span></div>
+                  <div class="console-line"><span style="color:#FBBF24;">[Hop 2 · Upstream Guard]</span> <span id="twinHop2Text">caller="post_webhook_diag" (routes/webhook.py:41) passes raw request.json['host'] with ZERO allowlist or shlex sanitizer</span></div>
+                  <div class="console-line"><span style="color:#FB7185;" id="twinVerdictLabel">[Verdict · ESCALATE]</span> <span id="twinVerdictText">Internal Cyber Model emits strict EscalateVerdict (reachable=true, cve="CVE-2026-109618"). Stock 27B LLM failed JSON schema.</span></div>
+                </div>
+              </div>
+
+              <div class="kpi-strip-3">
+                <div class="kpi-box">
+                  <div class="kpi-num emerald">1.90</div>
+                  <div class="kpi-label" data-i18n="s3.k1Label">Mean Tool Hops (Blind Hunt)</div>
+                  <div class="kpi-sub" data-i18n="s3.k1Sub">Finds sink + verifies caller guard without hints</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-num cyan">100.0%</div>
+                  <div class="kpi-label" data-i18n="s3.k2Label">Seeded SARIF Hunt Accuracy</div>
+                  <div class="kpi-sub" data-i18n="s3.k2Sub">Lifts from 93.3% blind to 100% with 1-line locator</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-num emerald">0 / 95</div>
+                  <div class="kpi-label" data-i18n="s3.k3Label">Poisoned Artifact Flips</div>
+                  <div class="kpi-sub" data-i18n="s3.k3Sub">Immune to fake "# sanitized upstream" lures</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-stack">
+              <div class="surface-card" style="flex:1;">
+                <div class="card-head">
+                  <div>
+                    <span class="eyebrow-tag emerald" data-i18n="s3.tTag">VERIFIED BENCHMARK HARNESS · CYBER-CORPUS PASS-5 / PASS-6</span>
+                    <h3 class="card-title" style="margin-top:5px;" data-i18n="s3.tTitle">Internal Fine-Tuned Cyber Model vs. Out-of-the-Box Local Baseline</h3>
+                  </div>
+                </div>
+
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th data-i18n="s3.thMetric">Evaluation Benchmark</th>
+                      <th data-i18n="s3.thStock">Out-of-the-Box Local 27B</th>
+                      <th data-i18n="s3.thOurs">Light Internal Cyber Model</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-i18n="s3.r1M"><strong>Paired Twin Holdout</strong> (ESCALATE + SUPPRESS both right)</td>
+                      <td style="color:var(--accent-rose); font-family:var(--font-mono); font-weight:700;">0.0% (0/100)</td>
+                      <td style="color:var(--accent-emerald); font-family:var(--font-mono); font-weight:700;">100.0% (75/75 pairs)</td>
+                    </tr>
+                    <tr>
+                      <td data-i18n="s3.r2M"><strong>Patched Twin False-Positive Rate</strong> (`SUPPRESS` twins)</td>
+                      <td style="color:var(--accent-rose); font-family:var(--font-mono); font-weight:700;">100.0% / 65.0% (PrimeVul)</td>
+                      <td style="color:var(--accent-emerald); font-family:var(--font-mono); font-weight:700;">0.0% (0 False Alarms)</td>
+                    </tr>
+                    <tr>
+                      <td data-i18n="s3.r3M"><strong>Zero-Hint Blind Repo Threat Hunt</strong> (No file/line seed)</td>
+                      <td style="color:var(--accent-rose); font-family:var(--font-mono);">Fails to converge</td>
+                      <td style="color:var(--accent-cyan); font-family:var(--font-mono); font-weight:700;">93.3% (100% w/ SARIF seed)</td>
+                    </tr>
+                    <tr>
+                      <td data-i18n="s3.r4M"><strong>Light MCP Tool Schema Validity</strong> (First-try strict call)</td>
+                      <td style="color:var(--accent-amber); font-family:var(--font-mono);">68.6% (583/850)</td>
+                      <td style="color:var(--accent-emerald); font-family:var(--font-mono); font-weight:700;">100.0% (150/150)</td>
+                    </tr>
+                    <tr>
+                      <td data-i18n="s3.r5M"><strong>Read-Only Command Pool Confinement</strong></td>
+                      <td style="color:var(--accent-amber); font-family:var(--font-mono);">65.0% (493/758)</td>
+                      <td style="color:var(--accent-emerald); font-family:var(--font-mono); font-weight:700;">100.0% (0 violations)</td>
+                    </tr>
+                    <tr>
+                      <td data-i18n="s3.r6M"><strong>Poisoned Prompt-Injection Flip Rate</strong> (95 lures)</td>
+                      <td style="color:var(--accent-rose); font-family:var(--font-mono);">Vulnerable to lure comments</td>
+                      <td style="color:var(--accent-emerald); font-family:var(--font-mono); font-weight:700;">0.0% (0/95 flipped)</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-cyan);" data-i18n="s3.trainNoteTitle">How We Built It: 3-Stage Cyber Alignment Pipeline</div>
+                  <div class="kpi-sub" data-i18n="s3.trainNoteBody">1) Multi-domain SFT across RED_AUDIT, BLUE_SOC, and PURPLE_LOOP shards -> 2) Evidence-Anchored Trace-CoT on paired vulnerable/patched commits -> 3) GRPO/DAPO Reinforcement Learning with Verifiable Rewards (RLVR) penalizing blind guesses and rewarding upstream guard verification.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-drawer" data-i18n="s3.dossier">
+            <strong>Partner Executive Brief (Slide 03):</strong> Use the interactive simulator on the left during your partner pitch. Click between "1. Vulnerable Twin", "2. Guarded Twin", and "3. Poisoned Comment Lure" to show how our internal fine-tuned model inspects the upstream caller before raising an alert—and refuses to be tricked when an attacker plants a fake `# SECURITY: sanitized upstream` comment in the code.
+          </div>
+        </section>
+
+        <!-- SLIDE 04: A MODEL IS STILL A MODEL — UNBREAKABLE DETERMINISTIC GATE -->
+        <section class="slide-panel" data-slide-index="3" aria-label="Slide 04">
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <div class="eyebrow-row">
+                <span class="eyebrow-tag rose">04 · THE CORE GOVERNANCE THESIS</span>
+                <span class="eyebrow-tag amber" data-i18n="s4.badge2">A MODEL IS STILL A MODEL — IT CAN HALLUCINATE</span>
+                <span class="eyebrow-tag emerald" data-i18n="s4.badge3">DETERMINISTIC KERNEL GATE != PROMPT INSTRUCTION</span>
+              </div>
+              <h2 class="slide-title" data-i18n="s4.title">A Model Is Still a Model: Why We Built an Unbreakable Deterministic Gate</h2>
+              <p class="slide-sub" data-i18n="s4.sub">Even a 100%-holdout cyber model is still a probabilistic neural network—under novel edge cases or adversarial drift, any model can hallucinate. We never rely on a prompt saying "do not do this." In Light Ops, a command physically cannot run unless it has Plan Approval.</p>
+            </div>
+            <div class="header-stat-pill">
+              <div class="header-stat-label" data-i18n="s4.statLabel">UNAPPROVED COMMAND EXECUTION</div>
+              <div class="header-stat-value" data-i18n="s4.statVal">0.0% · Blocked at Wire Level</div>
+            </div>
+          </div>
+
+          <div class="bento-2col">
+            <div class="surface-card highlight-amber">
+              <div class="card-head">
+                <div>
+                  <span class="eyebrow-tag amber" data-i18n="s4.simTag">LIVE GUARDRAIL STRESS-TEST · PROMPT VS. DETERMINISTIC KERNEL</span>
+                  <h3 class="card-title" style="margin-top:5px;" data-i18n="s4.simTitle">Fire a Simulated Model Action at the Execution Boundary</h3>
+                </div>
+                <div class="seg-bar" role="group" aria-label="Guardrail Stress Test Selector">
+                  <button type="button" class="seg-btn is-active" data-gate-case="hallucinate" data-i18n="s4.btnHallucinate">1. Hallucinated `rm / stop db`</button>
+                  <button type="button" class="seg-btn" data-gate-case="unapproved" data-i18n="s4.btnUnapproved">2. Unapproved Fix (No Go Yet)</button>
+                  <button type="button" class="seg-btn" data-gate-case="approved" data-i18n="s4.btnApproved">3. Plan Approved (`step:N` Match)</button>
+                </div>
+              </div>
+
+              <div class="motion-stage">
+                <div class="svg-canvas-wrap">
+                  <svg viewBox="0 0 860 198" width="100%" height="185" role="img" aria-label="Prompt Guardrail versus Light Deterministic Kernel Gate">
+                    <g transform="translate(15, 12)">
+                      <rect width="830" height="76" rx="10" fill="#0F1726" stroke="#752440" stroke-width="1.8" />
+                      <rect x="16" y="16" width="165" height="44" rx="8" fill="#152033" stroke="#FB7185" stroke-width="1.5" />
+                      <line x1="181" y1="38" x2="365" y2="38" stroke="#FB7185" stroke-width="3" class="anim-beam-fast" />
+                      <rect x="365" y="13" width="175" height="50" rx="8" fill="#2E101B" stroke="#FB7185" stroke-width="1.5" stroke-dasharray="5 5" />
+                      <line x1="540" y1="38" x2="645" y2="38" stroke="#FB7185" stroke-width="3.5" class="anim-beam-fast" />
+                      <rect x="645" y="14" width="168" height="48" rx="8" fill="#2E101B" stroke="#FB7185" stroke-width="2" />
+                      <circle cx="670" cy="38" r="8" fill="#FB7185" class="anim-beacon" />
+                    </g>
+                    <g transform="translate(15, 104)">
+                      <rect width="830" height="80" rx="10" fill="#0F1726" stroke="#145947" stroke-width="2.2" />
+                      <rect x="16" y="18" width="165" height="44" rx="8" fill="#152033" stroke="#38BDF8" stroke-width="1.5" />
+                      <line id="gateInputBeam" x1="181" y1="40" x2="365" y2="40" stroke="#FB7185" stroke-width="3.5" class="anim-beam-fast" />
+                      <rect id="gateKernelBox" x="365" y="12" width="175" height="56" rx="8" fill="#082921" stroke="#34D399" stroke-width="2.5" />
+                      <line id="gateBarrierLine" x1="452" y1="14" x2="452" y2="66" stroke="#FB7185" stroke-width="5" />
+                      <circle id="gateLockOrb" cx="452" cy="40" r="10" fill="#FB7185" class="anim-beacon" />
+                      <line id="gateOutputBeam" x1="540" y1="40" x2="645" y2="40" stroke="#243552" stroke-width="3" stroke-dasharray="4 6" />
+                      <rect id="gateTargetBox" x="645" y="16" width="168" height="48" rx="8" fill="#082921" stroke="#34D399" stroke-width="2" />
+                      <circle id="gateTargetOrb" cx="670" cy="40" r="8" fill="#34D399" />
+                    </g>
+                  </svg>
+                </div>
+
+                <div class="console-box" id="gateConsoleBox">
+                  <div class="console-line"><span style="color:#FB7185;">[Model Proposal]</span> <span id="gateCmdText">light_ssh(host="prod-db-01", command="systemctl stop postgresql && rm -rf /var/lib/pgsql/data/pg_wal")</span></div>
+                  <div class="console-line"><span style="color:#FBBF24;">[Prompt-Only Agent]</span> <span id="gatePromptText">FAILED: Prompt instructions ("do not run destructive commands") can be overridden by context drift or indirect prompt injection.</span></div>
+                  <div class="console-line"><span style="color:#34D399;" id="gateKernelTag">[Light EDCR Gate]</span> <span id="gateKernelText">HARD BLOCK (E_MANIFEST_DENIED): Command is NOT in an operator-approved Plan Manifest requests[] and violates banned-command policy. 0 bytes sent to host.</span></div>
+                </div>
+              </div>
+
+              <div class="kpi-strip-3">
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-rose);" data-i18n="s4.k1Title">Prompt Guardrail ("Don't do X")</div>
+                  <div class="kpi-sub" data-i18n="s4.k1Body">Lives inside probabilistic token weights; bypassable via jailbreak, context overflow, or hallucination.</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-emerald);" data-i18n="s4.k2Title">Light Deterministic Gate</div>
+                  <div class="kpi-sub" data-i18n="s4.k2Body">Enforced outside the model in the MCP/EDCR server; checks byte-exact `targets[]`, `requests[]`, and `step:N`.</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-cyan);" data-i18n="s4.k3Title">Cryptographic Runbook Lock</div>
+                  <div class="kpi-sub" data-i18n="s4.k3Body">Approved remediations are locked by SHA-256 capsule digest; any parameter drift aborts execution.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-stack">
+              <div class="surface-card highlight-emerald" style="flex:1;">
+                <div class="card-head">
+                  <div>
+                    <span class="eyebrow-tag emerald" data-i18n="s4.rTag">4 NON-BYPASSABLE KERNEL INVARIANTS</span>
+                    <h3 class="card-title" style="margin-top:5px;" data-i18n="s4.rTitle">Why the Model Cannot Break Out of Light Governance</h3>
+                  </div>
+                </div>
+                <ul class="feature-list">
+                  <li class="feature-item">
+                    <span class="feature-badge emerald">LAW 01</span>
+                    <div>
+                      <strong style="color:var(--text-primary);" data-i18n="s4.l1Title">Physical Read-Only Confinement During Threat Hunting</strong>
+                      <div data-i18n="s4.l1Body">In Explore &amp; Diagnose phases, the gate admits only read-only probes (`light_ops`, `light_analyze`, `light_cve`). Write tools and mutating shell commands are rejected at the dispatcher before reaching any host.</div>
+                    </div>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge">LAW 02</span>
+                    <div>
+                      <strong style="color:var(--text-primary);" data-i18n="s4.l2Title">Byte-Exact Plan Manifest (`targets[]` + `requests[]`)</strong>
+                      <div data-i18n="s4.l2Body">Before a single file edit or service action can occur, the agent must author a structured Plan Manifest declaring every exact file path, host, and command string—and stop (`ack_stop`) for human Operator Go.</div>
+                    </div>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge amber">LAW 03</span>
+                    <div>
+                      <strong style="color:var(--text-primary);" data-i18n="s4.l3Title">Automatic Revoke-on-Edit Circuit Breaker</strong>
+                      <div data-i18n="s4.l3Body">If the model (or anyone) modifies a single step, target, or command in the plan after approval, the server immediately increments `manifest_revision` and revokes the approval token.</div>
+                    </div>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge rose">LAW 04</span>
+                    <div>
+                      <strong style="color:var(--text-primary);" data-i18n="s4.l4Title">Hard Content Ban on Destructive Primitives</strong>
+                      <div data-i18n="s4.l4Body">Raw `systemctl`, `pm2`, `kubectl`, `pkill`, and destructive Git/disk commands are blocked in `light_bash` and routed through typed control-plane tools (`light_admin`, `light_nkp`) with explicit operator holds.</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-drawer" data-i18n="s4.dossier">
+            <strong>Partner Executive Brief (Slide 04):</strong> This is the slide that closes the CISO. Acknowledge openly: "Yes, our internal Cyber Model has 100% holdout accuracy—but any AI model is still a model and can hallucinate." Then show why Light Ops is fundamentally different from every agentic wrapper on the market: we do not ask the model to behave via a system prompt. The Light MCP/EDCR kernel sits between the model and the network, and physically drops any tool call that is not in an operator-approved Plan Manifest.
+          </div>
+        </section>
+
+        <!-- SLIDE 05: EDCR 6-STAGE STATE MACHINE & REVOKE-ON-EDIT -->
+        <section class="slide-panel" data-slide-index="4" aria-label="Slide 05">
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <div class="eyebrow-row">
+                <span class="eyebrow-tag">05 · LAYER 2: EDCR GOVERNANCE LIFECYCLE</span>
+                <span class="eyebrow-tag emerald" data-i18n="s5.badge2">EXPLORE -> DIAGNOSE -> MANIFEST -> OPERATOR GO -> STEP:N -> VERIFY</span>
+                <span class="eyebrow-tag violet" data-i18n="s5.badge3">SHA-256 RUNBOOK CAPSULE LOCK</span>
+              </div>
+              <h2 class="slide-title" data-i18n="s5.title">Inside the EDCR Governance State Machine &amp; Revoke-on-Edit Circuit Breaker</h2>
+              <p class="slide-sub" data-i18n="s5.sub">Every threat hunt and infrastructure remediation moves through a strict 6-stage deterministic state machine. Operators see the exact blast radius (`RADIUS:`), peer-review verdict, and SHA-256 command capsule before granting Go.</p>
+            </div>
+            <div class="header-stat-pill">
+              <div class="header-stat-label" data-i18n="s5.statLabel">MANIFEST REVISION INTEGRITY</div>
+              <div class="header-stat-value" data-i18n="s5.statVal">SHA-256 Locked · Auto-Revoke</div>
+            </div>
+          </div>
+
+          <div class="bento-2col">
+            <div class="surface-card highlight-cyan">
+              <div class="card-head">
+                <div>
+                  <span class="eyebrow-tag" data-i18n="s5.simTag">INTERACTIVE STATE MACHINE · EDCR PIPELINE &amp; REVOKE-ON-EDIT</span>
+                  <h3 class="card-title" style="margin-top:5px;" data-i18n="s5.simTitle">Step Through the Lifecycle or Trigger a Mid-Flight Plan Edit</h3>
+                </div>
+                <div class="seg-bar" role="group" aria-label="EDCR State Selector">
+                  <button type="button" class="seg-btn is-active" data-edcr-state="approved" data-i18n="s5.btnApproved">1. Operator Go Active (`rev: 2`)</button>
+                  <button type="button" class="seg-btn" data-edcr-state="revoked" data-i18n="s5.btnRevoked">2. Trigger Revoke-on-Edit (`rev: 3`)</button>
+                  <button type="button" class="seg-btn" data-edcr-state="verified" data-i18n="s5.btnVerified">3. Verify-Ship &amp; Audit Receipt</button>
+                </div>
+              </div>
+
+              <div class="motion-stage">
+                <div class="svg-canvas-wrap">
+                  <svg viewBox="0 0 860 175" width="100%" height="165" role="img" aria-label="EDCR Six-Stage State Machine">
+                    <!-- 6 Connected Stage Nodes -->
+                    <g transform="translate(15, 38)">
+                      <rect width="118" height="88" rx="10" fill="#0F1726" stroke="#38BDF8" stroke-width="2" />
+                      <circle cx="59" cy="34" r="9" fill="#38BDF8" />
+                      <line x1="25" y1="62" x2="93" y2="62" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                    <line x1="133" y1="82" x2="158" y2="82" stroke="#38BDF8" stroke-width="3" class="anim-beam" />
+
+                    <g transform="translate(158, 38)">
+                      <rect width="118" height="88" rx="10" fill="#0F1726" stroke="#38BDF8" stroke-width="2" />
+                      <circle cx="59" cy="34" r="9" fill="#38BDF8" />
+                      <line x1="25" y1="62" x2="93" y2="62" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                    <line x1="276" y1="82" x2="301" y2="82" stroke="#38BDF8" stroke-width="3" class="anim-beam" />
+
+                    <g transform="translate(301, 38)">
+                      <rect width="118" height="88" rx="10" fill="#0F1726" stroke="#C084FC" stroke-width="2" />
+                      <circle cx="59" cy="34" r="9" fill="#C084FC" />
+                      <line x1="25" y1="62" x2="93" y2="62" stroke="#C084FC" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                    <line x1="419" y1="82" x2="444" y2="82" stroke="#C084FC" stroke-width="3" class="anim-beam" />
+
+                    <!-- Stage 4: Operator Go / Revoke Gate -->
+                    <g transform="translate(444, 28)">
+                      <rect id="edcrGateNode" width="126" height="108" rx="12" fill="#082921" stroke="#34D399" stroke-width="2.5" />
+                      <circle id="edcrGateOrb" cx="63" cy="42" r="13" fill="#34D399" class="anim-beacon" />
+                      <line x1="26" y1="76" x2="100" y2="76" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                    <line id="edcrExecBeam" x1="570" y1="82" x2="595" y2="82" stroke="#34D399" stroke-width="3.5" class="anim-beam-fast" />
+
+                    <!-- Stage 5: Step:N Execution -->
+                    <g transform="translate(595, 38)">
+                      <rect id="edcrExecNode" width="118" height="88" rx="10" fill="#0F1726" stroke="#34D399" stroke-width="2" />
+                      <circle id="edcrExecOrb" cx="59" cy="34" r="9" fill="#34D399" />
+                      <line x1="25" y1="62" x2="93" y2="62" stroke="#34D399" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                    <line id="edcrVerifyBeam" x1="713" y1="82" x2="736" y2="82" stroke="#34D399" stroke-width="3" class="anim-beam" />
+
+                    <!-- Stage 6: Verify & Receipt -->
+                    <g transform="translate(736, 38)">
+                      <rect id="edcrVerifyNode" width="110" height="88" rx="10" fill="#0F1726" stroke="#38BDF8" stroke-width="2" />
+                      <circle cx="55" cy="34" r="9" fill="#38BDF8" />
+                      <line x1="22" y1="62" x2="88" y2="62" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                  </svg>
+                </div>
+
+                <div class="console-box" id="edcrConsoleBox">
+                  <div class="console-line"><span style="color:#38BDF8;">[1. Explore &amp; 2. Diagnose]</span> <span id="edcrLine1">Read-only probes (`light_ops`, `light_analyze`, `light_cve`) prove root cause &amp; blast radius (`RADIUS:`).</span></div>
+                  <div class="console-line"><span style="color:#C084FC;">[3. Manifest &amp; 4. Operator Go]</span> <span id="edcrLine2">manifest_revision=2 APPROVED (`approved=true`). SHA-256 capsule `e4c54358...` locked to exact targets[] and requests[].</span></div>
+                  <div class="console-line"><span style="color:#34D399;" id="edcrLine3Tag">[5. Step:N &amp; 6. Verify]</span> <span id="edcrLine3">Step-bound execution admitted (`step:1..6`). Size M/L plans require independent `light_peer verb:verify_review` before `done`.</span></div>
+                </div>
+              </div>
+
+              <div class="kpi-strip-3">
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-cyan);" data-i18n="s5.k1Title">1–2. Read-Only Grounding</div>
+                  <div class="kpi-sub" data-i18n="s5.k1Body">Zero writes allowed until diagnosis and blast radius are proven.</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-violet);" data-i18n="s5.k2Title">3–4. Manifest + Operator Go</div>
+                  <div class="kpi-sub" data-i18n="s5.k2Body">Human approves exact files &amp; commands; any edit revokes Go immediately.</div>
+                </div>
+                <div class="kpi-box">
+                  <div class="kpi-label" style="color:var(--accent-emerald);" data-i18n="s5.k3Title">5–6. Step:N + Verify-Ship</div>
+                  <div class="kpi-sub" data-i18n="s5.k3Body">Independent peer review + health receipt required before plan closure.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-stack">
+              <div class="surface-card highlight-violet" style="flex:1;">
+                <div class="card-head">
+                  <div>
+                    <span class="eyebrow-tag violet" data-i18n="s5.rTag">DEFENSE-IN-DEPTH GOVERNANCE</span>
+                    <h3 class="card-title" style="margin-top:5px;" data-i18n="s5.rTitle">Cross-Model Peer Review &amp; Immutable Compliance Receipts</h3>
+                  </div>
+                </div>
+                <p class="card-body" data-i18n="s5.rBody">Light Ops does not trust a single agent pass. Non-trivial remediation plans (Size M &amp; L) are audited pre-execution (`draft_review`) and post-execution (`verify_review`) by an independent adversarial reviewer before the gate permits closure.</p>
+                <ul class="feature-list">
+                  <li class="feature-item">
+                    <span class="feature-badge violet">PEER GATE</span>
+                    <span data-i18n="s5.rB1">Pre-implementation `draft_review` attempts to falsify the diagnosis and blast radius before the operator is ever asked to approve.</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge emerald">VERIFY-SHIP</span>
+                    <span data-i18n="s5.rB2">Post-change `verify_review` inspects actual diffs and test receipts (`unverified_M` / `unverified_L` hard block on `verb:done`).</span>
+                  </li>
+                  <li class="feature-item">
+                    <span class="feature-badge">AUDIT LEDGER</span>
+                    <span data-i18n="s5.rB3">Every probe, plan revision, operator approval, and command receipt is stored with SHA-256 digests for ISO 27001, SOC2, and PDPA audits.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-drawer" data-i18n="s5.dossier">
+            <strong>Partner Executive Brief (Slide 05):</strong> Click "2. Trigger Revoke-on-Edit" during the demo to show how the approval lock immediately turns red and halts execution if the model tries to sneak an extra file or command into an already-approved plan. This gives enterprise Change Advisory Boards (CAB) mathematical certainty that approved scope cannot drift.
+          </div>
+        </section>
+
+        <!-- SLIDES_6_TO_8 -->
       </div>
 
       <footer class="bottom-bar">

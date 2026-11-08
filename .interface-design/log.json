@@ -1,6 +1,14 @@
 {
   "runs": [
     {
+      "date": "2026-11-08",
+      "file": "light_ops_on_nutanix_dell_gpu_keynote.html",
+      "macrostructure": "Topology / Split Monitor (1920x1080 Stage Keynote + Partner Dossier Scroll)",
+      "accent": "#38BDF8 / #34D399",
+      "theme": "obsidian (#060A11 / #0F1726) + daylight (#F8FAFC / #FFFFFF)",
+      "notes": "8-slide bilingual (TH/EN) partner keynote and dossier with bespoke SVG/Canvas motion graphics, self-hosted Geist + Geist Mono + IBM Plex Sans Thai typography, Internal Fine-Tuned Cyber Model vs Out-of-the-Box Local & Frontier Cloud comparison, and interactive Deterministic EDCR Gate vs Hallucination stress-tester."
+    },
+    {
       "date": "2026-10-25",
       "file": "light.html",
       "macrostructure": "Split Monitor + nested Topology + nested Ledger",

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Keynote browser check</title>
+  <style>
+    :root { --bg: #05080E; --t1: #F1F5F9; --t3: #8B98AD; --ok: #34D399; --bad: #FB7185; --line: #1B2638; }
+    html, body { margin: 0; background: var(--bg); color: var(--t1); font: 14px/1.45 ui-monospace, "Geist Mono", monospace; }
+    header { display: flex; gap: 16px; align-items: center; padding: 12px 16px; }
+    #status { font-weight: 600; color: var(--t3); }
+    #status.pass { color: var(--ok); }
+    #status.fail { color: var(--bad); }
+    .view { width: 960px; height: 540px; overflow: hidden; margin: 0 16px; border: 1px solid var(--line); }
+    iframe { width: 1920px; height: 1080px; border: 0; transform: scale(.5); transform-origin: 0 0; }
+    pre { margin: 0; padding: 12px 16px; white-space: pre-wrap; word-break: break-word; color: var(--t3); }
+  </style>
+</head>
+<body>
+  <!--
+    Browser check for light_ops_on_nutanix_dell_gpu_keynote.html.
+    Serve the repo over http (fonts do not load from file://), open this page, read pre#report.
+    It checks what a viewer would see: every scene in EN and TH at its final beat fits its canvas and
+    its boxes, meets WCAG contrast, keeps text at 22px or more, and has no colliding text; navigation,
+    deep links, story view and the language switch behave as the deck promises.
+  -->
+  <header><strong>Light Ops keynote: browser check</strong><span id="status">running</span></header>
+  <div class="view"><iframe id="under" title="Keynote under test"></iframe></div>
+  <pre id="report">running</pre>
+  <script>
+    (async function () {
+      "use strict";
+      var DECK = "../light_ops_on_nutanix_dell_gpu_keynote.html";
+      var MIN_FONT = 22, RUN = Date.now();
+      var frame = document.getElementById("under");
+      var out = { checks: [], slides: { en: [], th: [] } };
+
+      function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+      function settle(w) { return new Promise(function (r) { w.requestAnimationFrame(function () { w.requestAnimationFrame(function () { setTimeout(r, 80); }); }); }); }
+      function load(qs) {
+        return new Promise(function (resolve, reject) {
+          var t = setTimeout(function () { reject(new Error("load timeout: " + qs)); }, 20000);
+          frame.onload = function () {
+            clearTimeout(t);
+            var w = frame.contentWindow;
+            var ready = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
+            ready.then(function () { return sleep(200); }).then(function () { resolve(w); });
+          };
+          /* a fresh URL per run: a static server sends Last-Modified without Cache-Control, so a repeat run
+             inside Chrome's heuristic freshness window would otherwise measure the previous bytes of the deck */
+          frame.src = DECK + qs + (qs.indexOf("?") < 0 ? "?" : "&") + "run=" + RUN;
+        });
+      }
+      function check(name, pass, detail) { out.checks.push({ name: name, pass: !!pass, detail: detail === undefined ? null : detail }); }
+      function key(w, k) { w.document.body.dispatchEvent(new w.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true })); }
+      /* one-shot CSS animations still running inside root (infinite loops are intended and excepted) */
+      function oneShots(w, root) {
+        var hit = [];
+        (w.document.getAnimations ? w.document.getAnimations() : []).forEach(function (a) {
+          var tg = a.effect && a.effect.target, tm = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
+          if (a.animationName && tg && root.contains(tg) && a.playState === "running" && tm.iterations !== Infinity) hit.push(a.animationName);
+        });
+        return hit;
+      }
+      /* lay the deck out for paper: the browser prints with the print media type, so the deck's own
+         @media print rules switch to all and @media screen rules switch off; the boxes are the browser's cascade */
+      function printLayout(w) {
+        var undo = [];
+        [].forEach.call(w.document.styleSheets, function (sh) {
+          [].forEach.call(sh.cssRules, function (r) {
+            var t = r.media && r.media.mediaText;
+            if (t === "print" || t === "screen") { undo.push([r, t]); r.media.mediaText = t === "print" ? "all" : "not all"; }
+          });
+        });
+        w.dispatchEvent(new w.Event("beforeprint"));
+        var fr = [].slice.call(w.document.querySelectorAll(".frame")), y0 = fr[0].getBoundingClientRect().top, off = [];
+        fr.forEach(function (f, k) {
+          var r = f.getBoundingClientRect(), s = f.querySelector(".slide").getBoundingClientRect();
+          var page = [r.left, r.top - y0, r.width, r.height].map(Math.round), scene = [s.left - r.left, s.top - r.top, s.width, s.height].map(Math.round);
+          if (page.join() !== [0, k * 1080, 1920, 1080].join() || scene.join() !== "0,0,1920,1080") off.push({ n: k + 1, page: page, slide: scene });
+        });
+        undo.forEach(function (u) { u[0].media.mediaText = u[1]; });
+        w.dispatchEvent(new w.Event("afterprint"));
+        return { pages: fr.length, off: off };
+      }
+
+      /* measure-critique, adapted: only what a viewer can see (opacity > 0), glyph boxes against their container */
+      function measure(w, root) {
+        var gcs = function (el) { return w.getComputedStyle(el); };
+        var sr = root.getBoundingClientRect();
+        var px = function (v) { return parseFloat(v) || 0; };
+        function lum(c) { var s = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2]; }
+        function rgb(str) { var m = String(str).match(/[0-9.]+/g); return m ? m.slice(0, 3).map(Number) : null; }
+        function alphaOf(str) { var p = String(str).match(/[0-9.]+/g); return p && p.length > 3 ? Number(p[3]) : 1; }
+        function bgOf(el) { var n = el; while (n && n.nodeType === 1) { var b = gcs(n).backgroundColor; if (b && alphaOf(b) > 0 && rgb(b)) return rgb(b); n = n.parentElement; } return [255, 255, 255]; }
+        function ratio(a, b) { var L1 = lum(a), L2 = lum(b); return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05); }
+        function name(el) {
+          var c = el.getAttribute("class"), k = el.getAttribute("data-i18n");
+          return el.tagName.toLowerCase() + (c ? "." + c.trim().split(/\s+/).join(".") : "") + (k ? "[" + k + "]" : "");
+        }
+        function shown(el) {
+          var n = el, o = 1;
+          while (n && n.nodeType === 1) {
+            var cs = gcs(n);
+            if (cs.visibility === "hidden" || cs.display === "none") return false;
+            o *= cs.opacity === "" ? 1 : px(cs.opacity);
+            n = n.parentElement;
+          }
+          return o > 0.05;
+        }
+        var all = [].slice.call(root.querySelectorAll("*"));
+        var overflow = [], contrast = [], small = [], fit = [], sizes = {};
+        all.forEach(function (el) {
+          var tag = el.tagName.toLowerCase();
+          if (tag !== "svg" && el.closest("svg")) return;
+          if (!shown(el)) return;
+          var r = el.getBoundingClientRect();
+          if (r.width === 0 && r.height === 0) return;
+          var o = { right: r.right - sr.right, bottom: r.bottom - sr.bottom, left: sr.left - r.left, top: sr.top - r.top };
+          var worst = Math.max(o.right, o.bottom, o.left, o.top);
+          if (worst > 1) overflow.push({ sel: name(el), by: Math.round(worst), edge: Object.keys(o).filter(function (k) { return o[k] === worst; })[0] });
+          var direct = [].some.call(el.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); });
+          if (!direct) return;
+          var cs = gcs(el), fs = px(cs.fontSize);
+          sizes[fs] = (sizes[fs] || 0) + 1;
+          if (fs < MIN_FONT) small.push({ sel: name(el), fontPx: fs });
+          var fg = rgb(cs.color);
+          if (fg) {
+            var cr = ratio(fg, bgOf(el)), large = fs >= 24 || (fs >= 18.66 && px(cs.fontWeight) >= 700), need = large ? 3 : 4.5;
+            if (cr < need) contrast.push({ sel: name(el), ratio: Math.round(cr * 100) / 100, need: need, fontPx: fs });
+          }
+          var box = el.closest(".node, .chip, .pill, .lbl, .row, .copy, .foot");
+          if (box) {
+            var b = box.getBoundingClientRect(), rg = el.ownerDocument.createRange();
+            rg.selectNodeContents(el);
+            var t = rg.getBoundingClientRect();
+            var dx = Math.max(b.left - t.left, t.right - b.right);
+            var dy = box.matches(".node, .chip, .pill") ? Math.max(b.top - t.top, t.bottom - b.bottom) : 0;
+            if (Math.max(dx, dy) > 1) fit.push({ sel: name(el), box: name(box), x: Math.round(dx), y: Math.round(dy) });
+          }
+        });
+        var boxes = [].slice.call(root.querySelectorAll(".copy, .foot, .node, .lbl, .chip, .row, .pills")).filter(function (el) {
+          return shown(el) && !el.parentElement.closest(".node, .lbl, .chip, .row, .pills, .copy");
+        });
+        var collisions = [];
+        for (var i = 0; i < boxes.length; i++) for (var j = i + 1; j < boxes.length; j++) {
+          var a = boxes[i].getBoundingClientRect(), c = boxes[j].getBoundingClientRect();
+          var ox = Math.min(a.right, c.right) - Math.max(a.left, c.left), oy = Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top);
+          if (ox > 2 && oy > 2) collisions.push({ a: name(boxes[i]), b: name(boxes[j]), overlap: Math.round(ox) + "x" + Math.round(oy) });
+        }
+        var scale = Object.keys(sizes).map(Number).sort(function (x, y) { return y - x; });
+        return {
+          canvas: Math.round(sr.width) + "x" + Math.round(sr.height),
+          overflow: overflow, contrast: contrast, small: small, fit: fit, collisions: collisions,
+          typeScale: scale, hierarchyRatio: scale.length > 1 ? Math.round(scale[0] / scale[1] * 100) / 100 : null
+        };
+      }
+
+      try {
+        /* every scene, both languages, final beat */
+        for (var li = 0; li < 2; li++) {
+          var lang = li ? "th" : "en";
+          var w = await load("?measure=1&lang=" + lang);
+          var L = w.LightKeynote, slides = w.document.querySelectorAll(".slide");
+          check(lang + ": deck exposes 12 scenes", L && L.count === 12 && slides.length === 12, L ? L.count : "no LightKeynote");
+          for (var i = 0; i < slides.length; i++) {
+            L.go(i, "final");
+            await settle(w);
+            var m = measure(w, slides[i]);
+            m.scene = i + 1;
+            m.activeCount = w.document.querySelectorAll(".slide.active").length;
+            out.slides[lang].push(m);
+          }
+          if (lang === "en") {
+            var miss = L.missing();
+            check("every on-screen string has English and Thai copy", miss.length === 0, miss);
+
+            /* navigation contract */
+            L.go(1, "final"); await settle(w);
+            key(w, "ArrowRight"); await sleep(40);
+            check("ArrowRight on a finished scene opens the next scene", L.state().cur === 2, L.state());
+            key(w, "ArrowLeft"); await settle(w);
+            var st = L.state(), mb = slides[1].getAttribute("data-times").split(",").length;
+            check("ArrowLeft returns to the previous scene at its final beat", st.cur === 1 && st.beat === mb, st);
+            L.go(4, "play"); await sleep(120);
+            var b0 = L.state().beat;
+            key(w, "ArrowRight"); await sleep(30);
+            var s2 = L.state();
+            check("ArrowRight mid-scene reveals the next beat and stays on the scene", s2.cur === 4 && s2.beat === b0 + 1, { before: b0, after: s2 });
+            key(w, "End"); await sleep(40);
+            var atEnd = L.state().cur;
+            key(w, "Home"); await sleep(40);
+            check("End and Home jump to the last and first scene", atEnd === 11 && L.state().cur === 0, { end: atEnd, home: L.state().cur });
+            check("stage view shows exactly one scene", w.document.querySelectorAll(".slide.active").length === 1);
+
+            /* language switch */
+            var h2 = w.document.querySelector("#s2 .hl").textContent;
+            L.lang("th");
+            var h2th = w.document.querySelector("#s2 .hl").textContent;
+            check("language switch replaces the copy with Thai", w.document.documentElement.lang === "th" && h2th !== h2 && /[฀-๿]/.test(h2th), h2th);
+          }
+        }
+
+        /* deep link */
+        var wd = await load("?measure=1&slide=5");
+        check("?slide=5 opens scene 5", wd.LightKeynote.state().cur === 4, wd.LightKeynote.state());
+
+        /* a scene opened at its final beat holds its end state: no one-shot motion replays (intended loops excepted) */
+        var wf = await load("?measure=1");
+        var replays = [], nSlides = wf.document.querySelectorAll(".slide").length;
+        for (var fi = 0; fi < nSlides; fi++) {
+          wf.LightKeynote.go(fi, "final");
+          await sleep(450);
+          var act = wf.document.querySelector(".slide.active");
+          (wf.document.getAnimations ? wf.document.getAnimations() : []).forEach(function (a) {
+            var tg = a.effect && a.effect.target, tm = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
+            if (a.animationName && tg && act.contains(tg) && a.playState === "running" && tm.iterations !== Infinity) replays.push((fi + 1) + ":" + a.animationName);
+          });
+        }
+        check("a scene opened at its final beat does not replay one-shot motion", wf.document.getAnimations && replays.length === 0, replays);
+
+        /* printing renders every scene; closing the dialog returns the stage to the presenter's scene */
+        wf.LightKeynote.go(4, "final");
+        await settle(wf);
+        wf.dispatchEvent(new wf.Event("beforeprint"));
+        var printing = wf.document.querySelectorAll(".slide.active").length;
+        wf.dispatchEvent(new wf.Event("afterprint"));
+        await settle(wf);
+        var after = [].slice.call(wf.document.querySelectorAll(".slide.active"));
+        check("print shows all 12 scenes, then the stage returns to the presenter's scene", printing === nSlides && after.length === 1 && after[0] === wf.document.querySelectorAll(".slide")[4] && wf.LightKeynote.state().cur === 4, { printing: printing, activeAfter: after.map(function (s) { return s.id; }) });
+        var pStage = printLayout(wf);
+        check("printing from the stage gives 12 full 1920x1080 pages, one scene each", pStage.pages === 12 && pStage.off.length === 0, pStage.off);
+
+        /* the same end state through the URL */
+        var wb = await load("?measure=1&slide=4&beat=final");
+        await sleep(450);
+        var stb = wb.LightKeynote.state(), s4 = wb.document.getElementById("s4"), mb4 = s4.getAttribute("data-times").split(",").length, run4 = oneShots(wb, s4);
+        check("?slide=4&beat=final opens scene 4 at its last beat with no one-shot motion replaying", wb.document.getAnimations && stb.cur === 3 && stb.beat === mb4 && run4.length === 0, { state: stb, lastBeat: mb4, running: run4 });
+
+        /* story view */
+        var ws = await load("?view=dossier&lang=en");
+        var fr = [].slice.call(ws.document.querySelectorAll(".frame")), tops = fr.map(function (f) { return Math.round(f.getBoundingClientRect().top + ws.scrollY); });
+        var stacked = fr.length === 12 && fr.every(function (f, k) { return f.getBoundingClientRect().height > 300 && (k === 0 || tops[k] > tops[k - 1]); });
+        check("story view stacks all 12 scenes top to bottom", ws.LightKeynote.state().view === "story" && stacked, tops);
+        fr[6].scrollIntoView({ block: "start" });
+        await sleep(900);
+        var s7 = ws.document.getElementById("s7");
+        check("story view plays a scene when it scrolls into view", s7.classList.contains("on") && s7.classList.contains("b1"), s7.className);
+
+        /* printing from the scroll view (the shared ?view=dossier link) */
+        var pStory = printLayout(ws);
+        check("printing from the scroll view gives 12 full 1920x1080 pages, one scene each", pStory.pages === 12 && pStory.off.length === 0, pStory.off);
+        await settle(ws);
+        var m7 = s7.getAttribute("data-times").split(",").length;
+        fr[9].scrollIntoView({ block: "start" });
+        await sleep(900);
+        var s10 = ws.document.getElementById("s10");
+        check("after a print preview, a scene not reached yet still plays as it scrolls in, and one already seen keeps its end state", s10.classList.contains("on") && s10.classList.contains("b1") && !s10.classList.contains("b" + s10.getAttribute("data-times").split(",").length) && s7.classList.contains("b" + m7), { s10: s10.className, s7: s7.className });
+        /* smaller windows: the stage letterboxes instead of cropping; a portrait phone opens the scroll view */
+        frame.style.width = "1366px"; frame.style.height = "768px";
+        var wl = await load("?measure=1&slide=10&beat=final");
+        var stg = wl.document.getElementById("stage").getBoundingClientRect();
+        var fitsLaptop = stg.left >= -1 && stg.top >= -1 && stg.right <= 1367 && stg.bottom <= 769 && Math.abs(stg.width / 1920 - Math.min(1366 / 1920, 768 / 1080)) < 0.01;
+        check("1366x768: the whole 1920x1080 stage is visible, scaled to fit", fitsLaptop, { left: Math.round(stg.left), top: Math.round(stg.top), w: Math.round(stg.width), h: Math.round(stg.height) });
+        frame.style.width = "390px"; frame.style.height = "844px";
+        var wp = await load("?lang=en");
+        var hintShown = wp.getComputedStyle(wp.document.querySelector(".rotate-hint")).display !== "none";
+        check("390x844 portrait: opens the scroll view and shows the rotate hint", wp.LightKeynote.state().view === "story" && hintShown, { view: wp.LightKeynote.state().view, hint: hintShown });
+        var f0 = wp.document.querySelector(".frame").getBoundingClientRect();
+        check("390x844 portrait: scenes fit the phone width", f0.left >= 0 && f0.right <= 390, { left: Math.round(f0.left), right: Math.round(f0.right) });
+        frame.style.width = ""; frame.style.height = "";
+      } catch (e) {
+        check("fixture ran to completion", false, String(e && e.stack || e));
+      }
+
+      /* report: failures first, then the per-scene type scale */
+      var fails = [];
+      out.checks.forEach(function (c) { if (!c.pass) fails.push({ check: c.name, detail: c.detail }); });
+      ["en", "th"].forEach(function (lang) {
+        out.slides[lang].forEach(function (m) {
+          ["overflow", "contrast", "small", "fit", "collisions"].forEach(function (k) {
+            if (m[k].length) fails.push({ scene: lang + " " + m.scene, kind: k, items: m[k] });
+          });
+          if (m.activeCount !== 1) fails.push({ scene: lang + " " + m.scene, kind: "activeCount", items: m.activeCount });
+        });
+      });
+      var scale = {};
+      ["en", "th"].forEach(function (lang) { scale[lang] = out.slides[lang].map(function (m) { return m.scene + ":" + m.canvas + " " + m.typeScale.join("/") + " h" + m.hierarchyRatio; }); });
+      var status = document.getElementById("status");
+      status.textContent = fails.length ? "FAIL " + fails.length : "PASS";
+      status.className = fails.length ? "fail" : "pass";
+      document.getElementById("report").textContent = JSON.stringify({
+        result: fails.length ? "FAIL" : "PASS",
+        checks: out.checks.map(function (c) { return (c.pass ? "ok   " : "FAIL ") + c.name; }),
+        failures: fails,
+        typeScale: scale
+      }, null, 1);
+      window.KEYNOTE_CHECK = { fails: fails, out: out };
+    })();
+  </script>
+</body>
+</html>

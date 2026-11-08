@@ -95,8 +95,25 @@
     /* graphic layer: SVG geometry with HTML label leaves on the same pixel grid */
     .gfx { position: absolute; left: 96px; width: 1728px; }
     .gfx > svg, .gfx > canvas { position: absolute; left: 0; top: 0; overflow: visible; }
-    .panel { position: absolute; border: 1px solid var(--line-2); border-radius: 12px; background: #0A101B; }
-    .node { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 14px 20px; border: 1.5px solid var(--line-2); border-radius: var(--r2); background: var(--panel); min-width: 0; }
+    /* SVG geometry: the hex in each attribute is only a fallback; these rules bind it to the tokens */
+    svg [stroke="#2A3A52"] { stroke: var(--line-2); }
+    svg [stroke="#3B5070"] { stroke: var(--line-3); }
+    svg [stroke="#8B98AD"] { stroke: var(--t3); }
+    svg [stroke="#C2CCDA"] { stroke: var(--t2); }
+    svg [stroke="#38BDF8"] { stroke: var(--cyan); }
+    svg [stroke="#34D399"] { stroke: var(--ok); }
+    svg [stroke="#FBBF24"] { stroke: var(--hold); }
+    svg [stroke="#FB7185"] { stroke: var(--bad); }
+    svg [stroke="#7A2742"] { stroke: var(--bad-line); }
+    svg [stroke="#17664F"] { stroke: var(--ok-line); }
+    svg [fill="#38BDF8"] { fill: var(--cyan); }
+    svg [fill="#34D399"] { fill: var(--ok); }
+    svg [fill="#FBBF24"] { fill: var(--hold); }
+    svg [fill="#FB7185"] { fill: var(--bad); }
+    svg [fill="#121B2C"] { fill: var(--track); }
+    svg [fill="#0C1320"] { fill: var(--panel); }
+    .panel { position: absolute; border: 1px solid var(--line-2); border-radius: var(--r3); background: var(--panel-0); }
+    .node { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 16px 20px; border: 1.5px solid var(--line-2); border-radius: var(--r2); background: var(--panel); min-width: 0; }
     .node.c { align-items: center; text-align: center; }
     .node .k { font: 500 22px/1.25 var(--mono); color: var(--t3); }
     .node .v { font-size: 26px; line-height: 1.3; font-weight: 520; color: var(--t1); }

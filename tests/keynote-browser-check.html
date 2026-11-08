@@ -76,7 +76,7 @@
         fr.forEach(function (f, k) {
           var r = f.getBoundingClientRect(), s = f.querySelector(".slide").getBoundingClientRect();
           var page = [r.left, r.top - y0, r.width, r.height].map(Math.round), scene = [s.left - r.left, s.top - r.top, s.width, s.height].map(Math.round);
-          if (page.join() !== [0, k * 1080, 1920, 1080].join() || scene.join() !== "0,0,1920,1080") off.push({ scene: k + 1, page: page, scene: scene });
+          if (page.join() !== [0, k * 1080, 1920, 1080].join() || scene.join() !== "0,0,1920,1080") off.push({ n: k + 1, page: page, slide: scene });
         });
         undo.forEach(function (u) { u[0].media.mediaText = u[1]; });
         w.dispatchEvent(new w.Event("afterprint"));

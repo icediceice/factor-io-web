@@ -52,6 +52,36 @@
       }
       function check(name, pass, detail) { out.checks.push({ name: name, pass: !!pass, detail: detail === undefined ? null : detail }); }
       function key(w, k) { w.document.body.dispatchEvent(new w.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true })); }
+      /* one-shot CSS animations still running inside root (infinite loops are intended and excepted) */
+      function oneShots(w, root) {
+        var hit = [];
+        (w.document.getAnimations ? w.document.getAnimations() : []).forEach(function (a) {
+          var tg = a.effect && a.effect.target, tm = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
+          if (a.animationName && tg && root.contains(tg) && a.playState === "running" && tm.iterations !== Infinity) hit.push(a.animationName);
+        });
+        return hit;
+      }
+      /* lay the deck out for paper: the browser prints with the print media type, so the deck's own
+         @media print rules switch to all and @media screen rules switch off; the boxes are the browser's cascade */
+      function printLayout(w) {
+        var undo = [];
+        [].forEach.call(w.document.styleSheets, function (sh) {
+          [].forEach.call(sh.cssRules, function (r) {
+            var t = r.media && r.media.mediaText;
+            if (t === "print" || t === "screen") { undo.push([r, t]); r.media.mediaText = t === "print" ? "all" : "not all"; }
+          });
+        });
+        w.dispatchEvent(new w.Event("beforeprint"));
+        var fr = [].slice.call(w.document.querySelectorAll(".frame")), y0 = fr[0].getBoundingClientRect().top, off = [];
+        fr.forEach(function (f, k) {
+          var r = f.getBoundingClientRect(), s = f.querySelector(".slide").getBoundingClientRect();
+          var page = [r.left, r.top - y0, r.width, r.height].map(Math.round), scene = [s.left - r.left, s.top - r.top, s.width, s.height].map(Math.round);
+          if (page.join() !== [0, k * 1080, 1920, 1080].join() || scene.join() !== "0,0,1920,1080") off.push({ scene: k + 1, page: page, scene: scene });
+        });
+        undo.forEach(function (u) { u[0].media.mediaText = u[1]; });
+        w.dispatchEvent(new w.Event("afterprint"));
+        return { pages: fr.length, off: off };
+      }
 
       /* measure-critique, adapted: only what a viewer can see (opacity > 0), glyph boxes against their container */
       function measure(w, root) {

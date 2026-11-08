@@ -245,6 +245,16 @@
         await sleep(900);
         var s7 = ws.document.getElementById("s7");
         check("story view plays a scene when it scrolls into view", s7.classList.contains("on") && s7.classList.contains("b1"), s7.className);
+
+        /* printing from the scroll view (the shared ?view=dossier link) */
+        var pStory = printLayout(ws);
+        check("printing from the scroll view gives 12 full 1920x1080 pages, one scene each", pStory.pages === 12 && pStory.off.length === 0, pStory.off);
+        await settle(ws);
+        var m7 = s7.getAttribute("data-times").split(",").length;
+        fr[9].scrollIntoView({ block: "start" });
+        await sleep(900);
+        var s10 = ws.document.getElementById("s10");
+        check("after a print preview, a scene not reached yet still plays as it scrolls in, and one already seen keeps its end state", s10.classList.contains("on") && s10.classList.contains("b1") && !s10.classList.contains("b" + s10.getAttribute("data-times").split(",").length) && s7.classList.contains("b" + m7), { s10: s10.className, s7: s7.className });
         /* smaller windows: the stage letterboxes instead of cropping; a portrait phone opens the scroll view */
         frame.style.width = "1366px"; frame.style.height = "768px";
         var wl = await load("?measure=1&slide=10&beat=final");

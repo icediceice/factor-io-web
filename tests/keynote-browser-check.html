@@ -188,6 +188,16 @@
         }
         check("a scene opened at its final beat does not replay one-shot motion", wf.document.getAnimations && replays.length === 0, replays);
 
+        /* printing renders every scene; closing the dialog returns the stage to the presenter's scene */
+        wf.LightKeynote.go(4, "final");
+        await settle(wf);
+        wf.dispatchEvent(new wf.Event("beforeprint"));
+        var printing = wf.document.querySelectorAll(".slide.active").length;
+        wf.dispatchEvent(new wf.Event("afterprint"));
+        await settle(wf);
+        var after = [].slice.call(wf.document.querySelectorAll(".slide.active"));
+        check("print shows all 12 scenes, then the stage returns to the presenter's scene", printing === nSlides && after.length === 1 && after[0] === wf.document.querySelectorAll(".slide")[4] && wf.LightKeynote.state().cur === 4, { printing: printing, activeAfter: after.map(function (s) { return s.id; }) });
+
         /* story view */
         var ws = await load("?view=dossier&lang=en");
         var fr = [].slice.call(ws.document.querySelectorAll(".frame")), tops = fr.map(function (f) { return Math.round(f.getBoundingClientRect().top + ws.scrollY); });

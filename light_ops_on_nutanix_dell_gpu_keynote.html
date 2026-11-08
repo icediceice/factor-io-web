@@ -71,9 +71,9 @@
       visibility: hidden; opacity: 0; pointer-events: none;
       background-color: var(--stage);
       background-image:
-        radial-gradient(1100px 640px at 84% 10%, rgba(56, 189, 248, .055), transparent 62%),
-        linear-gradient(rgba(148, 163, 184, .03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, .03) 1px, transparent 1px);
+        radial-gradient(1100px 640px at 84% 10%, var(--glow), transparent 62%),
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: auto, 64px 64px, 64px 64px;
       transition: opacity .55s ease, visibility 0s linear .55s;
     }

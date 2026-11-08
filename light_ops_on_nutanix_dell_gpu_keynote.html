@@ -1030,7 +1030,7 @@
       }
       function finalize(i) {
         clearTimers(i);
-        var s = slides[i]; s.classList.add("on", "instant"); S[i].played = true;
+        var s = slides[i]; s.classList.add("on", "instant", "fin"); S[i].played = true;
         setBeat(i, maxBeat(i), true);
         void s.offsetWidth;
         requestAnimationFrame(function () { requestAnimationFrame(function () { s.classList.remove("instant"); }); });

@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794032307086",
-  "generated_at": "2026-11-07T06:18:27.086Z",
-  "snapshot_digest": "f9d1304a68bc3721",
+  "refresh_id": "refresh-1794117922383",
+  "generated_at": "2026-11-08T06:05:22.383Z",
+  "snapshot_digest": "00e14c60a3702034",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-f9d1304a68bc3721.json",
-      "digest": "f9d1304a68bc3721",
-      "bytes": 4010739
+      "path": "catalog-00e14c60a3702034.json",
+      "digest": "00e14c60a3702034",
+      "bytes": 4013834
     },
     "fx": {
       "kind": "external",
@@ -21,28 +21,28 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-07T06:18:27.086Z",
-      "last_success_at": "2026-11-07T06:18:27.086Z",
-      "expires_at": "2026-11-10T06:18:27.086Z",
-      "root_digest": "c3e3acbd593b4835",
-      "record_count": 441,
+      "observed_at": "2026-11-08T06:05:22.383Z",
+      "last_success_at": "2026-11-08T06:05:22.383Z",
+      "expires_at": "2026-11-11T06:05:22.383Z",
+      "root_digest": "7b1e18295ba68d34",
+      "record_count": 442,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-07T06:18:27.086Z",
-      "last_success_at": "2026-11-07T06:18:27.086Z",
-      "expires_at": "2026-11-10T06:18:27.086Z",
-      "root_digest": "e5e785572437464a",
-      "record_count": 3499,
+      "observed_at": "2026-11-08T06:05:22.383Z",
+      "last_success_at": "2026-11-08T06:05:22.383Z",
+      "expires_at": "2026-11-11T06:05:22.383Z",
+      "root_digest": "ed17ba576fd1f920",
+      "record_count": 3501,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-11-06T00:00:00.000Z",
-      "last_success_at": "2026-11-07T06:18:49.812Z",
+      "last_success_at": "2026-11-08T06:05:45.531Z",
       "expires_at": "2026-11-13T23:59:59.999Z",
       "root_digest": "a0bea7dc54ab17b3",
       "record_count": 1,
@@ -20443,6 +20443,7 @@
         "input|tier=flex",
         "output|tier=flex",
         "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
         "input|>200000|tier=batches",
         "input|>200000|tier=flex",
         "output|>200000|tier=batches",
@@ -20474,6 +20475,7 @@
         "input|tier=flex",
         "output|tier=flex",
         "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
         "input|>200000|tier=batches",
         "input|>200000|tier=flex",
         "output|>200000|tier=batches",
@@ -28026,6 +28028,19 @@
       ]
     },
     {
+      "id": "litellm:moonshot/kimi-k3.1-pro-highspeed",
+      "name": "moonshot/kimi-k3.1-pro-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:moonshot/moonshot-v1-128k",
       "name": "moonshot/moonshot-v1-128k",
       "tariff": "token",
@@ -35536,6 +35551,16 @@
       ]
     },
     {
+      "id": "litellm:together_ai/essentialai/rnj-1-instruct",
+      "name": "together_ai/essentialai/rnj-1-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/google/gemma-4-31B-it",
       "name": "together_ai/google/gemma-4-31B-it",
       "tariff": "token",
@@ -42404,6 +42429,17 @@
       ]
     },
     {
+      "id": "openrouter:deepseek/deepseek-v4.1-flash-1017:batch",
+      "name": "DeepSeek: DeepSeek V4.1 Flash 1017 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:deepseek/deepseek-v4.1-flash:batch",
       "name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
       "tariff": "token",
@@ -43071,7 +43107,7 @@
       "id": "openrouter:inception/mercury-2",
       "name": "Inception: Mercury 2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -43082,7 +43118,7 @@
       "id": "openrouter:inception/mercury-2.5",
       "name": "Inception: Mercury 2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -43093,7 +43129,7 @@
       "id": "openrouter:inception/mercury-3",
       "name": "Inception: Mercury 3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -43804,8 +43840,28 @@
       ]
     },
     {
+      "id": "openrouter:morph/morph-v3-fast:batch",
+      "name": "Morph: Morph V3 Fast (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:morph/morph-v3-large",
       "name": "Morph: Morph V3 Large",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:morph/morph-v3-large:batch",
+      "name": "Morph: Morph V3 Large (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -46857,6 +46913,16 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:bedrock/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:assemblyai/best",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
@@ -46875,6 +46941,36 @@
         "offer": "litellm:azure/codex-mini",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/gpt-image-2",
@@ -46900,6 +46996,11 @@
         "offer": "litellm:azure_ai/gpt-5.4-pro-2026-03-05",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure/eu/gpt-4o-mini-realtime-preview-2024-12-17",
@@ -47072,6 +47173,26 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:azure/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:azure/gpt-5.5-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -47080,6 +47201,11 @@
         "offer": "litellm:azure/gpt-5.5-pro-2026-04-23",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure/gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure/gpt-image-1",
@@ -47357,6 +47483,16 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:azure_ai/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/minimax-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:azure_ai/MAI-Image-2.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -47410,6 +47546,16 @@
         "offer": "litellm:azure_ai/cohere-rerank-v4.0-fast",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
+      },
+      {
+        "offer": "litellm:azure_ai/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/deepseek-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/embed-v-4-0",
@@ -47490,6 +47636,21 @@
         "offer": "litellm:gpt-4o-transcribe-diarize",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:cloudflare/clef-omni",
@@ -47616,6 +47777,16 @@
         "rule": "tier_entry_skipped",
         "index": 1,
         "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-max-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:dashscope/qwen-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:dashscope/qwen-image-2.0",
@@ -47945,9 +48116,34 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:databricks/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:databricks/databricks-gpt-5-3-codex",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-gpt-5-5",
@@ -47963,6 +48159,11 @@
         "offer": "litellm:databricks/databricks-gte-large-en",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:databricks/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-qwen3-embedding-0-6b",
@@ -49465,6 +49666,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:fireworks_ai/minimax-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:fireworks_ai/nomic-ai/nomic-embed-text-v1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -49655,6 +49861,26 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:github_copilot/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:github_copilot/gpt-5.3-codex",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49690,9 +49916,19 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:github_copilot/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:github_copilot/gpt-6-luna",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:github_copilot/gpt-6-sol",
@@ -49703,6 +49939,16 @@
         "offer": "litellm:github_copilot/gpt-6.1-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:github_copilot/mai-code-1.1-flash",
@@ -50090,6 +50336,16 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:gpt-daybreak-red-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -50118,6 +50374,11 @@
         "offer": "litellm:gpt-5.4-pro-2026-03-05",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:gpt-5-pro",
@@ -50335,6 +50596,11 @@
         "mode": "audio_speech"
       },
       {
+        "offer": "litellm:minimax/minimax-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:minimax/MiniMax-H3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -50433,6 +50699,11 @@
         "offer": "litellm:mistral/codestral-embed-2505",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:moonshot/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:multimodalembedding",
@@ -51180,6 +51451,26 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:together_ai/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:together_ai/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:together_ai/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:together_ai/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:tts-1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
@@ -51258,6 +51549,16 @@
         "offer": "litellm:vertex_ai/chirp_2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:vertex_ai/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:vertex_ai/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/gemini-2.5-flash-image",
@@ -51478,6 +51779,21 @@
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-0309",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:xai/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:zai/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:zai/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/search_api",
@@ -51920,6 +52236,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:bedrock_mantle/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-6-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -51930,6 +52251,21 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:bedrock_mantle/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-5.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -51938,6 +52274,16 @@
         "offer": "litellm:bedrock_mantle/openai.gpt-5.4",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock_mantle/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:volcengine/doubao-seedance-2-5-260628",
@@ -52008,6 +52354,16 @@
         "offer": "litellm:soniox/stt-rt-v4",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepseek/deepseek-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:deepseek/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:tencent/seedream-image-v5.0-flash",
@@ -52145,6 +52501,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:fireworks_ai/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:xai/grok-imagine-image",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -52265,6 +52626,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:together_ai/qwen-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:elevenlabs/scribe_v2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
@@ -52278,6 +52644,16 @@
         "offer": "litellm:azure_ai/MAI-Image-2.6-Flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:azure_ai/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:bedrock_mantle/us-gov-west-1/openai.gpt-5.6-terra",
@@ -52483,6 +52859,11 @@
         "offer": "litellm:perplexity/perplexity/nemotron-3-ultra-550b-a55b",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:baseten/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/gemini-2.5-flash-native-audio",
@@ -52745,6 +53126,11 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:bedrock/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -52758,6 +53144,26 @@
         "offer": "litellm:xai/grok-4.20-multi-agent-experimental-beta-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:baseten/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:baseten/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:baseten/deepseek-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:baseten/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:fireworks_ai/accounts/fireworks/routers/rune",
@@ -52805,6 +53211,16 @@
         "mode": "ocr"
       },
       {
+        "offer": "litellm:azure_ai/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:perplexity/anthropic/claude-sonnet-5-5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -52850,9 +53266,34 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:vertex_ai/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-6.1-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/gemini-3.8-flash-tts",
@@ -52863,6 +53304,16 @@
         "offer": "litellm:vertex_ai/gemini-3.8-flash-lite-tts",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:vertex_ai/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:amazon.nova-2-5-sonic",
@@ -52890,9 +53341,39 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:azure_ai/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock_mantle/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:perplexity/anthropic/claude-haiku-5-5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:vertex_ai/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/Microsoft-Decision-1",
@@ -52935,6 +53416,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:github_copilot/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:meta/muse-image-1.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -52970,9 +53456,19 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:chatgpt/gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:baseten/decision-models/baseten-elephant-9b-latest",
@@ -52990,6 +53486,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:github_copilot/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:fireworks_ai/accounts/fireworks/models/rune",
         "rule": "skipped_out_of_scope_mode",
         "mode": "decisions"
@@ -52998,6 +53499,21 @@
         "offer": "litellm:bedrock_mantle/openai.gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-gpt-5-4-pro",
@@ -53010,9 +53526,29 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:databricks/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:databricks/databricks-gpt-6-luna",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-gpt-6-sol",
@@ -53038,6 +53574,11 @@
         "offer": "litellm:databricks/databricks-gpt-image-2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:databricks/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:baseten/decision-models/baseten-joey-2b-latest",
@@ -53085,6 +53626,11 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:bedrock_mantle/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:azure_ai/cohere-rerank-v5-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -53093,6 +53639,21 @@
         "offer": "litellm:azure_ai/cohere-rerank-v5-fast",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
+      },
+      {
+        "offer": "litellm:azure/us/gpt-realtime-2.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/us/gpt-realtime-2.1-mini",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/us/gpt-realtime-1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
       }
     ],
     "source_errors": {

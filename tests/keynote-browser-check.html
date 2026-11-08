@@ -183,6 +183,19 @@
         await sleep(900);
         var s7 = ws.document.getElementById("s7");
         check("story view plays a scene when it scrolls into view", s7.classList.contains("on") && s7.classList.contains("b1"), s7.className);
+        /* smaller windows: the stage letterboxes instead of cropping; a portrait phone opens the scroll view */
+        frame.style.width = "1366px"; frame.style.height = "768px";
+        var wl = await load("?measure=1&slide=10&beat=final");
+        var stg = wl.document.getElementById("stage").getBoundingClientRect();
+        var fitsLaptop = stg.left >= -1 && stg.top >= -1 && stg.right <= 1367 && stg.bottom <= 769 && Math.abs(stg.width / 1920 - Math.min(1366 / 1920, 768 / 1080)) < 0.01;
+        check("1366x768: the whole 1920x1080 stage is visible, scaled to fit", fitsLaptop, { left: Math.round(stg.left), top: Math.round(stg.top), w: Math.round(stg.width), h: Math.round(stg.height) });
+        frame.style.width = "390px"; frame.style.height = "844px";
+        var wp = await load("?lang=en");
+        var hintShown = wp.getComputedStyle(wp.document.querySelector(".rotate-hint")).display !== "none";
+        check("390x844 portrait: opens the scroll view and shows the rotate hint", wp.LightKeynote.state().view === "story" && hintShown, { view: wp.LightKeynote.state().view, hint: hintShown });
+        var f0 = wp.document.querySelector(".frame").getBoundingClientRect();
+        check("390x844 portrait: scenes fit the phone width", f0.left >= 0 && f0.right <= 390, { left: Math.round(f0.left), right: Math.round(f0.right) });
+        frame.style.width = ""; frame.style.height = "";
       } catch (e) {
         check("fixture ran to completion", false, String(e && e.stack || e));
       }

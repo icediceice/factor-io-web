@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1793341520529",
-  "generated_at": "2026-10-30T06:25:20.529Z",
-  "snapshot_digest": "f43ccc2207692787",
+  "refresh_id": "refresh-1794117922383",
+  "generated_at": "2026-11-08T06:05:22.383Z",
+  "snapshot_digest": "00e14c60a3702034",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-f43ccc2207692787.json",
-      "digest": "f43ccc2207692787",
-      "bytes": 3784613
+      "path": "catalog-00e14c60a3702034.json",
+      "digest": "00e14c60a3702034",
+      "bytes": 4013834
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "589f44a052a06d71",
+      "digest": "a0bea7dc54ab17b3",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-10-30T06:25:20.529Z",
-      "last_success_at": "2026-10-30T06:25:20.529Z",
-      "expires_at": "2026-11-02T06:25:20.529Z",
-      "root_digest": "fdacf1a12e4a4bdd",
-      "record_count": 437,
+      "observed_at": "2026-11-08T06:05:22.383Z",
+      "last_success_at": "2026-11-08T06:05:22.383Z",
+      "expires_at": "2026-11-11T06:05:22.383Z",
+      "root_digest": "7b1e18295ba68d34",
+      "record_count": 442,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-10-30T06:25:20.529Z",
-      "last_success_at": "2026-10-30T06:25:20.529Z",
-      "expires_at": "2026-11-02T06:25:20.529Z",
-      "root_digest": "5842c5cdbd0fd31a",
-      "record_count": 3290,
+      "observed_at": "2026-11-08T06:05:22.383Z",
+      "last_success_at": "2026-11-08T06:05:22.383Z",
+      "expires_at": "2026-11-11T06:05:22.383Z",
+      "root_digest": "ed17ba576fd1f920",
+      "record_count": 3501,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-10-29T00:00:00.000Z",
-      "last_success_at": "2026-10-30T06:25:48.998Z",
-      "expires_at": "2026-11-05T23:59:59.999Z",
-      "root_digest": "589f44a052a06d71",
+      "observed_at": "2026-11-06T00:00:00.000Z",
+      "last_success_at": "2026-11-08T06:05:45.531Z",
+      "expires_at": "2026-11-13T23:59:59.999Z",
+      "root_digest": "a0bea7dc54ab17b3",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -179,8 +179,30 @@
       ]
     },
     {
+      "id": "litellm:aiand/deepseek-ai/deepseek-v4.1-flash-1017",
+      "name": "aiand/deepseek-ai/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:aiand/google/gemma-4-31b-it",
       "name": "aiand/google/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:aiand/meta/muse-spark-open",
+      "name": "aiand/meta/muse-spark-open",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -1508,7 +1530,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -1893,7 +1917,9 @@
         "cache_write",
         "input",
         "cache_read",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -2072,7 +2098,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -2186,16 +2214,6 @@
       "state": "active",
       "meters": [
         "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/command-r-plus",
-      "name": "azure/command-r-plus",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
         "input",
         "output"
       ]
@@ -2880,17 +2898,6 @@
       ]
     },
     {
-      "id": "litellm:azure/eu/o1-preview",
-      "name": "azure/eu/o1-preview",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/eu/o3",
       "name": "azure/eu/o3",
       "tariff": "token",
@@ -3089,26 +3096,6 @@
       ]
     },
     {
-      "id": "litellm:azure/gpt-35-turbo-16k",
-      "name": "azure/gpt-35-turbo-16k",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-35-turbo-16k-0613",
-      "name": "azure/gpt-35-turbo-16k-0613",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/gpt-35-turbo-instruct",
       "name": "azure/gpt-35-turbo-instruct",
       "tariff": "token",
@@ -3129,16 +3116,6 @@
       ]
     },
     {
-      "id": "litellm:azure/gpt-4",
-      "name": "azure/gpt-4",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/gpt-4-0125-preview",
       "name": "azure/gpt-4-0125-preview",
       "tariff": "token",
@@ -3149,38 +3126,8 @@
       ]
     },
     {
-      "id": "litellm:azure/gpt-4-0613",
-      "name": "azure/gpt-4-0613",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/gpt-4-1106-preview",
       "name": "azure/gpt-4-1106-preview",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-4-32k",
-      "name": "azure/gpt-4-32k",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-4-32k-0613",
-      "name": "azure/gpt-4-32k-0613",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -3298,19 +3245,6 @@
     {
       "id": "litellm:azure/gpt-4.1-nano-2025-04-14",
       "name": "azure/gpt-4.1-nano-2025-04-14",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
-      ]
-    },
-    {
-      "id": "litellm:azure/gpt-4.5-preview",
-      "name": "azure/gpt-4.5-preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -4082,7 +4016,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex"
       ]
     },
     {
@@ -4098,7 +4040,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex"
       ]
     },
     {
@@ -4114,7 +4064,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_read|tier=flex",
+        "input|>272000|tier=flex",
+        "input|tier=flex",
+        "output|>272000|tier=flex",
+        "output|tier=flex"
       ]
     },
     {
@@ -4130,7 +4088,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_read|tier=flex",
+        "input|>272000|tier=flex",
+        "input|tier=flex",
+        "output|>272000|tier=flex",
+        "output|tier=flex"
       ]
     },
     {
@@ -4154,7 +4120,15 @@
         "output",
         "output|>272000",
         "output|>272000|tier=priority",
-        "output|tier=priority"
+        "output|tier=priority",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -4178,7 +4152,15 @@
         "output",
         "output|>272000",
         "output|>272000|tier=priority",
-        "output|tier=priority"
+        "output|tier=priority",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -4194,7 +4176,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -4210,7 +4200,15 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000"
+        "output|>272000",
+        "input|tier=flex",
+        "output|tier=flex",
+        "cache_read|tier=flex",
+        "cache_write|tier=flex",
+        "input|>272000|tier=flex",
+        "output|>272000|tier=flex",
+        "cache_read|>272000|tier=flex",
+        "cache_write|>272000|tier=flex"
       ]
     },
     {
@@ -5226,17 +5224,6 @@
       ]
     },
     {
-      "id": "litellm:azure/us/o1-preview",
-      "name": "azure/us/o1-preview",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "cache_read",
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure/us/o3",
       "name": "azure/us/o3",
       "tariff": "token",
@@ -5650,116 +5637,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/Meta-Llama-3-70B-Instruct",
-      "name": "azure_ai/Meta-Llama-3-70B-Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Meta-Llama-3.1-70B-Instruct",
-      "name": "azure_ai/Meta-Llama-3.1-70B-Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-medium-128k-instruct",
-      "name": "azure_ai/Phi-3-medium-128k-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-medium-4k-instruct",
-      "name": "azure_ai/Phi-3-medium-4k-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-mini-128k-instruct",
-      "name": "azure_ai/Phi-3-mini-128k-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-mini-4k-instruct",
-      "name": "azure_ai/Phi-3-mini-4k-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-small-128k-instruct",
-      "name": "azure_ai/Phi-3-small-128k-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3-small-8k-instruct",
-      "name": "azure_ai/Phi-3-small-8k-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3.5-MoE-instruct",
-      "name": "azure_ai/Phi-3.5-MoE-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3.5-mini-instruct",
-      "name": "azure_ai/Phi-3.5-mini-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/Phi-3.5-vision-instruct",
-      "name": "azure_ai/Phi-3.5-vision-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/Phi-4",
       "name": "azure_ai/Phi-4",
       "tariff": "token",
@@ -5865,6 +5742,19 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/claude-mythos-5-1",
+      "name": "azure_ai/claude-mythos-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read"
       ]
     },
     {
@@ -6013,16 +5903,6 @@
     {
       "id": "litellm:azure_ai/cohere-command-a",
       "name": "azure_ai/cohere-command-a",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/deepseek-v3",
-      "name": "azure_ai/deepseek-v3",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -6455,16 +6335,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/jamba-instruct",
-      "name": "azure_ai/jamba-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/kimi-k2-thinking",
       "name": "azure_ai/kimi-k2-thinking",
       "tariff": "token",
@@ -6518,26 +6388,6 @@
       ]
     },
     {
-      "id": "litellm:azure_ai/mistral-large",
-      "name": "azure_ai/mistral-large",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/mistral-large-2407",
-      "name": "azure_ai/mistral-large-2407",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:azure_ai/mistral-large-3",
       "name": "azure_ai/mistral-large-3",
       "tariff": "token",
@@ -6580,16 +6430,6 @@
     {
       "id": "litellm:azure_ai/mistral-nemo",
       "name": "azure_ai/mistral-nemo",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:azure_ai/mistral-small",
-      "name": "azure_ai/mistral-small",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -6812,6 +6652,17 @@
     {
       "id": "litellm:baseten/moonshotai/Kimi-K3",
       "name": "baseten/moonshotai/Kimi-K3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:baseten/moonshotai/Kimi-K3.1-Pro",
+      "name": "baseten/moonshotai/Kimi-K3.1-Pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -8543,6 +8394,18 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-fable-5-1",
       "name": "bedrock/us-gov-east-1/anthropic.claude-fable-5-1",
       "tariff": "token",
@@ -8609,7 +8472,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -8698,13 +8563,41 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/moonshotai.kimi-k3",
+      "name": "bedrock/us-gov-east-1/moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
       "name": "bedrock/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8714,7 +8607,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8724,7 +8623,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8734,7 +8639,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8744,7 +8655,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8754,7 +8671,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8765,7 +8688,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -8776,7 +8701,9 @@
       "meters": [
         "cache_read",
         "input",
-        "output"
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
       ]
     },
     {
@@ -8786,8 +8713,16 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8887,7 +8822,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -8976,13 +8913,41 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-west-1/moonshotai.kimi-k3",
+      "name": "bedrock/us-gov-west-1/moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
       "name": "bedrock/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -8992,7 +8957,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9002,7 +8973,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9012,7 +8989,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9022,7 +9005,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9032,7 +9021,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9531,13 +9526,83 @@
       ]
     },
     {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-12b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-3-30b",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-3-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-9b-v2",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-nano-9b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/nvidia.nemotron-super-3-120b",
+      "name": "bedrock_mantle/us-gov-east-1/nvidia.nemotron-super-3-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-oss-120b",
       "name": "bedrock_mantle/us-gov-east-1/openai.gpt-oss-120b",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9547,7 +9612,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9558,7 +9629,32 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-east-1/xai.grok-4.7",
+      "name": "bedrock_mantle/us-gov-east-1/xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9612,7 +9708,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9622,7 +9724,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9632,7 +9740,76 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-12b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-3-30b",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-3-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-9b-v2",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-nano-9b-v2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/nvidia.nemotron-super-3-120b",
+      "name": "bedrock_mantle/us-gov-west-1/nvidia.nemotron-super-3-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9642,7 +9819,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9652,7 +9835,13 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9663,7 +9852,16 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9674,7 +9872,32 @@
       "meters": [
         "input",
         "output",
-        "cache_read"
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/us-gov-west-1/xai.grok-4.7",
+      "name": "bedrock_mantle/us-gov-west-1/xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -9710,6 +9933,25 @@
         "cache_read|tier=priority",
         "input|tier=flex",
         "input|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:bedrock_mantle/xai.grok-4.7",
+      "name": "bedrock_mantle/xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
       ]
@@ -9800,16 +10042,6 @@
     {
       "id": "litellm:cerebras/llama-3.3-70b",
       "name": "cerebras/llama-3.3-70b",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:cerebras/llama3.1-70b",
-      "name": "cerebras/llama3.1-70b",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -12537,6 +12769,20 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-kimi-k3-1-pro",
+      "name": "databricks/databricks-kimi-k3-1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-llama-4-maverick",
       "name": "databricks/databricks-llama-4-maverick",
       "tariff": "token",
@@ -14326,6 +14572,1034 @@
       ]
     },
     {
+      "id": "litellm:empiriolabs/aplomb-1",
+      "name": "empiriolabs/aplomb-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-1-flash-1017",
+      "name": "empiriolabs/deepseek-v4-1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-flash-0731",
+      "name": "empiriolabs/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-flash-0731:variant1",
+      "name": "empiriolabs/deepseek-v4-flash-0731:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro",
+      "name": "empiriolabs/deepseek-v4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro-0813",
+      "name": "empiriolabs/deepseek-v4-pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro:variant1",
+      "name": "empiriolabs/deepseek-v4-pro:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro:variant2",
+      "name": "empiriolabs/deepseek-v4-pro:variant2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/deepseek-v4-pro:variant3",
+      "name": "empiriolabs/deepseek-v4-pro:variant3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-max",
+      "name": "empiriolabs/fugu-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-ultra-v1-0",
+      "name": "empiriolabs/fugu-ultra-v1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>272000",
+        "output|>272000",
+        "cache_read|>272000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-ultra-v1-1",
+      "name": "empiriolabs/fugu-ultra-v1-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>272000",
+        "output|>272000",
+        "cache_read|>272000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/fugu-ultra-v2-0",
+      "name": "empiriolabs/fugu-ultra-v2-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>272000",
+        "output|>272000",
+        "cache_read|>272000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/gemma-4-26b-a4b",
+      "name": "empiriolabs/gemma-4-26b-a4b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-4-6v-flashx",
+      "name": "empiriolabs/glm-4-6v-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-4-7-flashx",
+      "name": "empiriolabs/glm-4-7-flashx",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-1",
+      "name": "empiriolabs/glm-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "cache_read|>32000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-2",
+      "name": "empiriolabs/glm-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-2:variant1",
+      "name": "empiriolabs/glm-5-2:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-2:variant2",
+      "name": "empiriolabs/glm-5-2:variant2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-3",
+      "name": "empiriolabs/glm-5-3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/glm-5-3-flash",
+      "name": "empiriolabs/glm-5-3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-6",
+      "name": "empiriolabs/kimi-k2-6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-7-code",
+      "name": "empiriolabs/kimi-k2-7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-7-code-highspeed",
+      "name": "empiriolabs/kimi-k2-7-code-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k2-7-code:variant1",
+      "name": "empiriolabs/kimi-k2-7-code:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k3",
+      "name": "empiriolabs/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/kimi-k3-1-pro",
+      "name": "empiriolabs/kimi-k3-1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mimo-v2-6-flash",
+      "name": "empiriolabs/mimo-v2-6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mimo-v2-6-pro",
+      "name": "empiriolabs/mimo-v2-6-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mimo-v2-6-pro-ultraspeed",
+      "name": "empiriolabs/mimo-v2-6-pro-ultraspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m2-7",
+      "name": "empiriolabs/minimax-m2-7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m2-7-highspeed",
+      "name": "empiriolabs/minimax-m2-7-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m3",
+      "name": "empiriolabs/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>512000",
+        "output|>512000",
+        "cache_read|>512000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m3-1-flash",
+      "name": "empiriolabs/minimax-m3-1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/minimax-m3:priority",
+      "name": "empiriolabs/minimax-m3:priority",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>512000",
+        "output|>512000",
+        "cache_read|>512000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/mistral-small-4",
+      "name": "empiriolabs/mistral-small-4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-glimmer-30b",
+      "name": "empiriolabs/muse-glimmer-30b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-spark-1-1",
+      "name": "empiriolabs/muse-spark-1-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-spark-1-2",
+      "name": "empiriolabs/muse-spark-1-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/muse-spark-1-3",
+      "name": "empiriolabs/muse-spark-1-3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-lite-1-0",
+      "name": "empiriolabs/nova-lite-1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-lite-2",
+      "name": "empiriolabs/nova-lite-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-micro-1-0",
+      "name": "empiriolabs/nova-micro-1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/nova-pro-1-0",
+      "name": "empiriolabs/nova-pro-1-0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-advanced-deep-research",
+      "name": "empiriolabs/perplexity-advanced-deep-research",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-deep-research",
+      "name": "empiriolabs/perplexity-deep-research",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-pro-search",
+      "name": "empiriolabs/perplexity-pro-search",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-sonar",
+      "name": "empiriolabs/perplexity-sonar",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-sonar-pro",
+      "name": "empiriolabs/perplexity-sonar-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/perplexity-sonar-reasoning-pro",
+      "name": "empiriolabs/perplexity-sonar-reasoning-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-122b-a10b",
+      "name": "empiriolabs/qwen3-5-122b-a10b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-27b",
+      "name": "empiriolabs/qwen3-5-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-35b-a3b",
+      "name": "empiriolabs/qwen3-5-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-397b-a17b",
+      "name": "empiriolabs/qwen3-5-397b-a17b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-4b",
+      "name": "empiriolabs/qwen3-5-4b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-9b",
+      "name": "empiriolabs/qwen3-5-9b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-flash",
+      "name": "empiriolabs/qwen3-5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-flash:variant1",
+      "name": "empiriolabs/qwen3-5-flash:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-omni-flash",
+      "name": "empiriolabs/qwen3-5-omni-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-omni-plus",
+      "name": "empiriolabs/qwen3-5-omni-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-plus",
+      "name": "empiriolabs/qwen3-5-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-5-plus:variant1",
+      "name": "empiriolabs/qwen3-5-plus:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-27b",
+      "name": "empiriolabs/qwen3-6-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-35b-a3b",
+      "name": "empiriolabs/qwen3-6-35b-a3b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-flash",
+      "name": "empiriolabs/qwen3-6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-flash:variant1",
+      "name": "empiriolabs/qwen3-6-flash:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-plus",
+      "name": "empiriolabs/qwen3-6-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-6-plus:variant1",
+      "name": "empiriolabs/qwen3-6-plus:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-flash",
+      "name": "empiriolabs/qwen3-7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "cache_read|>32000",
+        "input|>256000",
+        "output|>256000",
+        "cache_read|>256000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-flash:variant1",
+      "name": "empiriolabs/qwen3-7-flash:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>32000",
+        "output|>32000",
+        "cache_read|>32000",
+        "input|>256000",
+        "output|>256000",
+        "cache_read|>256000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-max",
+      "name": "empiriolabs/qwen3-7-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-max:variant1",
+      "name": "empiriolabs/qwen3-7-max:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-plus",
+      "name": "empiriolabs/qwen3-7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-7-plus:variant1",
+      "name": "empiriolabs/qwen3-7-plus:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>256000",
+        "output|>256000",
+        "cache_read|>256000",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-27b",
+      "name": "empiriolabs/qwen3-8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-flash",
+      "name": "empiriolabs/qwen3-8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-max",
+      "name": "empiriolabs/qwen3-8-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-max-0902",
+      "name": "empiriolabs/qwen3-8-max-0902",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-max:variant1",
+      "name": "empiriolabs/qwen3-8-max:variant1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/qwen3-8-omni-flash",
+      "name": "empiriolabs/qwen3-8-omni-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-code",
+      "name": "empiriolabs/seed-2-0-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-lite",
+      "name": "empiriolabs/seed-2-0-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-mini",
+      "name": "empiriolabs/seed-2-0-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-0-pro",
+      "name": "empiriolabs/seed-2-0-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "input|>128000",
+        "output|>128000"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/seed-2-1-turbo",
+      "name": "empiriolabs/seed-2-1-turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-3-5-flash",
+      "name": "empiriolabs/step-3-5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-3-5-flash-2603",
+      "name": "empiriolabs/step-3-5-flash-2603",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-3-7-flash",
+      "name": "empiriolabs/step-3-7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/step-5-preview",
+      "name": "empiriolabs/step-5-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/stepaudio-2-5-chat",
+      "name": "empiriolabs/stepaudio-2-5-chat",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:empiriolabs/stepaudio-3-chat",
+      "name": "empiriolabs/stepaudio-3-chat",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:eu.amazon.nova-2-lite-v1:0",
       "name": "eu.amazon.nova-2-lite-v1:0",
       "tariff": "token",
@@ -14475,7 +15749,7 @@
       "id": "litellm:eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -14590,7 +15864,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -15861,6 +17137,20 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/kimi-k3",
       "name": "fireworks_ai/accounts/fireworks/models/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/kimi-k3p1-pro",
+      "name": "fireworks_ai/accounts/fireworks/models/kimi-k3p1-pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -17539,6 +18829,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-ultrafast",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-ultrafast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-spot",
       "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-spot",
       "tariff": "token",
@@ -18415,17 +19716,23 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
+        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
-        "input",
-        "output",
+        "audio_in_tok|>200000",
+        "audio_in_tok|>200000|tier=batches",
+        "audio_in_tok|>200000|tier=flex",
+        "audio_in_tok|>200000|tier=priority",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=flex",
+        "audio_in_tok|tier=priority",
+        "input",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
-        "audio_in_tok|tier=priority",
+        "output",
         "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
@@ -18438,17 +19745,23 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
+        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
-        "input",
-        "output",
+        "audio_in_tok|>200000",
+        "audio_in_tok|>200000|tier=batches",
+        "audio_in_tok|>200000|tier=flex",
+        "audio_in_tok|>200000|tier=priority",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=flex",
+        "audio_in_tok|tier=priority",
+        "input",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
-        "audio_in_tok|tier=priority",
+        "output",
         "output|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
@@ -18495,11 +19808,13 @@
         "output",
         "output|>200000",
         "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
         "output|>200000|tier=batches",
+        "output|>200000|tier=flex",
         "output|>200000|tier=priority",
         "output|tier=batches",
         "output|tier=flex",
@@ -18527,10 +19842,16 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
+        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=priority",
         "audio_in_tok",
+        "audio_in_tok|>200000",
+        "audio_in_tok|>200000|tier=batches",
+        "audio_in_tok|>200000|tier=flex",
+        "audio_in_tok|>200000|tier=priority",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=flex",
         "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
@@ -18549,21 +19870,29 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
+        "cache_read_audio|tier=batches",
+        "cache_read_audio|tier=flex",
+        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
+        "audio_in_tok|>200000",
+        "audio_in_tok|>200000|tier=batches",
+        "audio_in_tok|>200000|tier=flex",
+        "audio_in_tok|>200000|tier=priority",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=flex",
+        "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
-        "audio_in_tok|tier=priority",
         "output",
         "output|tier=batches",
         "output|tier=flex",
-        "output|tier=priority",
-        "audio_in_tok|tier=batches"
+        "output|tier=priority"
       ]
     },
     {
@@ -18592,6 +19921,7 @@
         "input",
         "input|>200000",
         "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
@@ -18600,6 +19930,7 @@
         "output",
         "output|>200000",
         "output|>200000|tier=batches",
+        "output|>200000|tier=flex",
         "output|>200000|tier=priority",
         "output|tier=batches",
         "output|tier=flex",
@@ -18851,12 +20182,9 @@
       "state": "active",
       "meters": [
         "cache_read",
-        "cache_read|tier=batches",
         "audio_in_tok",
         "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
+        "output"
       ]
     },
     {
@@ -18987,7 +20315,13 @@
         "input|tier=batches",
         "input|tier=flex",
         "output|tier=batches",
-        "output|tier=flex"
+        "output|tier=flex",
+        "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
+        "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex"
       ]
     },
     {
@@ -19107,7 +20441,13 @@
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "input|tier=flex",
-        "output|tier=flex"
+        "output|tier=flex",
+        "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
+        "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex"
       ]
     },
     {
@@ -19133,7 +20473,13 @@
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "input|tier=flex",
-        "output|tier=flex"
+        "output|tier=flex",
+        "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
+        "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex"
       ]
     },
     {
@@ -19347,6 +20693,17 @@
       "state": "active",
       "meters": [
         "audio_in_tok",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gemini/gemini-omni-1.2-flash",
+      "name": "gemini/gemini-omni-1.2-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "image_in_tok",
         "input",
         "output"
       ]
@@ -19980,7 +21337,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -20074,6 +21433,26 @@
     {
       "id": "litellm:global.moonshotai.kimi-k3",
       "name": "global.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:global.moonshotai.kimi-k3.1",
+      "name": "global.moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20326,8 +21705,144 @@
       ]
     },
     {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M2",
+      "name": "gmi/MiniMaxAI/MiniMax-M2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/MiniMaxAI/MiniMax-M2.1",
       "name": "gmi/MiniMaxAI/MiniMax-M2.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M2.5",
+      "name": "gmi/MiniMaxAI/MiniMax-M2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M2.7",
+      "name": "gmi/MiniMaxAI/MiniMax-M2.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M3",
+      "name": "gmi/MiniMaxAI/MiniMax-M3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/MiniMaxAI/MiniMax-M3.1-Flash",
+      "name": "gmi/MiniMaxAI/MiniMax-M3.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-235B-A22B-FP8",
+      "name": "gmi/Qwen/Qwen3-235B-A22B-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+      "name": "gmi/Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-235B-A22B-Thinking-2507-FP8",
+      "name": "gmi/Qwen/Qwen3-235B-A22B-Thinking-2507-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-30B-A3B",
+      "name": "gmi/Qwen/Qwen3-30B-A3B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-32B-FP8",
+      "name": "gmi/Qwen/Qwen3-32B-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
+      "name": "gmi/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "name": "gmi/Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3-Next-80B-A3B-Thinking",
+      "name": "gmi/Qwen/Qwen3-Next-80B-A3B-Thinking",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20341,6 +21856,175 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-122B-A10B",
+      "name": "gmi/Qwen/Qwen3.5-122B-A10B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-27B",
+      "name": "gmi/Qwen/Qwen3.5-27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-35B-A3B",
+      "name": "gmi/Qwen/Qwen3.5-35B-A3B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.5-397B-A17B",
+      "name": "gmi/Qwen/Qwen3.5-397B-A17B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.6-35B-A3B",
+      "name": "gmi/Qwen/Qwen3.6-35B-A3B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.6-Plus",
+      "name": "gmi/Qwen/Qwen3.6-Plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.6-Plus-2026-04-02",
+      "name": "gmi/Qwen/Qwen3.6-Plus-2026-04-02",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.7-Max",
+      "name": "gmi/Qwen/Qwen3.7-Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-27B",
+      "name": "gmi/Qwen/Qwen3.8-27B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-Flash",
+      "name": "gmi/Qwen/Qwen3.8-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-Max",
+      "name": "gmi/Qwen/Qwen3.8-Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/Qwen/Qwen3.8-Max-0902",
+      "name": "gmi/Qwen/Qwen3.8-Max-0902",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.5",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.5-Pro",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.5-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.6-Flash",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.6-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/XiaomiMiMo/MiMo-V2.6-Pro",
+      "name": "gmi/XiaomiMiMo/MiMo-V2.6-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -20386,8 +22070,109 @@
       ]
     },
     {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-Prover-V2-671B",
+      "name": "gmi/deepseek-ai/DeepSeek-Prover-V2-671B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1",
+      "name": "gmi/deepseek-ai/DeepSeek-R1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-0528",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-0528",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "name": "gmi/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/deepseek-ai/DeepSeek-V3-0324",
       "name": "gmi/deepseek-ai/DeepSeek-V3-0324",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.1",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.1-Terminus",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.1-Terminus",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20406,6 +22191,103 @@
       ]
     },
     {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.2-Exp",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.2-Exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V3.2-Speciale",
+      "name": "gmi/deepseek-ai/DeepSeek-V3.2-Speciale",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4-Flash",
+      "name": "gmi/deepseek-ai/DeepSeek-V4-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "name": "gmi/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "name": "gmi/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/DeepSeek-V4.1-Flash",
+      "name": "gmi/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/deepseek-v4-flash-vision-exp",
+      "name": "gmi/deepseek-ai/deepseek-v4-flash-vision-exp",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/deepseek-ai/deepseek-v4.1-flash-1017",
+      "name": "gmi/deepseek-ai/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/gmicloud/Ripple-65B-Preview",
+      "name": "gmi/gmicloud/Ripple-65B-Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/google/gemini-3-flash-preview",
       "name": "gmi/google/gemini-3-flash-preview",
       "tariff": "token",
@@ -20416,11 +22298,258 @@
       ]
     },
     {
+      "id": "litellm:gmi/google/gemini-3.1-flash-lite-preview",
+      "name": "gmi/google/gemini-3.1-flash-lite-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.1-pro-preview",
+      "name": "gmi/google/gemini-3.1-pro-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.5-flash",
+      "name": "gmi/google/gemini-3.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.5-flash-lite",
+      "name": "gmi/google/gemini-3.5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.6-flash",
+      "name": "gmi/google/gemini-3.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.7-flash",
+      "name": "gmi/google/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-3.8-flash",
+      "name": "gmi/google/gemini-3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-4-argon",
+      "name": "gmi/google/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemma-4-26b-a4b-it",
+      "name": "gmi/google/gemma-4-26b-a4b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemma-4-31b-it",
+      "name": "gmi/google/gemma-4-31b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/meta-llama/Llama-3.3-70B-Instruct",
+      "name": "gmi/meta-llama/Llama-3.3-70B-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "name": "gmi/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+      "name": "gmi/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/Kimi-K2-Instruct-0905",
+      "name": "gmi/moonshotai/Kimi-K2-Instruct-0905",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/moonshotai/Kimi-K2-Thinking",
       "name": "gmi/moonshotai/Kimi-K2-Thinking",
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/Kimi-K2.5",
+      "name": "gmi/moonshotai/Kimi-K2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/Kimi-K2.6",
+      "name": "gmi/moonshotai/Kimi-K2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k2.7-code",
+      "name": "gmi/moonshotai/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k2.7-code-highspeed",
+      "name": "gmi/moonshotai/kimi-k2.7-code-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k3",
+      "name": "gmi/moonshotai/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/moonshotai/kimi-k3.1-pro",
+      "name": "gmi/moonshotai/kimi-k3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+      "name": "gmi/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "name": "gmi/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "gmi/nvidia/nemotron-3-ultra-550b-a55b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -20476,11 +22605,355 @@
       ]
     },
     {
+      "id": "litellm:gmi/openai/gpt-5.4",
+      "name": "gmi/openai/gpt-5.4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.4-mini",
+      "name": "gmi/openai/gpt-5.4-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.4-nano",
+      "name": "gmi/openai/gpt-5.4-nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.4-pro",
+      "name": "gmi/openai/gpt-5.4-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.5",
+      "name": "gmi/openai/gpt-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.6-luna",
+      "name": "gmi/openai/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.6-sol",
+      "name": "gmi/openai/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-5.6-terra",
+      "name": "gmi/openai/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6-astra",
+      "name": "gmi/openai/gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6-luna",
+      "name": "gmi/openai/gpt-6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6-sol",
+      "name": "gmi/openai/gpt-6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-6.1-sol",
+      "name": "gmi/openai/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-oss-120b",
+      "name": "gmi/openai/gpt-oss-120b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/openai/gpt-oss-20b",
+      "name": "gmi/openai/gpt-oss-20b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/stepfun-ai/Step-3.7-Flash",
+      "name": "gmi/stepfun-ai/Step-3.7-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/stepfun-ai/Step-5-Preview",
+      "name": "gmi/stepfun-ai/Step-5-Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/HunyuanOCR",
+      "name": "gmi/tencent/HunyuanOCR",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/Hy3",
+      "name": "gmi/tencent/Hy3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/hy3-preview",
+      "name": "gmi/tencent/hy3-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/hy4",
+      "name": "gmi/tencent/hy4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/tencent/hy4-preview",
+      "name": "gmi/tencent/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/x-ai/grok-4.5",
+      "name": "gmi/x-ai/grok-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/xai/grok4.6",
+      "name": "gmi/xai/grok4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.5-Air-FP8",
+      "name": "gmi/zai-org/GLM-4.5-Air-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.5-FP8",
+      "name": "gmi/zai-org/GLM-4.5-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.6",
+      "name": "gmi/zai-org/GLM-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/zai-org/GLM-4.7-FP8",
       "name": "gmi/zai-org/GLM-4.7-FP8",
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-4.7-Flash",
+      "name": "gmi/zai-org/GLM-4.7-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5-FP8",
+      "name": "gmi/zai-org/GLM-5-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.1-FP8",
+      "name": "gmi/zai-org/GLM-5.1-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.2-FP8",
+      "name": "gmi/zai-org/GLM-5.2-FP8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.3",
+      "name": "gmi/zai-org/GLM-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/zai-org/GLM-5.3-Flash",
+      "name": "gmi/zai-org/GLM-5.3-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -21603,6 +24076,29 @@
       ]
     },
     {
+      "id": "litellm:gpt-6-astra-law",
+      "name": "gpt-6-astra-law",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gpt-6-cyber",
+      "name": "gpt-6-cyber",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gpt-6-luna",
       "name": "gpt-6-luna",
       "tariff": "token",
@@ -21640,6 +24136,22 @@
         "output|>272000|tier=batches",
         "output|tier=flex",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:gpt-6-rosalind",
+      "name": "gpt-6-rosalind",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
       ]
     },
     {
@@ -21945,16 +24457,6 @@
       ]
     },
     {
-      "id": "litellm:groq/llama-guard-3-8b",
-      "name": "groq/llama-guard-3-8b",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:groq/meta-llama/llama-prompt-guard-2-22m",
       "name": "groq/meta-llama/llama-prompt-guard-2-22m",
       "tariff": "token",
@@ -22013,6 +24515,30 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:hostinger_router/claude-sonnet-5",
+      "name": "hostinger_router/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:hostinger_router/gpt-5.2",
+      "name": "hostinger_router/gpt-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -22180,6 +24706,26 @@
     {
       "id": "litellm:in.moonshotai.kimi-k3",
       "name": "in.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:in.moonshotai.kimi-k3.1",
+      "name": "in.moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -22810,7 +25356,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -25480,6 +28028,19 @@
       ]
     },
     {
+      "id": "litellm:moonshot/kimi-k3.1-pro-highspeed",
+      "name": "moonshot/kimi-k3.1-pro-highspeed",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:moonshot/moonshot-v1-128k",
       "name": "moonshot/moonshot-v1-128k",
       "tariff": "token",
@@ -25568,6 +28129,26 @@
     {
       "id": "litellm:moonshotai.kimi-k3",
       "name": "moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:moonshotai.kimi-k3.1",
+      "name": "moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -25710,6 +28291,18 @@
       "state": "active",
       "meters": [
         "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:nebius/MiniMaxAI/MiniMax-M3.1-Flash",
+      "name": "nebius/MiniMaxAI/MiniMax-M3.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
         "output"
       ]
     },
@@ -25730,7 +28323,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -25840,7 +28434,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -25860,7 +28455,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -25900,7 +28496,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -25910,7 +28507,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -25980,7 +28578,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -25990,7 +28589,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26000,7 +28600,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26010,6 +28611,18 @@
       "state": "active",
       "meters": [
         "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:nebius/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "name": "nebius/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
         "output"
       ]
     },
@@ -26020,7 +28633,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26074,6 +28688,17 @@
       ]
     },
     {
+      "id": "litellm:nebius/meta-models/muse-spark-open",
+      "name": "nebius/meta-models/muse-spark-open",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:nebius/mistralai/Mistral-Nemo-Instruct-2407",
       "name": "nebius/mistralai/Mistral-Nemo-Instruct-2407",
       "tariff": "token",
@@ -26090,7 +28715,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26100,7 +28726,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26110,7 +28737,19 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:nebius/moonshotai/Kimi-K3.1-Pro",
+      "name": "nebius/moonshotai/Kimi-K3.1-Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26160,7 +28799,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26180,6 +28820,18 @@
       "state": "active",
       "meters": [
         "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:nebius/nvidia/Nemotron-3.5-Super-VL",
+      "name": "nebius/nvidia/Nemotron-3.5-Super-VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
         "output"
       ]
     },
@@ -26190,7 +28842,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26200,7 +28853,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26210,7 +28864,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26220,7 +28875,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26230,7 +28886,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26240,7 +28897,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26250,7 +28908,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26260,7 +28919,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -26270,7 +28930,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -32257,6 +34918,28 @@
       ]
     },
     {
+      "id": "litellm:tencent/hy4",
+      "name": "tencent/hy4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:tencent/hy4-preview",
+      "name": "tencent/hy4-preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:tencent/kimi-k2.7-code",
       "name": "tencent/kimi-k2.7-code",
       "tariff": "token",
@@ -32571,16 +35254,6 @@
       ]
     },
     {
-      "id": "litellm:together_ai/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-      "name": "together_ai/NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/Prism-ML/Ternary-Bonsai-27B",
       "name": "together_ai/Prism-ML/Ternary-Bonsai-27B",
       "tariff": "token",
@@ -32591,38 +35264,8 @@
       ]
     },
     {
-      "id": "litellm:together_ai/Qwen/QwQ-32B",
-      "name": "together_ai/Qwen/QwQ-32B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/Qwen/Qwen2-1.5B-Instruct",
       "name": "together_ai/Qwen/Qwen2-1.5B-Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/Qwen/Qwen2-72B-Instruct",
-      "name": "together_ai/Qwen/Qwen2-72B-Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/Qwen/Qwen2-VL-72B-Instruct",
-      "name": "together_ai/Qwen/Qwen2-VL-72B-Instruct",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -32663,16 +35306,6 @@
     {
       "id": "litellm:together_ai/Qwen/Qwen2.5-7B-Instruct-Turbo",
       "name": "together_ai/Qwen/Qwen2.5-7B-Instruct-Turbo",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/Qwen/Qwen2.5-Coder-32B-Instruct",
-      "name": "together_ai/Qwen/Qwen2.5-Coder-32B-Instruct",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -32854,36 +35487,6 @@
       ]
     },
     {
-      "id": "litellm:together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-      "name": "together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-      "name": "together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-      "name": "together_ai/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:together_ai/deepseek-ai/DeepSeek-V3",
       "name": "together_ai/deepseek-ai/DeepSeek-V3",
       "tariff": "token",
@@ -32948,18 +35551,8 @@
       ]
     },
     {
-      "id": "litellm:together_ai/deepseek-ai/deepseek-coder-33b-instruct",
-      "name": "together_ai/deepseek-ai/deepseek-coder-33b-instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/google/gemma-2-27b-it",
-      "name": "together_ai/google/gemma-2-27b-it",
+      "id": "litellm:together_ai/essentialai/rnj-1-instruct",
+      "name": "together_ai/essentialai/rnj-1-instruct",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -32970,16 +35563,6 @@
     {
       "id": "litellm:together_ai/google/gemma-4-31B-it",
       "name": "together_ai/google/gemma-4-31B-it",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/meta-llama/Llama-3-8b-chat-hf",
-      "name": "together_ai/meta-llama/Llama-3-8b-chat-hf",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33030,26 +35613,6 @@
     {
       "id": "litellm:together_ai/meta-llama/Llama-4-Scout-17B-16E-Instruct",
       "name": "together_ai/meta-llama/Llama-4-Scout-17B-16E-Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
-      "name": "together_ai/meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/meta-llama/Meta-Llama-3-8B-Instruct",
-      "name": "together_ai/meta-llama/Meta-Llama-3-8B-Instruct",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33112,16 +35675,6 @@
     {
       "id": "litellm:together_ai/mistralai/Ministral-3-14B-Instruct-2512",
       "name": "together_ai/mistralai/Ministral-3-14B-Instruct-2512",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:together_ai/mistralai/Mistral-7B-Instruct-v0.1",
-      "name": "together_ai/mistralai/Mistral-7B-Instruct-v0.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33213,11 +35766,12 @@
       ]
     },
     {
-      "id": "litellm:together_ai/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
-      "name": "together_ai/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
+      "id": "litellm:together_ai/moonshotai/Kimi-K3.1-Pro",
+      "name": "together_ai/moonshotai/Kimi-K3.1-Pro",
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -33277,6 +35831,17 @@
     {
       "id": "litellm:together_ai/reflection/Beam-1.0-501B-A23B",
       "name": "together_ai/reflection/Beam-1.0-501B-A23B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:together_ai/ricursive-ai/Ripple-65B-Preview",
+      "name": "together_ai/ricursive-ai/Ripple-65B-Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33464,7 +36029,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -33593,6 +36160,25 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.xai.grok-4.7",
+      "name": "us-gov.xai.grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -33920,7 +36506,9 @@
         "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
@@ -34160,6 +36748,26 @@
     {
       "id": "litellm:us.moonshotai.kimi-k3",
       "name": "us.moonshotai.kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:us.moonshotai.kimi-k3.1",
+      "name": "us.moonshotai.kimi-k3.1",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -35510,26 +38118,6 @@
       ]
     },
     {
-      "id": "litellm:vertex_ai/claude-3-opus",
-      "name": "vertex_ai/claude-3-opus",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "litellm:vertex_ai/claude-3-opus@20240229",
-      "name": "vertex_ai/claude-3-opus@20240229",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "litellm:vertex_ai/claude-3-sonnet",
       "name": "vertex_ai/claude-3-sonnet",
       "tariff": "token",
@@ -36194,10 +38782,16 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
+        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=priority",
         "audio_in_tok",
+        "audio_in_tok|>200000",
+        "audio_in_tok|>200000|tier=batches",
+        "audio_in_tok|>200000|tier=flex",
+        "audio_in_tok|>200000|tier=priority",
         "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=flex",
         "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
@@ -36239,21 +38833,29 @@
       "state": "active",
       "meters": [
         "cache_read_audio",
+        "cache_read_audio|tier=batches",
+        "cache_read_audio|tier=flex",
+        "cache_read_audio|tier=priority",
         "cache_read",
         "cache_read|tier=batches",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
+        "audio_in_tok|>200000",
+        "audio_in_tok|>200000|tier=batches",
+        "audio_in_tok|>200000|tier=flex",
+        "audio_in_tok|>200000|tier=priority",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=flex",
+        "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
-        "audio_in_tok|tier=priority",
         "output",
         "output|tier=batches",
         "output|tier=flex",
-        "output|tier=priority",
-        "audio_in_tok|tier=batches"
+        "output|tier=priority"
       ]
     },
     {
@@ -36282,6 +38884,7 @@
         "input",
         "input|>200000",
         "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
@@ -36290,6 +38893,7 @@
         "output",
         "output|>200000",
         "output|>200000|tier=batches",
+        "output|>200000|tier=flex",
         "output|>200000|tier=priority",
         "output|tier=batches",
         "output|tier=flex",
@@ -36509,18 +39113,25 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/gemini-omni-1.2-flash",
+      "name": "vertex_ai/gemini-omni-1.2-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/gemini-robotics-er-2-preview",
       "name": "vertex_ai/gemini-robotics-er-2-preview",
       "tariff": "token",
       "state": "active",
       "meters": [
         "cache_read",
-        "cache_read|tier=batches",
         "audio_in_tok",
         "input",
-        "input|tier=batches",
-        "output",
-        "output|tier=batches"
+        "output"
       ]
     },
     {
@@ -37185,6 +39796,116 @@
       ]
     },
     {
+      "id": "litellm:wally/deepseek-v4-flash-0731",
+      "name": "wally/deepseek-v4-flash-0731",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/deepseek-v4-pro-fast",
+      "name": "wally/deepseek-v4-pro-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/deepseek-v4.1-flash",
+      "name": "wally/deepseek-v4.1-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/deepseek-v4.1-flash-1017",
+      "name": "wally/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/deepseek-v4.1-flash-f2",
+      "name": "wally/deepseek-v4.1-flash-f2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/deepseek-v4.1-flash-fast",
+      "name": "wally/deepseek-v4.1-flash-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/glm-5.3-fast",
+      "name": "wally/glm-5.3-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/glm-5.3-flash",
+      "name": "wally/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/kimi-k3",
+      "name": "wally/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wally/minimax-m3",
+      "name": "wally/minimax-m3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:wandb/JetBrains/Mellum2-12B-A2.5B-Instruct",
       "name": "wandb/JetBrains/Mellum2-12B-A2.5B-Instruct",
       "tariff": "token",
@@ -37252,6 +39973,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -37273,6 +39995,7 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
         "input",
         "output"
       ]
@@ -37324,6 +40047,17 @@
     {
       "id": "litellm:wandb/deepseek-ai/DeepSeek-V4.1-Flash",
       "name": "wandb/deepseek-ai/DeepSeek-V4.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:wandb/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "name": "wandb/deepseek-ai/DeepSeek-V4.1-Flash-1017",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -38997,7 +41731,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -39694,6 +42429,17 @@
       ]
     },
     {
+      "id": "openrouter:deepseek/deepseek-v4.1-flash-1017:batch",
+      "name": "DeepSeek: DeepSeek V4.1 Flash 1017 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:deepseek/deepseek-v4.1-flash:batch",
       "name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
       "tariff": "token",
@@ -40213,6 +42959,28 @@
       ]
     },
     {
+      "id": "openrouter:google/gemini-omni-1.1-flash",
+      "name": "Google: Gemini Omni 1.1 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-omni-1.2-flash",
+      "name": "Google: Gemini Omni 1.2 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search"
+      ]
+    },
+    {
       "id": "openrouter:google/gemma-2-27b-it",
       "name": "Google: Gemma 2 27B",
       "tariff": "token",
@@ -40339,7 +43107,7 @@
       "id": "openrouter:inception/mercury-2",
       "name": "Inception: Mercury 2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -40350,7 +43118,7 @@
       "id": "openrouter:inception/mercury-2.5",
       "name": "Inception: Mercury 2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -40361,7 +43129,7 @@
       "id": "openrouter:inception/mercury-3",
       "name": "Inception: Mercury 3",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -40382,6 +43150,17 @@
     {
       "id": "openrouter:inclusionai/ling-3.0-flash-vl",
       "name": "inclusionAI: Ling 3.0 Flash VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:inclusionai/ling-3.0-tiny",
+      "name": "inclusionAI: Ling 3.0 Tiny",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -40456,13 +43235,35 @@
       ]
     },
     {
+      "id": "openrouter:liquid/lfm-3-1.7b",
+      "name": "LiquidAI: LFM3-1.7B",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:liquid/lfm-3-1.7b:free",
+      "name": "LiquidAI: LFM3-1.7B (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:mancer/weaver",
       "name": "Mancer: Weaver (alpha)",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40474,16 +43275,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:meta-llama/llama-3.1-70b-instruct",
-      "name": "Meta: Llama 3.1 70B Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -40524,7 +43315,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -40663,16 +43455,6 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-01",
-      "name": "MiniMax: MiniMax-01",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m1",
       "name": "MiniMax: MiniMax M1",
       "tariff": "token",
@@ -40683,51 +43465,8 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m2",
-      "name": "MiniMax: MiniMax M2",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m2-her",
-      "name": "MiniMax: MiniMax M2-her",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m2.1",
-      "name": "MiniMax: MiniMax M2.1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m2.5",
       "name": "MiniMax: MiniMax M2.5",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:minimax/minimax-m2.7",
-      "name": "MiniMax: MiniMax M2.7",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -41101,6 +43840,16 @@
       ]
     },
     {
+      "id": "openrouter:morph/morph-v3-fast:batch",
+      "name": "Morph: Morph V3 Fast (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:morph/morph-v3-large",
       "name": "Morph: Morph V3 Large",
       "tariff": "token",
@@ -41111,18 +43860,8 @@
       ]
     },
     {
-      "id": "openrouter:nousresearch/hermes-3-llama-3.1-405b",
-      "name": "Nous: Hermes 3 405B Instruct",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:nousresearch/hermes-3-llama-3.1-70b",
-      "name": "Nous: Hermes 3 70B Instruct",
+      "id": "openrouter:morph/morph-v3-large:batch",
+      "name": "Morph: Morph V3 Large (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -41169,8 +43908,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -41208,7 +43946,7 @@
       "id": "openrouter:nvidia/nemotron-3.5-content-safety:free",
       "name": "NVIDIA: Nemotron 3.5 Content Safety (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -41291,16 +44029,6 @@
       "name": "OpenAI: GPT-4",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:openai/gpt-4-turbo",
-      "name": "OpenAI: GPT-4 Turbo",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -42359,57 +45087,10 @@
       ]
     },
     {
-      "id": "openrouter:openai/o1",
-      "name": "OpenAI: o1",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o1-pro",
-      "name": "OpenAI: o1-pro",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search"
-      ]
-    },
-    {
       "id": "openrouter:openai/o3",
       "name": "OpenAI: o3",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o3-mini",
-      "name": "OpenAI: o3 Mini",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o3-mini-high",
-      "name": "OpenAI: o3 Mini High",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -42453,30 +45134,6 @@
       ]
     },
     {
-      "id": "openrouter:openai/o4-mini",
-      "name": "OpenAI: o4 Mini",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:openai/o4-mini-high",
-      "name": "OpenAI: o4 Mini High",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:openai/o4-mini:batch",
       "name": "OpenAI: o4 Mini (batch)",
       "tariff": "token",
@@ -42501,6 +45158,16 @@
     {
       "id": "openrouter:openrouter/auto-beta",
       "name": "Auto Router (Beta)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:openrouter/auto-code",
+      "name": "Auto Code",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -42636,48 +45303,6 @@
       ]
     },
     {
-      "id": "openrouter:poolside/laguna-s-2.1",
-      "name": "Poolside: Laguna S 2.1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-s-2.1:free",
-      "name": "Poolside: Laguna S 2.1 (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-xs-2.1",
-      "name": "Poolside: Laguna XS 2.1",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:poolside/laguna-xs-2.1:free",
-      "name": "Poolside: Laguna XS 2.1 (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:prism-ml/ternary-bonsai-2-27b",
       "name": "PrismML: Ternary Bonsai 2 27B",
       "tariff": "token",
@@ -42769,7 +45394,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43063,6 +45689,17 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen3.8-27b:batch",
+      "name": "Qwen: Qwen3.8 27B (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen3.8-flash",
       "name": "Qwen: Qwen3.8 Flash",
       "tariff": "token",
@@ -43168,6 +45805,17 @@
       ]
     },
     {
+      "id": "openrouter:ricursiveai/ripple-65b-preview",
+      "name": "Ricursive: Ripple 65B Preview",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:sakana/fugu-max",
       "name": "Sakana: Fugu Max",
       "tariff": "token",
@@ -43248,6 +45896,16 @@
     {
       "id": "openrouter:scaledown/summarize",
       "name": "ScaleDown: Summarize",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:stealth/crouton-alpha",
+      "name": "Crouton Alpha",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -43350,6 +46008,17 @@
       ]
     },
     {
+      "id": "openrouter:tencent/hy4",
+      "name": "Tencent: Hy4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:tencent/hy4-preview",
       "name": "Tencent: Hy4 preview",
       "tariff": "token",
@@ -43415,26 +46084,6 @@
       ]
     },
     {
-      "id": "openrouter:thinkingmachines/inkling-small:free",
-      "name": "Thinking Machines: Inkling Small (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:thinkingmachines/inkling:free",
-      "name": "Thinking Machines: Inkling (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:typesafe/jev-router",
       "name": "TypeSafe: Jev Router",
       "tariff": "token",
@@ -43473,7 +46122,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43481,17 +46131,6 @@
       "name": "Upstage: Solar Mini 4",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:upstage/solar-pro-3",
-      "name": "Upstage: Solar Pro 3",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -43592,8 +46231,32 @@
       ]
     },
     {
+      "id": "openrouter:x-ai/grok-4.6:batch",
+      "name": "SpaceXAI: Grok 4.6 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:x-ai/grok-4.7",
       "name": "SpaceXAI: Grok 4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:x-ai/grok-4.7:batch",
+      "name": "SpaceXAI: Grok 4.7 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -43845,6 +46508,17 @@
       ]
     },
     {
+      "id": "openrouter:z-ai/glm-5.3-flashx-legal",
+      "name": "Z.ai: GLM 5.3 FlashX Legal",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:z-ai/glm-5.3-prime",
       "name": "Z.ai: GLM 5.3 Prime",
       "tariff": "token",
@@ -44022,6 +46696,36 @@
         "rule": "override_entry_skipped",
         "index": 0,
         "reason": "unrecognized_condition_field"
+      },
+      {
+        "offer": "litellm:azure/gpt-realtime-2.1-2026-07-07",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/gpt-realtime-2.1-mini-2026-07-07",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/gpt-realtime-translate-2026-05-06",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/gpt-realtime-translate-2026-05-07",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/gpt-realtime-whisper-2026-05-06",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:azure/gpt-realtime-whisper-2026-05-07",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
       },
       {
         "offer": "litellm:sample_spec",
@@ -44209,6 +46913,16 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:bedrock/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:assemblyai/best",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
@@ -44227,6 +46941,36 @@
         "offer": "litellm:azure/codex-mini",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure_ai/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/gpt-image-2",
@@ -44254,12 +46998,12 @@
         "mode": "responses"
       },
       {
-        "offer": "litellm:azure/eu/gpt-4o-mini-realtime-preview-2024-12-17",
+        "offer": "litellm:azure_ai/gpt-mini-latest",
         "rule": "skipped_out_of_scope_mode",
-        "mode": "realtime"
+        "mode": null
       },
       {
-        "offer": "litellm:azure/eu/gpt-4o-realtime-preview-2024-10-01",
+        "offer": "litellm:azure/eu/gpt-4o-mini-realtime-preview-2024-12-17",
         "rule": "skipped_out_of_scope_mode",
         "mode": "realtime"
       },
@@ -44342,11 +47086,6 @@
         "offer": "litellm:azure/gpt-4o-mini-tts",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
-      },
-      {
-        "offer": "litellm:azure/gpt-4o-realtime-preview-2024-10-01",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "realtime"
       },
       {
         "offer": "litellm:azure/gpt-4o-realtime-preview-2024-12-17",
@@ -44434,6 +47173,26 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:azure/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:azure/gpt-5.5-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -44442,6 +47201,11 @@
         "offer": "litellm:azure/gpt-5.5-pro-2026-04-23",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure/gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure/gpt-image-1",
@@ -44669,11 +47433,6 @@
         "mode": "realtime"
       },
       {
-        "offer": "litellm:azure/us/gpt-4o-realtime-preview-2024-10-01",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "realtime"
-      },
-      {
         "offer": "litellm:azure/us/gpt-4o-realtime-preview-2024-12-17",
         "rule": "skipped_out_of_scope_mode",
         "mode": "realtime"
@@ -44724,6 +47483,16 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:azure_ai/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/minimax-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:azure_ai/MAI-Image-2.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -44769,16 +47538,6 @@
         "mode": "ocr"
       },
       {
-        "offer": "litellm:azure_ai/cohere-rerank-v3-english",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "rerank"
-      },
-      {
-        "offer": "litellm:azure_ai/cohere-rerank-v3-multilingual",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "rerank"
-      },
-      {
         "offer": "litellm:azure_ai/cohere-rerank-v4.0-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
@@ -44787,6 +47546,16 @@
         "offer": "litellm:azure_ai/cohere-rerank-v4.0-fast",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
+      },
+      {
+        "offer": "litellm:azure_ai/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/deepseek-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/embed-v-4-0",
@@ -44867,6 +47636,21 @@
         "offer": "litellm:gpt-4o-transcribe-diarize",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:cloudflare/clef-omni",
@@ -44993,6 +47777,16 @@
         "rule": "tier_entry_skipped",
         "index": 1,
         "reason": "unrecognized_tier_field:output_cost_per_reasoning_token"
+      },
+      {
+        "offer": "litellm:dashscope/qwen-max-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:dashscope/qwen-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:dashscope/qwen-image-2.0",
@@ -45322,9 +48116,34 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:databricks/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:databricks/databricks-gpt-5-3-codex",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-gpt-5-5",
@@ -45340,6 +48159,11 @@
         "offer": "litellm:databricks/databricks-gte-large-en",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:databricks/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-qwen3-embedding-0-6b",
@@ -45365,6 +48189,16 @@
         "offer": "litellm:dataforseo/search",
         "rule": "skipped_out_of_scope_mode",
         "mode": "search"
+      },
+      {
+        "offer": "litellm:deepgram/aura",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:deepgram/aura-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:deepgram/base",
@@ -45518,6 +48352,11 @@
       },
       {
         "offer": "litellm:deepgram/streaming/nova-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepgram/streaming/nova-3-medical",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
       },
@@ -46827,6 +49666,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:fireworks_ai/minimax-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:fireworks_ai/nomic-ai/nomic-embed-text-v1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -47017,6 +49861,26 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:github_copilot/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:github_copilot/gpt-5.3-codex",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -47052,9 +49916,19 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:github_copilot/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:github_copilot/gpt-6-luna",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:github_copilot/gpt-6-sol",
@@ -47065,6 +49939,16 @@
         "offer": "litellm:github_copilot/gpt-6.1-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:github_copilot/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:github_copilot/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:github_copilot/mai-code-1.1-flash",
@@ -47452,6 +50336,16 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:gpt-daybreak-red-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -47480,6 +50374,11 @@
         "offer": "litellm:gpt-5.4-pro-2026-03-05",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:gpt-mini-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:gpt-5-pro",
@@ -47575,6 +50474,26 @@
         "offer": "litellm:high/1536-x-1024/gpt-image-1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:hostinger_router/text-embedding-3-large",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:hostinger_router/text-embedding-3-small",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:jina-reranker-v3.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:jina-reranker-m0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
       },
       {
         "offer": "litellm:jina-reranker-v2-base-multilingual",
@@ -47677,6 +50596,11 @@
         "mode": "audio_speech"
       },
       {
+        "offer": "litellm:minimax/minimax-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:minimax/MiniMax-H3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -47775,6 +50699,11 @@
         "offer": "litellm:mistral/codestral-embed-2505",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:moonshot/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:multimodalembedding",
@@ -47910,6 +50839,11 @@
         "offer": "litellm:omni-moderation-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "moderation"
+      },
+      {
+        "offer": "litellm:parallel_ai/decision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
       },
       {
         "offer": "litellm:parallel_ai/search",
@@ -48128,6 +51062,16 @@
       },
       {
         "offer": "litellm:rerank-v4.0-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:rerank-v5.0-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:rerank-v5.0-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "rerank"
       },
@@ -48507,6 +51451,26 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:together_ai/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:together_ai/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:together_ai/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:together_ai/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:tts-1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
@@ -48585,6 +51549,16 @@
         "offer": "litellm:vertex_ai/chirp_2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:vertex_ai/claude-fable-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:vertex_ai/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/gemini-2.5-flash-image",
@@ -48805,6 +51779,21 @@
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-0309",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:xai/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:zai/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:zai/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/search_api",
@@ -49142,16 +52131,6 @@
         "mode": "image_generation"
       },
       {
-        "offer": "litellm:gemini-2.0-flash-exp-image-generation",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "image_generation"
-      },
-      {
-        "offer": "litellm:gemini/gemini-2.0-flash-exp-image-generation",
-        "rule": "skipped_out_of_scope_mode",
-        "mode": "image_generation"
-      },
-      {
         "offer": "litellm:gemini-2.5-flash-native-audio-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "realtime"
@@ -49257,6 +52236,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:bedrock_mantle/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-6-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49267,6 +52251,21 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:bedrock_mantle/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-5.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49275,6 +52274,16 @@
         "offer": "litellm:bedrock_mantle/openai.gpt-5.4",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/claude-opus-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock_mantle/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:volcengine/doubao-seedance-2-5-260628",
@@ -49345,6 +52354,16 @@
         "offer": "litellm:soniox/stt-rt-v4",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:deepseek/deepseek-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:deepseek/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:tencent/seedream-image-v5.0-flash",
@@ -49482,6 +52501,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:fireworks_ai/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:xai/grok-imagine-image",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -49602,6 +52626,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:together_ai/qwen-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:elevenlabs/scribe_v2",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
@@ -49615,6 +52644,16 @@
         "offer": "litellm:azure_ai/MAI-Image-2.6-Flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:azure_ai/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:bedrock_mantle/us-gov-west-1/openai.gpt-5.6-terra",
@@ -49752,6 +52791,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:perplexity/google/gemini-4-argon",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:perplexity/google/gemini-3.6-flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -49807,9 +52851,19 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:perplexity/perplexity/nemotron-3.5-super-120b-a12b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:perplexity/perplexity/nemotron-3-ultra-550b-a55b",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:baseten/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/gemini-2.5-flash-native-audio",
@@ -50072,6 +53126,11 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:bedrock/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:xai/grok-4.20-multi-agent-beta-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -50085,6 +53144,26 @@
         "offer": "litellm:xai/grok-4.20-multi-agent-experimental-beta-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:baseten/kimi-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:baseten/glm-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:baseten/deepseek-flash-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:baseten/deepseek-pro-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:fireworks_ai/accounts/fireworks/routers/rune",
@@ -50132,6 +53211,16 @@
         "mode": "ocr"
       },
       {
+        "offer": "litellm:azure_ai/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:perplexity/anthropic/claude-sonnet-5-5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -50177,9 +53266,34 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:vertex_ai/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:bedrock_mantle/openai.gpt-6.1-sol",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:vertex_ai/gemini-3.8-flash-tts",
@@ -50190,6 +53304,16 @@
         "offer": "litellm:vertex_ai/gemini-3.8-flash-lite-tts",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:vertex_ai/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/glm-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:amazon.nova-2-5-sonic",
@@ -50217,9 +53341,39 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:azure_ai/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock_mantle/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:bedrock/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:perplexity/anthropic/claude-haiku-5-5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:vertex_ai/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/Microsoft-Decision-1",
@@ -50262,6 +53416,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:github_copilot/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:meta/muse-image-1.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -50297,9 +53456,19 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:chatgpt/gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:baseten/decision-models/baseten-elephant-9b-latest",
@@ -50317,6 +53486,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:github_copilot/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:fireworks_ai/accounts/fireworks/models/rune",
         "rule": "skipped_out_of_scope_mode",
         "mode": "decisions"
@@ -50325,6 +53499,21 @@
         "offer": "litellm:bedrock_mantle/openai.gpt-6.1-terra",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/claude-haiku-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/claude-sonnet-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-gpt-5-4-pro",
@@ -50337,9 +53526,29 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:databricks/gpt-sol-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/gpt-terra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:databricks/gpt-astra-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:databricks/databricks-gpt-6-luna",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:databricks/gpt-luna-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:databricks/databricks-gpt-6-sol",
@@ -50367,9 +53576,84 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:databricks/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:baseten/decision-models/baseten-joey-2b-latest",
         "rule": "skipped_out_of_scope_mode",
         "mode": "decisions"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6-rosalind",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:chatgpt/gpt-6-astra-law",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:empiriolabs/skylark-embedding-vision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:empiriolabs/text-embedding-v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:empiriolabs/tongyi-embedding-vision-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:empiriolabs/tongyi-embedding-vision-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
+      },
+      {
+        "offer": "litellm:gpt-image-2.6-sunburst",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:gpt-image-2.6-flare",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/grok-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:azure_ai/cohere-rerank-v5-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:azure_ai/cohere-rerank-v5-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "rerank"
+      },
+      {
+        "offer": "litellm:azure/us/gpt-realtime-2.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/us/gpt-realtime-2.1-mini",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:azure/us/gpt-realtime-1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
       }
     ],
     "source_errors": {

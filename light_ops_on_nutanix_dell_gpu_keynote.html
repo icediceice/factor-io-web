@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="obsidian">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Light Ops · Nutanix Cloud + Dell PowerEdge GPU Partner Keynote</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Prompt (Thai), Plus Jakarta Sans (Display), JetBrains Mono (Telemetry/Hash) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       1. EXECUTIVE KEYNOTE DESIGN TOKENS (OBSIDIAN DEFAULT + DAYLIGHT VENUE MODE)
+       Inspired by Nutanix .NEXT & Apple Hardware Keynotes — Zero Neon Clutter
+       ========================================================================== */
+    :root,
+    html[data-theme="obsidian"] {
+      --bg-stage: #0B0B0F;
+      --bg-stage-sec: #111117;
+      --bg-card: #17171F;
+      --bg-card-elevated: #1E1E28;
+      --bg-inset: #101016;
+      --bg-hud: rgba(14, 14, 20, 0.88);
+
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+
+      --text-primary: #F8FAFC;
+      --text-secondary: #CBD5E1;
+      --text-muted: #94A3B8;
+
+      /* Strict Executive Accent Discipline */
+      --ntnx-royal: #5B19C4;
+      --ntnx-luminous: #8B5CF6;
+      --ntnx-soft: rgba(139, 92, 246, 0.14);
+      --ntnx-border: rgba(139, 92, 246, 0.42);
+      --ntnx-text: #C4B5FD;
+
+      --sov-teal: #1FDDE9;
+      --sov-teal-soft: rgba(31, 221, 233, 0.11);
+      --sov-teal-border: rgba(31, 221, 233, 0.38);
+      --sov-teal-text: #1FDDE9;
+
+      --dell-ice: #38BDF8;
+      --dell-soft: rgba(56, 189, 248, 0.11);
+      --dell-border: rgba(56, 189, 248, 0.36);
+      --dell-text: #7DD3FC;
+
+      --breach-crimson: #F43F5E;
+      --breach-soft: rgba(244, 63, 94, 0.12);
+      --breach-border: rgba(244, 63, 94, 0.40);
+      --breach-text: #FDA4AF;
+
+      --halt-amber: #F59E0B;
+      --halt-soft: rgba(245, 158, 11, 0.13);
+      --halt-border: rgba(245, 158, 11, 0.45);
+      --halt-text: #FCD34D;
+
+      --vignette: radial-gradient(ellipse 78% 46% at 50% -6%, rgba(91, 25, 196, 0.18), transparent 72%);
+      --card-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    html[data-theme="daylight"] {
+      --bg-stage: #F6F7FB;
+      --bg-stage-sec: #ECEEF5;
+      --bg-card: #FFFFFF;
+      --bg-card-elevated: #F8F9FC;
+      --bg-inset: #F1F3F9;
+      --bg-hud: rgba(255, 255, 255, 0.92);
+
+      --border-hairline: rgba(15, 23, 42, 0.09);
+      --border-strong: rgba(15, 23, 42, 0.16);
+
+      --text-primary: #131316;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+
+      --ntnx-royal: #4B00AA;
+      --ntnx-luminous: #5B19C4;
+      --ntnx-soft: rgba(75, 0, 170, 0.08);
+      --ntnx-border: rgba(75, 0, 170, 0.30);
+      --ntnx-text: #4B00AA;
+
+      --sov-teal: #0891B2;
+      --sov-teal-soft: rgba(8, 145, 178, 0.09);
+      --sov-teal-border: rgba(8, 145, 178, 0.34);
+      --sov-teal-text: #0E7490;
+
+      --dell-ice: #0284C7;
+      --dell-soft: rgba(2, 132, 199, 0.09);
+      --dell-border: rgba(2, 132, 199, 0.32);
+      --dell-text: #0369A1;
+
+      --breach-crimson: #E11D48;
+      --breach-soft: rgba(225, 29, 72, 0.08);
+      --breach-border: rgba(225, 29, 72, 0.32);
+      --breach-text: #BE123C;
+
+      --halt-amber: #D97706;
+      --halt-soft: rgba(217, 119, 6, 0.10);
+      --halt-border: rgba(217, 119, 6, 0.38);
+      --halt-text: #B45309;
+
+      --vignette: radial-gradient(ellipse 75% 42% at 50% -8%, rgba(75, 0, 170, 0.08), transparent 70%);
+      --card-shadow: 0 12px 30px -12px rgba(15, 23, 42, 0.09), 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    /* ==========================================================================
+       2. GLOBAL RESET & THAI TYPOGRAPHY CLEARANCE
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-stage);
+      background-image: var(--vignette);
+      color: var(--text-primary);
+      font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    .font-display {
+      font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', 'Prompt', monospace;
+    }
+
+    /* Generous clearance for Thai vowels and tone marks */
+    .thai-h1 {
+      font-size: clamp(1.42rem, 2.35vw, 2.28rem);
+      font-weight: 700;
+      line-height: 1.42;
+      letter-spacing: -0.01em;
+      padding-top: 0.06em;
+      padding-bottom: 0.06em;
+      color: var(--text-primary);
+      overflow-wrap: break-word;
+    }
+
+    .thai-subtitle {
+      font-size: clamp(0.88rem, 1.08vw, 1.05rem);
+      line-height: 1.62;
+      color: var(--text-secondary);
+      overflow-wrap: break-word;
+    }
+
+    .thai-card-title {
+      font-size: clamp(0.98rem, 1.2vw, 1.18rem);
+      font-weight: 600;
+      line-height: 1.48;
+      color: var(--text-primary);
+      overflow-wrap: break-word;
+    }
+
+    .thai-body {
+      font-size: clamp(0.83rem, 0.96vw, 0.96rem);
+      line-height: 1.62;
+      color: var(--text-secondary);
+      overflow-wrap: break-word;
+    }
+
+    /* ==========================================================================
+       3. EXECUTIVE SURFACES & BADGES (NO RAINBOW CLUTTER, ZERO IDLE BOUNCING)
+       ========================================================================== */
+    .exec-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--card-shadow);
+      border-radius: 16px;
+      transition: border-color 0.3s ease, background-color 0.3s ease, opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .exec-card-elevated {
+      background-color: var(--bg-card-elevated);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--card-shadow);
+      border-radius: 16px;
+    }
+
+    .exec-inset {
+      background-color: var(--bg-inset);
+      border: 1px solid var(--border-hairline);
+      border-radius: 12px;
+    }
+
+    /* Semantic Pills */
+    .pill-ntnx {
+      background-color: var(--ntnx-soft);
+      border: 1px solid var(--ntnx-border);
+      color: var(--ntnx-text);
+    }
+
+    .pill-teal {
+      background-color: var(--sov-teal-soft);
+      border: 1px solid var(--sov-teal-border);
+      color: var(--sov-teal-text);
+    }
+
+    .pill-dell {
+      background-color: var(--dell-soft);
+      border: 1px solid var(--dell-border);
+      color: var(--dell-text);
+    }
+
+    .pill-crimson {
+      background-color: var(--breach-soft);
+      border: 1px solid var(--breach-border);
+      color: var(--breach-text);
+    }
+
+    .pill-amber {
+      background-color: var(--halt-soft);
+      border: 1px solid var(--halt-border);
+      color: var(--halt-text);
+    }
+
+    .pill-neutral {
+      background-color: var(--bg-inset);
+      border: 1px solid var(--border-hairline);
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       4. CALM SLIDE & BEAT REVEAL (ENTER ONCE SMOOTHLY, SIT 100% STILL)
+       ========================================================================== */
+    .slide-view {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .slide-view.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .story-beat {
+      opacity: 0.14;
+      transform: translateY(8px);
+      filter: grayscale(0.4);
+      pointer-events: none;
+      transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                  filter 0.38s ease,
+                  border-color 0.3s ease;
+    }
+
+    .story-beat.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: grayscale(0);
+      pointer-events: auto;
+    }
+
+    .story-beat.is-current {
+      border-color: var(--ntnx-border);
+    }
+
+    /* ==========================================================================
+       5. PURPOSEFUL MOTION ONLY FOR THE 4 SIGNATURE GIMMICKS
+       ========================================================================== */
+    /* Gimmick 3: Strictly Vertical Data Pulses between Dell GPU <-> Nutanix <-> Light Ops */
+    @keyframes verticalPulseUp {
+      0% { transform: translateY(88px); opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { transform: translateY(-88px); opacity: 0; }
+    }
+
+    @keyframes verticalPulseDown {
+      0% { transform: translateY(-88px); opacity: 0; }
+      20% { opacity: 0.85; }
+      80% { opacity: 0.85; }
+      100% { transform: translateY(88px); opacity: 0; }
+    }
+
+    .arch-pulse-up {
+      animation: verticalPulseUp 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .arch-pulse-down {
+      animation: verticalPulseDown 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.3s infinite;
+    }
+
+    /* Interactive Architecture Layer Selection */
+    .arch-layer-btn {
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.24s ease,
+                  box-shadow 0.24s ease,
+                  background-color 0.24s ease;
+    }
+
+    .arch-layer-btn:hover {
+      transform: translateX(3px);
+    }
+
+    .arch-layer-btn.selected-teal {
+      border-color: var(--sov-teal) !important;
+      box-shadow: 0 0 0 1px var(--sov-teal), var(--card-shadow);
+    }
+
+    .arch-layer-btn.selected-ntnx {
+      border-color: var(--ntnx-luminous) !important;
+      box-shadow: 0 0 0 1px var(--ntnx-luminous), 0 14px 36px -12px rgba(91, 25, 196, 0.45);
+    }
+
+    .arch-layer-btn.selected-dell {
+      border-color: var(--dell-ice) !important;
+      box-shadow: 0 0 0 1px var(--dell-ice), var(--card-shadow);
+    }
+
+    /* Gimmick 4: Crisp Seal Break Shake (One-Shot Only on Click) */
+    @keyframes crispSealShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      45% { transform: translateX(5px); }
+      70% { transform: translateX(-3px); }
+      85% { transform: translateX(2px); }
+    }
+
+    .seal-break-flash {
+      animation: crispSealShake 0.36s ease-out 1;
+    }
+
+    /* Subtle scrollbar for smaller viewports */
+    .stage-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .stage-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .stage-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+
+<body class="h-screen w-screen flex flex-col select-none">
+
+  <!-- Non-Intrusive Top Toast Feedback -->
+  <div id="stageToast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 -translate-y-2 transition-all duration-300 px-4 py-2 rounded-full text-xs sm:text-sm font-medium exec-card-elevated flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full" style="background-color: var(--sov-teal);"></span>
+    <span id="stageToastText">พร้อมนำเสนอ</span>
+  </div>
+
+  <!-- ==========================================================================
+       TOP EXECUTIVE KEYNOTE BAR (MINIMAL, CLEAN, VENUE LIGHTING TOGGLE)
+       ========================================================================== -->
+  <header class="shrink-0 z-20 w-full px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 border-b" style="background-color: var(--bg-hud); border-color: var(--border-hairline); backdrop-filter: blur(12px);">
+    <!-- Co-Branded Partner Lockup -->
+    <div class="flex items-center gap-2.5 sm:gap-3.5 flex-wrap">
+      <div class="flex items-center gap-2 px-3 py-1 rounded-lg pill-ntnx">
+        <span class="w-2 h-2 rounded-full" style="background-color: var(--sov-teal);"></span>
+        <span class="font-display font-bold text-xs sm:text-sm tracking-wide">LIGHT OPS</span>
+      </div>
+      <span class="text-xs opacity-40 hidden sm:inline">×</span>
+      <div class="hidden md:flex items-center gap-2 text-xs font-mono-code">
+        <span class="px-2.5 py-0.5 rounded-md pill-ntnx font-semibold">Nutanix Cloud Platform</span>
+        <span class="opacity-40">+</span>
+        <span class="px-2.5 py-0.5 rounded-md pill-dell font-semibold">Dell PowerEdge GPU</span>
+      </div>
+    </div>
+
+    <!-- Venue Controls: Lighting Mode + Beat Mode + Fullscreen -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Venue Lighting Toggle (Obsidian / Daylight) -->
+      <button
+        id="themeToggleBtn"
+        type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-medium exec-inset hover:opacity-90 transition cursor-pointer flex items-center gap-2"
+        title="สลับโหมดแสงห้องประชุม Obsidian / Daylight (ปุ่มลัด L)"
+      >
+        <span id="themeIcon" class="text-xs">🌙</span>
+        <span id="themeLabel">โหมดแสงห้องประชุม: Obsidian</span>
+      </button>
+
+      <!-- Story Beat Mode Toggle -->
+      <button
+        id="beatModeBtn"
+        type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-medium pill-ntnx hover:opacity-90 transition cursor-pointer flex items-center gap-1.5"
+        title="สลับการเปิดเนื้อหาทีละจังหวะ หรือเปิดครบทั้งหน้า (ปุ่มลัด M)"
+      >
+        <span id="beatModeLabel">แสดงทีละจังหวะ</span>
+      </button>
+
+      <!-- Fullscreen Button -->
+      <button
+        id="fullscreenBtn"
+        type="button"
+        class="px-2.5 py-1.5 rounded-lg text-xs font-mono-code exec-inset hover:opacity-90 transition cursor-pointer flex items-center gap-1.5"
+        title="ขยายเต็มหน้าจอ (ปุ่มลัด F)"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+        <span class="hidden sm:inline">เต็มจอ</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN STAGE VIEWPORT (7-SLIDE DEMO2WIN! EXECUTIVE DECK)
+       ========================================================================== -->
+  <main id="mainViewport" class="flex-1 min-h-0 w-full overflow-y-auto stage-scroll flex items-center justify-center px-4 sm:px-8 lg:px-12 py-4">
+    <div class="w-full max-w-[1440px] my-auto">
+
+      <!-- ======================================================================
+           SLIDE 1: HOOK / THE ASYMMETRIC THREAT CLOCK (GIMMICK 1)
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-5 w-full" data-slide="0">
+        <!-- Kicker -->
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 01 / THE HOOK</span>
+          <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--text-muted);">MACHINE-SPEED REALITY</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-stretch">
+          <!-- Left Column: Core Executive Hook & Context (5 Cols) -->
+          <div class="lg:col-span-5 flex flex-col justify-between gap-4">
+            <div class="story-beat exec-card p-5 sm:p-6 flex flex-col gap-3.5" data-beat="1">
+              <span class="inline-flex self-start px-2.5 py-0.5 rounded font-mono-code text-[11px] font-semibold pill-crimson">
+                ASYMMETRIC RISK
+              </span>
+              <h1 class="thai-h1">
+                ระบบของคุณกำลังเสี่ยง — ถ้าไม่มีความเร็วระดับเครื่องจักร เวลากำลังเดินสวนทางกับคุณ
+              </h1>
+              <p class="thai-subtitle">
+                ยุคนี้ไม่ต้องรอแฮกเกอร์ระดับโลก แค่คนทั่วไปโหลดโมเดล AI ปลดล็อก (<strong style="color: var(--text-primary);">Abliterated Model</strong>) มารันบนการ์ดจอที่บ้าน ก็สั่งสแกนและเจาะระบบคุณได้ในไม่กี่นาที ในขณะที่ทีม IT ยังต้องไล่เช็กด้วยมือ
+              </p>
+            </div>
+
+            <div class="story-beat exec-card p-5 flex flex-col gap-2.5" data-beat="3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--sov-teal-text);">KEYNOTE TAKEAWAY</span>
+                <span class="font-mono-code text-[11px]" style="color: var(--text-muted);">DEFENSE PARITY</span>
+              </div>
+              <p class="thai-body">
+                เมื่อฝั่งโจมตีใช้เครื่องจักรทำงานอัตโนมัติ 24 ชั่วโมง ทางรอดเดียวขององค์กรคือการมี <strong style="color: var(--text-primary);">AI ฝั่งป้องกันที่คิดและตรวจได้เร็วระดับวินาทีเท่ากัน</strong> อยู่ในศูนย์ข้อมูลของคุณเอง
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Column: GIMMICK 1 — THE ASYMMETRIC THREAT CLOCK (7 Cols) -->
+          <div class="lg:col-span-7 story-beat exec-card p-5 sm:p-6 flex flex-col justify-between gap-5" data-beat="2">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b" style="border-color: var(--border-hairline);">
+              <div>
+                <div class="font-mono-code text-[11px] uppercase tracking-wider" style="color: var(--text-muted);">LIVE CHRONOMETER COMPARISON</div>
+                <h2 class="thai-card-title mt-0.5">เปรียบเทียบเวลาทำงานจริง: บอท AI โจมตี vs. รอบงานคนตรวจแบบเดิม</h2>
+              </div>
+              <button
+                id="replayClockBtn"
+                type="button"
+                class="px-3 py-1.5 rounded-lg text-xs font-mono-code font-medium exec-inset hover:opacity-85 transition cursor-pointer flex items-center gap-1.5"
+              >
+                <span>↺</span>
+                <span>รีเซ็ตเวลา</span>
+              </button>
+            </div>
+
+            <!-- TRACK 1: Automated AI Attacker (Crimson) -->
+            <div class="exec-inset p-4 sm:p-5 flex flex-col gap-3.5" style="border-color: var(--breach-border);">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-mono-code text-[11px] font-semibold uppercase" style="color: var(--breach-text);">
+                    TRACK A · AUTOMATED OFFENSIVE AI
+                  </span>
+                  <div class="text-sm sm:text-base font-semibold" style="color: var(--text-primary);">
+                    AI โจมตีอัตโนมัติ (แม้แต่มือสมัครเล่นรันโมเดลปลดล็อกในบ้าน)
+                  </div>
+                </div>
+                <div class="px-3 py-1 rounded-lg pill-crimson font-mono-code text-sm sm:text-base font-bold shrink-0">
+                  <span id="attackClockReadout">00:02:15</span> นาที
+                </div>
+              </div>
+
+              <!-- Precision Sweep Track -->
+              <div class="w-full h-2.5 rounded-full overflow-hidden" style="background-color: rgba(244, 63, 94, 0.14);">
+                <div id="attackSweepBar" class="h-full rounded-full transition-none" style="width: 100%; background-color: var(--breach-crimson);"></div>
+              </div>
+
+              <!-- 3 Crisp Milestone Stages -->
+              <div class="grid grid-cols-3 gap-2.5 pt-0.5">
+                <div id="atkStage1" class="rounded-lg px-3 py-2 border text-xs transition-colors" style="border-color: var(--breach-border); background-color: var(--breach-soft);">
+                  <div class="font-mono-code text-[10px] opacity-80">00:00:25</div>
+                  <div class="font-semibold mt-0.5" style="color: var(--text-primary);">1. Recon กวาดพอร์ต</div>
+                </div>
+                <div id="atkStage2" class="rounded-lg px-3 py-2 border text-xs transition-colors" style="border-color: var(--breach-border); background-color: var(--breach-soft);">
+                  <div class="font-mono-code text-[10px] opacity-80">00:01:10</div>
+                  <div class="font-semibold mt-0.5" style="color: var(--text-primary);">2. หาช่องโหว่จริง</div>
+                </div>
+                <div id="atkStage3" class="rounded-lg px-3 py-2 border text-xs transition-colors" style="border-color: var(--breach-border); background-color: var(--breach-soft);">
+                  <div class="font-mono-code text-[10px] opacity-80">00:02:15</div>
+                  <div class="font-semibold mt-0.5" style="color: var(--breach-text);">3. เจาะระบบสำเร็จ</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TRACK 2: Manual Human Workflow (Muted Slate) -->
+            <div class="exec-inset p-4 sm:p-5 flex flex-col gap-3.5">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-mono-code text-[11px] font-semibold uppercase" style="color: var(--text-muted);">
+                    TRACK B · LEGACY MANUAL WORKFLOW
+                  </span>
+                  <div class="text-sm sm:text-base font-semibold" style="color: var(--text-primary);">
+                    กระบวนการคนตรวจแบบเดิม (รอคิว Ticket &amp; แพตช์)
+                  </div>
+                </div>
+                <div class="px-3 py-1 rounded-lg pill-neutral font-mono-code text-sm sm:text-base font-bold shrink-0" style="color: var(--text-primary);">
+                  14–30 วัน
+                </div>
+              </div>
+
+              <!-- Slow Crawling Bar -->
+              <div class="w-full h-2.5 rounded-full overflow-hidden" style="background-color: rgba(148, 163, 184, 0.14);">
+                <div id="humanCrawlBar" class="h-full rounded-full transition-none" style="width: 9%; background-color: var(--text-muted);"></div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2.5 pt-0.5 text-xs" style="color: var(--text-muted);">
+                <div class="rounded-lg px-3 py-2 border" style="border-color: var(--border-hairline);">
+                  รอรอบสแกนประจำเดือน
+                </div>
+                <div class="rounded-lg px-3 py-2 border" style="border-color: var(--border-hairline);">
+                  คัดแยกไฟล์ PDF นับพันหน้า
+                </div>
+                <div class="rounded-lg px-3 py-2 border" style="border-color: var(--border-hairline);">
+                  เปิด Ticket รอหน้าต่างซ่อมบำรุง
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           SLIDE 2: THE OPERATIONAL PAIN / 40,000+ CVE FUNNEL (GIMMICK 2)
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-5 w-full" data-slide="1">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 02 / OPERATIONAL PAIN</span>
+            <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--text-muted);">ALERT FATIGUE &amp; PRIVACY DILEMMA</span>
+          </div>
+          <h1 class="thai-h1">พายุ 40,000+ CVEs ต่อปี กับกับดักเครื่องมือยุคเก่า</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+          <!-- Left Column: GIMMICK 2 — 40,000+ CVE NOISE FUNNEL CANVAS (6 Cols) -->
+          <div class="lg:col-span-6 story-beat exec-card p-5 flex flex-col justify-between gap-3.5" data-beat="1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <span class="font-mono-code text-[11px] uppercase tracking-wider" style="color: var(--ntnx-text);">REACHABILITY FILTER SIMULATION</span>
+                <h2 class="thai-card-title">กรองพายุคำเตือนนับหมื่น ให้เหลือเฉพาะแผลจริง</h2>
+              </div>
+              <button
+                id="replayFunnelBtn"
+                type="button"
+                class="px-3 py-1.5 rounded-lg text-xs font-mono-code font-medium exec-inset hover:opacity-85 transition cursor-pointer flex items-center gap-1.5"
+              >
+                <span>↺</span>
+                <span>ปล่อยคลื่นซ้ำ</span>
+              </button>
+            </div>
+
+            <!-- Top Input Metric -->
+            <div class="flex items-center justify-between px-3.5 py-2 rounded-xl exec-inset text-xs">
+              <span style="color: var(--text-secondary);">ช่องโหว่ใหม่ที่ประกาศต่อปี (Raw CVE Feed)</span>
+              <span class="font-mono-code font-bold text-sm" style="color: var(--text-primary);">40,000+ CVEs ต่อปี</span>
+            </div>
+
+            <!-- Responsive Particle Filter Canvas -->
+            <div class="relative w-full h-[225px] sm:h-[250px] rounded-xl overflow-hidden exec-inset">
+              <canvas id="cveFunnelCanvas" class="w-full h-full block"></canvas>
+              <!-- Center Filter Lens Badge Overlay -->
+              <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center px-3">
+                <div class="px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-mono-code font-semibold shadow-md backdrop-blur-md" style="background-color: var(--bg-card-elevated); border: 1px solid var(--ntnx-border); color: var(--ntnx-text);">
+                  Light Ops · Source + Infra Reachability Filter
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Filtered Output Metric -->
+            <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border" style="background-color: var(--breach-soft); border-color: var(--breach-border);">
+              <span class="text-xs font-medium" style="color: var(--text-primary);">ผลลัพธ์หลังตัดเสียงรบกวน 99% ทิ้ง:</span>
+              <span class="font-mono-code text-xs sm:text-sm font-bold" style="color: var(--breach-text);">
+                2 แผลจริงที่เจาะถึง Production ได้
+              </span>
+            </div>
+          </div>
+
+          <!-- Right Column: 3 Crisp Static Executive Points (6 Cols) -->
+          <div class="lg:col-span-6 flex flex-col justify-between gap-3.5">
+            <!-- Point 1 -->
+            <div class="story-beat exec-card p-5 flex flex-col gap-2" data-beat="2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--ntnx-text);">01 · BLIND SCANNER OVERLOAD</span>
+                <span class="px-2 py-0.5 rounded font-mono-code text-[11px] pill-neutral">Noise &gt; Signal</span>
+              </div>
+              <h3 class="thai-card-title">สแกนเนอร์เดิมพ่นช่องโหว่นับหมื่นรายการ แต่ชี้เป้าจริงไม่ได้</h3>
+              <p class="thai-body">
+                เครื่องมือทั่วไปแจ้งเตือนทุกแพ็กเกจที่เก่า แต่บอกไม่ได้เลยว่าช่องโหว่ตัวไหนเปิดรับการโจมตีจากภายนอกและถูกเรียกใช้งานจริงในโค้ด
+              </p>
+            </div>
+
+            <!-- Point 2 -->
+            <div class="story-beat exec-card p-5 flex flex-col gap-2" data-beat="2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--ntnx-text);">02 · PUBLIC CLOUD AI RISK</span>
+                <span class="px-2 py-0.5 rounded font-mono-code text-[11px] pill-neutral">Data Sovereignty</span>
+              </div>
+              <h3 class="thai-card-title">จะเอาโค้ดและคอนฟิกขึ้น Cloud AI สาธารณะก็เสี่ยงข้อมูลรั่ว</h3>
+              <p class="thai-body">
+                องค์กรไม่สามารถส่ง Source Code ภายใน โครงสร้างเครือข่าย หรือไฟล์คอนฟิกเซิร์ฟเวอร์ออกไปถาม AI นอกบ้านได้ เพราะผิดหลักความปลอดภัยและ PDPA ทันที
+              </p>
+            </div>
+
+            <!-- Point 3 -->
+            <div class="story-beat exec-card p-5 flex flex-col gap-2" data-beat="3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--breach-text);">03 · UNPATCHED EXPOSURE WINDOW</span>
+                <span class="px-2 py-0.5 rounded font-mono-code text-[11px] pill-crimson">Critical Gap</span>
+              </div>
+              <h3 class="thai-card-title">พอทีมไอทีตรวจไม่ทัน ช่องโหว่จริงจึงถูกเปิดทิ้งไว้รอวันโดนเจาะ</h3>
+              <p class="thai-body">
+                เมื่อคนทำงานจมอยู่กับกองแจ้งเตือนมหาศาล แผลวิกฤตเพียงไม่กี่จุดที่แฮกเกอร์เจาะเข้าได้จริงจึงหลุดรอดสายตาและเปิดค้างอยู่บน Production
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           SLIDE 3: MEET LIGHT OPS — 3 CLEAN EXECUTIVE PILLARS (ZERO NOISY MOTION)
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-5 w-full" data-slide="2">
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 03 / MEET LIGHT OPS</span>
+            <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--sov-teal-text);">SOVEREIGN AI APPLIANCE</span>
+          </div>
+          <h1 class="thai-h1">Light Ops: ผู้พิทักษ์ AI ประจำศูนย์ข้อมูล ที่คิดค้นมาเพื่องานตรวจและซ่อมจริง</h1>
+          <p class="thai-subtitle max-w-4xl">
+            ส่งมอบในรูปแบบ Virtual Appliance สำเร็จรูป ทำงานภายในดาต้าเซ็นเตอร์ขององค์กร 100% ผสานความเร็วระดับเครื่องจักรเข้ากับมาตรฐานความปลอดภัยระดับ Production
+          </p>
+        </div>
+
+        <!-- 3 Clean Executive Pillars -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+          <!-- Pillar 1 -->
+          <div class="story-beat exec-card p-6 flex flex-col justify-between gap-5" data-beat="1">
+            <div class="flex flex-col gap-3.5">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-xl pill-ntnx flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5" />
+                  </svg>
+                </div>
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--ntnx-text);">PILLAR 01</span>
+              </div>
+
+              <h2 class="thai-card-title">
+                โมเดล AI เทรนเฉพาะทางด้าน Security Audit รันจบในกล่องเดียว
+              </h2>
+
+              <p class="thai-body">
+                ไม่ใช่แชทบอทถาม-ตอบทั่วไป แต่คือโมเดล AI ที่ถูกฝึกฝนมาเพื่องานตรวจสอบโครงสร้างพื้นฐานและวิเคราะห์ช่องโหว่ภายในองค์กรโดยเฉพาะ พร้อมคลังข้อมูล CVE แบบ Offline ในตัว
+              </p>
+            </div>
+
+            <div class="pt-3 border-t flex items-center justify-between text-xs font-mono-code" style="border-color: var(--border-hairline); color: var(--text-muted);">
+              <span>Specialized Security LLM</span>
+              <span style="color: var(--sov-teal-text);">100% On-Prem</span>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="story-beat exec-card p-6 flex flex-col justify-between gap-5" data-beat="2">
+            <div class="flex flex-col gap-3.5">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-xl pill-ntnx flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                  </svg>
+                </div>
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--ntnx-text);">PILLAR 02</span>
+              </div>
+
+              <h2 class="thai-card-title">
+                สแกนครบทั้งระบบจริง (Live Infra) คู่กับซอร์สโค้ด (Source Scanner)
+              </h2>
+
+              <p class="thai-body">
+                เชื่อมมุมมองฝั่งเซิร์ฟเวอร์และพอร์ตที่เปิดอยู่จริง เข้ากับเส้นทางการเรียกใช้ฟังก์ชันใน Source Code เพื่อตัดคำเตือนหลอกทิ้ง และชี้เป้าเฉพาะแผลที่อันตรายจริงเท่านั้น
+              </p>
+            </div>
+
+            <div class="pt-3 border-t flex items-center justify-between text-xs font-mono-code" style="border-color: var(--border-hairline); color: var(--text-muted);">
+              <span>Infra + Code Correlation</span>
+              <span style="color: var(--ntnx-text);">Zero Noise</span>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="story-beat exec-card p-6 flex flex-col justify-between gap-5" data-beat="3">
+            <div class="flex flex-col gap-3.5">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-xl pill-teal flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                </div>
+                <span class="font-mono-code text-xs font-semibold" style="color: var(--sov-teal-text);">PILLAR 03</span>
+              </div>
+
+              <h2 class="thai-card-title">
+                ทำงานบน Production ได้อย่างสบายใจ ด้วยโหมดอ่านอย่างเดียว (Read-Only)
+              </h2>
+
+              <p class="thai-body">
+                แยกสิทธิ์การตรวจออกจากสิทธิ์การแก้ไขอย่างเด็ดขาด โหมดสำรวจสุขภาพทำงานแบบ Read-Only 100% จึงเริ่มใช้งานบนเซิร์ฟเวอร์จริงได้ตั้งแต่วันแรกโดยไม่กระทบระบบหลัก
+              </p>
+            </div>
+
+            <div class="pt-3 border-t flex items-center justify-between text-xs font-mono-code" style="border-color: var(--border-hairline); color: var(--text-muted);">
+              <span>Production-Safe Audit</span>
+              <span style="color: var(--sov-teal-text);">Read-Only Verified</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           SLIDE 4: HERO JOINT ARCHITECTURE — NUTANIX + DELL GPU + LIGHT OPS (GIMMICK 3)
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-4 w-full" data-slide="3">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 04 / HERO JOINT ARCHITECTURE</span>
+            <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--sov-teal-text);">100% ON-PREMISE SOVEREIGN ENCLAVE</span>
+          </div>
+          <h1 class="thai-h1">สถาปัตยกรรมพร้อมขาย: พลัง Nutanix Cloud บนขุมพลัง Dell PowerEdge GPU</h1>
+        </div>
+
+        <!-- Sovereign Enclave Outer Boundary -->
+        <div class="rounded-2xl p-4 sm:p-5 border" style="background-color: var(--bg-stage-sec); border-color: var(--sov-teal-border);">
+          <!-- Enclave Perimeter Header -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b" style="border-color: var(--border-hairline);">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: var(--sov-teal);"></span>
+              <span class="font-mono-code text-xs font-semibold" style="color: var(--sov-teal-text);">
+                100% ON-PREMISE SOVEREIGN ENCLAVE · ข้อมูลไม่รั่วออก Cloud ภายนอก
+              </span>
+            </div>
+            <div class="flex items-center gap-2 font-mono-code text-[11px]">
+              <span class="px-2.5 py-0.5 rounded pill-crimson">✕ EXTERNAL CLOUD EGRESS BLOCKED</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            <!-- Left 8 Cols: Interactive 3-Tier Stack + Vertical Data Conduit -->
+            <div class="lg:col-span-8 relative flex gap-3 items-stretch">
+              <!-- Vertical Sovereign Data Bus (Strictly Vertical Motion Pulses) -->
+              <div class="hidden sm:flex flex-col items-center justify-between py-6 px-1.5 shrink-0">
+                <span class="font-mono-code text-[9px] uppercase tracking-widest" style="color: var(--sov-teal-text); writing-mode: vertical-rl; transform: rotate(180deg);">
+                  LOCAL BUS
+                </span>
+                <div class="relative w-1.5 flex-1 my-2 rounded-full overflow-hidden" style="background-color: var(--border-hairline);">
+                  <div class="arch-pulse-up absolute inset-x-0 top-1/2 h-10 rounded-full" style="background: linear-gradient(180deg, var(--sov-teal), var(--ntnx-luminous));"></div>
+                  <div class="arch-pulse-down absolute inset-x-0 top-1/2 h-8 rounded-full" style="background: linear-gradient(180deg, var(--ntnx-luminous), var(--dell-ice));"></div>
+                </div>
+                <span class="font-mono-code text-[9px]" style="color: var(--dell-text);">GPU</span>
+              </div>
+
+              <!-- 3 Clickable Architecture Layers -->
+              <div class="flex-1 flex flex-col gap-3">
+                <!-- TOP LAYER: Light Ops Appliance (Electric Teal) -->
+                <button
+                  type="button"
+                  data-arch-layer="lightops"
+                  class="story-beat arch-layer-btn exec-card p-4 flex flex-col gap-2.5 w-full"
+                  data-beat="3"
+                >
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="px-2 py-0.5 rounded font-mono-code text-[10px] font-bold pill-teal">TOP LAYER · AI DEFENDER</span>
+                      <span class="font-display font-bold text-sm sm:text-base" style="color: var(--text-primary);">Light Ops Appliance</span>
+                    </div>
+                    <span class="font-mono-code text-[11px]" style="color: var(--sov-teal-text);">คลิกดูจุดขาย ➔</span>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div class="exec-inset px-2.5 py-2">
+                      <div class="font-semibold" style="color: var(--sov-teal-text);">1. Specialized Local AI</div>
+                      <div class="text-[11px] mt-0.5" style="color: var(--text-muted);">โมเดลเทรนเฉพาะทางตรวจภายใน</div>
+                    </div>
+                    <div class="exec-inset px-2.5 py-2">
+                      <div class="font-semibold" style="color: var(--text-primary);">2. Source + Live Infra</div>
+                      <div class="text-[11px] mt-0.5" style="color: var(--text-muted);">สแกนเชื่อมโค้ดและพอร์ตจริง</div>
+                    </div>
+                    <div class="exec-inset px-2.5 py-2">
+                      <div class="font-semibold" style="color: var(--text-primary);">3. MCP Harness</div>
+                      <div class="text-[11px] mt-0.5" style="color: var(--text-muted);">ปลอกคอกำกับคำสั่งระดับไบต์</div>
+                    </div>
+                  </div>
+                </button>
+
+                <!-- CENTER HERO HEADLINE LAYER: Nutanix Cloud Platform (Largest & Boldest, Nutanix Royal Violet) -->
+                <button
+                  type="button"
+                  data-arch-layer="nutanix"
+                  class="story-beat arch-layer-btn selected-ntnx rounded-2xl p-5 flex flex-col gap-2.5 w-full border-2"
+                  data-beat="2"
+                  style="background: linear-gradient(135deg, rgba(91, 25, 196, 0.24) 0%, var(--bg-card-elevated) 72%); border-color: var(--ntnx-luminous);"
+                >
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="px-2.5 py-0.5 rounded font-mono-code text-[11px] font-bold" style="background-color: var(--ntnx-royal); color: #FFFFFF;">
+                      ★ HEADLINE PLATFORM · PROVEN DEPLOYMENT
+                    </span>
+                    <span class="font-mono-code text-[11px] font-semibold" style="color: var(--ntnx-text);">Ready-to-Import VM</span>
+                  </div>
+
+                  <div class="font-display font-extrabold text-lg sm:text-2xl tracking-tight" style="color: var(--text-primary);">
+                    Nutanix Cloud Platform <span style="color: var(--ntnx-text);">(AHV &amp; Prism)</span>
+                  </div>
+
+                  <p class="thai-body text-xs sm:text-sm">
+                    อิมพอร์ต Virtual Appliance ขึ้นคลัสเตอร์ <strong style="color: var(--text-primary);">Nutanix AHV</strong> ที่ลูกค้าคุ้นเคยได้ทันที บริหารจัดการง่ายผ่าน <strong style="color: var(--text-primary);">Prism</strong> พร้อม Enterprise Storage และ Micro-segmentation ในตัว
+                  </p>
+                </button>
+
+                <!-- BOTTOM LAYER: Dell PowerEdge Server + Enterprise GPU (Dell Titanium/Ice Blue) -->
+                <button
+                  type="button"
+                  data-arch-layer="dell"
+                  class="story-beat arch-layer-btn exec-card p-4 flex flex-col gap-2.5 w-full"
+                  data-beat="1"
+                >
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="px-2 py-0.5 rounded font-mono-code text-[10px] font-bold pill-dell">HARDWARE LAYER</span>
+                      <span class="font-display font-bold text-sm sm:text-base" style="color: var(--text-primary);">Dell PowerEdge Server + Enterprise GPU</span>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded font-mono-code text-[11px] font-semibold pill-dell">
+                      100% GPU Offload Verified
+                    </span>
+                  </div>
+
+                  <!-- Sleek Server Blade & GPU VRAM Telemetry Bar -->
+                  <div class="exec-inset px-3 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2 font-mono-code" style="color: var(--dell-text);">
+                      <span>[DELL POWEREDGE NODE]</span>
+                      <span class="opacity-50">•</span>
+                      <span>PCIe Passthrough Dedicated VRAM</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="w-24 h-1.5 rounded-full overflow-hidden" style="background-color: rgba(56, 189, 248, 0.18);">
+                        <div class="w-full h-full rounded-full" style="background-color: var(--dell-ice);"></div>
+                      </div>
+                      <span class="font-mono-code text-[11px]" style="color: var(--dell-text);">CUDA Local</span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right 4 Cols: Interactive Partner Value Prop Side Inspector -->
+            <div class="lg:col-span-4 exec-card-elevated p-5 flex flex-col justify-between gap-4">
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between gap-2">
+                  <span id="archInspectorTag" class="px-2.5 py-0.5 rounded font-mono-code text-[11px] font-semibold pill-ntnx">
+                    NUTANIX LAYER SELECTED
+                  </span>
+                  <span class="text-[11px] font-mono-code" style="color: var(--text-muted);">คลิกสลับชั้นด้านซ้าย</span>
+                </div>
+
+                <h3 id="archInspectorTitle" class="thai-card-title">
+                  ต่อยอดคลัสเตอร์ Nutanix เดิมของลูกค้าได้ทันที
+                </h3>
+
+                <p id="archInspectorDesc" class="thai-body">
+                  ถอดบทเรียนจากการติดตั้งจริงสู่รูปแบบ Virtual Appliance ที่อิมพอร์ตเข้า Nutanix AHV ได้ทันที ไม่ต้องรื้อโครงสร้างเดิม ดูแลรักษาผ่าน Prism ที่ทีม IT ถนัดอยู่แล้ว
+                </p>
+
+                <div id="archInspectorBullets" class="flex flex-col gap-2 pt-1 text-xs">
+                  <div class="exec-inset px-3 py-2 font-medium" style="color: var(--text-primary);">✓ ติดตั้งไวบนคลัสเตอร์ Nutanix ที่มีอยู่</div>
+                  <div class="exec-inset px-3 py-2 font-medium" style="color: var(--text-primary);">✓ รองรับ AHV GPU Passthrough เต็มประสิทธิภาพ</div>
+                  <div class="exec-inset px-3 py-2 font-medium" style="color: var(--text-primary);">✓ ข้อมูลทั้งหมดไม่เคยวิ่งออกนอกดาต้าเซ็นเตอร์</div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t text-xs font-mono-code flex items-center justify-between" style="border-color: var(--border-hairline); color: var(--sov-teal-text);">
+                <span>SOVEREIGN AIR-GAP READY</span>
+                <span>0 BYTES EGRESS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           SLIDE 5: THE GOVERNANCE BREAKTHROUGH — INTERACTIVE CRYPTOGRAPHIC SEAL (GIMMICK 4)
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-5 w-full" data-slide="4">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 05 / GOVERNANCE BREAKTHROUGH</span>
+            <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--sov-teal-text);">BYTE-LEVEL MCP HARNESS</span>
+          </div>
+          <h1 class="thai-h1">Governance ของจริง ไม่ใช่การกด Allow / Deny ไปวันๆ</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          <!-- Left Side (5 Cols): Static, Clean Contrast — Why Market Tools Fail -->
+          <div class="lg:col-span-5 story-beat exec-card p-5 sm:p-6 flex flex-col justify-between gap-4" data-beat="1">
+            <div class="flex flex-col gap-3">
+              <span class="inline-flex self-start px-2.5 py-0.5 rounded font-mono-code text-[11px] font-semibold pill-neutral">
+                CURRENT MARKET REALITY
+              </span>
+              <h2 class="thai-card-title">
+                ตลาดทั่วไป: โยนภาระให้คนกด Allow / Deny รัวๆ จนตาลายเผลอกดผ่าน หรือไม่ก็ต้องแบนเครื่องมือทิ้งจน AI ทำอะไรไม่ได้เลย
+              </h2>
+              <p class="thai-body">
+                เครื่องมือ AI ทั่วไปไม่มีระบบล็อกแผนคำสั่ง ทำให้องค์กรติดอยู่ในทางเลือกที่เสียเปรียบทั้งสองทาง:
+              </p>
+
+              <div class="flex flex-col gap-2.5 pt-1">
+                <div class="exec-inset p-3.5">
+                  <div class="text-xs font-semibold" style="color: var(--breach-text);">1. กด Allow จนชินมือ (Approval Fatigue)</div>
+                  <div class="text-xs mt-1" style="color: var(--text-muted);">
+                    ป๊อปอัปเด้งถามรายคำสั่งจนคนตรวจตาลาย เผลอกดอนุมัติคำสั่งผิดพลาดลง Production จริง
+                  </div>
+                </div>
+                <div class="exec-inset p-3.5">
+                  <div class="text-xs font-semibold" style="color: var(--text-primary);">2. สั่งแบนเครื่องมือทั้งหมด (Outright Tool Ban)</div>
+                  <div class="text-xs mt-1" style="color: var(--text-muted);">
+                    ฝ่ายกำกับดูแลไม่มั่นใจจึงสั่งห้ามใช้ AI แตะระบบ สุดท้ายทีม IT ต้องกลับไปทำงานมือแบบเดิม
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t text-xs" style="border-color: var(--border-hairline); color: var(--text-muted);">
+              Light Ops แก้ปัญหานี้ตั้งแต่โครงสร้าง ด้วยปลอกคอ <strong style="color: var(--text-primary);">MCP Harness</strong> ที่สร้างขึ้นเฉพาะทาง
+            </div>
+          </div>
+
+          <!-- Right Side (7 Cols): GIMMICK 4 — INTERACTIVE CRYPTOGRAPHIC SEAL CARD -->
+          <div id="manifestSealCard" class="lg:col-span-7 story-beat exec-card p-5 sm:p-6 flex flex-col justify-between gap-4 border-2" data-beat="2" style="border-color: var(--sov-teal-border);">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span class="font-mono-code text-[11px] uppercase tracking-wider" style="color: var(--ntnx-text);">
+                  INTERACTIVE STAGE PROOF · BYTE-FOR-BYTE MANIFEST LOCK
+                </span>
+                <h2 class="thai-card-title mt-0.5">
+                  Light Ops: ปลอกคอ MCP Harness ที่คุมคำสั่งระดับไบต์
+                </h2>
+              </div>
+
+              <!-- Dynamic Seal Badge -->
+              <span id="sealStatusBadge" class="px-3 py-1 rounded-lg font-mono-code text-xs font-bold pill-teal">
+                Revision #4 · SHA-256 LOCKED
+              </span>
+            </div>
+
+            <!-- Read-Only Production Scan Status (Always Safe & Green/Teal) -->
+            <div class="exec-inset px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs" style="border-color: var(--sov-teal-border);">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full" style="background-color: var(--sov-teal);"></span>
+                <span class="font-semibold" style="color: var(--text-primary);">Read-Only Production Scan</span>
+              </div>
+              <span class="font-mono-code font-semibold" style="color: var(--sov-teal-text);">
+                ACTIVE · ทำงานต่อเนื่องปลอดภัย ไม่กระทบเมื่อแผนซ่อมถูกเบรก
+              </span>
+            </div>
+
+            <!-- Approved Plan Manifest Command Box -->
+            <div id="manifestCommandBox" class="exec-inset p-4 flex flex-col gap-2.5 border" style="border-color: var(--sov-teal-border);">
+              <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-code" style="color: var(--text-muted);">
+                <span>DECLARED REMEDIATION MANIFEST</span>
+                <span id="manifestHashText">sha256: 9f84c2e1...a40b (Verified)</span>
+              </div>
+
+              <div id="manifestCmdText" class="font-mono-code text-xs sm:text-sm font-semibold px-3.5 py-2.5 rounded-lg border" style="background-color: var(--bg-stage); border-color: var(--border-hairline); color: var(--sov-teal-text);">
+                ufw deny from any to any port 6379
+              </div>
+
+              <div id="manifestExplainBar" class="text-xs font-medium px-3 py-2 rounded-lg pill-teal">
+                ✓ สถานะพร้อมรัน: คำสั่งตรงตามใบแผนงานที่แอดมินอนุมัติทุกตัวอักษร ห้ามรันคำสั่งนอกแผนเด็ดขาด
+              </div>
+            </div>
+
+            <!-- Interactive Stage Buttons (Beat 3 Focus) -->
+            <div class="story-beat flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1" data-beat="3">
+              <button
+                id="tamperCmdBtn"
+                type="button"
+                class="flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold pill-amber hover:opacity-90 active:scale-[0.99] transition cursor-pointer text-center"
+              >
+                [ ลองแอบแก้คำสั่งแค่ 1 จุด (Port 6379 → 5432) ]
+              </button>
+
+              <button
+                id="reapproveCmdBtn"
+                type="button"
+                class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold hover:opacity-95 active:scale-[0.99] transition cursor-pointer text-center"
+                style="background-color: var(--sov-teal); color: #0B0B0F;"
+              >
+                [ กดอนุมัติ Go รอบใหม่ ]
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           SLIDE 6: PURPLE TEAM & DEMO2WIN! BRIDGE — 3 LIVE DEMO SCENES
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-5 w-full" data-slide="5">
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 06 / LIVE DEMO ROADMAP</span>
+            <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--ntnx-text);">CLOSED-LOOP PURPLE TEAM</span>
+          </div>
+          <h1 class="thai-h1">พิสูจน์แผลจริงด้วย Red Mode ก่อนชงแผนซ่อมให้คุณกดไฟเขียว — และนี่คือ 3 ฉากใน Live Demo</h1>
+          <p class="thai-subtitle max-w-4xl">
+            เพื่อให้ทุกท่านเห็นภาพชัดเจนในพาร์ทสาธิตสด นี่คือ 3 ขั้นตอนการทำงานจริงของ Light Ops บนคลัสเตอร์ Nutanix และ Dell GPU ที่เรากำลังจะเปิดให้ชมครับ
+          </p>
+        </div>
+
+        <!-- Clean 3-Step Horizontal Pipeline -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+          <!-- Scene 1 -->
+          <div class="story-beat exec-card p-6 flex flex-col justify-between gap-4" data-beat="1">
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded font-mono-code text-xs font-semibold pill-teal">ฉากที่ 1 · READ-ONLY SCAN</span>
+                <span class="font-mono-code text-xs" style="color: var(--text-muted);">STEP 01</span>
+              </div>
+              <h2 class="thai-card-title">
+                สแกนทั้ง Infra และ Source Code บนระบบจริงโดยไม่แตะต้องค่าใดๆ
+              </h2>
+              <p class="thai-body">
+                ชมการสำรวจพอร์ต คอนฟิกเซิร์ฟเวอร์ และไล่สายโค้ดพร้อมกันในโหมดอ่านอย่างเดียว คัดกรองจนเหลือเฉพาะช่องโหว่ที่มีเส้นทางโจมตีถึงจริง
+              </p>
+            </div>
+            <div class="exec-inset px-3.5 py-2.5 text-xs font-mono-code flex items-center justify-between" style="color: var(--sov-teal-text);">
+              <span>Production Impact: ZERO</span>
+              <span>Read-Only 100%</span>
+            </div>
+          </div>
+
+          <!-- Scene 2 -->
+          <div class="story-beat exec-card p-6 flex flex-col justify-between gap-4" data-beat="2">
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded font-mono-code text-xs font-semibold pill-crimson">ฉากที่ 2 · RED MODE PROOF</span>
+                <span class="font-mono-code text-xs" style="color: var(--text-muted);">STEP 02</span>
+              </div>
+              <h2 class="thai-card-title">
+                จำลองเจาะพิสูจน์แผลจริงในขอบเขตควบคุม เลิกเถียงกันว่าจริงหรือหลอก
+              </h2>
+              <p class="thai-body">
+                เปิดโหมดจำลองผู้บุกรุกภายใต้กรอบปลอดภัยเพื่อดึงหลักฐานจริงให้เห็นจะๆ จบปัญหาความขัดแย้งระหว่างทีม Infra และทีมนักพัฒนา
+              </p>
+            </div>
+            <div class="exec-inset px-3.5 py-2.5 text-xs font-mono-code flex items-center justify-between" style="color: var(--breach-text);">
+              <span>Controlled Exploit Proof</span>
+              <span>Evidence Verified</span>
+            </div>
+          </div>
+
+          <!-- Scene 3 -->
+          <div class="story-beat exec-card p-6 flex flex-col justify-between gap-4" data-beat="3">
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded font-mono-code text-xs font-semibold pill-ntnx">ฉากที่ 3 · GOVERNED FIX &amp; RE-TEST</span>
+                <span class="font-mono-code text-xs" style="color: var(--text-muted);">STEP 03</span>
+              </div>
+              <h2 class="thai-card-title">
+                ชงแผนซ่อมพร้อมคำสั่งเป๊ะระดับไบต์ รอคนกด Go แล้วสแกนซ้ำจนปิดสนิท
+              </h2>
+              <p class="thai-body">
+                AI เตรียมแผนแก้ไขให้แอดมินตรวจและกดไฟเขียว เมื่อรันซ่อมเสร็จ ระบบยิงทดสอบซ้ำด้วย Red Mode ทันทีเพื่อยืนยันว่าช่องโหว่ถูกปิดตายแล้ว
+              </p>
+            </div>
+            <div class="exec-inset px-3.5 py-2.5 text-xs font-mono-code flex items-center justify-between" style="color: var(--ntnx-text);">
+              <span>Human-Gated Execution</span>
+              <span>Closed-Loop 100%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           SLIDE 7: PARTNER TURNKEY VALUE & CALL TO ACTION
+           ====================================================================== -->
+      <section class="slide-view flex-col gap-5 w-full" data-slide="6">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-md font-mono-code text-[11px] font-semibold pill-ntnx">DEMO2WIN · 07 / PARTNER TURNKEY BUNDLE</span>
+            <span class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--sov-teal-text);">JOINT GO-TO-MARKET</span>
+          </div>
+          <h1 class="thai-h1">โอกาสทางธุรกิจสำหรับพาร์ทเนอร์: โซลูชันครบวงจรที่ลูกค้าตัดสินใจง่าย</h1>
+        </div>
+
+        <!-- Beat 1: Clean Turnkey Bundle Equation Banner -->
+        <div class="story-beat exec-card-elevated p-5 flex flex-col gap-3" data-beat="1">
+          <div class="font-mono-code text-[11px] uppercase tracking-wider" style="color: var(--text-muted);">
+            THE TURNKEY ENTERPRISE AI SECURITY EQUATION
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-11 gap-2.5 items-center">
+            <div class="lg:col-span-3 rounded-xl p-3.5 pill-dell text-center">
+              <div class="font-mono-code text-[10px] uppercase opacity-80">AI Compute Node</div>
+              <div class="font-display font-bold text-sm sm:text-base mt-0.5">Dell PowerEdge + GPU</div>
+            </div>
+
+            <div class="lg:col-span-1 text-center font-display font-bold text-lg" style="color: var(--text-muted);">+</div>
+
+            <div class="lg:col-span-3 rounded-xl p-3.5 pill-ntnx text-center">
+              <div class="font-mono-code text-[10px] uppercase opacity-80">Enterprise HCI Cloud</div>
+              <div class="font-display font-bold text-sm sm:text-base mt-0.5">Nutanix Cloud Platform</div>
+            </div>
+
+            <div class="lg:col-span-1 text-center font-display font-bold text-lg" style="color: var(--text-muted);">+</div>
+
+            <div class="lg:col-span-3 rounded-xl p-3.5 pill-teal text-center">
+              <div class="font-mono-code text-[10px] uppercase opacity-80">Sovereign Defender</div>
+              <div class="font-display font-bold text-sm sm:text-base mt-0.5">Light Ops Appliance</div>
+            </div>
+          </div>
+
+          <div class="exec-inset px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+            <span class="font-semibold" style="color: var(--text-primary);">
+              = โซลูชัน Sovereign AI Security พร้อมส่งมอบทันที ในคลัสเตอร์เดียวที่ลูกค้ารู้จักดี
+            </span>
+            <span class="font-mono-code text-xs" style="color: var(--sov-teal-text);">Single Turnkey SKU Path</span>
+          </div>
+        </div>
+
+        <!-- Beat 2: 3 Clear Partner Wins -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+          <div class="story-beat exec-card p-5 flex flex-col justify-between gap-3" data-beat="2">
+            <div>
+              <span class="font-mono-code text-xs font-semibold" style="color: var(--ntnx-text);">WIN 01 · ACCOUNT EXPANSION</span>
+              <h2 class="thai-card-title mt-1">ขยายยอดฮาร์ดแวร์ GPU บนฐานลูกค้า Nutanix เดิม</h2>
+              <p class="thai-body mt-1.5">
+                มี Use-Case ด้าน AI Security ที่จับต้องได้ชัดเจนที่สุด ช่วยให้พาร์ทเนอร์นำเสนอโหนด Dell PowerEdge พร้อมการ์ดจอ GPU เพิ่มเติมในคลัสเตอร์ลูกค้าเดิมได้ง่าย
+              </p>
+            </div>
+          </div>
+
+          <div class="story-beat exec-card p-5 flex flex-col justify-between gap-3" data-beat="2">
+            <div>
+              <span class="font-mono-code text-xs font-semibold" style="color: var(--sov-teal-text);">WIN 02 · COMPLIANCE READY</span>
+              <h2 class="thai-card-title mt-1">ตอบโจทย์ PDPA และ Data Sovereignty 100%</h2>
+              <p class="thai-body mt-1.5">
+                ปลดล็อกกลุ่มลูกค้าองค์กรขนาดใหญ่ การเงิน การแพทย์ และภาครัฐ ที่ต้องการใช้ AI ยกระดับความปลอดภัยแต่ห้ามส่งข้อมูลสำคัญออกนอกศูนย์ข้อมูล
+              </p>
+            </div>
+          </div>
+
+          <div class="story-beat exec-card p-5 flex flex-col justify-between gap-3" data-beat="2">
+            <div>
+              <span class="font-mono-code text-xs font-semibold" style="color: var(--ntnx-text);">WIN 03 · FRICTIONLESS POC</span>
+              <h2 class="thai-card-title mt-1">เริ่มต้นทำ PoC โหมด Read-Only ได้ทันที ความเสี่ยงเป็นศูนย์</h2>
+              <p class="thai-body mt-1.5">
+                ไม่ต้องขอสิทธิ์แก้ระบบลูกค้าตั้งแต่วันแรก วาง Appliance ส่องแผลจริงให้ผู้บริหารและทีม IT เห็นคุณค่าตั้งแต่วันแรกที่เริ่มทดสอบ
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beat 3: Executive Call to Action / Live Demo Handoff Bar -->
+        <div class="story-beat rounded-2xl p-4 sm:p-5 border flex flex-wrap items-center justify-between gap-4" data-beat="3" style="background: linear-gradient(90deg, rgba(91, 25, 196, 0.20), var(--bg-card-elevated)); border-color: var(--ntnx-border);">
+          <div>
+            <div class="font-mono-code text-xs uppercase tracking-wider" style="color: var(--sov-teal-text);">
+              NEXT ON STAGE · LIVE PRODUCT DEMONSTRATION
+            </div>
+            <div class="text-base sm:text-xl font-bold mt-0.5" style="color: var(--text-primary);">
+              เชิญชมการทำงานจริงของ Light Ops บน Nutanix Cloud + Dell PowerEdge GPU ในช่วง Live Demo
+            </div>
+          </div>
+
+          <button
+            id="startLiveDemoCta"
+            type="button"
+            class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition hover:opacity-95 active:scale-[0.99] cursor-pointer shrink-0"
+            style="background-color: var(--sov-teal); color: #0B0B0F;"
+          >
+            เข้าสู่ช่วง Live Demo ➔
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       SUBTLE NON-INTRUSIVE BOTTOM CONTROL BAR
+       ========================================================================== -->
+  <footer class="shrink-0 z-20 w-full px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 border-t" style="background-color: var(--bg-hud); border-color: var(--border-hairline); backdrop-filter: blur(12px);">
+    <!-- Left: Slide Counter & Dots -->
+    <div class="flex items-center gap-3">
+      <span id="slideIndexReadout" class="font-mono-code text-xs font-semibold px-2.5 py-1 rounded-md exec-inset">
+        01 / 07
+      </span>
+      <div id="slideDotsNav" class="flex items-center gap-1.5" aria-label="เลือกหน้าสไลด์"></div>
+    </div>
+
+    <!-- Center: Story Beats (1/3 -> 2/3 -> 3/3) -->
+    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full exec-inset">
+      <span class="text-[11px] hidden md:inline pr-1" style="color: var(--text-muted);">จังหวะเล่า:</span>
+      <button type="button" data-beat-btn="1" class="beat-step-pill px-2.5 py-0.5 rounded-full font-mono-code text-xs font-semibold transition cursor-pointer">1/3</button>
+      <button type="button" data-beat-btn="2" class="beat-step-pill px-2.5 py-0.5 rounded-full font-mono-code text-xs font-semibold transition cursor-pointer">2/3</button>
+      <button type="button" data-beat-btn="3" class="beat-step-pill px-2.5 py-0.5 rounded-full font-mono-code text-xs font-semibold transition cursor-pointer">3/3</button>
+    </div>
+
+    <!-- Right: Back & Next Controls -->
+    <div class="flex items-center gap-2">
+      <button
+        id="prevStepBtn"
+        type="button"
+        class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium exec-inset hover:opacity-85 disabled:opacity-35 disabled:pointer-events-none transition cursor-pointer"
+      >
+        ◀ ย้อนกลับ
+      </button>
+      <button
+        id="nextStepBtn"
+        type="button"
+        class="px-4 sm:px-5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-white transition hover:opacity-95 cursor-pointer"
+        style="background-color: var(--ntnx-royal);"
+      >
+        <span id="nextStepLabel">จังหวะถัดไป ▶</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       PRESENTATION & 4 SIGNATURE GIMMICKS CONTROLLER
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // ------------------------------------------------------------------------
+      // DECK STATE
+      // ------------------------------------------------------------------------
+      const slides = Array.from(document.querySelectorAll('.slide-view'));
+      const totalSlides = slides.length;
+      const maxBeats = 3;
+
+      const slideTitles = [
+        '01 · The Asymmetric Threat Clock',
+        '02 · 40,000+ CVEs Noise Funnel',
+        '03 · Meet Light Ops',
+        '04 · Nutanix + Dell GPU Architecture',
+        '05 · Real MCP Governance Seal',
+        '06 · 3-Scene Live Demo Bridge',
+        '07 · Partner Turnkey Value'
+      ];
+
+      let currentSlide = 0;
+      let currentBeat = 1;
+      let revealAllMode = false;
+      let currentTheme = 'obsidian';
+
+      // DOM References
+      const mainViewport = document.getElementById('mainViewport');
+      const slideIndexReadout = document.getElementById('slideIndexReadout');
+      const slideDotsNav = document.getElementById('slideDotsNav');
+      const beatStepPills = Array.from(document.querySelectorAll('.beat-step-pill'));
+      const prevStepBtn = document.getElementById('prevStepBtn');
+      const nextStepBtn = document.getElementById('nextStepBtn');
+      const nextStepLabel = document.getElementById('nextStepLabel');
+
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      const themeIcon = document.getElementById('themeIcon');
+      const themeLabel = document.getElementById('themeLabel');
+      const beatModeBtn = document.getElementById('beatModeBtn');
+      const beatModeLabel = document.getElementById('beatModeLabel');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+      const stageToast = document.getElementById('stageToast');
+      const stageToastText = document.getElementById('stageToastText');
+      let toastTimeout = null;
+
+      function notifyToast(text) {
+        if (!stageToast || !stageToastText) return;
+        stageToastText.textContent = text;
+        stageToast.classList.remove('opacity-0', '-translate-y-2');
+        stageToast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          stageToast.classList.remove('opacity-100', 'translate-y-0');
+          stageToast.classList.add('opacity-0', '-translate-y-2');
+        }, 2200);
+      }
+
+      // ------------------------------------------------------------------------
+      // VENUE LIGHTING MODE (OBSIDIAN / DAYLIGHT)
+      // ------------------------------------------------------------------------
+      function toggleVenueTheme() {
+        currentTheme = currentTheme === 'obsidian' ? 'daylight' : 'obsidian';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        if (currentTheme === 'daylight') {
+          themeIcon.textContent = '☀️';
+          themeLabel.textContent = 'โหมดแสงห้องประชุม: Daylight';
+          notifyToast('สลับเป็นโหมด Daylight สำหรับห้องประชุมสว่าง');
+        } else {
+          themeIcon.textContent = '🌙';
+          themeLabel.textContent = 'โหมดแสงห้องประชุม: Obsidian';
+          notifyToast('สลับเป็นโหมด Obsidian Keynote');
+        }
+      }
+
+      // ------------------------------------------------------------------------
+      // GIMMICK 1: SLIDE 1 — THE ASYMMETRIC THREAT CLOCK
+      // ------------------------------------------------------------------------
+      let clockRaf = null;
+      const attackClockReadout = document.getElementById('attackClockReadout');
+      const attackSweepBar = document.getElementById('attackSweepBar');
+      const humanCrawlBar = document.getElementById('humanCrawlBar');
+      const atkStage1 = document.getElementById('atkStage1');
+      const atkStage2 = document.getElementById('atkStage2');
+      const atkStage3 = document.getElementById('atkStage3');
+      const replayClockBtn = document.getElementById('replayClockBtn');
+
+      function formatSecondsToClock(totalSec) {
+        const mins = Math.floor(totalSec / 60);
+        const secs = Math.floor(totalSec % 60);
+        return `00:0${mins}:${secs < 10 ? '0' + secs : secs}`;
+      }
+
+      function runThreatClockAnimation() {
+        if (!attackClockReadout || !attackSweepBar || !humanCrawlBar) return;
+        cancelAnimationFrame(clockRaf);
+
+        const durationMs = 2800; // Smooth 2.8s precision sweep representing 00:02:15 (135s)
+        const targetSeconds = 135;
+        const startTime = performance.now();
+
+        function step(now) {
+          const t = Math.min((now - startTime) / durationMs, 1);
+          const eased = 1 - Math.pow(1 - t, 2.4);
+          const secNow = Math.round(eased * targetSeconds);
+
+          attackClockReadout.textContent = formatSecondsToClock(secNow);
+          attackSweepBar.style.width = `${Math.max(4, eased * 100)}%`;
+          // Human track barely crawls from 3% to 10.5% in the same visual span
+          humanCrawlBar.style.width = `${3 + t * 7.5}%`;
+
+          // Highlight stages progressively
+          if (atkStage1) atkStage1.style.opacity = secNow >= 15 ? '1' : '0.42';
+          if (atkStage2) atkStage2.style.opacity = secNow >= 70 ? '1' : '0.42';
+          if (atkStage3) atkStage3.style.opacity = secNow >= 130 ? '1' : '0.42';
+
+          if (t < 1) {
+            clockRaf = requestAnimationFrame(step);
+          }
+        }
+
+        clockRaf = requestAnimationFrame(step);
+      }
+
+      if (replayClockBtn) {
+        replayClockBtn.addEventListener('click', runThreatClockAnimation);
+      }
+
+      // ------------------------------------------------------------------------
+      // GIMMICK 2: SLIDE 2 — THE 40,000+ CVE NOISE FUNNEL (HTML5 CANVAS)
+      // ------------------------------------------------------------------------
+      const funnelCanvas = document.getElementById('cveFunnelCanvas');
+      const replayFunnelBtn = document.getElementById('replayFunnelBtn');
+      let funnelCtx = funnelCanvas ? funnelCanvas.getContext('2d') : null;
+      let funnelParticles = [];
+      let funnelRaf = null;
+      let funnelWidth = 0;
+      let funnelHeight = 0;
+
+      function resizeFunnelCanvas() {
+        if (!funnelCanvas || !funnelCanvas.parentElement) return;
+        const rect = funnelCanvas.parentElement.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        funnelWidth = rect.width;
+        funnelHeight = rect.height;
+        funnelCanvas.width = Math.floor(funnelWidth * dpr);
+        funnelCanvas.height = Math.floor(funnelHeight * dpr);
+        funnelCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function createNoiseParticle(randomY) {
+        const lensY = funnelHeight * 0.5;
+        return {
+          x: funnelWidth * (0.14 + Math.random() * 0.72),
+          y: randomY ? Math.random() * lensY : -8 - Math.random() * 40,
+          vy: 1.05 + Math.random() * 1.15,
+          r: 1.6 + Math.random() * 1.5,
+          alpha: 0.35 + Math.random() * 0.4,
+          isCritical: false
+        };
+      }
+
+      function initFunnelSimulation() {
+        resizeFunnelCanvas();
+        if (funnelWidth === 0) return;
+
+        funnelParticles = [];
+        // 85 muted grey noise particles representing the 40,000+ CVE storm
+        for (let i = 0; i < 85; i++) {
+          funnelParticles.push(createNoiseParticle(true));
+        }
+
+        // Exactly 2 real exploitable breach paths that pierce through the filter lens in sharp focus
+        funnelParticles.push({
+          x: funnelWidth * 0.44,
+          y: -12,
+          targetX: funnelWidth * 0.47,
+          vy: 1.25,
+          r: 4.2,
+          isCritical: true,
+          label: 'CVE-1 · Exposed Port + Reachable Code'
+        });
+        funnelParticles.push({
+          x: funnelWidth * 0.56,
+          y: -58,
+          targetX: funnelWidth * 0.53,
+          vy: 1.25,
+          r: 4.2,
+          isCritical: true,
+          label: 'CVE-2 · Live Auth Bypass Path'
+        });
+      }
+
+      function renderFunnelLoop() {
+        if (currentSlide !== 1 || !funnelCtx) {
+          funnelRaf = null;
+          return;
+        }
+        if (funnelWidth === 0) {
+          initFunnelSimulation();
+        }
+
+        const isDay = currentTheme === 'daylight';
+        funnelCtx.clearRect(0, 0, funnelWidth, funnelHeight);
+
+        const lensY = funnelHeight * 0.5;
+
+        // Subtle Funnel Guide Trapezoid
+        funnelCtx.beginPath();
+        funnelCtx.moveTo(funnelWidth * 0.10, 0);
+        funnelCtx.lineTo(funnelWidth * 0.90, 0);
+        funnelCtx.lineTo(funnelWidth * 0.62, lensY);
+        funnelCtx.lineTo(funnelWidth * 0.38, lensY);
+        funnelCtx.closePath();
+        funnelCtx.fillStyle = isDay ? 'rgba(75, 0, 170, 0.035)' : 'rgba(139, 92, 246, 0.05)';
+        funnelCtx.fill();
+
+        // Filter Horizontal Hairline Lens
+        funnelCtx.beginPath();
+        funnelCtx.moveTo(funnelWidth * 0.12, lensY);
+        funnelCtx.lineTo(funnelWidth * 0.88, lensY);
+        funnelCtx.strokeStyle = isDay ? 'rgba(75, 0, 170, 0.35)' : 'rgba(139, 92, 246, 0.5)';
+        funnelCtx.lineWidth = 1.5;
+        funnelCtx.stroke();
+
+        // Update & Draw Particles
+        for (let i = 0; i < funnelParticles.length; i++) {
+          const p = funnelParticles[i];
+
+          if (!p.isCritical) {
+            p.y += p.vy;
+            // Converge gently toward the filter lens
+            const centerDelta = (funnelWidth * 0.5 - p.x) * 0.008;
+            p.x += centerDelta;
+
+            // Evaporate harmlessly right at the Reachability Filter lens
+            if (p.y >= lensY - 4) {
+              p.alpha -= 0.08;
+            }
+            if (p.alpha <= 0.02 || p.y > lensY + 14) {
+              Object.assign(p, createNoiseParticle(false));
+            }
+
+            funnelCtx.beginPath();
+            funnelCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            funnelCtx.fillStyle = isDay
+              ? `rgba(100, 116, 139, ${Math.max(0, p.alpha)})`
+              : `rgba(148, 163, 184, ${Math.max(0, p.alpha)})`;
+            funnelCtx.fill();
+          } else {
+            // The 2 True Exploitable Findings pass through the lens and lock in sharp focus at bottom
+            const stopY = funnelHeight * 0.82;
+            if (p.y < stopY) {
+              p.y = Math.min(stopY, p.y + p.vy);
+              p.x += (p.targetX - p.x) * 0.03;
+            }
+
+            // Crisp Crimson Focus Ring + Core Dot
+            funnelCtx.beginPath();
+            funnelCtx.arc(p.x, p.y, p.r + 5, 0, Math.PI * 2);
+            funnelCtx.fillStyle = isDay ? 'rgba(225, 29, 72, 0.16)' : 'rgba(244, 63, 94, 0.22)';
+            funnelCtx.fill();
+
+            funnelCtx.beginPath();
+            funnelCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            funnelCtx.fillStyle = isDay ? '#E11D48' : '#F43F5E';
+            funnelCtx.fill();
+          }
+        }
+
+        funnelRaf = requestAnimationFrame(renderFunnelLoop);
+      }
+
+      if (replayFunnelBtn) {
+        replayFunnelBtn.addEventListener('click', () => {
+          initFunnelSimulation();
+          if (!funnelRaf) renderFunnelLoop();
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        if (currentSlide === 1) {
+          resizeFunnelCanvas();
+        }
+      });
+
+      // ------------------------------------------------------------------------
+      // GIMMICK 3: SLIDE 4 — INTERACTIVE ARCHITECTURE LAYER INSPECTOR
+      // ------------------------------------------------------------------------
+      const archLayerDetails = {
+        nutanix: {
+          tag: 'NUTANIX LAYER SELECTED',
+          tagClass: 'pill-ntnx',
+          selectedClass: 'selected-ntnx',
+          title: 'ต่อยอดคลัสเตอร์ Nutanix เดิมของลูกค้าได้ทันที',
+          desc: 'ถอดบทเรียนจากการติดตั้งจริงสู่รูปแบบ Virtual Appliance ที่อิมพอร์ตเข้า Nutanix AHV ได้ทันที ไม่ต้องรื้อโครงสร้างเดิม ดูแลรักษาผ่าน Prism ที่ทีม IT ถนัดอยู่แล้ว',
+          bullets: [
+            '✓ ติดตั้งไวบนคลัสเตอร์ Nutanix ที่มีอยู่',
+            '✓ รองรับ AHV GPU Passthrough เต็มประสิทธิภาพ',
+            '✓ ข้อมูลทั้งหมดไม่เคยวิ่งออกนอกดาต้าเซ็นเตอร์'
+          ]
+        },
+        dell: {
+          tag: 'DELL HARDWARE SELECTED',
+          tagClass: 'pill-dell',
+          selectedClass: 'selected-dell',
+          title: 'ขุมพลัง Dell PowerEdge + Enterprise GPU เต็มสปีด',
+          desc: 'ปลดล็อกยอดขายโหนดเซิร์ฟเวอร์และ GPU เกรดองค์กร ด้วยงาน AI Security ที่ประมวลผลบน VRAM ภายในเครื่อง 100% เสถียร ทนทาน และตรวจสอบสถานะ GPU Offload ได้จริง',
+          bullets: [
+            '✓ เพิ่มโอกาสขยายโหนด GPU ในคลัสเตอร์เดิม',
+            '✓ ประมวลผลโมเดล Audit AI ความเร็วสูงในบ้าน',
+            '✓ ไม่ต้องพึ่งพา API หรืออินเทอร์เน็ตภายนอก'
+          ]
+        },
+        lightops: {
+          tag: 'LIGHT OPS LAYER SELECTED',
+          tagClass: 'pill-teal',
+          selectedClass: 'selected-teal',
+          title: 'สมอง AI เฉพาะทาง + ปลอกคอกำกับดูแลระดับไบต์',
+          desc: 'รวมโมเดล AI ที่เทรนเฉพาะด้าน Security Audit เข้ากับตัวสแกน Live Infra, Source Code และ MCP Governance Harness จบใน Appliance เดียวพร้อมส่งมอบ',
+          bullets: [
+            '✓ คัดกรอง 40,000+ CVEs เหลือเฉพาะแผลจริง',
+            '✓ โหมด Read-Only ปลอดภัยต่อ Production 100%',
+            '✓ พิสูจน์แผลด้วย Red Mode และชงแผนซ่อมครบวงจร'
+          ]
+        }
+      };
+
+      const archButtons = Array.from(document.querySelectorAll('[data-arch-layer]'));
+      const archInspectorTag = document.getElementById('archInspectorTag');
+      const archInspectorTitle = document.getElementById('archInspectorTitle');
+      const archInspectorDesc = document.getElementById('archInspectorDesc');
+      const archInspectorBullets = document.getElementById('archInspectorBullets');
+
+      function selectArchLayer(layerKey) {
+        const info = archLayerDetails[layerKey];
+        if (!info) return;
+
+        archButtons.forEach((btn) => {
+          btn.classList.remove('selected-ntnx', 'selected-dell', 'selected-teal');
+          if (btn.getAttribute('data-arch-layer') === layerKey) {
+            btn.classList.add(info.selectedClass);
+          }
+        });
+
+        if (archInspectorTag) {
+          archInspectorTag.className = `px-2.5 py-0.5 rounded font-mono-code text-[11px] font-semibold ${info.tagClass}`;
+          archInspectorTag.textContent = info.tag;
+        }
+        if (archInspectorTitle) archInspectorTitle.textContent = info.title;
+        if (archInspectorDesc) archInspectorDesc.textContent = info.desc;
+        if (archInspectorBullets) {
+          archInspectorBullets.innerHTML = info.bullets
+            .map((b) => `<div class="exec-inset px-3 py-2 font-medium" style="color: var(--text-primary);">${b}</div>`)
+            .join('');
+        }
+      }
+
+      archButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          selectArchLayer(btn.getAttribute('data-arch-layer'));
+        });
+      });
+
+      // ------------------------------------------------------------------------
+      // GIMMICK 4: SLIDE 5 — INTERACTIVE CRYPTOGRAPHIC SEAL (MCP HARNESS)
+      // ------------------------------------------------------------------------
+      let sealState = {
+        revision: 4,
+        port: '6379',
+        isLockedApproved: true
+      };
+
+      const manifestSealCard = document.getElementById('manifestSealCard');
+      const sealStatusBadge = document.getElementById('sealStatusBadge');
+      const manifestCommandBox = document.getElementById('manifestCommandBox');
+      const manifestHashText = document.getElementById('manifestHashText');
+      const manifestCmdText = document.getElementById('manifestCmdText');
+      const manifestExplainBar = document.getElementById('manifestExplainBar');
+      const tamperCmdBtn = document.getElementById('tamperCmdBtn');
+      const reapproveCmdBtn = document.getElementById('reapproveCmdBtn');
+
+      function renderSealState(triggerShake) {
+        if (!manifestSealCard) return;
+
+        if (triggerShake) {
+          manifestSealCard.classList.remove('seal-break-flash');
+          void manifestSealCard.offsetWidth;
+          manifestSealCard.classList.add('seal-break-flash');
+        }
+
+        const nextTargetPort = sealState.port === '6379' ? '5432' : '6379';
+        tamperCmdBtn.textContent = `[ ลองแอบแก้คำสั่งแค่ 1 จุด (Port ${sealState.port} → ${nextTargetPort}) ]`;
+        manifestCmdText.textContent = `ufw deny from any to any port ${sealState.port}`;
+
+        if (sealState.isLockedApproved) {
+          manifestSealCard.style.borderColor = 'var(--sov-teal-border)';
+          manifestCommandBox.style.borderColor = 'var(--sov-teal-border)';
+          sealStatusBadge.className = 'px-3 py-1 rounded-lg font-mono-code text-xs font-bold pill-teal';
+          sealStatusBadge.textContent = `Revision #${sealState.revision} · SHA-256 LOCKED`;
+          manifestHashText.textContent = sealState.port === '6379'
+            ? 'sha256: 9f84c2e1...a40b (Verified)'
+            : 'sha256: 3d71b8c0...e19f (Verified)';
+          manifestCmdText.style.color = 'var(--sov-teal-text)';
+          manifestExplainBar.className = 'text-xs font-medium px-3 py-2 rounded-lg pill-teal';
+          manifestExplainBar.textContent = `✓ สถานะพร้อมรัน (Revision #${sealState.revision}): คำสั่งตรงตามใบแผนงานที่แอดมินอนุมัติทุกตัวอักษร`;
+        } else {
+          manifestSealCard.style.borderColor = 'var(--halt-border)';
+          manifestCommandBox.style.borderColor = 'var(--halt-border)';
+          sealStatusBadge.className = 'px-3 py-1 rounded-lg font-mono-code text-xs font-bold pill-amber';
+          sealStatusBadge.textContent = `HALTED · Revision #${sealState.revision}`;
+          manifestHashText.textContent = 'HASH MISMATCH · APPROVAL INVALIDATED!';
+          manifestCmdText.style.color = 'var(--halt-text)';
+          manifestExplainBar.className = 'text-xs font-semibold px-3 py-2 rounded-lg pill-amber';
+          manifestExplainBar.textContent = `⏸ HALTED · Revision #${sealState.revision} (คำสั่งเปลี่ยน สิทธิ์อนุมัติเดิมโมฆะทันที! บล็อกการแก้ไขระบบจนกว่าแอดมินจะกด Go รอบใหม่)`;
+        }
+      }
+
+      if (tamperCmdBtn) {
+        tamperCmdBtn.addEventListener('click', () => {
+          sealState.port = sealState.port === '6379' ? '5432' : '6379';
+          sealState.revision += 1;
+          sealState.isLockedApproved = false;
+          if (!revealAllMode && currentBeat < 3) currentBeat = 3;
+          renderDeck();
+          renderSealState(true);
+        });
+      }
+
+      if (reapproveCmdBtn) {
+        reapproveCmdBtn.addEventListener('click', () => {
+          sealState.isLockedApproved = true;
+          renderSealState(false);
+          notifyToast(`อนุมัติแผน Revision #${sealState.revision} และผนึก SHA-256 เรียบร้อย`);
+        });
+      }
+
+      // ------------------------------------------------------------------------
+      // CORE SLIDE & BEAT NAVIGATION
+      // ------------------------------------------------------------------------
+      function initSlideDots() {
+        slideDotsNav.innerHTML = '';
+        slideTitles.forEach((title, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.title = title;
+          btn.setAttribute('aria-label', title);
+          btn.addEventListener('click', () => {
+            navigateTo(idx, revealAllMode ? maxBeats : 1);
+          });
+          slideDotsNav.appendChild(btn);
+        });
+      }
+
+      function renderDeck() {
+        const effectiveBeat = revealAllMode ? maxBeats : currentBeat;
+
+        slides.forEach((slideEl, idx) => {
+          const active = idx === currentSlide;
+          slideEl.classList.toggle('active', active);
+
+          if (active) {
+            const beats = Array.from(slideEl.querySelectorAll('.story-beat'));
+            beats.forEach((bEl) => {
+              const bNum = parseInt(bEl.getAttribute('data-beat') || '1', 10);
+              bEl.classList.toggle('is-visible', bNum <= effectiveBeat);
+              bEl.classList.toggle('is-current', !revealAllMode && bNum === effectiveBeat);
+            });
+          }
+        });
+
+        // Update Slide Readout & Dots
+        slideIndexReadout.textContent = `0${currentSlide + 1} / 0${totalSlides}`;
+        Array.from(slideDotsNav.children).forEach((dot, idx) => {
+          if (idx === currentSlide) {
+            dot.className = 'w-7 h-2 rounded-full transition-all cursor-pointer';
+            dot.style.backgroundColor = 'var(--ntnx-luminous)';
+          } else {
+            dot.className = 'w-2 h-2 rounded-full transition-all cursor-pointer opacity-35 hover:opacity-75';
+            dot.style.backgroundColor = 'var(--text-muted)';
+          }
+        });
+
+        // Update Beat Pills
+        beatStepPills.forEach((pill) => {
+          const b = parseInt(pill.getAttribute('data-beat-btn') || '1', 10);
+          if (b === effectiveBeat) {
+            pill.style.backgroundColor = 'var(--ntnx-royal)';
+            pill.style.color = '#FFFFFF';
+          } else if (b < effectiveBeat) {
+            pill.style.backgroundColor = 'var(--ntnx-soft)';
+            pill.style.color = 'var(--ntnx-text)';
+          } else {
+            pill.style.backgroundColor = 'transparent';
+            pill.style.color = 'var(--text-muted)';
+          }
+        });
+
+        // Update Prev / Next Buttons
+        const atStart = currentSlide === 0 && (revealAllMode || currentBeat === 1);
+        const atEnd = currentSlide === totalSlides - 1 && effectiveBeat === maxBeats;
+        prevStepBtn.disabled = atStart;
+
+        if (atEnd) {
+          nextStepLabel.textContent = 'เข้าสู่ Live Demo ▶';
+        } else if (revealAllMode || effectiveBeat === maxBeats) {
+          nextStepLabel.textContent = 'สไลด์ถัดไป ▶';
+        } else {
+          nextStepLabel.textContent = 'จังหวะถัดไป ▶';
+        }
+
+        beatModeLabel.textContent = revealAllMode ? 'เปิดครบทั้งหน้า' : 'แสดงทีละจังหวะ';
+      }
+
+      function navigateTo(slideIdx, beatIdx) {
+        const slideChanged = slideIdx !== currentSlide;
+        currentSlide = Math.max(0, Math.min(totalSlides - 1, slideIdx));
+        currentBeat = Math.max(1, Math.min(maxBeats, beatIdx || 1));
+
+        if (slideChanged && mainViewport) {
+          mainViewport.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        renderDeck();
+
+        // Trigger slide-specific gimmicks cleanly
+        if (currentSlide === 0 && (revealAllMode || currentBeat >= 2)) {
+          runThreatClockAnimation();
+        }
+        if (currentSlide === 1) {
+          requestAnimationFrame(() => {
+            initFunnelSimulation();
+            if (!funnelRaf) renderFunnelLoop();
+          });
+        }
+      }
+
+      function stepForward() {
+        if (!revealAllMode && currentBeat < maxBeats) {
+          currentBeat += 1;
+          renderDeck();
+          if (currentSlide === 0 && currentBeat === 2) {
+            runThreatClockAnimation();
+          }
+          return;
+        }
+
+        if (currentSlide < totalSlides - 1) {
+          navigateTo(currentSlide + 1, revealAllMode ? maxBeats : 1);
+        } else {
+          notifyToast('พร้อมสลับเข้าสู่หน้าจอ Live Demo บนคลัสเตอร์ Nutanix + Dell GPU');
+        }
+      }
+
+      function stepBackward() {
+        if (!revealAllMode && currentBeat > 1) {
+          currentBeat -= 1;
+          renderDeck();
+          return;
+        }
+        if (currentSlide > 0) {
+          navigateTo(currentSlide - 1, maxBeats);
+        }
+      }
+
+      function toggleBeatMode() {
+        revealAllMode = !revealAllMode;
+        if (revealAllMode) {
+          currentBeat = maxBeats;
+          notifyToast('เปิดครบทั้งหน้า (แสดงทุกจังหวะทันที)');
+          if (currentSlide === 0) runThreatClockAnimation();
+        } else {
+          notifyToast('แสดงทีละจังหวะ (1/3 → 2/3 → 3/3)');
+        }
+        renderDeck();
+      }
+
+      function toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement) {
+            const p = document.documentElement.requestFullscreen();
+            if (p && typeof p.catch === 'function') {
+              p.catch(() => notifyToast('ขยายหน้าต่างเบราว์เซอร์เพื่อแสดงผลเต็มจอ'));
+            }
+          } else {
+            document.exitFullscreen();
+          }
+        } catch (_) {
+          notifyToast('ขยายหน้าต่างเบราว์เซอร์เพื่อแสดงผลเต็มจอ');
+        }
+      }
+
+      // Bind Controls
+      nextStepBtn.addEventListener('click', stepForward);
+      prevStepBtn.addEventListener('click', stepBackward);
+      themeToggleBtn.addEventListener('click', toggleVenueTheme);
+      beatModeBtn.addEventListener('click', toggleBeatMode);
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+      const startLiveDemoCta = document.getElementById('startLiveDemoCta');
+      if (startLiveDemoCta) {
+        startLiveDemoCta.addEventListener('click', () => {
+          notifyToast('พร้อมเข้าสู่ช่วงสาธิตสด Light Ops บน Nutanix AHV + Dell PowerEdge GPU');
+        });
+      }
+
+      beatStepPills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          revealAllMode = false;
+          currentBeat = parseInt(pill.getAttribute('data-beat-btn') || '1', 10);
+          renderDeck();
+          if (currentSlide === 0 && currentBeat >= 2) runThreatClockAnimation();
+        });
+      });
+
+      // Keyboard Navigation (Space, ArrowRight, ArrowLeft, 1-7, L, M, F)
+      window.addEventListener('keydown', (e) => {
+        if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+        if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'PageDown') {
+          if (e.target && e.target.tagName === 'BUTTON' && e.code === 'Space') {
+            e.target.blur();
+          }
+          e.preventDefault();
+          stepForward();
+        } else if (e.code === 'ArrowLeft' || e.code === 'PageUp') {
+          e.preventDefault();
+          stepBackward();
+        } else if (e.key === 'l' || e.key === 'L') {
+          e.preventDefault();
+          toggleVenueTheme();
+        } else if (e.key === 'm' || e.key === 'M') {
+          e.preventDefault();
+          toggleBeatMode();
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          toggleFullscreen();
+        } else if (e.key >= '1' && e.key <= '7') {
+          e.preventDefault();
+          navigateTo(parseInt(e.key, 10) - 1, revealAllMode ? maxBeats : 1);
+        }
+      });
+
+      // Touch Swipe Support
+      let touchStartX = 0;
+      let touchStartY = 0;
+      mainViewport.addEventListener('touchstart', (e) => {
+        if (e.changedTouches && e.changedTouches.length > 0) {
+          touchStartX = e.changedTouches[0].screenX;
+          touchStartY = e.changedTouches[0].screenY;
+        }
+      }, { passive: true });
+
+      mainViewport.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        const dy = e.changedTouches[0].screenY - touchStartY;
+        if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          if (dx < 0) stepForward();
+          else stepBackward();
+        }
+      }, { passive: true });
+
+      // Initialize on Load
+      window.onload = function () {
+        initSlideDots();
+        selectArchLayer('nutanix');
+        renderSealState(false);
+        renderDeck();
+      };
+    })();
+  </script>
+</body>
+</html>

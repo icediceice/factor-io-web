@@ -28,7 +28,7 @@
     - one-word last lines in the s14, s15 and s16 captions;
     - a Thai s15 headline that split "Light Ops";
     - an s16 closing line that repeated s17's headline.
-  - The post-ship review found two claims the code does not back, both now fixed in EN and TH. The s14 band said "no shell", but the analysis's inside-the-server check runs one fixed, read-only script over SSH. The s16 receipt line named "SHA-256", but the receipt carries no fixed SHA-256 field. The s14 subline now says "Light's analysis" instead of "Light". After these edits the fixture passes 22/22 with `failures []` (`act_1794212459641_7ced76c3`), and s14 and s16 were looked at by screenshot in EN and TH.
+  - The post-ship review found two claims the code does not back, both now fixed in EN and TH. The s14 band said "no shell", but the analysis's inside-the-server check runs one fixed, read-only script over SSH. The s16 receipt line named "SHA-256", but the receipt carries no fixed SHA-256 field. The s14 subline now says "Light's analysis" instead of "Light". After these edits the fixture passes 22/22 with `failures []` (`act_1794212459641_7ced76c3`), and s14 and s16 were looked at by screenshot in EN and TH. The fixes went out in `5151e9a..d4ea2fc`. The live page then returned 200 with 160,485 bytes and 19 sections, and carried the new s14 and s16 strings in EN and TH (`cmd_1794212589707_5bec9ef4`, `cmd_1794212594221_f97c6041`).
 - **Next:** the operator to review the Thai copy for s11-s16.
 - **Known issues:**
   - The Thai copy for s11-s16 is Claude's draft, not the operator's.

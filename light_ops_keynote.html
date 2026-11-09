@@ -261,13 +261,13 @@
     #s10 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
     #s10.b8 .was::after { transform: scaleX(1); }
 
-    /* s11 sovereign stack */
-    #s11 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
-    #s11 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
-    #s11 .tile + .tile { border-left-color: var(--line-2); }
-    #s11 .tile .big { font-size: 42px; line-height: 1.1; }
-    #s11 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
-    #s11 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
+    /* s17 sovereign stack */
+    #s17 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
+    #s17 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
+    #s17 .tile + .tile { border-left-color: var(--line-2); }
+    #s17 .tile .big { font-size: 42px; line-height: 1.1; }
+    #s17 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
+    #s17 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
 
     /* s18 partner path */
     #s18 .wk { top: 110px; width: 400px; height: 180px; }
@@ -276,7 +276,7 @@
 
     /* s19 call to action */
     #s19 .stp { top: 0; width: 560px; height: 170px; }
-    #s9 .st, #s11 .tile, #s18 .wk, #s19 .stp { justify-content: flex-start; padding-top: 24px; }
+    #s9 .st, #s17 .tile, #s18 .wk, #s19 .stp { justify-content: flex-start; padding-top: 24px; }
     .slide a { color: var(--cyan); text-decoration: none; border-bottom: 1.5px solid var(--cyan-line); transition: border-color .15s ease, color .15s ease; }
     .slide a:hover { border-bottom-color: var(--cyan); }
     .slide a:active { color: var(--t1); }
@@ -650,28 +650,28 @@
       </section></div>
 
       <!-- 11 · Sovereign stack -->
-      <div class="frame"><section class="slide" id="s11" data-times="0,700,1500,2300,3200,4300" aria-roledescription="slide">
+      <div class="frame"><section class="slide" id="s17" data-times="0,700,1500,2300,3200,4300" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">11</span><span data-i18n="s11.chap">The sovereign stack</span></p>
-          <h2 class="hl at1" data-i18n="s11.h">Everything runs inside your walls.</h2>
-          <p class="sub at1" style="--d:.2s" data-i18n="s11.sub">Your GPU servers, your virtualization and Kubernetes platform, and one Light appliance. Nothing leaves.</p>
+          <p class="chap at1"><span class="n">11</span><span data-i18n="s17.chap">The sovereign stack</span></p>
+          <h2 class="hl at1" data-i18n="s17.h">Everything runs inside your walls.</h2>
+          <p class="sub at1" style="--d:.2s" data-i18n="s17.sub">Your GPU servers, your virtualization and Kubernetes platform, and one Light appliance. Nothing leaves.</p>
         </div>
         <div class="gfx" style="top:400px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
             <rect class="at1 fade" x="1" y="1" width="998" height="588" rx="12" fill="none" stroke="#3B5070" stroke-width="1.5" stroke-dasharray="8 6" />
             <rect class="draw at5" pathLength="1" x="1" y="1" width="998" height="588" rx="12" fill="none" stroke="#34D399" stroke-width="2.5" style="--dur:1.2s" />
           </svg>
-          <div class="lbl at1 t3 mono" style="left:24px;top:14px;width:600px;font-size:22px" data-i18n="s11.dc">your datacenter</div>
-          <div class="node layer tone-cyan at4" style="top:52px"><span class="k t-cyan" data-i18n="s11.l3k">Light appliance</span><span class="v code" style="font-size:28px">light.ova</span><div class="pills"><span class="pill" data-i18n="s11.pc">cyber model</span><span class="pill" data-i18n="s11.pf">offline CVE feed, ed25519-signed</span><span class="pill" data-i18n="s11.pg">EDCR gate</span></div></div>
-          <div class="node layer at3" style="top:228px"><span class="k" data-i18n="s11.l2k">platform</span><span class="v">VMs + Kubernetes</span><div class="pills"><span class="pill">HCI</span><span class="pill">micro-segmentation</span></div></div>
-          <div class="node layer at2" style="top:404px"><span class="k" data-i18n="s11.l1k">compute</span><span class="v">GPU servers</span><div class="pills"><span class="pill">enterprise GPUs</span><span class="pill">on-prem</span></div></div>
-          <div class="node c tile at2" style="left:1048px;--d:.3s"><span class="big t-cyan">100%</span><span class="sm t2" data-i18n="s11.t1">model inference on your own GPU</span></div>
-          <div class="node c tile at4" style="left:1280px;--d:.3s"><span class="big t-cyan" data-i18n="s11.t2b">15 min</span><span class="sm t2" data-i18n="s11.t2">to deploy the OVA</span></div>
-          <div class="node c tile tone-ok at5" style="left:1512px;--d:.6s"><span class="big t-ok" data-i18n="s11.t3b">0 bytes</span><span class="sm t2" data-i18n="s11.t3">leave your network</span></div>
-          <div class="lbl at6 t3 mono" style="left:1048px;top:196px;width:680px;font-size:22px" data-i18n="s11.sz">sizing by estate</div>
-          <div class="node tier at6" style="top:232px;--d:.1s"><span class="v" data-i18n="s11.z1">≤ 250 VMs</span><span class="sm t2" data-i18n="s11.z1s">1 GPU server · 1-2 GPUs · 3 nodes</span></div>
-          <div class="node tier at6" style="top:353px;--d:.25s"><span class="v" data-i18n="s11.z2">≤ 1,000 VMs</span><span class="sm t2" data-i18n="s11.z2s">2 GPU servers · 4 GPUs · 4-6 nodes</span></div>
-          <div class="node tier at6" style="top:474px;--d:.4s"><span class="v" data-i18n="s11.z3">5,000+ VMs</span><span class="sm t2" data-i18n="s11.z3s">GPU pod · 8 GPUs · 8+ nodes · Kubernetes</span></div>
+          <div class="lbl at1 t3 mono" style="left:24px;top:14px;width:600px;font-size:22px" data-i18n="s17.dc">your datacenter</div>
+          <div class="node layer tone-cyan at4" style="top:52px"><span class="k t-cyan" data-i18n="s17.l3k">Light appliance</span><span class="v code" style="font-size:28px">light.ova</span><div class="pills"><span class="pill" data-i18n="s17.pc">cyber model</span><span class="pill" data-i18n="s17.pf">offline CVE feed, ed25519-signed</span><span class="pill" data-i18n="s17.pg">EDCR gate</span></div></div>
+          <div class="node layer at3" style="top:228px"><span class="k" data-i18n="s17.l2k">platform</span><span class="v">VMs + Kubernetes</span><div class="pills"><span class="pill">HCI</span><span class="pill">micro-segmentation</span></div></div>
+          <div class="node layer at2" style="top:404px"><span class="k" data-i18n="s17.l1k">compute</span><span class="v">GPU servers</span><div class="pills"><span class="pill">enterprise GPUs</span><span class="pill">on-prem</span></div></div>
+          <div class="node c tile at2" style="left:1048px;--d:.3s"><span class="big t-cyan">100%</span><span class="sm t2" data-i18n="s17.t1">model inference on your own GPU</span></div>
+          <div class="node c tile at4" style="left:1280px;--d:.3s"><span class="big t-cyan" data-i18n="s17.t2b">15 min</span><span class="sm t2" data-i18n="s17.t2">to deploy the OVA</span></div>
+          <div class="node c tile tone-ok at5" style="left:1512px;--d:.6s"><span class="big t-ok" data-i18n="s17.t3b">0 bytes</span><span class="sm t2" data-i18n="s17.t3">leave your network</span></div>
+          <div class="lbl at6 t3 mono" style="left:1048px;top:196px;width:680px;font-size:22px" data-i18n="s17.sz">sizing by estate</div>
+          <div class="node tier at6" style="top:232px;--d:.1s"><span class="v" data-i18n="s17.z1">≤ 250 VMs</span><span class="sm t2" data-i18n="s17.z1s">1 GPU server · 1-2 GPUs · 3 nodes</span></div>
+          <div class="node tier at6" style="top:353px;--d:.25s"><span class="v" data-i18n="s17.z2">≤ 1,000 VMs</span><span class="sm t2" data-i18n="s17.z2s">2 GPU servers · 4 GPUs · 4-6 nodes</span></div>
+          <div class="node tier at6" style="top:474px;--d:.4s"><span class="v" data-i18n="s17.z3">5,000+ VMs</span><span class="sm t2" data-i18n="s17.z3s">GPU pod · 8 GPUs · 8+ nodes · Kubernetes</span></div>
         </div>
       </section></div>
 
@@ -915,28 +915,28 @@
           "s10.r6k": "ตรวจสอบ",
           "s10.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
 
-          "s11.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
-          "s11.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",
-          "s11.sub": "บนเซิร์ฟเวอร์ GPU, แพลตฟอร์ม VM / Kubernetes ของคุณ และ Light เพียงชุดเดียว ไม่มีข้อมูลหลุดออกไปข้างนอกแม้แต่ไบต์เดียว",
-          "s11.dc": "ดาต้าเซ็นเตอร์ของคุณ",
-          "s11.l3k": "Light appliance",
-          "s11.pc": "โมเดล Cyber",
-          "s11.pf": "ฐานข้อมูล CVE ออฟไลน์ ลงนาม ed25519",
-          "s11.pg": "ด่านกั้น EDCR",
-          "s11.l2k": "แพลตฟอร์ม",
-          "s11.l1k": "ประมวลผล",
-          "s11.t1": "รันโมเดลบน GPU ของคุณเองทั้งหมด",
-          "s11.t2b": "15 นาที",
-          "s11.t2": "ติดตั้ง OVA เสร็จ",
-          "s11.t3b": "0 ไบต์",
-          "s11.t3": "ออกนอกเครือข่าย",
-          "s11.sz": "ขนาดตามจำนวน VM",
-          "s11.z1": "≤ 250 VM",
-          "s11.z1s": "เซิร์ฟเวอร์ GPU 1 เครื่อง · GPU 1-2 ใบ · 3 โหนด",
-          "s11.z2": "≤ 1,000 VM",
-          "s11.z2s": "เซิร์ฟเวอร์ GPU 2 เครื่อง · GPU 4 ใบ · 4⁠-⁠6 โหนด",
-          "s11.z3": "5,000+ VM",
-          "s11.z3s": "พ็อด GPU · GPU 8 ใบ · 8 โหนดขึ้นไป · Kubernetes",
+          "s17.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
+          "s17.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",
+          "s17.sub": "บนเซิร์ฟเวอร์ GPU, แพลตฟอร์ม VM / Kubernetes ของคุณ และ Light เพียงชุดเดียว ไม่มีข้อมูลหลุดออกไปข้างนอกแม้แต่ไบต์เดียว",
+          "s17.dc": "ดาต้าเซ็นเตอร์ของคุณ",
+          "s17.l3k": "Light appliance",
+          "s17.pc": "โมเดล Cyber",
+          "s17.pf": "ฐานข้อมูล CVE ออฟไลน์ ลงนาม ed25519",
+          "s17.pg": "ด่านกั้น EDCR",
+          "s17.l2k": "แพลตฟอร์ม",
+          "s17.l1k": "ประมวลผล",
+          "s17.t1": "รันโมเดลบน GPU ของคุณเองทั้งหมด",
+          "s17.t2b": "15 นาที",
+          "s17.t2": "ติดตั้ง OVA เสร็จ",
+          "s17.t3b": "0 ไบต์",
+          "s17.t3": "ออกนอกเครือข่าย",
+          "s17.sz": "ขนาดตามจำนวน VM",
+          "s17.z1": "≤ 250 VM",
+          "s17.z1s": "เซิร์ฟเวอร์ GPU 1 เครื่อง · GPU 1-2 ใบ · 3 โหนด",
+          "s17.z2": "≤ 1,000 VM",
+          "s17.z2s": "เซิร์ฟเวอร์ GPU 2 เครื่อง · GPU 4 ใบ · 4⁠-⁠6 โหนด",
+          "s17.z3": "5,000+ VM",
+          "s17.z3s": "พ็อด GPU · GPU 8 ใบ · 8 โหนดขึ้นไป · Kubernetes",
 
           "s18.chap": "เส้นทางสำหรับพาร์ทเนอร์",
           "s18.h": "ติดตั้งเสร็จภายใน 1 สัปดาห์ เห็นผลจริงภายใน 30 วัน",

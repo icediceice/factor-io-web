@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794204640425",
-  "generated_at": "2026-11-09T06:10:40.425Z",
-  "snapshot_digest": "30b6b8272bb2d586",
+  "refresh_id": "refresh-1794117922383",
+  "generated_at": "2026-11-08T06:05:22.383Z",
+  "snapshot_digest": "00e14c60a3702034",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-30b6b8272bb2d586.json",
-      "digest": "30b6b8272bb2d586",
-      "bytes": 4013775
+      "path": "catalog-00e14c60a3702034.json",
+      "digest": "00e14c60a3702034",
+      "bytes": 4013834
     },
     "fx": {
       "kind": "external",
@@ -21,9 +21,9 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-09T06:10:40.425Z",
-      "last_success_at": "2026-11-09T06:10:40.425Z",
-      "expires_at": "2026-11-12T06:10:40.425Z",
+      "observed_at": "2026-11-08T06:05:22.383Z",
+      "last_success_at": "2026-11-08T06:05:22.383Z",
+      "expires_at": "2026-11-11T06:05:22.383Z",
       "root_digest": "7b1e18295ba68d34",
       "record_count": 442,
       "missing_streak": 0
@@ -31,9 +31,9 @@
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-09T06:10:40.425Z",
-      "last_success_at": "2026-11-09T06:10:40.425Z",
-      "expires_at": "2026-11-12T06:10:40.425Z",
+      "observed_at": "2026-11-08T06:05:22.383Z",
+      "last_success_at": "2026-11-08T06:05:22.383Z",
+      "expires_at": "2026-11-11T06:05:22.383Z",
       "root_digest": "ed17ba576fd1f920",
       "record_count": 3501,
       "missing_streak": 0
@@ -42,7 +42,7 @@
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-11-06T00:00:00.000Z",
-      "last_success_at": "2026-11-09T06:11:03.609Z",
+      "last_success_at": "2026-11-08T06:05:45.531Z",
       "expires_at": "2026-11-13T23:59:59.999Z",
       "root_digest": "a0bea7dc54ab17b3",
       "record_count": 1,
@@ -43284,7 +43284,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43936,6 +43937,16 @@
       "name": "NVIDIA: Nemotron 3.5 Content Safety",
       "tariff": "token",
       "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "openrouter:nvidia/nemotron-3.5-content-safety:free",
+      "name": "NVIDIA: Nemotron 3.5 Content Safety (free)",
+      "tariff": "token",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"

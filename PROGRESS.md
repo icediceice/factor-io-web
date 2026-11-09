@@ -1,42 +1,9 @@
 # Project: factor-io-web
 
 > Initialized: 2026-03-03 15:33
-> Last updated: 2026-11-09 (Light Ops keynote at 19 scenes: posture, compliance profiles, VA scan, red team, tools, benefits)
+> Last updated: 2026-11-09 (Light Ops keynote brand-neutral at light_ops_keynote.html, new scene 8 on approval fatigue)
 
 ## Current Focus
-
-**Light Ops keynote grows to 19 scenes: security posture, compliance profiles, versus a VA scan, red team, next to your tools, and what each team gets (2026-11-09, plan `local:b3993fb280135ef1333a18d1527dc466`).**
-- **What:** Six plain-language scenes sit between the live case (s10) and the sovereign stack. The stack, the partner path and the call to action are renumbered from 11-13 to 17-19 (ids, CSS, i18n keys, chapter numbers). Each new scene has one motion object on the existing beat engine, in EN and TH.
-  - s11 Security posture: four checks (missing patches, exposed services, hardening against a profile, falling behind on updates) ride into one rule that gives each server one level. A known-exploited CVE makes web-edge-01 critical; two failed high-severity hardening rules make db-01 high; app-02 reads info; files-03 reads unknown, never safe, because its check could not run (a broken lane). Source: Light's risk derivation (`DeriveRisk`).
-  - s12 Compliance profiles: PCI-DSS drops out of a row of eight profiles (with CIS, DISA STIG, HIPAA, NIST 800-171, ANSSI, Essential Eight, OSPP), a 96-rule example grid fills with pass and fail, and the 8 failed rules stream into one fix plan that turns amber ("waiting for your Go"), then green. The foot line says the profiles offered depend on the server's OS (RHEL-family content has all eight, Ubuntu 24.04 only CIS and STIG). The scene never says "compliant".
-  - s13 Versus a VA scan: five rows (how often, what you get, if a check fails, who fixes it, proof it worked). The first row sets four snapshot dots against daily ticks.
-  - s14 Red team: three attacker views (from the internet, inside the server, in the code) ride into one authorised target inside a scope ring and fill an attack-requirements checklist (yes, no and firewalled, unknown). A probe aimed at an unauthorised host stops at `target_not_authorized`. The band says: only targets you authorise, logged before the first packet, the analysis runs no exploits and guesses no passwords. The scene presents our team using Light's analysis, and its "no exploits" wording is scoped to that analysis rather than to Light as a whole.
-  - s15 Next to your tools: a VA scan, SIEM/EDR, a pen test, a cloud AI assistant and a patch tool each drop into the one step they cover. The prove step stays an empty dashed slot. A cyan Light Ops thread runs through spot, decide, fix and prove.
-  - s16 What you get:
-    - security team: 42,180 counts down to 3;
-    - management: 14 days is struck through for < 15 min;
-    - IT operations: 1 Go per plan;
-    - audit and compliance: 1 receipt for every change Light makes, naming the plan, the approver and the result.
-    Every figure already appears in the deck (s2, s3, s6, s10).
-  - Engine: counters take an optional `data-from` start value (s16 uses it; counters without it still start at 0). A small builder draws s12's rule grid and s13's day ticks at load. The meta description now says 19 scenes.
-- **Files:** `light_ops_keynote.html`, `tests/keynote-browser-check.html`, `PROGRESS.md`. The fixture now expects 19 scenes in its count, End-key, print and story-view checks, and has one new check: s16 counts down from 42,180 to 3 while s6 still counts up from 0.
-- **Verification:**
-  - Measured: `tests/keynote-browser-check.html` passes 22/22 with `failures []` on the final bytes (`act_1794211745477_1882970f`). No scene of the 19 fails overflow, contrast, minimum font size, text fit or collision, in EN or TH. Earlier runs `act_1794211147570_25bcab83`, `act_1794211382370_abe49735` and `act_1794211469686_0dcd677b` also passed.
-  - Live after the first push (`4a5af2b..7301b53`, rebased onto the bot's `chore(tco)` pricing commit), the fetched bytes have 19 `class="slide"` sections, s1 to s19 in order (`cmd_1794211669376_92e75399`). A status curl run before Pages had published (`cmd_1794211650210_41e2e347`, 113,675 bytes) measured the old deck. Live s12 and s14 were looked at by screenshot. The s14 English captions then got no-break spaces ("web apps", "truly open"), which went out in a second push (`7301b53..0fd5ce0`). After that push the live page returns 200 with 160,433 bytes (the local 160,466 less the 33 bytes of `email_off` markers Cloudflare strips), still 19 sections, and contains both no-break spaces (`cmd_1794211881549_f48d971f`, `cmd_1794211874465_1554b903`).
-  - Looked at by screenshot at the end state: s11-s16 in EN and TH, plus s17 and s19. That pass fixed:
-    - empty space in the s11 rule card, the s12 plan card and the s16 tiles;
-    - one-word last lines in the s14, s15 and s16 captions;
-    - a Thai s15 headline that split "Light Ops";
-    - an s16 closing line that repeated s17's headline.
-  - The post-ship review found two claims the code does not back, both now fixed in EN and TH. The s14 band said "no shell", but the analysis's inside-the-server check runs one fixed, read-only script over SSH. The s16 receipt line named "SHA-256", but the receipt carries no fixed SHA-256 field. The s14 subline now says "Light's analysis" instead of "Light". After these edits the fixture passes 22/22 with `failures []` (`act_1794212459641_7ced76c3`), and s14 and s16 were looked at by screenshot in EN and TH. The fixes went out in `5151e9a..d4ea2fc`. The live page then returned 200 with 160,485 bytes and 19 sections, and carried the new s14 and s16 strings in EN and TH (`cmd_1794212589707_5bec9ef4`, `cmd_1794212594221_f97c6041`).
-- **Next:** the operator to review the Thai copy for s11-s16.
-- **Known issues:**
-  - The Thai copy for s11-s16 is Claude's draft, not the operator's.
-  - Motion was checked at each scene's end state and through the fixture's beat checks; no frame was captured mid-animation.
-  - The s11 and s14 server names and the s12 grid (96 rules, 8 failures) are illustrations, not a real scan. Only s12 says so on the slide ("for example"); s11 and s14 carry no such label.
-  - Scenes 11-13 became 17-19, so a `?slide=11`, `12` or `13` link shared before today's change now opens a different scene. No file in this repo contains `light_ops_keynote.html?`, so no in-repo link is affected.
-  - The s13 VA-scan column describes a typical scan in general terms and names no product.
-  - `docs/service-offer-spec.md` remains untracked user work.
 
 **Light Ops partner keynote goes brand-neutral at a neutral URL and gains scene 8, "Approval fatigue" (2026-11-09, plan `local:70e1851a4790ce002360f1d0516afff2`).**
 - **What:** The deck is now `light_ops_keynote.html` (served at studio.factor-io.com/light_ops_keynote.html). The old `light_ops_on_nutanix_dell_gpu_keynote.html` is removed, so its URL returns 404. It names no partner, platform-vendor or GPU-vendor product, because the offer is private to three parties for now. Title, meta, s1 chapter line and footer, the s11 stack (platform "VMs + Kubernetes" with HCI and micro-segmentation pills, compute "GPU servers"), the s11 tiers (GPU servers and GPU counts, no models), and the s12 and s13 lines all use neutral wording in EN and TH. The new s8 sits between the prompt-rule scene and the EDCR gate. It shows, from Anthropic's 2026 Claude Code data: 97% of permission prompts approved; about 17% of dangerous commands caught early in a session, falling to about 5% after 50+ prompts (controlled study, 1,053 testers); and 39% of plans rejected against 3% of single commands. It then states Light's answer: one Go for the whole declared plan, with everything outside it refused without a prompt. Scenes 8-12 are renumbered to 9-13 (ids, CSS, i18n keys, chapter numbers), so every id equals its position.

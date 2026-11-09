@@ -16,7 +16,7 @@
     - security team: 42,180 counts down to 3;
     - management: 14 days is struck through for < 15 min;
     - IT operations: 1 Go per plan;
-    - audit and compliance: 1 receipt for every change Light makes.
+    - audit and compliance: 1 receipt for every change Light makes, naming the plan, the approver and the result.
     Every figure already appears in the deck (s2, s3, s6, s10).
   - Engine: counters take an optional `data-from` start value (s16 uses it; counters without it still start at 0). A small builder draws s12's rule grid and s13's day ticks at load. The meta description now says 19 scenes.
 - **Files:** `light_ops_keynote.html`, `tests/keynote-browser-check.html`, `PROGRESS.md`. The fixture now expects 19 scenes in its count, End-key, print and story-view checks, and has one new check: s16 counts down from 42,180 to 3 while s6 still counts up from 0.

@@ -14,7 +14,7 @@
      * differs from: the 2026-11-08 deck (Topology / Split Monitor, 8 dense slides) and the last log entries; Focus Rail = the scene's state is the headline
      * data: every figure comes from the pre-rewrite deck (plan note 2778); 13d 23h 49m and 99.99% are arithmetic on those figures
      * data 2026-11-08 per the operator: platform Nutanix AHV / NKP; GPU floor NVIDIA RTX PRO 6000 (replaces the earlier entry GPU; H100 NVL / H100 kept); no Dell model numbers;
-     *   Thai copy is the operator's native text (s3 "กว่า 42,180" by their choice), except the s11 headline and labels outside their copy
+     *   Thai copy is the operator's native text (s3 "กว่า 42,180" by their choice), except the s12 headline and labels outside their copy
      * motion: one object per scene, transform/opacity only; loops (s1 pulses, pings) show traffic crossing the gate; reduced motion and print show final states
      */
     @font-face { font-family: "Geist"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("assets/fonts/geist-latin.woff2") format("woff2"); }
@@ -259,14 +259,14 @@
     #s10 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
     #s10 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
 
-    /* s11 partner path */
-    #s11 .wk { top: 110px; width: 400px; height: 180px; }
-    #s11 .val { top: 372px; width: 560px; height: 150px; padding-left: 0; border-color: transparent; border-radius: 0; background: transparent; }
-    #s11 .val + .val { border-left-color: var(--line-2); padding-left: 24px; }
+    /* s12 partner path */
+    #s12 .wk { top: 110px; width: 400px; height: 180px; }
+    #s12 .val { top: 372px; width: 560px; height: 150px; padding-left: 0; border-color: transparent; border-radius: 0; background: transparent; }
+    #s12 .val + .val { border-left-color: var(--line-2); padding-left: 24px; }
 
     /* s13 call to action */
     #s13 .stp { top: 0; width: 560px; height: 170px; }
-    #s8 .st, #s10 .tile, #s11 .wk, #s13 .stp { justify-content: flex-start; padding-top: 24px; }
+    #s8 .st, #s10 .tile, #s12 .wk, #s13 .stp { justify-content: flex-start; padding-top: 24px; }
     .slide a { color: var(--cyan); text-decoration: none; border-bottom: 1.5px solid var(--cyan-line); transition: border-color .15s ease, color .15s ease; }
     .slide a:hover { border-bottom-color: var(--cyan); }
     .slide a:active { color: var(--t1); }
@@ -640,11 +640,11 @@
       </section></div>
 
       <!-- 11 · Partner path -->
-      <div class="frame"><section class="slide" id="s11" data-times="0,800,1700,2600,3500,4700" aria-roledescription="slide">
+      <div class="frame"><section class="slide" id="s12" data-times="0,800,1700,2600,3500,4700" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">11</span><span data-i18n="s11.chap">The partner path</span></p>
-          <h2 class="hl at1" data-i18n="s11.h">We set up in one week. You&nbsp;feel the value in 30 days.</h2>
-          <p class="sub at1" style="--d:.2s" data-i18n="s11.sub">A proof of value on the customer's own hardware, code and team.</p>
+          <p class="chap at1"><span class="n">11</span><span data-i18n="s12.chap">The partner path</span></p>
+          <h2 class="hl at1" data-i18n="s12.h">We set up in one week. You&nbsp;feel the value in 30 days.</h2>
+          <p class="sub at1" style="--d:.2s" data-i18n="s12.sub">A proof of value on the customer's own hardware, code and team.</p>
         </div>
         <div class="gfx" style="top:400px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
@@ -658,14 +658,14 @@
             <circle class="at4 grow" cx="1080" cy="60" r="12" fill="#38BDF8" style="--d:.6s" />
             <circle class="at5 grow" cx="1512" cy="60" r="14" fill="#34D399" style="--d:.6s" />
           </svg>
-          <div class="node wk at2" style="left:16px;--d:.4s"><span class="k" data-i18n="s11.w1k">week 1</span><span class="v" data-i18n="s11.w1">OVA drop</span><span class="sm t2" data-i18n="s11.w1s">light.ova boots on their Nutanix cluster</span></div>
-          <div class="node wk at3" style="left:448px;--d:.5s"><span class="k" data-i18n="s11.w2k">week 2</span><span class="v" data-i18n="s11.w2">Blind hunt</span><span class="sm t2" data-i18n="s11.w2s">a hunt on their own code, no hints</span></div>
-          <div class="node wk at4" style="left:880px;--d:.5s"><span class="k" data-i18n="s11.w3k">week 3</span><span class="v" data-i18n="s11.w3">Gate drill</span><span class="sm t2" data-i18n="s11.w3s">their team drills Go, edit and revoke</span></div>
-          <div class="node wk tone-ok at5" style="left:1312px;--d:.5s"><span class="k t-ok" data-i18n="s11.w4k">week 4</span><span class="v" data-i18n="s11.w4">BOM sign-off</span><span class="sm t2" data-i18n="s11.w4s">sized to their estate and signed</span></div>
-          <div class="lbl at6 t3 mono" style="left:0;top:330px;width:900px;font-size:22px" data-i18n="s11.ek">what the partner earns</div>
-          <div class="node val at6" style="left:0;--d:.1s"><span class="v" data-i18n="s11.e1">Hardware pull-through</span><span class="sm t2" data-i18n="s11.e1s">PowerEdge GPU servers and Nutanix nodes</span></div>
-          <div class="node val at6" style="left:584px;--d:.25s"><span class="v" data-i18n="s11.e2">Recurring margin</span><span class="sm t2" data-i18n="s11.e2s">Light licence and CVE feed renewals</span></div>
-          <div class="node val at6" style="left:1168px;--d:.4s"><span class="v" data-i18n="s11.e3">Services</span><span class="sm t2" data-i18n="s11.e3s">deployment, tuning and gate operations</span></div>
+          <div class="node wk at2" style="left:16px;--d:.4s"><span class="k" data-i18n="s12.w1k">week 1</span><span class="v" data-i18n="s12.w1">OVA drop</span><span class="sm t2" data-i18n="s12.w1s">light.ova boots on their Nutanix cluster</span></div>
+          <div class="node wk at3" style="left:448px;--d:.5s"><span class="k" data-i18n="s12.w2k">week 2</span><span class="v" data-i18n="s12.w2">Blind hunt</span><span class="sm t2" data-i18n="s12.w2s">a hunt on their own code, no hints</span></div>
+          <div class="node wk at4" style="left:880px;--d:.5s"><span class="k" data-i18n="s12.w3k">week 3</span><span class="v" data-i18n="s12.w3">Gate drill</span><span class="sm t2" data-i18n="s12.w3s">their team drills Go, edit and revoke</span></div>
+          <div class="node wk tone-ok at5" style="left:1312px;--d:.5s"><span class="k t-ok" data-i18n="s12.w4k">week 4</span><span class="v" data-i18n="s12.w4">BOM sign-off</span><span class="sm t2" data-i18n="s12.w4s">sized to their estate and signed</span></div>
+          <div class="lbl at6 t3 mono" style="left:0;top:330px;width:900px;font-size:22px" data-i18n="s12.ek">what the partner earns</div>
+          <div class="node val at6" style="left:0;--d:.1s"><span class="v" data-i18n="s12.e1">Hardware pull-through</span><span class="sm t2" data-i18n="s12.e1s">PowerEdge GPU servers and Nutanix nodes</span></div>
+          <div class="node val at6" style="left:584px;--d:.25s"><span class="v" data-i18n="s12.e2">Recurring margin</span><span class="sm t2" data-i18n="s12.e2s">Light licence and CVE feed renewals</span></div>
+          <div class="node val at6" style="left:1168px;--d:.4s"><span class="v" data-i18n="s12.e3">Services</span><span class="sm t2" data-i18n="s12.e3s">deployment, tuning and gate operations</span></div>
         </div>
       </section></div>
 
@@ -886,28 +886,28 @@
           "s10.z3": "5,000+ VM",
           "s10.z3s": "พ็อด PowerEdge GPU · H100 8 ใบ · 8 โหนดขึ้นไป · NKP",
 
-          "s11.chap": "เส้นทางสำหรับพาร์ทเนอร์",
-          "s11.h": "ติดตั้งเสร็จภายใน 1 สัปดาห์ เห็นผลจริงภายใน 30 วัน",
-          "s11.sub": "พิสูจน์ของจริงบนเครื่องจริง โค้ดจริง และทีมงานของลูกค้าเอง",
-          "s11.w1k": "สัปดาห์ที่ 1",
-          "s11.w1": "ส่งมอบ OVA",
-          "s11.w1s": "light.ova บูตบนคลัสเตอร์ Nutanix ของ⁠ลูกค้า",
-          "s11.w2k": "สัปดาห์ที่ 2",
-          "s11.w2": "ล่าแบบไม่บอกใบ้",
-          "s11.w2s": "ล่าช่องโหว่ในโค้ดจริงของลูกค้า โดย⁠ไม่⁠บอก⁠ใบ้",
-          "s11.w3k": "สัปดาห์ที่ 3",
-          "s11.w3": "ซ้อมด่านกั้น",
-          "s11.w3s": "ทีมลูกค้าซ้อมกด Go แก้แผน และ⁠เพิก⁠ถอน",
-          "s11.w4k": "สัปดาห์ที่ 4",
-          "s11.w4": "เซ็น BOM",
-          "s11.w4s": "กำหนดขนาดตามระบบจริง แล้ว⁠เซ็น⁠อนุมัติ",
-          "s11.ek": "สิ่งที่พาร์ทเนอร์ได้รับ",
-          "s11.e1": "ยอดขายฮาร์ดแวร์",
-          "s11.e1s": "เซิร์ฟเวอร์ PowerEdge GPU และโหนด Nutanix",
-          "s11.e2": "รายได้ต่อเนื่อง",
-          "s11.e2s": "ค่าลิขสิทธิ์ Light และการต่ออายุฐานข้อมูล CVE",
-          "s11.e3": "งานบริการ",
-          "s11.e3s": "ติดตั้ง ปรับจูน และดูแลด่านกั้น",
+          "s12.chap": "เส้นทางสำหรับพาร์ทเนอร์",
+          "s12.h": "ติดตั้งเสร็จภายใน 1 สัปดาห์ เห็นผลจริงภายใน 30 วัน",
+          "s12.sub": "พิสูจน์ของจริงบนเครื่องจริง โค้ดจริง และทีมงานของลูกค้าเอง",
+          "s12.w1k": "สัปดาห์ที่ 1",
+          "s12.w1": "ส่งมอบ OVA",
+          "s12.w1s": "light.ova บูตบนคลัสเตอร์ Nutanix ของ⁠ลูกค้า",
+          "s12.w2k": "สัปดาห์ที่ 2",
+          "s12.w2": "ล่าแบบไม่บอกใบ้",
+          "s12.w2s": "ล่าช่องโหว่ในโค้ดจริงของลูกค้า โดย⁠ไม่⁠บอก⁠ใบ้",
+          "s12.w3k": "สัปดาห์ที่ 3",
+          "s12.w3": "ซ้อมด่านกั้น",
+          "s12.w3s": "ทีมลูกค้าซ้อมกด Go แก้แผน และ⁠เพิก⁠ถอน",
+          "s12.w4k": "สัปดาห์ที่ 4",
+          "s12.w4": "เซ็น BOM",
+          "s12.w4s": "กำหนดขนาดตามระบบจริง แล้ว⁠เซ็น⁠อนุมัติ",
+          "s12.ek": "สิ่งที่พาร์ทเนอร์ได้รับ",
+          "s12.e1": "ยอดขายฮาร์ดแวร์",
+          "s12.e1s": "เซิร์ฟเวอร์ PowerEdge GPU และโหนด Nutanix",
+          "s12.e2": "รายได้ต่อเนื่อง",
+          "s12.e2s": "ค่าลิขสิทธิ์ Light และการต่ออายุฐานข้อมูล CVE",
+          "s12.e3": "งานบริการ",
+          "s12.e3s": "ติดตั้ง ปรับจูน และดูแลด่านกั้น",
 
           "s13.chap": "ก้าวต่อไป",
           "s13.h": "เลือกลูกค้ามา 3 ราย",

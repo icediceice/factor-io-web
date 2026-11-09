@@ -33,7 +33,8 @@
 - **Known issues:**
   - The Thai copy for s11-s16 is Claude's draft, not the operator's.
   - Motion was checked at each scene's end state and through the fixture's beat checks; no frame was captured mid-animation.
-  - The s12 grid (96 rules, 8 failures) and the s11 and s14 server names are labelled illustrations, not a real scan.
+  - The s11 and s14 server names and the s12 grid (96 rules, 8 failures) are illustrations, not a real scan. Only s12 says so on the slide ("for example"); s11 and s14 carry no such label.
+  - Scenes 11-13 became 17-19, so a `?slide=11`, `12` or `13` link shared before today's change now opens a different scene. No link in this repo uses `?slide=`.
   - The s13 VA-scan column describes a typical scan in general terms and names no product.
   - `docs/service-offer-spec.md` remains untracked user work.
 

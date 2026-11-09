@@ -240,16 +240,16 @@
     #s8 .mrow { display: grid; grid-template-columns: 200px 1fr; align-items: baseline; gap: 16px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 22px; line-height: 1.3; color: var(--t2); }
     #s8 .mrow.t-bad { color: var(--bad); border-top-color: var(--bad-line); }
 
-    /* s9 live case */
-    #s9 .row { position: absolute; left: 620px; width: 1108px; height: 64px; display: grid; grid-template-columns: 40px 200px 1fr; align-items: center; }
-    #s9 .row i { display: block; width: 18px; height: 18px; border-radius: 50%; justify-self: center; }
-    #s9 .row .rk { font: 500 24px/1.3 var(--mono); color: var(--t3); }
-    #s9 .row .rk.go { color: var(--ok); }
-    #s9 .row .rv { font-size: 28px; line-height: 1.3; color: var(--t1); }
-    #s9 .big small { font-size: 42px; color: var(--t2); margin-left: 16px; letter-spacing: 0; }
-    #s9 .was { white-space: nowrap; }
-    #s9 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
-    #s9.b8 .was::after { transform: scaleX(1); }
+    /* s10 live case */
+    #s10 .row { position: absolute; left: 620px; width: 1108px; height: 64px; display: grid; grid-template-columns: 40px 200px 1fr; align-items: center; }
+    #s10 .row i { display: block; width: 18px; height: 18px; border-radius: 50%; justify-self: center; }
+    #s10 .row .rk { font: 500 24px/1.3 var(--mono); color: var(--t3); }
+    #s10 .row .rk.go { color: var(--ok); }
+    #s10 .row .rv { font-size: 28px; line-height: 1.3; color: var(--t1); }
+    #s10 .big small { font-size: 42px; color: var(--t2); margin-left: 16px; letter-spacing: 0; }
+    #s10 .was { white-space: nowrap; }
+    #s10 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
+    #s10.b8 .was::after { transform: scaleX(1); }
 
     /* s11 sovereign stack */
     #s11 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
@@ -591,25 +591,25 @@
       </section></div>
 
       <!-- 9 · Live case -->
-      <div class="frame"><section class="slide" id="s9" data-times="0,700,1500,2300,3100,3900,4700,5900" aria-roledescription="slide">
+      <div class="frame"><section class="slide" id="s10" data-times="0,700,1500,2300,3100,3900,4700,5900" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">09</span><span data-i18n="s9.chap">A live case</span></p>
-          <h2 class="hl at1" data-i18n="s9.h">The same CVE, closed in minutes, with a human on the Go.</h2>
+          <p class="chap at1"><span class="n">09</span><span data-i18n="s10.chap">A live case</span></p>
+          <h2 class="hl at1" data-i18n="s10.h">The same CVE, closed in minutes, with a human on the Go.</h2>
         </div>
         <div class="gfx" style="top:420px;height:580px">
           <svg width="1728" height="580" viewBox="0 0 1728 580" aria-hidden="true">
             <line class="at1 fade" x1="640" y1="52" x2="640" y2="452" stroke="#2A3A52" stroke-width="2" />
           </svg>
-          <div class="lbl at1 t3 mono" style="left:0;top:40px;width:560px;font-size:22px" data-i18n="s9.usual">your usual patch cycle</div>
-          <div class="lbl at1 big t3 was" style="left:0;top:84px;font-size:96px;line-height:1" data-i18n="s9.days">14 days</div>
-          <div class="lbl at8 big t-ok" style="left:0;top:220px;width:580px;font-size:140px;line-height:1;white-space:nowrap;--d:.45s">&lt; 15<small data-i18n="s9.min">min</small></div>
-          <div class="lbl at8 t2" style="left:0;top:384px;width:560px;font-size:26px;--d:.7s" data-i18n="s9.cap">with Light: found to verified</div>
-          <div class="row at2" style="top:20px"><i style="background:var(--bad)"></i><span class="rk" data-i18n="s9.r1k">found</span><span class="rv" data-i18n="s9.r1">CVE-2026-109618 is reachable on web-edge-01</span></div>
-          <div class="row at3" style="top:100px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s9.r2k">proved</span><span class="rv" data-i18n="s9.r2">preview_digest captures the proof, read-only</span></div>
-          <div class="row at4" style="top:180px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s9.r3k">planned</span><span class="rv" data-i18n="s9.r3">1 file, 2 steps, rollback ready</span></div>
-          <div class="row at5" style="top:260px"><i style="background:var(--ok)"></i><span class="rk go">#Go</span><span class="rv" data-i18n="s9.r4">your engineer approves the plan</span></div>
-          <div class="row at6" style="top:340px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s9.r5k">executed</span><span class="rv" data-i18n="s9.r5">step 1 patch, step 2 reload</span></div>
-          <div class="row at7" style="top:420px"><i style="background:var(--ok)"></i><span class="rk" data-i18n="s9.r6k">verified</span><span class="rv" data-i18n="s9.r6">exploit replay gets HTTP 403, service stays up</span></div>
+          <div class="lbl at1 t3 mono" style="left:0;top:40px;width:560px;font-size:22px" data-i18n="s10.usual">your usual patch cycle</div>
+          <div class="lbl at1 big t3 was" style="left:0;top:84px;font-size:96px;line-height:1" data-i18n="s10.days">14 days</div>
+          <div class="lbl at8 big t-ok" style="left:0;top:220px;width:580px;font-size:140px;line-height:1;white-space:nowrap;--d:.45s">&lt; 15<small data-i18n="s10.min">min</small></div>
+          <div class="lbl at8 t2" style="left:0;top:384px;width:560px;font-size:26px;--d:.7s" data-i18n="s10.cap">with Light: found to verified</div>
+          <div class="row at2" style="top:20px"><i style="background:var(--bad)"></i><span class="rk" data-i18n="s10.r1k">found</span><span class="rv" data-i18n="s10.r1">CVE-2026-109618 is reachable on web-edge-01</span></div>
+          <div class="row at3" style="top:100px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r2k">proved</span><span class="rv" data-i18n="s10.r2">preview_digest captures the proof, read-only</span></div>
+          <div class="row at4" style="top:180px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r3k">planned</span><span class="rv" data-i18n="s10.r3">1 file, 2 steps, rollback ready</span></div>
+          <div class="row at5" style="top:260px"><i style="background:var(--ok)"></i><span class="rk go">#Go</span><span class="rv" data-i18n="s10.r4">your engineer approves the plan</span></div>
+          <div class="row at6" style="top:340px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r5k">executed</span><span class="rv" data-i18n="s10.r5">step 1 patch, step 2 reload</span></div>
+          <div class="row at7" style="top:420px"><i style="background:var(--ok)"></i><span class="rk" data-i18n="s10.r6k">verified</span><span class="rv" data-i18n="s10.r6">exploit replay gets HTTP 403, service stays up</span></div>
         </div>
       </section></div>
 
@@ -845,23 +845,23 @@
           "s8.rv": "สิทธิ์อนุมัติเป็นโมฆะทันที",
           "s8.rs": "ถ้าแผนถูกแก้แม้แต่นิดเดียว ระบบจะล็อกการทำงานทันที จนกว่าคุณจะกดอนุมัติรอบใหม่",
 
-          "s9.chap": "ตัวอย่างการใช้งานจริง",
-          "s9.h": "ช่องโหว่ตัวเดียวกัน ปิดจบได้ในไม่⁠กี่⁠นาที โดยที่คนยังคุมทุกการตัดสินใจ",
-          "s9.usual": "รอบแพตช์ตามปกติ",
-          "s9.days": "14 วัน",
-          "s9.min": "นาที",
-          "s9.cap": "ด้วย Light: ตั้งแต่พบจนตรวจสอบเสร็จ",
-          "s9.r1k": "พบ",
-          "s9.r1": "CVE-2026-109618 เข้าถึงได้จริงบน web-edge-01",
-          "s9.r2k": "พิสูจน์",
-          "s9.r2": "preview_digest เก็บหลักฐาน แบบอ่านอย่างเดียว",
-          "s9.r3k": "วางแผน",
-          "s9.r3": "1 ไฟล์ 2 ขั้นตอน พร้อมแผนย้อนกลับ",
-          "s9.r4": "วิศวกรของคุณอนุมัติแผน",
-          "s9.r5k": "ลงมือ",
-          "s9.r5": "ขั้นที่ 1 แพตช์ ขั้นที่ 2 รีโหลด",
-          "s9.r6k": "ตรวจสอบ",
-          "s9.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
+          "s10.chap": "ตัวอย่างการใช้งานจริง",
+          "s10.h": "ช่องโหว่ตัวเดียวกัน ปิดจบได้ในไม่⁠กี่⁠นาที โดยที่คนยังคุมทุกการตัดสินใจ",
+          "s10.usual": "รอบแพตช์ตามปกติ",
+          "s10.days": "14 วัน",
+          "s10.min": "นาที",
+          "s10.cap": "ด้วย Light: ตั้งแต่พบจนตรวจสอบเสร็จ",
+          "s10.r1k": "พบ",
+          "s10.r1": "CVE-2026-109618 เข้าถึงได้จริงบน web-edge-01",
+          "s10.r2k": "พิสูจน์",
+          "s10.r2": "preview_digest เก็บหลักฐาน แบบอ่านอย่างเดียว",
+          "s10.r3k": "วางแผน",
+          "s10.r3": "1 ไฟล์ 2 ขั้นตอน พร้อมแผนย้อนกลับ",
+          "s10.r4": "วิศวกรของคุณอนุมัติแผน",
+          "s10.r5k": "ลงมือ",
+          "s10.r5": "ขั้นที่ 1 แพตช์ ขั้นที่ 2 รีโหลด",
+          "s10.r6k": "ตรวจสอบ",
+          "s10.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
 
           "s11.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
           "s11.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",

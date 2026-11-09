@@ -1044,14 +1044,36 @@
         });
       }
 
+      /* s12's rule grid and s13's day ticks are drawn once here so the markup stays readable; colour and timing live in CSS */
+      (function buildGeometry() {
+        var NS = "http://www.w3.org/2000/svg";
+        function add(tag, attrs, parent) { var n = document.createElementNS(NS, tag); for (var a in attrs) n.setAttribute(a, attrs[a]); parent.appendChild(n); return n; }
+        var grid = document.getElementById("s12grid"), toks = document.getElementById("s12toks");
+        if (grid && toks) {
+          var FAIL = [5, 17, 30, 38, 51, 63, 70, 86], j = 0;
+          for (var k = 0; k < 96; k++) {
+            var x = 580 + (k % 12) * 48, y = 150 + Math.floor(k / 12) * 48, bad = FAIL.indexOf(k) >= 0;
+            add("rect", { x: x, y: y, width: 36, height: 36, rx: 4, fill: "#121B2C", "class": "rule " + (bad ? "no" : "ok"), style: "--i:" + k }, grid);
+            if (bad) add("circle", { cx: x + 18, cy: y + 18, r: 7, "class": "ftok", style: "--j:" + (j++) + ";--tx:" + (1200 - x - 18) + "px;--ty:" + (270 - y - 18) + "px" }, toks);
+          }
+        }
+        [].forEach.call(document.querySelectorAll("svg[data-ticks]"), function (svg) {
+          var n = +svg.getAttribute("data-ticks"), w = +svg.getAttribute("width");
+          for (var k = 0; k < n; k++) {
+            var tx = (3 + k * (w - 6) / (n - 1)).toFixed(1);
+            add("line", { x1: tx, y1: 2, x2: tx, y2: 22, stroke: "#38BDF8", "stroke-width": 2, "class": "tick", style: "--i:" + k }, svg);
+          }
+        });
+      })();
+
       var HOOKS = { s3: makeFlood() };
 
       function runBeat(i, b, instant) {
         var s = slides[i];
         [].forEach.call(s.querySelectorAll('[data-count][data-at="' + b + '"]'), function (el) {
-          var to = +el.getAttribute("data-count"), f = el.getAttribute("data-fmt"), dur = +(el.getAttribute("data-dur") || 1200);
+          var to = +el.getAttribute("data-count"), from = +(el.getAttribute("data-from") || 0), f = el.getAttribute("data-fmt"), dur = +(el.getAttribute("data-dur") || 1200);
           if (instant) { el.textContent = fmt(to, f); return; }
-          tween(i, dur, function (p) { el.textContent = fmt(to * p, f); }, f === "mmss");
+          tween(i, dur, function (p) { el.textContent = fmt(from + (to - from) * p, f); }, f === "mmss");
         });
         [].forEach.call(s.querySelectorAll("[data-rides]"), function (el) {
           rides(el).forEach(function (r) {
@@ -1081,7 +1103,7 @@
         s.classList.add("instant");
         for (var k = 1; k <= 8; k++) s.classList.remove("b" + k);
         s.classList.remove("on", "fin");
-        [].forEach.call(s.querySelectorAll("[data-count]"), function (el) { el.textContent = fmt(0, el.getAttribute("data-fmt")); });
+        [].forEach.call(s.querySelectorAll("[data-count]"), function (el) { el.textContent = fmt(+(el.getAttribute("data-from") || 0), el.getAttribute("data-fmt")); });
         [].forEach.call(s.querySelectorAll("[data-rides]"), function (el) {
           var r = rides(el)[0], p = document.getElementById(r.path); if (p) place(el, p, lenAtX(p, r.from));
         });

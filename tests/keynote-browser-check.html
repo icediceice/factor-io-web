@@ -191,7 +191,7 @@
             key(w, "End"); await sleep(40);
             var atEnd = L.state().cur;
             key(w, "Home"); await sleep(40);
-            check("End and Home jump to the last and first scene", atEnd === 11 && L.state().cur === 0, { end: atEnd, home: L.state().cur });
+            check("End and Home jump to the last and first scene", atEnd === 12 && L.state().cur === 0, { end: atEnd, home: L.state().cur });
             check("stage view shows exactly one scene", w.document.querySelectorAll(".slide.active").length === 1);
 
             /* language switch */

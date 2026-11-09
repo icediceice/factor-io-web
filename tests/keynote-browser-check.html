@@ -241,7 +241,7 @@
         /* story view */
         var ws = await load("?view=dossier&lang=en");
         var fr = [].slice.call(ws.document.querySelectorAll(".frame")), tops = fr.map(function (f) { return Math.round(f.getBoundingClientRect().top + ws.scrollY); });
-        var stacked = fr.length === 12 && fr.every(function (f, k) { return f.getBoundingClientRect().height > 300 && (k === 0 || tops[k] > tops[k - 1]); });
+        var stacked = fr.length === 13 && fr.every(function (f, k) { return f.getBoundingClientRect().height > 300 && (k === 0 || tops[k] > tops[k - 1]); });
         check("story view stacks all 12 scenes top to bottom", ws.LightKeynote.state().view === "story" && stacked, tops);
         fr[6].scrollIntoView({ block: "start" });
         await sleep(900);

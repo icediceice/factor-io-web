@@ -264,7 +264,7 @@
     /* s11 security posture: four checks ride into one rule, the rule hands each server one level, and a check that cannot run lands on unknown */
     #s11 .chk { left: 0; width: 540px; height: 112px; }
     #s11 .chk .v { font-size: 24px; }
-    #s11 .rule { left: 680px; top: 118px; width: 400px; height: 260px; justify-content: flex-start; padding-top: 24px; transition: border-color .5s ease 1s, background-color .5s ease 1s, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s11 .rule { left: 680px; top: 96px; width: 400px; height: 290px; justify-content: flex-start; padding-top: 24px; transition: border-color .5s ease 1s, background-color .5s ease 1s, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
     #s11.b2 .rule { border-color: var(--cyan-line); background-color: var(--cyan-bg); }
     #s11 .srv { left: 1180px; width: 548px; height: 112px; padding: 12px 20px; gap: 6px; transition: border-color .4s ease var(--t, 0s), background-color .4s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
     #s11 .srv .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
@@ -296,6 +296,7 @@
 
     /* s13 versus a VA scan: rows wipe in, and the Light Ops cell slides in after the scan's cell */
     #s13 .q { left: 0; width: 300px; display: flex; align-items: center; font-size: 26px; font-weight: 600; color: var(--t1); }
+    #s13 .va, #s13 .lc { padding: 12px 20px; }
     #s13 .va { left: 330px; width: 680px; }
     #s13 .va .v { font-size: 24px; color: var(--t2); }
     #s13 .lc { left: 1040px; width: 688px; transform: translateX(56px); transition: border-color .5s ease calc(var(--d, 0s) + .3s), background-color .5s ease calc(var(--d, 0s) + .3s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
@@ -309,17 +310,18 @@
     #s14 .org { left: 0; width: 360px; height: 120px; }
     #s14 .host { border-style: dashed; }
     #s14 .ckl { left: 1060px; top: 0; width: 668px; height: 440px; justify-content: flex-start; padding-top: 24px; }
-    #s14 .rq { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 24px; line-height: 1.3; color: var(--t2); }
+    #s14 .rq { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 24px; line-height: 1.3; color: var(--t2); }
     #s14 .rq .rs { font: 600 22px/1.3 var(--mono); text-align: right; }
     .motion #s14.on:not(.b2) .ping.pt, .motion #s14.on:not(.b5) .ping.ps { animation: none; }
 
     /* s15 next to your tools: each tool drops into the step it covers; Light Ops runs one thread through all four */
-    #s15 .ph { top: 0; width: 408px; height: 104px; }
-    #s15 .tool { width: 408px; height: 96px; transform: translateY(-40px); }
+    #s15 .ph { top: 0; width: 408px; height: 108px; }
+    #s15 .tool, #s15 .lt { padding: 12px 20px; gap: 4px; }
+    #s15 .tool { width: 408px; height: 100px; transform: translateY(-40px); }
     #s15.b2 .tool.at2, #s15.b3 .tool.at3 { transform: none; }
     #s15 .tool .v, #s15 .lt .v { font-size: 24px; }
     #s15 .slot { border-style: dashed; }
-    #s15 .lt { top: 496px; width: 408px; height: 96px; }
+    #s15 .lt { top: 496px; width: 408px; height: 100px; }
 
     /* s16 what you get: one number lands per team */
     #s16 .bt { top: 0; width: 408px; height: 400px; justify-content: flex-start; gap: 12px; padding: 28px; transition: border-color .5s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
@@ -789,7 +791,7 @@
           <div class="lbl at2 t2" style="left:24px;top:356px;width:472px;--d:1.1s" data-i18n="s12.b2">SSH and remote access</div>
           <div class="lbl at2 t2" style="left:24px;top:394px;width:472px;--d:1.2s" data-i18n="s12.b3">logging and audit trails</div>
           <div class="lbl at2 t2" style="left:24px;top:432px;width:472px;--d:1.3s" data-i18n="s12.b4">file and folder permissions</div>
-          <div class="lbl at1 t3 mono" style="left:580px;top:112px;width:564px;font-size:22px;--d:.3s"><span data-i18n="s12.ex">example: one server, rule by rule</span> · <span class="t-ok" data-i18n="s12.pass">pass</span> · <span class="t-bad" data-i18n="s12.fail">fail</span></div>
+          <div class="lbl at1 t3 mono" style="left:580px;top:112px;width:564px;font-size:22px;--d:.3s"><span data-i18n="s12.ex">one server, rule by rule</span> · <span class="t-ok" data-i18n="s12.pass">pass</span> · <span class="t-bad" data-i18n="s12.fail">fail</span></div>
           <div class="node plan at1" style="--d:.4s"><span class="k" data-i18n="s12.pk">fix plan</span><span class="stack v"><span class="gone4 t3" style="--d:.8s" data-i18n="s12.p0">nothing yet</span><span class="at4 fade" style="--d:.9s" data-i18n="s12.p1">8 failed rules, one plan</span></span><span class="stack sm"><span class="at4 fade gone5 t3" style="--d:1.1s" data-i18n="s12.p2">draft: nothing has changed</span><span class="at5 fade gone6 t-hold" data-i18n="s12.p3">waiting for your Go</span><span class="at6 fade t-ok" data-i18n="s12.p4">approved: runs only these steps</span></span></div>
           <div class="lbl at6 t2" style="left:1200px;top:414px;width:528px;--d:.3s" data-i18n="s12.pl">Nothing is fixed on its own. Each change is a step your engineer approves.</div>
         </div>
@@ -811,21 +813,21 @@
           <div class="node va at2" style="top:48px;height:124px;--d:.15s"><span class="v" data-i18n="s13.v1">A snapshot, often monthly or quarterly</span><svg class="tl" width="620" height="24" viewBox="0 0 620 24" aria-hidden="true"><line x1="7" y1="12" x2="613" y2="12" stroke="#2A3A52" stroke-width="2" stroke-dasharray="4 8" /><circle cx="7" cy="12" r="7" fill="#8B98AD" /><circle cx="209" cy="12" r="7" fill="#8B98AD" /><circle cx="411" cy="12" r="7" fill="#8B98AD" /><circle cx="613" cy="12" r="7" fill="#8B98AD" /></svg></div>
           <div class="node lc at2" style="top:48px;height:124px;--d:.6s"><span class="v" data-i18n="s13.l1">Every server, at least every 24 hours</span><svg class="tl" width="620" height="24" viewBox="0 0 620 24" data-ticks="90" aria-hidden="true"></svg></div>
 
-          <div class="lbl q at3" style="top:184px;height:92px" data-i18n="s13.q2">What you get</div>
-          <div class="node va at3" style="top:184px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v2">Every CVE that matches a version number</span></div>
-          <div class="node lc at3" style="top:184px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l2">One risk level per server, real threats first</span></div>
+          <div class="lbl q at3" style="top:184px;height:96px" data-i18n="s13.q2">What you get</div>
+          <div class="node va at3" style="top:184px;height:96px;--d:.15s"><span class="v" data-i18n="s13.v2">Every CVE that matches a version number</span></div>
+          <div class="node lc at3" style="top:184px;height:96px;--d:.6s"><span class="v" data-i18n="s13.l2">One risk level per server, real threats first</span></div>
 
-          <div class="lbl q at4" style="top:288px;height:92px" data-i18n="s13.q3">If a check fails</div>
-          <div class="node va at4" style="top:288px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v3">A scan that could not log in can look clean</span></div>
-          <div class="node lc at4" style="top:288px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l3">Marked unknown, never shown as safe</span></div>
+          <div class="lbl q at4" style="top:288px;height:96px" data-i18n="s13.q3">If a check fails</div>
+          <div class="node va at4" style="top:288px;height:96px;--d:.15s"><span class="v" data-i18n="s13.v3">A scan that could not log in can look clean</span></div>
+          <div class="node lc at4" style="top:288px;height:96px;--d:.6s"><span class="v" data-i18n="s13.l3">Marked unknown, never shown as safe</span></div>
 
-          <div class="lbl q at5" style="top:392px;height:92px" data-i18n="s13.q4">Who fixes it</div>
-          <div class="node va at5" style="top:392px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v4">Your team works it out by hand, later</span></div>
-          <div class="node lc at5" style="top:392px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l4">A ready plan with a rollback. You press Go.</span></div>
+          <div class="lbl q at5" style="top:392px;height:96px" data-i18n="s13.q4">Who fixes it</div>
+          <div class="node va at5" style="top:392px;height:96px;--d:.15s"><span class="v" data-i18n="s13.v4">Your team works it out by hand, later</span></div>
+          <div class="node lc at5" style="top:392px;height:96px;--d:.6s"><span class="v" data-i18n="s13.l4">A ready plan with a rollback. You press Go.</span></div>
 
-          <div class="lbl q at6" style="top:496px;height:92px" data-i18n="s13.q5">Proof it worked</div>
-          <div class="node va at6" style="top:496px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v5">Wait for the next scan</span></div>
-          <div class="node lc at6" style="top:496px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l5">Re-tested right away, with a receipt</span></div>
+          <div class="lbl q at6" style="top:496px;height:96px" data-i18n="s13.q5">Proof it worked</div>
+          <div class="node va at6" style="top:496px;height:96px;--d:.15s"><span class="v" data-i18n="s13.v5">Wait for the next scan</span></div>
+          <div class="node lc at6" style="top:496px;height:96px;--d:.6s"><span class="v" data-i18n="s13.l5">Re-tested right away, with a receipt</span></div>
         </div>
       </section></div>
 
@@ -879,7 +881,7 @@
         </div>
         <div class="gfx" style="top:430px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
-            <path class="draw at4" pathLength="1" d="M0 544 H1728" fill="none" stroke="#38BDF8" stroke-width="3" style="--dur:1.2s" />
+            <path class="draw at4" pathLength="1" d="M0 546 H1728" fill="none" stroke="#38BDF8" stroke-width="3" style="--dur:1.2s" />
           </svg>
           <div class="node ph at1" style="left:0"><span class="k t-cyan">01</span><span class="v" data-i18n="s15.g1">Spot what is wrong</span></div>
           <div class="node ph at1" style="left:440px;--d:.1s"><span class="k t-cyan">02</span><span class="v" data-i18n="s15.g2">Decide what matters first</span></div>

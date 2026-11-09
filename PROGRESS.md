@@ -21,7 +21,8 @@
   - Engine: counters take an optional `data-from` start value (s16 uses it; counters without it still start at 0). A small builder draws s12's rule grid and s13's day ticks at load. The meta description now says 19 scenes.
 - **Files:** `light_ops_keynote.html`, `tests/keynote-browser-check.html`, `PROGRESS.md`. The fixture now expects 19 scenes in its count, End-key, print and story-view checks, and has one new check: s16 counts down from 42,180 to 3 while s6 still counts up from 0.
 - **Verification:**
-  - Measured: `tests/keynote-browser-check.html` passes 22/22 with `failures []` on the final bytes (`act_1794211469686_0dcd677b`). No scene of the 19 fails overflow, contrast, minimum font size, text fit or collision, in EN or TH. Earlier runs `act_1794211147570_25bcab83` and `act_1794211382370_abe49735` also passed.
+  - Measured: `tests/keynote-browser-check.html` passes 22/22 with `failures []` on the final bytes (`act_1794211745477_1882970f`). No scene of the 19 fails overflow, contrast, minimum font size, text fit or collision, in EN or TH. Earlier runs `act_1794211147570_25bcab83`, `act_1794211382370_abe49735` and `act_1794211469686_0dcd677b` also passed.
+  - Live after the first push (`4a5af2b..7301b53`, rebased onto the bot's `chore(tco)` pricing commit): studio.factor-io.com/light_ops_keynote.html returns 200 with 113,675 bytes and 19 `class="slide"` sections, s1 to s19 in order (`cmd_1794211650210_41e2e347`, `cmd_1794211669376_92e75399`). Live s12 and s14 were looked at by screenshot. The s14 English captions then got no-break spaces ("web apps", "truly open"), which went out in a second push.
   - Looked at by screenshot at the end state: s11-s16 in EN and TH, plus s17 and s19. That pass fixed:
     - empty space in the s11 rule card, the s12 plan card and the s16 tiles;
     - one-word last lines in the s14, s15 and s16 captions;

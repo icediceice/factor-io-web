@@ -250,7 +250,7 @@
 
         /* printing from the scroll view (the shared ?view=dossier link) */
         var pStory = printLayout(ws);
-        check("printing from the scroll view gives 12 full 1920x1080 pages, one scene each", pStory.pages === 12 && pStory.off.length === 0, pStory.off);
+        check("printing from the scroll view gives 13 full 1920x1080 pages, one scene each", pStory.pages === 13 && pStory.off.length === 0, pStory.off);
         await settle(ws);
         var m7 = s7.getAttribute("data-times").split(",").length;
         fr[9].scrollIntoView({ block: "start" });

@@ -261,6 +261,77 @@
     #s10 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
     #s10.b8 .was::after { transform: scaleX(1); }
 
+    /* s11 security posture: four checks ride into one rule, the rule hands each server one level, and a check that cannot run lands on unknown */
+    #s11 .chk { left: 0; width: 540px; height: 112px; }
+    #s11 .chk .v { font-size: 24px; }
+    #s11 .rule { left: 680px; top: 118px; width: 400px; height: 260px; justify-content: flex-start; padding-top: 24px; transition: border-color .5s ease 1s, background-color .5s ease 1s, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s11.b2 .rule { border-color: var(--cyan-line); background-color: var(--cyan-bg); }
+    #s11 .srv { left: 1180px; width: 548px; height: 112px; padding: 12px 20px; gap: 6px; transition: border-color .4s ease var(--t, 0s), background-color .4s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s11 .srv .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    #s11 .srv .lv { font: 600 24px/1.3 var(--mono); }
+    #s11.b3 .srv.crit { border-color: var(--bad); background-color: var(--bad-bg); }
+    #s11.b3 .srv.high { border-color: var(--bad-line); }
+    #s11.b3 .srv.info { border-color: var(--ok-line); }
+    #s11 .srv.unk { border-style: dashed; }
+    #s11.b4 .srv.unk { border-color: var(--t3); }
+    #s11 .tok, #s14 .tok { fill: var(--cyan); }
+    #s11 .tok.bad, #s14 .tok.bad { fill: var(--bad); }
+    .motion #s11.on:not(.b4) .ping { animation: none; }
+
+    /* s12 compliance profiles: one profile drops into the scan, the rule grid fills, failed rules stream into one plan that waits for the Go */
+    #s12 .pf { top: 40px; height: 48px; }
+    #s12 .pick { transition: transform 1s var(--ease) .1s, border-color .4s ease .9s, background-color .4s ease .9s, opacity .7s var(--ease) var(--d, 0s); }
+    #s12.b2 .pick { transform: translate(24px, 164px); border-color: var(--cyan); background-color: var(--cyan-bg); }
+    #s12 .oth { transition: opacity .5s ease var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s12.b2 .oth { opacity: .35; }
+    #s12 .rule { transition: fill .25s ease calc(var(--i) * 16ms); }
+    #s12.b3 .rule.ok { fill: var(--ok-line); }
+    #s12.b3 .rule.no { fill: var(--bad); }
+    #s12 .ftok { fill: var(--bad); opacity: 0; transition: transform .9s var(--ease) calc(var(--j) * 90ms), opacity .25s ease calc(var(--j) * 90ms); }
+    #s12.b4 .ftok { opacity: 1; transform: translate(var(--tx), var(--ty)); }
+    #s12.b5 .ftok { opacity: 0; transition: opacity .3s ease; }
+    #s12 .plan { left: 1200px; top: 150px; width: 528px; height: 240px; justify-content: flex-start; padding-top: 24px; transition: border-color .4s ease, background-color .4s ease, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s12.b5 .plan { border-color: var(--hold); background-color: var(--hold-bg); }
+    #s12.b6 .plan { border-color: var(--ok); background-color: var(--ok-bg); }
+
+    /* s13 versus a VA scan: rows wipe in, and the Light Ops cell slides in after the scan's cell */
+    #s13 .q { left: 0; width: 300px; display: flex; align-items: center; font-size: 26px; font-weight: 600; color: var(--t1); }
+    #s13 .va { left: 330px; width: 680px; }
+    #s13 .va .v { font-size: 24px; color: var(--t2); }
+    #s13 .lc { left: 1040px; width: 688px; transform: translateX(56px); transition: border-color .5s ease calc(var(--d, 0s) + .3s), background-color .5s ease calc(var(--d, 0s) + .3s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s13 .lc .v { font-size: 24px; }
+    #s13.b2 .lc.at2, #s13.b3 .lc.at3, #s13.b4 .lc.at4, #s13.b5 .lc.at5, #s13.b6 .lc.at6 { transform: none; border-color: var(--cyan-line); background-color: var(--cyan-bg); }
+    #s13 .tl { display: block; flex: none; overflow: visible; }
+    #s13 .tick { opacity: 0; transition: opacity .2s ease calc(1.2s + var(--i) * 14ms); }
+    #s13.b2 .tick { opacity: 1; }
+
+    /* s14 red team: three views ride into one authorised target; a probe aimed outside the scope is refused before it leaves */
+    #s14 .org { left: 0; width: 360px; height: 120px; }
+    #s14 .host { border-style: dashed; }
+    #s14 .ckl { left: 1060px; top: 0; width: 668px; height: 440px; justify-content: flex-start; padding-top: 24px; }
+    #s14 .rq { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 24px; line-height: 1.3; color: var(--t2); }
+    #s14 .rq .rs { font: 600 22px/1.3 var(--mono); text-align: right; }
+    .motion #s14.on:not(.b2) .ping.pt, .motion #s14.on:not(.b5) .ping.ps { animation: none; }
+
+    /* s15 next to your tools: each tool drops into the step it covers; Light Ops runs one thread through all four */
+    #s15 .ph { top: 0; width: 408px; height: 104px; }
+    #s15 .tool { width: 408px; height: 96px; transform: translateY(-40px); }
+    #s15.b2 .tool.at2, #s15.b3 .tool.at3 { transform: none; }
+    #s15 .tool .v, #s15 .lt .v { font-size: 24px; }
+    #s15 .slot { border-style: dashed; }
+    #s15 .lt { top: 496px; width: 408px; height: 96px; }
+
+    /* s16 what you get: one number lands per team */
+    #s16 .bt { top: 0; width: 408px; height: 400px; justify-content: flex-start; gap: 12px; padding: 28px; transition: border-color .5s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s16 .bt .big { font-size: 88px; line-height: 1; }
+    #s16 .bt .big small { font-size: 42px; color: var(--t2); margin-left: 12px; letter-spacing: 0; }
+    #s16.b2 .bt.n1, #s16.b3 .bt.n2, #s16.b4 .bt.n3, #s16.b5 .bt.n4 { border-color: var(--ok-line); }
+    #s16 .was { position: relative; white-space: nowrap; }
+    #s16 .was::after { content: ""; position: absolute; left: -6px; right: -6px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease) .3s; }
+    #s16.b3 .was::after { transform: scaleX(1); }
+    #s16 .pop { transform: scale(1.3); transform-origin: 0 60%; }
+    #s16.b4 .pop.at4, #s16.b5 .pop.at5 { transform: none; }
+
     /* s17 sovereign stack */
     #s17 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
     #s17 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
@@ -646,6 +717,201 @@
           <div class="row at5" style="top:260px"><i style="background:var(--ok)"></i><span class="rk go">#Go</span><span class="rv" data-i18n="s10.r4">your engineer approves the plan</span></div>
           <div class="row at6" style="top:340px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r5k">executed</span><span class="rv" data-i18n="s10.r5">step 1 patch, step 2 reload</span></div>
           <div class="row at7" style="top:420px"><i style="background:var(--ok)"></i><span class="rk" data-i18n="s10.r6k">verified</span><span class="rv" data-i18n="s10.r6">exploit replay gets HTTP 403, service stays up</span></div>
+        </div>
+      </section></div>
+
+      <!-- 11 · Security posture -->
+      <div class="frame"><section class="slide" id="s11" data-times="0,900,2400,4000,5500" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">11</span><span data-i18n="s11.chap">Security posture</span></p>
+          <h2 class="hl at1" data-i18n="s11.h">Every server gets one honest risk level, every day.</h2>
+          <p class="sub at5" data-i18n="s11.sub">If a check cannot run, the server reads unknown, never safe.</p>
+        </div>
+        <div class="gfx" style="top:420px;height:520px">
+          <svg width="1728" height="520" viewBox="0 0 1728 520" aria-hidden="true">
+            <path id="s11a" class="draw at1" pathLength="1" d="M540 56 C610 56 610 200 680 200" fill="none" stroke="#2A3A52" stroke-width="2" style="--d:.5s" />
+            <path id="s11b" class="draw at1" pathLength="1" d="M540 184 C610 184 610 232 680 232" fill="none" stroke="#2A3A52" stroke-width="2" style="--d:.6s" />
+            <path id="s11c" class="draw at1" pathLength="1" d="M540 312 C610 312 610 264 680 264" fill="none" stroke="#2A3A52" stroke-width="2" style="--d:.7s" />
+            <path id="s11d" class="draw at1" pathLength="1" d="M540 440 C610 440 610 296 680 296" fill="none" stroke="#2A3A52" stroke-width="2" style="--d:.8s" />
+            <path id="s11e" class="draw at3" pathLength="1" d="M1080 200 C1130 200 1130 56 1180 56" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.6s" />
+            <path id="s11f" class="draw at3" pathLength="1" d="M1080 232 C1130 232 1130 184 1180 184" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.6s" />
+            <path id="s11g" class="draw at3" pathLength="1" d="M1080 264 C1130 264 1130 312 1180 312" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.6s" />
+            <path id="s11h" class="at4 fade" d="M1080 296 C1130 296 1130 440 1180 440" fill="none" stroke="#7A2742" stroke-width="2" stroke-dasharray="6 6" />
+            <circle class="tok at2 fade" cx="540" cy="56" r="9" data-rides="2:s11a:540:680:1000" />
+            <circle class="tok at2 fade" cx="540" cy="184" r="9" data-rides="2:s11b:540:680:1150" />
+            <circle class="tok at2 fade" cx="540" cy="312" r="9" data-rides="2:s11c:540:680:1300" />
+            <circle class="tok at2 fade" cx="540" cy="440" r="9" data-rides="2:s11d:540:680:1450" />
+            <circle class="tok at3 fade" cx="1080" cy="200" r="9" data-rides="3:s11e:1080:1180:700" />
+            <circle class="tok at3 fade" cx="1080" cy="232" r="9" data-rides="3:s11f:1080:1180:800" />
+            <circle class="tok at3 fade" cx="1080" cy="264" r="9" data-rides="3:s11g:1080:1180:900" />
+            <circle class="tok bad at4 fade" cx="1080" cy="296" r="9" data-rides="4:s11h:1080:1121:600" />
+            <g class="at4 fade" style="--d:.55s" stroke="#FB7185" stroke-width="3" stroke-linecap="round"><line x1="1121" y1="359" x2="1139" y2="377" /><line x1="1139" y1="359" x2="1121" y2="377" /></g>
+            <circle class="ping" cx="1130" cy="368" r="10" fill="none" stroke="#FB7185" stroke-width="2" />
+          </svg>
+          <div class="node chk at1" style="top:0"><span class="k" data-i18n="s11.c1k">missing patches</span><span class="v" data-i18n="s11.c1">Known CVEs in OS and app packages</span></div>
+          <div class="node chk at1" style="top:128px;--d:.1s"><span class="k" data-i18n="s11.c2k">exposed services</span><span class="v" data-i18n="s11.c2">What runs on each open port</span></div>
+          <div class="node chk at1" style="top:256px;--d:.2s"><span class="k" data-i18n="s11.c3k">hardening</span><span class="v" data-i18n="s11.c3">Settings checked against a profile</span></div>
+          <div class="node chk at1" style="top:384px;--d:.3s"><span class="k" data-i18n="s11.c4k">falling behind</span><span class="v" data-i18n="s11.c4">How far behind on updates</span></div>
+          <div class="node rule at1" style="--d:.3s"><span class="k" data-i18n="s11.rk">the rule decides</span><span class="v" data-i18n="s11.rv">one risk level per server</span><div class="pills"><span class="pill t-bad">critical</span><span class="pill t-bad">high</span><span class="pill t-hold">medium</span><span class="pill t-hold">low</span><span class="pill t-ok">info</span><span class="pill t3">unknown</span></div></div>
+          <div class="lbl at3 t2" style="left:680px;top:400px;width:400px;font-size:22px;--d:.9s" data-i18n="s11.rs">A known-exploited CVE makes it critical. AI can explain a level, never change it.</div>
+          <div class="node srv crit at1" style="top:0;--d:.4s;--t:.8s"><div class="hd"><span class="v code">web-edge-01</span><span class="stack lv"><span class="gone3 t3" style="--d:.8s">· · ·</span><span class="at3 fade t-bad" style="--d:.8s">critical</span></span></div><span class="sm t2 at3" style="--d:.9s" data-i18n="s11.s1">known-exploited CVE (KEV) on port 443</span></div>
+          <div class="node srv high at1" style="top:128px;--d:.5s;--t:.9s"><div class="hd"><span class="v code">db-01</span><span class="stack lv"><span class="gone3 t3" style="--d:.9s">· · ·</span><span class="at3 fade t-bad" style="--d:.9s">high</span></span></div><span class="sm t2 at3" style="--d:1s" data-i18n="s11.s2">2 high-severity hardening rules failed</span></div>
+          <div class="node srv info at1" style="top:256px;--d:.6s;--t:1s"><div class="hd"><span class="v code">app-02</span><span class="stack lv"><span class="gone3 t3" style="--d:1s">· · ·</span><span class="at3 fade t-ok" style="--d:1s">info</span></span></div><span class="sm t2 at3" style="--d:1.1s" data-i18n="s11.s3">no risk-raising facts found</span></div>
+          <div class="node srv unk at1" style="top:384px;--d:.7s;--t:.6s"><div class="hd"><span class="v code">files-03</span><span class="stack lv"><span class="gone4 t3" style="--d:.6s">· · ·</span><span class="at4 fade t2" style="--d:.6s">unknown</span></span></div><span class="sm t2 at4" style="--d:.7s" data-i18n="s11.s4">hardening check could not run</span></div>
+        </div>
+      </section></div>
+
+      <!-- 12 · Compliance profiles -->
+      <div class="frame"><section class="slide" id="s12" data-times="0,900,2300,4600,6100,7300,8500" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">12</span><span data-i18n="s12.chap">Compliance profiles</span></p>
+          <h2 class="hl at1" data-i18n="s12.h">Your auditor's checklist is just a profile.</h2>
+          <p class="sub at7" data-i18n="s12.sub">Failed rules become a fix plan for your Go, never an automatic change.</p>
+        </div>
+        <div class="gfx" style="top:440px;height:556px">
+          <div class="panel at1 fade" style="left:0;top:150px;width:520px;height:372px;--d:.2s"></div>
+          <svg width="1728" height="556" viewBox="0 0 1728 556" aria-hidden="true">
+            <g id="s12grid" class="at1 fade" style="--d:.3s"></g>
+            <g id="s12toks"></g>
+          </svg>
+          <div class="lbl at1 t3 mono" style="left:0;top:0;width:900px;font-size:22px" data-i18n="s12.pick">pick the profile your auditor uses</div>
+          <div class="chip pf pick at1" style="left:0;width:150px">PCI-DSS</div>
+          <div class="chip pf oth at1" style="left:166px;width:96px;--d:.05s">CIS</div>
+          <div class="chip pf oth at1" style="left:278px;width:170px;--d:.1s">DISA STIG</div>
+          <div class="chip pf oth at1" style="left:464px;width:120px;--d:.15s">HIPAA</div>
+          <div class="chip pf oth at1" style="left:600px;width:210px;--d:.2s">NIST 800-171</div>
+          <div class="chip pf oth at1" style="left:826px;width:120px;--d:.25s">ANSSI</div>
+          <div class="chip pf oth at1" style="left:962px;width:250px;--d:.3s">Essential Eight</div>
+          <div class="chip pf oth at1" style="left:1228px;width:110px;--d:.35s">OSPP</div>
+          <div class="lbl at1 t3 mono" style="left:24px;top:166px;width:472px;font-size:22px;--d:.2s" data-i18n="s12.prof">profile</div>
+          <div class="lbl at2 t3 mono" style="left:24px;top:280px;width:472px;font-size:22px;--d:.9s" data-i18n="s12.eg">it checks, for example</div>
+          <div class="lbl at2 t2" style="left:24px;top:318px;width:472px;--d:1s" data-i18n="s12.b1">passwords and login rules</div>
+          <div class="lbl at2 t2" style="left:24px;top:356px;width:472px;--d:1.1s" data-i18n="s12.b2">SSH and remote access</div>
+          <div class="lbl at2 t2" style="left:24px;top:394px;width:472px;--d:1.2s" data-i18n="s12.b3">logging and audit trails</div>
+          <div class="lbl at2 t2" style="left:24px;top:432px;width:472px;--d:1.3s" data-i18n="s12.b4">file and folder permissions</div>
+          <div class="lbl at1 t3 mono" style="left:580px;top:112px;width:564px;font-size:22px;--d:.3s"><span data-i18n="s12.ex">example: one server, rule by rule</span> · <span class="t-ok" data-i18n="s12.pass">pass</span> · <span class="t-bad" data-i18n="s12.fail">fail</span></div>
+          <div class="node plan at1" style="--d:.4s"><span class="k" data-i18n="s12.pk">fix plan</span><span class="stack v"><span class="gone4 t3" style="--d:.8s" data-i18n="s12.p0">nothing yet</span><span class="at4 fade" style="--d:.9s" data-i18n="s12.p1">8 failed rules, one plan</span></span><span class="stack sm"><span class="at4 fade gone5 t3" style="--d:1.1s" data-i18n="s12.p2">draft: nothing has changed</span><span class="at5 fade gone6 t-hold" data-i18n="s12.p3">waiting for your Go</span><span class="at6 fade t-ok" data-i18n="s12.p4">approved: runs only these steps</span></span></div>
+          <div class="lbl at6 t2" style="left:1200px;top:414px;width:528px;--d:.3s" data-i18n="s12.pl">Nothing is fixed on its own. Each change is a step your engineer approves.</div>
+        </div>
+        <p class="foot at1" style="--d:.4s" data-i18n="s12.foot">Profiles depend on the server's operating system: some offer all of these, others only CIS and STIG.</p>
+      </section></div>
+
+      <!-- 13 · Versus a VA scan -->
+      <div class="frame"><section class="slide" id="s13" data-times="0,800,2700,4000,5300,6600,7900" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">13</span><span data-i18n="s13.chap">Versus a VA scan</span></p>
+          <h2 class="hl at1" data-i18n="s13.h">A VA scan hands you a list. Light Ops closes the loop.</h2>
+          <p class="sub at7" data-i18n="s13.sub">Keep the scan your auditors ask for. Light Ops does what comes after it.</p>
+        </div>
+        <div class="gfx" style="top:420px;height:600px">
+          <div class="lbl at1 t3 mono" style="left:350px;top:0;width:640px;font-size:22px" data-i18n="s13.va">a typical VA scan</div>
+          <div class="lbl at1 t-cyan mono" style="left:1060px;top:0;width:640px;font-size:22px;--d:.1s">Light Ops</div>
+
+          <div class="lbl q at2" style="top:48px;height:124px" data-i18n="s13.q1">How often</div>
+          <div class="node va at2" style="top:48px;height:124px;--d:.15s"><span class="v" data-i18n="s13.v1">A snapshot, often monthly or quarterly</span><svg class="tl" width="620" height="24" viewBox="0 0 620 24" aria-hidden="true"><line x1="7" y1="12" x2="613" y2="12" stroke="#2A3A52" stroke-width="2" stroke-dasharray="4 8" /><circle cx="7" cy="12" r="7" fill="#8B98AD" /><circle cx="209" cy="12" r="7" fill="#8B98AD" /><circle cx="411" cy="12" r="7" fill="#8B98AD" /><circle cx="613" cy="12" r="7" fill="#8B98AD" /></svg></div>
+          <div class="node lc at2" style="top:48px;height:124px;--d:.6s"><span class="v" data-i18n="s13.l1">Every server, at least every 24 hours</span><svg class="tl" width="620" height="24" viewBox="0 0 620 24" data-ticks="90" aria-hidden="true"></svg></div>
+
+          <div class="lbl q at3" style="top:184px;height:92px" data-i18n="s13.q2">What you get</div>
+          <div class="node va at3" style="top:184px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v2">Every CVE that matches a version number</span></div>
+          <div class="node lc at3" style="top:184px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l2">One risk level per server, real threats first</span></div>
+
+          <div class="lbl q at4" style="top:288px;height:92px" data-i18n="s13.q3">If a check fails</div>
+          <div class="node va at4" style="top:288px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v3">A scan that could not log in can look clean</span></div>
+          <div class="node lc at4" style="top:288px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l3">Marked unknown, never shown as safe</span></div>
+
+          <div class="lbl q at5" style="top:392px;height:92px" data-i18n="s13.q4">Who fixes it</div>
+          <div class="node va at5" style="top:392px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v4">Your team works it out by hand, later</span></div>
+          <div class="node lc at5" style="top:392px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l4">A ready plan with a rollback. You press Go.</span></div>
+
+          <div class="lbl q at6" style="top:496px;height:92px" data-i18n="s13.q5">Proof it worked</div>
+          <div class="node va at6" style="top:496px;height:92px;--d:.15s"><span class="v" data-i18n="s13.v5">Wait for the next scan</span></div>
+          <div class="node lc at6" style="top:496px;height:92px;--d:.6s"><span class="v" data-i18n="s13.l5">Re-tested right away, with a receipt</span></div>
+        </div>
+      </section></div>
+
+      <!-- 14 · Red team -->
+      <div class="frame"><section class="slide" id="s14" data-times="0,900,2700,4300,5900,7300,8500" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">14</span><span data-i18n="s14.chap">Red team</span></p>
+          <h2 class="hl at1" data-i18n="s14.h">We look at you the way an attacker does.</h2>
+          <p class="sub at7" data-i18n="s14.sub">Our team leads it. Light maps what an attack would need, and never runs one.</p>
+        </div>
+        <div class="gfx" style="top:420px;height:620px">
+          <svg width="1728" height="620" viewBox="0 0 1728 620" aria-hidden="true">
+            <rect class="at1 fade" x="520" y="40" width="480" height="360" rx="40" fill="none" stroke="#38BDF8" stroke-opacity=".55" stroke-width="2" stroke-dasharray="10 8" style="--d:.2s" />
+            <path id="s14a" class="draw at2" pathLength="1" d="M360 60 C490 60 490 200 620 200" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
+            <path id="s14b" class="draw at3" pathLength="1" d="M360 220 H620" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
+            <path id="s14c" class="draw at4" pathLength="1" d="M360 380 C490 380 490 240 620 240" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
+            <path id="s14s" class="draw at5" pathLength="1" d="M360 400 C460 400 500 461 560 461" fill="none" stroke="#7A2742" stroke-width="2" style="--dur:.7s" />
+            <circle class="tok at2 fade" cx="360" cy="60" r="9" data-rides="2:s14a:360:620:1100" />
+            <circle class="tok at3 fade" cx="360" cy="220" r="9" data-rides="3:s14b:360:620:1000" />
+            <circle class="tok at4 fade" cx="360" cy="380" r="9" data-rides="4:s14c:360:620:1100" />
+            <circle class="tok bad at5 fade" cx="360" cy="400" r="9" data-rides="5:s14s:360:552:800" />
+            <circle class="ping pt" cx="620" cy="220" r="12" fill="none" stroke="#38BDF8" stroke-width="2" />
+            <g class="at5 fade" style="--d:.75s" stroke="#FB7185" stroke-width="3" stroke-linecap="round"><line x1="566" y1="452" x2="584" y2="470" /><line x1="584" y1="452" x2="566" y2="470" /></g>
+            <circle class="ping ps" cx="575" cy="461" r="10" fill="none" stroke="#FB7185" stroke-width="2" />
+          </svg>
+          <div class="node org at1" style="top:0"><span class="v" data-i18n="s14.o1">from the internet</span><span class="sm t2" data-i18n="s14.o1s">DNS, open ports, web apps, exposed files</span></div>
+          <div class="node org at1" style="top:160px;--d:.1s"><span class="v" data-i18n="s14.o2">from inside the server</span><span class="sm t2" data-i18n="s14.o2s">which ports are truly open, which are firewalled</span></div>
+          <div class="node org at1" style="top:320px;--d:.2s"><span class="v" data-i18n="s14.o3">in the code</span><span class="sm t2" data-i18n="s14.o3s">can outside input reach a risky call?</span></div>
+          <div class="lbl at1 t-cyan mono" style="left:548px;top:56px;width:440px;font-size:22px;--d:.2s" data-i18n="s14.scope">authorised scope only</div>
+          <div class="node c at1" style="left:620px;top:160px;width:280px;height:120px;--d:.3s"><span class="k" data-i18n="s14.tk">authorised target</span><span class="v code" style="font-size:24px">web-edge-01</span></div>
+          <div class="node c host at1" style="left:620px;top:432px;width:280px;height:80px;--d:.4s"><span class="k" data-i18n="s14.hk">not authorised</span><span class="v code">10.0.9.7</span></div>
+          <div class="node ckl at1" style="--d:.3s"><span class="k" data-i18n="s14.ck">every step an attack would need</span>
+            <div class="rq"><span data-i18n="s14.r1">Port 443 answers from the internet</span><span class="stack rs"><span class="gone2 t3" style="--d:1.1s">· · ·</span><span class="at2 fade t-bad" style="--d:1.1s" data-i18n="s14.yes">yes</span></span></div>
+            <div class="rq"><span data-i18n="s14.r2">Its version has a known CVE</span><span class="stack rs"><span class="gone2 t3" style="--d:1.3s">· · ·</span><span class="at2 fade t-bad" style="--d:1.3s" data-i18n="s14.yes">yes</span></span></div>
+            <div class="rq"><span data-i18n="s14.r3">Admin port reachable from outside</span><span class="stack rs"><span class="gone3 t3" style="--d:1s">· · ·</span><span class="at3 fade t-ok" style="--d:1s" data-i18n="s14.nofw">no, firewalled</span></span></div>
+            <div class="rq"><span data-i18n="s14.r4">Outside input reaches the risky call</span><span class="stack rs"><span class="gone4 t3" style="--d:1.1s">· · ·</span><span class="at4 fade t-bad" style="--d:1.1s" data-i18n="s14.yes">yes</span></span></div>
+            <div class="rq"><span data-i18n="s14.r5">Needs a valid login</span><span class="stack rs"><span class="gone4 t3" style="--d:1.3s">· · ·</span><span class="at4 fade t-hold" style="--d:1.3s" data-i18n="s14.unk">unknown</span></span></div>
+          </div>
+          <div class="chip tone-bad t-bad at5" style="left:920px;top:446px;width:330px;height:44px;--d:.8s">target_not_authorized</div>
+          <div class="lbl at5 t2" style="left:920px;top:496px;width:640px;font-size:22px;--d:1s" data-i18n="s14.ref">refused before a single packet is sent</div>
+          <div class="node tone-ok at6" style="left:0;top:552px;width:1728px;height:68px"><span class="v" style="font-size:24px" data-i18n="s14.band">Only targets you authorise · logged before the first packet · no exploits, no shell, no password guessing</span></div>
+        </div>
+      </section></div>
+
+      <!-- 15 · Next to your tools -->
+      <div class="frame"><section class="slide" id="s15" data-times="0,800,2100,3300,4300,5800" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">15</span><span data-i18n="s15.chap">Next to your tools</span></p>
+          <h2 class="hl at1" data-i18n="s15.h">Keep your tools. Light Ops connects the steps between them.</h2>
+          <p class="sub at6" data-i18n="s15.sub">Most tools cover one step. Light Ops carries a finding all the way to proof.</p>
+        </div>
+        <div class="gfx" style="top:430px;height:600px">
+          <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
+            <path class="draw at4" pathLength="1" d="M0 544 H1728" fill="none" stroke="#38BDF8" stroke-width="3" style="--dur:1.2s" />
+          </svg>
+          <div class="node ph at1" style="left:0"><span class="k t-cyan">01</span><span class="v" data-i18n="s15.g1">Spot what is wrong</span></div>
+          <div class="node ph at1" style="left:440px;--d:.1s"><span class="k t-cyan">02</span><span class="v" data-i18n="s15.g2">Decide what matters first</span></div>
+          <div class="node ph at1" style="left:880px;--d:.2s"><span class="k t-cyan">03</span><span class="v" data-i18n="s15.g3">Fix it</span></div>
+          <div class="node ph at1" style="left:1320px;--d:.3s"><span class="k t-cyan">04</span><span class="v" data-i18n="s15.g4">Prove the fix worked</span></div>
+          <div class="node tool at2" style="left:0;top:128px"><span class="v" data-i18n="s15.t1">VA scan</span><span class="sm t2" data-i18n="s15.t1s">a list, by version number</span></div>
+          <div class="node tool at2" style="left:0;top:236px;--d:.15s"><span class="v" data-i18n="s15.t2">SIEM / EDR</span><span class="sm t2" data-i18n="s15.t2s">alarms on attacks in progress</span></div>
+          <div class="node tool at2" style="left:0;top:344px;--d:.3s"><span class="v" data-i18n="s15.t3">Pen test</span><span class="sm t2" data-i18n="s15.t3s">an expert, once or twice a year</span></div>
+          <div class="node tool at3" style="left:440px;top:128px"><span class="v" data-i18n="s15.t4">Cloud AI assistant</span><span class="sm t2" data-i18n="s15.t4s">smart, but your data leaves</span></div>
+          <div class="node tool at3" style="left:880px;top:128px;--d:.15s"><span class="v" data-i18n="s15.t5">Patch tool</span><span class="sm t2" data-i18n="s15.t5s">every patch, on a timetable</span></div>
+          <div class="node c tool slot at3" style="left:1320px;top:128px;--d:.3s"><span class="sm t3" data-i18n="s15.t6">usually waits for the next scan or test</span></div>
+          <div class="lbl at4 t-cyan mono" style="left:0;top:456px;width:600px;font-size:22px">Light Ops</div>
+          <div class="node lt tone-cyan at5" style="left:0"><span class="v" data-i18n="s15.l1">Spots what is real</span><span class="sm t2" data-i18n="s15.l1s">reachable, exploited, on your servers</span></div>
+          <div class="node lt tone-cyan at5" style="left:440px;--d:.2s"><span class="v" data-i18n="s15.l2">Ranks it by rule</span><span class="sm t2" data-i18n="s15.l2s">one level; AI never decides it</span></div>
+          <div class="node lt tone-cyan at5" style="left:880px;--d:.4s"><span class="v" data-i18n="s15.l3">Fixes it with your Go</span><span class="sm t2" data-i18n="s15.l3s">a declared plan, nothing outside it</span></div>
+          <div class="node lt tone-cyan at5" style="left:1320px;--d:.6s"><span class="v" data-i18n="s15.l4">Proves it worked</span><span class="sm t2" data-i18n="s15.l4s">a re-test and a receipt</span></div>
+        </div>
+      </section></div>
+
+      <!-- 16 · What you get -->
+      <div class="frame"><section class="slide" id="s16" data-times="0,800,3400,4800,6000,7400" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">16</span><span data-i18n="s16.chap">What you get</span></p>
+          <h2 class="hl at1" data-i18n="s16.h">Less noise. Faster fixes. Nothing runs without you.</h2>
+          <p class="sub at1" style="--d:.2s" data-i18n="s16.sub">What changes for each team, in plain numbers.</p>
+        </div>
+        <div class="gfx" style="top:440px;height:520px">
+          <div class="node bt n1 at1" style="left:0;--t:2.3s"><span class="k" data-i18n="s16.k1">security team</span><span class="big t-ok"><span data-count="3" data-from="42180" data-at="2" data-dur="2400">3</span></span><span class="v" data-i18n="s16.v1">alerts worth a person's time</span><span class="sm t3 at2" style="--d:2.3s" data-i18n="s16.s1">out of 42,180 advisories</span></div>
+          <div class="node bt n2 at1" style="left:440px;--d:.1s;--t:1.2s"><span class="k" data-i18n="s16.k2">management</span><span class="stack big"><span class="was gone3 t3" style="--d:1.1s" data-i18n="s16.was">14 days</span><span class="at3 fade t-ok" style="--d:1.2s">&lt; 15<small data-i18n="s16.min">min</small></span></span><span class="v" data-i18n="s16.v2">from found to fixed and verified</span><span class="sm t3 at3" style="--d:1.4s" data-i18n="s16.s2">down from a 14-day patch cycle</span></div>
+          <div class="node bt n3 at1" style="left:880px;--d:.2s;--t:.2s"><span class="k" data-i18n="s16.k3">IT operations</span><span class="stack big"><span class="gone4 t3">· · ·</span><span class="at4 pop t-cyan">1<small>Go</small></span></span><span class="v" data-i18n="s16.v3">per plan. Nothing outside it can run.</span><span class="sm t3 at4" style="--d:.4s" data-i18n="s16.s3">instead of a prompt per command</span></div>
+          <div class="node bt n4 at1" style="left:1320px;--d:.3s;--t:.2s"><span class="k" data-i18n="s16.k4">audit and compliance</span><span class="stack big"><span class="gone5 t3">· · ·</span><span class="at5 pop t-ok">1<small data-i18n="s16.rc">receipt</small></span></span><span class="v" data-i18n="s16.v4">for every change Light makes</span><span class="sm t3 at5" style="--d:.4s" data-i18n="s16.s4">plan · approver · result · SHA-256</span></div>
+          <div class="node c tone-cyan at6" style="left:0;top:440px;width:1728px;height:80px"><span class="v" data-i18n="s16.band">And all of it runs inside your walls. Nothing leaves your network.</span></div>
         </div>
       </section></div>
 

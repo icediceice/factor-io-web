@@ -163,7 +163,7 @@
           var lang = li ? "th" : "en";
           var w = await load("?measure=1&lang=" + lang);
           var L = w.LightKeynote, slides = w.document.querySelectorAll(".slide");
-          check(lang + ": deck exposes 13 scenes", L && L.count === 13 && slides.length === 13, L ? L.count : "no LightKeynote");
+          check(lang + ": deck exposes 19 scenes", L && L.count === 19 && slides.length === 19, L ? L.count : "no LightKeynote");
           for (var i = 0; i < slides.length; i++) {
             L.go(i, "final");
             await settle(w);
@@ -191,8 +191,16 @@
             key(w, "End"); await sleep(40);
             var atEnd = L.state().cur;
             key(w, "Home"); await sleep(40);
-            check("End and Home jump to the last and first scene", atEnd === 12 && L.state().cur === 0, { end: atEnd, home: L.state().cur });
+            check("End and Home jump to the last and first scene", atEnd === 18 && L.state().cur === 0, { end: atEnd, home: L.state().cur });
             check("stage view shows exactly one scene", w.document.querySelectorAll(".slide.active").length === 1);
+
+            /* counters: a scene can count down from a start value; a counter with no start value still counts up from 0 */
+            L.go(15, "play");
+            var c16 = w.document.querySelector("#s16 [data-from]"), c16Start = c16 && c16.textContent;
+            L.go(5, "play");
+            var c6Start = w.document.querySelector("#s6 [data-count]").textContent;
+            L.go(15, "final"); await settle(w);
+            check("s16 counts down from 42,180 to 3, and s6 still counts up from 0", c16Start === "42,180" && c16.textContent === "3" && c6Start === "0", { s16Start: c16Start, s16End: c16 && c16.textContent, s6Start: c6Start });
 
             /* language switch */
             var h2 = w.document.querySelector("#s2 .hl").textContent;
@@ -228,9 +236,9 @@
         wf.dispatchEvent(new wf.Event("afterprint"));
         await settle(wf);
         var after = [].slice.call(wf.document.querySelectorAll(".slide.active"));
-        check("print shows all 13 scenes, then the stage returns to the presenter's scene", printing === nSlides && after.length === 1 && after[0] === wf.document.querySelectorAll(".slide")[4] && wf.LightKeynote.state().cur === 4, { printing: printing, activeAfter: after.map(function (s) { return s.id; }) });
+        check("print shows all 19 scenes, then the stage returns to the presenter's scene", printing === nSlides && after.length === 1 && after[0] === wf.document.querySelectorAll(".slide")[4] && wf.LightKeynote.state().cur === 4, { printing: printing, activeAfter: after.map(function (s) { return s.id; }) });
         var pStage = printLayout(wf);
-        check("printing from the stage gives 13 full 1920x1080 pages, one scene each", pStage.pages === 13 && pStage.off.length === 0, pStage.off);
+        check("printing from the stage gives 19 full 1920x1080 pages, one scene each", pStage.pages === 19 && pStage.off.length === 0, pStage.off);
 
         /* the same end state through the URL */
         var wb = await load("?measure=1&slide=4&beat=final");
@@ -241,8 +249,8 @@
         /* story view */
         var ws = await load("?view=dossier&lang=en");
         var fr = [].slice.call(ws.document.querySelectorAll(".frame")), tops = fr.map(function (f) { return Math.round(f.getBoundingClientRect().top + ws.scrollY); });
-        var stacked = fr.length === 13 && fr.every(function (f, k) { return f.getBoundingClientRect().height > 300 && (k === 0 || tops[k] > tops[k - 1]); });
-        check("story view stacks all 13 scenes top to bottom", ws.LightKeynote.state().view === "story" && stacked, tops);
+        var stacked = fr.length === 19 && fr.every(function (f, k) { return f.getBoundingClientRect().height > 300 && (k === 0 || tops[k] > tops[k - 1]); });
+        check("story view stacks all 19 scenes top to bottom", ws.LightKeynote.state().view === "story" && stacked, tops);
         fr[6].scrollIntoView({ block: "start" });
         await sleep(900);
         var s7 = ws.document.getElementById("s7");
@@ -250,7 +258,7 @@
 
         /* printing from the scroll view (the shared ?view=dossier link) */
         var pStory = printLayout(ws);
-        check("printing from the scroll view gives 13 full 1920x1080 pages, one scene each", pStory.pages === 13 && pStory.off.length === 0, pStory.off);
+        check("printing from the scroll view gives 19 full 1920x1080 pages, one scene each", pStory.pages === 19 && pStory.off.length === 0, pStory.off);
         await settle(ws);
         var m7 = s7.getAttribute("data-times").split(",").length;
         fr[9].scrollIntoView({ block: "start" });

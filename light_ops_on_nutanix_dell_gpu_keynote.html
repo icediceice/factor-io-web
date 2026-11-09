@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Light Ops on Nutanix AHV / NKP + Dell PowerEdge GPU · Partner Keynote</title>
-  <meta name="description" content="A 12-scene partner keynote: why machine-speed threat hunting needs a human-approved execution gate, and how Light Ops delivers both on Nutanix AHV / NKP and Dell PowerEdge GPU, fully on-prem." />
+  <meta name="description" content="A 13-scene partner keynote: why machine-speed threat hunting needs a human-approved execution gate, why per-command approval prompts fail, and how Light Ops delivers both on your own virtualization, Kubernetes and GPU servers, fully on-prem." />
   <meta name="theme-color" content="#05080E" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <style>
@@ -227,6 +227,16 @@
     #s7 .pA, #s7 .pB { transition: border-color .35s ease var(--t, 0s), background-color .35s ease var(--t, 0s), opacity .7s var(--ease), transform .8s var(--ease); }
     #s7.b2 .pA { border-color: var(--bad); background-color: var(--bad-bg); }
     #s7.b3 .pB { border-color: var(--ok-line); background-color: var(--ok-bg); }
+
+    /* s8 approval fatigue: three measured failure modes of per-command prompts, then Light's single Go (figures: Anthropic 2026) */
+    #s8 .col { top: 0; width: 560px; height: 340px; justify-content: flex-start; padding: 24px 24px 20px; gap: 10px; }
+    #s8 .col .big { font-size: 64px; line-height: 1.05; }
+    #s8 .pr { display: flex; justify-content: space-between; gap: 16px; font: 450 22px/1.35 var(--mono); color: var(--t2); }
+    #s8 .pr b { font-weight: 500; color: var(--hold); }
+    #s8 .pr.t-bad, #s8 .pr.t-bad b { color: var(--bad); }
+    #s8 .bar { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; row-gap: 6px; margin-top: 6px; font-size: 22px; line-height: 1.3; color: var(--t2); }
+    #s8 .bar .bn { font-family: var(--mono); color: var(--t1); white-space: nowrap; }
+    #s8 .bar i { grid-column: 1 / -1; display: block; height: 12px; border-radius: var(--r0); background: linear-gradient(90deg, var(--c) 0 var(--w), var(--track) var(--w) 100%); }
 
     /* s9 the EDCR gate */
     #s9 .st { transition: border-color .4s ease var(--t, 0s), background-color .4s ease var(--t, 0s), opacity .7s var(--ease), transform .8s var(--ease); }
@@ -556,6 +566,32 @@
         </div>
       </section></div>
 
+      <!-- 8 · Approval fatigue -->
+      <div class="frame"><section class="slide" id="s8" data-times="0,1300,2800,4300" aria-roledescription="slide">
+        <div class="copy">
+          <p class="chap at1"><span class="n">08</span><span data-i18n="s8.chap">Approval fatigue</span></p>
+          <h2 class="hl at1" data-i18n="s8.h">Ask people to approve every command, and they start rubber-stamping.</h2>
+          <p class="sub at4" data-i18n="s8.sub">So Light asks once, where people do push back: the plan.</p>
+        </div>
+        <div class="gfx" style="top:430px;height:540px">
+          <div class="node col at1" style="left:0;--d:.3s"><span class="k" data-i18n="s8.k1">one prompt per command</span><span class="big t-hold">97%</span><span class="sm t2" data-i18n="s8.c1">of permission prompts get approved</span>
+            <div class="pr"><span>npm test</span><b data-i18n="s8.yes">Yes</b></div>
+            <div class="pr"><span>git push</span><b data-i18n="s8.yes">Yes</b></div>
+            <div class="pr t-bad"><span>rm -rf pg_wal</span><b data-i18n="s8.yes">Yes</b></div>
+          </div>
+          <div class="node col at2" style="left:584px"><span class="k" data-i18n="s8.k2">dangerous commands people caught</span><span class="big t-bad">17% → 5%</span>
+            <div class="bar" style="--w:17%;--c:var(--bad)"><span data-i18n="s8.b2a">early in a session</span><span class="bn">≈&nbsp;17%</span><i></i></div>
+            <div class="bar" style="--w:5%;--c:var(--bad)"><span data-i18n="s8.b2b">after 50+ prompts</span><span class="bn">≈&nbsp;5%</span><i></i></div>
+          </div>
+          <div class="node col at3" style="left:1168px"><span class="k" data-i18n="s8.k3">share of requests people reject</span><span class="big t-ok">39% vs 3%</span>
+            <div class="bar" style="--w:39%;--c:var(--ok)"><span data-i18n="s8.b3a">a whole plan</span><span class="bn">39%</span><i></i></div>
+            <div class="bar" style="--w:3%;--c:var(--bad)"><span data-i18n="s8.b3b">one command at a time</span><span class="bn">3%</span><i></i></div>
+          </div>
+          <div class="node tone-cyan band at4" style="left:0;top:380px;width:1728px;height:150px;--d:.2s"><span class="k t-cyan">Light</span><span class="v" data-i18n="s8.lv">One Go, for the whole plan.</span><span class="sm t2" data-i18n="s8.ls">Every file and command is declared up front. Anything outside the plan is refused without a prompt, and any edit voids the Go.</span></div>
+        </div>
+        <p class="foot at1" style="--d:.4s" data-i18n="s8.src">Source: Anthropic (2026), Claude Code permission data and a controlled study of 1,053 testers</p>
+      </section></div>
+
       <!-- 9 · The EDCR gate -->
       <div class="frame"><section class="slide" id="s9" data-times="0,800,2400,3800,5600,7400" aria-roledescription="slide">
         <div class="copy">
@@ -694,7 +730,7 @@
   <nav class="pitch-controls" id="controls" aria-label="Presentation controls" data-i18n-aria="ui.controls">
     <span class="brand">Light Ops</span>
     <div class="segs stage-only" id="segs" role="group" aria-label="Scenes" data-i18n-aria="ui.scenes"></div>
-    <span class="count stage-only" id="count" aria-live="polite">01 / 12</span>
+    <span class="count stage-only" id="count" aria-live="polite">01 / 13</span>
     <span class="hint stage-only" id="hint" data-i18n="ui.hint">Press → or tap to continue</span>
     <button type="button" class="ctl stage-only" id="bPrev" aria-label="Previous scene" data-i18n-aria="ui.prev"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
     <button type="button" class="ctl stage-only" id="bNext" aria-label="Next" data-i18n-aria="ui.next"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
@@ -814,6 +850,22 @@
           "s7.safe": "ไม่ถูกแตะต้อง",
           "s7.zero": "ส่งถึงเครื่องปลายทาง 0 ไบต์",
           "s7.adv": "เป็นแค่คำแนะนำ",
+
+          "s8.chap": "อนุมัติจนชิน (Approval Fatigue)",
+          "s8.h": "ให้คนกดอนุมัติทุกคำสั่ง ไม่นานก็กลายเป็นการปั๊ม⁠ตรา⁠ยาง",
+          "s8.sub": "Light จึงขออนุมัติแค่ครั้งเดียว ตรงจุดที่คนตั้งใจตรวจจริง นั่นคือตัว⁠แผน⁠งาน",
+          "s8.k1": "ขออนุญาตทีละคำสั่ง",
+          "s8.c1": "ของคำขออนุญาตถูกกดผ่าน",
+          "s8.yes": "อนุญาต",
+          "s8.k2": "คำสั่งอันตรายที่คนจับได้",
+          "s8.b2a": "ช่วงต้นเซสชัน",
+          "s8.b2b": "หลังกดไปแล้ว 50 ครั้ง⁠ขึ้นไป",
+          "s8.k3": "สัดส่วนคำขอที่ถูกปฏิเสธ",
+          "s8.b3a": "ขอทั้งแผน⁠งาน",
+          "s8.b3b": "ขอทีละคำสั่ง",
+          "s8.lv": "กด Go ครั้งเดียว สำหรับทั้งแผน",
+          "s8.ls": "ทุกไฟล์และทุกคำสั่งต้องประกาศไว้ก่อน อะไรที่อยู่นอกแผนจะถูกบล็อกทันทีโดยไม่ต้องถาม และถ้าแผนถูกแก้ Go เดิมก็เป็นโมฆะทันที",
+          "s8.src": "ที่มา: Anthropic (2026) ข้อมูลการขออนุญาตใน Claude Code และการทดลองกับผู้ทดสอบ 1,053 คน",
 
           "s9.chap": "ด่านที่ 2: ระบบควบคุม EDCR",
           "s9.h": "ไม่มีคำสั่งไหนหลุดไปรันได้ จนกว่าคนจะกด Go",

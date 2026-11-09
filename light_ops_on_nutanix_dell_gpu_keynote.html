@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Light Ops on Your Own GPU Platform · Partner Keynote</title>
-  <meta name="description" content="A 13-scene partner keynote: why machine-speed threat hunting needs a human-approved execution gate, why per-command approval prompts fail, and how Light Ops delivers both on your own virtualization, Kubernetes and GPU servers, fully on-prem." />
+  <title>Light Ops on Nutanix AHV / NKP + Dell PowerEdge GPU · Partner Keynote</title>
+  <meta name="description" content="A 12-scene partner keynote: why machine-speed threat hunting needs a human-approved execution gate, and how Light Ops delivers both on Nutanix AHV / NKP and Dell PowerEdge GPU, fully on-prem." />
   <meta name="theme-color" content="#05080E" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <style>
-    /* light-design · macrostructure: Focus Rail, one motion object per scene (nested Split Monitor in s4, Topology in s9)
+    /* light-design · macrostructure: Focus Rail, one motion object per scene (nested Split Monitor in s4, Topology in s8)
      * density: speaker-led keynote, one headline and at most one line per scene · depth: borders-only, no shadows
      * gates: 54/54 (14 n/a for a keynote: S5 S8 V11 V12 T2 T3 T4 T5 T6 T8 N1 N2 N3 N5) · critique: H4 D4 S4 O5 R4 P4
      * differs from: the 2026-11-08 deck (Topology / Split Monitor, 8 dense slides) and the last log entries; Focus Rail = the scene's state is the headline
      * data: every figure comes from the pre-rewrite deck (plan note 2778); 13d 23h 49m and 99.99% are arithmetic on those figures
-     * data 2026-11-09 per the operator: brand-neutral, no partner product names while the partner offer is private; s8 figures are Anthropic 2026 (claude.com auto-mode-default article);
-     *   Thai copy is the operator's native text (s3 "กว่า 42,180" by their choice), except the s12 headline and labels outside their copy
+     * data 2026-11-08 per the operator: platform Nutanix AHV / NKP; GPU floor NVIDIA RTX PRO 6000 (replaces the earlier entry GPU; H100 NVL / H100 kept); no Dell model numbers;
+     *   Thai copy is the operator's native text (s3 "กว่า 42,180" by their choice), except the s11 headline and labels outside their copy
      * motion: one object per scene, transform/opacity only; loops (s1 pulses, pings) show traffic crossing the gate; reduced motion and print show final states
      */
     @font-face { font-family: "Geist"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("assets/fonts/geist-latin.woff2") format("woff2"); }
@@ -228,55 +228,45 @@
     #s7.b2 .pA { border-color: var(--bad); background-color: var(--bad-bg); }
     #s7.b3 .pB { border-color: var(--ok-line); background-color: var(--ok-bg); }
 
-    /* s8 approval fatigue: three measured failure modes of per-command prompts, then Light's single Go (figures: Anthropic 2026) */
-    #s8 .col { top: 0; width: 560px; height: 340px; justify-content: flex-start; padding: 24px 24px 20px; gap: 10px; }
-    #s8 .col .big { font-size: 64px; line-height: 1.05; }
-    #s8 .pr { display: flex; justify-content: space-between; gap: 16px; font: 450 22px/1.35 var(--mono); color: var(--t2); }
-    #s8 .pr b { font-weight: 500; color: var(--hold); }
-    #s8 .pr.t-bad, #s8 .pr.t-bad b { color: var(--bad); }
-    #s8 .bar { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; row-gap: 6px; margin-top: 6px; font-size: 22px; line-height: 1.3; color: var(--t2); }
-    #s8 .bar .bn { font-family: var(--mono); color: var(--t1); white-space: nowrap; }
-    #s8 .bar i { grid-column: 1 / -1; display: block; height: 12px; border-radius: var(--r0); background: linear-gradient(90deg, var(--c) 0 var(--w), var(--track) var(--w) 100%); }
+    /* s8 the EDCR gate */
+    #s8 .st { transition: border-color .4s ease var(--t, 0s), background-color .4s ease var(--t, 0s), opacity .7s var(--ease), transform .8s var(--ease); }
+    #s8.b2 .st.e1, #s8.b2 .st.e2, #s8.b2 .st.e3 { border-color: var(--cyan-line); }
+    #s8.b3 .st.eGo { border-color: var(--hold); background-color: var(--hold-bg); }
+    #s8.b4 .st.eGo { border-color: var(--ok); background-color: var(--ok-bg); }
+    #s8.b4 .st.eEx { border-color: var(--cyan-line); }
+    #s8.b5 .st.e3 { border-color: var(--bad-line); }
+    #s8.b5 .st.eGo, #s8.b5 .st.eEx { border-color: var(--bad); background-color: var(--bad-bg); transition-delay: .6s; }
+    #s8.b5 .st .gone5 { transition-delay: .6s; }
+    #s8 .mrow { display: grid; grid-template-columns: 200px 1fr; align-items: baseline; gap: 16px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 22px; line-height: 1.3; color: var(--t2); }
+    #s8 .mrow.t-bad { color: var(--bad); border-top-color: var(--bad-line); }
 
-    /* s9 the EDCR gate */
-    #s9 .st { transition: border-color .4s ease var(--t, 0s), background-color .4s ease var(--t, 0s), opacity .7s var(--ease), transform .8s var(--ease); }
-    #s9.b2 .st.e1, #s9.b2 .st.e2, #s9.b2 .st.e3 { border-color: var(--cyan-line); }
-    #s9.b3 .st.eGo { border-color: var(--hold); background-color: var(--hold-bg); }
-    #s9.b4 .st.eGo { border-color: var(--ok); background-color: var(--ok-bg); }
-    #s9.b4 .st.eEx { border-color: var(--cyan-line); }
-    #s9.b5 .st.e3 { border-color: var(--bad-line); }
-    #s9.b5 .st.eGo, #s9.b5 .st.eEx { border-color: var(--bad); background-color: var(--bad-bg); transition-delay: .6s; }
-    #s9.b5 .st .gone5 { transition-delay: .6s; }
-    #s9 .mrow { display: grid; grid-template-columns: 200px 1fr; align-items: baseline; gap: 16px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 22px; line-height: 1.3; color: var(--t2); }
-    #s9 .mrow.t-bad { color: var(--bad); border-top-color: var(--bad-line); }
+    /* s9 live case */
+    #s9 .row { position: absolute; left: 620px; width: 1108px; height: 64px; display: grid; grid-template-columns: 40px 200px 1fr; align-items: center; }
+    #s9 .row i { display: block; width: 18px; height: 18px; border-radius: 50%; justify-self: center; }
+    #s9 .row .rk { font: 500 24px/1.3 var(--mono); color: var(--t3); }
+    #s9 .row .rk.go { color: var(--ok); }
+    #s9 .row .rv { font-size: 28px; line-height: 1.3; color: var(--t1); }
+    #s9 .big small { font-size: 42px; color: var(--t2); margin-left: 16px; letter-spacing: 0; }
+    #s9 .was { white-space: nowrap; }
+    #s9 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
+    #s9.b8 .was::after { transform: scaleX(1); }
 
-    /* s10 live case */
-    #s10 .row { position: absolute; left: 620px; width: 1108px; height: 64px; display: grid; grid-template-columns: 40px 200px 1fr; align-items: center; }
-    #s10 .row i { display: block; width: 18px; height: 18px; border-radius: 50%; justify-self: center; }
-    #s10 .row .rk { font: 500 24px/1.3 var(--mono); color: var(--t3); }
-    #s10 .row .rk.go { color: var(--ok); }
-    #s10 .row .rv { font-size: 28px; line-height: 1.3; color: var(--t1); }
-    #s10 .big small { font-size: 42px; color: var(--t2); margin-left: 16px; letter-spacing: 0; }
-    #s10 .was { white-space: nowrap; }
-    #s10 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
-    #s10.b8 .was::after { transform: scaleX(1); }
+    /* s10 sovereign stack */
+    #s10 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
+    #s10 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
+    #s10 .tile + .tile { border-left-color: var(--line-2); }
+    #s10 .tile .big { font-size: 42px; line-height: 1.1; }
+    #s10 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
+    #s10 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
 
-    /* s11 sovereign stack */
-    #s11 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
-    #s11 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
-    #s11 .tile + .tile { border-left-color: var(--line-2); }
-    #s11 .tile .big { font-size: 42px; line-height: 1.1; }
-    #s11 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
-    #s11 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
+    /* s11 partner path */
+    #s11 .wk { top: 110px; width: 400px; height: 180px; }
+    #s11 .val { top: 372px; width: 560px; height: 150px; padding-left: 0; border-color: transparent; border-radius: 0; background: transparent; }
+    #s11 .val + .val { border-left-color: var(--line-2); padding-left: 24px; }
 
-    /* s12 partner path */
-    #s12 .wk { top: 110px; width: 400px; height: 180px; }
-    #s12 .val { top: 372px; width: 560px; height: 150px; padding-left: 0; border-color: transparent; border-radius: 0; background: transparent; }
-    #s12 .val + .val { border-left-color: var(--line-2); padding-left: 24px; }
-
-    /* s13 call to action */
-    #s13 .stp { top: 0; width: 560px; height: 170px; }
-    #s9 .st, #s11 .tile, #s12 .wk, #s13 .stp { justify-content: flex-start; padding-top: 24px; }
+    /* s12 call to action */
+    #s12 .stp { top: 0; width: 560px; height: 170px; }
+    #s8 .st, #s10 .tile, #s11 .wk, #s12 .stp { justify-content: flex-start; padding-top: 24px; }
     .slide a { color: var(--cyan); text-decoration: none; border-bottom: 1.5px solid var(--cyan-line); transition: border-color .15s ease, color .15s ease; }
     .slide a:hover { border-bottom-color: var(--cyan); }
     .slide a:active { color: var(--t1); }
@@ -355,7 +345,7 @@
       <!-- 1 · Cover -->
       <div class="frame"><section class="slide" id="s1" data-times="0,1400" aria-roledescription="slide">
         <div class="copy" style="top:150px">
-          <p class="chap at1"><span class="n">Light Ops</span><span data-i18n="s1.chap">Partner keynote · on your own GPU platform</span></p>
+          <p class="chap at1"><span class="n">Light Ops</span><span data-i18n="s1.chap">Partner keynote · Nutanix AHV / NKP + Dell PowerEdge GPU</span></p>
           <h1 class="display at1" style="--d:.1s"><span data-i18n="s1.h1">Machine-speed hunting.</span><br /><span class="t-ok" data-i18n="s1.h2">Human-approved action.</span></h1>
           <p class="sub at1" style="--d:.35s" data-i18n="s1.sub">An on-prem cyber model that finds what is real, and a gate that runs nothing without your Go.</p>
         </div>
@@ -376,7 +366,7 @@
           <div class="lbl at2 c" style="left:1008px;top:234px;width:300px;--d:.4s" data-i18n="s1.l2">Light gate</div>
           <div class="node c at2" style="left:1420px;top:96px;width:308px;height:108px;--d:.5s"><span class="v" data-i18n="s1.l3">production</span></div>
         </div>
-        <p class="foot at2" style="--d:.6s">Virtualization · Kubernetes · GPU servers · fully on-prem</p>
+        <p class="foot at2" style="--d:.6s">Nutanix AHV / NKP · Dell PowerEdge · NVIDIA RTX PRO 6000</p>
       </section></div>
 
       <!-- 2 · The gap -->
@@ -566,38 +556,12 @@
         </div>
       </section></div>
 
-      <!-- 8 · Approval fatigue -->
-      <div class="frame"><section class="slide" id="s8" data-times="0,1300,2800,4300" aria-roledescription="slide">
+      <!-- 8 · The EDCR gate -->
+      <div class="frame"><section class="slide" id="s8" data-times="0,800,2400,3800,5600,7400" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">08</span><span data-i18n="s8.chap">Approval fatigue</span></p>
-          <h2 class="hl at1" data-i18n="s8.h">Ask people to approve every command, and they start rubber-stamping.</h2>
-          <p class="sub at4" data-i18n="s8.sub">So Light asks once, where people do push back: the plan.</p>
-        </div>
-        <div class="gfx" style="top:430px;height:540px">
-          <div class="node col at1" style="left:0;--d:.3s"><span class="k" data-i18n="s8.k1">one prompt per command</span><span class="big t-hold">97%</span><span class="sm t2" data-i18n="s8.c1">of permission prompts get approved</span>
-            <div class="pr"><span>npm test</span><b data-i18n="s8.yes">Yes</b></div>
-            <div class="pr"><span>git push</span><b data-i18n="s8.yes">Yes</b></div>
-            <div class="pr t-bad"><span>rm -rf pg_wal</span><b data-i18n="s8.yes">Yes</b></div>
-          </div>
-          <div class="node col at2" style="left:584px"><span class="k" data-i18n="s8.k2">dangerous commands people caught</span><span class="big t-bad">17% → 5%</span>
-            <div class="bar" style="--w:17%;--c:var(--bad)"><span data-i18n="s8.b2a">early in a session</span><span class="bn">≈&nbsp;17%</span><i></i></div>
-            <div class="bar" style="--w:5%;--c:var(--bad)"><span data-i18n="s8.b2b">after 50+ prompts</span><span class="bn">≈&nbsp;5%</span><i></i></div>
-          </div>
-          <div class="node col at3" style="left:1168px"><span class="k" data-i18n="s8.k3">share of requests people reject</span><span class="big t-ok">39% vs 3%</span>
-            <div class="bar" style="--w:39%;--c:var(--ok)"><span data-i18n="s8.b3a">a whole plan</span><span class="bn">39%</span><i></i></div>
-            <div class="bar" style="--w:3%;--c:var(--bad)"><span data-i18n="s8.b3b">one command at a time</span><span class="bn">3%</span><i></i></div>
-          </div>
-          <div class="node tone-cyan band at4" style="left:0;top:380px;width:1728px;height:150px;--d:.2s"><span class="k t-cyan">Light</span><span class="v" data-i18n="s8.lv">One Go, for the whole plan.</span><span class="sm t2" data-i18n="s8.ls">Every file and command is declared up front. Anything outside the plan is refused without a prompt, and any edit voids the Go.</span></div>
-        </div>
-        <p class="foot at1" style="--d:.4s" data-i18n="s8.src">Source: Anthropic (2026), Claude Code permission data and a controlled study of 1,053 testers</p>
-      </section></div>
-
-      <!-- 9 · The EDCR gate -->
-      <div class="frame"><section class="slide" id="s9" data-times="0,800,2400,3800,5600,7400" aria-roledescription="slide">
-        <div class="copy">
-          <p class="chap at1"><span class="n">09</span><span data-i18n="s9.chap">Layer 2: the EDCR gate</span></p>
-          <h2 class="hl at1" data-i18n="s9.h">Nothing runs until a human says Go.</h2>
-          <p class="sub at6" data-i18n="s9.sub">No Go, no run. Every run ends with a peer check and a SHA-256 receipt.</p>
+          <p class="chap at1"><span class="n">08</span><span data-i18n="s8.chap">Layer 2: the EDCR gate</span></p>
+          <h2 class="hl at1" data-i18n="s8.h">Nothing runs until a human says Go.</h2>
+          <p class="sub at6" data-i18n="s8.sub">No Go, no run. Every run ends with a peer check and a SHA-256 receipt.</p>
         </div>
         <div class="gfx" style="top:400px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
@@ -609,78 +573,78 @@
             <path class="draw at2" pathLength="1" d="M715 180 V240" fill="none" stroke="#38BDF8" stroke-width="2" style="--d:.7s;--dur:.4s" />
             <path class="draw at5" pathLength="1" d="M1010 180 V300" fill="none" stroke="#FB7185" stroke-width="2" style="--d:.5s;--dur:.4s" />
           </svg>
-          <div class="node st e1 at1" style="left:0;top:0;width:250px;height:180px"><span class="k">01</span><span class="v" data-i18n="s9.e1">Explore</span><span class="sm t3" data-i18n="s9.e1s">read-only</span></div>
-          <div class="node st e2 at1" style="left:295px;top:0;width:250px;height:180px;--t:.3s"><span class="k">02</span><span class="v" data-i18n="s9.e2">Diagnose</span><span class="sm t3" data-i18n="s9.e2s">read-only, cause proven</span></div>
-          <div class="node st e3 at1" style="left:590px;top:0;width:250px;height:180px;--t:.6s"><span class="k">03</span><span class="v" data-i18n="s9.e3">Plan</span><span class="sm t3" data-i18n="s9.e3s">every file and command declared</span></div>
-          <div class="node st eGo at1" style="left:885px;top:0;width:250px;height:180px"><span class="k">04</span><span class="v" data-i18n="s9.e4">Human Go</span><span class="stack sm"><span class="gone3 t3" data-i18n="s9.e4a">your decision</span><span class="at3 fade gone4 t-hold" data-i18n="s9.e4b">waiting for you</span><span class="at4 fade gone5 t-ok" data-i18n="s9.e4c">approved</span><span class="at5 fade t-bad" style="--d:.6s" data-i18n="s9.e4d">approval revoked</span></span></div>
-          <div class="node st eEx at1" style="left:1180px;top:0;width:250px;height:180px"><span class="k">05</span><span class="v" data-i18n="s9.e5">Execute</span><span class="stack sm"><span class="gone4 t3" data-i18n="s9.e5a">only what was approved</span><span class="at4 fade gone5 t-cyan" data-i18n="s9.e5b">step 1 of 2</span><span class="at5 fade t-bad" style="--d:.6s" data-i18n="s9.e5c">frozen</span></span></div>
-          <div class="node st e6 at1" style="left:1475px;top:0;width:250px;height:180px"><span class="k">06</span><span class="v" data-i18n="s9.e6">Verify</span><span class="sm t3" data-i18n="s9.e6s">peer check, signed receipt</span></div>
+          <div class="node st e1 at1" style="left:0;top:0;width:250px;height:180px"><span class="k">01</span><span class="v" data-i18n="s8.e1">Explore</span><span class="sm t3" data-i18n="s8.e1s">read-only</span></div>
+          <div class="node st e2 at1" style="left:295px;top:0;width:250px;height:180px;--t:.3s"><span class="k">02</span><span class="v" data-i18n="s8.e2">Diagnose</span><span class="sm t3" data-i18n="s8.e2s">read-only, cause proven</span></div>
+          <div class="node st e3 at1" style="left:590px;top:0;width:250px;height:180px;--t:.6s"><span class="k">03</span><span class="v" data-i18n="s8.e3">Plan</span><span class="sm t3" data-i18n="s8.e3s">every file and command declared</span></div>
+          <div class="node st eGo at1" style="left:885px;top:0;width:250px;height:180px"><span class="k">04</span><span class="v" data-i18n="s8.e4">Human Go</span><span class="stack sm"><span class="gone3 t3" data-i18n="s8.e4a">your decision</span><span class="at3 fade gone4 t-hold" data-i18n="s8.e4b">waiting for you</span><span class="at4 fade gone5 t-ok" data-i18n="s8.e4c">approved</span><span class="at5 fade t-bad" style="--d:.6s" data-i18n="s8.e4d">approval revoked</span></span></div>
+          <div class="node st eEx at1" style="left:1180px;top:0;width:250px;height:180px"><span class="k">05</span><span class="v" data-i18n="s8.e5">Execute</span><span class="stack sm"><span class="gone4 t3" data-i18n="s8.e5a">only what was approved</span><span class="at4 fade gone5 t-cyan" data-i18n="s8.e5b">step 1 of 2</span><span class="at5 fade t-bad" style="--d:.6s" data-i18n="s8.e5c">frozen</span></span></div>
+          <div class="node st e6 at1" style="left:1475px;top:0;width:250px;height:180px"><span class="k">06</span><span class="v" data-i18n="s8.e6">Verify</span><span class="sm t3" data-i18n="s8.e6s">peer check, signed receipt</span></div>
           <div class="node at2" style="left:300px;top:240px;width:600px;height:252px;justify-content:flex-start;gap:0;--d:.8s">
-            <span class="k stack" style="margin-bottom:12px"><span class="gone5" style="--d:0s" data-i18n="s9.mk">plan manifest · rev 2</span><span class="at5 fade t-bad" style="--d:0s" data-i18n="s9.mk2">plan manifest · rev 3</span></span>
-            <div class="mrow"><span class="code t-cyan">targets[]</span><span data-i18n="s9.m1">files it may change</span></div>
-            <div class="mrow"><span class="code t-cyan">requests[]</span><span data-i18n="s9.m2">commands it may run</span></div>
-            <div class="mrow"><span class="code t-cyan">sha256</span><span data-i18n="s9.m3">seals both to your Go</span></div>
-            <div class="mrow at5 t-bad" style="--d:0s"><span class="code">+ /etc/sudoers</span><span data-i18n="s9.m4">added after the Go</span></div>
+            <span class="k stack" style="margin-bottom:12px"><span class="gone5" style="--d:0s" data-i18n="s8.mk">plan manifest · rev 2</span><span class="at5 fade t-bad" style="--d:0s" data-i18n="s8.mk2">plan manifest · rev 3</span></span>
+            <div class="mrow"><span class="code t-cyan">targets[]</span><span data-i18n="s8.m1">files it may change</span></div>
+            <div class="mrow"><span class="code t-cyan">requests[]</span><span data-i18n="s8.m2">commands it may run</span></div>
+            <div class="mrow"><span class="code t-cyan">sha256</span><span data-i18n="s8.m3">seals both to your Go</span></div>
+            <div class="mrow at5 t-bad" style="--d:0s"><span class="code">+ /etc/sudoers</span><span data-i18n="s8.m4">added after the Go</span></div>
           </div>
-          <div class="node tone-bad at5" style="left:960px;top:300px;width:600px;height:150px;--d:.5s"><span class="k t-bad" data-i18n="s9.rk">revoke on edit</span><span class="v" data-i18n="s9.rv">The plan changed, so the Go is void.</span><span class="sm t2" data-i18n="s9.rs">execution frozen until you approve again</span></div>
+          <div class="node tone-bad at5" style="left:960px;top:300px;width:600px;height:150px;--d:.5s"><span class="k t-bad" data-i18n="s8.rk">revoke on edit</span><span class="v" data-i18n="s8.rv">The plan changed, so the Go is void.</span><span class="sm t2" data-i18n="s8.rs">execution frozen until you approve again</span></div>
         </div>
       </section></div>
 
-      <!-- 10 · Live case -->
-      <div class="frame"><section class="slide" id="s10" data-times="0,700,1500,2300,3100,3900,4700,5900" aria-roledescription="slide">
+      <!-- 9 · Live case -->
+      <div class="frame"><section class="slide" id="s9" data-times="0,700,1500,2300,3100,3900,4700,5900" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">10</span><span data-i18n="s10.chap">A live case</span></p>
-          <h2 class="hl at1" data-i18n="s10.h">The same CVE, closed in minutes, with a human on the Go.</h2>
+          <p class="chap at1"><span class="n">09</span><span data-i18n="s9.chap">A live case</span></p>
+          <h2 class="hl at1" data-i18n="s9.h">The same CVE, closed in minutes, with a human on the Go.</h2>
         </div>
         <div class="gfx" style="top:420px;height:580px">
           <svg width="1728" height="580" viewBox="0 0 1728 580" aria-hidden="true">
             <line class="at1 fade" x1="640" y1="52" x2="640" y2="452" stroke="#2A3A52" stroke-width="2" />
           </svg>
-          <div class="lbl at1 t3 mono" style="left:0;top:40px;width:560px;font-size:22px" data-i18n="s10.usual">your usual patch cycle</div>
-          <div class="lbl at1 big t3 was" style="left:0;top:84px;font-size:96px;line-height:1" data-i18n="s10.days">14 days</div>
-          <div class="lbl at8 big t-ok" style="left:0;top:220px;width:580px;font-size:140px;line-height:1;white-space:nowrap;--d:.45s">&lt; 15<small data-i18n="s10.min">min</small></div>
-          <div class="lbl at8 t2" style="left:0;top:384px;width:560px;font-size:26px;--d:.7s" data-i18n="s10.cap">with Light: found to verified</div>
-          <div class="row at2" style="top:20px"><i style="background:var(--bad)"></i><span class="rk" data-i18n="s10.r1k">found</span><span class="rv" data-i18n="s10.r1">CVE-2026-109618 is reachable on web-edge-01</span></div>
-          <div class="row at3" style="top:100px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r2k">proved</span><span class="rv" data-i18n="s10.r2">preview_digest captures the proof, read-only</span></div>
-          <div class="row at4" style="top:180px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r3k">planned</span><span class="rv" data-i18n="s10.r3">1 file, 2 steps, rollback ready</span></div>
-          <div class="row at5" style="top:260px"><i style="background:var(--ok)"></i><span class="rk go">#Go</span><span class="rv" data-i18n="s10.r4">your engineer approves the plan</span></div>
-          <div class="row at6" style="top:340px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s10.r5k">executed</span><span class="rv" data-i18n="s10.r5">step 1 patch, step 2 reload</span></div>
-          <div class="row at7" style="top:420px"><i style="background:var(--ok)"></i><span class="rk" data-i18n="s10.r6k">verified</span><span class="rv" data-i18n="s10.r6">exploit replay gets HTTP 403, service stays up</span></div>
+          <div class="lbl at1 t3 mono" style="left:0;top:40px;width:560px;font-size:22px" data-i18n="s9.usual">your usual patch cycle</div>
+          <div class="lbl at1 big t3 was" style="left:0;top:84px;font-size:96px;line-height:1" data-i18n="s9.days">14 days</div>
+          <div class="lbl at8 big t-ok" style="left:0;top:220px;width:580px;font-size:140px;line-height:1;white-space:nowrap;--d:.45s">&lt; 15<small data-i18n="s9.min">min</small></div>
+          <div class="lbl at8 t2" style="left:0;top:384px;width:560px;font-size:26px;--d:.7s" data-i18n="s9.cap">with Light: found to verified</div>
+          <div class="row at2" style="top:20px"><i style="background:var(--bad)"></i><span class="rk" data-i18n="s9.r1k">found</span><span class="rv" data-i18n="s9.r1">CVE-2026-109618 is reachable on web-edge-01</span></div>
+          <div class="row at3" style="top:100px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s9.r2k">proved</span><span class="rv" data-i18n="s9.r2">preview_digest captures the proof, read-only</span></div>
+          <div class="row at4" style="top:180px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s9.r3k">planned</span><span class="rv" data-i18n="s9.r3">1 file, 2 steps, rollback ready</span></div>
+          <div class="row at5" style="top:260px"><i style="background:var(--ok)"></i><span class="rk go">#Go</span><span class="rv" data-i18n="s9.r4">your engineer approves the plan</span></div>
+          <div class="row at6" style="top:340px"><i style="background:var(--cyan)"></i><span class="rk" data-i18n="s9.r5k">executed</span><span class="rv" data-i18n="s9.r5">step 1 patch, step 2 reload</span></div>
+          <div class="row at7" style="top:420px"><i style="background:var(--ok)"></i><span class="rk" data-i18n="s9.r6k">verified</span><span class="rv" data-i18n="s9.r6">exploit replay gets HTTP 403, service stays up</span></div>
         </div>
       </section></div>
 
-      <!-- 11 · Sovereign stack -->
-      <div class="frame"><section class="slide" id="s11" data-times="0,700,1500,2300,3200,4300" aria-roledescription="slide">
+      <!-- 10 · Sovereign stack -->
+      <div class="frame"><section class="slide" id="s10" data-times="0,700,1500,2300,3200,4300" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">11</span><span data-i18n="s11.chap">The sovereign stack</span></p>
-          <h2 class="hl at1" data-i18n="s11.h">Everything runs inside your walls.</h2>
-          <p class="sub at1" style="--d:.2s" data-i18n="s11.sub">Your GPU servers, your virtualization and Kubernetes platform, and one Light appliance. Nothing leaves.</p>
+          <p class="chap at1"><span class="n">10</span><span data-i18n="s10.chap">The sovereign stack</span></p>
+          <h2 class="hl at1" data-i18n="s10.h">Everything runs inside your walls.</h2>
+          <p class="sub at1" style="--d:.2s" data-i18n="s10.sub">Dell PowerEdge GPU, Nutanix AHV / NKP and one Light appliance. Nothing leaves.</p>
         </div>
         <div class="gfx" style="top:400px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
             <rect class="at1 fade" x="1" y="1" width="998" height="588" rx="12" fill="none" stroke="#3B5070" stroke-width="1.5" stroke-dasharray="8 6" />
             <rect class="draw at5" pathLength="1" x="1" y="1" width="998" height="588" rx="12" fill="none" stroke="#34D399" stroke-width="2.5" style="--dur:1.2s" />
           </svg>
-          <div class="lbl at1 t3 mono" style="left:24px;top:14px;width:600px;font-size:22px" data-i18n="s11.dc">your datacenter</div>
-          <div class="node layer tone-cyan at4" style="top:52px"><span class="k t-cyan" data-i18n="s11.l3k">Light appliance</span><span class="v code" style="font-size:28px">light.ova</span><div class="pills"><span class="pill" data-i18n="s11.pc">cyber model</span><span class="pill" data-i18n="s11.pf">offline CVE feed, ed25519-signed</span><span class="pill" data-i18n="s11.pg">EDCR gate</span></div></div>
-          <div class="node layer at3" style="top:228px"><span class="k" data-i18n="s11.l2k">platform</span><span class="v">VMs + Kubernetes</span><div class="pills"><span class="pill">HCI</span><span class="pill">micro-segmentation</span></div></div>
-          <div class="node layer at2" style="top:404px"><span class="k" data-i18n="s11.l1k">compute</span><span class="v">GPU servers</span><div class="pills"><span class="pill">enterprise GPUs</span><span class="pill">on-prem</span></div></div>
-          <div class="node c tile at2" style="left:1048px;--d:.3s"><span class="big t-cyan">100%</span><span class="sm t2" data-i18n="s11.t1">model inference on your own GPU</span></div>
-          <div class="node c tile at4" style="left:1280px;--d:.3s"><span class="big t-cyan" data-i18n="s11.t2b">15 min</span><span class="sm t2" data-i18n="s11.t2">to deploy the OVA</span></div>
-          <div class="node c tile tone-ok at5" style="left:1512px;--d:.6s"><span class="big t-ok" data-i18n="s11.t3b">0 bytes</span><span class="sm t2" data-i18n="s11.t3">leave your network</span></div>
-          <div class="lbl at6 t3 mono" style="left:1048px;top:196px;width:680px;font-size:22px" data-i18n="s11.sz">sizing by estate</div>
-          <div class="node tier at6" style="top:232px;--d:.1s"><span class="v" data-i18n="s11.z1">≤ 250 VMs</span><span class="sm t2" data-i18n="s11.z1s">1 GPU server · 1-2 GPUs · 3 nodes</span></div>
-          <div class="node tier at6" style="top:353px;--d:.25s"><span class="v" data-i18n="s11.z2">≤ 1,000 VMs</span><span class="sm t2" data-i18n="s11.z2s">2 GPU servers · 4 GPUs · 4-6 nodes</span></div>
-          <div class="node tier at6" style="top:474px;--d:.4s"><span class="v" data-i18n="s11.z3">5,000+ VMs</span><span class="sm t2" data-i18n="s11.z3s">GPU pod · 8 GPUs · 8+ nodes · Kubernetes</span></div>
+          <div class="lbl at1 t3 mono" style="left:24px;top:14px;width:600px;font-size:22px" data-i18n="s10.dc">your datacenter</div>
+          <div class="node layer tone-cyan at4" style="top:52px"><span class="k t-cyan" data-i18n="s10.l3k">Light appliance</span><span class="v code" style="font-size:28px">light.ova</span><div class="pills"><span class="pill" data-i18n="s10.pc">cyber model</span><span class="pill" data-i18n="s10.pf">offline CVE feed, ed25519-signed</span><span class="pill" data-i18n="s10.pg">EDCR gate</span></div></div>
+          <div class="node layer at3" style="top:228px"><span class="k" data-i18n="s10.l2k">platform</span><span class="v">Nutanix AHV / NKP</span><div class="pills"><span class="pill">Prism</span><span class="pill">Flow</span></div></div>
+          <div class="node layer at2" style="top:404px"><span class="k" data-i18n="s10.l1k">compute</span><span class="v">Dell PowerEdge</span><div class="pills"><span class="pill">NVIDIA RTX PRO 6000</span><span class="pill">H100 NVL</span></div></div>
+          <div class="node c tile at2" style="left:1048px;--d:.3s"><span class="big t-cyan">100%</span><span class="sm t2" data-i18n="s10.t1">CUDA offload on the GPU</span></div>
+          <div class="node c tile at4" style="left:1280px;--d:.3s"><span class="big t-cyan" data-i18n="s10.t2b">15 min</span><span class="sm t2" data-i18n="s10.t2">to deploy the OVA</span></div>
+          <div class="node c tile tone-ok at5" style="left:1512px;--d:.6s"><span class="big t-ok" data-i18n="s10.t3b">0 bytes</span><span class="sm t2" data-i18n="s10.t3">leave your network</span></div>
+          <div class="lbl at6 t3 mono" style="left:1048px;top:196px;width:680px;font-size:22px" data-i18n="s10.sz">sizing by estate</div>
+          <div class="node tier at6" style="top:232px;--d:.1s"><span class="v" data-i18n="s10.z1">≤ 250 VMs</span><span class="sm t2" data-i18n="s10.z1s">1x PowerEdge · 1-2x RTX PRO 6000 · 3 nodes</span></div>
+          <div class="node tier at6" style="top:353px;--d:.25s"><span class="v" data-i18n="s10.z2">≤ 1,000 VMs</span><span class="sm t2" data-i18n="s10.z2s">2x PowerEdge · 4x RTX PRO 6000 or H100 NVL · 4-6 nodes</span></div>
+          <div class="node tier at6" style="top:474px;--d:.4s"><span class="v" data-i18n="s10.z3">5,000+ VMs</span><span class="sm t2" data-i18n="s10.z3s">PowerEdge GPU pod · 8x H100 · 8+ nodes · NKP</span></div>
         </div>
       </section></div>
 
-      <!-- 12 · Partner path -->
-      <div class="frame"><section class="slide" id="s12" data-times="0,800,1700,2600,3500,4700" aria-roledescription="slide">
+      <!-- 11 · Partner path -->
+      <div class="frame"><section class="slide" id="s11" data-times="0,800,1700,2600,3500,4700" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">12</span><span data-i18n="s12.chap">The partner path</span></p>
-          <h2 class="hl at1" data-i18n="s12.h">We set up in one week. You&nbsp;feel the value in 30 days.</h2>
-          <p class="sub at1" style="--d:.2s" data-i18n="s12.sub">A proof of value on the customer's own hardware, code and team.</p>
+          <p class="chap at1"><span class="n">11</span><span data-i18n="s11.chap">The partner path</span></p>
+          <h2 class="hl at1" data-i18n="s11.h">We set up in one week. You&nbsp;feel the value in 30 days.</h2>
+          <p class="sub at1" style="--d:.2s" data-i18n="s11.sub">A proof of value on the customer's own hardware, code and team.</p>
         </div>
         <div class="gfx" style="top:400px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
@@ -694,32 +658,32 @@
             <circle class="at4 grow" cx="1080" cy="60" r="12" fill="#38BDF8" style="--d:.6s" />
             <circle class="at5 grow" cx="1512" cy="60" r="14" fill="#34D399" style="--d:.6s" />
           </svg>
-          <div class="node wk at2" style="left:16px;--d:.4s"><span class="k" data-i18n="s12.w1k">week 1</span><span class="v" data-i18n="s12.w1">OVA drop</span><span class="sm t2" data-i18n="s12.w1s">light.ova boots on their own cluster</span></div>
-          <div class="node wk at3" style="left:448px;--d:.5s"><span class="k" data-i18n="s12.w2k">week 2</span><span class="v" data-i18n="s12.w2">Blind hunt</span><span class="sm t2" data-i18n="s12.w2s">a hunt on their own code, no hints</span></div>
-          <div class="node wk at4" style="left:880px;--d:.5s"><span class="k" data-i18n="s12.w3k">week 3</span><span class="v" data-i18n="s12.w3">Gate drill</span><span class="sm t2" data-i18n="s12.w3s">their team drills Go, edit and revoke</span></div>
-          <div class="node wk tone-ok at5" style="left:1312px;--d:.5s"><span class="k t-ok" data-i18n="s12.w4k">week 4</span><span class="v" data-i18n="s12.w4">BOM sign-off</span><span class="sm t2" data-i18n="s12.w4s">sized to their estate and signed</span></div>
-          <div class="lbl at6 t3 mono" style="left:0;top:330px;width:900px;font-size:22px" data-i18n="s12.ek">what the partner earns</div>
-          <div class="node val at6" style="left:0;--d:.1s"><span class="v" data-i18n="s12.e1">Hardware pull-through</span><span class="sm t2" data-i18n="s12.e1s">GPU servers and platform nodes</span></div>
-          <div class="node val at6" style="left:584px;--d:.25s"><span class="v" data-i18n="s12.e2">Recurring margin</span><span class="sm t2" data-i18n="s12.e2s">Light licence and CVE feed renewals</span></div>
-          <div class="node val at6" style="left:1168px;--d:.4s"><span class="v" data-i18n="s12.e3">Services</span><span class="sm t2" data-i18n="s12.e3s">deployment, tuning and gate operations</span></div>
+          <div class="node wk at2" style="left:16px;--d:.4s"><span class="k" data-i18n="s11.w1k">week 1</span><span class="v" data-i18n="s11.w1">OVA drop</span><span class="sm t2" data-i18n="s11.w1s">light.ova boots on their Nutanix cluster</span></div>
+          <div class="node wk at3" style="left:448px;--d:.5s"><span class="k" data-i18n="s11.w2k">week 2</span><span class="v" data-i18n="s11.w2">Blind hunt</span><span class="sm t2" data-i18n="s11.w2s">a hunt on their own code, no hints</span></div>
+          <div class="node wk at4" style="left:880px;--d:.5s"><span class="k" data-i18n="s11.w3k">week 3</span><span class="v" data-i18n="s11.w3">Gate drill</span><span class="sm t2" data-i18n="s11.w3s">their team drills Go, edit and revoke</span></div>
+          <div class="node wk tone-ok at5" style="left:1312px;--d:.5s"><span class="k t-ok" data-i18n="s11.w4k">week 4</span><span class="v" data-i18n="s11.w4">BOM sign-off</span><span class="sm t2" data-i18n="s11.w4s">sized to their estate and signed</span></div>
+          <div class="lbl at6 t3 mono" style="left:0;top:330px;width:900px;font-size:22px" data-i18n="s11.ek">what the partner earns</div>
+          <div class="node val at6" style="left:0;--d:.1s"><span class="v" data-i18n="s11.e1">Hardware pull-through</span><span class="sm t2" data-i18n="s11.e1s">PowerEdge GPU servers and Nutanix nodes</span></div>
+          <div class="node val at6" style="left:584px;--d:.25s"><span class="v" data-i18n="s11.e2">Recurring margin</span><span class="sm t2" data-i18n="s11.e2s">Light licence and CVE feed renewals</span></div>
+          <div class="node val at6" style="left:1168px;--d:.4s"><span class="v" data-i18n="s11.e3">Services</span><span class="sm t2" data-i18n="s11.e3s">deployment, tuning and gate operations</span></div>
         </div>
       </section></div>
 
-      <!-- 13 · Call to action -->
-      <div class="frame"><section class="slide" id="s13" data-times="0,900,2000" aria-roledescription="slide">
+      <!-- 12 · Call to action -->
+      <div class="frame"><section class="slide" id="s12" data-times="0,900,2000" aria-roledescription="slide">
         <div class="copy" style="top:120px">
-          <p class="chap at1"><span class="n">13</span><span data-i18n="s13.chap">Next step</span></p>
-          <h2 class="display at1" style="--d:.1s" data-i18n="s13.h">Bring us three accounts.</h2>
-          <p class="sub at1" style="--d:.3s" data-i18n="s13.sub">We run the first one with you, start to finish.</p>
+          <p class="chap at1"><span class="n">12</span><span data-i18n="s12.chap">Next step</span></p>
+          <h2 class="display at1" style="--d:.1s" data-i18n="s12.h">Bring us three accounts.</h2>
+          <p class="sub at1" style="--d:.3s" data-i18n="s12.sub">We run the first one with you, start to finish.</p>
         </div>
         <div class="gfx" style="top:430px;height:560px">
-          <div class="node stp at2" style="left:0"><span class="k t-cyan">01</span><span class="v" data-i18n="s13.a1">Map three accounts</span><span class="sm t2" data-i18n="s13.a1s">together, in one working session</span></div>
-          <div class="node stp at2" style="left:584px;--d:.15s"><span class="k t-cyan">02</span><span class="v" data-i18n="s13.a2">Live demo</span><span class="sm t2" data-i18n="s13.a2s">plus an NFR light.ova for your lab</span></div>
-          <div class="node stp tone-ok at2" style="left:1168px;--d:.3s"><span class="k t-ok">03</span><span class="v" data-i18n="s13.a3">30-day proof of value</span><span class="sm t2" data-i18n="s13.a3s">co-branded, on the customer's site</span></div>
-          <div class="lbl at3 t3 mono" style="left:0;top:216px;width:1000px;font-size:22px" data-i18n="s13.ik">built for regulated estates</div>
-          <div class="pills at3" style="position:absolute;left:0;top:254px;width:1728px;--d:.1s"><span class="pill" data-i18n="s13.i1">Banking &amp; FSI</span><span class="pill" data-i18n="s13.i2">Government &amp; Defense</span><span class="pill" data-i18n="s13.i3">Healthcare</span><span class="pill" data-i18n="s13.i4">Telecom</span><span class="pill" data-i18n="s13.i5">Energy &amp; Manufacturing</span></div>
+          <div class="node stp at2" style="left:0"><span class="k t-cyan">01</span><span class="v" data-i18n="s12.a1">Map three accounts</span><span class="sm t2" data-i18n="s12.a1s">together, in one working session</span></div>
+          <div class="node stp at2" style="left:584px;--d:.15s"><span class="k t-cyan">02</span><span class="v" data-i18n="s12.a2">Live demo</span><span class="sm t2" data-i18n="s12.a2s">plus an NFR light.ova for your lab</span></div>
+          <div class="node stp tone-ok at2" style="left:1168px;--d:.3s"><span class="k t-ok">03</span><span class="v" data-i18n="s12.a3">30-day proof of value</span><span class="sm t2" data-i18n="s12.a3s">co-branded, on the customer's site</span></div>
+          <div class="lbl at3 t3 mono" style="left:0;top:216px;width:1000px;font-size:22px" data-i18n="s12.ik">built for regulated estates</div>
+          <div class="pills at3" style="position:absolute;left:0;top:254px;width:1728px;--d:.1s"><span class="pill" data-i18n="s12.i1">Banking &amp; FSI</span><span class="pill" data-i18n="s12.i2">Government &amp; Defense</span><span class="pill" data-i18n="s12.i3">Healthcare</span><span class="pill" data-i18n="s12.i4">Telecom</span><span class="pill" data-i18n="s12.i5">Energy &amp; Manufacturing</span></div>
           <div class="lbl at3 t1" style="left:0;top:340px;width:1728px;font-size:32px;font-weight:620;--d:.25s">Factor IO</div>
-          <div class="lbl at3 t2" style="left:0;top:392px;width:1728px;font-size:26px;--d:.3s" data-i18n="s13.plat">We design and run virtualization, Kubernetes and GPU platforms. Light Ops is the AI workload we specialise in.</div>
+          <div class="lbl at3 t2" style="left:0;top:392px;width:1728px;font-size:26px;--d:.3s" data-i18n="s12.plat">We design and run Nutanix, Kubernetes and GPU platforms. Light Ops is the AI workload we specialise in.</div>
           <div class="lbl at3 mono" style="left:0;top:446px;width:1728px;font-size:28px;--d:.4s"><!--email_off--><a href="mailto:admin@factor-io.com">admin@factor-io.com</a><!--/email_off--><span class="t3"> · </span><a href="https://studio.factor-io.com">studio.factor-io.com</a></div>
         </div>
       </section></div>
@@ -730,7 +694,7 @@
   <nav class="pitch-controls" id="controls" aria-label="Presentation controls" data-i18n-aria="ui.controls">
     <span class="brand">Light Ops</span>
     <div class="segs stage-only" id="segs" role="group" aria-label="Scenes" data-i18n-aria="ui.scenes"></div>
-    <span class="count stage-only" id="count" aria-live="polite">01 / 13</span>
+    <span class="count stage-only" id="count" aria-live="polite">01 / 12</span>
     <span class="hint stage-only" id="hint" data-i18n="ui.hint">Press → or tap to continue</span>
     <button type="button" class="ctl stage-only" id="bPrev" aria-label="Previous scene" data-i18n-aria="ui.prev"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
     <button type="button" class="ctl stage-only" id="bNext" aria-label="Next" data-i18n-aria="ui.next"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
@@ -757,7 +721,7 @@
           "ui.scene": "ฉากที่ {n} จาก {N}", "ui.langTo": "Read in English", "ui.hint": "กด → หรือแตะเพื่อไปต่อ",
           "ui.rotate": "หมุนโทรศัพท์เป็นแนวนอนเพื่อดูเต็มจอ",
 
-          "s1.chap": "คีย์โน้ตสำหรับพาร์ทเนอร์ · บนแพลตฟอร์ม GPU ของคุณเอง",
+          "s1.chap": "คีย์โน้ตสำหรับพาร์ทเนอร์ · Nutanix AHV / NKP + Dell PowerEdge GPU",
           "s1.h1": "ไล่ล่าช่องโหว่ด้วยความเร็วระดับ AI",
           "s1.h2": "แต่ลงมือทำจริงเมื่อคุณอนุมัติเท่านั้น",
           "s1.sub": "โมเดลไซเบอร์แบบ On-prem ที่คัดเฉพาะช่องโหว่ของจริง พร้อมระบบกั้นคำสั่ง (Gate) ที่จะไม่แตะต้องระบบเด็ดขาด จนกว่าคุณจะกด Go",
@@ -851,132 +815,116 @@
           "s7.zero": "ส่งถึงเครื่องปลายทาง 0 ไบต์",
           "s7.adv": "เป็นแค่คำแนะนำ",
 
-          "s8.chap": "อนุมัติจนชิน (Approval Fatigue)",
-          "s8.h": "ให้คนกดอนุมัติทุกคำสั่ง ไม่นานก็กลายเป็นการปั๊ม⁠ตรา⁠ยาง",
-          "s8.sub": "Light จึงขออนุมัติแค่ครั้งเดียว ตรงจุดที่คนตั้งใจตรวจจริง นั่นคือตัว⁠แผน⁠งาน",
-          "s8.k1": "ขออนุญาตทีละคำสั่ง",
-          "s8.c1": "ของคำขออนุญาตถูกกดผ่าน",
-          "s8.yes": "อนุญาต",
-          "s8.k2": "คำสั่งอันตรายที่คนจับได้",
-          "s8.b2a": "ช่วงต้นเซสชัน",
-          "s8.b2b": "หลังกดไปแล้ว 50 ครั้ง⁠ขึ้นไป",
-          "s8.k3": "สัดส่วนคำขอที่ถูกปฏิเสธ",
-          "s8.b3a": "ขอทั้งแผน⁠งาน",
-          "s8.b3b": "ขอทีละคำสั่ง",
-          "s8.lv": "กด Go ครั้งเดียว สำหรับทั้งแผน",
-          "s8.ls": "ทุกไฟล์และทุกคำสั่งต้องประกาศไว้ก่อน อะไรที่อยู่นอกแผนจะถูกบล็อกทันทีโดยไม่ต้องถาม และถ้าแผนถูกแก้ Go เดิมก็เป็นโมฆะทันที",
-          "s8.src": "ที่มา: Anthropic (2026) ข้อมูลการขออนุญาตใน Claude Code และการทดลองกับผู้ทดสอบ 1,053 คน",
+          "s8.chap": "ด่านที่ 2: ระบบควบคุม EDCR",
+          "s8.h": "ไม่มีคำสั่งไหนหลุดไปรันได้ จนกว่าคนจะกด Go",
+          "s8.sub": "ไม่กด Go ก็ไม่ทำงาน และทุกครั้งที่รันเสร็จ จะมีการตรวจซ้ำพร้อมออกบันทึกหลัก⁠ฐาน (SHA⁠-⁠256 Receipt) เสมอ",
+          "s8.e1": "สำรวจ",
+          "s8.e1s": "อ่านอย่างเดียว",
+          "s8.e2": "วินิจฉัย",
+          "s8.e2s": "อ่านอย่างเดียว พิสูจน์⁠ต้นเหตุ",
+          "s8.e3": "วางแผน",
+          "s8.e3s": "ประกาศทุกไฟล์และ⁠ทุก⁠คำสั่ง",
+          "s8.e4": "อนุมัติ (Go)",
+          "s8.e4a": "การตัดสินใจของคุณ",
+          "s8.e4b": "รอคุณอนุมัติ",
+          "s8.e4c": "อนุมัติแล้ว",
+          "s8.e4d": "การอนุมัติถูกเพิกถอน",
+          "s8.e5": "ลงมือ",
+          "s8.e5a": "เฉพาะที่อนุมัติแล้ว",
+          "s8.e5b": "ขั้นที่ 1 จาก 2",
+          "s8.e5c": "ถูกระงับ",
+          "s8.e6": "ตรวจสอบ",
+          "s8.e6s": "เพียร์ตรวจทาน พร้อม⁠ใบรับรอง",
+          "s8.mk": "แผนงาน · rev 2",
+          "s8.mk2": "แผนงาน · rev 3",
+          "s8.m1": "ไฟล์ที่แก้ได้",
+          "s8.m2": "คำสั่งที่รันได้",
+          "s8.m3": "ผูกทั้งสองไว้กับ Go ของคุณ",
+          "s8.m4": "เพิ่มเข้ามาหลังกด Go",
+          "s8.rk": "แก้แผนปุ๊บ",
+          "s8.rv": "สิทธิ์อนุมัติเป็นโมฆะทันที",
+          "s8.rs": "ถ้าแผนถูกแก้แม้แต่นิดเดียว ระบบจะล็อกการทำงานทันที จนกว่าคุณจะกดอนุมัติรอบใหม่",
 
-          "s9.chap": "ด่านที่ 2: ระบบควบคุม EDCR",
-          "s9.h": "ไม่มีคำสั่งไหนหลุดไปรันได้ จนกว่าคนจะกด Go",
-          "s9.sub": "ไม่กด Go ก็ไม่ทำงาน และทุกครั้งที่รันเสร็จ จะมีการตรวจซ้ำพร้อมออกบันทึกหลัก⁠ฐาน (SHA⁠-⁠256 Receipt) เสมอ",
-          "s9.e1": "สำรวจ",
-          "s9.e1s": "อ่านอย่างเดียว",
-          "s9.e2": "วินิจฉัย",
-          "s9.e2s": "อ่านอย่างเดียว พิสูจน์⁠ต้นเหตุ",
-          "s9.e3": "วางแผน",
-          "s9.e3s": "ประกาศทุกไฟล์และ⁠ทุก⁠คำสั่ง",
-          "s9.e4": "อนุมัติ (Go)",
-          "s9.e4a": "การตัดสินใจของคุณ",
-          "s9.e4b": "รอคุณอนุมัติ",
-          "s9.e4c": "อนุมัติแล้ว",
-          "s9.e4d": "การอนุมัติถูกเพิกถอน",
-          "s9.e5": "ลงมือ",
-          "s9.e5a": "เฉพาะที่อนุมัติแล้ว",
-          "s9.e5b": "ขั้นที่ 1 จาก 2",
-          "s9.e5c": "ถูกระงับ",
-          "s9.e6": "ตรวจสอบ",
-          "s9.e6s": "เพียร์ตรวจทาน พร้อม⁠ใบรับรอง",
-          "s9.mk": "แผนงาน · rev 2",
-          "s9.mk2": "แผนงาน · rev 3",
-          "s9.m1": "ไฟล์ที่แก้ได้",
-          "s9.m2": "คำสั่งที่รันได้",
-          "s9.m3": "ผูกทั้งสองไว้กับ Go ของคุณ",
-          "s9.m4": "เพิ่มเข้ามาหลังกด Go",
-          "s9.rk": "แก้แผนปุ๊บ",
-          "s9.rv": "สิทธิ์อนุมัติเป็นโมฆะทันที",
-          "s9.rs": "ถ้าแผนถูกแก้แม้แต่นิดเดียว ระบบจะล็อกการทำงานทันที จนกว่าคุณจะกดอนุมัติรอบใหม่",
+          "s9.chap": "ตัวอย่างการใช้งานจริง",
+          "s9.h": "ช่องโหว่ตัวเดียวกัน ปิดจบได้ในไม่⁠กี่⁠นาที โดยที่คนยังคุมทุกการตัดสินใจ",
+          "s9.usual": "รอบแพตช์ตามปกติ",
+          "s9.days": "14 วัน",
+          "s9.min": "นาที",
+          "s9.cap": "ด้วย Light: ตั้งแต่พบจนตรวจสอบเสร็จ",
+          "s9.r1k": "พบ",
+          "s9.r1": "CVE-2026-109618 เข้าถึงได้จริงบน web-edge-01",
+          "s9.r2k": "พิสูจน์",
+          "s9.r2": "preview_digest เก็บหลักฐาน แบบอ่านอย่างเดียว",
+          "s9.r3k": "วางแผน",
+          "s9.r3": "1 ไฟล์ 2 ขั้นตอน พร้อมแผนย้อนกลับ",
+          "s9.r4": "วิศวกรของคุณอนุมัติแผน",
+          "s9.r5k": "ลงมือ",
+          "s9.r5": "ขั้นที่ 1 แพตช์ ขั้นที่ 2 รีโหลด",
+          "s9.r6k": "ตรวจสอบ",
+          "s9.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
 
-          "s10.chap": "ตัวอย่างการใช้งานจริง",
-          "s10.h": "ช่องโหว่ตัวเดียวกัน ปิดจบได้ในไม่⁠กี่⁠นาที โดยที่คนยังคุมทุกการตัดสินใจ",
-          "s10.usual": "รอบแพตช์ตามปกติ",
-          "s10.days": "14 วัน",
-          "s10.min": "นาที",
-          "s10.cap": "ด้วย Light: ตั้งแต่พบจนตรวจสอบเสร็จ",
-          "s10.r1k": "พบ",
-          "s10.r1": "CVE-2026-109618 เข้าถึงได้จริงบน web-edge-01",
-          "s10.r2k": "พิสูจน์",
-          "s10.r2": "preview_digest เก็บหลักฐาน แบบอ่านอย่างเดียว",
-          "s10.r3k": "วางแผน",
-          "s10.r3": "1 ไฟล์ 2 ขั้นตอน พร้อมแผนย้อนกลับ",
-          "s10.r4": "วิศวกรของคุณอนุมัติแผน",
-          "s10.r5k": "ลงมือ",
-          "s10.r5": "ขั้นที่ 1 แพตช์ ขั้นที่ 2 รีโหลด",
-          "s10.r6k": "ตรวจสอบ",
-          "s10.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
+          "s10.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
+          "s10.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",
+          "s10.sub": "บน Dell PowerEdge GPU, Nutanix AHV / NKP และ Light เพียงชุดเดียว ไม่มีข้อมูลหลุดออกไปข้างนอกแม้แต่ไบต์เดียว",
+          "s10.dc": "ดาต้าเซ็นเตอร์ของคุณ",
+          "s10.l3k": "Light appliance",
+          "s10.pc": "โมเดล Cyber",
+          "s10.pf": "ฐานข้อมูล CVE ออฟไลน์ ลงนาม ed25519",
+          "s10.pg": "ด่านกั้น EDCR",
+          "s10.l2k": "แพลตฟอร์ม",
+          "s10.l1k": "ประมวลผล",
+          "s10.t1": "ประมวลผลบน GPU ด้วย CUDA",
+          "s10.t2b": "15 นาที",
+          "s10.t2": "ติดตั้ง OVA เสร็จ",
+          "s10.t3b": "0 ไบต์",
+          "s10.t3": "ออกนอกเครือข่าย",
+          "s10.sz": "ขนาดตามจำนวน VM",
+          "s10.z1": "≤ 250 VM",
+          "s10.z1s": "PowerEdge 1 เครื่อง · RTX PRO 6000 1-2 ใบ · 3 โหนด",
+          "s10.z2": "≤ 1,000 VM",
+          "s10.z2s": "PowerEdge 2 เครื่อง · RTX PRO 6000 หรือ H100 NVL 4 ใบ · 4⁠-⁠6 โหนด",
+          "s10.z3": "5,000+ VM",
+          "s10.z3s": "พ็อด PowerEdge GPU · H100 8 ใบ · 8 โหนดขึ้นไป · NKP",
 
-          "s11.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
-          "s11.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",
-          "s11.sub": "บนเซิร์ฟเวอร์ GPU, แพลตฟอร์ม VM / Kubernetes ของคุณ และ Light เพียงชุดเดียว ไม่มีข้อมูลหลุดออกไปข้างนอกแม้แต่ไบต์เดียว",
-          "s11.dc": "ดาต้าเซ็นเตอร์ของคุณ",
-          "s11.l3k": "Light appliance",
-          "s11.pc": "โมเดล Cyber",
-          "s11.pf": "ฐานข้อมูล CVE ออฟไลน์ ลงนาม ed25519",
-          "s11.pg": "ด่านกั้น EDCR",
-          "s11.l2k": "แพลตฟอร์ม",
-          "s11.l1k": "ประมวลผล",
-          "s11.t1": "รันโมเดลบน GPU ของคุณเองทั้งหมด",
-          "s11.t2b": "15 นาที",
-          "s11.t2": "ติดตั้ง OVA เสร็จ",
-          "s11.t3b": "0 ไบต์",
-          "s11.t3": "ออกนอกเครือข่าย",
-          "s11.sz": "ขนาดตามจำนวน VM",
-          "s11.z1": "≤ 250 VM",
-          "s11.z1s": "เซิร์ฟเวอร์ GPU 1 เครื่อง · GPU 1-2 ใบ · 3 โหนด",
-          "s11.z2": "≤ 1,000 VM",
-          "s11.z2s": "เซิร์ฟเวอร์ GPU 2 เครื่อง · GPU 4 ใบ · 4⁠-⁠6 โหนด",
-          "s11.z3": "5,000+ VM",
-          "s11.z3s": "พ็อด GPU · GPU 8 ใบ · 8 โหนดขึ้นไป · Kubernetes",
+          "s11.chap": "เส้นทางสำหรับพาร์ทเนอร์",
+          "s11.h": "ติดตั้งเสร็จภายใน 1 สัปดาห์ เห็นผลจริงภายใน 30 วัน",
+          "s11.sub": "พิสูจน์ของจริงบนเครื่องจริง โค้ดจริง และทีมงานของลูกค้าเอง",
+          "s11.w1k": "สัปดาห์ที่ 1",
+          "s11.w1": "ส่งมอบ OVA",
+          "s11.w1s": "light.ova บูตบนคลัสเตอร์ Nutanix ของ⁠ลูกค้า",
+          "s11.w2k": "สัปดาห์ที่ 2",
+          "s11.w2": "ล่าแบบไม่บอกใบ้",
+          "s11.w2s": "ล่าช่องโหว่ในโค้ดจริงของลูกค้า โดย⁠ไม่⁠บอก⁠ใบ้",
+          "s11.w3k": "สัปดาห์ที่ 3",
+          "s11.w3": "ซ้อมด่านกั้น",
+          "s11.w3s": "ทีมลูกค้าซ้อมกด Go แก้แผน และ⁠เพิก⁠ถอน",
+          "s11.w4k": "สัปดาห์ที่ 4",
+          "s11.w4": "เซ็น BOM",
+          "s11.w4s": "กำหนดขนาดตามระบบจริง แล้ว⁠เซ็น⁠อนุมัติ",
+          "s11.ek": "สิ่งที่พาร์ทเนอร์ได้รับ",
+          "s11.e1": "ยอดขายฮาร์ดแวร์",
+          "s11.e1s": "เซิร์ฟเวอร์ PowerEdge GPU และโหนด Nutanix",
+          "s11.e2": "รายได้ต่อเนื่อง",
+          "s11.e2s": "ค่าลิขสิทธิ์ Light และการต่ออายุฐานข้อมูล CVE",
+          "s11.e3": "งานบริการ",
+          "s11.e3s": "ติดตั้ง ปรับจูน และดูแลด่านกั้น",
 
-          "s12.chap": "เส้นทางสำหรับพาร์ทเนอร์",
-          "s12.h": "ติดตั้งเสร็จภายใน 1 สัปดาห์ เห็นผลจริงภายใน 30 วัน",
-          "s12.sub": "พิสูจน์ของจริงบนเครื่องจริง โค้ดจริง และทีมงานของลูกค้าเอง",
-          "s12.w1k": "สัปดาห์ที่ 1",
-          "s12.w1": "ส่งมอบ OVA",
-          "s12.w1s": "light.ova บูตบนคลัสเตอร์ของ⁠ลูกค้า",
-          "s12.w2k": "สัปดาห์ที่ 2",
-          "s12.w2": "ล่าแบบไม่บอกใบ้",
-          "s12.w2s": "ล่าช่องโหว่ในโค้ดจริงของลูกค้า โดย⁠ไม่⁠บอก⁠ใบ้",
-          "s12.w3k": "สัปดาห์ที่ 3",
-          "s12.w3": "ซ้อมด่านกั้น",
-          "s12.w3s": "ทีมลูกค้าซ้อมกด Go แก้แผน และ⁠เพิก⁠ถอน",
-          "s12.w4k": "สัปดาห์ที่ 4",
-          "s12.w4": "เซ็น BOM",
-          "s12.w4s": "กำหนดขนาดตามระบบจริง แล้ว⁠เซ็น⁠อนุมัติ",
-          "s12.ek": "สิ่งที่พาร์ทเนอร์ได้รับ",
-          "s12.e1": "ยอดขายฮาร์ดแวร์",
-          "s12.e1s": "เซิร์ฟเวอร์ GPU และโหนดแพลตฟอร์ม",
-          "s12.e2": "รายได้ต่อเนื่อง",
-          "s12.e2s": "ค่าลิขสิทธิ์ Light และการต่ออายุฐานข้อมูล CVE",
-          "s12.e3": "งานบริการ",
-          "s12.e3s": "ติดตั้ง ปรับจูน และดูแลด่านกั้น",
-
-          "s13.chap": "ก้าวต่อไป",
-          "s13.h": "เลือกลูกค้ามา 3 ราย",
-          "s13.sub": "แล้วมาลุยรายแรกไปพร้อมกับเราตั้งแต่ต้นจนจบ",
-          "s13.a1": "เลือกลูกค้า 3 ราย",
-          "s13.a1s": "ร่วมกันในการประชุมครั้งเดียว",
-          "s13.a2": "สาธิตสด",
-          "s13.a2s": "พร้อม light.ova รุ่น NFR สำหรับแล็บของคุณ",
-          "s13.a3": "พิสูจน์คุณค่า 30 วัน",
-          "s13.a3s": "ร่วมแบรนด์ ติดตั้งที่ลูกค้า",
-          "s13.ik": "สำหรับองค์กรที่ต้องกำกับดูแลเข้มงวด",
-          "s13.i1": "ธนาคารและการเงิน",
-          "s13.i2": "ภาครัฐและความมั่นคง",
-          "s13.i3": "สาธารณสุข",
-          "s13.i4": "โทรคมนาคม",
-          "s13.i5": "พลังงานและการผลิต",
-          "s13.plat": "เราออกแบบและดูแลแพลตฟอร์ม Virtualization, Kubernetes และ GPU โดยมี Light Ops เป็นงาน AI ที่เราเชี่ยวชาญ",
+          "s12.chap": "ก้าวต่อไป",
+          "s12.h": "เลือกลูกค้ามา 3 ราย",
+          "s12.sub": "แล้วมาลุยรายแรกไปพร้อมกับเราตั้งแต่ต้นจนจบ",
+          "s12.a1": "เลือกลูกค้า 3 ราย",
+          "s12.a1s": "ร่วมกันในการประชุมครั้งเดียว",
+          "s12.a2": "สาธิตสด",
+          "s12.a2s": "พร้อม light.ova รุ่น NFR สำหรับแล็บของคุณ",
+          "s12.a3": "พิสูจน์คุณค่า 30 วัน",
+          "s12.a3s": "ร่วมแบรนด์ ติดตั้งที่ลูกค้า",
+          "s12.ik": "สำหรับองค์กรที่ต้องกำกับดูแลเข้มงวด",
+          "s12.i1": "ธนาคารและการเงิน",
+          "s12.i2": "ภาครัฐและความมั่นคง",
+          "s12.i3": "สาธารณสุข",
+          "s12.i4": "โทรคมนาคม",
+          "s12.i5": "พลังงานและการผลิต",
+          "s12.plat": "เราออกแบบและดูแลแพลตฟอร์ม Nutanix, Kubernetes และ GPU โดยมี Light Ops เป็นงาน AI ที่เราเชี่ยวชาญ",
           "zz.end": ""
         }
       };

@@ -230,7 +230,7 @@
         var after = [].slice.call(wf.document.querySelectorAll(".slide.active"));
         check("print shows all 13 scenes, then the stage returns to the presenter's scene", printing === nSlides && after.length === 1 && after[0] === wf.document.querySelectorAll(".slide")[4] && wf.LightKeynote.state().cur === 4, { printing: printing, activeAfter: after.map(function (s) { return s.id; }) });
         var pStage = printLayout(wf);
-        check("printing from the stage gives 12 full 1920x1080 pages, one scene each", pStage.pages === 12 && pStage.off.length === 0, pStage.off);
+        check("printing from the stage gives 13 full 1920x1080 pages, one scene each", pStage.pages === 13 && pStage.off.length === 0, pStage.off);
 
         /* the same end state through the URL */
         var wb = await load("?measure=1&slide=4&beat=final");

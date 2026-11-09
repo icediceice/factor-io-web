@@ -163,7 +163,7 @@
           var lang = li ? "th" : "en";
           var w = await load("?measure=1&lang=" + lang);
           var L = w.LightKeynote, slides = w.document.querySelectorAll(".slide");
-          check(lang + ": deck exposes 12 scenes", L && L.count === 12 && slides.length === 12, L ? L.count : "no LightKeynote");
+          check(lang + ": deck exposes 13 scenes", L && L.count === 13 && slides.length === 13, L ? L.count : "no LightKeynote");
           for (var i = 0; i < slides.length; i++) {
             L.go(i, "final");
             await settle(w);

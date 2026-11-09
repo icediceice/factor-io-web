@@ -1,6 +1,16 @@
 {
   "runs": [
     {
+      "date": "2026-11-09",
+      "file": "light_ops_keynote.html",
+      "macrostructure": "Focus Rail per scene (13-scene brand-neutral motion journey; nested Split Monitor in s4, three-column comparison with a closing band in s8, Topology in s9)",
+      "accent": "#38BDF8 (Light acting); status roles #34D399 approved, #FBBF24 waiting on a human, #FB7185 threat",
+      "theme": "dark only, one-hue ramp #05080E / #070B13 / #0C1320 / #101929, borders-only depth",
+      "gates": "not re-run this pass (54/54 on the 2026-11-08 run); fixture 21/21 EN and TH",
+      "critique": "not re-scored this pass",
+      "notes": "The 2026-11-08 deck renamed and made brand-neutral for public hosting: no partner, platform-vendor or GPU-vendor product names in markup, STR.th or comments. New s8 Approval fatigue: three cards from Anthropic's 2026 Claude Code data (97% of permission prompts approved; about 17% falling to about 5% of dangerous commands caught as a session goes on, 1,053 testers; 39% of plans rejected vs 3% of single commands), then a Light band (one Go for the whole declared plan, anything outside it refused without a prompt). Old s8-s12 renumbered to s9-s13 so every id equals its position. Measured by tests/keynote-browser-check.html."
+    },
+    {
       "date": "2026-11-08",
       "file": "light_ops_keynote.html (under its former name; renamed and superseded 2026-11-09)",
       "macrostructure": "Focus Rail per scene (12-scene motion journey; nested Split Monitor in s4, Topology in s8)",

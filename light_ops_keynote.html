@@ -266,7 +266,7 @@
     /* s11 security posture: four checks ride into one rule, the rule hands each server one level, and a check that cannot run lands on unknown */
     #s11 .chk { left: 0; width: 540px; height: 112px; }
     #s11 .chk .v { font-size: 24px; }
-    #s11 .rule { left: 680px; top: 96px; width: 400px; height: 290px; justify-content: flex-start; padding-top: 24px; transition: border-color .5s ease 1s, background-color .5s ease 1s, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s11 .rule { left: 680px; top: 96px; width: 400px; height: 290px; justify-content: center; transition: border-color .5s ease 1s, background-color .5s ease 1s, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
     #s11.b2 .rule { border-color: var(--cyan-line); background-color: var(--cyan-bg); }
     #s11 .srv { left: 1180px; width: 548px; height: 112px; padding: 12px 20px; gap: 6px; transition: border-color .4s ease var(--t, 0s), background-color .4s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
     #s11 .srv .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
@@ -292,7 +292,7 @@
     #s12 .ftok { fill: var(--bad); opacity: 0; transition: transform .9s var(--ease) calc(var(--j) * 90ms), opacity .25s ease calc(var(--j) * 90ms); }
     #s12.b4 .ftok { opacity: 1; transform: translate(var(--tx), var(--ty)); }
     #s12.b5 .ftok { opacity: 0; transition: opacity .3s ease; }
-    #s12 .plan { left: 1200px; top: 150px; width: 528px; height: 240px; justify-content: flex-start; padding-top: 24px; transition: border-color .4s ease, background-color .4s ease, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s12 .plan { left: 1200px; top: 150px; width: 528px; height: 240px; justify-content: center; transition: border-color .4s ease, background-color .4s ease, opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
     #s12.b5 .plan { border-color: var(--hold); background-color: var(--hold-bg); }
     #s12.b6 .plan { border-color: var(--ok); background-color: var(--ok-bg); }
 
@@ -310,6 +310,8 @@
 
     /* s14 red team: three views ride into one authorised target; a probe aimed outside the scope is refused before it leaves */
     #s14 .org { left: 0; width: 400px; height: 136px; padding: 12px 20px; }
+    /* two-line captions break where the phrase does, never leaving one word alone (Thai included) */
+    #s14 .org .sm, #s15 .slot .sm, #s16 .bt .v { text-wrap: balance; }
     #s14 .host { border-style: dashed; }
     #s14 .ckl { left: 1060px; top: 0; width: 668px; height: 440px; justify-content: flex-start; padding-top: 24px; }
     #s14 .rq { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 24px; line-height: 1.3; color: var(--t2); }
@@ -326,7 +328,8 @@
     #s15 .lt { top: 496px; width: 408px; height: 100px; }
 
     /* s16 what you get: one number lands per team */
-    #s16 .bt { top: 0; width: 408px; height: 400px; justify-content: flex-start; gap: 12px; padding: 28px; transition: border-color .5s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s16 .bt { top: 0; width: 408px; height: 340px; justify-content: flex-start; gap: 12px; padding: 28px; transition: border-color .5s ease var(--t, 0s), opacity .7s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+    #s16 .bt .sm { margin-top: auto; }
     #s16 .bt .big { font-size: 88px; line-height: 1; }
     #s16 .bt .big small { font-size: 42px; color: var(--t2); margin-left: 12px; letter-spacing: 0; }
     #s16.b2 .bt.n1, #s16.b3 .bt.n2, #s16.b4 .bt.n3, #s16.b5 .bt.n4 { border-color: var(--ok-line); }
@@ -772,7 +775,7 @@
           <h2 class="hl at1" data-i18n="s12.h">Your auditor's checklist is just a profile.</h2>
           <p class="sub at7" data-i18n="s12.sub">Failed rules become a fix plan for your Go, never an automatic change.</p>
         </div>
-        <div class="gfx" style="top:440px;height:556px">
+        <div class="gfx" style="top:400px;height:556px">
           <div class="panel at1 fade" style="left:0;top:150px;width:520px;height:372px;--d:.2s"></div>
           <svg width="1728" height="556" viewBox="0 0 1728 556" aria-hidden="true">
             <g id="s12grid" class="at1 fade" style="--d:.3s"></g>
@@ -843,9 +846,9 @@
         <div class="gfx" style="top:420px;height:620px">
           <svg width="1728" height="620" viewBox="0 0 1728 620" aria-hidden="true">
             <rect class="at1 fade" x="520" y="40" width="480" height="360" rx="40" fill="none" stroke="#38BDF8" stroke-opacity=".55" stroke-width="2" stroke-dasharray="10 8" style="--d:.2s" />
-            <path id="s14a" class="draw at2" pathLength="1" d="M400 68 C510 68 510 200 620 200" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
+            <path id="s14a" class="draw at2" pathLength="1" d="M400 68 C510 68 510 184 620 184" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
             <path id="s14b" class="draw at3" pathLength="1" d="M400 220 H620" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
-            <path id="s14c" class="draw at4" pathLength="1" d="M400 372 C510 372 510 240 620 240" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
+            <path id="s14c" class="draw at4" pathLength="1" d="M400 372 C510 372 510 256 620 256" fill="none" stroke="#3B5070" stroke-width="2" style="--dur:.8s" />
             <path id="s14s" class="draw at5" pathLength="1" d="M400 412 C470 412 500 461 560 461" fill="none" stroke="#7A2742" stroke-width="2" style="--dur:.7s" />
             <circle class="tok at2 fade" cx="400" cy="68" r="9" data-rides="2:s14a:400:620:1100" />
             <circle class="tok at3 fade" cx="400" cy="220" r="9" data-rides="3:s14b:400:620:1000" />
@@ -894,7 +897,7 @@
           <div class="node tool at2" style="left:0;top:344px;--d:.3s"><span class="v" data-i18n="s15.t3">Pen test</span><span class="sm t2" data-i18n="s15.t3s">an expert, once or twice a year</span></div>
           <div class="node tool at3" style="left:440px;top:128px"><span class="v" data-i18n="s15.t4">Cloud AI assistant</span><span class="sm t2" data-i18n="s15.t4s">smart, but your data leaves</span></div>
           <div class="node tool at3" style="left:880px;top:128px;--d:.15s"><span class="v" data-i18n="s15.t5">Patch tool</span><span class="sm t2" data-i18n="s15.t5s">every patch, on a timetable</span></div>
-          <div class="node c tool slot at3" style="left:1320px;top:128px;--d:.3s"><span class="sm t3" data-i18n="s15.t6">usually waits for the next scan or test</span></div>
+          <div class="node c tool slot at3" style="left:1320px;top:128px;--d:.3s"><span class="sm t3" data-i18n="s15.t6">waits for the next scan or test</span></div>
           <div class="lbl at4 t-cyan mono" style="left:0;top:456px;width:600px;font-size:22px">Light Ops</div>
           <div class="node lt tone-cyan at5" style="left:0"><span class="v" data-i18n="s15.l1">Spots what is real</span><span class="sm t2" data-i18n="s15.l1s">reachable and known-exploited</span></div>
           <div class="node lt tone-cyan at5" style="left:440px;--d:.2s"><span class="v" data-i18n="s15.l2">Ranks it by rule</span><span class="sm t2" data-i18n="s15.l2s">one level; AI never decides it</span></div>
@@ -910,12 +913,12 @@
           <h2 class="hl at1" data-i18n="s16.h">Less noise. Faster fixes. Nothing runs without you.</h2>
           <p class="sub at1" style="--d:.2s" data-i18n="s16.sub">What changes for each team, in plain numbers.</p>
         </div>
-        <div class="gfx" style="top:440px;height:520px">
+        <div class="gfx" style="top:440px;height:452px">
           <div class="node bt n1 at1" style="left:0;--t:2.3s"><span class="k" data-i18n="s16.k1">security team</span><span class="big t-ok"><span data-count="3" data-from="42180" data-at="2" data-dur="2400">3</span></span><span class="v" data-i18n="s16.v1">alerts worth a person's time</span><span class="sm t3 at2" style="--d:2.3s" data-i18n="s16.s1">out of 42,180 advisories</span></div>
           <div class="node bt n2 at1" style="left:440px;--d:.1s;--t:1.2s"><span class="k" data-i18n="s16.k2">management</span><span class="stack big"><span class="was gone3 t3" style="--d:1.1s" data-i18n="s16.was">14 days</span><span class="at3 fade t-ok" style="--d:1.2s">&lt; 15<small data-i18n="s16.min">min</small></span></span><span class="v" data-i18n="s16.v2">from found to fixed and verified</span><span class="sm t3 at3" style="--d:1.4s" data-i18n="s16.s2">down from a 14-day patch cycle</span></div>
           <div class="node bt n3 at1" style="left:880px;--d:.2s;--t:.2s"><span class="k" data-i18n="s16.k3">IT operations</span><span class="stack big"><span class="gone4 t3">· · ·</span><span class="at4 pop t-cyan">1<small>Go</small></span></span><span class="v" data-i18n="s16.v3">per plan. Nothing outside it can run.</span><span class="sm t3 at4" style="--d:.4s" data-i18n="s16.s3">instead of a prompt per command</span></div>
           <div class="node bt n4 at1" style="left:1320px;--d:.3s;--t:.2s"><span class="k" data-i18n="s16.k4">audit and compliance</span><span class="stack big"><span class="gone5 t3">· · ·</span><span class="at5 pop t-ok">1<small data-i18n="s16.rc">receipt</small></span></span><span class="v" data-i18n="s16.v4">for every change Light makes</span><span class="sm t3 at5" style="--d:.4s" data-i18n="s16.s4">plan · approver · result · SHA-256</span></div>
-          <div class="node c tone-cyan at6" style="left:0;top:440px;width:1728px;height:80px"><span class="v" data-i18n="s16.band">And all of it runs inside your walls. Nothing leaves your network.</span></div>
+          <div class="node c tone-cyan at6" style="left:0;top:372px;width:1728px;height:80px"><span class="v" data-i18n="s16.band">All four come from one appliance on your own servers.</span></div>
         </div>
       </section></div>
 
@@ -1271,7 +1274,7 @@
           "s14.band": "เฉพาะเป้าหมายที่คุณอนุญาต · บันทึก Log ก่อนส่งแพ็กเก็ตแรก · ไม่ใช้ Exploit ไม่เปิด Shell ไม่สุ่มเดารหัสผ่าน",
 
           "s15.chap": "ทำงานร่วมกับเครื่องมือที่มีอยู่",
-          "s15.h": "ใช้เครื่องมือเดิมต่อได้ Light Ops เชื่อมทุกขั้นตอนเข้าด้วยกัน",
+          "s15.h": "ใช้เครื่องมือเดิมต่อได้ Light Ops เชื่อม⁠ทุก⁠ขั้น⁠ตอน⁠เข้า⁠ด้วย⁠กัน",
           "s15.sub": "เครื่องมือส่วนใหญ่ทำได้ขั้นเดียว Light Ops พาปัญหาไปจนถึงการพิสูจน์ว่าแก้แล้ว",
           "s15.g1": "หาว่าอะไรผิดปกติ",
           "s15.g2": "เลือกว่าอะไรสำคัญก่อน",
@@ -1298,7 +1301,7 @@
           "s15.l4s": "ทดสอบซ้ำพร้อมใบรับรอง",
 
           "s16.chap": "สิ่งที่คุณได้",
-          "s16.h": "เสียงรบกวนน้อยลง แก้ไขเร็วขึ้น และไม่มีอะไรรันโดยไม่มีคุณ",
+          "s16.h": "เสียง⁠รบกวน⁠น้อย⁠ลง แก้ไข⁠เร็ว⁠ขึ้น และ⁠ไม่มี⁠อะไร⁠รัน⁠โดย⁠ไม่มี⁠คุณ",
           "s16.sub": "สิ่งที่เปลี่ยนไปสำหรับแต่ละทีม เป็นตัวเลขที่เข้าใจง่าย",
           "s16.k1": "ทีมความปลอดภัย",
           "s16.v1": "การแจ้งเตือนที่ควรให้คนดูจริง",
@@ -1315,7 +1318,7 @@
           "s16.rc": "ใบรับรอง",
           "s16.v4": "ทุกการเปลี่ยนแปลงที่ Light ทำ",
           "s16.s4": "แผน · ผู้อนุมัติ · ผลลัพธ์ · SHA-256",
-          "s16.band": "และทั้งหมดนี้รันอยู่ในองค์กรของคุณ ไม่มีข้อมูลออกนอกเครือข่าย",
+          "s16.band": "ทั้งสี่อย่างนี้มาจาก Light ชุดเดียว บนเซิร์ฟเวอร์ของคุณเอง",
 
           "s17.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
           "s17.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",

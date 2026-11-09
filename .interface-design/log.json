@@ -2,7 +2,7 @@
   "runs": [
     {
       "date": "2026-11-08",
-      "file": "light_ops_on_nutanix_dell_gpu_keynote.html",
+      "file": "light_ops_keynote.html (under its former name; renamed and superseded 2026-11-09)",
       "macrostructure": "Focus Rail per scene (12-scene motion journey; nested Split Monitor in s4, Topology in s8)",
       "accent": "#38BDF8 (Light acting); status roles #34D399 approved, #FBBF24 waiting on a human, #FB7185 threat",
       "theme": "dark only, one-hue ramp #05080E / #070B13 / #0C1320 / #101929, borders-only depth",

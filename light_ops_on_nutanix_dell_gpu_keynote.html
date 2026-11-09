@@ -251,13 +251,13 @@
     #s9 .was::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; margin-top: -4px; border-radius: var(--r0); background: var(--bad); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s var(--ease); }
     #s9.b8 .was::after { transform: scaleX(1); }
 
-    /* s10 sovereign stack */
-    #s10 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
-    #s10 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
-    #s10 .tile + .tile { border-left-color: var(--line-2); }
-    #s10 .tile .big { font-size: 42px; line-height: 1.1; }
-    #s10 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
-    #s10 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
+    /* s11 sovereign stack */
+    #s11 .layer { left: 32px; width: 936px; height: 160px; padding: 16px 24px; gap: 8px; }
+    #s11 .tile { top: 0; width: 216px; height: 160px; padding: 16px; border-color: transparent; border-radius: 0; background: transparent; }
+    #s11 .tile + .tile { border-left-color: var(--line-2); }
+    #s11 .tile .big { font-size: 42px; line-height: 1.1; }
+    #s11 .tier { left: 1048px; width: 680px; height: 113px; padding: 12px 20px; gap: 4px; }
+    #s11 .tier .v { font-family: var(--mono); font-size: 26px; font-weight: 500; }
 
     /* s12 partner path */
     #s12 .wk { top: 110px; width: 400px; height: 180px; }
@@ -266,7 +266,7 @@
 
     /* s13 call to action */
     #s13 .stp { top: 0; width: 560px; height: 170px; }
-    #s8 .st, #s10 .tile, #s12 .wk, #s13 .stp { justify-content: flex-start; padding-top: 24px; }
+    #s8 .st, #s11 .tile, #s12 .wk, #s13 .stp { justify-content: flex-start; padding-top: 24px; }
     .slide a { color: var(--cyan); text-decoration: none; border-bottom: 1.5px solid var(--cyan-line); transition: border-color .15s ease, color .15s ease; }
     .slide a:hover { border-bottom-color: var(--cyan); }
     .slide a:active { color: var(--t1); }
@@ -614,28 +614,28 @@
       </section></div>
 
       <!-- 10 · Sovereign stack -->
-      <div class="frame"><section class="slide" id="s10" data-times="0,700,1500,2300,3200,4300" aria-roledescription="slide">
+      <div class="frame"><section class="slide" id="s11" data-times="0,700,1500,2300,3200,4300" aria-roledescription="slide">
         <div class="copy">
-          <p class="chap at1"><span class="n">10</span><span data-i18n="s10.chap">The sovereign stack</span></p>
-          <h2 class="hl at1" data-i18n="s10.h">Everything runs inside your walls.</h2>
-          <p class="sub at1" style="--d:.2s" data-i18n="s10.sub">Dell PowerEdge GPU, Nutanix AHV / NKP and one Light appliance. Nothing leaves.</p>
+          <p class="chap at1"><span class="n">10</span><span data-i18n="s11.chap">The sovereign stack</span></p>
+          <h2 class="hl at1" data-i18n="s11.h">Everything runs inside your walls.</h2>
+          <p class="sub at1" style="--d:.2s" data-i18n="s11.sub">Dell PowerEdge GPU, Nutanix AHV / NKP and one Light appliance. Nothing leaves.</p>
         </div>
         <div class="gfx" style="top:400px;height:600px">
           <svg width="1728" height="600" viewBox="0 0 1728 600" aria-hidden="true">
             <rect class="at1 fade" x="1" y="1" width="998" height="588" rx="12" fill="none" stroke="#3B5070" stroke-width="1.5" stroke-dasharray="8 6" />
             <rect class="draw at5" pathLength="1" x="1" y="1" width="998" height="588" rx="12" fill="none" stroke="#34D399" stroke-width="2.5" style="--dur:1.2s" />
           </svg>
-          <div class="lbl at1 t3 mono" style="left:24px;top:14px;width:600px;font-size:22px" data-i18n="s10.dc">your datacenter</div>
-          <div class="node layer tone-cyan at4" style="top:52px"><span class="k t-cyan" data-i18n="s10.l3k">Light appliance</span><span class="v code" style="font-size:28px">light.ova</span><div class="pills"><span class="pill" data-i18n="s10.pc">cyber model</span><span class="pill" data-i18n="s10.pf">offline CVE feed, ed25519-signed</span><span class="pill" data-i18n="s10.pg">EDCR gate</span></div></div>
-          <div class="node layer at3" style="top:228px"><span class="k" data-i18n="s10.l2k">platform</span><span class="v">Nutanix AHV / NKP</span><div class="pills"><span class="pill">Prism</span><span class="pill">Flow</span></div></div>
-          <div class="node layer at2" style="top:404px"><span class="k" data-i18n="s10.l1k">compute</span><span class="v">Dell PowerEdge</span><div class="pills"><span class="pill">NVIDIA RTX PRO 6000</span><span class="pill">H100 NVL</span></div></div>
-          <div class="node c tile at2" style="left:1048px;--d:.3s"><span class="big t-cyan">100%</span><span class="sm t2" data-i18n="s10.t1">CUDA offload on the GPU</span></div>
-          <div class="node c tile at4" style="left:1280px;--d:.3s"><span class="big t-cyan" data-i18n="s10.t2b">15 min</span><span class="sm t2" data-i18n="s10.t2">to deploy the OVA</span></div>
-          <div class="node c tile tone-ok at5" style="left:1512px;--d:.6s"><span class="big t-ok" data-i18n="s10.t3b">0 bytes</span><span class="sm t2" data-i18n="s10.t3">leave your network</span></div>
-          <div class="lbl at6 t3 mono" style="left:1048px;top:196px;width:680px;font-size:22px" data-i18n="s10.sz">sizing by estate</div>
-          <div class="node tier at6" style="top:232px;--d:.1s"><span class="v" data-i18n="s10.z1">≤ 250 VMs</span><span class="sm t2" data-i18n="s10.z1s">1x PowerEdge · 1-2x RTX PRO 6000 · 3 nodes</span></div>
-          <div class="node tier at6" style="top:353px;--d:.25s"><span class="v" data-i18n="s10.z2">≤ 1,000 VMs</span><span class="sm t2" data-i18n="s10.z2s">2x PowerEdge · 4x RTX PRO 6000 or H100 NVL · 4-6 nodes</span></div>
-          <div class="node tier at6" style="top:474px;--d:.4s"><span class="v" data-i18n="s10.z3">5,000+ VMs</span><span class="sm t2" data-i18n="s10.z3s">PowerEdge GPU pod · 8x H100 · 8+ nodes · NKP</span></div>
+          <div class="lbl at1 t3 mono" style="left:24px;top:14px;width:600px;font-size:22px" data-i18n="s11.dc">your datacenter</div>
+          <div class="node layer tone-cyan at4" style="top:52px"><span class="k t-cyan" data-i18n="s11.l3k">Light appliance</span><span class="v code" style="font-size:28px">light.ova</span><div class="pills"><span class="pill" data-i18n="s11.pc">cyber model</span><span class="pill" data-i18n="s11.pf">offline CVE feed, ed25519-signed</span><span class="pill" data-i18n="s11.pg">EDCR gate</span></div></div>
+          <div class="node layer at3" style="top:228px"><span class="k" data-i18n="s11.l2k">platform</span><span class="v">Nutanix AHV / NKP</span><div class="pills"><span class="pill">Prism</span><span class="pill">Flow</span></div></div>
+          <div class="node layer at2" style="top:404px"><span class="k" data-i18n="s11.l1k">compute</span><span class="v">Dell PowerEdge</span><div class="pills"><span class="pill">NVIDIA RTX PRO 6000</span><span class="pill">H100 NVL</span></div></div>
+          <div class="node c tile at2" style="left:1048px;--d:.3s"><span class="big t-cyan">100%</span><span class="sm t2" data-i18n="s11.t1">CUDA offload on the GPU</span></div>
+          <div class="node c tile at4" style="left:1280px;--d:.3s"><span class="big t-cyan" data-i18n="s11.t2b">15 min</span><span class="sm t2" data-i18n="s11.t2">to deploy the OVA</span></div>
+          <div class="node c tile tone-ok at5" style="left:1512px;--d:.6s"><span class="big t-ok" data-i18n="s11.t3b">0 bytes</span><span class="sm t2" data-i18n="s11.t3">leave your network</span></div>
+          <div class="lbl at6 t3 mono" style="left:1048px;top:196px;width:680px;font-size:22px" data-i18n="s11.sz">sizing by estate</div>
+          <div class="node tier at6" style="top:232px;--d:.1s"><span class="v" data-i18n="s11.z1">≤ 250 VMs</span><span class="sm t2" data-i18n="s11.z1s">1x PowerEdge · 1-2x RTX PRO 6000 · 3 nodes</span></div>
+          <div class="node tier at6" style="top:353px;--d:.25s"><span class="v" data-i18n="s11.z2">≤ 1,000 VMs</span><span class="sm t2" data-i18n="s11.z2s">2x PowerEdge · 4x RTX PRO 6000 or H100 NVL · 4-6 nodes</span></div>
+          <div class="node tier at6" style="top:474px;--d:.4s"><span class="v" data-i18n="s11.z3">5,000+ VMs</span><span class="sm t2" data-i18n="s11.z3s">PowerEdge GPU pod · 8x H100 · 8+ nodes · NKP</span></div>
         </div>
       </section></div>
 
@@ -863,28 +863,28 @@
           "s9.r6k": "ตรวจสอบ",
           "s9.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
 
-          "s10.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
-          "s10.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",
-          "s10.sub": "บน Dell PowerEdge GPU, Nutanix AHV / NKP และ Light เพียงชุดเดียว ไม่มีข้อมูลหลุดออกไปข้างนอกแม้แต่ไบต์เดียว",
-          "s10.dc": "ดาต้าเซ็นเตอร์ของคุณ",
-          "s10.l3k": "Light appliance",
-          "s10.pc": "โมเดล Cyber",
-          "s10.pf": "ฐานข้อมูล CVE ออฟไลน์ ลงนาม ed25519",
-          "s10.pg": "ด่านกั้น EDCR",
-          "s10.l2k": "แพลตฟอร์ม",
-          "s10.l1k": "ประมวลผล",
-          "s10.t1": "ประมวลผลบน GPU ด้วย CUDA",
-          "s10.t2b": "15 นาที",
-          "s10.t2": "ติดตั้ง OVA เสร็จ",
-          "s10.t3b": "0 ไบต์",
-          "s10.t3": "ออกนอกเครือข่าย",
-          "s10.sz": "ขนาดตามจำนวน VM",
-          "s10.z1": "≤ 250 VM",
-          "s10.z1s": "PowerEdge 1 เครื่อง · RTX PRO 6000 1-2 ใบ · 3 โหนด",
-          "s10.z2": "≤ 1,000 VM",
-          "s10.z2s": "PowerEdge 2 เครื่อง · RTX PRO 6000 หรือ H100 NVL 4 ใบ · 4⁠-⁠6 โหนด",
-          "s10.z3": "5,000+ VM",
-          "s10.z3s": "พ็อด PowerEdge GPU · H100 8 ใบ · 8 โหนดขึ้นไป · NKP",
+          "s11.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
+          "s11.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",
+          "s11.sub": "บน Dell PowerEdge GPU, Nutanix AHV / NKP และ Light เพียงชุดเดียว ไม่มีข้อมูลหลุดออกไปข้างนอกแม้แต่ไบต์เดียว",
+          "s11.dc": "ดาต้าเซ็นเตอร์ของคุณ",
+          "s11.l3k": "Light appliance",
+          "s11.pc": "โมเดล Cyber",
+          "s11.pf": "ฐานข้อมูล CVE ออฟไลน์ ลงนาม ed25519",
+          "s11.pg": "ด่านกั้น EDCR",
+          "s11.l2k": "แพลตฟอร์ม",
+          "s11.l1k": "ประมวลผล",
+          "s11.t1": "ประมวลผลบน GPU ด้วย CUDA",
+          "s11.t2b": "15 นาที",
+          "s11.t2": "ติดตั้ง OVA เสร็จ",
+          "s11.t3b": "0 ไบต์",
+          "s11.t3": "ออกนอกเครือข่าย",
+          "s11.sz": "ขนาดตามจำนวน VM",
+          "s11.z1": "≤ 250 VM",
+          "s11.z1s": "PowerEdge 1 เครื่อง · RTX PRO 6000 1-2 ใบ · 3 โหนด",
+          "s11.z2": "≤ 1,000 VM",
+          "s11.z2s": "PowerEdge 2 เครื่อง · RTX PRO 6000 หรือ H100 NVL 4 ใบ · 4⁠-⁠6 โหนด",
+          "s11.z3": "5,000+ VM",
+          "s11.z3s": "พ็อด PowerEdge GPU · H100 8 ใบ · 8 โหนดขึ้นไป · NKP",
 
           "s12.chap": "เส้นทางสำหรับพาร์ทเนอร์",
           "s12.h": "ติดตั้งเสร็จภายใน 1 สัปดาห์ เห็นผลจริงภายใน 30 วัน",

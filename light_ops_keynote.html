@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Light Ops on Your Own GPU Platform · Partner Keynote</title>
-  <meta name="description" content="A 13-scene partner keynote: why machine-speed threat hunting needs a human-approved execution gate, why per-command approval prompts fail, and how Light Ops delivers both on your own virtualization, Kubernetes and GPU servers, fully on-prem." />
+  <meta name="description" content="A 19-scene partner keynote: why machine-speed threat hunting needs a human-approved execution gate, why per-command approval prompts fail, how Light Ops rates security posture and compliance profiles, how it differs from a VA scan, a red team view and the tools you already run, and how it all runs on your own virtualization, Kubernetes and GPU servers, fully on-prem." />
   <meta name="theme-color" content="#05080E" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <style>
@@ -14,7 +14,9 @@
      * differs from: the 2026-11-08 deck (Topology / Split Monitor, 8 dense slides) and the last log entries; Focus Rail = the scene's state is the headline
      * data: every figure comes from the pre-rewrite deck (plan note 2778); 13d 23h 49m and 99.99% are arithmetic on those figures
      * data 2026-11-09 per the operator: brand-neutral, no partner product names while the partner offer is private; s8 figures are Anthropic 2026 (claude.com auto-mode-default article);
-     *   Thai copy is the operator's native text (s3 "กว่า 42,180" by their choice), except the s18 headline and labels outside their copy
+     *   Thai copy is the operator's native text (s3 "กว่า 42,180" by their choice), except the s18 headline and labels outside their copy; s11-s16 Thai is Claude's draft awaiting operator review
+     * data s11-s16: risk levels, unknown never reads clean, KEV makes a server critical and nothing is auto-remediated come from Light's risk derivation and maintainer docs; the 24h rescan,
+     *   SCAP profiles (RHEL-family content; Ubuntu 24.04 ships CIS and STIG only) and red-team guardrails come from Light's infra maintainer and red-team analysis; s16 reuses the s2/s3/s6/s10 figures
      * motion: one object per scene, transform/opacity only; loops (s1 pulses, pings) show traffic crossing the gate; reduced motion and print show final states
      */
     @font-face { font-family: "Geist"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("assets/fonts/geist-latin.woff2") format("woff2"); }
@@ -894,9 +896,9 @@
           <div class="node tool at3" style="left:880px;top:128px;--d:.15s"><span class="v" data-i18n="s15.t5">Patch tool</span><span class="sm t2" data-i18n="s15.t5s">every patch, on a timetable</span></div>
           <div class="node c tool slot at3" style="left:1320px;top:128px;--d:.3s"><span class="sm t3" data-i18n="s15.t6">usually waits for the next scan or test</span></div>
           <div class="lbl at4 t-cyan mono" style="left:0;top:456px;width:600px;font-size:22px">Light Ops</div>
-          <div class="node lt tone-cyan at5" style="left:0"><span class="v" data-i18n="s15.l1">Spots what is real</span><span class="sm t2" data-i18n="s15.l1s">reachable, exploited, on your servers</span></div>
+          <div class="node lt tone-cyan at5" style="left:0"><span class="v" data-i18n="s15.l1">Spots what is real</span><span class="sm t2" data-i18n="s15.l1s">reachable and known-exploited</span></div>
           <div class="node lt tone-cyan at5" style="left:440px;--d:.2s"><span class="v" data-i18n="s15.l2">Ranks it by rule</span><span class="sm t2" data-i18n="s15.l2s">one level; AI never decides it</span></div>
-          <div class="node lt tone-cyan at5" style="left:880px;--d:.4s"><span class="v" data-i18n="s15.l3">Fixes it with your Go</span><span class="sm t2" data-i18n="s15.l3s">a declared plan, nothing outside it</span></div>
+          <div class="node lt tone-cyan at5" style="left:880px;--d:.4s"><span class="v" data-i18n="s15.l3">Fixes it with your Go</span><span class="sm t2" data-i18n="s15.l3s">a declared plan, nothing else</span></div>
           <div class="node lt tone-cyan at5" style="left:1320px;--d:.6s"><span class="v" data-i18n="s15.l4">Proves it worked</span><span class="sm t2" data-i18n="s15.l4s">a re-test and a receipt</span></div>
         </div>
       </section></div>
@@ -1182,6 +1184,138 @@
           "s10.r5": "ขั้นที่ 1 แพตช์ ขั้นที่ 2 รีโหลด",
           "s10.r6k": "ตรวจสอบ",
           "s10.r6": "ทดสอบโจมตีซ้ำได้ HTTP 403 บริการยังทำงาน",
+
+          "s11.chap": "ภาพรวมความปลอดภัย (Security Posture)",
+          "s11.h": "ทุกเซิร์ฟเวอร์ได้ระดับความเสี่ยงที่ตรงไปตรงมา ทุกวัน",
+          "s11.sub": "ถ้าตรวจไม่ได้ ระดับจะขึ้นว่า unknown ไม่มีวันขึ้นว่าปลอดภัย",
+          "s11.c1k": "แพตช์ที่ขาด",
+          "s11.c1": "CVE ที่รู้จักในแพ็กเกจระบบและแอป",
+          "s11.c2k": "บริการที่เปิดอยู่",
+          "s11.c2": "แต่ละพอร์ตที่เปิด รันอะไรอยู่",
+          "s11.c3k": "การตั้งค่าความปลอดภัย",
+          "s11.c3": "ตรวจการตั้งค่าเทียบกับโปรไฟล์",
+          "s11.c4k": "อัปเดตตามไม่ทัน",
+          "s11.c4": "ห่างจากเวอร์ชันล่าสุดแค่ไหน",
+          "s11.rk": "กฎเป็นตัวตัดสิน",
+          "s11.rv": "หนึ่งระดับต่อหนึ่งเซิร์ฟเวอร์",
+          "s11.rs": "CVE ที่ถูกใช้โจมตีจริงแล้ว ทำให้เป็นระดับวิกฤตทันที AI อธิบายได้ แต่เปลี่ยนระดับไม่ได้",
+          "s11.s1": "มี CVE ที่ถูกโจมตีจริง (KEV) บนพอร์ต 443",
+          "s11.s2": "กฎ Hardening ระดับสูงไม่ผ่าน 2 ข้อ",
+          "s11.s3": "ไม่พบอะไรที่เพิ่มความเสี่ยง",
+          "s11.s4": "ตรวจ Hardening ไม่สำเร็จ",
+
+          "s12.chap": "โปรไฟล์ Compliance",
+          "s12.h": "เช็กลิสต์ของผู้ตรวจสอบ ก็เป็นแค่โปรไฟล์หนึ่ง",
+          "s12.sub": "กฎที่ไม่ผ่านจะกลายเป็นแผนแก้ไขที่รอคุณกด Go ไม่มีการแก้เองอัตโนมัติ",
+          "s12.pick": "เลือกโปรไฟล์ที่ผู้ตรวจสอบของคุณใช้",
+          "s12.prof": "โปรไฟล์",
+          "s12.eg": "ตัวอย่างสิ่งที่ตรวจ",
+          "s12.b1": "รหัสผ่านและกฎการล็อกอิน",
+          "s12.b2": "SSH และการเข้าถึงระยะไกล",
+          "s12.b3": "การเก็บ Log และ Audit Trail",
+          "s12.b4": "สิทธิ์ของไฟล์และโฟลเดอร์",
+          "s12.ex": "เซิร์ฟเวอร์ 1 เครื่อง ตรวจทีละกฎ",
+          "s12.pass": "ผ่าน",
+          "s12.fail": "ไม่ผ่าน",
+          "s12.pk": "แผนแก้ไข",
+          "s12.p0": "ยังไม่มี",
+          "s12.p1": "กฎไม่ผ่าน 8 ข้อ รวมเป็นแผนเดียว",
+          "s12.p2": "ร่างแผน: ยังไม่มีอะไรถูกแก้",
+          "s12.p3": "รอคุณกด Go",
+          "s12.p4": "อนุมัติแล้ว: รันเฉพาะขั้นตอนเหล่านี้",
+          "s12.pl": "ไม่มีอะไรถูกแก้เอง ทุกการเปลี่ยนแปลงเป็นขั้นตอนที่วิศวกรของคุณอนุมัติ",
+          "s12.foot": "โปรไฟล์ที่มีให้ขึ้นกับระบบปฏิบัติการ บางระบบมีครบทุกตัว บางระบบมีแค่ CIS และ STIG",
+
+          "s13.chap": "เทียบกับ VA Scan",
+          "s13.h": "VA Scan ให้รายการมา แต่ Light Ops ปิดงานให้จบ",
+          "s13.sub": "เก็บ VA Scan ที่ผู้ตรวจสอบต้องการไว้ได้ Light Ops ทำงานต่อจากนั้นให้",
+          "s13.va": "VA Scan ทั่วไป",
+          "s13.q1": "ตรวจบ่อยแค่ไหน",
+          "s13.v1": "ภาพนิ่งครั้งเดียว มักเป็นรายเดือนหรือรายไตรมาส",
+          "s13.l1": "ทุกเซิร์ฟเวอร์ อย่างน้อยทุก 24 ชั่วโมง",
+          "s13.q2": "สิ่งที่ได้",
+          "s13.v2": "ทุก CVE ที่ตรงกับเลขเวอร์ชัน",
+          "s13.l2": "ระดับความเสี่ยงเดียวต่อเซิร์ฟเวอร์ ภัยจริงมาก่อน",
+          "s13.q3": "ถ้าตรวจไม่สำเร็จ",
+          "s13.v3": "สแกนที่ล็อกอินไม่ได้ อาจดูเหมือนไม่มีปัญหา",
+          "s13.l3": "ขึ้นว่า unknown ไม่มีวันแสดงว่าปลอดภัย",
+          "s13.q4": "ใครเป็นคนแก้",
+          "s13.v4": "ทีมของคุณต้องหาทางแก้เองทีหลัง",
+          "s13.l4": "แผนพร้อมทางย้อนกลับ คุณแค่กด Go",
+          "s13.q5": "พิสูจน์ว่าแก้แล้ว",
+          "s13.v5": "รอสแกนรอบหน้า",
+          "s13.l5": "ทดสอบซ้ำทันที พร้อมใบรับรอง",
+
+          "s14.chap": "Red Team",
+          "s14.h": "เรามองระบบของคุณแบบเดียวกับที่ผู้โจมตีมอง",
+          "s14.sub": "ทีมเราเป็นผู้นำ Light ช่วยไล่ดูว่าการโจมตีต้องอาศัยอะไรบ้าง โดยไม่โจมตีจริง",
+          "s14.o1": "จากอินเทอร์เน็ต",
+          "s14.o1s": "DNS พอร์ตที่เปิด เว็บแอป ไฟล์ที่หลุดออกมา",
+          "s14.o2": "จากภายในเซิร์ฟเวอร์",
+          "s14.o2s": "พอร์ตไหนเปิดจริง พอร์ตไหนมีไฟร์วอลล์กั้น",
+          "s14.o3": "ในโค้ด",
+          "s14.o3s": "ข้อมูลจากภายนอกไปถึงโค้ดเสี่ยงได้ไหม",
+          "s14.scope": "เฉพาะขอบเขตที่ได้รับอนุญาต",
+          "s14.tk": "เป้าหมายที่อนุญาต",
+          "s14.hk": "ไม่ได้รับอนุญาต",
+          "s14.ck": "ทุกเงื่อนไขที่การโจมตีต้องใช้",
+          "s14.r1": "พอร์ต 443 เปิดสู่อินเทอร์เน็ต",
+          "s14.r2": "เวอร์ชันนี้มี CVE ที่รู้จัก",
+          "s14.r3": "พอร์ตแอดมินเข้าถึงจากภายนอกได้",
+          "s14.r4": "ข้อมูลภายนอกไปถึงโค้ดเสี่ยงได้",
+          "s14.r5": "ต้องล็อกอินก่อน",
+          "s14.yes": "ใช่",
+          "s14.nofw": "ไม่ มีไฟร์วอลล์",
+          "s14.unk": "ไม่ทราบ",
+          "s14.ref": "ถูกปฏิเสธตั้งแต่ก่อนส่งแพ็กเก็ตแรก",
+          "s14.band": "เฉพาะเป้าหมายที่คุณอนุญาต · บันทึก Log ก่อนส่งแพ็กเก็ตแรก · ไม่ใช้ Exploit ไม่เปิด Shell ไม่สุ่มเดารหัสผ่าน",
+
+          "s15.chap": "ทำงานร่วมกับเครื่องมือที่มีอยู่",
+          "s15.h": "ใช้เครื่องมือเดิมต่อได้ Light Ops เชื่อมทุกขั้นตอนเข้าด้วยกัน",
+          "s15.sub": "เครื่องมือส่วนใหญ่ทำได้ขั้นเดียว Light Ops พาปัญหาไปจนถึงการพิสูจน์ว่าแก้แล้ว",
+          "s15.g1": "หาว่าอะไรผิดปกติ",
+          "s15.g2": "เลือกว่าอะไรสำคัญก่อน",
+          "s15.g3": "แก้ไข",
+          "s15.g4": "พิสูจน์ว่าแก้ได้จริง",
+          "s15.t1": "VA Scan",
+          "s15.t1s": "รายการตามเลขเวอร์ชัน",
+          "s15.t2": "SIEM / EDR",
+          "s15.t2s": "แจ้งเตือนเมื่อกำลังถูกโจมตี",
+          "s15.t3": "Pen Test",
+          "s15.t3s": "ผู้เชี่ยวชาญ ปีละ 1-2 ครั้ง",
+          "s15.t4": "ผู้ช่วย AI บนคลาวด์",
+          "s15.t4s": "ฉลาด แต่ข้อมูลออกนอกองค์กร",
+          "s15.t5": "เครื่องมือแพตช์",
+          "s15.t5s": "ทุกแพตช์ ตามรอบเวลา",
+          "s15.t6": "มักต้องรอสแกนหรือเทสรอบหน้า",
+          "s15.l1": "หาสิ่งที่เสี่ยงจริง",
+          "s15.l1s": "เข้าถึงได้และถูกโจมตีจริง",
+          "s15.l2": "จัดลำดับด้วยกฎ",
+          "s15.l2s": "ระดับเดียว AI ไม่ได้ตัดสิน",
+          "s15.l3": "แก้เมื่อคุณกด Go",
+          "s15.l3s": "ตามแผนที่ประกาศไว้เท่านั้น",
+          "s15.l4": "พิสูจน์ว่าได้ผล",
+          "s15.l4s": "ทดสอบซ้ำพร้อมใบรับรอง",
+
+          "s16.chap": "สิ่งที่คุณได้",
+          "s16.h": "เสียงรบกวนน้อยลง แก้ไขเร็วขึ้น และไม่มีอะไรรันโดยไม่มีคุณ",
+          "s16.sub": "สิ่งที่เปลี่ยนไปสำหรับแต่ละทีม เป็นตัวเลขที่เข้าใจง่าย",
+          "s16.k1": "ทีมความปลอดภัย",
+          "s16.v1": "การแจ้งเตือนที่ควรให้คนดูจริง",
+          "s16.s1": "จากทั้งหมด 42,180 รายการ",
+          "s16.k2": "ผู้บริหาร",
+          "s16.was": "14 วัน",
+          "s16.min": "นาที",
+          "s16.v2": "ตั้งแต่พบ จนแก้และตรวจสอบเสร็จ",
+          "s16.s2": "ลดจากรอบแพตช์ 14 วัน",
+          "s16.k3": "ทีม IT Operations",
+          "s16.v3": "ต่อหนึ่งแผน อะไรนอกแผนรันไม่ได้",
+          "s16.s3": "แทนการขออนุญาตทุกคำสั่ง",
+          "s16.k4": "ผู้ตรวจสอบและ Compliance",
+          "s16.rc": "ใบรับรอง",
+          "s16.v4": "ทุกการเปลี่ยนแปลงที่ Light ทำ",
+          "s16.s4": "แผน · ผู้อนุมัติ · ผลลัพธ์ · SHA-256",
+          "s16.band": "และทั้งหมดนี้รันอยู่ในองค์กรของคุณ ไม่มีข้อมูลออกนอกเครือข่าย",
 
           "s17.chap": "ระบบที่ข้อมูลอยู่กับคุณ 100%",
           "s17.h": "ทุกอย่างรันอยู่ในดาต้าเซ็นเตอร์ของคุณเอง",

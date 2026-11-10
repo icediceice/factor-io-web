@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794204640425",
-  "generated_at": "2026-11-09T06:10:40.425Z",
-  "snapshot_digest": "30b6b8272bb2d586",
+  "refresh_id": "refresh-1794292022073",
+  "generated_at": "2026-11-10T06:27:02.073Z",
+  "snapshot_digest": "449d26f204cc7c31",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-30b6b8272bb2d586.json",
-      "digest": "30b6b8272bb2d586",
-      "bytes": 4013775
+      "path": "catalog-449d26f204cc7c31.json",
+      "digest": "449d26f204cc7c31",
+      "bytes": 4038795
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "a0bea7dc54ab17b3",
+      "digest": "8bcff61823b088ca",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-09T06:10:40.425Z",
-      "last_success_at": "2026-11-09T06:10:40.425Z",
-      "expires_at": "2026-11-12T06:10:40.425Z",
-      "root_digest": "7b1e18295ba68d34",
-      "record_count": 442,
+      "observed_at": "2026-11-10T06:27:02.073Z",
+      "last_success_at": "2026-11-10T06:27:02.073Z",
+      "expires_at": "2026-11-13T06:27:02.073Z",
+      "root_digest": "5b6a5a8babb82496",
+      "record_count": 446,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-09T06:10:40.425Z",
-      "last_success_at": "2026-11-09T06:10:40.425Z",
-      "expires_at": "2026-11-12T06:10:40.425Z",
-      "root_digest": "ed17ba576fd1f920",
-      "record_count": 3501,
+      "observed_at": "2026-11-10T06:27:02.073Z",
+      "last_success_at": "2026-11-10T06:27:02.073Z",
+      "expires_at": "2026-11-13T06:27:02.073Z",
+      "root_digest": "72016f03f1277a3b",
+      "record_count": 3522,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-06T00:00:00.000Z",
-      "last_success_at": "2026-11-09T06:11:03.609Z",
-      "expires_at": "2026-11-13T23:59:59.999Z",
-      "root_digest": "a0bea7dc54ab17b3",
+      "observed_at": "2026-11-09T00:00:00.000Z",
+      "last_success_at": "2026-11-10T06:27:25.758Z",
+      "expires_at": "2026-11-16T23:59:59.999Z",
+      "root_digest": "8bcff61823b088ca",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -1363,6 +1363,19 @@
       ]
     },
     {
+      "id": "litellm:anthropic.claude-fable-5-2",
+      "name": "anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -1429,6 +1442,19 @@
         "cache_read",
         "output",
         "input"
+      ]
+    },
+    {
+      "id": "litellm:anthropic.claude-mythos-5-2",
+      "name": "anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -5714,6 +5740,32 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/claude-fable-5-2",
+      "name": "azure_ai/claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/claude-fable-5-2-fast",
+      "name": "azure_ai/claude-fable-5-2-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/claude-haiku-4-5",
       "name": "azure_ai/claude-haiku-4-5",
       "tariff": "token",
@@ -7294,6 +7346,23 @@
       ]
     },
     {
+      "id": "litellm:bedrock/claude_platform/claude-fable-5-2",
+      "name": "bedrock/claude_platform/claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
       "id": "litellm:bedrock/claude_platform/claude-haiku-4-5",
       "name": "bedrock/claude_platform/claude-haiku-4-5",
       "tariff": "token",
@@ -8419,6 +8488,19 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-fable-5-2",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "bedrock/us-gov-east-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -8442,6 +8524,19 @@
         "cache_write|>100000",
         "cache_write|>100000|age=1hr",
         "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-east-1/anthropic.claude-mythos-5-2",
+      "name": "bedrock/us-gov-east-1/anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
@@ -8769,6 +8864,19 @@
       ]
     },
     {
+      "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-fable-5-2",
+      "name": "bedrock/us-gov-west-1/anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "bedrock/us-gov-west-1/anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -8792,6 +8900,19 @@
         "cache_write|>100000",
         "cache_write|>100000|age=1hr",
         "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:bedrock/us-gov-west-1/anthropic.claude-mythos-5-2",
+      "name": "bedrock/us-gov-west-1/anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
@@ -10120,6 +10241,23 @@
     {
       "id": "litellm:claude-fable-5-1",
       "name": "claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:claude-fable-5-2",
+      "name": "claude-fable-5-2",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -15746,6 +15884,19 @@
       ]
     },
     {
+      "id": "litellm:eu.anthropic.claude-fable-5-2",
+      "name": "eu.anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -15771,6 +15922,19 @@
         "cache_write|>100000",
         "cache_write|>100000|age=1hr",
         "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:eu.anthropic.claude-mythos-5-2",
+      "name": "eu.anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
@@ -19454,7 +19618,7 @@
       "id": "litellm:friendliai/MiniMaxAI/MiniMax-M2.5",
       "name": "friendliai/MiniMaxAI/MiniMax-M2.5",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -19465,7 +19629,7 @@
       "id": "litellm:friendliai/deepseek-ai/DeepSeek-V3.2",
       "name": "friendliai/deepseek-ai/DeepSeek-V3.2",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -19799,7 +19963,6 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
-        "cache_write|>200000",
         "cache_read|>200000|tier=priority",
         "cache_read|tier=flex",
         "cache_read|tier=priority",
@@ -19913,7 +20076,6 @@
       "tariff": "token",
       "state": "active",
       "meters": [
-        "cache_write|>200000",
         "cache_read",
         "cache_read|>200000",
         "cache_read|>200000|tier=priority",
@@ -19945,7 +20107,6 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
-        "cache_write|>200000",
         "input",
         "input|>200000",
         "input|tier=batches",
@@ -20955,6 +21116,18 @@
       ]
     },
     {
+      "id": "litellm:github_copilot/claude-fable-5.2",
+      "name": "github_copilot/claude-fable-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:github_copilot/claude-haiku-4.5",
       "name": "github_copilot/claude-haiku-4.5",
       "tariff": "token",
@@ -21230,6 +21403,19 @@
       ]
     },
     {
+      "id": "litellm:global.anthropic.claude-fable-5-2",
+      "name": "global.anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:global.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -21273,6 +21459,19 @@
         "input",
         "output",
         "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "litellm:global.anthropic.claude-mythos-5-2",
+      "name": "global.anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -24094,8 +24293,11 @@
       "meters": [
         "cache_write",
         "cache_read",
+        "cache_read|>272000",
         "input",
-        "output"
+        "input|>272000",
+        "output",
+        "output|>272000"
       ]
     },
     {
@@ -27203,6 +27405,17 @@
         "output|>512000",
         "cache_read",
         "cache_read|>512000"
+      ]
+    },
+    {
+      "id": "litellm:minimax/MiniMax-M3.1-Flash",
+      "name": "minimax/MiniMax-M3.1-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -35551,6 +35764,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/elorian-labs/glimpse-1.0",
+      "name": "together_ai/elorian-labs/glimpse-1.0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/essentialai/rnj-1-instruct",
       "name": "together_ai/essentialai/rnj-1-instruct",
       "tariff": "token",
@@ -35989,6 +36213,19 @@
       ]
     },
     {
+      "id": "litellm:us-gov.anthropic.claude-fable-5-2",
+      "name": "us-gov.anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us-gov.anthropic.claude-haiku-5-5",
       "name": "us-gov.anthropic.claude-haiku-5-5",
       "tariff": "token",
@@ -35999,6 +36236,19 @@
         "cache_write|>100000",
         "cache_write|>100000|age=1hr",
         "cache_read|>100000",
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:us-gov.anthropic.claude-mythos-5-2",
+      "name": "us-gov.anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "cache_write",
         "cache_write|age=1hr",
         "cache_read",
@@ -36349,6 +36599,19 @@
       ]
     },
     {
+      "id": "litellm:us.anthropic.claude-fable-5-2",
+      "name": "us.anthropic.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us.anthropic.claude-haiku-4-5-20251001-v1:0",
       "name": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
       "tariff": "token",
@@ -36405,6 +36668,19 @@
         "cache_read",
         "cache_write",
         "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "litellm:us.anthropic.claude-mythos-5-2",
+      "name": "us.anthropic.claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -38189,6 +38465,40 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/claude-fable-5-2",
+      "name": "vertex_ai/claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-fable-5-2@default",
+      "name": "vertex_ai/claude-fable-5-2@default",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/claude-fable-5@default",
       "name": "vertex_ai/claude-fable-5@default",
       "tariff": "token",
@@ -38811,7 +39121,6 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
-        "cache_write|>200000",
         "input",
         "input|>200000",
         "input|tier=batches",
@@ -38876,7 +39185,6 @@
       "tariff": "token",
       "state": "active",
       "meters": [
-        "cache_write|>200000",
         "cache_read",
         "cache_read|>200000",
         "cache_read|>200000|tier=priority",
@@ -38908,7 +39216,6 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
-        "cache_write|>200000",
         "input",
         "input|>200000",
         "input|tier=batches",
@@ -41778,6 +42085,34 @@
       ]
     },
     {
+      "id": "openrouter:anthropic/claude-fable-5.2",
+      "name": "Anthropic: Claude Fable 5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
+      "id": "openrouter:anthropic/claude-fable-5.2:batch",
+      "name": "Anthropic: Claude Fable 5.2 (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write",
+        "cache_write|age=1hr"
+      ]
+    },
+    {
       "id": "openrouter:anthropic/claude-fable-5:batch",
       "name": "Anthropic: Claude Fable 5 (batch)",
       "tariff": "token",
@@ -43104,39 +43439,6 @@
       ]
     },
     {
-      "id": "openrouter:inception/mercury-2",
-      "name": "Inception: Mercury 2",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:inception/mercury-2.5",
-      "name": "Inception: Mercury 2.5",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:inception/mercury-3",
-      "name": "Inception: Mercury 3",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:inclusionai/ling-3.0-flash",
       "name": "inclusionAI: Ling 3.0 Flash",
       "tariff": "token",
@@ -43350,6 +43652,19 @@
       ]
     },
     {
+      "id": "openrouter:meta/muse-ember",
+      "name": "Meta: Muse Ember",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "web_search",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:meta/muse-glimmer-30b",
       "name": "Meta: Muse Glimmer 30B",
       "tariff": "token",
@@ -43457,7 +43772,7 @@
       "id": "openrouter:minimax/minimax-m1",
       "name": "MiniMax: MiniMax M1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -43685,7 +44000,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -43866,6 +44182,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:nex-agi/nex-n2.6",
+      "name": "Nex AGI: Nex-N2.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -45711,6 +46038,16 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen3.8-max-0902:batch",
+      "name": "Qwen: Qwen3.8 Max (0902) (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:qwen/qwen3.8-max-prime",
       "name": "Qwen: Qwen3.8 Max Prime",
       "tariff": "token",
@@ -45896,7 +46233,7 @@
       "id": "openrouter:stealth/crouton-alpha",
       "name": "Crouton Alpha",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -46059,6 +46396,16 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:thinkingmachines/inkling-2-small:free",
+      "name": "Thinking Machines: Inkling 2 Small (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -46601,7 +46948,7 @@
       {
         "offer": "openrouter:~anthropic/claude-fable-latest",
         "rule": "alias_skipped",
-        "target": "anthropic/claude-fable-5.1"
+        "target": "anthropic/claude-fable-5.2"
       },
       {
         "offer": "openrouter:~anthropic/claude-haiku-latest",

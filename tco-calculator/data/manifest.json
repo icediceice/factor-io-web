@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794292022073",
-  "generated_at": "2026-11-10T06:27:02.073Z",
-  "snapshot_digest": "449d26f204cc7c31",
+  "refresh_id": "refresh-1794378159857",
+  "generated_at": "2026-11-11T06:22:39.857Z",
+  "snapshot_digest": "9ad2ac9e0c0c6f45",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-449d26f204cc7c31.json",
-      "digest": "449d26f204cc7c31",
-      "bytes": 4038795
+      "path": "catalog-9ad2ac9e0c0c6f45.json",
+      "digest": "9ad2ac9e0c0c6f45",
+      "bytes": 4095228
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "8bcff61823b088ca",
+      "digest": "c4cad1d8b2afecab",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-10T06:27:02.073Z",
-      "last_success_at": "2026-11-10T06:27:02.073Z",
-      "expires_at": "2026-11-13T06:27:02.073Z",
-      "root_digest": "5b6a5a8babb82496",
-      "record_count": 446,
+      "observed_at": "2026-11-11T06:22:39.857Z",
+      "last_success_at": "2026-11-11T06:22:39.857Z",
+      "expires_at": "2026-11-14T06:22:39.857Z",
+      "root_digest": "eca0bac36be61544",
+      "record_count": 450,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-10T06:27:02.073Z",
-      "last_success_at": "2026-11-10T06:27:02.073Z",
-      "expires_at": "2026-11-13T06:27:02.073Z",
-      "root_digest": "72016f03f1277a3b",
-      "record_count": 3522,
+      "observed_at": "2026-11-11T06:22:39.857Z",
+      "last_success_at": "2026-11-11T06:22:39.857Z",
+      "expires_at": "2026-11-14T06:22:39.857Z",
+      "root_digest": "ad16c561f9d9a9e9",
+      "record_count": 3586,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-09T00:00:00.000Z",
-      "last_success_at": "2026-11-10T06:27:25.758Z",
-      "expires_at": "2026-11-16T23:59:59.999Z",
-      "root_digest": "8bcff61823b088ca",
+      "observed_at": "2026-11-10T00:00:00.000Z",
+      "last_success_at": "2026-11-11T06:23:04.279Z",
+      "expires_at": "2026-11-17T23:59:59.999Z",
+      "root_digest": "c4cad1d8b2afecab",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -5810,6 +5810,32 @@
       ]
     },
     {
+      "id": "litellm:azure_ai/claude-mythos-5-2",
+      "name": "azure_ai/claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/claude-mythos-5-2-fast",
+      "name": "azure_ai/claude-mythos-5-2-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure_ai/claude-opus-4-5",
       "name": "azure_ai/claude-opus-4-5",
       "tariff": "token",
@@ -6442,6 +6468,16 @@
     {
       "id": "litellm:azure_ai/mistral-large-3",
       "name": "azure_ai/mistral-large-3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/mistral-large-4-latest",
+      "name": "azure_ai/mistral-large-4-latest",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -10367,6 +10403,23 @@
       ]
     },
     {
+      "id": "litellm:claude-mythos-5-2",
+      "name": "claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "input|tier=batches",
+        "output",
+        "output|tier=batches"
+      ]
+    },
+    {
       "id": "litellm:claude-mythos-preview",
       "name": "claude-mythos-preview",
       "tariff": "token",
@@ -11885,6 +11938,18 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-claude-fable-5-2",
+      "name": "databricks/databricks-claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-claude-haiku-4-5",
       "name": "databricks/databricks-claude-haiku-4-5",
       "tariff": "token",
@@ -12992,6 +13057,18 @@
         "output|tier=priority",
         "cache_read|tier=priority",
         "cache_write|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:databricks/system.ai.claude-fable-5-2",
+      "name": "databricks/system.ai.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -18982,6 +19059,20 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-flash-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-flash-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
       "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
       "tariff": "token",
@@ -19112,6 +19203,56 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-fast-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/glm-fast-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-flash-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/glm-flash-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/glm-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-fast-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/kimi-fast-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k2p6-fast",
       "name": "fireworks_ai/accounts/fireworks/routers/kimi-k2p6-fast",
       "tariff": "token",
@@ -19158,6 +19299,48 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k3-us",
       "name": "fireworks_ai/accounts/fireworks/routers/kimi-k3-us",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/kimi-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/minimax-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/minimax-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/qwen-max-latest",
+      "name": "fireworks_ai/accounts/fireworks/routers/qwen-max-latest",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -20766,6 +20949,26 @@
       ]
     },
     {
+      "id": "litellm:gemini/gemini-4-carbon",
+      "name": "gemini/gemini-4-carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:gemini/gemini-exp-1114",
       "name": "gemini/gemini-exp-1114",
       "tariff": "token",
@@ -21264,6 +21467,17 @@
     {
       "id": "litellm:github_copilot/gemini-4-argon",
       "name": "github_copilot/gemini-4-argon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gemini-4-carbon",
+      "name": "github_copilot/gemini-4-carbon",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -27207,6 +27421,20 @@
         "input|tier=batches",
         "output",
         "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:meta/muse-ember-1.0",
+      "name": "meta/muse-ember-1.0",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
       ]
     },
     {
@@ -33660,6 +33888,76 @@
       ]
     },
     {
+      "id": "litellm:replicate/anthropic/claude-fable-5",
+      "name": "replicate/anthropic/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/anthropic/claude-fable-5.2",
+      "name": "replicate/anthropic/claude-fable-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/anthropic/claude-opus-4.6",
+      "name": "replicate/anthropic/claude-opus-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/anthropic/claude-opus-4.7",
+      "name": "replicate/anthropic/claude-opus-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/anthropic/claude-opus-5.5",
+      "name": "replicate/anthropic/claude-opus-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/anthropic/claude-sonnet-4.6",
+      "name": "replicate/anthropic/claude-sonnet-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/anthropic/claude-sonnet-5",
+      "name": "replicate/anthropic/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/deepseek-ai/deepseek-r1",
       "name": "replicate/deepseek-ai/deepseek-r1",
       "tariff": "token",
@@ -33700,6 +33998,16 @@
       ]
     },
     {
+      "id": "litellm:replicate/google/gemini-3-flash",
+      "name": "replicate/google/gemini-3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/google/gemini-3-pro",
       "name": "replicate/google/gemini-3-pro",
       "tariff": "token",
@@ -33712,8 +34020,160 @@
       ]
     },
     {
+      "id": "litellm:replicate/google/gemini-3.1-pro",
+      "name": "replicate/google/gemini-3.1-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:replicate/google/gemini-3.5-flash",
+      "name": "replicate/google/gemini-3.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/google/gemini-4-carbon",
+      "name": "replicate/google/gemini-4-carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-20b-code-instruct-8k",
+      "name": "replicate/ibm-granite/granite-20b-code-instruct-8k",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-3.0-2b-instruct",
+      "name": "replicate/ibm-granite/granite-3.0-2b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-3.0-8b-instruct",
+      "name": "replicate/ibm-granite/granite-3.0-8b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-3.1-2b-instruct",
+      "name": "replicate/ibm-granite/granite-3.1-2b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-3.1-8b-instruct",
+      "name": "replicate/ibm-granite/granite-3.1-8b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-3.2-8b-instruct",
+      "name": "replicate/ibm-granite/granite-3.2-8b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/ibm-granite/granite-3.3-8b-instruct",
       "name": "replicate/ibm-granite/granite-3.3-8b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-4.0-h-small",
+      "name": "replicate/ibm-granite/granite-4.0-h-small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-4.1-8b",
+      "name": "replicate/ibm-granite/granite-4.1-8b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-4.2-8b",
+      "name": "replicate/ibm-granite/granite-4.2-8b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-8b-code-instruct-128k",
+      "name": "replicate/ibm-granite/granite-8b-code-instruct-128k",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-vision-3.3-2b",
+      "name": "replicate/ibm-granite/granite-vision-3.3-2b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/ibm-granite/granite-vision-4.1-4b",
+      "name": "replicate/ibm-granite/granite-vision-4.1-4b",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33822,6 +34282,76 @@
       ]
     },
     {
+      "id": "litellm:replicate/meta/llama-4-maverick-instruct",
+      "name": "replicate/meta/llama-4-maverick-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/meta/llama-4-scout-instruct",
+      "name": "replicate/meta/llama-4-scout-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/meta/llama-guard-4-12b",
+      "name": "replicate/meta/llama-guard-4-12b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/meta/meta-llama-3-70b",
+      "name": "replicate/meta/meta-llama-3-70b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/meta/meta-llama-3-70b-instruct",
+      "name": "replicate/meta/meta-llama-3-70b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/meta/meta-llama-3-8b",
+      "name": "replicate/meta/meta-llama-3-8b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/meta/meta-llama-3-8b-instruct",
+      "name": "replicate/meta/meta-llama-3-8b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/mistralai/mistral-7b-instruct-v0.2",
       "name": "replicate/mistralai/mistral-7b-instruct-v0.2",
       "tariff": "token",
@@ -33844,6 +34374,36 @@
     {
       "id": "litellm:replicate/mistralai/mixtral-8x7b-instruct-v0.1",
       "name": "replicate/mistralai/mixtral-8x7b-instruct-v0.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/moonshotai/kimi-k2-thinking",
+      "name": "replicate/moonshotai/kimi-k2-thinking",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/moonshotai/kimi-k2.5",
+      "name": "replicate/moonshotai/kimi-k2.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/moonshotai/kimi-k2.6",
+      "name": "replicate/moonshotai/kimi-k2.6",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -33932,6 +34492,76 @@
       ]
     },
     {
+      "id": "litellm:replicate/openai/gpt-5-pro",
+      "name": "replicate/openai/gpt-5-pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/openai/gpt-5.1",
+      "name": "replicate/openai/gpt-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/openai/gpt-5.2",
+      "name": "replicate/openai/gpt-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/openai/gpt-5.4",
+      "name": "replicate/openai/gpt-5.4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/openai/gpt-5.6-luna",
+      "name": "replicate/openai/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/openai/gpt-5.6-sol",
+      "name": "replicate/openai/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/openai/gpt-5.6-terra",
+      "name": "replicate/openai/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/openai/gpt-oss-120b",
       "name": "replicate/openai/gpt-oss-120b",
       "tariff": "token",
@@ -33982,8 +34612,40 @@
       ]
     },
     {
+      "id": "litellm:replicate/perceptron-ai-inc/isaac-0.1",
+      "name": "replicate/perceptron-ai-inc/isaac-0.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:replicate/qwen/qwen3-235b-a22b-instruct-2507",
       "name": "replicate/qwen/qwen3-235b-a22b-instruct-2507",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:replicate/qwen/qwen3-7-plus",
+      "name": "replicate/qwen/qwen3-7-plus",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|>256000",
+        "output",
+        "output|>256000"
+      ]
+    },
+    {
+      "id": "litellm:replicate/snowflake/snowflake-arctic-instruct",
+      "name": "replicate/snowflake/snowflake-arctic-instruct",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -38594,6 +39256,40 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/claude-mythos-5-2",
+      "name": "vertex_ai/claude-mythos-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/claude-mythos-5-2@default",
+      "name": "vertex_ai/claude-mythos-5-2@default",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_write|tier=batches",
+        "cache_read",
+        "cache_read|tier=batches",
+        "input",
+        "output",
+        "input|tier=batches",
+        "output|tier=batches"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/claude-opus-4-5",
       "name": "vertex_ai/claude-opus-4-5",
       "tariff": "token",
@@ -39396,6 +40092,46 @@
         "output",
         "output|tier=batches",
         "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/gemini-4-carbon",
+      "name": "vertex_ai/gemini-4-carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/gemini-4-carbon-cyber-permissive",
+      "name": "vertex_ai/gemini-4-carbon-cyber-permissive",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
         "output|tier=priority"
       ]
     },
@@ -42491,38 +43227,30 @@
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-1.6",
-      "name": "ByteDance Seed: Seed 1.6",
+      "id": "openrouter:baidu/ernie-5.5-flash-preview",
+      "name": "Baidu: ERNIE-5.5-Flash-Preview",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
-      "id": "openrouter:bytedance-seed/seed-1.6-flash",
-      "name": "ByteDance Seed: Seed 1.6 Flash",
+      "id": "openrouter:baidu/ernie-light-dt-1.0-intl",
+      "name": "Baidu: ERNIE-Light-DT-1.0",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
       "id": "openrouter:bytedance-seed/seed-2-1-turbo",
       "name": "ByteDance Seed: Seed 2.1 Turbo",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:bytedance-seed/seed-2.0-code",
-      "name": "ByteDance Seed: Seed-2.0-Code",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -43282,6 +44010,38 @@
       ]
     },
     {
+      "id": "openrouter:google/gemini-4-carbon",
+      "name": "Google: Gemini 4 Carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-4-carbon:batch",
+      "name": "Google: Gemini 4 Carbon (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:google/gemini-nano-banana-2.1",
       "name": "Google: Nano Banana 2.1",
       "tariff": "token",
@@ -43496,6 +44256,17 @@
     {
       "id": "openrouter:inference-net/schematron-v2-turbo",
       "name": "Inference.net: Schematron V2 Turbo",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:kt/midm-k-3.0-pro",
+      "name": "KT: Mi:dm K 3.0 Pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -44182,6 +44953,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:motif-technologies/motif-3",
+      "name": "Motif Technologies: Motif 3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -45654,7 +46436,7 @@
       "id": "openrouter:qwen/qwen-2.5-7b-instruct",
       "name": "Qwen: Qwen2.5 7B Instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -46673,7 +47455,7 @@
       "id": "openrouter:xingchen-agi/xing4.0-29b-a4b:free",
       "name": "XingChen: Xing4.0 29B A4B (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -46963,7 +47745,7 @@
       {
         "offer": "openrouter:~google/gemini-pro-latest",
         "rule": "alias_skipped",
-        "target": "google/gemini-4-argon"
+        "target": "google/gemini-4-carbon"
       },
       {
         "offer": "openrouter:~moonshotai/kimi-latest",
@@ -48783,6 +49565,11 @@
       },
       {
         "offer": "litellm:firecrawl/search",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "search"
+      },
+      {
+        "offer": "litellm:webiq/search",
         "rule": "skipped_out_of_scope_mode",
         "mode": "search"
       },
@@ -53990,6 +54777,4591 @@
         "offer": "litellm:azure/us/gpt-realtime-1.5",
         "rule": "skipped_out_of_scope_mode",
         "mode": "realtime"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/happy-horse/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/happy-horse/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/happy-horse/v1.1/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/happy-horse/v1.1/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/happy-horse/v1.1/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/wan-3.0-prime/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/wan-3.0-prime/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/wan-3.0-prime/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/wan-3.0/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/wan-3.0/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/wan-3.0/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/draft-enhance",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/edit-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/extend-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/extend-video/draft",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/first-last-frame-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/first-last-frame-to-video/draft",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/image-to-video/draft",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/keyframes-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/keyframes-to-video/draft",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/klein/base/edit-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/klein/base/text-to-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/klein/edit-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/klein/text-to-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/text-to-video/draft",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/bria_video_eraser/erase/keypoints",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/bria_video_eraser/erase/mask",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/bria_video_eraser/erase/prompt",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/embed-product",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/extract-object",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-2/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-bbq-preview/generate",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit-1.5/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit-1.5/expand",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit-1.5/product-holding",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit-1.5/virtual-try-on",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/add_object_by_text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/blend",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/colorize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/erase_by_text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/relight",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/replace_object_by_text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/reseason",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/restore",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/restyle",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/rewrite_text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-edit/sketch_to_colored_image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-gen-1.5/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-lite/generate",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo/generate",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/genfill/v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/guided-remove-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/increase-resolution",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/product-dimensions",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/replace-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/upscale/creative",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/background-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/background-removal/green-screen-despill",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/background-removal/realtime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/background-removal/v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/erase/keypoints",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/erase/mask",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/erase/prompt",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/video/increase-resolution",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/omnihuman/v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/fast/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/fast/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/mini/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/mini/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/mini/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/us/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/us/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/us/draft/complete",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/us/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/us/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/flash/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/flash/layerize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/flash/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/lite/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/lite/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/clarityai/crystal-upscaler",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/decart/lucy-2-5/realtime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/decart/lucy-2-6/realtime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/decart/lucy-restyle",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/decart/lucy2-vton/realtime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ai-avatar/multi",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ai-avatar/multi-text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ai-avatar/single-text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bagel",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bagel/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ben/v2/image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/boogu-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/boogu-image/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/background/replace",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/eraser",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/expand",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/genfill",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/product-shot",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/reimagine",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/text-to-image/base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/text-to-image/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/text-to-image/hd",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/dreamactor/v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/omnihuman",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/omnihuman/v1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/seedream/v4.5/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/seedream/v4.5/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/seedream/v4/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance/seedream/v4/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/clarity-upscaler",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/codeformer",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/control-light",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/davinci-magihuman",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ddcolor",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/depth-anything-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/echomimic-v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ernie-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ernie-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ernie-image/lora/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ernie-image/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/fashn/tryon/v1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/fashn/tryon/v1.6",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/feynobg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ffmpeg-api/compose",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ffmpeg-api/merge-audio-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/finegrain-eraser",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/finegrain-eraser/bbox",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/finegrain-eraser/mask",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/firered-image-edit-v1.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flashhead",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/dev/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/dev/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/krea",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/krea/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/krea/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/schnell",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/schnell/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/srpo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-1/srpo/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-flex",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-flex/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/add-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/apartment-staging",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/ballpoint-pen-sketch",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/digital-comic-art",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/face-to-full-portrait",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/hdr-style",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/multiple-angles",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/realism",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/satellite-view-style",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/sepia-vintage",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-lora-gallery/virtual-tryon",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/flash/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/base/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/base/edit/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/base/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/edit/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/4b/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/base/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/base/edit/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/base/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/edit/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/klein/9b/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/lora/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2/turbo/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-general",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-general/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-general/inpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-kontext-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-kontext-lora/inpaint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-kontext-lora/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-kontext/dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-krea-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-krea-lora/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-krea-lora/inpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-krea-lora/stream",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora-canny",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora-fill",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora/inpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-lora/stream",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/kontext",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/kontext/max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/kontext/max/multi",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/kontext/max/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/kontext/multi",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/kontext/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1.1-ultra-finetuned",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1.1-ultra/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1.1/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1/fill",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1/fill-finetuned",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pulid",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-vision-upscaler",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/dev/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/dev/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/krea",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/krea/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/krea/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/schnell/redux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/srpo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux/srpo/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/framepack",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/framepack/f1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/framepack/flf2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/gemini-25-flash-image/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/gemini-3-pro-image-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/gemini-3-pro-image-preview/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/gemini-3.1-flash-image-preview",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/gemini-3.1-flash-image-preview/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/glm-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/glm-image/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/avatar3/digital-twin",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/avatar4/digital-twin",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/avatar4/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/avatar5/digital-twin",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v2/translate/precision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v2/translate/speed",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v2/video-agent",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v3/filler-word-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v3/lipsync/precision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v3/lipsync/speed",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/heygen/v3/video-agent",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-i1-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-i1-full",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-i1-full/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-o1-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-o1-image/dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-o1-image/dev/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hidream-o1-image/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan_world",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-image/v2.1/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-image/v3/instruct/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-image/v3/instruct/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-image/v3/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-video-v1.5/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-video-v1.5/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/iclight-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/id-v2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/id-v2v/relight",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/character",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/character/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/character/remix",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/object-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/remove-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/upscale",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2/remix",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2/turbo/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2/turbo/remix",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2a",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2a/remix",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2a/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v2a/turbo/remix",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v3/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v3/generate-transparent",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v3/layerize-text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v3/reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v3/remix",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ideogram/v3/replace-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/age-modify",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/city-teleport",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/expression-change",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/hair-change",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/headshot-photo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/makeup-application",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/object-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/outpaint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/perspective",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/photo-restoration",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/photography-effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/portrait-enhance",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/product-holding",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/product-photography",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/relighting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/style-transfer",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/texture-transform",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-apps-v2/virtual-try-on",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/age-progression",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/baby-version",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/background-change",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/broccoli-haircut",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/cartoonify",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/color-correction",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/expression-change",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/face-enhancement",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/hair-change",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/object-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/photo-restoration",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/plushie-style",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/professional-photo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/realism",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/retouch",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/scene-composition",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/style-transfer",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/text-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/time-of-day",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/weather-effect",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/wojak-style",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image-editing/youtube-thumbnails",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/image2svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/instant-character",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-image/o1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-image/o3/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-image/o3/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-image/v3/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-image/v3/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/ai-avatar/v2/pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/ai-avatar/v2/standard",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/standard/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/standard/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/standard/video-to-video/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/standard/video-to-video/reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/video-to-video/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o1/video-to-video/reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/4k/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/4k/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/4k/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/4k/video-to-video/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/4k/video-to-video/reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/pro/video-to-video/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/pro/video-to-video/reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/standard/video-to-video/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/o3/standard/video-to-video/reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v1.5/pro/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v1.6/pro/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v1.6/standard/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v1/pro/ai-avatar",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v1/standard/ai-avatar",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v1/standard/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v2.6/pro/motion-control",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v2.6/standard/motion-control",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/4k/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/4k/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/pro/motion-control",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/standard/motion-control",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/turbo/pro/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/turbo/pro/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/turbo/standard/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v3/turbo/standard/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/krea-2/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/krea-2/turbo/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/krea-2/turbo/style",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/krea-wan-14b/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/krea-wan-14b/video-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/latentsync",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/leffa/pose-transfer",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/leffa/virtual-tryon",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/lightx/recamera",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/lightx/relight",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-image/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/distilled/image-to-video/480p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/distilled/image-to-video/720p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/distilled/text-to-video/480p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/distilled/text-to-video/720p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/image-to-video/480p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/image-to-video/720p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/text-to-video/480p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/longcat-video/text-to-video/720p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/audio-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/extend-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/image-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/retake-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-2.3/text-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltxv-13b-098-distilled",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltxv-13b-098-distilled/extend",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltxv-13b-098-distilled/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltxv-13b-098-distilled/multiconditioning",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/lumina-image/v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/marigold-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/hailuo-02-fast/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/hailuo-02/pro/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/hailuo-02/pro/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/hailuo-02/standard/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/image-01/subject-reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/mmaudio-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/moss-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/nafnet/deblur",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/nafnet/denoise",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/nano-banana-2/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/nano-banana-pro/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/nano-banana/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/nucleus-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/omnigen-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/one-to-all-animation/1.3b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/one-to-all-animation/14b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/patina",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/phota/enhance",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/blur",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/chromatic-aberration",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/color-correction",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/color-tint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/desaturate",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/dissolve",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/dodge-burn",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/grain",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/parabolize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/sharpen",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/solarize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/post-processing/vignette",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-2512",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-2512/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/add-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/face-to-full-portrait",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/group-photo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/integrate-product",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/lighting-restoration",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/multiple-angles",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/next-scene",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/remove-element",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/remove-lighting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2509-lora-gallery/shirt-design",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2511",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2511-multiple-angles",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-2511/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/add-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/face-to-full-portrait",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/group-photo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/integrate-product",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/lighting-restoration",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/multiple-angles",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/next-scene",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/remove-element",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/remove-lighting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit-plus-lora-gallery/shirt-design",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-edit/inpaint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-layered",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image-layered/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/qwen-image/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/upscale/creative",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/upscale/crisp",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4.1/pro/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4.1/pro/text-to-vector",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4.1/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4.1/text-to-vector",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4.1/utility/pro/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4.1/utility/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4/pro/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4/pro/text-to-vector",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v4/text-to-vector",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/vectorize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/sana",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/sana/sprint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/sana/v1.5/1.6b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/sana/v1.5/4.8b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/seedvr/upscale/image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/seedvr/upscale/image/seamless",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/stable-diffusion-v3-medium",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/stable-diffusion-v35-large",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/stepx-edit2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/telestyle-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/uso",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/q2/reference-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/q2/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/reference-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-22-vace-fun-a14b/depth",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-22-vace-fun-a14b/inpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-22-vace-fun-a14b/outpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-22-vace-fun-a14b/reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-25-preview/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-25-preview/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-25-preview/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-25-preview/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-14b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-14b/depth",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-14b/inpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-14b/outpainting",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-14b/pose",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-14b/reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-apps/video-edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-14b/speech-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-5b/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/image-to-video/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/text-to-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/text-to-video/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-a14b/video-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/edit-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/pro/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/pro/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.7/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/base/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/controlnet",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/controlnet/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/image-to-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/inpaint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/inpaint/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/tiling",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/z-image/turbo/tiling/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.1/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.1/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.1/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.1/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/flash/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/flash/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/flash/video-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/video-to-video/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/krea/v3/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/krea/v3/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/uni-1/v1/max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/uni-1/v1/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/meta/muse-image/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/meta/muse-image/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max-turbo/extend-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max-turbo/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/extend-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/insert-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/lip-sync/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3/image-to-video/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3/reference-to-video/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3/text-to-video/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/nvidia/cosmos-3-super/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/pixelcut/background-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/pixelcut/looping-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/pixelcut/product-photo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/pixverse/music-video/vibemv",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/recraft/v4.1/flash/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/rundiffusion-fal/juggernaut-flux/base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/rundiffusion-fal/juggernaut-flux/base/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/rundiffusion-fal/juggernaut-flux/lightning",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/rundiffusion-fal/juggernaut-flux/pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/rundiffusion-fal/juggernaut-flux/pro/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/rundiffusion-fal/rundiffusion-photo-flux",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/smoretalk-ai/rembg-enhance",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/sonilo/v1.1/video-to-video-music",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/sonilo/v1.1/video-to-video-sound-effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/tbc/mischief-1/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/veed/fabric-1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/veed/fabric-1.0/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/veed/fabric-1.0/text",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/image-to-video/flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/v1.5/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/alibaba/happy-horse/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/creatify/boreal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/creatify/aurora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/q4/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/q4/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4.5/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4/instant",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/lightricks/ltx-2.5/image-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/lightricks/ltx-2.5/image-to-video/pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/lightricks/ltx-2.5/text-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/lightricks/ltx-2.5/text-to-video/pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/recast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/reframe-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/relight",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/wan/v2.6/reference-to-video/flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/v1.5/lite/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/v1.5/lite/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3-max/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3-max/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3-max/keyframes-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/heygen/heygen-video/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/heygen/heygen-video/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/heygen/heygen-video/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max-turbo/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max-turbo/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/camera-controls",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/alibaba/happyhorse-1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/alibaba/happyhorse-1.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/alibaba/qwen-image-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/alibaba/qwen-image-3-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/alibaba/wan-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/alibaba/wan-3-prime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-1.1-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-1.1-pro-ultra",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-1.1-pro-ultra-finetuned",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-flex",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-klein-4b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-klein-4b-base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-klein-4b-base-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-klein-9b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-klein-9b-base",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-2-klein-9b-base-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-canny-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-canny-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-depth-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-depth-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-dev-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-fill-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-fill-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-kontext-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-kontext-dev-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-kontext-max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-kontext-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-krea-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-pro-finetuned",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-redux-dev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-redux-schnell",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-schnell",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/black-forest-labs/flux-schnell-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/eraser",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/expand-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/fibo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/fibo-edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/generate-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/genfill",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/image-3.2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/increase-resolution",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/product-cutout",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/product-packshot",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/product-shadow",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/remove-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/video-erase-object",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/video-increase-resolution",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bria/video-remove-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/dreamactor-m2.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/dreamina-3.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/omni-human",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/omni-human-1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedance-1-lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedance-1-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedance-1-pro-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedream-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedream-4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedream-4.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/bytedance/seedream-5-lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/datalab-to/ocr",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:replicate/decart/lucy-edit-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/easel/ai-avatars",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/elevenlabs/dubbing",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/elevenlabs/flash-v2.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/elevenlabs/turbo-v2.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/elevenlabs/v2-multilingual",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/elevenlabs/v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/cartoonify",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/change-haircut",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/depth-of-field",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/face-to-many-kontext",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/filters",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/iconic-locations",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/impossible-scenarios",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/multi-image-kontext-max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/multi-image-kontext-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/multi-image-list",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/portrait-series",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/professional-headshot",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/restore-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/restyle-video-frame",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/flux-kontext-apps/text-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/google/gemini-2.5-flash-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/google/gemini-3.1-flash-tts",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/google/gemini-3.8-flash-lite-tts",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/google/gemini-3.8-flash-tts",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/google/nano-banana",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/google/nano-banana-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/google/nano-banana-2-lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/google/nano-banana-2.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/heygen/avatar-iv",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/heygen/avatar-v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/heygen/lipsync-precision",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/heygen/lipsync-speed",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/heygen/video-agent",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/ibm-granite/granite-speech-3.3-8b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:replicate/ibm-granite/granite-speech-4.1-2b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v2-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v2a",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v2a-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v3-balanced",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v3-quality",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v3-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v4-balanced",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/ideogram-v4-quality",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/ideogram-ai/layerize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/intelligent-utilities/html-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/inworld/realtime-tts-1.5-max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/inworld/realtime-tts-1.5-mini",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/inworld/realtime-tts-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/kwaivgi/kling-lip-sync",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/kwaivgi/kling-v2.1-master",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/kwaivgi/kling-v2.5-turbo-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/audio-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2-distilled",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2-retake",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2.3-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2.3-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/lightricks/ltx-2.5-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/luma/photon",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/luma/photon-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/luma/reframe-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/minimax/h3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/minimax/h3-highspeed",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/minimax/h3-lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/minimax/image-01",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/minimax/speech-02-hd",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/minimax/speech-02-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/minimax/speech-2.6-hd",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/minimax/speech-2.6-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/minimax/speech-2.8-hd",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/minimax/speech-2.8-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/nightmareai/real-esrgan",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/openai/gpt-4o-mini-transcribe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:replicate/openai/gpt-4o-transcribe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:replicate/philz1337x/clarity-pro-upscaler",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/pixverse/lipsync",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/playht/play-dialog",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/flux-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/flux-kontext-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/hidream-l1-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-image-edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-image-edit-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-image-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-video-2-pro-avatar",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-video-2-pro-replace",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-video-animate",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-video-avatar",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/p-video-replace",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/prunaai/wan-2.2-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/quiverai/arrow-1.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/quiverai/arrow-1.1-max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/quiverai/arrow-1.1-max-vectorize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/quiverai/arrow-1.1-vectorize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen-edit-apps/qwen-image-edit-plus-lora-fusion",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen-edit-apps/qwen-image-edit-plus-lora-next-scene",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen-edit-apps/qwen-image-edit-plus-lora-photo-to-anime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen-edit-apps/qwen-image-edit-plus-lora-relight",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen-edit-apps/qwen-image-edit-plus-lora-skin",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen-edit-apps/qwen-image-edit-plus-lora-upscale",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-edit-multiangle",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-2-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-2512",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-edit-2511",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-edit-plus",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen-image-edit-plus-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/qwen/qwen3-tts",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-20b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-20b-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-creative-upscale",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-crisp-upscale",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-remove-background",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v3-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4-pro-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4-styles-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4-styles-pro-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4.1-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4.1-pro-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4.1-svg",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4.1-utility",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-v4.1-utility-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/recraft-ai/recraft-vectorize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/resemble-ai/chatterbox",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/resemble-ai/chatterbox-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/resemble-ai/chatterbox-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:replicate/retro-diffusion/rd-animation",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/runwayml/aleph-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/runwayml/gen-4.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/runwayml/gen4-image-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/runwayml/gen4-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/stability-ai/stable-diffusion-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/stability-ai/stable-diffusion-3.5-large",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/stability-ai/stable-diffusion-3.5-large-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/stability-ai/stable-diffusion-3.5-medium",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/sync/lipsync-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/sync/lipsync-2-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/sync/react-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/tencent/hunyuan-image-2.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/tencent/hunyuan-image-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/veed/fabric-1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.2-s2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.5-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.5-i2v-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.5-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.5-t2v-fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.6-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.6-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.7-i2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.7-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.7-image-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.7-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.7-t2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan-2.7-videoedit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wan-video/wan2.6-i2v-flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wavespeedai/qwen-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/wavespeedai/wan-2.1-i2v-480p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wavespeedai/wan-2.1-i2v-720p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wavespeedai/wan-2.1-t2v-480p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/wavespeedai/wan-2.1-t2v-720p",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-imagine-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-imagine-image-quality",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-imagine-r2v",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-imagine-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-imagine-video-1.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-imagine-video-extension",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:replicate/xai/grok-text-to-speech",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/edit-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/klein/edit-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/klein/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-3/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/blackforestlabs/flux-video-upscale",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/fibo-2/generate",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/fast/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.0/us/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/us/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bria/background/remove",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/bytedance-upscaler/upscale/video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/emu-3.5-image/edit-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/emu-3.5-image/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v2.5-turbo/pro/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v2.5-turbo/standard/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/hailuo-02/standard/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/image-01",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/object-removal",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/object-removal/bbox",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/object-removal/mask",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft/v3/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/scail-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-vace-apps/long-reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-14b/animate/move",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-14b/animate/replace",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.2/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.2/extend",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.2/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.2/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.2/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/virtual-try-on",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4/tiling",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4/tiling/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/flash/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/kling/v4/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/ray/v3.2/reframe",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/styles/16bit-pixel",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/styles/hand-drawn",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/styles/low-poly",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/styles/retro-toon-70s",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/minimax/h3-max/styles/vhs",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/mirelo-ai/sfx2.0/video-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/nvidia/cosmos-3-super/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/recraft/v4/style/pro/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/recraft/v4/style/pro/text-to-vector",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/recraft/v4/style/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/recraft/v4/style/text-to-vector",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/vast/eden-live-14b-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/vast/eden-live-5b-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-image/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/edit-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/extend-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/v1.5/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/xai/grok-imagine-video/v1.5/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/recraft-20b",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/stable-diffusion-v3-medium/image-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/lipsync",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-5.6-cyber",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       }
     ],
     "source_errors": {

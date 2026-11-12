@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794378159857",
-  "generated_at": "2026-11-11T06:22:39.857Z",
-  "snapshot_digest": "9ad2ac9e0c0c6f45",
+  "refresh_id": "refresh-1794463968575",
+  "generated_at": "2026-11-12T06:12:48.575Z",
+  "snapshot_digest": "a0bb59f48191a0d1",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-9ad2ac9e0c0c6f45.json",
-      "digest": "9ad2ac9e0c0c6f45",
-      "bytes": 4095228
+      "path": "catalog-a0bb59f48191a0d1.json",
+      "digest": "a0bb59f48191a0d1",
+      "bytes": 4100628
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "c4cad1d8b2afecab",
+      "digest": "8121727d72b41524",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-11T06:22:39.857Z",
-      "last_success_at": "2026-11-11T06:22:39.857Z",
-      "expires_at": "2026-11-14T06:22:39.857Z",
-      "root_digest": "eca0bac36be61544",
-      "record_count": 450,
+      "observed_at": "2026-11-12T06:12:48.575Z",
+      "last_success_at": "2026-11-12T06:12:48.575Z",
+      "expires_at": "2026-11-15T06:12:48.575Z",
+      "root_digest": "4500de096394b46b",
+      "record_count": 449,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-11T06:22:39.857Z",
-      "last_success_at": "2026-11-11T06:22:39.857Z",
-      "expires_at": "2026-11-14T06:22:39.857Z",
-      "root_digest": "ad16c561f9d9a9e9",
-      "record_count": 3586,
+      "observed_at": "2026-11-12T06:12:48.575Z",
+      "last_success_at": "2026-11-12T06:12:48.575Z",
+      "expires_at": "2026-11-15T06:12:48.575Z",
+      "root_digest": "ae63088a5cbcbff5",
+      "record_count": 3588,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-10T00:00:00.000Z",
-      "last_success_at": "2026-11-11T06:23:04.279Z",
-      "expires_at": "2026-11-17T23:59:59.999Z",
-      "root_digest": "c4cad1d8b2afecab",
+      "observed_at": "2026-11-11T00:00:00.000Z",
+      "last_success_at": "2026-11-12T06:13:12.674Z",
+      "expires_at": "2026-11-18T23:59:59.999Z",
+      "root_digest": "8121727d72b41524",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -8055,8 +8055,10 @@
       "meters": [
         "input",
         "input|tier=flex",
+        "input|tier=priority",
         "output",
-        "output|tier=flex"
+        "output|tier=flex",
+        "output|tier=priority"
       ]
     },
     {
@@ -11944,9 +11946,12 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|age=1hr",
         "cache_read",
         "input",
-        "output"
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
       ]
     },
     {
@@ -12530,6 +12535,18 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-gemini-4-carbon",
+      "name": "databricks/databricks-gemini-4-carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-gemma-3-12b",
       "name": "databricks/databricks-gemma-3-12b",
       "tariff": "token",
@@ -13062,6 +13079,21 @@
     {
       "id": "litellm:databricks/system.ai.claude-fable-5-2",
       "name": "databricks/system.ai.claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/system.ai.gemini-4-carbon",
+      "name": "databricks/system.ai.gemini-4-carbon",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -19798,28 +19830,6 @@
       ]
     },
     {
-      "id": "litellm:friendliai/MiniMaxAI/MiniMax-M2.5",
-      "name": "friendliai/MiniMaxAI/MiniMax-M2.5",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "litellm:friendliai/deepseek-ai/DeepSeek-V3.2",
-      "name": "friendliai/deepseek-ai/DeepSeek-V3.2",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "litellm:friendliai/google/gemma-4-31B-it",
       "name": "friendliai/google/gemma-4-31B-it",
       "tariff": "token",
@@ -20151,14 +20161,14 @@
         "cache_read|tier=priority",
         "input",
         "input|>200000",
-        "output",
-        "output|>200000",
         "input|>200000|tier=batches",
         "input|>200000|tier=flex",
         "input|>200000|tier=priority",
         "input|tier=batches",
         "input|tier=flex",
         "input|tier=priority",
+        "output",
+        "output|>200000",
         "output|>200000|tier=batches",
         "output|>200000|tier=flex",
         "output|>200000|tier=priority",
@@ -20307,18 +20317,18 @@
       "meters": [
         "cache_read",
         "cache_read|tier=batches",
-        "audio_in_tok",
-        "input",
-        "output",
-        "input|tier=priority",
-        "audio_in_tok|tier=priority",
-        "output|tier=priority",
+        "cache_read|tier=flex",
         "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=priority",
+        "input",
         "input|tier=batches",
-        "output|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
         "output|tier=flex",
-        "cache_read|tier=flex"
+        "output|tier=priority"
       ]
     },
     {
@@ -20440,6 +20450,7 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=batches",
         "input",
         "output",
         "cache_read|tier=flex",
@@ -20459,6 +20470,7 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=batches",
         "input",
         "output",
         "cache_read|tier=flex",
@@ -20490,11 +20502,14 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
         "input",
         "input|>200000",
         "output",
         "output|>200000",
         "cache_read|>200000|tier=priority",
+        "cache_read|tier=batches",
         "cache_read|tier=priority",
         "input|>200000|tier=priority",
         "input|tier=batches",
@@ -20503,7 +20518,11 @@
         "output|tier=batches",
         "output|tier=priority",
         "cache_read|tier=flex",
+        "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
         "input|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex",
         "output|tier=flex"
       ]
     },
@@ -20999,6 +21018,7 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=batches",
         "input",
         "output",
         "cache_read|tier=flex",
@@ -21018,6 +21038,7 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "cache_read|tier=batches",
         "input",
         "output",
         "cache_read|tier=flex",
@@ -21091,11 +21112,14 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "cache_read|>200000|tier=batches",
+        "cache_read|>200000|tier=flex",
         "input",
         "input|>200000",
         "output",
         "output|>200000",
         "cache_read|>200000|tier=priority",
+        "cache_read|tier=batches",
         "cache_read|tier=priority",
         "input|>200000|tier=priority",
         "input|tier=batches",
@@ -21104,7 +21128,11 @@
         "output|tier=batches",
         "output|tier=priority",
         "cache_read|tier=flex",
+        "input|>200000|tier=batches",
+        "input|>200000|tier=flex",
         "input|tier=flex",
+        "output|>200000|tier=batches",
+        "output|>200000|tier=flex",
         "output|tier=flex"
       ]
     },
@@ -39935,18 +39963,18 @@
       "meters": [
         "cache_read",
         "cache_read|tier=batches",
-        "input",
-        "audio_in_tok",
-        "output",
-        "input|tier=priority",
-        "audio_in_tok|tier=priority",
-        "output|tier=priority",
+        "cache_read|tier=flex",
         "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=priority",
+        "input",
         "input|tier=batches",
-        "output|tier=batches",
         "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
         "output|tier=flex",
-        "cache_read|tier=flex"
+        "output|tier=priority"
       ]
     },
     {
@@ -42315,9 +42343,11 @@
       "meters": [
         "input",
         "input|tier=batches",
+        "input|tier=flex",
         "input|tier=priority",
         "output",
         "output|tier=batches",
+        "output|tier=flex",
         "output|tier=priority"
       ]
     },
@@ -43230,11 +43260,21 @@
       "id": "openrouter:baidu/ernie-5.5-flash-preview",
       "name": "Baidu: ERNIE-5.5-Flash-Preview",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:baidu/ernie-5.5-flash-preview:free",
+      "name": "Baidu: ERNIE-5.5-Flash-Preview (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -44540,16 +44580,6 @@
       ]
     },
     {
-      "id": "openrouter:minimax/minimax-m1",
-      "name": "MiniMax: MiniMax M1",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:minimax/minimax-m2.5",
       "name": "MiniMax: MiniMax M2.5",
       "tariff": "token",
@@ -44896,6 +44926,17 @@
     {
       "id": "openrouter:moonshotai/kimi-k3.1-pro",
       "name": "MoonshotAI: Kimi K3.1 Pro",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:moonshotai/kimi-k3.1-pro:batch",
+      "name": "MoonshotAI: Kimi K3.1 Pro (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -46641,7 +46682,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -47006,16 +47048,6 @@
       "name": "ScaleDown: Summarize",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:stealth/crouton-alpha",
-      "name": "Crouton Alpha",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -59362,6 +59394,226 @@
         "offer": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-5.6-cyber",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/kling-video/v2.6/pro/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/start-end-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/ray/v3.2/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/ray/v3.2/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/ray/v3.2/video-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/pixverse/v6/max/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/pixverse/v6/max/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-pro/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-pro/outpaint",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-2-max/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1/erase",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/smart-resize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/pro/layerize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/uni-1/v1/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/luma/agent/uni-1/v1/max/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/kling2.5_turbo_pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/kling3.0_standard",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/kling3.0_pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/kling3.0_4k",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/klingO3_standard",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/klingO3_pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/klingO3_4k",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/kling_4_flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/wan3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/wan3_prime",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/grok_imagine_1_5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/grok_imagine_1_5_lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/h3_max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/happyhorse_1_0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/gemini_omni_flash_1.2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/gemini_omni_flash_1.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:runwayml/muse_image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/seedream5_lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/seedream5_flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/gemini_image3.1_flash_lite",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/bria_fibo_edit_1_5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/gemini_2.5_flash",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:runwayml/eleven_v3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:runwayml/eleven_v4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:gemini/gemini-decision-1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "decisions"
       }
     ],
     "source_errors": {

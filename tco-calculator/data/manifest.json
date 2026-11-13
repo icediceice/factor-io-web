@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794463968575",
-  "generated_at": "2026-11-12T06:12:48.575Z",
-  "snapshot_digest": "a0bb59f48191a0d1",
+  "refresh_id": "refresh-1794549972137",
+  "generated_at": "2026-11-13T06:06:12.137Z",
+  "snapshot_digest": "c1ce9b10019d5921",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-a0bb59f48191a0d1.json",
-      "digest": "a0bb59f48191a0d1",
-      "bytes": 4100628
+      "path": "catalog-c1ce9b10019d5921.json",
+      "digest": "c1ce9b10019d5921",
+      "bytes": 4109597
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "8121727d72b41524",
+      "digest": "437ebe572c5ed1aa",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-12T06:12:48.575Z",
-      "last_success_at": "2026-11-12T06:12:48.575Z",
-      "expires_at": "2026-11-15T06:12:48.575Z",
-      "root_digest": "4500de096394b46b",
-      "record_count": 449,
+      "observed_at": "2026-11-13T06:06:12.137Z",
+      "last_success_at": "2026-11-13T06:06:12.137Z",
+      "expires_at": "2026-11-16T06:06:12.137Z",
+      "root_digest": "6ab406dde2f51484",
+      "record_count": 456,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-12T06:12:48.575Z",
-      "last_success_at": "2026-11-12T06:12:48.575Z",
-      "expires_at": "2026-11-15T06:12:48.575Z",
-      "root_digest": "ae63088a5cbcbff5",
-      "record_count": 3588,
+      "observed_at": "2026-11-13T06:06:12.137Z",
+      "last_success_at": "2026-11-13T06:06:12.137Z",
+      "expires_at": "2026-11-16T06:06:12.137Z",
+      "root_digest": "c4c82e1ffcb1dba3",
+      "record_count": 3594,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-11T00:00:00.000Z",
-      "last_success_at": "2026-11-12T06:13:12.674Z",
-      "expires_at": "2026-11-18T23:59:59.999Z",
-      "root_digest": "8121727d72b41524",
+      "observed_at": "2026-11-12T00:00:00.000Z",
+      "last_success_at": "2026-11-13T06:06:36.593Z",
+      "expires_at": "2026-11-19T23:59:59.999Z",
+      "root_digest": "437ebe572c5ed1aa",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -6039,6 +6039,17 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/deepseek-v4.1-flash-1017",
+      "name": "azure_ai/deepseek-v4.1-flash-1017",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -20988,6 +20999,26 @@
       ]
     },
     {
+      "id": "litellm:gemini/gemini-4-hydrogen",
+      "name": "gemini/gemini-4-hydrogen",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:gemini/gemini-exp-1114",
       "name": "gemini/gemini-exp-1114",
       "tariff": "token",
@@ -22826,6 +22857,17 @@
       ]
     },
     {
+      "id": "litellm:gmi/google/gemini-4-carbon",
+      "name": "gmi/google/gemini-4-carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gmi/google/gemma-4-26b-a4b-it",
       "name": "gmi/google/gemma-4-26b-a4b-it",
       "tariff": "token",
@@ -23292,6 +23334,20 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/xai/grok4.7",
+      "name": "gmi/xai/grok4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
       ]
     },
     {
@@ -36776,6 +36832,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/thinkingmachines/Inkling-2-Small",
+      "name": "together_ai/thinkingmachines/Inkling-2-Small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/together/Tev1-4B-experimental",
       "name": "together_ai/together/Tev1-4B-experimental",
       "tariff": "token",
@@ -40160,6 +40227,29 @@
         "input|tier=priority",
         "output",
         "output|tier=batches",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/gemini-4-hydrogen",
+      "name": "vertex_ai/gemini-4-hydrogen",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=flex",
         "output|tier=priority"
       ]
     },
@@ -44082,6 +44172,38 @@
       ]
     },
     {
+      "id": "openrouter:google/gemini-4-hydrogen",
+      "name": "Google: Gemini 4 Hydrogen",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
+      "id": "openrouter:google/gemini-4-hydrogen:batch",
+      "name": "Google: Gemini 4 Hydrogen (batch)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "image_in",
+        "audio_in",
+        "web_search",
+        "reasoning",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:google/gemini-nano-banana-2.1",
       "name": "Google: Nano Banana 2.1",
       "tariff": "token",
@@ -44313,27 +44435,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:liquid/lfm-2.5-2.6b",
-      "name": "LiquidAI: LFM2.5-2.6B",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:liquid/lfm-2.5-2.6b:free",
-      "name": "LiquidAI: LFM2.5-2.6B (free)",
-      "tariff": "token",
-      "state": "active",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -46366,6 +46467,16 @@
       ]
     },
     {
+      "id": "openrouter:particle-ai/particle-1:free",
+      "name": "Particle AI: Particle-1 (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "openrouter:perceptron/perceptron-mk1",
       "name": "Perceptron: Perceptron Mk1",
       "tariff": "token",
@@ -46468,16 +46579,6 @@
       "name": "Qwen2.5 72B Instruct",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:qwen/qwen-2.5-7b-instruct",
-      "name": "Qwen: Qwen2.5 7B Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -47213,6 +47314,17 @@
       ]
     },
     {
+      "id": "openrouter:thinkingmachines/inkling-2-small",
+      "name": "Thinking Machines: Inkling 2 Small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:thinkingmachines/inkling-2-small:free",
       "name": "Thinking Machines: Inkling 2 Small (free)",
       "tariff": "token",
@@ -47481,16 +47593,6 @@
         "input",
         "output",
         "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:xingchen-agi/xing4.0-29b-a4b:free",
-      "name": "XingChen: Xing4.0 29B A4B (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
       ]
     },
     {
@@ -47787,7 +47889,7 @@
       {
         "offer": "openrouter:~google/gemini-flash-latest",
         "rule": "alias_skipped",
-        "target": "google/gemini-3.8-flash"
+        "target": "google/gemini-4-hydrogen"
       },
       {
         "offer": "openrouter:~anthropic/claude-sonnet-latest",
@@ -49766,14 +49868,29 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:fal_ai/bytedance/seedance-latest/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:fal_ai/bytedance/seedance-2.5/image-to-video",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:fal_ai/bytedance/seedance-latest/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:fal_ai/bytedance/seedance-2.5/reference-to-video",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-latest/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:fal_ai/minimax/h3/text-to-video",
@@ -49849,6 +49966,26 @@
         "offer": "litellm:fal_ai/fal-ai/nano-banana-pro",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/nano-banana-2.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/nano-banana-2.1/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/nano-banana-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
+        "offer": "litellm:fal_ai/google/nano-banana-latest/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:fal_ai/openai/gpt-image-2",
@@ -53061,6 +53198,11 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:runwayml/seedance-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:runwayml/hailuo3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -53951,6 +54093,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:perplexity/google/gemini-4-carbon",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:perplexity/google/gemini-3.6-flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -54251,6 +54398,16 @@
         "mode": "evaluation"
       },
       {
+        "offer": "litellm:nace/drex-max",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:nace/drex-max-v1.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:typesafe/jev-1.13.0",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
@@ -54381,6 +54538,11 @@
         "mode": "responses"
       },
       {
+        "offer": "litellm:perplexity/anthropic/claude-fable-5-2",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
         "offer": "litellm:perplexity/anthropic/claude-fable-5-1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
@@ -54486,6 +54648,11 @@
         "mode": "image_generation"
       },
       {
+        "offer": "litellm:gemini/nano-banana-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
+      },
+      {
         "offer": "litellm:gemini-nano-banana-2.1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
@@ -54494,6 +54661,11 @@
         "offer": "litellm:vertex_ai/gemini-nano-banana-2.1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:vertex_ai/nano-banana-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:azure_ai/grok-latest",
@@ -57246,6 +57418,141 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:fal_ai/fal-ai/auto-caption",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/hunyuan-video-image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/infinity-star/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-video-13b-distilled",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-video-13b-distilled/extend",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-video-13b-distilled/multiconditioning",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ltx-video/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/hailuo-2.3-fast/pro/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01-director",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01-director/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01-live",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01-live/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01-subject-reference",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/minimax/video-01/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ovi",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/ovi/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-i2v-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-pro/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan-t2v-lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-5b/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/wan/v2.2-5b/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/moonvalley/marey/motion-transfer",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/moonvalley/marey/pose-transfer",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/mureka/api/generate/lyrics-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
         "offer": "litellm:fal_ai/fal-ai/wan-22-vace-fun-a14b/inpainting",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
@@ -58329,6 +58636,11 @@
         "offer": "litellm:replicate/google/nano-banana-2.1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:replicate/google/nano-banana-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       },
       {
         "offer": "litellm:replicate/heygen/avatar-iv",
@@ -59614,6 +59926,61 @@
         "offer": "litellm:gemini/gemini-decision-1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "decisions"
+      },
+      {
+        "offer": "litellm:runwayml/kling_4",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5.5/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5.5/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5.5/layerize",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/flux-pro/v1/vto",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/patina/material",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/patina/material/extract",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/vidu/template-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/google/gemini-omni-flash/v1.2/upscale",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/decart/lucy-5b/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/decart/lucy-5b/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": null
       }
     ],
     "source_errors": {

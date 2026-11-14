@@ -1626,7 +1626,7 @@ test('Light Ops Stories bundle exports cleanly, wires fragment-free bilingual li
   assert.equal(output.size, 18);
   assert.equal(output.has('light-ops-story/index.html'), false);
 
-  const bundle = await publishedStoryBundle();
+  const bundle = new Map(await publishedStoryBundle());
   assert.ok(bundle.size >= 38, `expected >=38 story bundle routes, got ${bundle.size}`);
   assert.ok(bundle.has('/light-ops-story/'));
   assert.ok(bundle.has('/light-ops-story/bundle-manifest.json'));

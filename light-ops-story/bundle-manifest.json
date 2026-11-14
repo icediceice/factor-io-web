@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "entry": "/light-ops-story/",
+  "files": [
+    {
+      "path": "css/story.css",
+      "bytes": 43081,
+      "sha256": "7bf84fea501d4983dce023e002d90af25a3239554030746e7f920833a8932587"
+    },
+    {
+      "path": "ep/ep1.js",
+      "bytes": 15315,
+      "sha256": "bef635265540762a42a8ee42fc7d225d792466443b57e92f68617eccb38d22e4"
+    },
+    {
+      "path": "ep/ep2.js",
+      "bytes": 12937,
+      "sha256": "c2d4d35ca06e6252cec1093a2a976b0d00957413a6c4f8076984bc8e433bd7e9"
+    },
+    {
+      "path": "ep/ep3.js",
+      "bytes": 12971,
+      "sha256": "6f156ad4ad24f4497d1c801dac84e718f95a6fb8b7e4b46c266879605655cece"
+    },
+    {
+      "path": "ep/ep4.js",
+      "bytes": 17529,
+      "sha256": "d3056b2c3f29f264ad38bfa05b4587bf15af32c3c8733f3205d1854c68f57c05"
+    },
+    {
+      "path": "ep/ep5.js",
+      "bytes": 11545,
+      "sha256": "0affd2b911559ab0ab483266b64bd62f8c28e59937ebf46cf37af4a8de12218a"
+    },
+    {
+      "path": "ep/ep6.js",
+      "bytes": 11385,
+      "sha256": "ed1b793e9d73f48a333040e946c80ce8090af0a918267ebd953cec86096bc4f0"
+    },
+    {
+      "path": "ep/ep7.js",
+      "bytes": 16025,
+      "sha256": "7d413d509db4037ee9c7cec54f7b977c795041dc6a7aecb4fb6badcf29d5fb0a"
+    },
+    {
+      "path": "img/bg/bot-swarm.webp",
+      "bytes": 44016,
+      "sha256": "4707d8fbe753cf30e54caa7cd670fa46cbc95bd672845042fa5d658b792d29d9"
+    },
+    {
+      "path": "img/bg/breach-clock.webp",
+      "bytes": 57764,
+      "sha256": "d80fbe736dc6298786286921a08283f07115ab94f9c5173e97272a58e1b4dbd3"
+    },
+    {
+      "path": "img/bg/flat-city.webp",
+      "bytes": 26770,
+      "sha256": "8d55161a3df37d6cc6971831492eb37d7509edfc06c22c671e7cc0486c4295b8"
+    },
+    {
+      "path": "img/bg/flow-cyber-storm.webp",
+      "bytes": 17082,
+      "sha256": "074b78157571d0ef6d4c774f06166ab173bd0123b9afdb94898de60744314b34"
+    },
+    {
+      "path": "img/bg/flow-leash-gate.webp",
+      "bytes": 16764,
+      "sha256": "6a6019b0071313d5e4e721e1e265c9a1fc3b77b07781b6e06267e5ab1902a465"
+    },
+    {
+      "path": "img/bg/flow-night-watch.webp",
+      "bytes": 23974,
+      "sha256": "ab6cc5f249c870dc55ca23ba8df399c0a21a23c8a7fee96317e90fdbf46d28dc"
+    },
+    {
+      "path": "img/bg/night-city.webp",
+      "bytes": 16398,
+      "sha256": "67c4c862f01e0363b6c6ca00b98a405665e79fd6b2f6834fbcf1ce34103d151c"
+    },
+    {
+      "path": "img/bg/office-night.webp",
+      "bytes": 38140,
+      "sha256": "3122a4e70fddb1df77bbc5c0ef6a93a8e887a8618adef7914b9ccc693c330a54"
+    },
+    {
+      "path": "img/bg/port-night.webp",
+      "bytes": 51250,
+      "sha256": "458418f72200c907c4044586ced631f441bde745ecc552074bb6a1521af0f1de"
+    },
+    {
+      "path": "img/bg/refractor-lab.webp",
+      "bytes": 50092,
+      "sha256": "218de7abb84bea86beb1e6275dbd8c041eab22ef3dd20b208b3e485a46898928"
+    },
+    {
+      "path": "img/bg/river-city.webp",
+      "bytes": 89554,
+      "sha256": "2f3779ca8b508dc158d30909703a60a1ae3791ffa9b271e526bc0d4694318295"
+    },
+    {
+      "path": "img/bg/server-room.webp",
+      "bytes": 39532,
+      "sha256": "412217d67d4ffb110057cd55b602ede6c17bcf4f1cd014824dc2602ff9f6fc6c"
+    },
+    {
+      "path": "img/bg/sprawl-vs-one.webp",
+      "bytes": 41030,
+      "sha256": "eeeffdf757c1a9a693050dfa22fa0ab34f5a7345c48e9f555e42a95fa586fcb3"
+    },
+    {
+      "path": "img/bg/thailand-grid.webp",
+      "bytes": 118062,
+      "sha256": "45ef32579f899fa1cf80ffbde0f0b7e8fa60e1432bbb5fad2b8a43139d5b2133"
+    },
+    {
+      "path": "img/bg/vault-gate.webp",
+      "bytes": 46996,
+      "sha256": "5c85d71d6e74473cee96303754ebebac815faad4d8d0b98f1748815b8b026afa"
+    },
+    {
+      "path": "img/bg/whiteboard-city.webp",
+      "bytes": 63436,
+      "sha256": "73dcac9840ade162e3adbeee00214751d399aca00a834ee78c1cf774889fba12"
+    },
+    {
+      "path": "img/flow/ai-leash-gate.mp4",
+      "bytes": 680128,
+      "sha256": "176c051a9901bc876d33151e1434962b768abf673a46ba6e9b8c4b87eec8a656"
+    },
+    {
+      "path": "img/flow/cyber-storm.mp4",
+      "bytes": 1255706,
+      "sha256": "9255b5cfc61fd32124d57df2ce7b3e083280260580dca1d30779b90564b11fee"
+    },
+    {
+      "path": "img/flow/night-watch-0247.mp4",
+      "bytes": 545184,
+      "sha256": "3c66a5b822dd471652ff2783ef60c4b03fe5bedcfb0eee96c7acd0bfe7b57fdf"
+    },
+    {
+      "path": "img/product/compliance-result.webp",
+      "bytes": 24594,
+      "sha256": "d592ba7ba0e2ee5422ea6e115151a16bbe6d8e4a740d14420a57f79306751b82"
+    },
+    {
+      "path": "img/product/cve-panel.webp",
+      "bytes": 14882,
+      "sha256": "eec85d85a895befde2e24bc572fdadfe19d7db412786c19a32c8e259da7a955f"
+    },
+    {
+      "path": "img/product/incident-card.webp",
+      "bytes": 13786,
+      "sha256": "f2913239980a6eab6f8279154d91bae35c6288c3ec2348443cc0cb0b01c58b08"
+    },
+    {
+      "path": "img/product/inventory-cover.webp",
+      "bytes": 15618,
+      "sha256": "ce394e1771305c5e0f332458234cf3452880d1759d02122542fc386491de77dc"
+    },
+    {
+      "path": "img/product/monitors.webp",
+      "bytes": 37378,
+      "sha256": "b91d1f2117154f8a485b3a730602bc432687c4b0b298b203aa8c36eeebfd9b07"
+    },
+    {
+      "path": "img/product/performance-findings.webp",
+      "bytes": 41968,
+      "sha256": "6a767a4f986d0b14f62d589a4b1d206a48f7dad77bd687e343bbcf75135626cc"
+    },
+    {
+      "path": "img/product/run-capsule.webp",
+      "bytes": 42456,
+      "sha256": "f8a26f24e0dcfd37eef5918a77dc3691c92e5128dbe31a9d15ff5560254aed0a"
+    },
+    {
+      "path": "img/product/scan-report.webp",
+      "bytes": 71772,
+      "sha256": "5f9a410d801022aef4ef924adb3cdd75aaad309291ea8eaf0e04de6030dcd803"
+    },
+    {
+      "path": "img/product/scan-web.webp",
+      "bytes": 27682,
+      "sha256": "ecf9649532398323cafd5d85bd04a2f622d7bf74633de582ad88ccbcb10fe8c1"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1770,
+      "sha256": "e42b17a9d914a0229f0ca6511c53959230f4e658a38d80430d0cb72bf2dcbe96"
+    },
+    {
+      "path": "js/engine.js",
+      "bytes": 79172,
+      "sha256": "c1118e2ccf7f0d24c5a4983b6d1e3169cf64deade12b963d09bc69e093876695"
+    }
+  ]
+}

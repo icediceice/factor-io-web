@@ -1657,7 +1657,13 @@ test('Light Ops Stories bundle exports cleanly, wires fragment-free bilingual li
   assert.match(entry.headers.get('content-type') || '', /^text\/html\b/);
   const entryHtml = await entry.text();
   assert.match(entryHtml, /Light Ops Stories/);
-  assert.match(entryHtml, /hudModePresent/);
+  assert.match(entryHtml, /data-mode="watch"/);
+  assert.match(entryHtml, /LS\.boot\(\)/);
+
+  const engineRes = await fetch(`${origin}/light-ops-story/js/engine.js`);
+  assert.equal(engineRes.status, 200);
+  const engineJs = await engineRes.text();
+  assert.match(engineJs, /hudModePresent/);
 
   const clip = await fetch(`${origin}/light-ops-story/img/flow/cyber-storm.mp4`, {
     headers: { Range: 'bytes=0-99' },

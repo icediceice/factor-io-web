@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794549972137",
-  "generated_at": "2026-11-13T06:06:12.137Z",
-  "snapshot_digest": "c1ce9b10019d5921",
+  "refresh_id": "refresh-1794637309317",
+  "generated_at": "2026-11-14T06:21:49.317Z",
+  "snapshot_digest": "64a9eba907b0783c",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-c1ce9b10019d5921.json",
-      "digest": "c1ce9b10019d5921",
-      "bytes": 4109597
+      "path": "catalog-64a9eba907b0783c.json",
+      "digest": "64a9eba907b0783c",
+      "bytes": 4113575
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "437ebe572c5ed1aa",
+      "digest": "1c853159c056e61f",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-13T06:06:12.137Z",
-      "last_success_at": "2026-11-13T06:06:12.137Z",
-      "expires_at": "2026-11-16T06:06:12.137Z",
-      "root_digest": "6ab406dde2f51484",
-      "record_count": 456,
+      "observed_at": "2026-11-14T06:21:49.317Z",
+      "last_success_at": "2026-11-14T06:21:49.317Z",
+      "expires_at": "2026-11-17T06:21:49.317Z",
+      "root_digest": "9917a3214240c5c6",
+      "record_count": 452,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-13T06:06:12.137Z",
-      "last_success_at": "2026-11-13T06:06:12.137Z",
-      "expires_at": "2026-11-16T06:06:12.137Z",
-      "root_digest": "c4c82e1ffcb1dba3",
-      "record_count": 3594,
+      "observed_at": "2026-11-14T06:21:49.317Z",
+      "last_success_at": "2026-11-14T06:21:49.317Z",
+      "expires_at": "2026-11-17T06:21:49.317Z",
+      "root_digest": "316cf9289253a721",
+      "record_count": 3600,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-12T00:00:00.000Z",
-      "last_success_at": "2026-11-13T06:06:36.593Z",
-      "expires_at": "2026-11-19T23:59:59.999Z",
-      "root_digest": "437ebe572c5ed1aa",
+      "observed_at": "2026-11-13T00:00:00.000Z",
+      "last_success_at": "2026-11-14T06:22:13.450Z",
+      "expires_at": "2026-11-20T23:59:59.999Z",
+      "root_digest": "1c853159c056e61f",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -4046,11 +4046,7 @@
         "cache_write|>272000|tier=flex",
         "cache_read|>272000|tier=flex",
         "input|>272000|tier=flex",
-        "output|>272000|tier=flex",
-        "input|tier=flex",
-        "output|tier=flex",
-        "cache_read|tier=flex",
-        "cache_write|tier=flex"
+        "output|>272000|tier=flex"
       ]
     },
     {
@@ -4090,15 +4086,7 @@
         "input",
         "input|>272000",
         "output",
-        "output|>272000",
-        "cache_write|>272000|tier=flex",
-        "cache_write|tier=flex",
-        "cache_read|>272000|tier=flex",
-        "cache_read|tier=flex",
-        "input|>272000|tier=flex",
-        "input|tier=flex",
-        "output|>272000|tier=flex",
-        "output|tier=flex"
+        "output|>272000"
       ]
     },
     {
@@ -13635,6 +13623,17 @@
       ]
     },
     {
+      "id": "litellm:deepinfra/XiaomiMiMo/MiMo-V2.6-Flash",
+      "name": "deepinfra/XiaomiMiMo/MiMo-V2.6-Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:deepinfra/allenai/olmOCR-7B-0725-FP8",
       "name": "deepinfra/allenai/olmOCR-7B-0725-FP8",
       "tariff": "token",
@@ -14397,6 +14396,17 @@
       ]
     },
     {
+      "id": "litellm:deepinfra/nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+      "name": "deepinfra/nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "litellm:deepinfra/nvidia/NVIDIA-Nemotron-Nano-9B-v2",
       "name": "deepinfra/nvidia/NVIDIA-Nemotron-Nano-9B-v2",
       "tariff": "token",
@@ -14481,6 +14491,17 @@
     {
       "id": "litellm:deepinfra/tencent/Hy3",
       "name": "deepinfra/tencent/Hy3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:deepinfra/tencent/Hy4-preview",
+      "name": "deepinfra/tencent/Hy4-preview",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -14579,6 +14600,17 @@
     {
       "id": "litellm:deepinfra/zai-org/GLM-5.2",
       "name": "deepinfra/zai-org/GLM-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:deepinfra/zai-org/GLM-5.3-Flash",
+      "name": "deepinfra/zai-org/GLM-5.3-Flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -21537,6 +21569,17 @@
     {
       "id": "litellm:github_copilot/gemini-4-carbon",
       "name": "github_copilot/gemini-4-carbon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:github_copilot/gemini-4-hydrogen",
+      "name": "github_copilot/gemini-4-hydrogen",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -39781,6 +39824,17 @@
       ]
     },
     {
+      "id": "litellm:vertex_ai/deep-research-preview-04-2026",
+      "name": "vertex_ai/deep-research-preview-04-2026",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:vertex_ai/deep-research-pro-preview-12-2025",
       "name": "vertex_ai/deep-research-pro-preview-12-2025",
       "tariff": "token",
@@ -40152,18 +40206,15 @@
       "meters": [
         "cache_read",
         "cache_read|tier=batches",
-        "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
         "audio_in_tok|tier=batches",
         "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
-        "input|tier=flex",
         "input|tier=priority",
         "output",
         "output|tier=batches",
-        "output|tier=flex",
         "output|tier=priority"
       ]
     },
@@ -40175,18 +40226,15 @@
       "meters": [
         "cache_read",
         "cache_read|tier=batches",
-        "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
         "audio_in_tok|tier=batches",
         "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
-        "input|tier=flex",
         "input|tier=priority",
         "output",
         "output|tier=batches",
-        "output|tier=flex",
         "output|tier=priority"
       ]
     },
@@ -40238,18 +40286,15 @@
       "meters": [
         "cache_read",
         "cache_read|tier=batches",
-        "cache_read|tier=flex",
         "cache_read|tier=priority",
         "audio_in_tok",
         "audio_in_tok|tier=batches",
         "audio_in_tok|tier=priority",
         "input",
         "input|tier=batches",
-        "input|tier=flex",
         "input|tier=priority",
         "output",
         "output|tier=batches",
-        "output|tier=flex",
         "output|tier=priority"
       ]
     },
@@ -43347,17 +43392,6 @@
       ]
     },
     {
-      "id": "openrouter:baidu/ernie-5.5-flash-preview",
-      "name": "Baidu: ERNIE-5.5-Flash-Preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:baidu/ernie-5.5-flash-preview:free",
       "name": "Baidu: ERNIE-5.5-Flash-Preview (free)",
       "tariff": "token",
@@ -44402,6 +44436,16 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:inclusionai/ling-3.2-flash:free",
+      "name": "inclusionAI: Ling 3.2 Flash (free)",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -53623,7 +53667,17 @@
         "mode": "audio_transcription"
       },
       {
+        "offer": "litellm:soniox/stt-async-v6",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
         "offer": "litellm:soniox/stt-rt-v5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:soniox/stt-rt-v6",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
       },
@@ -54089,6 +54143,11 @@
       },
       {
         "offer": "litellm:perplexity/google/gemini-4-argon",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:perplexity/google/gemini-4-hydrogen",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
       },

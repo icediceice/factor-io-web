@@ -1621,3 +1621,48 @@ test('bindSalesDeck and emitted light-sales.html inline script: slide navigation
     vm.runInNewContext(inlineScript, { document: root, window: mockWin, URLSearchParams, Math, Number, String, Object, Array, Boolean, Set });
   });
 });
+
+test('Light Ops Stories bundle exports cleanly, wires fragment-free bilingual links, and serves range-enabled media', async t => {
+  assert.equal(output.size, 18);
+  assert.equal(output.has('light-ops-story/index.html'), false);
+
+  const bundle = await publishedStoryBundle();
+  assert.ok(bundle.size >= 38, `expected >=38 story bundle routes, got ${bundle.size}`);
+  assert.ok(bundle.has('/light-ops-story/'));
+  assert.ok(bundle.has('/light-ops-story/bundle-manifest.json'));
+  assert.ok(bundle.has('/light-ops-story/js/engine.js'));
+  assert.ok(bundle.has('/light-ops-story/img/flow/cyber-storm.mp4'));
+  for (const urlPath of bundle.keys()) {
+    assert.doesNotMatch(urlPath, /\/(art|tools|tests|node_modules)(\/|$)|README\.md$|previews\.html$/);
+  }
+
+  for (const locale of ['en', 'th']) {
+    const expectedHref = `/light-ops-story/?lang=${locale}&amp;mode=watch`;
+    for (const rel of [`${locale}/index.html`, `${locale}/services/index.html`, `${locale}/security/index.html`]) {
+      const pageHtml = output.get(rel);
+      assert.ok(pageHtml.includes(`href="${expectedHref}"`), `missing ${expectedHref} on ${rel}`);
+      assert.doesNotMatch(pageHtml, /href="\/light-ops-story\/[^"]*#/);
+    }
+  }
+  assert.match(output.get('sitemap.xml'), /<loc>https:\/\/studio\.factor-io\.com\/light-ops-story\/<\/loc>/);
+  assert.match(await read('llms.txt'), /https:\/\/studio\.factor-io\.com\/light-ops-story\//);
+
+  const origin = await staticOrigin(t);
+  const redir = await fetch(`${origin}/light-ops-story`, { redirect: 'manual' });
+  assert.equal(redir.status, 301);
+  assert.equal(redir.headers.get('location'), '/light-ops-story/');
+
+  const entry = await fetch(`${origin}/light-ops-story/?lang=en&mode=watch`);
+  assert.equal(entry.status, 200);
+  assert.match(entry.headers.get('content-type') || '', /^text\/html\b/);
+  const entryHtml = await entry.text();
+  assert.match(entryHtml, /Light Ops Stories/);
+  assert.match(entryHtml, /hudModePresent/);
+
+  const clip = await fetch(`${origin}/light-ops-story/img/flow/cyber-storm.mp4`, {
+    headers: { Range: 'bytes=0-99' },
+  });
+  assert.equal(clip.status, 206);
+  assert.match(clip.headers.get('content-type') || '', /^video\/mp4\b/);
+  assert.equal((await clip.arrayBuffer()).byteLength, 100);
+});

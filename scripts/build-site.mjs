@@ -103,6 +103,21 @@ export async function publishedMedia() {
   return [...new Set([...filmPaths, ...workPaths, ...fonts])];
 }
 
+export async function publishedStoryBundle() {
+  const raw = await readFile(resolve(ROOT, 'light-ops-story/bundle-manifest.json'), 'utf8');
+  const manifest = JSON.parse(raw);
+  const entries = [['/light-ops-story/bundle-manifest.json', Buffer.from(raw, 'utf8')]];
+  for (const item of manifest.files) {
+    const urlPath = item.path === 'index.html' ? '/light-ops-story/' : `/light-ops-story/${item.path}`;
+    const bytes = await readFile(resolve(ROOT, 'light-ops-story', item.path));
+    if (bytes.length !== item.bytes || hash(bytes) !== item.sha256) {
+      throw new Error(`Story bundle manifest mismatch on ${item.path}; run node tools/sync_site.mjs`);
+    }
+    entries.push([urlPath, bytes]);
+  }
+  return entries;
+}
+
 export async function checkPreview(origin, output) {
   const base = new URL(origin);
   if (!['http:', 'https:'].includes(base.protocol) || base.pathname !== '/' || base.search || base.hash || base.username || base.password) throw new Error('Preview must be a plain HTTP(S) origin');
@@ -110,6 +125,7 @@ export async function checkPreview(origin, output) {
   for (const name of assetNames) expected.set(`/assets/${name}`, await readFile(resolve(ROOT, 'assets', name)));
   for (const path of ['light-tools.html', 'privacy.html', 'terms.html', 'tco-calculator.html', 'tco-assistant.html']) expected.set(`/${path}`, await readFile(resolve(ROOT, path)));
   for (const path of await publishedMedia()) expected.set(path, await readFile(resolve(ROOT, path.slice(1))));
+  for (const [path, bytes] of await publishedStoryBundle()) expected.set(path, bytes);
   let markerRemovals = 0;
   const results = await Promise.all([...expected].map(async ([path, bytes]) => {
     try {

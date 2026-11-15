@@ -21,7 +21,7 @@ LS.ep({ no: 3, title: ['Meet Light Ops', 'รู้จัก Light Ops'],
 
   /* 3.2 Stick-robot showdown: Log-Only Bot vs Red Bots vs Light Ops Defender + human Go */
   { bg: 'bot-swarm', bgo: .46, shade: 'top',
-    caps: [{ pos: 'top', b: 0, w: 1320, tone: 'c',
+    caps: [{ pos: 'top', b: 0, w: 1480, tone: 'c',
       k: ['Active Defender vs. Machine-Speed Red Bots', 'ผู้พิทักษ์เชิงรุก ปะทะ ฝูงบอตโจมตีความเร็วสูง'],
       h: ['Reading old logs will not stop autonomous red bots.', 'บอตที่ทำได้แค่อ่านล็อกย้อนหลัง หยุดฝูงบอตบุกโจมตีไม่ทัน'],
       p: ['Silent recon and exploit chains hit before a trailing log reader ever reacts. Light\u00A0Ops watches live behavior every 15s, probes exposures first, and contains threats on your Go.', 'การสอดแนมและเจาะช่องโหว่เกิดขึ้นเร็วเกินกว่าบอตอ่านล็อกจะตั้งตัวทัน Light\u00A0Ops จึงตรวจพฤติกรรมสดทุก 15 วินาที ทดสอบจุดเสี่ยงก่อน และสกัดกั้นทันทีเมื่อทีมคุณกด Go'] }],
@@ -44,15 +44,15 @@ LS.ep({ no: 3, title: ['Meet Light Ops', 'รู้จัก Light Ops'],
       { from: 'def', to: [900, 790], b: 3, d: .55, out: 4, tone: 'c' }
     ],
     says: [
-      { b: 0, out: 1, x: 850, y: 390, w: 450, tail: 'br', tone: 'a', text: ['Logs look quiet so far…', 'ในล็อกยังดูเงียบอยู่เลย…'] },
-      { b: 4, r: 90, y: 400, w: 370, tail: 'br', tone: 'c', text: ['Plan verified. Go.', 'ตรวจแผนแล้ว กด Go เลย'] }
+      { b: 0, out: 1, x: 840, y: 424, w: 450, tail: 'br', tone: 'a', text: ['Logs look quiet so far…', 'ในล็อกยังดูเงียบอยู่เลย…'] },
+      { b: 4, r: 90, y: 430, w: 370, tail: 'br', tone: 'c', text: ['Plan verified. Go.', 'ตรวจแผนแล้ว กด Go เลย'] }
     ],
     labs: [
-      { b: 0, out: 3, c: 1, x: 1180, y: 545, tone: 'a', text: ['Log-Only Bot · Trails behind logs', 'บอตอ่านแต่ล็อก · ตามหลังเหตุการณ์'] },
-      { b: 1, out: 4, c: 1, x: 460, y: 430, tone: 'r', text: ['Autonomous Red Bots · Silent recon', 'ฝูงบอตโจมตี · สอดแนมเงียบระดับวินาที'] },
-      { b: 2, out: 3, c: 1, x: 1160, y: 430, tone: 'r', text: ['Hits servers before log rules fire', 'ประชิดเซิร์ฟเวอร์ก่อนกฎอ่านล็อกจะเตือน'] },
-      { b: 3, out: 4, d: .35, c: 1, x: 1150, y: 430, tone: 'c', text: ['Light Ops Defender · 15s watch + Refractor', 'ผู้พิทักษ์ Light Ops · ตรวจทุก 15 วิ + Refractor'] },
-      { b: 4, d: .28, c: 1, x: 640, y: 440, tone: 'g', text: ['Contained on your Go · Audit trail on record', 'สกัดกั้นเมื่อทีมคุณกด Go · บันทึกหลักฐานครบทุกขั้น'] }
+      { b: 0, out: 3, c: 1, x: 1180, y: 538, tone: 'a', text: ['Log-Only Bot · Trails behind logs', 'บอตอ่านแต่ล็อก · ตามหลังเหตุการณ์'] },
+      { b: 1, out: 4, c: 1, x: 460, y: 442, tone: 'r', text: ['Autonomous Red Bots · Silent recon', 'ฝูงบอตโจมตี · สอดแนมเงียบระดับวินาที'] },
+      { b: 2, out: 3, c: 1, x: 1160, y: 442, tone: 'r', text: ['Hits servers before log rules fire', 'ประชิดเซิร์ฟเวอร์ก่อนกฎอ่านล็อกจะเตือน'] },
+      { b: 3, out: 4, d: .35, c: 1, x: 1150, y: 442, tone: 'c', text: ['Light Ops Defender · 15s watch + Refractor', 'ผู้พิทักษ์ Light Ops · ตรวจทุก 15 วิ + Refractor'] },
+      { b: 4, d: .28, c: 1, x: 640, y: 450, tone: 'g', text: ['Contained on your Go · Audit trail on record', 'สกัดกั้นเมื่อทีมคุณกด Go · บันทึกหลักฐานครบทุกขั้น'] }
     ],
     t: [2.6, 2.6, 2.6, 2.8, 3.0] },
 

@@ -33,7 +33,7 @@ Dates are editorial source fields, never the build clock. Sitemap retains root, 
 ## Claims and language review
 
 - “Nearly 20 years” and leading Thai SI enablement come from the operator's current prompt. Role history for Red Hat/Nutanix is inherited public site copy, not independently verified employment evidence. The old five-year duration is deliberately omitted under specification §24. No invented clients, metrics, certifications, badges or endorsement.
-- Keep `Thanat Manasakool` in Latin script on English pages. Thai pages have used `ธนัช มานะสกุล` since the 2026-09-17 rewrite; a 2026-09-24 copy patch introduced a second spelling, `ธนัท มนัสสกุล`, on Home only, and the 2026-09-30 redesign standardised every Thai page back to `ธนัช มานะสกุล`. The operator has not confirmed an official Thai spelling, so treat it as unverified.
+- Keep `Thanat Manasakool` in Latin script on English pages and `ธนัช มานะสกุล` on Thai pages (official Thai spelling confirmed by the operator on 2026-11-15).
 - Thai copy is authored explicitly, not translated at runtime. Native-language review remains outstanding. The 2026-09 launch kept Thai `noindex`; on 2026-10-24 the operator directed that every public page be indexed, so `config.locales.th.indexable = true` now emits `index, follow` on all six Thai routes and lists them in `sitemap.xml`. That directive is an indexing decision, not a review sign-off: the editorial date was not bumped because the Thai copy did not change. Never record review as completed without the operator's sign-off.
 - The old bilingual sales deck remains byte-for-byte unchanged, noindex and unlinked, with its own historical review/distribution decision intact. Historical progress entries are not rewritten to look current.
 

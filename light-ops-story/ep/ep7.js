@@ -105,7 +105,7 @@ LS.ep({ no: 7, title: ['Factor I O Services', 'บริการจาก แ�
     text: ['Speak directly with the engineer who designs and builds your system.', 'พูดคุยโดยตรงกับวิศวกรผู้ทำหน้าที่ทั้งออกแบบและลงมือสร้างระบบจริง'],
     lines: [
       ['Book a private Light\u00A0Ops walkthrough or an Assess session on your Linux and Kubernetes environment.', 'นัดหมายชมการสาธิต Light\u00A0Ops แบบส่วนตัว หรือเริ่มประเมินระบบ Linux และ Kubernetes ขององค์กรคุณ'],
-      { size: 'm', text: ['Thanat Manasakool · Web <em class="c">factor-io.com</em> · Email <em class="c">admin@factor-io.com</em> · LINE <em class="c">icediceice</em>', 'ธนัท มนัสกูล · เว็บไซต์ <em class="c">factor-io.com</em> · อีเมล <em class="c">admin@factor-io.com</em> · LINE <em class="c">icediceice</em>'] }
+      { size: 'm', text: ['Thanat Manasakool · Web <em class="c">factor-io.com</em> · Email <em class="c">admin@factor-io.com</em> · LINE <em class="c">icediceice</em>', 'ธนัช มานะสกุล · เว็บไซต์ <em class="c">factor-io.com</em> · อีเมล <em class="c">admin@factor-io.com</em> · LINE <em class="c">icediceice</em>'] }
     ],
     html: '<a class="nextbtn fx-up" data-b="3" href="#hub" style="left:50%;bottom:74px;translate:-50% 0">' + T(['All episodes', 'ดูครบทุกตอน']) + LS.ic('grid') + '</a>' }
   ] });

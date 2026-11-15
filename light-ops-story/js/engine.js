@@ -237,7 +237,9 @@ var POSES = {
   reach: { t: 10, aR: 112, fR: 4, aL: 20, fL: 20 },
   sad: { h: 24, t: 6, aL: 4, fL: 6, aR: -4, fR: 6 },
   lookup: { h: -18 },
-  fold: { aL: 52, fL: 112, aR: 58, fR: 104 }
+  fold: { aL: 52, fL: 112, aR: 58, fR: 104 },
+  strike: { t: 8, aR: 110, fR: 10, aL: -30, fL: 80 },
+  knocked: { t: -18, h: -14, lL: 40, sL: 20, lR: 20, sR: 10, aL: -40, fL: -60, aR: -30, fR: -70 }
 };
 var LOOPS = {
   watch: function (s) { return { h: -2 + 5 * Math.sin(s * 1.25), t: 4 + 2 * Math.sin(s * 1.25) }; },
@@ -265,7 +267,7 @@ var HEADS = {
   burglar: '<circle class="hd" cy="-29" r="22"/><path class="beanie" d="M-23,-33 A23,23 0 0 1 23,-33 Z"/><rect class="mask" x="-21" y="-34" width="42" height="10" rx="5"/>',
   robot: '<rect class="hd" x="-22" y="-56" width="44" height="44" rx="11"/><rect class="visor" x="-4" y="-43" width="26" height="12" rx="6"/><line class="acc" y1="-56" y2="-68"/><circle class="tip" cy="-72" r="5"/>'
 };
-var ROLE_HEAD = { person: 'person', defender: 'person', engineer: 'engineer', boss: 'person', attacker: 'attacker', burglar: 'burglar', ai: 'robot', rogue: 'robot', guardian: 'robot', agent: 'robot', lightagent: 'robot' };
+var ROLE_HEAD = { person: 'person', defender: 'person', engineer: 'engineer', boss: 'person', attacker: 'attacker', burglar: 'burglar', ai: 'robot', logbot: 'robot', rogue: 'robot', guardian: 'robot', agent: 'robot', lightagent: 'robot' };
 var ROLE_HOLD = { guardian: 'shield', agent: 'keys' };
 var HEADPROPS = { binoculars: '<g class="prop"><rect x="14" y="-42" width="30" height="12" rx="5"/><rect x="14" y="-28" width="30" height="12" rx="5"/></g>' };
 var HANDPROPS = {

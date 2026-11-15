@@ -253,6 +253,7 @@ svg .fx-pop, svg .fx-up, svg .fx-left { transform-box: fill-box; transform-origi
 .role-burglar .beanie { fill: #2b3b63; stroke: var(--ink); stroke-width: calc(var(--sw) * .6); }
 .role-burglar .mask { fill: #030a17; stroke: var(--ink); stroke-width: calc(var(--sw) * .5); }
 .role-ai { --visor: #e6efff; --glow: rgba(200, 220, 255, .45); }
+.role-logbot { --visor: #ffb547; --glow: rgba(255, 181, 71, .45); }
 .role-rogue { --visor: var(--red); --glow: rgba(255, 93, 122, .6); }
 .role-guardian { --visor: var(--cyan); --glow: rgba(71, 217, 234, .75); }
 .role-guardian .prop { fill: #0f2a4f; stroke: var(--cyan); }

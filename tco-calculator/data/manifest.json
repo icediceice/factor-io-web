@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794637309317",
-  "generated_at": "2026-11-14T06:21:49.317Z",
-  "snapshot_digest": "64a9eba907b0783c",
+  "refresh_id": "refresh-1794810205315",
+  "generated_at": "2026-11-16T06:23:25.315Z",
+  "snapshot_digest": "6f05ceda50b591ea",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-64a9eba907b0783c.json",
-      "digest": "64a9eba907b0783c",
-      "bytes": 4113575
+      "path": "catalog-6f05ceda50b591ea.json",
+      "digest": "6f05ceda50b591ea",
+      "bytes": 4115316
     },
     "fx": {
       "kind": "external",
@@ -21,19 +21,19 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-14T06:21:49.317Z",
-      "last_success_at": "2026-11-14T06:21:49.317Z",
-      "expires_at": "2026-11-17T06:21:49.317Z",
-      "root_digest": "9917a3214240c5c6",
-      "record_count": 452,
+      "observed_at": "2026-11-16T06:23:25.315Z",
+      "last_success_at": "2026-11-16T06:23:25.315Z",
+      "expires_at": "2026-11-19T06:23:25.315Z",
+      "root_digest": "41e63467bb2e1028",
+      "record_count": 449,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-14T06:21:49.317Z",
-      "last_success_at": "2026-11-14T06:21:49.317Z",
-      "expires_at": "2026-11-17T06:21:49.317Z",
+      "observed_at": "2026-11-16T06:23:25.315Z",
+      "last_success_at": "2026-11-16T06:23:25.315Z",
+      "expires_at": "2026-11-19T06:23:25.315Z",
       "root_digest": "316cf9289253a721",
       "record_count": 3600,
       "missing_streak": 0
@@ -42,7 +42,7 @@
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-11-13T00:00:00.000Z",
-      "last_success_at": "2026-11-14T06:22:13.450Z",
+      "last_success_at": "2026-11-16T06:23:49.557Z",
       "expires_at": "2026-11-20T23:59:59.999Z",
       "root_digest": "1c853159c056e61f",
       "record_count": 1,
@@ -47039,6 +47039,18 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen4-max",
+      "name": "Qwen: Qwen4 Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:recursive/flint-v1.0:free",
       "name": "Recursive: Flint (free)",
       "tariff": "token",
@@ -47202,7 +47214,7 @@
       "id": "openrouter:stepfun/step-3.5-flash",
       "name": "StepFun: Step 3.5 Flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -47234,7 +47246,7 @@
       "id": "openrouter:tencent/hunyuan-a13b-instruct",
       "name": "Tencent: Hunyuan A13B Instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -52857,6 +52869,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:vercel_ai_gateway/openai/gpt-6-luna-decisions",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:vercel_ai_gateway/openai/text-embedding-3-large",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -52870,6 +52887,21 @@
         "offer": "litellm:vercel_ai_gateway/openai/text-embedding-ada-002",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:vercel_ai_gateway/typesafe-ai/jev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:vercel_ai_gateway/typesafe-ai/jev-1.13.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:vercel_ai_gateway/typesafe-ai/jev-1.14.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
       },
       {
         "offer": "litellm:vertex_ai/chirp",
@@ -60040,6 +60072,16 @@
         "offer": "litellm:fal_ai/fal-ai/decart/lucy-5b/image-to-video",
         "rule": "skipped_out_of_scope_mode",
         "mode": null
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/pro/us/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/pro/us/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       }
     ],
     "source_errors": {

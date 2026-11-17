@@ -331,18 +331,30 @@ test("fragment codecs reject unknown keys, malformed tokens, and oversized paylo
   assert.equal(decodedPreset.localImplFee.amount, "400000");
 });
 
-test("public release boundary keeps partner decks gitignored and omits confidential partner promo tables from new public files", async () => {
-  const gitignore = await readFile(resolve(ROOT, ".gitignore"), "utf8");
-  assert.match(gitignore, /^factor_io_dell_partnership_deck\.html$/m);
-  assert.match(gitignore, /^dell_partner_promo_deck\.html$/m);
-
-  for (const rel of [
-    "local-ai-sizer.html",
-    "tco-calculator/sizer-engine.js",
-    "tco-calculator/sizer-ui.js",
-    ".interface-design/log.json",
-  ]) {
-    const text = await readFile(resolve(ROOT, rel), "utf8");
-    assert.doesNotMatch(text, /\bDell\b|\bPowerEdge\b|\bPro\s?Max\b|dell_partner_promo_deck|factor_io_dell_partnership_deck/i, `${rel} leaked partner brand or private deck filename`);
+test("public release archive excludes private decks and public payloads omit confidential partner terms", () => {
+  const gitRead = (args) => {
+    const result = spawnSync("git", args, { cwd: ROOT, maxBuffer: 4 * 1024 * 1024 });
+    assert.equal(result.status, 0, String(result.stderr));
+    return result.stdout;
+  };
+  const privatePaths = ["factor_io_dell_partnership_deck.html", "dell_partner_promo_deck.html"];
+  const ignored = gitRead(["check-ignore", "--no-index", "--", ...privatePaths]).toString().trim().split("\n");
+  assert.deepEqual(ignored, privatePaths);
+  assert.equal(gitRead(["ls-files", "-z", "--", ...privatePaths]).length, 0, "ignored files already tracked would still publish");
+  const paths = [".gitignore", ".interface-design/log.json", "local-ai-sizer.html", "privacy.html", "tco-calculator.html", "tco-calculator/app.js", "tco-calculator/sizer-engine.js", "tco-calculator/sizer-ui.js"];
+  const archive = gitRead(["archive", "--format=tar", "HEAD", "--", ...paths]);
+  const files = new Map();
+  for (let offset = 0; offset + 512 <= archive.length;) {
+    const header = archive.subarray(offset, offset + 512);
+    if (header.every(byte => byte === 0)) break;
+    const name = header.subarray(0, 100).toString().replace(/\0.*$/, "");
+    const size = parseInt(header.subarray(124, 136).toString().replace(/\0.*$/, "").trim(), 8) || 0;
+    if (header[156] === 0 || header[156] === 48) files.set(name, archive.subarray(offset + 512, offset + 512 + size).toString());
+    offset += 512 + Math.ceil(size / 512) * 512;
+  }
+  for (const path of paths) {
+    assert.ok(files.has(path), `release artifact omitted ${path}`);
+    if (path === ".gitignore") continue;
+    assert.doesNotMatch(files.get(path), /\bDell\b|\bPowerEdge\b|\bPro\s?Max\b|dell_partner_promo_deck|factor_io_dell_partnership_deck/i, `${path} leaked confidential terms into release output`);
   }
 });

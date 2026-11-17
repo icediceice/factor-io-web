@@ -1,3 +1,19 @@
+test('live API tariff replacement triggers repricing even when FX stays on the dated fallback', () => {
+  const n=sizer.normalizeSizerInput({users:100,modelId:'qwen3-5-9b',gpuId:'rtx_pro_6000_se',quoteBasis:'fleet_total',nodes:1,gpusPerNode:2,fleetTotalPrice:{amount:'100000',currency:'THB'}});
+  const original=sizer.computeSizer({input:n,data});
+  const id=original.resolvedApiOfferId;
+  const old=data.catalog.offers[id];
+  const live={source:{source_id:'openrouter',observed_at:'2026-11-17T00:00:00Z',origin:'live'},models:[{id,name:'Live quote',state:'active'}],offers:{[id]:{...old, prices:{...old.prices,input:'0.001',output:'0.002'}}}};
+  const replaced=replaceCatalogSource(data.manifest,data.catalog,live);
+  const captured=sizer.normalizeSizerInput({...n,apiOfferId:id,pricingIdentity:original.pricingIdentity});
+  const projected=sizer.projectSizerControls({normalized:captured,beforeControls:{},stateData:{...data,...replaced}});
+  expect(projected.result.comparison.totals.B.monthly_total).not.toBe(original.comparison.totals.B.monthly_total);
+  expect(projected.repriced).toBe(true);
+});
+test('an explicitly selected unpublished platform subscription cannot silently become free', () => {
+  const result=sizer.computeSizer({input:{users:100,modelId:'qwen3-5-9b',gpuId:'rtx_pro_6000_se',quoteBasis:'fleet_total',nodes:1,gpusPerNode:2,fleetTotalPrice:{amount:'100000',currency:'THB'},subscriptionId:'nutanix-enterprise-ai'},data});
+  expect(result.ok).toBe(false);
+});
 // Quarantined acceptance cases for plan local:f375941d546baaa90771ad611b3f195d.
 import { replaceCatalogSource } from '../tco-calculator/live-pricing.js';
 import { test, expect } from 'vitest';

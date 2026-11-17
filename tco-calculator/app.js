@@ -341,7 +341,7 @@ function processAdvisorReturn(fresh = false) {
       const before = captureControls(); const groups = readArchGroups(); const starter = starterUI.snapshot();
       try { writeReturnedControls(record.controls, record.groups); starterUI.restore(record.starter); }
       catch (error) { writeReturnedControls(before, groups); starterUI.restore(starter); throw error; }
-      restoredHandoff = true; flushLiveInput();
+      restoredHandoff = true; flushLiveInput(); syncSizerReturnOriginState();
     }
     if (currentControlIdentity() !== record.identity) throw new Error("Calculator inputs changed while you were away. The proposal was not applied; your edits are preserved. Reopen the advisor from this scenario.");
     if (!record.proposal) return;

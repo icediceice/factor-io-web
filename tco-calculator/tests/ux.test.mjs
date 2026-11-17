@@ -609,6 +609,143 @@ test("storage consumption failure rolls all reviewed controls back", () => {
   assert.match(h.node("return-status").textContent, /Storage blocked/);
   assert.equal(h.get("plannerState.applied"), false);
 });
+
+function sizerReceiverHarness() {
+  const h = harness();
+  let mode = "starter";
+  let computations = 0;
+  let replacedUrl = null;
+  h.context.history = { replaceState: (_s, _t, url) => { replacedUrl = url; } };
+  h.state.ready = true;
+  h.state.manifest = {
+    snapshot_digest: "snap-1",
+    models: [{ id: "openrouter:gpt-4o", name: "GPT-4o", state: "active" }],
+  };
+  h.state.catalog = {
+    offers: {
+      "openrouter:gpt-4o": {
+        id: "openrouter:gpt-4o",
+        source_id: "openrouter",
+        input_per_1m: "2.5",
+        output_per_1m: "10",
+        cached_input_per_1m: "1.25",
+      },
+    },
+  };
+  h.state.gpuPricing = {
+    gpus: {
+      h100: { label: "NVIDIA H100 80GB", vram_gb: 80 },
+      rtx_pro_6000_se: { label: "RTX PRO 6000 SE 96GB", vram_gb: 96 },
+    },
+    rows: [{ provider: "first", provider_label: "First Cloud", gpu_id: "h100", gpu_label: "H100", sku: "h100-1x", gpu_hourly_usd: "2.50", confidence: "first_party" }],
+  };
+  h.state.serverPricing = {
+    rows: [{ server_id: "srv-rtx-2x", gpu_id: "rtx_pro_6000_se", gpu_count: 2, form_factor: "2U", usd_typical: "53333" }],
+  };
+  h.state.servingData = JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8"));
+  h.state.powerSeed = JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8"));
+  h.state.subscriptions = { rows: [{ id: "none", label: "None", applies_to: [] }] };
+
+  const defaults = {
+    "f-users": "20", "f-sessions-day": "2", "f-days": "22", "f-horizon": "60",
+    "f-peak-frac": "10", "f-tps-stream": "30", "f-p95": "", "f-utc": "2026-09-01T00:00:00Z",
+    "f-mix-chat": "100", "f-mix-rag": "0", "f-mix-graphrag": "0", "f-mix-agentic": "0",
+    "f-chat-turns": "2", "f-chat-in": "100", "f-chat-out": "50", "f-chat-cached": "0",
+    "f-rag-turns": "2", "f-rag-in": "100", "f-rag-out": "50", "f-rag-cached": "0",
+    "f-graphrag-turns": "2", "f-graphrag-in": "100", "f-graphrag-out": "50", "f-graphrag-cached": "0",
+    "f-agentic-turns": "2", "f-agentic-in": "100", "f-agentic-out": "50", "f-agentic-cached": "0",
+    "f-sv-model": "qwen3-5-9b", "f-sv-params": "9", "f-sv-active": "9", "f-sv-ctx": "8192", "f-sv-kvbytes": "",
+    "f-sv-wquant": "fp8", "f-sv-kvquant": "fp8", "f-sv-runtime": "vllm", "f-sv-mode": "interactive", "f-sv-maxbatch": "",
+    "f-sh-tps-gpu": "", "f-sh-gpu": "h100", "f-srv-basis": "usd_typical", "f-srv-config": "",
+    "f-sh-count": "", "f-sh-nodes": "", "f-sh-capex": "", "f-sh-fixed": "", "f-sh-budget": "",
+    "f-power-pue": "1.4", "f-power-rate": "4", "f-power-overhead": "20",
+    "f-rent-provider": "first", "f-rent-gpu": "0", "f-rent-util": "70",
+    "fb-feed": "openrouter", "fb-model": "openrouter:gpt-4o",
+    "fr-policy": "local_first", "fr-blend": "70", "fr-failshare": "0", "fr-failrate": "2",
+    "fo-license": "0", "fo-consult": "0", "f-onetime-a": "0", "f-onetime-b": "0", "f-onetime-c": "0", "fo-impl": "0",
+    "f-sub-row": "none", "f-sub-term": "", "f-sub-price": "",
+  };
+  for (const [id, val] of Object.entries(defaults)) h.node(id).value = val;
+  const selectOptions = {
+    "f-sv-wquant": ["fp8", "bf16", "int4"],
+    "f-sv-kvquant": ["fp8", "bf16"],
+    "f-sv-runtime": ["vllm"],
+    "f-sv-mode": ["interactive", "batch"],
+    "f-sh-gpu": ["h100", "rtx_pro_6000_se"],
+    "f-srv-basis": ["usd_low", "usd_typical", "usd_high"],
+    "f-rent-provider": ["first"],
+    "f-rent-gpu": ["0"],
+    "fb-feed": ["openrouter"],
+    "fb-model": ["openrouter:gpt-4o"],
+    "fr-policy": ["local_first"],
+    "f-sub-row": ["none"],
+  };
+  for (const [id, opts] of Object.entries(selectOptions)) {
+    h.node(id).tagName = "SELECT";
+    h.node(id).options = opts.map((value) => ({ value, textContent: value }));
+  }
+  h.context.document.querySelectorAll = () => [...h.nodes.values()].filter((n) => /^(f-|fb-|fo-|fr-)/.test(n.id));
+  h.get("readArchGroups = () => []");
+  h.context.applyControls = (values) => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
+  h.get("writeReturnedControls = (values) => applyControls(values)");
+  h.context.recompute = () => { computations += 1; h.state.result = { computed: true }; };
+  h.get("flushLiveInput = () => recompute()");
+  const starter = {
+    snapshot: () => ({ mode }),
+    setMode: (next) => { mode = next; if (mode === "custom") h.context.recompute(); },
+    restore: (snap) => { mode = snap.mode; },
+  };
+  h.context.starter = starter;
+  h.get("starterUI = starter");
+  return { ...h, mode: () => mode, computations: () => computations, replacedUrl: () => replacedUrl };
+}
+
+test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee once, warns on FX drift, and rolls back invalid or conflicting URLs", () => {
+  const h = sizerReceiverHarness();
+  const norm = normalizeSizerInput({
+    workloadId: "thai_doc_line_ops",
+    users: 320,
+    modelId: "qwen3-8-27b",
+    gpuId: "rtx_pro_6000_se",
+    quoteBasis: "integrated_node",
+    quoteCurrency: "THB",
+    nodes: 2,
+    gpusPerNode: 2,
+    integratedNodePrice: { amount: "925000", currency: "THB" },
+    localImplFee: { amount: "750000", currency: "THB" },
+    apiOfferId: "openrouter:gpt-4o",
+    pricingIdentity: "snap-0|2026-09-01|33.801000",
+  });
+  const frag = encodeSizerFragment(norm, { pricingIdentity: norm.pricingIdentity, resolvedApiOfferId: "openrouter:gpt-4o" });
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${frag}`;
+
+  assert.equal(h.get("processSizerReturn()"), true);
+  assert.equal(h.mode(), "custom");
+  assert.equal(h.computations(), 1);
+  assert.equal(h.node("f-sh-gpu").value, "rtx_pro_6000_se");
+  assert.equal(h.node("f-sh-count").value, "4");
+  assert.equal(h.node("f-sh-nodes").value, "2");
+  assert.equal(h.node("f-sh-capex").value, "1850000");
+  assert.equal(h.node("f-onetime-a").value, "750000");
+  assert.match(h.node("return-review").innerHTML, /Live API prices or exchange rates moved/);
+  assert.equal(h.replacedUrl(), "/tco-calculator.html#custom-page");
+
+  // Malformed or conflicting URLs fail closed with zero control mutation and zero recomputations
+  const bad = sizerReceiverHarness();
+  bad.context.location.href = "https://studio.factor-io.com/tco-calculator.html#sizer=v1.corrupted_token!";
+  assert.equal(bad.get("processSizerReturn()"), false);
+  assert.equal(bad.mode(), "starter");
+  assert.equal(bad.computations(), 0);
+  assert.equal(bad.node("f-users").value, "20");
+  assert.match(bad.node("return-review").innerHTML, /role="alert"/);
+
+  const conflict = sizerReceiverHarness();
+  conflict.context.location.href = `https://studio.factor-io.com/tco-calculator.html?advisor=00000000-0000-4000-8000-000000000099#${frag}`;
+  assert.equal(conflict.get("processSizerReturn()"), false);
+  assert.equal(conflict.mode(), "starter");
+  assert.equal(conflict.computations(), 0);
+  assert.equal(conflict.node("f-users").value, "20");
+});
 const advisorRecord = () => ({ saved_at: Date.now(), controls: { "f-users": "20" }, contracts: { "f-users": { kind: "integer", min: 1, max: 10000000 } }, context: { mode: "custom", label: "test scenario", figures: { monthly: "฿3,300.00" }, sources: { api: { status: "stale", observed_at: "2026-01-01" } } }, answers: {} });
 function advisorHarness({ record = advisorRecord(), transport = null } = {}) {
   const h = harness(); const calls = []; const returned = [];

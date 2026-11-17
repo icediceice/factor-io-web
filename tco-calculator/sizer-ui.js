@@ -1299,7 +1299,7 @@ async function init() {
       fetchJson("./tco-calculator/data/server-pricing.json"),
       fetchJson("./tco-calculator/data/serving-models.json"),
       fetchJson("./tco-calculator/data/power-seed.json"),
-      fetchJson("./tco-calculator/data/subscriptions.json"),
+      fetchJson("./tco-calculator/data/subscription-pricing.json"),
     ]);
     appState.data = {
       manifest,

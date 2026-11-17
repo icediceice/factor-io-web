@@ -789,17 +789,17 @@ function renderStep3() {
           <tr>
             <td>${appState.lang === "th" ? "ขนาดน้ำหนักโมเดล\u00A0(Weights)" : "Resident Model Weights"}</td>
             <td>${esc(d.wquant.toUpperCase())}</td>
-            <td class="col-num">${sv ? `${esc(sv.weights_gb.text)} GB` : "N/A"}</td>
+            <td class="col-num">${sv ? `${esc(sv.weights_gb_resident.text)} GB` : "N/A"}</td>
           </tr>
           <tr>
             <td>${appState.lang === "th" ? "หน่วยความจำ\u00A0KV\u00A0Cache\u00A0ต่อคำขอ" : "KV Cache per Active Sequence"}</td>
             <td>${esc(d.kvquant.toUpperCase())} @ ${appState.computed ? fmtInt(appState.computed.normalized.effectiveContextTokens) : "0"} tok</td>
-            <td class="col-num">${sv ? `${esc(sv.kv_per_seq_gb.text)} GB` : "N/A"}</td>
+            <td class="col-num">${sv ? `${esc(sv.kv_gb_per_sequence.text)} GB` : "N/A"}</td>
           </tr>
           <tr>
             <td>${appState.lang === "th" ? "รูปแบบ\u00A0Tensor\u00A0Parallel\u00A0และความเร็วต่อรีพลิกา" : "Replica Tensor Parallel & Roofline"}</td>
             <td>${esc(d.gpuId)}</td>
-            <td class="col-num">${sv ? `TP=${sv.tp} · ${esc(sv.tokens_s_per_replica.text)} tok/s` : "Refused"}</td>
+            <td class="col-num">${sv ? `TP=${sv.gpus_per_replica} · ${esc(sv.tokens_s_per_replica.text)} tok/s` : "Refused"}</td>
           </tr>
         </tbody>
       </table>

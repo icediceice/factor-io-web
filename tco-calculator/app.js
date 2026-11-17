@@ -701,10 +701,14 @@ async function init() {
     state.catalog = catalogResult.value;
     state.fx = normalizeFxDocument(fallbackFxResult.value, { integrity: "digest-pinned" });
     if (openRouterResult.status === "fulfilled") {
-      const live = compileLiveOpenRouter(openRouterResult.value);
-      const replacement = replaceCatalogSource(state.manifest, state.catalog, live);
-      state.manifest = replacement.manifest;
-      state.catalog = replacement.catalog;
+      try {
+        const live = compileLiveOpenRouter(openRouterResult.value);
+        const replacement = replaceCatalogSource(state.manifest, state.catalog, live);
+        state.manifest = replacement.manifest;
+        state.catalog = replacement.catalog;
+      } catch (err) {
+        state.liveFailures.openrouter = String(err?.message ?? err ?? "live compile failed");
+      }
     } else {
       state.liveFailures.openrouter = String(openRouterResult.reason?.message ?? openRouterResult.reason ?? "live fetch failed");
     }

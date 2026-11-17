@@ -391,21 +391,37 @@ test("catalog node override prices the declared node fleet, rejects conflicting 
   });
   assert.equal(projected.controls["f-sh-count"], "10");
 
-  // Explicit catalog gpusPerNode conflicting with selected server row is refused rather than silently altered
-  const conflictingSlots = computeSizer({
+  // Catalog server's gpu_count is authoritative even if residual custom gpusPerNode sits in draft state;
+  // an explicit catalog node count below peak GPU requirement refuses cleanly.
+  const residualCustomSlots = computeSizer({
     input: {
-      users: 1,
+      users: 100,
       modelId: "qwen3-5-9b",
-      gpuId: "rtx_pro_6000_ws",
+      gpuId: "rtx_pro_6000_se",
       quoteBasis: "catalog",
-      serverId: "ws-rtx-pro-6000-1x-derived",
       nodes: 2,
-      gpusPerNode: 4,
+      gpusPerNode: 2,
     },
     data: baseData,
   });
-  assert.equal(conflictingSlots.ok, false);
-  assert.equal(conflictingSlots.bom.code, "conflicting_catalog_slots");
+  assert.equal(residualCustomSlots.ok, true);
+  assert.equal(residualCustomSlots.bom.nodes, 2);
+  assert.equal(residualCustomSlots.bom.gpusPerNode, 4);
+  assert.equal(residualCustomSlots.bom.installedGpus, 8);
+
+  const underSizedCatalog = computeSizer({
+    input: {
+      users: 5000,
+      modelId: "qwen3-8-27b",
+      gpuId: "rtx_pro_6000_ws",
+      quoteBasis: "catalog",
+      serverId: "ws-rtx-pro-6000-1x-derived",
+      nodes: 1,
+    },
+    data: baseData,
+  });
+  assert.equal(underSizedCatalog.ok, false);
+  assert.equal(underSizedCatalog.bom.code, "insufficient_installed_gpus");
 
   // Selected unpublished or unknown platform subscriptions refuse instead of becoming free
   const unpublishedSub = computeSizer({

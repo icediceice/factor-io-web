@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -8,12 +9,20 @@ import { formatHalfUp, toRat } from "../exact.js";
 import { normalizeFxDocument, toTHB } from "../currency.js";
 import { runComparison } from "../calculator.js?v=20260906-ux3";
 import {
+  LOCAL_AI_WORKLOADS,
   normalizeSizerInput,
+  resolveSizerModel,
   computeSizer,
+  evaluateGpuCandidates,
+  filterApiOffers,
+  pickComparableApiOffer,
+  describePricingRefresh,
   encodeSizerFragment,
   decodeSizerFragment,
   encodePresetFragment,
   decodePresetFragment,
+  encodeSizerSaveEnvelope,
+  decodeSizerSaveEnvelope,
   projectSizerControls,
   buildPricingIdentity,
   SizerValidationError,

@@ -663,21 +663,287 @@ function decStr(val, fieldName, { min = "0", max = "1000000", allowZero = true }
   return d.toString();
 }
 
+const VENDOR_PRIORITY = Object.freeze([
+  "openai",
+  "anthropic",
+  "google",
+  "deepseek",
+  "qwen",
+  "meta-llama",
+  "mistralai",
+  "x-ai",
+  "cohere",
+]);
+
+export const API_VENDOR_LABELS = Object.freeze({
+  openai: "OpenAI",
+  anthropic: "Anthropic Claude",
+  google: "Google Gemini",
+  deepseek: "DeepSeek",
+  qwen: "Qwen (Alibaba)",
+  "meta-llama": "Meta Llama",
+  mistralai: "Mistral AI",
+  "x-ai": "xAI Grok",
+  cohere: "Cohere",
+  amazon: "Amazon Bedrock / Nova",
+  microsoft: "Microsoft / Azure",
+});
+
+function normalizeApiVendor(feed, seller, product) {
+  const prod = String(product ?? "").trim().toLowerCase();
+  const sel = String(seller ?? "").trim().toLowerCase();
+  const prefix = prod.includes("/") ? prod.split("/")[0] : "";
+  const token = feed === "openrouter" ? (prefix || sel) : (prefix || sel);
+  if (token === "openai" || /^gpt-|^o[134]-|^chatgpt-/.test(prod)) return "openai";
+  if (token === "anthropic" || prod.includes("claude")) return "anthropic";
+  if (token === "google" || token.startsWith("vertex_ai") || token === "gemini" || prod.includes("gemini")) return "google";
+  if (token === "deepseek" || prod.includes("deepseek")) return "deepseek";
+  if (token === "qwen" || token === "dashscope" || prod.includes("qwen")) return "qwen";
+  if (token === "meta-llama" || token === "meta" || prod.includes("llama")) return "meta-llama";
+  if (token === "mistralai" || token === "mistral" || prod.includes("mistral")) return "mistralai";
+  if (token === "x-ai" || token === "xai" || prod.includes("grok")) return "x-ai";
+  if (token === "cohere" || prod.includes("command-r")) return "cohere";
+  if (token === "amazon" || token === "bedrock" || prod.includes("nova")) return "amazon";
+  if (token === "microsoft" || token === "azure") return "microsoft";
+  return token || "other";
+}
+
+function perMillionUsdText(perTokenStr) {
+  if (perTokenStr === null || perTokenStr === undefined || perTokenStr === "") return null;
+  try {
+    const r = toRat(String(perTokenStr)).mul(Rat.from(1000000n));
+    return trimDecimalZeros(formatHalfUp(r, 4));
+  } catch {
+    return null;
+  }
+}
+
+export function classifyApiOffer(offerId, offer, modelMeta = null) {
+  const id = String(offerId ?? "");
+  const feed = String(offer?.seller_source || id.split(":")[0] || "other").toLowerCase();
+  const product = String(offer?.product || id.replace(/^[^:]+:/, ""));
+  const seller = String(offer?.seller || feed);
+  const vendor = normalizeApiVendor(feed, seller, product);
+  const displayName = String(offer?.display_name || modelMeta?.name || product || id);
+  const prices = offer?.prices ?? {};
+  const baseIn = prices["input|std"] ?? prices.input ?? null;
+  const baseOut = prices["output|std"] ?? prices.output ?? null;
+  const inputPer1MUsd = perMillionUsdText(baseIn);
+  const outputPer1MUsd = perMillionUsdText(baseOut);
+  const isBatch = /:batch$/i.test(id) || /:batch$/i.test(product);
+  const isFree = /:free$/i.test(id) || /:free$/i.test(product);
+  const nonChatMode = new Set([
+    "embedding",
+    "image_generation",
+    "audio_transcription",
+    "audio_speech",
+    "moderation",
+    "rerank",
+  ]).has(String(offer?.ingest_mode ?? "").toLowerCase());
+  const retired = ["retired", "quarantined"].includes(String(modelMeta?.state ?? ""));
+  const tokenEligible = Boolean(offer && !retired && !nonChatMode && inputPer1MUsd !== null && outputPer1MUsd !== null);
+  const hasConditionalRates = Object.keys(prices).some((k) => (
+    k !== "input"
+    && k !== "output"
+    && k !== "input|std"
+    && k !== "output|std"
+    && !k.startsWith("cache_read|std")
+    && !k.startsWith("cache_write|std")
+    && k !== "cache_read"
+    && k !== "cache_write"
+  ));
+  return {
+    id,
+    feed,
+    seller,
+    vendor,
+    vendorLabel: API_VENDOR_LABELS[vendor] ?? vendor,
+    product,
+    displayName,
+    inputPer1MUsd,
+    outputPer1MUsd,
+    isBatch,
+    isFree,
+    tokenEligible,
+    hasConditionalRates,
+    missingFromCatalog: !offer,
+    outsideFilter: false,
+  };
+}
+
+function rankApiOfferInfo(a, b) {
+  if (a.isFree !== b.isFree) return a.isFree ? 1 : -1;
+  if (a.isBatch !== b.isBatch) return a.isBatch ? 1 : -1;
+  if (a.feed !== b.feed) {
+    if (a.feed === "openrouter") return -1;
+    if (b.feed === "openrouter") return 1;
+  }
+  const va = VENDOR_PRIORITY.indexOf(a.vendor);
+  const vb = VENDOR_PRIORITY.indexOf(b.vendor);
+  const pa = va === -1 ? 999 : va;
+  const pb = vb === -1 ? 999 : vb;
+  if (pa !== pb) return pa - pb;
+  return a.displayName.localeCompare(b.displayName, "en");
+}
+
+export function filterApiOffers({
+  catalog,
+  manifest,
+  feed = "all",
+  vendor = "all",
+  search = "",
+  selectedOfferId = "",
+  limit = 120,
+} = {}) {
+  const offers = catalog?.offers ?? {};
+  const modelMap = new Map((manifest?.models ?? []).map((m) => [m.id, m]));
+  const candidateIds = modelMap.size > 0 ? [...modelMap.keys()] : Object.keys(offers);
+  const eligible = [];
+  const feedSet = new Set();
+  const vendorCounts = new Map();
+
+  for (const id of candidateIds) {
+    const offer = offers[id];
+    if (!offer) continue;
+    const info = classifyApiOffer(id, offer, modelMap.get(id) ?? null);
+    if (!info.tokenEligible) continue;
+    eligible.push(info);
+    feedSet.add(info.feed);
+    vendorCounts.set(info.vendor, (vendorCounts.get(info.vendor) ?? 0) + 1);
+  }
+
+  eligible.sort(rankApiOfferInfo);
+
+  const normFeed = String(feed || "all").toLowerCase();
+  const normVendor = String(vendor || "all").toLowerCase();
+  const q = String(search ?? "").trim().toLowerCase();
+
+  const matching = eligible.filter((info) => {
+    if (normFeed !== "all" && info.feed !== normFeed) return false;
+    if (normVendor !== "all" && info.vendor !== normVendor) return false;
+    if (q) {
+      const hay = `${info.id} ${info.displayName} ${info.product} ${info.vendor} ${info.vendorLabel}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const sliced = matching.slice(0, Math.max(1, limit));
+  const sel = String(selectedOfferId ?? "").trim();
+  let unresolvedSelectedId = null;
+
+  if (sel) {
+    const alreadyInSlice = sliced.some((x) => x.id === sel);
+    if (!alreadyInSlice) {
+      const existingOffer = offers[sel];
+      if (!existingOffer) {
+        unresolvedSelectedId = sel;
+        sliced.unshift({
+          ...classifyApiOffer(sel, null, null),
+          outsideFilter: true,
+          missingFromCatalog: true,
+        });
+      } else {
+        const selInfo = classifyApiOffer(sel, existingOffer, modelMap.get(sel) ?? null);
+        const matchedAll = matching.some((x) => x.id === sel);
+        sliced.unshift({
+          ...selInfo,
+          outsideFilter: !matchedAll,
+          missingFromCatalog: false,
+        });
+      }
+    }
+  }
+
+  const feeds = ["openrouter", "litellm", ...[...feedSet].filter((f) => f !== "openrouter" && f !== "litellm").sort()]
+    .filter((f) => feedSet.has(f));
+  const vendors = [...vendorCounts.keys()].sort((a, b) => {
+    const ia = VENDOR_PRIORITY.indexOf(a);
+    const ib = VENDOR_PRIORITY.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    return a.localeCompare(b, "en");
+  }).map((v) => ({
+    id: v,
+    label: API_VENDOR_LABELS[v] ?? v,
+    count: vendorCounts.get(v) ?? 0,
+  }));
+
+  return {
+    offers: sliced,
+    totalEligible: eligible.length,
+    totalMatching: matching.length,
+    feeds,
+    vendors,
+    unresolvedSelectedId,
+  };
+}
+
 export function pickComparableApiOffer(catalog, manifest, preferredOfferId = null) {
   const offers = catalog?.offers ?? {};
+  const pref = typeof preferredOfferId === "string" ? preferredOfferId.trim() : "";
+  if (pref) {
+    return offers[pref] ? pref : "";
+  }
   const models = manifest?.models ?? [];
-  if (preferredOfferId && offers[preferredOfferId]) return preferredOfferId;
   const activeIds = models
     .filter((m) => !["retired", "quarantined"].includes(m.state) && offers[m.id])
     .map((m) => m.id);
   const pool = activeIds.length ? activeIds : Object.keys(offers);
+  const nonBatchTokenPool = pool.filter((id) => {
+    const info = classifyApiOffer(id, offers[id], null);
+    return info.tokenEligible && !info.isBatch && !info.isFree;
+  });
+  const searchPool = nonBatchTokenPool.length ? nonBatchTokenPool : pool;
   return (
-    pool.find((id) => id === "openrouter:openai/gpt-4o" || id === "litellm:gpt-4o")
-    ?? pool.find((id) => /^openrouter:openai\/gpt-4o(?!-mini)/.test(id))
-    ?? pool.find((id) => /^openrouter:anthropic\/claude-sonnet-4(?!.*:batch)/.test(id))
-    ?? pool[0]
+    searchPool.find((id) => id === "openrouter:openai/gpt-4o" || id === "litellm:gpt-4o")
+    ?? searchPool.find((id) => /^openrouter:openai\/gpt-4o(?!-mini)(?!.*:batch)/.test(id))
+    ?? searchPool.find((id) => /^openrouter:anthropic\/claude-sonnet-4(?!.*:batch)/.test(id))
+    ?? searchPool.find((id) => /^openrouter:google\/gemini-2\.5-(?:pro|flash)(?!.*:batch)/.test(id))
+    ?? searchPool.find((id) => /^openrouter:deepseek\/deepseek-(?:chat|v3)(?!.*:batch)/.test(id))
+    ?? searchPool[0]
     ?? ""
   );
+}
+
+export function groupCatalogModels(servingData) {
+  const all = Array.isArray(servingData?.models) ? servingData.models : [];
+  const real = all
+    .filter((m) => m && m.id && m.id !== "custom")
+    .slice()
+    .sort((a, b) => Number(a.params_b) - Number(b.params_b));
+  const groups = [
+    {
+      id: "compact",
+      enLabel: "Compact & Single-GPU Edge (<= 12B)",
+      thLabel: "ขนาดเล็กประหยัด\u00A0VRAM\u00A0การ์ดเดี่ยว\u00A0(<= 12B)",
+      models: real.filter((m) => Number(m.params_b) <= 12),
+    },
+    {
+      id: "workhorse",
+      enLabel: "Enterprise Workhorse (13B to 45B)",
+      thLabel: "ขนาดมาตรฐานองค์กร\u00A0RAG & Tool\u00A0(13B\u201345B)",
+      models: real.filter((m) => Number(m.params_b) > 12 && Number(m.params_b) <= 45),
+    },
+    {
+      id: "large_moe",
+      enLabel: "Large Multi-GPU Reasoning (46B to 200B)",
+      thLabel: "โมเดลวิเคราะห์ซับซ้อนหลายการ์ด\u00A0(46B\u2013200B)",
+      models: real.filter((m) => Number(m.params_b) > 45 && Number(m.params_b) <= 200),
+    },
+    {
+      id: "frontier",
+      enLabel: "Frontier Sovereign Pool (> 200B)",
+      thLabel: "โมเดลขนาดใหญ่พิเศษระดับดาต้าเซ็นเตอร์\u00A0(> 200B)",
+      models: real.filter((m) => Number(m.params_b) > 200),
+    },
+  ].filter((g) => g.models.length > 0);
+  const customModel = all.find((m) => m?.id === "custom") ?? null;
+  return { groups, realModels: real, customModel };
+}
+
+function optDecStr(val, fieldName, opts = {}) {
+  if (val === null || val === undefined || val === "") return null;
+  return decStr(val, fieldName, opts);
 }
 
 // Normalizes raw user/preset input ONCE. Toggling UI language or currency never
@@ -736,10 +1002,19 @@ export function normalizeSizerInput(raw = {}) {
     : [...workloadPreset.defaultConnectors];
 
   const modelId = String(raw.modelId ?? workloadPreset.recommendedModelId).trim();
+  const customParamsB = optDecStr(raw.customParamsB, "customParamsB", { min: "0.1", max: "10000", allowZero: false });
+  const rawActiveParamsB = optDecStr(raw.customActiveParamsB, "customActiveParamsB", { min: "0.1", max: "10000", allowZero: false });
+  const customActiveParamsB = rawActiveParamsB ?? customParamsB;
+  if (customParamsB !== null && customActiveParamsB !== null && Dec.from(customActiveParamsB).gt(Dec.from(customParamsB))) {
+    throw new SizerValidationError("bad_custom_params", `Active parameters (${customActiveParamsB}B) cannot exceed total parameters (${customParamsB}B)`);
+  }
+  const customKvBytesBf16 = posInt(raw.customKvBytesBf16, "customKvBytesBf16", { min: 2, max: 100000000, allowNull: true });
+  const customContextMax = posInt(raw.customContextMax, "customContextMax", { min: 128, max: 10000000, allowNull: true });
+
   const wquant = String(raw.wquant ?? "fp8").trim();
   const kvquant = String(raw.kvquant ?? "fp8").trim();
   const runtime = String(raw.runtime ?? "vllm").trim();
-  const gpuId = String(raw.gpuId ?? "rtx_pro_6000_se").trim();
+  const gpuId = String(raw.gpuId ?? workloadPreset.recommendedGpuId ?? "rtx_pro_6000_se").trim();
 
   const quoteBasis = String(raw.quoteBasis ?? "catalog").trim();
   if (!QUOTE_BASES.has(quoteBasis)) {
@@ -799,6 +1074,10 @@ export function normalizeSizerInput(raw = {}) {
     effectiveOutputTokens,
     effectiveContextTokens,
     modelId,
+    customParamsB,
+    customActiveParamsB,
+    customKvBytesBf16,
+    customContextMax,
     wquant,
     kvquant,
     runtime,
@@ -829,20 +1108,180 @@ export function normalizeSizerInput(raw = {}) {
   });
 }
 
+export function resolveSizerModel({ normalized, servingData }) {
+  const baseModel = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
+  if (!baseModel) {
+    return {
+      ok: false,
+      code: "unknown_model",
+      reason: `Model "${normalized.modelId}" is not in serving-models.json.`,
+      model: null,
+      warnings: [],
+      weightMemoryGb: null,
+    };
+  }
+  const wq = servingData?.weight_quantization?.[normalized.wquant];
+  const kq = servingData?.kv_quantization?.[normalized.kvquant];
+  const calcWeightGb = (paramsStr) => {
+    if (!paramsStr || !wq?.bytes_per_param) return null;
+    try {
+      return formatHalfUp(toRat(String(paramsStr)).mul(toRat(String(wq.bytes_per_param))), 2);
+    } catch {
+      return null;
+    }
+  };
+  const deriveSelectedKvBytes = (bf16Bytes) => {
+    const elemRat = toRat(String(kq?.bytes_per_element ?? "1"));
+    const prod = Rat.from(BigInt(bf16Bytes)).mul(elemRat).div(Rat.from(2n));
+    const q = prod.n / prod.d;
+    const rem = prod.n % prod.d;
+    return Number(rem > 0n ? q + 1n : q);
+  };
+
+  const hasAnyCustomField = (
+    normalized.customParamsB !== null
+    || normalized.customActiveParamsB !== null
+    || normalized.customKvBytesBf16 !== null
+    || normalized.customContextMax !== null
+  );
+
+  if (normalized.modelId === "custom") {
+    if (!hasAnyCustomField) {
+      return {
+        ok: true,
+        code: "ok",
+        reason: null,
+        model: { ...baseModel, kv_override: false, selected_kv_bytes_per_token: "" },
+        weightMemoryGb: calcWeightGb(baseModel.params_b),
+        warnings: [{
+          code: "assumed_legacy_custom_shape",
+          en: "Legacy custom preset uses an assumed 8B (32-layer, 8 KV-head) starting geometry. Supply total/active B, BF16 KV bytes/token, and context limit for your actual checkpoint.",
+          th: "ใช้ค่าเริ่มต้นสมมติฐาน\u00A08B\u00A0(32\u00A0เลเยอร์)\u00A0โปรดระบุพารามิเตอร์\u00A0ค่า\u00A0KV\u00A0ต่อโทเค็น\u00A0และ\u00A0Context\u00A0สูงสุดของโมเดลจริง",
+        }],
+      };
+    }
+    const weightMemoryGb = calcWeightGb(normalized.customParamsB);
+    if (
+      normalized.customParamsB === null
+      || normalized.customActiveParamsB === null
+      || normalized.customKvBytesBf16 === null
+      || normalized.customContextMax === null
+    ) {
+      return {
+        ok: false,
+        code: "incomplete_custom_model",
+        reason: `Custom model (${normalized.customParamsB ? `${normalized.customParamsB}B` : "unspecified"} weights${weightMemoryGb ? `, ~${weightMemoryGb} GB weight memory` : ""}) requires total parameters (B), active parameters (B), full-retention BF16 KV cache bytes/token, and max context window before sizing a GPU fleet.`,
+        model: null,
+        warnings: [],
+        weightMemoryGb,
+      };
+    }
+    if (Dec.from(normalized.customActiveParamsB).gt(Dec.from(normalized.customParamsB))) {
+      return {
+        ok: false,
+        code: "bad_custom_params",
+        reason: `Active parameters (${normalized.customActiveParamsB}B) cannot exceed total parameters (${normalized.customParamsB}B).`,
+        model: null,
+        warnings: [],
+        weightMemoryGb,
+      };
+    }
+    const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
+    return {
+      ok: true,
+      code: "ok",
+      reason: null,
+      weightMemoryGb,
+      model: {
+        ...baseModel,
+        label: `Custom (${normalized.customParamsB}B / ${normalized.customActiveParamsB}B active)`,
+        params_b: normalized.customParamsB,
+        active_params_b: normalized.customActiveParamsB,
+        context_max: normalized.customContextMax,
+        context_default: Math.min(normalized.effectiveContextTokens, normalized.customContextMax),
+        kv_override: true,
+        selected_kv_bytes_per_token: String(selectedKvBytes),
+        groups: [{ kind: "full", layers: 1, tensors: 1, kv_heads: 1, head_dim: selectedKvBytes }],
+      },
+      warnings: [{
+        code: "assumed_flat_custom_kv",
+        en: "Custom model uses user-supplied full-retention KV bytes/token (planning approximation; sliding/hybrid window retention and recurrent state are not modeled).",
+        th: "คำนวณ\u00A0KV\u00A0Cache\u00A0จากค่าต่อโทเคนที่ผู้ใช้ระบุแบบเก็บเต็มความยาว\u00A0(ประมาณการสำหรับการวางแผน\u00A0ไม่รวม\u00A0Sliding/Hybrid)",
+      }],
+    };
+  }
+
+  // Real catalog model with optional parameter-sensitivity / KV overrides
+  const resolvedParamsB = normalized.customParamsB ?? String(baseModel.params_b);
+  const resolvedActiveB = normalized.customActiveParamsB
+    ?? (normalized.customParamsB !== null ? normalized.customParamsB : String(baseModel.active_params_b));
+  if (Dec.from(resolvedActiveB).gt(Dec.from(resolvedParamsB))) {
+    return {
+      ok: false,
+      code: "bad_custom_params",
+      reason: `Active parameters (${resolvedActiveB}B) cannot exceed total parameters (${resolvedParamsB}B).`,
+      model: null,
+      warnings: [],
+      weightMemoryGb: calcWeightGb(resolvedParamsB),
+    };
+  }
+  const modelWarnings = [];
+  let groups = baseModel.groups;
+  let kvOverride = false;
+  let selectedKvStr = "";
+  if (normalized.customKvBytesBf16 !== null) {
+    const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
+    kvOverride = true;
+    selectedKvStr = String(selectedKvBytes);
+    groups = [{ kind: "full", layers: 1, tensors: 1, kv_heads: 1, head_dim: selectedKvBytes }];
+    modelWarnings.push({
+      code: "assumed_flat_custom_kv",
+      en: "KV cache overridden with a flat full-retention rate (planning approximation).",
+      th: "แทนที่ค่า\u00A0KV\u00A0Cache\u00A0ด้วยอัตราคงที่ต่อโทเคนตามที่ผู้ใช้กำหนด",
+    });
+  } else if (normalized.customParamsB !== null || normalized.customActiveParamsB !== null) {
+    modelWarnings.push({
+      code: "assumed_template_param_override",
+      en: `Parameter-sensitivity override (${resolvedParamsB}B / ${resolvedActiveB}B active) retains ${baseModel.label}'s KV layer geometry as an assumption, not a verified checkpoint architecture.`,
+      th: `การจำลองขนาดพารามิเตอร์\u00A0(${resolvedParamsB}B)\u00A0ยังคงใช้โครงสร้าง\u00A0KV\u00A0Cache\u00A0ของ\u00A0${baseModel.label}\u00A0เป็นสมมติฐาน`,
+    });
+  }
+
+  return {
+    ok: true,
+    code: "ok",
+    reason: null,
+    weightMemoryGb: calcWeightGb(resolvedParamsB),
+    model: {
+      ...baseModel,
+      params_b: resolvedParamsB,
+      active_params_b: resolvedActiveB,
+      context_max: normalized.customContextMax ?? baseModel.context_max,
+      kv_override: kvOverride,
+      selected_kv_bytes_per_token: selectedKvStr,
+      groups,
+    },
+    warnings: modelWarnings,
+  };
+}
+
 export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiveGpusPerNode = null }) {
-  const model = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
-  if (!model) {
+  const resolved = resolveSizerModel({ normalized, servingData });
+  if (!resolved.ok) {
     return {
       status: "refused",
       arithmeticFit: false,
       qualifiedDeploymentPass: false,
-      code: "unknown_model",
-      reason: `Model "${normalized.modelId}" is not in serving-models.json.`,
+      code: resolved.code,
+      reason: resolved.reason,
       warnings: [],
       serving: null,
-      thaiProfile: null,
+      resolvedModel: null,
+      weightMemoryGb: resolved.weightMemoryGb,
+      thaiProfile: THAI_MODEL_PROFILES[normalized.modelId] ?? null,
     };
   }
+  const model = resolved.model;
   const maxCtx = Number(model.context_max ?? 0);
   if (maxCtx > 0 && normalized.effectiveContextTokens > maxCtx) {
     return {
@@ -853,6 +1292,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Thai-adjusted context (${normalized.effectiveContextTokens.toLocaleString("en-US")} tokens) exceeds ${model.label}'s maximum context (${maxCtx.toLocaleString("en-US")} tokens).`,
       warnings: [],
       serving: null,
+      resolvedModel: model,
+      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -865,6 +1306,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Effective prompt (${normalized.effectivePromptTokens}) + output (${normalized.effectiveOutputTokens}) exceeds configured context (${normalized.effectiveContextTokens}).`,
       warnings: [],
       serving: null,
+      resolvedModel: model,
+      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -883,6 +1326,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Missing bandwidth/VRAM or quantization metadata for GPU "${normalized.gpuId}".`,
       warnings: [],
       serving: null,
+      resolvedModel: model,
+      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -891,9 +1336,9 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
   try {
     serving = servingPlan({
       model,
-      contextTokens: normalized.effectiveContextTokens,
+      contextTokens: String(normalized.effectiveContextTokens),
       bytesPerParam: wq.bytes_per_param,
-      kvBytesPerElement: kq.bytes_per_element,
+      kvBytesPerElement: model.kv_override ? "1" : kq.bytes_per_element,
       vramGb: String(vramGb),
       bandwidthGbS: acc.bandwidth_gb_s,
       runtimeEfficiency: rt.bandwidth_efficiency,
@@ -911,6 +1356,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: err.message,
       warnings: [],
       serving: null,
+      resolvedModel: model,
+      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -925,11 +1372,13 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Model requires TP=${tpDegree} per replica, but each server node holds only ${effectiveGpusPerNode} GPU(s). Cross-node tensor parallelism without verified RDMA/NVLink fabric is not supported as a deployment pass.`,
       warnings: ["cross_node_tp_blocked"],
       serving,
+      resolvedModel: model,
+      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
 
-  const warnings = [];
+  const warnings = [...resolved.warnings];
   if (normalized.wquant === "int4") {
     warnings.push({
       code: "lower_bound_ideal_weights",
@@ -954,6 +1403,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
     reason: null,
     warnings,
     serving,
+    resolvedModel: model,
+    weightMemoryGb: resolved.weightMemoryGb,
     thaiProfile: THAI_MODEL_PROFILES[model.id] ?? {
       tierId: "custom_tier",
       thaiSupport: "verify_tokenizer",

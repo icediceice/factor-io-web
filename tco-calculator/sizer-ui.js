@@ -492,6 +492,7 @@ function defaultDraft() {
     customActiveParamsB: "",
     customKvBytesBf16: "",
     customContextMax: "",
+    legacyCustomAssumed: false,
     wquant: "fp8",
     kvquant: "fp8",
     runtime: "vllm",
@@ -614,6 +615,7 @@ function hydrateDraftFromNormalized(n) {
     customActiveParamsB: n.customActiveParamsB ?? "",
     customKvBytesBf16: n.customKvBytesBf16 !== null ? String(n.customKvBytesBf16) : "",
     customContextMax: n.customContextMax !== null ? String(n.customContextMax) : "",
+    legacyCustomAssumed: Boolean(n.legacyCustomAssumed),
     wquant: n.wquant,
     kvquant: n.kvquant,
     runtime: n.runtime,
@@ -660,6 +662,7 @@ function selectWorkloadPreset(workloadId) {
   appState.draft.customActiveParamsB = "";
   appState.draft.customKvBytesBf16 = "";
   appState.draft.customContextMax = "";
+  appState.draft.legacyCustomAssumed = false;
   if (w.recommendedGpuId) appState.draft.gpuId = w.recommendedGpuId;
   appState.draft.serverId = "";
   appState.draft.nodes = "";
@@ -682,7 +685,10 @@ function applyPresetToDraft(preset) {
     }
     if (Array.isArray(preset.connectors)) appState.draft.connectors = [...preset.connectors];
     if (preset.users != null) appState.draft.users = String(preset.users);
-    if (preset.modelId) appState.draft.modelId = String(preset.modelId);
+    if (preset.modelId) {
+      appState.draft.modelId = String(preset.modelId);
+      appState.draft.legacyCustomAssumed = appState.draft.modelId === "custom";
+    }
     if (preset.gpuId) appState.draft.gpuId = String(preset.gpuId);
     if (preset.quoteBasis) appState.draft.quoteBasis = String(preset.quoteBasis);
     if (preset.quoteCurrency === "USD" || preset.quoteCurrency === "THB") {
@@ -1283,8 +1289,7 @@ function renderLedgerAndSummaryRail() {
   const rows = [
     {
       name: isTh ? `A. Local AI (${c.bom.installedGpus}x GPU)` : `A. Owned Local AI (${c.bom.installedGpus}x GPU)`,
-      upfront: tot.A.upfront ?? (tot.A.one_time !== null && c.bom?.capexUsd ? String(Number(c.bom.capexUsd) + Number(tot.A.one_time)) : null),
-      upfrontRat: toRat(c.bom.capexUsd).add(toRat(tot.A.one_time ?? "0")),
+      upfrontRat: toRat(tot.A.one_time ?? "0"),
       monthly: tot.A.monthly_total,
       horizon: tot.A.horizon_total,
     },
@@ -1328,7 +1333,7 @@ function renderLedgerAndSummaryRail() {
     [t.kv.monthlyTok, `${fmtInt(Number(c.demand.tokens_mo.text))} tok/mo`],
     [t.kv.peakTok, `${c.peak.peak_tokens_s.text} tok/s`],
     [t.kv.hwCapex, fmtMoneyUsd(c.bom.capexUsd)],
-    [t.kv.implOnce, fmtMoneyUsd(tot.A.one_time)],
+    [t.kv.implOnce, fmtMoneyUsd(c.scenarioInputs?.oneTime?.A ?? "0")],
     [t.kv.localMo, fmtMoneyUsd(tot.A.monthly_total)],
     [t.kv.apiMo, fmtMoneyUsd(tot.B.monthly_total)],
     [t.kv.total60Local, fmtMoneyUsd(tot.A.horizon_total)],
@@ -1499,11 +1504,17 @@ function handleFieldMutation(name, value) {
   }
   if (name === "modelId") {
     d.modelId = value;
+    d.legacyCustomAssumed = false;
     if (value === "custom") {
       if (!d.customParamsB) d.customParamsB = "70";
       if (!d.customActiveParamsB) d.customActiveParamsB = d.customParamsB;
       $("details-custom-model").open = true;
     }
+    return;
+  }
+  if (name === "customParamsB" || name === "customActiveParamsB" || name === "customKvBytesBf16" || name === "customContextMax") {
+    d[name] = value;
+    d.legacyCustomAssumed = false;
     return;
   }
   if (name === "gpuId") {
@@ -1714,6 +1725,7 @@ function wireEvents() {
       appState.draft.customActiveParamsB = "";
       appState.draft.customKvBytesBf16 = "";
       appState.draft.customContextMax = "";
+      appState.draft.legacyCustomAssumed = false;
       renderAll();
       return;
     }
@@ -1789,8 +1801,11 @@ function wireEvents() {
         await navigator.clipboard?.writeText(shareUrl.toString());
         target.textContent = I18N[appState.lang].copiedLinkBtn;
         setTimeout(() => { target.textContent = I18N[appState.lang].copyLinkBtn; }, 1800);
-      } catch {
-        // Ignore clipboard denial
+      } catch (err) {
+        if (err instanceof SizerValidationError) {
+          appState.saveStatus = { state: "error", text: err.message };
+          renderSavedScenariosList();
+        }
       }
       return;
     }

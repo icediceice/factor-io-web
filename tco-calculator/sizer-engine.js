@@ -550,7 +550,11 @@ export function recommendDealTier({ users = 250, connectors = [], gpusRequired =
 }
 
 function isPlainObject(val) {
-  return Boolean(val && typeof val === "object" && !Array.isArray(val) && Object.getPrototypeOf(val) === Object.prototype);
+  if (!val || typeof val !== "object" || Array.isArray(val) || Object.prototype.toString.call(val) !== "[object Object]") {
+    return false;
+  }
+  const proto = Object.getPrototypeOf(val);
+  return proto === null || Object.getPrototypeOf(proto) === null;
 }
 
 function cleanMoneyEntry(entry, fieldName, defaultCurrency = "THB") {

@@ -303,7 +303,7 @@ test("fit qualification blocks cross-node TP and marks INT4 and multi-GPU PCIe s
     data: baseData,
   });
   assert.equal(pcieTp.ok, true);
-  assert.ok(Number(pcieTp.fit.serving.tp) > 1);
+  assert.ok(Number(pcieTp.fit.serving.gpus_per_replica) > 1);
   assert.equal(pcieTp.fit.qualifiedDeploymentPass, false);
   assert.ok(pcieTp.fit.warnings.some((w) => w.code === "assumed_tp_pcie_unmodeled"));
 });

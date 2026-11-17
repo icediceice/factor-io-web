@@ -2155,7 +2155,7 @@ function buildScenario(usersOverride = null) {
       // know, and the required fleet is the honest floor.
       gpus: capexPlan ? capexPlan.gpus_provisioned : gpuCount,
       gpuVramGb: vramOf(gpuId),
-      nodes: capexPlan ? capexPlan.nodes : null,
+      nodes: intInput("f-sh-nodes") ?? (capexPlan ? capexPlan.nodes : null),
     },
     rented: rentSizing
       ? { gpus: rentGpus, gpuVramGb: vramOf(rentRow.gpu_id), gpuHours: rentedHours }
@@ -2166,15 +2166,14 @@ function buildScenario(usersOverride = null) {
   requireSubscriptionPrice(currentSubRow(), subPlan, publish ? state.subGap : null);
 
   // One-time per option. A is the hardware capex (already on laneA.capex, so it
-  // is NOT repeated here — the engine adds it). B and C carry their own upfronts,
-  // which before v0.5 had nowhere to go and silently read as zero. Implementation
-  // is charged ONCE TO EVERY OPTION, which is what the field has always claimed:
-  // it is the same project whichever way the tokens are served, so it cancels out
-  // of the payback difference while still showing in each option's own total.
+  // is NOT repeated here — the engine adds it). A, B and C each carry their own
+  // option-specific one-time cost (f-onetime-a/b/c), while shared implementation
+  // (fo-impl) is charged ONCE TO EVERY OPTION so it cancels out of payback while
+  // still showing in each option's own total.
   const implOnce = engineMoneyInput("fo-impl") ?? "0";
   const withImpl = (v) => ratStr(toRat(v).add(toRat(implOnce)));
   const oneTime = {
-    A: implOnce,
+    A: withImpl(engineMoneyInput("f-onetime-a") ?? "0"),
     B: withImpl(engineMoneyInput("f-onetime-b") ?? "0"),
     C: withImpl(engineMoneyInput("f-onetime-c") ?? "0"),
   };

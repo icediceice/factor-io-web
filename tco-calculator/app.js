@@ -376,6 +376,28 @@ function applyReturnedProposal() {
       : '<p role="status">Settings applied once, but this comparison cannot be calculated. Resolve the errors below before requesting a blueprint specification.</p>';
   } catch (error) { $("return-status").textContent = error.message; }
 }
+function validateSizerReturnOrigin(candidate) {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) || candidate.kind !== "sizer" || typeof candidate.fragment !== "string") {
+    return null;
+  }
+  const clean = candidate.fragment.replace(/^#/, "").trim();
+  try {
+    if (!decodeSizerFragment(clean)) return null;
+  } catch {
+    return null;
+  }
+  return {
+    kind: "sizer",
+    fragment: clean,
+    baselineControlIdentity: typeof candidate.baselineControlIdentity === "string" ? candidate.baselineControlIdentity : "",
+  };
+}
+function syncSizerReturnOriginState() {
+  const origin = starterUI?.getReturnOrigin?.();
+  if (!origin || origin.kind !== "sizer") return;
+  const edited = Boolean(origin.baselineControlIdentity) && controlIdentity(captureControls()) !== origin.baselineControlIdentity;
+  starterUI.syncBackNavigation?.({ controlsEdited: edited });
+}
 function processSizerReturn() {
   const href = String(globalThis.location?.href ?? "");
   if (!href.includes("#sizer=") || !state.ready) return false;
@@ -388,7 +410,8 @@ function processSizerReturn() {
     if (manualRevision > 0) {
       throw new Error("Calculator inputs were edited locally; the sizer transfer was not applied.");
     }
-    const normalized = decodeSizerFragment(parsedUrl.hash);
+    const cleanFragment = parsedUrl.hash.replace(/^#/, "").trim();
+    const normalized = decodeSizerFragment(cleanFragment);
     if (!normalized) return false;
     const before = captureControls();
     const groupsBefore = readArchGroups();
@@ -411,6 +434,8 @@ function processSizerReturn() {
     try {
       writeReturnedControls(projected.controls, projected.groups);
       starterUI.setMode("custom"); // onCustom performs the single recomputation
+      const baselineControlIdentity = controlIdentity(captureControls());
+      starterUI.setReturnOrigin?.({ kind: "sizer", fragment: cleanFragment, baselineControlIdentity });
     } catch (err) {
       writeReturnedControls(before, groupsBefore);
       starterUI.restore(starterBefore);
@@ -419,8 +444,11 @@ function processSizerReturn() {
     globalThis.history?.replaceState?.(null, "", `${parsedUrl.pathname}${parsedUrl.search}#custom-page`);
     if (box) {
       box.hidden = false;
+      const refreshProse = projected.repriced
+        ? (projected.refreshSummary || "Pricing sources were updated since this scenario was captured; totals below reflect current catalog data.")
+        : "";
       box.innerHTML = projected.repriced
-        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. Live API prices or exchange rates were refreshed since the sizer snapshot (${escapeHtml(projected.capturedIdentity)} → ${escapeHtml(projected.currentIdentity)}); totals below were re-evaluated against current sources.</p>`
+        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. ${escapeHtml(refreshProse)}</p>`
         : `<p role="status">Applied Guided Local AI Sizer scenario to custom comparison.</p>`;
     }
     return true;

@@ -674,7 +674,7 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
     };
   }
 
-  const tpDegree = Number(serving.tp);
+  const tpDegree = Number(serving.gpus_per_replica);
   if (effectiveGpusPerNode !== null && tpDegree > effectiveGpusPerNode) {
     return {
       status: "unsupported_cross_node_tp",

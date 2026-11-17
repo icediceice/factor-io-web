@@ -740,7 +740,7 @@ function sizerReceiverHarness() {
   return { ...h, mode: () => mode, computations: () => computations, replacedUrl: () => replacedUrl };
 }
 
-test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee once, warns on FX drift, and rolls back invalid or conflicting URLs", () => {
+test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee once, warns on FX or live catalog refresh, and rolls back invalid or conflicting URLs", () => {
   const h = sizerReceiverHarness();
   const norm = normalizeSizerInput({
     workloadId: "thai_doc_line_ops",
@@ -767,24 +767,46 @@ test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee on
   assert.equal(h.node("f-sh-nodes").value, "2");
   assert.equal(h.node("f-sh-capex").value, "1850000");
   assert.equal(h.node("f-onetime-a").value, "750000");
-  assert.match(h.node("return-review").innerHTML, /Live API prices or exchange rates moved/);
+  assert.match(h.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
   assert.equal(h.replacedUrl(), "/tco-calculator.html#custom-page");
 
-  // Malformed or conflicting URLs fail closed with zero control mutation and zero recomputations
+  // Live API catalog refresh with unchanged FX triggers repricing notice
+  const liveH = sizerReceiverHarness();
+  const initialIdentity = buildPricingIdentity(liveH.state.manifest, liveH.state.fx);
+  const liveNorm = normalizeSizerInput({
+    ...norm,
+    pricingIdentity: initialIdentity,
+  });
+  const liveFrag = encodeSizerFragment(liveNorm, { pricingIdentity: initialIdentity, resolvedApiOfferId: "openrouter:gpt-4o" });
+  const oldOffer = liveH.state.catalog.offers["openrouter:gpt-4o"];
+  const replaced = replaceCatalogSource(liveH.state.manifest, liveH.state.catalog, {
+    source: { source_id: "openrouter", observed_at: "2026-11-17T12:00:00Z", origin: "live", integrity: "complete-transport" },
+    models: [{ id: "openrouter:gpt-4o", name: "GPT-4o Live", state: "active" }],
+    offers: { "openrouter:gpt-4o": { ...oldOffer, prices: { ...oldOffer.prices, input: "0.001", output: "0.002" } } },
+  });
+  liveH.state.manifest = replaced.manifest;
+  liveH.state.catalog = replaced.catalog;
+  liveH.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${liveFrag}`;
+  assert.equal(liveH.get("processSizerReturn()"), true);
+  assert.match(liveH.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+
+  // Malformed or conflicting URLs fail closed with zero control mutation across the entire snapshot
   const bad = sizerReceiverHarness();
+  const beforeBadControls = structuredClone(bad.get("captureControls()"));
   bad.context.location.href = "https://studio.factor-io.com/tco-calculator.html#sizer=v1.corrupted_token!";
   assert.equal(bad.get("processSizerReturn()"), false);
   assert.equal(bad.mode(), "starter");
   assert.equal(bad.computations(), 0);
-  assert.equal(bad.node("f-users").value, "20");
+  assert.deepEqual(bad.get("captureControls()"), beforeBadControls);
   assert.match(bad.node("return-review").innerHTML, /role="alert"/);
 
   const conflict = sizerReceiverHarness();
+  const beforeConflictControls = structuredClone(conflict.get("captureControls()"));
   conflict.context.location.href = `https://studio.factor-io.com/tco-calculator.html?advisor=00000000-0000-4000-8000-000000000099#${frag}`;
   assert.equal(conflict.get("processSizerReturn()"), false);
   assert.equal(conflict.mode(), "starter");
   assert.equal(conflict.computations(), 0);
-  assert.equal(conflict.node("f-users").value, "20");
+  assert.deepEqual(conflict.get("captureControls()"), beforeConflictControls);
 });
 const advisorRecord = () => ({ saved_at: Date.now(), controls: { "f-users": "20" }, contracts: { "f-users": { kind: "integer", min: 1, max: 10000000 } }, context: { mode: "custom", label: "test scenario", figures: { monthly: "฿3,300.00" }, sources: { api: { status: "stale", observed_at: "2026-01-01" } } }, answers: {} });
 function advisorHarness({ record = advisorRecord(), transport = null } = {}) {

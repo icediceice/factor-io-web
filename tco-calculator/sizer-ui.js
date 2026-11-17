@@ -1089,40 +1089,40 @@ function renderConnectorsList() {
   }).join("");
 }
 
-function syncInputsFromDraft() {
+function syncInputsFromDraft({ force = false } = {}) {
   const d = appState.draft;
-  setIfUnfocused($("in-users"), d.users);
-  setIfUnfocused($("in-raw-prompt"), d.rawPromptTokens);
-  setIfUnfocused($("in-raw-output"), d.rawOutputTokens);
-  setIfUnfocused($("in-raw-ctx"), d.rawContextTokens);
-  setIfUnfocused($("in-sessions-day"), d.sessionsPerUserDay);
-  setIfUnfocused($("in-days-mo"), d.workingDaysMo);
+  setControlValue($("in-users"), d.users, force);
+  setControlValue($("in-raw-prompt"), d.rawPromptTokens, force);
+  setControlValue($("in-raw-output"), d.rawOutputTokens, force);
+  setControlValue($("in-raw-ctx"), d.rawContextTokens, force);
+  setControlValue($("in-sessions-day"), d.sessionsPerUserDay, force);
+  setControlValue($("in-days-mo"), d.workingDaysMo, force);
   const peakPct = (() => {
     const n = Number(d.peakConcurrencyFraction);
     return Number.isFinite(n) ? String(Math.round(n * 10000) / 100) : d.peakConcurrencyFraction;
   })();
-  setIfUnfocused($("in-peak-pct"), peakPct);
-  setIfUnfocused($("in-token-basis"), d.tokenBasis);
-  setIfUnfocused($("in-wquant"), d.wquant);
-  setIfUnfocused($("in-kvquant"), d.kvquant);
-  setIfUnfocused($("in-runtime"), d.runtime);
-  setIfUnfocused($("in-custom-params"), d.customParamsB);
-  setIfUnfocused($("in-custom-active"), d.customActiveParamsB);
-  setIfUnfocused($("in-custom-kv-bf16"), d.customKvBytesBf16);
-  setIfUnfocused($("in-custom-ctx-max"), d.customContextMax);
-  setIfUnfocused($("in-quote-basis"), d.quoteBasis);
-  setIfUnfocused($("in-quote-currency"), d.quoteCurrency);
-  setIfUnfocused($("in-nodes"), d.nodes);
-  setIfUnfocused($("in-gpus-per-node"), d.gpusPerNode);
-  setIfUnfocused($("in-integrated-price"), d.integratedNodePrice.amount);
-  setIfUnfocused($("in-chassis-price"), d.chassisNodePrice.amount);
-  setIfUnfocused($("in-gpu-card-price"), d.gpuUnitPrice.amount);
-  setIfUnfocused($("in-fleet-price"), d.fleetTotalPrice.amount);
-  setIfUnfocused($("in-local-impl-fee"), d.localImplFee.amount);
-  setIfUnfocused($("in-annual-ops-fee"), d.annualOpsFee.amount);
-  setIfUnfocused($("in-elec-rate"), d.electricityThbPerKwh);
-  setIfUnfocused($("in-deployment-mode"), d.deploymentMode);
-  setIfUnfocused($("in-tier-override"), d.dealTierOverride ?? "");
+  setControlValue($("in-peak-pct"), peakPct, force);
+  setControlValue($("in-token-basis"), d.tokenBasis, force);
+  setControlValue($("in-wquant"), d.wquant, force);
+  setControlValue($("in-kvquant"), d.kvquant, force);
+  setControlValue($("in-runtime"), d.runtime, force);
+  setControlValue($("in-custom-params"), d.customParamsB, force);
+  setControlValue($("in-custom-active"), d.customActiveParamsB, force);
+  setControlValue($("in-custom-kv-bf16"), d.customKvBytesBf16, force);
+  setControlValue($("in-custom-ctx-max"), d.customContextMax, force);
+  setControlValue($("in-quote-basis"), d.quoteBasis, force);
+  setControlValue($("in-quote-currency"), d.quoteCurrency, force);
+  setControlValue($("in-nodes"), d.nodes, force);
+  setControlValue($("in-gpus-per-node"), d.gpusPerNode, force);
+  setControlValue($("in-integrated-price"), d.integratedNodePrice.amount, force);
+  setControlValue($("in-chassis-price"), d.chassisNodePrice.amount, force);
+  setControlValue($("in-gpu-card-price"), d.gpuUnitPrice.amount, force);
+  setControlValue($("in-fleet-price"), d.fleetTotalPrice.amount, force);
+  setControlValue($("in-local-impl-fee"), d.localImplFee.amount, force);
+  setControlValue($("in-annual-ops-fee"), d.annualOpsFee.amount, force);
+  setControlValue($("in-elec-rate"), d.electricityThbPerKwh, force);
+  setControlValue($("in-deployment-mode"), d.deploymentMode, force);
+  setControlValue($("in-tier-override"), d.dealTierOverride ?? "", force);
 
   const qb = d.quoteBasis;
   $("wrap-server-id").hidden = qb !== "catalog";

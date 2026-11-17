@@ -1,3 +1,18 @@
+for (const quoteBasis of ['catalog','integrated_node','component_split','fleet_total']) for (const quoteCurrency of ['THB','USD']) {
+  test(`real app parity: ${quoteBasis}/${quoteCurrency} with annual ops and per-node subscription`, () => {
+    const scenarioData={...data,subscriptions:{rows:[{id:'none',applies_to:[]},{id:'fixture-node',meter:'per_node_year',price_usd:'1200',price_confidence:'indicative',applies_to:['A']} ]}};
+    const money=amount=>({amount,currency:quoteCurrency});
+    const n=sizer.normalizeSizerInput({users:100,modelId:'qwen3-5-9b',gpuId:'rtx_pro_6000_se',quoteBasis,quoteCurrency,nodes:2,gpusPerNode:2,integratedNodePrice:money('90000'),chassisNodePrice:money('50000'),gpuUnitPrice:money('20000'),fleetTotalPrice:money('180000'),annualOpsFee:money('12000'),localImplFee:money('25000'),subscriptionId:'fixture-node'});
+    const {h,p}=realArithmeticHarness(n,scenarioData);
+    const actual=calculator.runComparison(h.get('buildScenario()').inputs);
+    expect(exact.toRat(actual.totals.A.subscription_monthly).toString()).toBe(String(p.result.bom.nodes*100));
+    for (const lane of ['A','B','C']) for (const field of ['one_time','monthly_total','horizon_total']) {
+      if (actual.totals[lane][field] === null) expect(p.result.comparison.totals[lane][field]).toBe(null);
+      else expect(exact.formatHalfUp(exact.toRat(actual.totals[lane][field]),8)).toBe(exact.formatHalfUp(exact.toRat(p.result.comparison.totals[lane][field]),8));
+    }
+    expect(actual.payback.vs_model_api.months).toBe(p.result.comparison.payback.vs_model_api.months);
+  });
+}
 test('live API tariff replacement triggers repricing even when FX stays on the dated fallback', () => {
   const n=sizer.normalizeSizerInput({users:100,modelId:'qwen3-5-9b',gpuId:'rtx_pro_6000_se',quoteBasis:'fleet_total',nodes:1,gpusPerNode:2,fleetTotalPrice:{amount:'100000',currency:'THB'}});
   const original=sizer.computeSizer({input:n,data});

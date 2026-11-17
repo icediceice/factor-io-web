@@ -1457,14 +1457,14 @@ function renderStatusAndSources() {
   }
 }
 
-function renderAll() {
+function renderAll({ preserveFocus = false } = {}) {
   recompute();
   renderStaticLabels();
   renderWorkloadCardsAndPills();
   renderModelAndGpuSelectors();
   renderApiControls();
   renderConnectorsList();
-  syncInputsFromDraft();
+  syncInputsFromDraft({ force: !preserveFocus });
   renderAutoGpuAndMatrix();
   renderLedgerAndSummaryRail();
   renderSavedScenariosList();

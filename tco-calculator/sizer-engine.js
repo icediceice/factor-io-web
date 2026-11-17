@@ -2224,6 +2224,7 @@ function fromBase64Url(encoded) {
   return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 }
 
+// Exact 44 legacy v1 required keys — never expand unconditionally so existing #sizer=v1 tokens remain valid.
 const COMPACT_RECORD_KEYS = new Set([
   "v", "w", "dm", "cn", "dt", "u", "sd", "wd", "pf", "ts", "mx",
   "tb", "tf", "rp", "ro", "rc", "m", "wq", "kq", "rt", "g",
@@ -2231,6 +2232,10 @@ const COMPACT_RECORD_KEYS = new Set([
   "pIn", "pCh", "pGp", "pFl", "fLo", "fAp", "fCm", "fOp",
   "ek", "pu", "no", "hz", "ao", "sub", "st", "qu", "pi",
 ]);
+
+// Optional v1 extension keys for custom model parameter/cache/context overrides.
+// Forward compatibility of newly extended custom tokens on older deployments is not promised.
+const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm"]);
 
 export function encodeSizerFragment(normalized, { pricingIdentity = null, resolvedApiOfferId = null } = {}) {
   const n = normalized?.schema === SIZER_SCHEMA ? normalized : normalizeSizerInput(normalized);
@@ -2280,6 +2285,17 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
     qu: n.quoteUtc,
     pi: pricingIdentity ?? n.pricingIdentity,
   };
+  if (
+    n.customParamsB !== null
+    || n.customActiveParamsB !== null
+    || n.customKvBytesBf16 !== null
+    || n.customContextMax !== null
+  ) {
+    compact.cp = n.customParamsB;
+    compact.ca = n.customActiveParamsB;
+    compact.ck = n.customKvBytesBf16;
+    compact.cm = n.customContextMax;
+  }
   const token = toBase64Url(JSON.stringify(compact));
   const fragment = `${SIZER_FRAGMENT_PREFIX}${token}`;
   if (fragment.length > MAX_FRAGMENT_CHARS) {
@@ -2388,6 +2404,40 @@ function validateSizerWirePayload(parsed) {
   }
   requireNonEmptyWireString(parsed.m, "modelId");
   requireNonEmptyWireString(parsed.g, "gpuId");
+
+  // Validate optional custom model extensions when present
+  let cpStr = null;
+  let caStr = null;
+  let ckNum = null;
+  let cmNum = null;
+  if ("cp" in parsed && parsed.cp !== null) {
+    if (typeof parsed.cp !== "string") throw new SizerValidationError("bad_decimal", "cp (customParamsB) must be null or a decimal string");
+    cpStr = decStr(parsed.cp, "customParamsB", { min: "0.1", max: "10000", allowZero: false });
+  }
+  if ("ca" in parsed && parsed.ca !== null) {
+    if (typeof parsed.ca !== "string") throw new SizerValidationError("bad_decimal", "ca (customActiveParamsB) must be null or a decimal string");
+    caStr = decStr(parsed.ca, "customActiveParamsB", { min: "0.1", max: "10000", allowZero: false });
+  }
+  if ("ck" in parsed && parsed.ck !== null) {
+    if (typeof parsed.ck !== "number") throw new SizerValidationError("bad_integer", "ck (customKvBytesBf16) must be null or an integer");
+    ckNum = posInt(parsed.ck, "customKvBytesBf16", { min: 2, max: 100000000 });
+  }
+  if ("cm" in parsed && parsed.cm !== null) {
+    if (typeof parsed.cm !== "number") throw new SizerValidationError("bad_integer", "cm (customContextMax) must be null or an integer");
+    cmNum = posInt(parsed.cm, "customContextMax", { min: 128, max: 10000000 });
+  }
+  if (cpStr !== null && caStr !== null && Dec.from(caStr).gt(Dec.from(cpStr))) {
+    throw new SizerValidationError("bad_custom_params", "customActiveParamsB cannot exceed customParamsB");
+  }
+  if (caStr !== null && cpStr === null) {
+    throw new SizerValidationError("bad_custom_params", "customActiveParamsB requires customParamsB");
+  }
+  if (parsed.m === "custom" && (cpStr !== null || caStr !== null || ckNum !== null || cmNum !== null)) {
+    if (cpStr === null || caStr === null || ckNum === null || cmNum === null) {
+      throw new SizerValidationError("incomplete_custom_model", "Custom model wire payload requires complete cp, ca, ck, and cm fields.");
+    }
+  }
+
   if (typeof parsed.wq !== "string" || !VALID_WQUANTS.has(parsed.wq)) {
     throw new SizerValidationError("bad_wquant", `Unsupported weight quantization "${parsed.wq}"`);
   }
@@ -2443,7 +2493,7 @@ export function decodeSizerFragment(hashOrFragment) {
     throw new SizerValidationError("unsupported_version", `Unsupported sizer payload version "${parsed.v}".`);
   }
   for (const key of Object.keys(parsed)) {
-    if (!COMPACT_RECORD_KEYS.has(key)) {
+    if (!COMPACT_RECORD_KEYS.has(key) && !COMPACT_OPTIONAL_KEYS.has(key)) {
       throw new SizerValidationError("unknown_key", `Rejected unknown key "${key}" in sizer transfer payload.`);
     }
   }
@@ -2465,6 +2515,10 @@ export function decodeSizerFragment(hashOrFragment) {
     rawOutputTokens: parsed.ro,
     rawContextTokens: parsed.rc,
     modelId: parsed.m,
+    customParamsB: parsed.cp ?? null,
+    customActiveParamsB: parsed.ca ?? null,
+    customKvBytesBf16: parsed.ck ?? null,
+    customContextMax: parsed.cm ?? null,
     wquant: parsed.wq,
     kvquant: parsed.kq,
     runtime: parsed.rt,
@@ -2493,6 +2547,150 @@ export function decodeSizerFragment(hashOrFragment) {
     quoteUtc: parsed.qu,
     pricingIdentity: parsed.pi,
   });
+}
+
+// Strict JSON / optional localStorage scenario envelope codec (stores canonical scenarios + display metadata only).
+const SAVE_ENVELOPE_KEYS = new Set(["schema", "exportedAt", "scenarios"]);
+const SAVE_RECORD_KEYS = new Set(["id", "name", "savedAt", "fragment"]);
+
+function validateSaveTimestamp(val, fieldName) {
+  if (typeof val !== "string" || val.length < 10 || val.length > 40 || Number.isNaN(Date.parse(val))) {
+    throw new SizerValidationError("bad_save_timestamp", `${fieldName} must be an ISO-8601 timestamp string`);
+  }
+  return val;
+}
+
+function validateSavedScenarioRecord(entry, index) {
+  if (!isPlainObject(entry)) {
+    throw new SizerValidationError("bad_save_record", `Saved scenario #${index + 1} must be a plain object.`);
+  }
+  for (const k of Object.keys(entry)) {
+    if (!SAVE_RECORD_KEYS.has(k)) {
+      throw new SizerValidationError("unknown_save_key", `Rejected unknown key "${k}" in saved scenario #${index + 1}.`);
+    }
+  }
+  for (const req of SAVE_RECORD_KEYS) {
+    if (!(req in entry)) {
+      throw new SizerValidationError("missing_save_key", `Missing required key "${req}" in saved scenario #${index + 1}.`);
+    }
+  }
+  if (typeof entry.id !== "string" || !/^[A-Za-z0-9_.:-]{1,64}$/.test(entry.id)) {
+    throw new SizerValidationError("bad_save_id", `Invalid id in saved scenario #${index + 1}.`);
+  }
+  const trimmedName = typeof entry.name === "string" ? entry.name.trim() : "";
+  if (!trimmedName || trimmedName.length > 80) {
+    throw new SizerValidationError("bad_save_name", `Scenario name in #${index + 1} must be 1 to 80 characters.`);
+  }
+  const savedAt = validateSaveTimestamp(entry.savedAt, `scenarios[${index}].savedAt`);
+  if (typeof entry.fragment !== "string") {
+    throw new SizerValidationError("bad_save_fragment", `Scenario #${index + 1} fragment must be a string.`);
+  }
+  const rawFrag = entry.fragment.replace(/^#/, "");
+  const normalized = decodeSizerFragment(rawFrag);
+  if (!normalized) {
+    throw new SizerValidationError("bad_save_fragment", `Scenario #${index + 1} does not contain a valid sizer=v1 fragment.`);
+  }
+  return {
+    id: entry.id,
+    name: trimmedName,
+    savedAt,
+    fragment: rawFrag,
+    normalized,
+  };
+}
+
+export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:00:00Z", allowEmpty = false } = {}) {
+  if (!Array.isArray(entries)) {
+    throw new SizerValidationError("bad_save_list", "scenarios must be an array");
+  }
+  if ((!allowEmpty && entries.length === 0) || entries.length > MAX_SAVED_SCENARIOS) {
+    throw new SizerValidationError(
+      "save_count_out_of_range",
+      `Saved scenario count must be between ${allowEmpty ? 0 : 1} and ${MAX_SAVED_SCENARIOS}.`,
+    );
+  }
+  const validExportedAt = validateSaveTimestamp(exportedAt, "exportedAt");
+  const seenIds = new Set();
+  const cleanRecords = entries.map((entry, idx) => {
+    const valid = validateSavedScenarioRecord(entry, idx);
+    if (seenIds.has(valid.id)) {
+      throw new SizerValidationError("duplicate_save_id", `Duplicate scenario id "${valid.id}" in save envelope.`);
+    }
+    seenIds.add(valid.id);
+    return {
+      id: valid.id,
+      name: valid.name,
+      savedAt: valid.savedAt,
+      fragment: valid.fragment,
+    };
+  });
+  const jsonText = JSON.stringify({
+    schema: SIZER_SAVE_SCHEMA,
+    exportedAt: validExportedAt,
+    scenarios: cleanRecords,
+  }, null, 2);
+  const byteLength = new TextEncoder().encode(jsonText).byteLength;
+  if (byteLength > MAX_SAVE_BYTES) {
+    throw new SizerValidationError("save_too_large", `Saved scenarios exceed the 64 KiB budget (${byteLength} bytes).`);
+  }
+  return jsonText;
+}
+
+export function decodeSizerSaveEnvelope(jsonText, { allowEmpty = false } = {}) {
+  if (typeof jsonText !== "string") {
+    throw new SizerValidationError("bad_save_json", "Save payload must be a UTF-8 JSON string.");
+  }
+  const byteLength = new TextEncoder().encode(jsonText).byteLength;
+  if (byteLength > MAX_SAVE_BYTES) {
+    throw new SizerValidationError("save_too_large", `Save file exceeds the 64 KiB safety limit (${byteLength} bytes).`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    throw new SizerValidationError("bad_save_json", "Save file is not valid JSON.");
+  }
+  if (!isPlainObject(parsed)) {
+    throw new SizerValidationError("bad_save_envelope", "Save file root must be a plain JSON object.");
+  }
+  if (parsed.schema !== SIZER_SAVE_SCHEMA) {
+    throw new SizerValidationError("unsupported_save_schema", `Unsupported save schema "${parsed.schema}". Expected "${SIZER_SAVE_SCHEMA}".`);
+  }
+  for (const k of Object.keys(parsed)) {
+    if (!SAVE_ENVELOPE_KEYS.has(k)) {
+      throw new SizerValidationError("unknown_save_key", `Rejected unknown envelope key "${k}".`);
+    }
+  }
+  for (const req of SAVE_ENVELOPE_KEYS) {
+    if (!(req in parsed)) {
+      throw new SizerValidationError("missing_save_key", `Missing required envelope key "${req}".`);
+    }
+  }
+  const exportedAt = validateSaveTimestamp(parsed.exportedAt, "exportedAt");
+  if (!Array.isArray(parsed.scenarios)) {
+    throw new SizerValidationError("bad_save_list", "scenarios must be an array.");
+  }
+  if ((!allowEmpty && parsed.scenarios.length === 0) || parsed.scenarios.length > MAX_SAVED_SCENARIOS) {
+    throw new SizerValidationError(
+      "save_count_out_of_range",
+      `Save file must contain ${allowEmpty ? 0 : 1} to ${MAX_SAVED_SCENARIOS} scenarios.`,
+    );
+  }
+  // Validate every record before returning anything so a bad record #25 leaves zero partial state.
+  const seenIds = new Set();
+  const scenarios = parsed.scenarios.map((entry, idx) => {
+    const valid = validateSavedScenarioRecord(entry, idx);
+    if (seenIds.has(valid.id)) {
+      throw new SizerValidationError("duplicate_save_id", `Duplicate scenario id "${valid.id}".`);
+    }
+    seenIds.add(valid.id);
+    return valid;
+  });
+  return {
+    schema: SIZER_SAVE_SCHEMA,
+    exportedAt,
+    scenarios,
+  };
 }
 
 // Bounded preset fragment used by campaign links to pre-fill numeric inputs on local-ai-sizer.html.
@@ -2636,7 +2834,7 @@ export function projectSizerControls({
     throw new SizerValidationError(result.code ?? "scenario_not_sizable", detail);
   }
 
-  const model = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
+  const model = result.fit?.resolvedModel ?? (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
   if (!model) throw new SizerValidationError("unknown_model", `Local model "${normalized.modelId}" is unavailable.`);
 
   const offerableGpus = new Set([
@@ -2698,7 +2896,7 @@ export function projectSizerControls({
     "f-sv-params": String(model.params_b),
     "f-sv-active": String(model.active_params_b),
     "f-sv-ctx": String(normalized.effectiveContextTokens),
-    "f-sv-kvbytes": "",
+    "f-sv-kvbytes": model.kv_override ? String(model.selected_kv_bytes_per_token) : "",
     "f-sv-wquant": normalized.wquant,
     "f-sv-kvquant": normalized.kvquant,
     "f-sv-runtime": normalized.runtime,
@@ -2768,12 +2966,14 @@ export function projectSizerControls({
 
   const currentIdentity = buildPricingIdentity(manifest, result.fx);
   const repriced = Boolean(normalized.pricingIdentity && normalized.pricingIdentity !== currentIdentity);
+  const refreshSummary = repriced ? describePricingRefresh(normalized.pricingIdentity, currentIdentity, "en") : null;
 
   return {
     controls: values,
     groups: model.groups,
     result,
     repriced,
+    refreshSummary,
     capturedIdentity: normalized.pricingIdentity,
     currentIdentity,
   };

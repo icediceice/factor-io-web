@@ -56,14 +56,14 @@ const preamble = ux.slice(ux.indexOf('const app ='), ux.indexOf('test("graph kee
 const helper = ux.slice(ux.indexOf('function sizerReceiverHarness()'), ux.indexOf('test("processSizerReturn applies'));
 const bindings = {...assistant,...session,...planner,...chat,...exact,...currency,...sizer,assert,vm,readFileSync,realRequestChatTurn:chat.requestChatTurn};
 const makeHarness = new Function(...Object.keys(bindings), `${preamble}\n${helper}\nreturn sizerReceiverHarness;`.replaceAll('import.meta.url', JSON.stringify(uxUrl.href)))(...Object.values(bindings));
-function realArithmeticHarness(n) {
+function realArithmeticHarness(n, scenarioData = data) {
   const h = makeHarness();
   Object.assign(h.context, demand, serving, capex, subscription, power, calculator);
-  Object.assign(h.state, data);
-  power.configurePowerSeed(data.powerSeed);
-  const p = sizer.projectSizerControls({normalized:n,beforeControls:h.get('captureControls()'),stateData:data});
+  Object.assign(h.state, scenarioData);
+  power.configurePowerSeed(scenarioData.powerSeed);
+  const p = sizer.projectSizerControls({normalized:n,beforeControls:h.get('captureControls()'),stateData:scenarioData});
   h.context.applyControls(p.controls);
-  const model = data.servingData.models.find(m=>m.id===n.modelId);
+  const model = scenarioData.servingData.models.find(m=>m.id===n.modelId);
   h.context.realGroups=model.groups;
   h.get('readArchGroups = () => realGroups');
   return {h,p};

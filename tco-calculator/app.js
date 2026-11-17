@@ -652,6 +652,7 @@ async function init() {
     getData: () => ({ ...state, quoteUtc: Date.parse($("f-utc").value), loadError: state.loadError }),
     onAdvisor: snapshot => openAdvisor(snapshot),
     onCustom: () => { if (state.ready) flushLiveInput(); },
+    validateReturnOrigin: validateSizerReturnOrigin,
   });
   $("custom-advisor").addEventListener("click", event => { event.preventDefault(); openAdvisor(); });
   globalThis.addEventListener?.("pageshow", event => { if (event.persisted && state.ready) processAdvisorReturn(false); });

@@ -922,21 +922,26 @@
         </div>
         <div class="row">
           <div class="f">
+            <label for="f-onetime-a">Self-hosted, one-time (฿)</label>
+            <input id="f-onetime-a" type="text" inputmode="decimal" value="0">
+            <span class="sub">Platform, Thai OCR/RAG, and enterprise data-pipeline integration paid once only on the self-hosted option, so it enters owned upfront and payback without inflating hardware capex.</span>
+          </div>
+          <div class="f">
             <label for="f-onetime-b">Model API, one-time (฿)</label>
             <input id="f-onetime-b" type="text" inputmode="decimal" value="0">
             <span class="sub">Integration and migration work you'd pay once to go the API route. Charged to that option alone, so it shortens the payback rather than being invisible.</span>
           </div>
+        </div>
+        <div class="row">
           <div class="f">
             <label for="f-onetime-c">Rented GPU, one-time (฿)</label>
             <input id="f-onetime-c" type="text" inputmode="decimal" value="0">
             <span class="sub">Onboarding, egress setup, reserved-capacity commitments.</span>
           </div>
-        </div>
-        <div class="row">
           <div class="f">
-            <label for="fo-impl">Implementation (฿)</label>
+            <label for="fo-impl">Shared implementation (฿)</label>
             <input id="fo-impl" type="text" inputmode="decimal" value="0">
-            <span class="sub">One-time, like the hardware. Charged once to <em>every</em> option, unlike the two above, so it lands in each option's one-time and horizon total and cancels out of the payback difference.</span>
+            <span class="sub">One-time, like the hardware. Charged once to <em>every</em> option, unlike the three above, so it lands in each option's one-time and horizon total and cancels out of the payback difference.</span>
           </div>
         </div>
         <p class="muted">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices.</p>

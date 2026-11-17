@@ -66,7 +66,8 @@ test('G2 a valid catalog active-only override survives share, handoff, and save 
     users: 100, modelId: 'qwen3-8-27b', gpuId: 'rtx_pro_6000_se', customActiveParamsB: '5',
   }, data });
   expect(result.ok).toBe(true);
-  expect(result.fit.resolvedModel.params_b).toBe('27');
+  const catalogParams = data.servingData.models.find(model => model.id === 'qwen3-8-27b').params_b;
+  expect(result.fit.resolvedModel.params_b).toBe(catalogParams);
   expect(result.fit.resolvedModel.active_params_b).toBe('5');
   const fragment = sizer.encodeSizerFragment(result.normalized);
   const decoded = sizer.decodeSizerFragment(fragment);

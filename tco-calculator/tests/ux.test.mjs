@@ -425,12 +425,37 @@ test("mix refusals describe percentages and the corrective action", () => {
 // Module version spelling is not a runtime contract: the initialization and
 // browser tests below load the actual import graph and exercise its behavior.
 
-test("authored horizons default to 60 months in HTML and every workload preset", () => {
-  const presets = JSON.parse(readFileSync(new URL("../data/workload-presets.json", import.meta.url), "utf8"));
-  assert.match(html, /id="f-horizon"[^>]*value="60"/);
-  assert.equal(presets.defaults.horizon_months, "60");
-  assert.ok(presets.presets.length > 0);
-  assert.ok(presets.presets.every((preset) => preset.fields["f-horizon"] === "60"));
+async function liveTcoPage(t) {
+  const { launch, openPage, serve } = await import("../../scripts/films/cdp.mjs");
+  const server = await serve(); t.after(() => server.close());
+  const browser = await launch(); t.after(() => browser.close());
+  const page = await openPage(browser, { width: 1440, height: 1000, reducedMotion: "reduce" });
+  await page.send("Network.enable");
+  await page.send("Network.setBlockedURLs", { urls: ["https://*"] });
+  await page.goto(server.origin + "/tco-calculator.html");
+  await page.evaluate(`new Promise((resolve, reject) => {
+    const until = performance.now() + 12000;
+    const probe = () => {
+      if (document.querySelector('.rail')?.inert === false && document.querySelector('.spec[data-for="f-users"]')) return resolve(true);
+      if (performance.now() > until) return reject(new Error('calculator did not initialize'));
+      setTimeout(probe, 40);
+    }; probe();
+  })`);
+  return page;
+}
+test("loaded calculator and each applied workload preset default to 60 months", { timeout: 20000 }, async t => {
+  const page = await liveTcoPage(t);
+  const result = await page.evaluate(`(async () => {
+    const presets = await (await fetch('./tco-calculator/data/workload-presets.json')).json();
+    const horizons = [document.getElementById('f-horizon').value];
+    for (const preset of presets.presets) {
+      document.querySelector('[data-preset="' + preset.id + '"]').click();
+      horizons.push(document.getElementById('f-horizon').value);
+    }
+    return horizons;
+  })()`);
+  assert.ok(result.length > 1);
+  assert.ok(result.every(value => value === "60"));
 });
 
 // USD/THB behavior is asserted against real outputs in exportMoneyRecord,

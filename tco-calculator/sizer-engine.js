@@ -348,24 +348,49 @@ export function recommendDealTier({ users = 250, connectors = [], gpusRequired =
   return "S";
 }
 
+function isPlainObject(val) {
+  return Boolean(val && typeof val === "object" && !Array.isArray(val) && Object.getPrototypeOf(val) === Object.prototype);
+}
+
 function cleanMoneyEntry(entry, fieldName, defaultCurrency = "THB") {
   if (entry === null || entry === undefined || entry === "") {
     return { amount: "0", currency: defaultCurrency };
   }
-  const obj = typeof entry === "object" && !Array.isArray(entry)
-    ? entry
-    : { amount: String(entry), currency: defaultCurrency };
-  const currency = String(obj.currency ?? defaultCurrency).toUpperCase();
+  let rawAmount;
+  let rawCurrency = defaultCurrency;
+  if (typeof entry === "object") {
+    if (!isPlainObject(entry)) {
+      throw new SizerValidationError("bad_money", `${fieldName} must be a plain money object or decimal amount`);
+    }
+    for (const k of Object.keys(entry)) {
+      if (k !== "amount" && k !== "currency") {
+        throw new SizerValidationError("unknown_money_key", `${fieldName}: unexpected key "${k}"`);
+      }
+    }
+    if (entry.amount !== undefined && entry.amount !== null && typeof entry.amount !== "string" && typeof entry.amount !== "number") {
+      throw new SizerValidationError("bad_money", `${fieldName}.amount must be a string or number`);
+    }
+    if (entry.currency !== undefined && typeof entry.currency !== "string") {
+      throw new SizerValidationError("bad_currency", `${fieldName}.currency must be a string`);
+    }
+    rawAmount = entry.amount ?? "0";
+    rawCurrency = entry.currency ?? defaultCurrency;
+  } else if (typeof entry === "string" || typeof entry === "number") {
+    rawAmount = entry;
+  } else {
+    throw new SizerValidationError("bad_money", `${fieldName} must be a string, number, or money object`);
+  }
+  const currency = String(rawCurrency).toUpperCase();
   if (!CURRENCIES.has(currency)) {
     throw new SizerValidationError("bad_currency", `${fieldName}: unsupported currency "${currency}"`);
   }
-  const raw = String(obj.amount ?? "0").trim().replace(/[,_ ]/g, "");
+  const raw = String(rawAmount).trim().replace(/[,_ ]/g, "");
   if (raw === "") return { amount: "0", currency };
   let dec;
   try {
     dec = Dec.from(raw);
   } catch {
-    throw new SizerValidationError("bad_money", `${fieldName}: "${obj.amount}" is not a valid decimal amount`);
+    throw new SizerValidationError("bad_money", `${fieldName}: "${rawAmount}" is not a valid decimal amount`);
   }
   if (dec.sign() < 0) {
     throw new SizerValidationError("negative_money", `${fieldName} cannot be negative`);
@@ -398,7 +423,13 @@ export function formatMoneyDisplay(usdExactStr, displayCurrency, fx, places = 0)
 
 function posInt(val, fieldName, { min = 1, max = 10000000, allowNull = false } = {}) {
   if (allowNull && (val === null || val === undefined || val === "")) return null;
-  const s = String(val ?? "").trim().replace(/[,_ ]/g, "");
+  if (typeof val !== "number" && typeof val !== "string") {
+    throw new SizerValidationError("bad_integer", `${fieldName} must be a whole number`);
+  }
+  if (typeof val === "number" && (!Number.isInteger(val) || !Number.isSafeInteger(val))) {
+    throw new SizerValidationError("bad_integer", `${fieldName} must be a whole number`);
+  }
+  const s = String(val).trim().replace(/[,_ ]/g, "");
   if (!/^\d+$/.test(s)) {
     throw new SizerValidationError("bad_integer", `${fieldName} must be a whole number`);
   }
@@ -410,7 +441,13 @@ function posInt(val, fieldName, { min = 1, max = 10000000, allowNull = false } =
 }
 
 function decStr(val, fieldName, { min = "0", max = "1000000", allowZero = true } = {}) {
-  const s = String(val ?? "").trim().replace(/[,_ ]/g, "");
+  if (typeof val !== "number" && typeof val !== "string") {
+    throw new SizerValidationError("bad_decimal", `${fieldName} must be a valid decimal number`);
+  }
+  if (typeof val === "number" && !Number.isFinite(val)) {
+    throw new SizerValidationError("bad_decimal", `${fieldName} must be a valid decimal number`);
+  }
+  const s = String(val).trim().replace(/[,_ ]/g, "");
   let d;
   try {
     d = Dec.from(s);

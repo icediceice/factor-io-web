@@ -14,9 +14,12 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 import { runComparison } from "./calculator.js?v=20260906-ux3";
 
 export const SIZER_SCHEMA = "factor-io.sizer/1.0.0";
+export const SIZER_SAVE_SCHEMA = "factor-io.sizer-save/1.0.0";
 export const SIZER_FRAGMENT_PREFIX = "sizer=v1.";
 export const PRESET_FRAGMENT_PREFIX = "preset=v1.";
 export const MAX_FRAGMENT_CHARS = 8192;
+export const MAX_SAVE_BYTES = 65536;
+export const MAX_SAVED_SCENARIOS = 25;
 
 export const PCIE_ONLY_GPUS = new Set([
   "rtx_pro_6000_ws",

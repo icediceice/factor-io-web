@@ -126,7 +126,9 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     if (!current.ok) {
       return { ok: false, code: "storage_read_failed", error: current.error };
     }
-    const nextList = current.scenarios.filter((item) => item.id !== id);
+    const nextList = current.scenarios
+      .filter((item) => item.id !== id)
+      .map(({ id: eid, name: ename, savedAt: esaved, fragment: efrag }) => ({ id: eid, name: ename, savedAt: esaved, fragment: efrag }));
     try {
       if (nextList.length === 0 && typeof access.store.removeItem === "function") {
         access.store.removeItem(SIZER_STORAGE_KEY);

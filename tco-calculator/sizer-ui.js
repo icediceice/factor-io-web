@@ -2064,7 +2064,7 @@ async function init() {
       appState.liveRefreshStatus = (liveRes.openrouterLive && liveRes.fxLive)
         ? "live"
         : ((liveRes.openrouterLive || liveRes.fxLive) ? "partial" : "fallback");
-      renderAll();
+      renderAll({ preserveFocus: true });
       await runDomAuditIfRequested();
     });
 

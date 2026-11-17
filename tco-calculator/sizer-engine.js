@@ -1400,6 +1400,12 @@ export function projectSizerControls({
   for (const id of Object.keys(values)) {
     if (/^f-g\d+-/.test(id)) delete values[id];
   }
+  (model.groups ?? []).forEach((g, i) => {
+    const fields = { kind: g.kind, layers: g.layers };
+    if (g.kind === "mla") Object.assign(fields, { lora: g.kv_lora_rank, rope: g.qk_rope_head_dim });
+    else if (g.kind !== "linear") Object.assign(fields, { heads: g.kv_heads, dim: g.head_dim, tensors: g.tensors ?? 2, ...(g.kind === "sliding" ? { window: g.window_tokens } : {}) });
+    for (const [k, v] of Object.entries(fields)) values[`f-g${i}-${k}`] = String(v ?? "");
+  });
 
   const pct = (dec) => trimDecimalZeros(formatHalfUp(toRat(dec).mul(Rat.from(100n)), 4));
 

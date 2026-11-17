@@ -324,28 +324,39 @@ function applyUrlStateOnBoot() {
 }
 
 function applyPresetToDraft(preset) {
-  if (preset.workloadId) selectWorkloadPreset(preset.workloadId);
-  if (preset.deploymentMode === "greenfield" || preset.deploymentMode === "brownfield") {
-    appState.draft.deploymentMode = preset.deploymentMode;
+  const snapshotDraft = structuredClone(appState.draft);
+  const snapshotCurrency = appState.displayCurrency;
+  try {
+    if (preset.workloadId) selectWorkloadPreset(preset.workloadId);
+    if (preset.deploymentMode === "greenfield" || preset.deploymentMode === "brownfield") {
+      appState.draft.deploymentMode = preset.deploymentMode;
+    }
+    if ("dealTierOverride" in preset) {
+      appState.draft.dealTierOverride = preset.dealTierOverride && DEAL_TIERS[preset.dealTierOverride]
+        ? preset.dealTierOverride
+        : null;
+    }
+    if (Array.isArray(preset.connectors)) appState.draft.connectors = [...preset.connectors];
+    if (preset.users != null) appState.draft.users = String(preset.users);
+    if (preset.modelId) appState.draft.modelId = String(preset.modelId);
+    if (preset.gpuId) appState.draft.gpuId = String(preset.gpuId);
+    if (preset.quoteBasis) appState.draft.quoteBasis = String(preset.quoteBasis);
+    if (preset.quoteCurrency === "USD" || preset.quoteCurrency === "THB") {
+      appState.draft.quoteCurrency = preset.quoteCurrency;
+      appState.displayCurrency = preset.quoteCurrency;
+    }
+    if ("nodes" in preset) appState.draft.nodes = preset.nodes != null ? String(preset.nodes) : "";
+    if ("gpusPerNode" in preset) appState.draft.gpusPerNode = preset.gpusPerNode != null ? String(preset.gpusPerNode) : "";
+    if (preset.integratedNodePrice) appState.draft.integratedNodePrice = preset.integratedNodePrice;
+    if (preset.fleetTotalPrice) appState.draft.fleetTotalPrice = preset.fleetTotalPrice;
+    if (preset.localImplFee) appState.draft.localImplFee = preset.localImplFee;
+    if (preset.annualOpsFee) appState.draft.annualOpsFee = preset.annualOpsFee;
+    normalizeSizerInput(appState.draft);
+  } catch (err) {
+    appState.draft = snapshotDraft;
+    appState.displayCurrency = snapshotCurrency;
+    throw err;
   }
-  if (preset.dealTierOverride && DEAL_TIERS[preset.dealTierOverride]) {
-    appState.draft.dealTierOverride = preset.dealTierOverride;
-  }
-  if (Array.isArray(preset.connectors)) appState.draft.connectors = [...preset.connectors];
-  if (preset.users != null) appState.draft.users = String(preset.users);
-  if (preset.modelId) appState.draft.modelId = String(preset.modelId);
-  if (preset.gpuId) appState.draft.gpuId = String(preset.gpuId);
-  if (preset.quoteBasis) appState.draft.quoteBasis = String(preset.quoteBasis);
-  if (preset.quoteCurrency === "USD" || preset.quoteCurrency === "THB") {
-    appState.draft.quoteCurrency = preset.quoteCurrency;
-    appState.displayCurrency = preset.quoteCurrency;
-  }
-  if (preset.nodes != null) appState.draft.nodes = String(preset.nodes);
-  if (preset.gpusPerNode != null) appState.draft.gpusPerNode = String(preset.gpusPerNode);
-  if (preset.integratedNodePrice) appState.draft.integratedNodePrice = preset.integratedNodePrice;
-  if (preset.fleetTotalPrice) appState.draft.fleetTotalPrice = preset.fleetTotalPrice;
-  if (preset.localImplFee) appState.draft.localImplFee = preset.localImplFee;
-  if (preset.annualOpsFee) appState.draft.annualOpsFee = preset.annualOpsFee;
 }
 
 function hydrateDraftFromNormalized(n) {

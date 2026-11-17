@@ -4,13 +4,14 @@ import { toTHB, toUSD } from "./currency.js";
 import { formatHalfUp, toRat } from "./exact.js";
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-export function setupStarters({ getData, onAdvisor, onCustom }) {
+export function setupStarters({ getData, onAdvisor, onCustom, onBackFromCustom = null, validateReturnOrigin = null }) {
   const $ = id => document.getElementById(id);
   let selected = STARTER_CASES[0];
   let result = null;
   let mode = "starter";
+  let returnOrigin = null;
+  let returnControlsEdited = false;
   const edits = new Map();
-  const money = amount => `฿${formatHalfUp(toTHB(toRat(amount), getData().fx), 0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
   const shape = s => `${s.prompt_tokens.toLocaleString()} input + ${(s.cache_read_tokens ?? 0).toLocaleString()} cached input + ${(s.cache_write_tokens ?? 0).toLocaleString()} cache write + ${s.output_tokens.toLocaleString()} output tokens`;
   function refresh() {
     const data = getData();

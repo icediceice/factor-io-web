@@ -116,6 +116,7 @@ function harness() {
     fetchLiveFx: async () => { throw new Error("offline test fixture"); },
     syncChips() {}, enhanceRail() {}, releaseFields() {},
     controlIdentity, controlDiff, validateControlRecord, readHandoff, consumeHandoff,
+    decodeSizerFragment, projectSizerControls,
     setupStarters: () => ({ refresh() {}, snapshot: () => ({ mode: "starter" }), restore() {}, setMode() {} }),
   });
   const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");

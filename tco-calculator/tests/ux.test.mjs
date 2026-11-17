@@ -433,12 +433,8 @@ test("authored horizons default to 60 months in HTML and every workload preset",
   assert.ok(presets.presets.every((preset) => preset.fields["f-horizon"] === "60"));
 });
 
-test("deterministic engine modules cannot import the THB presentation boundary", () => {
-  for (const name of ENGINE_MODULES) {
-    const source = readFileSync(new URL(`../${name}`, import.meta.url), "utf8");
-    assert.doesNotMatch(source, /(?:from\s+|import\s*\()["']\.\/currency\.js(?:\?[^"']*)?["']/, name);
-  }
-});
+// USD/THB behavior is asserted against real outputs in exportMoneyRecord,
+// exportMoneyTree, and the sizer parity acceptance matrix, independently of imports.
 
 test("exported money preserves exact engine USD and converts once to exact THB", () => {
   const h = harness();

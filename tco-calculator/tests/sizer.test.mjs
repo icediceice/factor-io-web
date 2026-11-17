@@ -63,17 +63,23 @@ const baseData = {
 };
 
 test("local-only implementation fee enters owned upfront and payback without charging Cloud API or inflating hardware capex", () => {
+  const feeFixtureBase = {
+    workloadId: "thai_doc_line_ops",
+    users: 450,
+    rawPromptTokens: 2400,
+    rawOutputTokens: 380,
+    rawContextTokens: 16384,
+    modelId: "qwen3-8-27b",
+    gpuId: "rtx_pro_6000_se",
+    quoteBasis: "fleet_total",
+    quoteCurrency: "THB",
+    nodes: 1,
+    gpusPerNode: 4,
+    fleetTotalPrice: { amount: "1000000", currency: "THB" },
+  };
   const withoutFee = computeSizer({
     input: {
-      workloadId: "thai_doc_line_ops",
-      users: 450,
-      modelId: "qwen3-8-27b",
-      gpuId: "rtx_pro_6000_se",
-      quoteBasis: "fleet_total",
-      quoteCurrency: "THB",
-      nodes: 1,
-      gpusPerNode: 4,
-      fleetTotalPrice: { amount: "1000000", currency: "THB" },
+      ...feeFixtureBase,
       localImplFee: { amount: "0", currency: "THB" },
       commonImplFee: { amount: "0", currency: "THB" },
     },
@@ -83,15 +89,7 @@ test("local-only implementation fee enters owned upfront and payback without cha
 
   const withLocalImpl = computeSizer({
     input: {
-      workloadId: "thai_doc_line_ops",
-      users: 450,
-      modelId: "qwen3-8-27b",
-      gpuId: "rtx_pro_6000_se",
-      quoteBasis: "fleet_total",
-      quoteCurrency: "THB",
-      nodes: 1,
-      gpusPerNode: 4,
-      fleetTotalPrice: { amount: "1000000", currency: "THB" },
+      ...feeFixtureBase,
       localImplFee: { amount: "450000", currency: "THB" },
       commonImplFee: { amount: "0", currency: "THB" },
     },
@@ -113,15 +111,7 @@ test("local-only implementation fee enters owned upfront and payback without cha
   // Shared implementation fee charges both A and B equally, leaving net payback identical to hardware-only.
   const withSharedImpl = computeSizer({
     input: {
-      workloadId: "thai_doc_line_ops",
-      users: 450,
-      modelId: "qwen3-8-27b",
-      gpuId: "rtx_pro_6000_se",
-      quoteBasis: "fleet_total",
-      quoteCurrency: "THB",
-      nodes: 1,
-      gpusPerNode: 4,
-      fleetTotalPrice: { amount: "1000000", currency: "THB" },
+      ...feeFixtureBase,
       localImplFee: { amount: "0", currency: "THB" },
       commonImplFee: { amount: "450000", currency: "THB" },
     },

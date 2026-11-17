@@ -1,15 +1,15 @@
 <!doctype html>
 <!--
-  light-design · macrostructure: Wizard (nested Ledger in Step 5) · density: balanced-operator · depth: borders-only
-  gates: 75/75 applicable (12 n/a of 87: dark-only system.md ramp, no avatars, no pagination/bulk-select/CRUD/toast/modal-stack) · verdict: ship · critique: H4 D4 S4 O5 R4 P4
-  data: dated local snapshots (tco-calculator/data/*.json) + user-declared BOM/fee inputs
+  light-design · macrostructure: Workbench (nested Ledger for Cross-GPU Auto-Sizing & 60M Breakdown) · density: balanced-operator · depth: borders-only
+  gates: pending Step 5 measurement · verdict: pending · critique: pending
+  data: dated local snapshots (tco-calculator/data/*.json) + bounded 4s live OpenRouter/ECB FX refresh + user-declared BOM/save inputs
 -->
 <html lang="th">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Local AI Deal &amp; Model Sizer (TH/EN) | Factor IO</title>
-<meta name="description" content="Guided 5-step Thai and English enterprise Local AI sizing wizard: workload demand, S-XL data pipeline integration scope, Thai token-fertility VRAM pass, custom GPU and server BOM pricing, and 60-month TCO transfer.">
+<title>Local AI Model &amp; GPU Sizer Workbench (TH/EN) | Factor IO</title>
+<meta name="description" content="Single-page Thai and English enterprise Local AI sizing workbench: 8 realistic Thai corporate workloads, model-first automatic GPU and server sizing, live provider-filtered API tariffs, scenario save/import, and 60-month TCO calculator handoff.">
 <link rel="canonical" href="https://studio.factor-io.com/local-ai-sizer.html">
 <meta name="theme-color" content="#0A0A0F">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
@@ -87,12 +87,14 @@
     --surface-3: #1E1E2C;
     --ink: #ECEAF6;
     --dim: #B8B5CC;
-    --muted: #9490AB;
+    --muted: #9C98B6;
     --line: #262638;
     --line-strong: #3A3A54;
     --accent: #B46EFF;
     --accent-tint: #1F1633;
     --accent-line: #7E4BB8;
+    --cyan: #22D3EE;
+    --cyan-tint: #0C2229;
     --ok: #34D399;
     --ok-tint: #0E231D;
     --warn: #FBBF24;
@@ -117,7 +119,7 @@
     color: var(--ink);
     font-family: var(--sans);
     font-size: var(--fs-md);
-    line-height: 1.55;
+    line-height: 1.5;
     scrollbar-color: var(--line-strong) var(--surface-1);
   }
   body {
@@ -157,22 +159,26 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Wizard Task Bar (S8: task header only, no site primary nav) */
+  /* Taskbar */
   .taskbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 12px 24px;
+    padding: 10px 24px;
     background: var(--surface-1);
     border-bottom: 1px solid var(--line);
     flex-wrap: wrap;
   }
+  @media (max-width: 720px) {
+    .taskbar { padding: 10px 16px; }
+  }
   .taskbar-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     min-width: 0;
+    flex-wrap: wrap;
   }
   .back-link {
     display: inline-flex;
@@ -223,103 +229,85 @@
     box-shadow: inset 0 -2px 0 var(--accent);
   }
 
-  /* Step Progress Bar */
-  .stepper-wrap {
+  /* Quick Anchor Strip */
+  .section-nav {
     border-bottom: 1px solid var(--line);
     background: var(--bg);
-    padding: 12px 24px;
+    padding: 8px 24px;
     overflow-x: auto;
   }
-  .stepper {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(150px, 1fr));
-    gap: 8px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-width: 1440px;
-    margin-inline: auto;
+  @media (max-width: 720px) {
+    .section-nav { padding: 8px 16px; }
   }
-  .step-btn {
-    width: 100%;
-    min-height: 44px;
-    padding: 8px 12px;
-    background: var(--surface-1);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    color: var(--dim);
-    font-family: var(--sans);
-    font-size: var(--fs-sm);
-    text-align: left;
-    cursor: pointer;
+  .section-nav-list {
     display: flex;
     align-items: center;
     gap: 8px;
-    min-width: 0;
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 1440px;
   }
-  .step-btn[aria-current="step"] {
-    border-color: var(--accent-line);
-    background: var(--accent-tint);
-    color: var(--ink);
-    font-weight: 600;
-  }
-  .step-btn[data-complete="true"]:not([aria-current="step"]) {
-    border-color: var(--line-strong);
-    color: var(--ink);
-  }
-  .step-idx {
-    font-family: var(--mono);
-    font-size: var(--fs-xs);
-    padding: 2px 6px;
-    border: 1px solid var(--line-strong);
+  .nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    flex-shrink: 0;
-  }
-  .step-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: var(--surface-1);
+    color: var(--dim);
+    text-decoration: none;
+    font-size: var(--fs-sm);
     white-space: nowrap;
   }
+  .nav-pill .idx {
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    color: var(--accent);
+  }
 
-  /* Main Layout: Wizard Stage + Plain Live Summary Surface */
+  /* Workbench Two-Column Layout */
   .workspace {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-columns: minmax(0, 1fr) 390px;
     gap: 24px;
     max-width: 1440px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 20px 24px 36px;
     align-items: start;
   }
   @media (max-width: 1080px) {
     .workspace {
       grid-template-columns: minmax(0, 1fr);
-      padding: 16px;
+      padding: 16px 16px 32px;
     }
   }
 
-  .wizard-stage {
+  .workbench-main {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
   }
-  .stage-header {
+
+  .hero-header {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--line);
   }
-  .stage-sub {
+  .hero-sub {
     color: var(--dim);
     font-size: var(--fs-md);
-    max-width: 72ch;
+    max-width: 76ch;
   }
 
-  /* Status Banner & Alerts */
+  /* Status Banner */
   .status-bar {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     background: var(--surface-1);
@@ -347,11 +335,40 @@
     color: var(--ink);
   }
 
-  /* Selectable Option Grid (distinct composition from summary & tables) */
+  /* Workbench Section */
+  .wb-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 16px;
+  }
+  .sec-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .sec-kicker {
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .sec-desc {
+    font-size: var(--fs-sm);
+    color: var(--dim);
+    max-width: 74ch;
+  }
+
+  /* Workload Cards */
   .choice-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 10px;
   }
   @media (max-width: 720px) {
     .choice-grid { grid-template-columns: minmax(0, 1fr); }
@@ -360,7 +377,7 @@
     appearance: none;
     width: 100%;
     min-height: 44px;
-    padding: 16px;
+    padding: 12px 14px;
     background: var(--surface-1);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -370,7 +387,7 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
   }
   .choice-btn[aria-pressed="true"] {
@@ -379,19 +396,21 @@
   }
   .choice-top {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
     width: 100%;
+    flex-wrap: wrap;
   }
   .choice-title {
-    font-size: var(--fs-lg);
+    font-size: var(--fs-md);
     font-weight: 600;
     color: var(--ink);
   }
   .choice-desc {
-    font-size: var(--fs-sm);
+    font-size: var(--fs-xs);
     color: var(--dim);
+    line-height: 1.45;
   }
   .choice-meta {
     font-family: var(--mono);
@@ -399,60 +418,59 @@
     color: var(--muted);
   }
 
-  /* Connector Check List (Plain unwrapped list per S4) */
-  .connector-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--line);
-  }
-  .connector-item {
-    border-bottom: 1px solid var(--line);
-    padding: 12px 4px;
-  }
-  .connector-label {
-    display: grid;
-    grid-template-columns: 24px minmax(0, 1fr) auto;
+  /* Prompt Scale Pills */
+  .scale-strip {
+    display: flex;
     align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    min-height: 44px;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-1);
   }
-  .connector-label input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    margin: 0;
-    accent-color: var(--accent);
-    background-color: var(--surface-2);
+  .pill-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pill-btn {
+    appearance: none;
+    min-height: 36px;
+    padding: 6px 12px;
     border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--fs-xs);
+    font-weight: 500;
     cursor: pointer;
   }
-  .connector-text {
-    min-width: 0;
-  }
-  .connector-name {
-    display: block;
-    font-size: var(--fs-md);
-    font-weight: 500;
-    color: var(--ink);
-  }
-  .connector-detail {
-    display: block;
-    font-size: var(--fs-sm);
-    color: var(--dim);
+  .pill-btn[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-tint);
   }
 
   /* Form Controls */
   .field-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 14px;
+  }
+  .field-grid.four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .field-grid.two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  @media (max-width: 900px) {
+    .field-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
   @media (max-width: 720px) {
-    .field-grid, .field-grid.two { grid-template-columns: minmax(0, 1fr); }
+    .field-grid, .field-grid.two, .field-grid.four { grid-template-columns: minmax(0, 1fr); }
   }
   .field {
     display: flex;
@@ -502,6 +520,70 @@
     font-weight: 500;
   }
 
+  /* Auto-Configured GPU Callout */
+  .auto-callout {
+    padding: 14px 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .auto-callout[data-status="qualified_pass"] {
+    border-color: rgba(52, 211, 153, 0.55);
+    background: var(--ok-tint);
+  }
+  .auto-callout[data-status="conditional_pass"],
+  .auto-callout[data-status="memory_fit_unpriced"] {
+    border-color: rgba(251, 191, 36, 0.55);
+    background: var(--warn-tint);
+  }
+  .auto-callout[data-status="refused"],
+  .auto-callout[data-status="unsupported_cross_node_tp"] {
+    border-color: rgba(248, 113, 113, 0.65);
+    background: var(--bad-tint);
+  }
+  .auto-headline {
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .auto-detail {
+    font-size: var(--fs-sm);
+    color: var(--dim);
+  }
+
+  /* Details / Disclosure */
+  details.wb-disclosure {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-1);
+  }
+  details.wb-disclosure > summary {
+    min-height: 44px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    list-style: none;
+  }
+  details.wb-disclosure > summary::-webkit-details-marker { display: none; }
+  details.wb-disclosure[open] > summary {
+    border-bottom: 1px solid var(--line);
+  }
+  .disclosure-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
   /* Badges */
   .badge {
     display: inline-flex;
@@ -536,8 +618,13 @@
     color: var(--ink);
     background: var(--accent-tint);
   }
+  .badge-cyan {
+    border-color: rgba(34, 211, 238, 0.45);
+    color: var(--cyan);
+    background: var(--cyan-tint);
+  }
 
-  /* Bare Ledger Table (N1, N2, N4, T6) */
+  /* Bare Ledger Table (rows <= 48px) */
   .table-scroll {
     width: 100%;
     overflow-x: auto;
@@ -551,11 +638,12 @@
   }
   .ledger-table th,
   .ledger-table td {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-bottom: 1px solid var(--line);
     text-align: left;
     vertical-align: middle;
     height: 40px;
+    max-height: 46px;
   }
   .ledger-table th {
     background: var(--surface-1);
@@ -565,6 +653,9 @@
   }
   .ledger-table tr:last-child td {
     border-bottom: 0;
+  }
+  .ledger-table tr[data-selected="true"] td {
+    background: var(--accent-tint);
   }
   .ledger-table th.col-num,
   .ledger-table td.col-num {
@@ -576,25 +667,113 @@
   .ledger-table td:first-child {
     white-space: nowrap;
   }
-  .cell-truncate {
-    max-width: 280px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .row-select-btn {
+    appearance: none;
+    min-height: 30px;
+    min-width: 68px;
+    padding: 4px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    cursor: pointer;
     white-space: nowrap;
-    display: block;
+  }
+  .row-select-btn[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #0A0A0F;
+    font-weight: 600;
   }
 
-  /* Plain Live Summary Rail (S4: plain surface, not nested cards) */
+  /* Connector Check List */
+  .connector-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .connector-item {
+    border-bottom: 1px solid var(--line);
+    padding: 8px 4px;
+  }
+  .connector-label {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .connector-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .connector-name {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .connector-detail {
+    display: block;
+    font-size: var(--fs-xs);
+    color: var(--dim);
+  }
+
+  /* Saved Scenarios List */
+  .saved-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .saved-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .saved-meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .saved-title {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .saved-sub {
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    color: var(--muted);
+  }
+
+  /* Sticky Live Summary Rail */
   .live-summary {
+    position: sticky;
+    top: 16px;
     border-left: 1px solid var(--line);
     padding-left: 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     min-width: 0;
   }
   @media (max-width: 1080px) {
     .live-summary {
+      position: static;
       border-left: 0;
       border-top: 1px solid var(--line);
       padding-left: 0;
@@ -612,12 +791,12 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 0;
+    padding: 7px 0;
     border-bottom: 1px solid var(--line);
     min-width: 0;
   }
   .kv-row dt {
-    font-size: var(--fs-sm);
+    font-size: var(--fs-xs);
     color: var(--dim);
     min-width: 0;
   }
@@ -625,13 +804,13 @@
     margin: 0;
     font-family: var(--mono);
     font-variant-numeric: tabular-nums;
-    font-size: var(--fs-sm);
+    font-size: var(--fs-xs);
     color: var(--ink);
     text-align: right;
     overflow-wrap: anywhere;
   }
   .payback-highlight {
-    padding: 16px;
+    padding: 14px 16px;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-sm);
     background: var(--surface-1);
@@ -647,16 +826,7 @@
     color: var(--ink);
   }
 
-  /* Buttons & Action Bar */
-  .wizard-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    flex-wrap: wrap;
-  }
+  /* Buttons */
   .btn-row {
     display: flex;
     align-items: center;
@@ -670,13 +840,13 @@
     justify-content: center;
     gap: 8px;
     min-height: 44px;
-    padding: 8px 16px;
+    padding: 8px 14px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--line-strong);
     background: var(--surface-2);
     color: var(--ink);
     font-family: var(--sans);
-    font-size: var(--fs-md);
+    font-size: var(--fs-sm);
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
@@ -686,6 +856,7 @@
     border-color: var(--accent);
     color: #0A0A0F;
     font-weight: 600;
+    font-size: var(--fs-md);
   }
   .btn-danger {
     border-color: rgba(248, 113, 113, 0.55);
@@ -699,11 +870,12 @@
     pointer-events: none;
   }
 
-  /* Hover states strictly gated behind hover+fine pointer (M9) */
   @media (hover: hover) and (pointer: fine) {
     .back-link:hover,
-    .step-btn:hover,
+    .nav-pill:hover,
     .choice-btn:hover,
+    .pill-btn:hover,
+    .row-select-btn:hover,
     .btn:hover:not(:disabled) {
       border-color: var(--accent-line);
     }
@@ -715,7 +887,8 @@
     }
   }
   .btn:active:not(:disabled),
-  .choice-btn:active {
+  .choice-btn:active,
+  .pill-btn:active {
     transform: translateY(1px);
   }
   @media (prefers-reduced-motion: reduce) {
@@ -726,7 +899,6 @@
     }
   }
 
-  /* Reset Confirmation Inline Bar (T8: confirmation without modal S11) */
   .confirm-bar {
     display: flex;
     align-items: center;
@@ -742,8 +914,7 @@
   .source-footnote {
     font-size: var(--fs-xs);
     color: var(--muted);
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
+    padding-top: 8px;
   }
 
   #auditReport {
@@ -769,9 +940,9 @@
       --line: #CCCCCC;
       --line-strong: #888899;
     }
-    .taskbar, .stepper-wrap, .wizard-footer, .no-print, #auditReport { display: none !important; }
+    .taskbar, .section-nav, .no-print, #auditReport { display: none !important; }
     .workspace { display: block; padding: 0; max-width: none; }
-    .live-summary { border: 0; padding: 16px 0 0; }
+    .live-summary { position: static; border: 0; padding: 16px 0 0; }
     .ledger-table th, .ledger-table td { color: #111118; border-color: #CCCCCC; }
   }
 </style>
@@ -779,8 +950,9 @@
 <body>
   <header class="taskbar">
     <div class="taskbar-left">
-      <a class="back-link" id="back-to-tco" href="tco-calculator.html">← <span data-i18n="backTco">TCO Calculator</span></a>
-      <span class="taskbar-title" id="taskbar-title">Local AI Deal &amp; Model Sizer</span>
+      <a class="back-link" id="back-to-tco" href="tco-calculator.html">← <span id="lbl-back-tco">TCO Calculator</span></a>
+      <span class="taskbar-title" id="taskbar-title">Local AI Model &amp; GPU Sizer</span>
+      <span class="badge badge-cyan" id="source-badge">Loading snapshots…</span>
     </div>
     <div class="taskbar-controls">
       <div class="seg-group" role="group" aria-label="Language">
@@ -794,53 +966,422 @@
     </div>
   </header>
 
-  <nav class="stepper-wrap" aria-label="Sizing wizard progress">
-    <ol class="stepper" id="wizard-stepper"></ol>
+  <nav class="section-nav no-print" aria-label="Workbench sections">
+    <ul class="section-nav-list">
+      <li><a class="nav-pill" href="#sec-workload"><span class="idx">01</span> <span id="nav-sec-1">Workload &amp; Prompt Scale</span></a></li>
+      <li><a class="nav-pill" href="#sec-model-gpu"><span class="idx">02</span> <span id="nav-sec-2">Model &amp; Auto GPU Sizing</span></a></li>
+      <li><a class="nav-pill" href="#sec-api"><span class="idx">03</span> <span id="nav-sec-3">Cloud API Provider Filter</span></a></li>
+      <li><a class="nav-pill" href="#sec-bom-save"><span class="idx">04</span> <span id="nav-sec-4">BOM Quotes &amp; Save / Import</span></a></li>
+    </ul>
   </nav>
 
   <main class="workspace" id="main-workspace" aria-busy="true">
-    <section class="wizard-stage" aria-labelledby="stage-heading">
+    <div class="workbench-main">
       <div id="live-announcer" class="status-bar" role="status" aria-live="polite">
-        Loading dated local pricing and model architecture snapshots…
-      </div>
-      <div class="stage-header">
-        <h1 id="stage-heading">กำลังโหลดข้อมูลอ้างอิง…</h1>
-        <p class="stage-sub" id="stage-subtitle">กรุณารอสักครู่ ระบบกำลังอ่านข้อมูลโมเดลและราคาอ้างอิงจากไฟล์ภายในเว็บไซต์</p>
+        Loading model architectures and pricing snapshots…
       </div>
 
-      <div id="step-body"></div>
+      <header class="hero-header">
+        <h1 id="stage-heading">ประเมินขนาดโมเดลและจำนวน GPU สำหรับองค์กรไทย</h1>
+        <p class="hero-sub" id="stage-subtitle">เลือกงานจริงขององค์กร เลือกโมเดลที่ต้องการใช้ และเลือกการ์ด GPU ระบบจะคำนวณจำนวนการ์ด เซิร์ฟเวอร์ และจุดคุ้มทุนเทียบ Cloud API ทันทีในหน้าเดียว</p>
+      </header>
 
-      <div id="reset-confirm" class="confirm-bar" hidden></div>
+      <!-- SECTION 01: WORKLOAD & REALISTIC PROMPT VOLUME -->
+      <section class="wb-section" id="sec-workload" aria-labelledby="h-sec-workload">
+        <div class="sec-head">
+          <div>
+            <div class="sec-kicker">01 / Enterprise Workload</div>
+            <h2 id="h-sec-workload">1. เลือกรูปแบบงานจริงและปริมาณโทเคนต่อคำสั่ง</h2>
+          </div>
+          <p class="sec-desc" id="d-sec-workload">ค่าเริ่มต้นสะท้อนงานจริงขององค์กรไทยที่ต้องแนบ System Prompt คู่มือ เอกสาร OCR หรือโครงสร้างฐานข้อมูล SQL (10,500 ถึง 36,000+ โทเคน)</p>
+        </div>
 
-      <footer class="wizard-footer">
+        <div class="choice-grid" id="workload-cards" role="group" aria-labelledby="h-sec-workload"></div>
+
+        <div class="scale-strip">
+          <span class="field-hint" id="lbl-prompt-presets">ปรับขนาด Prompt อย่างรวดเร็ว (รวม System Prompt + เนื้อหา RAG/Tool):</span>
+          <div class="pill-row" id="prompt-scale-pills"></div>
+        </div>
+
+        <div class="field-grid four">
+          <div class="field">
+            <label for="in-users" id="lbl-users">Active users</label>
+            <input id="in-users" class="num-input" type="number" min="1" max="10000000" step="10" data-field="users">
+            <span class="field-hint" id="hint-users"></span>
+          </div>
+          <div class="field">
+            <label for="in-raw-prompt" id="lbl-raw-prompt">Raw prompt tokens / turn</label>
+            <input id="in-raw-prompt" class="num-input" type="number" min="16" max="2000000" step="500" data-field="rawPromptTokens">
+            <span class="field-hint" id="hint-eff-prompt"></span>
+          </div>
+          <div class="field">
+            <label for="in-raw-output" id="lbl-raw-output">Output tokens / turn</label>
+            <input id="in-raw-output" class="num-input" type="number" min="1" max="500000" step="50" data-field="rawOutputTokens">
+            <span class="field-hint" id="hint-output"></span>
+          </div>
+          <div class="field">
+            <label for="in-raw-ctx" id="lbl-raw-ctx">Context window (raw)</label>
+            <input id="in-raw-ctx" class="num-input" type="number" min="128" max="10000000" step="4096" data-field="rawContextTokens">
+            <span class="field-hint" id="hint-eff-ctx"></span>
+          </div>
+        </div>
+
+        <details class="wb-disclosure" id="details-traffic">
+          <summary><span id="sum-traffic">ตั้งค่าความหนาแน่นการใช้งานและตัวคูณโทเคนภาษาไทย (Sessions, Concurrency, Thai 1.4x)</span> <span class="badge" id="badge-traffic"></span></summary>
+          <div class="disclosure-body">
+            <div class="field-grid four">
+              <div class="field">
+                <label for="in-sessions-day" id="lbl-sessions-day">Sessions / user / day</label>
+                <input id="in-sessions-day" class="num-input" type="number" min="0.1" max="1000" step="0.5" data-field="sessionsPerUserDay">
+              </div>
+              <div class="field">
+                <label for="in-days-mo" id="lbl-days-mo">Working days / month</label>
+                <input id="in-days-mo" class="num-input" type="number" min="1" max="31" step="1" data-field="workingDaysMo">
+              </div>
+              <div class="field">
+                <label for="in-peak-pct" id="lbl-peak-pct">Peak concurrent users (%)</label>
+                <input id="in-peak-pct" class="num-input" type="number" min="0.5" max="100" step="0.5" data-field="peakPct">
+              </div>
+              <div class="field">
+                <label for="in-token-basis" id="lbl-token-basis">Thai token basis</label>
+                <select id="in-token-basis" data-field="tokenBasis">
+                  <option value="latin_reference_1_4x" id="opt-basis-latin">English ref x 1.4x Thai fertility</option>
+                  <option value="thai_tokenized_1x" id="opt-basis-thai">Measured with Thai tokenizer (1.0x)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- SECTION 02: TARGET MODEL & AUTO GPU SIZING -->
+      <section class="wb-section" id="sec-model-gpu" aria-labelledby="h-sec-model-gpu">
+        <div class="sec-head">
+          <div>
+            <div class="sec-kicker">02 / Model-First GPU Auto-Sizing</div>
+            <h2 id="h-sec-model-gpu">2. เลือกโมเดล AI ที่ต้องการใช้ และรุ่นการ์ด GPU เพื่อคำนวณจำนวนเครื่องอัตโนมัติ</h2>
+          </div>
+          <p class="sec-desc" id="d-sec-model-gpu">โมเดลและขนาด Context คือตัวกำหนด VRAM และความเร็วถอดรหัส ระบบจะเลือกโครงสร้างเซิร์ฟเวอร์และจำนวน GPU ที่รองรับได้จริงให้อัตโนมัติ</p>
+        </div>
+
+        <div class="field-grid two">
+          <div class="field">
+            <label for="in-model-id" id="lbl-model-id">Target open-weight model</label>
+            <select id="in-model-id" data-field="modelId"></select>
+            <span class="field-hint" id="hint-model-profile"></span>
+          </div>
+          <div class="field">
+            <label for="in-gpu-id" id="lbl-gpu-id">Preferred GPU accelerator</label>
+            <select id="in-gpu-id" data-field="gpuId"></select>
+            <span class="field-hint" id="hint-gpu-spec"></span>
+          </div>
+        </div>
+
+        <div class="field-grid three">
+          <div class="field">
+            <label for="in-wquant" id="lbl-wquant">Weight quantization</label>
+            <select id="in-wquant" data-field="wquant">
+              <option value="bf16">BF16 / FP16 (2 B/param)</option>
+              <option value="fp8">FP8 (1 B/param)</option>
+              <option value="int8">INT8 W8A8 (1 B/param)</option>
+              <option value="int4">INT4 AWQ/GPTQ (0.5 B/param lower bound)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="in-kvquant" id="lbl-kvquant">KV cache precision</label>
+            <select id="in-kvquant" data-field="kvquant">
+              <option value="bf16">BF16 KV (2 B/elem)</option>
+              <option value="fp8">FP8 KV (1 B/elem)</option>
+              <option value="int8">INT8 KV (1 B/elem)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="in-runtime" id="lbl-runtime">Serving engine</label>
+            <select id="in-runtime" data-field="runtime">
+              <option value="vllm">vLLM</option>
+              <option value="sglang">SGLang</option>
+              <option value="trtllm">TensorRT-LLM</option>
+              <option value="llamacpp">llama.cpp</option>
+            </select>
+          </div>
+        </div>
+
+        <details class="wb-disclosure" id="details-custom-model">
+          <summary><span id="sum-custom-model">กำหนดพารามิเตอร์โมเดลเอง / ทดสอบความไวขนาดโมเดล (Custom B, Active B, BF16 KV bytes/tok)</span> <span class="badge" id="badge-custom-model">Catalog</span></summary>
+          <div class="disclosure-body">
+            <p class="field-hint" id="hint-custom-contract">สำหรับโมเดล Custom ต้องระบุทั้งพารามิเตอร์รวม, Active B, อัตรา KV Cache (BF16 bytes/token) และ Max Context เพื่อให้การคำนวณ VRAM ถูกต้องตามจริง</p>
+            <div class="field-grid four">
+              <div class="field">
+                <label for="in-custom-params" id="lbl-custom-params">Total parameters (B)</label>
+                <input id="in-custom-params" class="num-input" type="number" min="0.1" max="10000" step="0.5" placeholder="Auto from model" data-field="customParamsB">
+              </div>
+              <div class="field">
+                <label for="in-custom-active" id="lbl-custom-active">Active parameters (B)</label>
+                <input id="in-custom-active" class="num-input" type="number" min="0.1" max="10000" step="0.5" placeholder="Same as total" data-field="customActiveParamsB">
+              </div>
+              <div class="field">
+                <label for="in-custom-kv-bf16" id="lbl-custom-kv-bf16">BF16 KV cache (bytes / token)</label>
+                <input id="in-custom-kv-bf16" class="num-input" type="number" min="2" max="100000000" step="1024" placeholder="e.g. 131072" data-field="customKvBytesBf16">
+              </div>
+              <div class="field">
+                <label for="in-custom-ctx-max" id="lbl-custom-ctx-max">Model max context tokens</label>
+                <input id="in-custom-ctx-max" class="num-input" type="number" min="128" max="10000000" step="4096" placeholder="e.g. 131072" data-field="customContextMax">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button type="button" class="btn" id="btn-clear-custom-model">Reset to catalog architecture</button>
+            </div>
+          </div>
+        </details>
+
+        <div class="auto-callout" id="auto-gpu-callout" data-status="qualified_pass"></div>
+
+        <div>
+          <div class="sec-head" style="margin-bottom:8px">
+            <h3 id="h-gpu-matrix">ตารางเปรียบเทียบจำนวนการ์ดและเซิร์ฟเวอร์อัตโนมัติในแต่ละรุ่น GPU</h3>
+            <span class="field-hint" id="hint-gpu-matrix">คลิกเลือกแถวเพื่อเปลี่ยนรุ่น GPU ทันที</span>
+          </div>
+          <div class="table-scroll">
+            <table class="ledger-table" aria-labelledby="h-gpu-matrix">
+              <thead>
+                <tr id="gpu-matrix-thead-row">
+                  <th>GPU Accelerator</th>
+                  <th class="col-num">TP / Replica</th>
+                  <th class="col-num">Auto GPUs</th>
+                  <th>Server Topology</th>
+                  <th class="col-num">Hardware BOM</th>
+                  <th class="col-num">Payback</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="gpu-matrix-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 03: CLOUD API PROVIDER & FILTER -->
+      <section class="wb-section" id="sec-api" aria-labelledby="h-sec-api">
+        <div class="sec-head">
+          <div>
+            <div class="sec-kicker">03 / Cloud API Benchmark</div>
+            <h2 id="h-sec-api">3. เลือกและกรองราคา Cloud Model API ที่ต้องการนำมาเปรียบเทียบ</h2>
+          </div>
+          <p class="sec-desc" id="d-sec-api">ดึงราคาสดจาก OpenRouter พร้อมข้อมูลอ้างอิง LiteLLM กรองตามค่ายโมเดล แหล่งราคา หรือค้นหาชื่อโมเดลได้ทันที</p>
+        </div>
+
+        <div class="field-grid three">
+          <div class="field">
+            <label for="filter-api-feed" id="lbl-filter-feed">Tariff source feed</label>
+            <select id="filter-api-feed">
+              <option value="all">All feeds (OpenRouter + LiteLLM)</option>
+              <option value="openrouter">OpenRouter (live / snapshot)</option>
+              <option value="litellm">LiteLLM (direct provider ref)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-api-vendor" id="lbl-filter-vendor">Model vendor / family</label>
+            <select id="filter-api-vendor"></select>
+          </div>
+          <div class="field">
+            <label for="filter-api-search" id="lbl-filter-search">Search model name or slug</label>
+            <input id="filter-api-search" type="search" placeholder="gpt-4o, claude, gemini, deepseek, qwen…">
+          </div>
+        </div>
+
+        <div class="field-grid two">
+          <div class="field">
+            <label for="in-api-offer" id="lbl-api-offer">Selected Cloud API tariff</label>
+            <select id="in-api-offer" data-field="apiOfferId"></select>
+            <span class="field-hint" id="hint-api-match-count"></span>
+          </div>
+          <div class="field">
+            <label id="lbl-api-rates">Selected API token rate (USD / 1M tokens)</label>
+            <div class="status-bar" id="api-rate-summary" style="min-height:44px"></div>
+          </div>
+        </div>
+
         <div class="btn-row">
-          <button type="button" class="btn" id="btn-prev" disabled>← Previous</button>
-          <button type="button" class="btn btn-danger" id="btn-reset">Reset</button>
+          <button type="button" class="btn" id="btn-api-auto">Use suggested commercial baseline</button>
+          <button type="button" class="btn" id="btn-api-clear-filters">Clear API filters</button>
         </div>
-        <div class="btn-row" id="footer-primary-actions">
-          <button type="button" class="btn btn-primary" id="btn-next" disabled>Next step →</button>
-        </div>
-      </footer>
+      </section>
 
-      <p class="source-footnote" id="source-footnote"></p>
-    </section>
+      <!-- SECTION 04: BOM OVERRIDES, PIPELINES & SAVE / IMPORT -->
+      <section class="wb-section" id="sec-bom-save" aria-labelledby="h-sec-bom-save">
+        <div class="sec-head">
+          <div>
+            <div class="sec-kicker">04 / Custom Quote &amp; Scenario Portability</div>
+            <h2 id="h-sec-bom-save">4. ปรับราคาใบเสนอราคาจริง เชื่อมต่อระบบภายใน และบันทึก/นำเข้าไฟล์</h2>
+          </div>
+        </div>
+
+        <details class="wb-disclosure" id="details-bom">
+          <summary><span id="sum-bom">ปรับใบเสนอราคาเซิร์ฟเวอร์ ค่าติดตั้ง ค่าไฟ และการเชื่อมต่อข้อมูลภายใน (Optional BOM &amp; Pipelines)</span> <span class="badge" id="badge-bom"></span></summary>
+          <div class="disclosure-body">
+            <div class="field-grid three">
+              <div class="field">
+                <label for="in-quote-basis" id="lbl-quote-basis">Hardware quote basis</label>
+                <select id="in-quote-basis" data-field="quoteBasis">
+                  <option value="catalog" id="opt-qb-catalog">Published catalog server</option>
+                  <option value="integrated_node" id="opt-qb-integrated">Custom per-server quote (GPUs incl.)</option>
+                  <option value="component_split" id="opt-qb-split">Separate chassis + per-GPU card quote</option>
+                  <option value="fleet_total" id="opt-qb-fleet">Single total fleet quote</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="in-quote-currency" id="lbl-quote-currency">Entered quote currency</label>
+                <select id="in-quote-currency" data-field="quoteCurrency">
+                  <option value="THB">THB (฿)</option>
+                  <option value="USD">USD ($)</option>
+                </select>
+              </div>
+              <div class="field" id="wrap-server-id">
+                <label for="in-server-id" id="lbl-server-id">Catalog server chassis</label>
+                <select id="in-server-id" data-field="serverId"></select>
+              </div>
+            </div>
+
+            <div class="field-grid four">
+              <div class="field">
+                <label for="in-nodes" id="lbl-nodes">Server node override</label>
+                <input id="in-nodes" class="num-input" type="number" min="1" max="10000" step="1" placeholder="Auto" data-field="nodes">
+              </div>
+              <div class="field">
+                <label for="in-gpus-per-node" id="lbl-gpus-per-node">GPUs / node (custom)</label>
+                <input id="in-gpus-per-node" class="num-input" type="number" min="1" max="64" step="1" placeholder="Auto" data-field="gpusPerNode">
+              </div>
+              <div class="field" id="wrap-integrated-price" hidden>
+                <label for="in-integrated-price" id="lbl-integrated-price">Per-server quote</label>
+                <input id="in-integrated-price" class="num-input" type="text" inputmode="decimal" data-field="integratedNodePrice">
+              </div>
+              <div class="field" id="wrap-chassis-price" hidden>
+                <label for="in-chassis-price" id="lbl-chassis-price">Bare chassis / node</label>
+                <input id="in-chassis-price" class="num-input" type="text" inputmode="decimal" data-field="chassisNodePrice">
+              </div>
+              <div class="field" id="wrap-gpu-card-price" hidden>
+                <label for="in-gpu-card-price" id="lbl-gpu-card-price">Per-GPU card price</label>
+                <input id="in-gpu-card-price" class="num-input" type="text" inputmode="decimal" data-field="gpuUnitPrice">
+              </div>
+              <div class="field" id="wrap-fleet-price" hidden>
+                <label for="in-fleet-price" id="lbl-fleet-price">Total fleet quote</label>
+                <input id="in-fleet-price" class="num-input" type="text" inputmode="decimal" data-field="fleetTotalPrice">
+              </div>
+              <div class="field">
+                <label for="in-local-impl-fee" id="lbl-local-impl">Local integration fee (one-time)</label>
+                <input id="in-local-impl-fee" class="num-input" type="text" inputmode="decimal" data-field="localImplFee">
+              </div>
+              <div class="field">
+                <label for="in-annual-ops-fee" id="lbl-annual-ops">Annual ops / support fee</label>
+                <input id="in-annual-ops-fee" class="num-input" type="text" inputmode="decimal" data-field="annualOpsFee">
+              </div>
+            </div>
+
+            <div class="field-grid three">
+              <div class="field">
+                <label for="in-elec-rate" id="lbl-elec-rate">Electricity tariff (THB / kWh)</label>
+                <input id="in-elec-rate" class="num-input" type="number" min="0" max="100" step="0.2" data-field="electricityThbPerKwh">
+              </div>
+              <div class="field">
+                <label for="in-deployment-mode" id="lbl-deployment-mode">Deployment structure</label>
+                <select id="in-deployment-mode" data-field="deploymentMode">
+                  <option value="greenfield" id="opt-dm-gf">Greenfield (Turnkey L1-L4 Stack)</option>
+                  <option value="brownfield" id="opt-dm-bf">Brownfield (Existing K8s Cluster L3-L4)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="in-tier-override" id="lbl-tier-override">Integration scope tier</label>
+                <select id="in-tier-override" data-field="dealTierOverride">
+                  <option value="" id="opt-tier-auto">Auto-recommend from scale</option>
+                  <option value="S">Size S (50-150 users)</option>
+                  <option value="M">Size M (150-500 users)</option>
+                  <option value="L">Size L (500-1,500 users)</option>
+                  <option value="XL">Size XL (1,500+ users)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <h3 id="h-connectors" style="margin-bottom:8px">Internal enterprise data pipelines</h3>
+              <ul class="connector-list" id="connector-list"></ul>
+            </div>
+          </div>
+        </details>
+
+        <!-- SAVE FOR LATER & IMPORT -->
+        <div class="auto-callout no-print" id="save-import-panel">
+          <div class="sec-head">
+            <div>
+              <h3 id="h-save-import">บันทึกชุดข้อมูลไว้เปิดดูภายหลัง หรือนำเข้าไฟล์ JSON</h3>
+              <p class="field-hint" id="d-save-import">บันทึกไว้ในเบราว์เซอร์เครื่องนี้ ดาวน์โหลดเป็นไฟล์ .json เพื่อส่งต่อ หรือนำเข้าไฟล์ที่บันทึกไว้กลับมาแสดงผลทันที</p>
+            </div>
+          </div>
+          <div class="field-grid two">
+            <div class="field">
+              <label for="save-name-input" id="lbl-save-name">Scenario label</label>
+              <input id="save-name-input" type="text" maxlength="80" placeholder="e.g. BFSI Claims 380 users - Qwen 35B">
+            </div>
+            <div class="field">
+              <label id="lbl-save-actions">Save, export, or import</label>
+              <div class="btn-row">
+                <button type="button" class="btn" id="btn-save-browser">Save in browser</button>
+                <button type="button" class="btn" id="btn-export-json">Download .json</button>
+                <button type="button" class="btn" id="btn-import-json">Import .json</button>
+                <input id="file-import-json" type="file" accept=".json,application/json" hidden>
+              </div>
+            </div>
+          </div>
+          <div id="save-status" class="status-bar" role="status" aria-live="polite" hidden></div>
+          <ul class="saved-list" id="saved-scenarios-list"></ul>
+        </div>
+
+        <!-- 60-MONTH COST LEDGER TABLE -->
+        <div>
+          <h3 id="h-ledger-60m" style="margin-bottom:8px">ตารางเปรียบเทียบต้นทุนตลอด 60 เดือน (Local AI vs Cloud API vs Rented GPU)</h3>
+          <div class="table-scroll">
+            <table class="ledger-table" aria-labelledby="h-ledger-60m">
+              <thead>
+                <tr id="ledger-60m-thead">
+                  <th>Option</th>
+                  <th class="col-num">Upfront</th>
+                  <th class="col-num">Monthly Run-Rate</th>
+                  <th class="col-num">60-Month Total</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-60m-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="reset-confirm" class="confirm-bar no-print" hidden></div>
+
+        <div class="btn-row no-print">
+          <button type="button" class="btn" id="btn-copy-link">Copy share link</button>
+          <button type="button" class="btn" id="btn-print">Print 1-page summary</button>
+          <button type="button" class="btn btn-danger" id="btn-reset">Reset defaults</button>
+        </div>
+
+        <p class="source-footnote" id="source-footnote"></p>
+      </section>
+    </div>
 
     <aside class="live-summary" aria-labelledby="summary-heading">
-      <h2 id="summary-heading">สรุปการคำนวณแบบเรียลไทม์</h2>
+      <h2 id="summary-heading">สรุปผลและจำนวน GPU แบบเรียลไทม์</h2>
       <div class="payback-highlight" id="summary-payback-box">
-        <span class="field-hint" id="summary-payback-label">ระยะเวลาคืนทุนเทียบ Model API</span>
+        <span class="field-hint" id="summary-payback-label">จุดคุ้มทุนเทียบ Cloud Model API</span>
         <div class="payback-figure" id="summary-payback-value">…</div>
-        <span class="field-hint" id="summary-payback-sub">คำนวณบนสมมติฐาน 60 เดือน</span>
+        <span class="field-hint" id="summary-payback-sub">คำนวณตลอดอายุโครงการ 60 เดือน</span>
       </div>
       <dl class="kv-list" id="summary-kv"></dl>
       <div class="btn-row no-print">
-        <a class="btn btn-primary" id="rail-open-tco" href="tco-calculator.html" style="width:100%">เปิดกราฟ TCO เต็มรูปแบบ →</a>
+        <a class="btn btn-primary" id="rail-open-tco" href="tco-calculator.html#custom-page" style="width:100%">เปิดกราฟ TCO เต็มรูปแบบ →</a>
       </div>
+      <p class="field-hint no-print" id="rail-handoff-hint"></p>
     </aside>
   </main>
 
   <pre id="auditReport" hidden></pre>
 
-  <script type="module" src="./tco-calculator/sizer-ui.js?v=2"></script>
+  <script type="module" src="./tco-calculator/sizer-ui.js?v=3"></script>
 </body>
 </html>

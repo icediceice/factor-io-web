@@ -1838,6 +1838,7 @@ let liveTimer = null;
 function onLiveInput() {
   syncSliders();
   if (!state.ready) return;
+  syncSizerReturnOriginState();
   plannerState.applied = false;
   $("example-state").textContent = "Customized scenario · assumptions remain editable";
   invalidateResults("Updating comparison…");

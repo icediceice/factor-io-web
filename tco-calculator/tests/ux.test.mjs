@@ -432,6 +432,7 @@ async function liveTcoPage(t) {
   const page = await openPage(browser, { width: 1440, height: 1000, reducedMotion: "reduce" });
   await page.send("Network.enable");
   await page.send("Network.setBlockedURLs", { urls: ["https://*"] });
+  await page.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.__testErrors=[];addEventListener('error',e=>__testErrors.push(e.message));addEventListener('unhandledrejection',e=>__testErrors.push(String(e.reason)));" });
   await page.goto(server.origin + "/tco-calculator.html");
   await page.evaluate(`new Promise((resolve, reject) => {
     const until = performance.now() + 12000;

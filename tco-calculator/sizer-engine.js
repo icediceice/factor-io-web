@@ -433,7 +433,9 @@ export function pickComparableApiOffer(catalog, manifest, preferredOfferId = nul
     .map((m) => m.id);
   const pool = activeIds.length ? activeIds : Object.keys(offers);
   return (
-    pool.find((id) => /gpt-4o(?!-mini)|claude-3[.-]5-sonnet|claude-sonnet-4|qwen.*72b|deepseek/i.test(id))
+    pool.find((id) => id === "openrouter:openai/gpt-4o" || id === "litellm:gpt-4o")
+    ?? pool.find((id) => /^openrouter:openai\/gpt-4o(?!-mini)/.test(id))
+    ?? pool.find((id) => /^openrouter:anthropic\/claude-sonnet-4(?!.*:batch)/.test(id))
     ?? pool[0]
     ?? ""
   );

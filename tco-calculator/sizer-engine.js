@@ -462,8 +462,8 @@ export function normalizeSizerInput(raw = {}) {
   const multRat = tokenBasis === "latin_reference_1_4x" ? toRat(thaiFertilityMultiplier) : Rat.from(1n);
   const ceilMul = (n) => {
     const prod = Rat.from(BigInt(n)).mul(multRat);
-    const q = prod.num / prod.den;
-    const rem = prod.num % prod.den;
+    const q = prod.n / prod.d;
+    const rem = prod.n % prod.d;
     return Number(rem > 0n ? q + 1n : q);
   };
 

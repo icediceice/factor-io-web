@@ -419,7 +419,7 @@ function processSizerReturn() {
     if (box) {
       box.hidden = false;
       box.innerHTML = projected.repriced
-        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. Live API prices or exchange rates moved since the sizer snapshot (${escapeHtml(projected.capturedIdentity)} → ${escapeHtml(projected.currentIdentity)}); totals below use current prices.</p>`
+        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. Live API prices or exchange rates were refreshed since the sizer snapshot (${escapeHtml(projected.capturedIdentity)} → ${escapeHtml(projected.currentIdentity)}); totals below were re-evaluated against current sources.</p>`
         : `<p role="status">Applied Guided Local AI Sizer scenario to custom comparison.</p>`;
     }
     return true;

@@ -791,22 +791,23 @@ test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee on
   assert.match(liveH.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
 
   // Malformed or conflicting URLs fail closed with zero control mutation across the entire snapshot
+  const snapControls = (inst) => JSON.parse(JSON.stringify(inst.get("captureControls()")));
   const bad = sizerReceiverHarness();
-  const beforeBadControls = structuredClone(bad.get("captureControls()"));
+  const beforeBadControls = snapControls(bad);
   bad.context.location.href = "https://studio.factor-io.com/tco-calculator.html#sizer=v1.corrupted_token!";
   assert.equal(bad.get("processSizerReturn()"), false);
   assert.equal(bad.mode(), "starter");
   assert.equal(bad.computations(), 0);
-  assert.deepEqual(bad.get("captureControls()"), beforeBadControls);
+  assert.deepEqual(snapControls(bad), beforeBadControls);
   assert.match(bad.node("return-review").innerHTML, /role="alert"/);
 
   const conflict = sizerReceiverHarness();
-  const beforeConflictControls = structuredClone(conflict.get("captureControls()"));
+  const beforeConflictControls = snapControls(conflict);
   conflict.context.location.href = `https://studio.factor-io.com/tco-calculator.html?advisor=00000000-0000-4000-8000-000000000099#${frag}`;
   assert.equal(conflict.get("processSizerReturn()"), false);
   assert.equal(conflict.mode(), "starter");
   assert.equal(conflict.computations(), 0);
-  assert.deepEqual(conflict.get("captureControls()"), beforeConflictControls);
+  assert.deepEqual(snapControls(conflict), beforeConflictControls);
 });
 const advisorRecord = () => ({ saved_at: Date.now(), controls: { "f-users": "20" }, contracts: { "f-users": { kind: "integer", min: 1, max: 10000000 } }, context: { mode: "custom", label: "test scenario", figures: { monthly: "฿3,300.00" }, sources: { api: { status: "stale", observed_at: "2026-01-01" } } }, answers: {} });
 function advisorHarness({ record = advisorRecord(), transport = null } = {}) {

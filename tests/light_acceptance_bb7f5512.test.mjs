@@ -5,7 +5,7 @@ for (const quoteBasis of ['catalog','integrated_node','component_split','fleet_t
     const n=sizer.normalizeSizerInput({users:100,modelId:'qwen3-5-9b',gpuId:'rtx_pro_6000_se',quoteBasis,quoteCurrency,nodes:2,gpusPerNode:2,integratedNodePrice:money('90000'),chassisNodePrice:money('50000'),gpuUnitPrice:money('20000'),fleetTotalPrice:money('180000'),annualOpsFee:money('12000'),localImplFee:money('25000'),subscriptionId:'fixture-node'});
     const {h,p}=realArithmeticHarness(n,scenarioData);
     const actual=calculator.runComparison(h.get('buildScenario()').inputs);
-    expect(exact.toRat(actual.totals.A.subscription_monthly).toString()).toBe(String(p.result.bom.nodes*100));
+    expect(exact.ratStr(exact.toRat(actual.totals.A.subscription_monthly))).toBe(String(p.result.bom.nodes*100));
     for (const lane of ['A','B','C']) for (const field of ['one_time','monthly_total','horizon_total']) {
       if (actual.totals[lane][field] === null) expect(p.result.comparison.totals[lane][field]).toBe(null);
       else expect(exact.formatHalfUp(exact.toRat(actual.totals[lane][field]),8)).toBe(exact.formatHalfUp(exact.toRat(p.result.comparison.totals[lane][field]),8));

@@ -1098,10 +1098,27 @@ export function computeSizer({
   const rentGpus = rentSizing ? Math.max(1, Number(rentSizing.gpus_required.text)) : 0;
   const rentedHours = rentSizing ? Dec.from("0.7").mul(BigInt(rentGpus * 730)).toString() : null;
 
-  // Optional platform subscription
+  // Optional platform subscription — fail closed if an explicitly selected subscription cannot be priced
   let subPlan = null;
-  const subRow = (subscriptions?.rows ?? []).find((r) => r.id === normalized.subscriptionId);
-  if (subRow && subRow.id !== "none") {
+  if (normalized.subscriptionId && normalized.subscriptionId !== "none") {
+    const subRow = (subscriptions?.rows ?? []).find((r) => r.id === normalized.subscriptionId);
+    if (!subRow) {
+      return {
+        ok: false,
+        stage: "subscription",
+        code: "unknown_subscription",
+        reason: `Platform subscription "${normalized.subscriptionId}" is unavailable in subscription-pricing.json.`,
+        normalized,
+        demand,
+        peak,
+        sizing: { ...sizing, gpusRequired },
+        fit,
+        bom,
+        comparison: null,
+        dealTier: dealTierId,
+        pricingIdentity: buildPricingIdentity(manifest, fx),
+      };
+    }
     const ownedQty = {
       gpus: bom.installedGpus,
       gpuVramGb: gpuPricing?.gpus?.[normalized.gpuId]?.vram_gb ?? null,
@@ -1113,9 +1130,9 @@ export function computeSizer({
     const perOption = { A: ownedQty, B: {}, C: rentedQty };
     const byOption = {};
     let primary = null;
-    for (const k of subRow.applies_to ?? []) {
-      if (!perOption[k]) continue;
-      try {
+    try {
+      for (const k of Array.isArray(subRow.applies_to) ? subRow.applies_to : []) {
+        if (!perOption[k]) continue;
         const c = subscriptionCost({
           row: subRow,
           priceOverride: null,
@@ -1124,11 +1141,43 @@ export function computeSizer({
         });
         byOption[k] = { quantity: c.quantity, quantity_exact: c.quantity_exact, monthly: c.monthly, one_time: c.one_time };
         if (!primary) primary = c;
-      } catch (err) {
-        if (!(err instanceof SubscriptionRefusal)) throw err;
       }
+    } catch (err) {
+      if (!(err instanceof SubscriptionRefusal)) throw err;
+      return {
+        ok: false,
+        stage: "subscription",
+        code: err.code ?? "unpriced_subscription",
+        reason: `Platform licence is not priced: ${err.message}`,
+        normalized,
+        demand,
+        peak,
+        sizing: { ...sizing, gpusRequired },
+        fit,
+        bom,
+        comparison: null,
+        dealTier: dealTierId,
+        pricingIdentity: buildPricingIdentity(manifest, fx),
+      };
     }
-    if (primary) subPlan = { ...primary, by_option: byOption };
+    if (!primary) {
+      return {
+        ok: false,
+        stage: "subscription",
+        code: "subscription_no_applicable_option",
+        reason: `Platform licence "${subRow.label ?? subRow.id}" applies to no priced option in this comparison.`,
+        normalized,
+        demand,
+        peak,
+        sizing: { ...sizing, gpusRequired },
+        fit,
+        bom,
+        comparison: null,
+        dealTier: dealTierId,
+        pricingIdentity: buildPricingIdentity(manifest, fx),
+      };
+    }
+    subPlan = { ...primary, by_option: byOption };
   }
 
   // Separate hardware capex from one-time fees:

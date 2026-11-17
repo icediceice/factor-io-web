@@ -775,10 +775,11 @@ test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee on
   assert.equal(h.node("f-sh-nodes").value, "2");
   assert.equal(h.node("f-sh-capex").value, "1850000");
   assert.equal(h.node("f-onetime-a").value, "750000");
-  assert.match(h.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+  assert.match(h.node("return-review").innerHTML, /Pricing sources|Pricing source/);
+  assert.doesNotMatch(h.node("return-review").innerHTML, /snap-0\||snap-1\||digest-pinned|complete-transport/);
   assert.equal(h.replacedUrl(), "/tco-calculator.html#custom-page");
 
-  // Live API catalog refresh with unchanged FX triggers repricing notice
+  // Live API catalog refresh with unchanged FX triggers clean human-readable repricing notice (zero raw pipe/digest strings)
   const liveH = sizerReceiverHarness();
   const initialIdentity = buildPricingIdentity(liveH.state.manifest, liveH.state.fx);
   const liveNorm = normalizeSizerInput({
@@ -796,7 +797,8 @@ test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee on
   liveH.state.catalog = replaced.catalog;
   liveH.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${liveFrag}`;
   assert.equal(liveH.get("processSizerReturn()"), true);
-  assert.match(liveH.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+  assert.match(liveH.node("return-review").innerHTML, /OpenRouter \(live feed 2026-11-17\)/);
+  assert.doesNotMatch(liveH.node("return-review").innerHTML, /\|openrouter:|digest-pinned|complete-transport/);
 
   // Malformed or conflicting URLs fail closed with zero control mutation across the entire snapshot
   const snapControls = (inst) => JSON.parse(JSON.stringify(inst.get("captureControls()")));

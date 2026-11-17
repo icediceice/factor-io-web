@@ -580,8 +580,8 @@ function renderSummaryRail() {
   const totA = c.comparison.totals?.A;
   const totB = c.comparison.totals?.B;
   const fitBadge = c.fit.qualifiedDeploymentPass
-    ? `<span class="badge badge-ok">PASS TP=${c.fit.serving.tp}</span>`
-    : `<span class="badge badge-warn">CONDITIONAL TP=${c.fit.serving.tp}</span>`;
+    ? `<span class="badge badge-ok">PASS TP=${c.fit.serving.gpus_per_replica}</span>`
+    : `<span class="badge badge-warn">CONDITIONAL TP=${c.fit.serving.gpus_per_replica}</span>`;
 
   const rows = [
     [t.kv.dealTier, `<span class="badge badge-accent">Size ${esc(c.dealTier)}</span>`],

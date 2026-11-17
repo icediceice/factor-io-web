@@ -72,7 +72,7 @@ test('G2 a valid catalog active-only override survives share, handoff, and save 
   const fragment = sizer.encodeSizerFragment(result.normalized);
   const decoded = sizer.decodeSizerFragment(fragment);
   expect(decoded.customActiveParamsB).toBe('5');
-  expect(sizer.resolveSizerModel({ normalized: decoded, servingData: data.servingData }).model.params_b).toBe('27');
+  expect(sizer.resolveSizerModel({ normalized: decoded, servingData: data.servingData }).model.params_b).toBe(catalogParams);
   const saved = sizer.encodeSizerSaveEnvelope([{ id: 'active-only', name: 'Active-only sensitivity', savedAt: '2026-11-17T12:00:00Z', fragment }]);
   expect(sizer.decodeSizerSaveEnvelope(saved).scenarios[0].normalized.customActiveParamsB).toBe('5');
 });

@@ -14,12 +14,9 @@ import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 import { runComparison } from "./calculator.js?v=20260906-ux3";
 
 export const SIZER_SCHEMA = "factor-io.sizer/1.0.0";
-export const SIZER_SAVE_SCHEMA = "factor-io.sizer-save/1.0.0";
 export const SIZER_FRAGMENT_PREFIX = "sizer=v1.";
 export const PRESET_FRAGMENT_PREFIX = "preset=v1.";
 export const MAX_FRAGMENT_CHARS = 8192;
-export const MAX_SAVE_BYTES = 65536;
-export const MAX_SAVED_SCENARIOS = 25;
 
 export const PCIE_ONLY_GPUS = new Set([
   "rtx_pro_6000_ws",
@@ -171,47 +168,11 @@ export const PIPELINE_CONNECTORS = Object.freeze([
   }),
 ]);
 
-export const PROMPT_SCALE_PRESETS = Object.freeze([
-  Object.freeze({
-    id: "8k",
-    rawPromptTokens: 8192,
-    rawOutputTokens: 600,
-    rawContextTokens: 32768,
-    en: "8k prompt (system + short RAG)",
-    th: "8k\u00A0โทเคน\u00A0(System + RAG\u00A0สั้น)",
-  }),
-  Object.freeze({
-    id: "16k",
-    rawPromptTokens: 16384,
-    rawOutputTokens: 800,
-    rawContextTokens: 65536,
-    en: "16k prompt (multi-doc RAG + tools)",
-    th: "16k\u00A0โทเคน\u00A0(ค้นหลายเอกสาร + Tool)",
-  }),
-  Object.freeze({
-    id: "32k",
-    rawPromptTokens: 32768,
-    rawOutputTokens: 1200,
-    rawContextTokens: 65536,
-    en: "32k prompt (full dossier / TOR)",
-    th: "32k\u00A0โทเคน\u00A0(แฟ้มสัญญา / TOR\u00A0เต็มชุด)",
-  }),
-  Object.freeze({
-    id: "64k",
-    rawPromptTokens: 65536,
-    rawOutputTokens: 1600,
-    rawContextTokens: 90000,
-    en: "64k+ prompt (deep codebase / audit)",
-    th: "64k+\u00A0โทเคน\u00A0(ตรวจสอบโค้ด / Log\u00A0ขนาดใหญ่)",
-  }),
-]);
-
 export const LOCAL_AI_WORKLOADS = Object.freeze([
   Object.freeze({
     id: "thai_knowledge_rag",
-    sector: "enterprise",
     recommendedModelId: "qwen3-8-27b",
-    recommendedGpuId: "rtx_pro_6000_se",
+    recommendedGpuId: "rtx_pro_6000_ws",
     recommendedTier: "M",
     defaultConnectors: ["doc_cdc", "sso_mcp"],
     users: 320,
@@ -219,26 +180,22 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     workingDaysMo: "22",
     peakConcurrencyFraction: "0.10",
     tokensPerSecondPerStream: "30",
-    mix: { chat: "0.15", rag: "0.75", graph_rag: "0.10", agentic: "0" },
-    rawPromptTokens: 14000,
-    rawOutputTokens: 700,
-    rawContextTokens: 32768,
+    mix: { chat: "0.20", rag: "0.70", graph_rag: "0.10", agentic: "0" },
+    rawPromptTokens: 3600,
+    rawOutputTokens: 500,
+    rawContextTokens: 16384,
     en: {
-      sectorTag: "Corporate HR / SOP",
-      title: "Thai Enterprise Knowledge & Policy RAG Copilot",
-      whyLocal: "Multi-chunk HR, board policy, and engineering PDF retrieval plus system instructions stay inside corporate network with fixed monthly cost.",
+      title: "Thai Enterprise Knowledge & Policy Copilot",
+      whyLocal: "Keeps confidential HR, legal, SOP, and engineering PDFs inside corporate network with predictable monthly cost.",
     },
     th: {
-      sectorTag: "องค์กรทั่วไป / HR & SOP",
       title: "ระบบค้นหาความรู้และระเบียบปฏิบัติภาษาไทย\u2060ภายในองค์กร",
-      whyLocal: "ป้อน\u00A0System\u00A0Prompt\u00A0พร้อมเนื้อหาเอกสาร\u00A0PDF\u00A0หลายหน้าโดยข้อมูลไม่ออกนอกองค์กร และคุมงบคงที่ได้",
+      whyLocal: "ข้อมูลสัญญา\u00A0HR\u00A0และคู่มือวิศวกรรมไม่ออกนอกองค์กร พร้อมควบคุมงบรายเดือนคงที่",
     },
   }),
   Object.freeze({
     id: "thai_doc_line_ops",
-    sector: "commerce_ops",
     recommendedModelId: "qwen3-8-27b",
-    recommendedGpuId: "rtx_pro_6000_se",
     recommendedTier: "M",
     defaultConnectors: ["line_oa", "erp_crm", "doc_cdc"],
     users: 400,
@@ -246,26 +203,22 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     workingDaysMo: "30",
     peakConcurrencyFraction: "0.10",
     tokensPerSecondPerStream: "30",
-    mix: { chat: "0.25", rag: "0.50", graph_rag: "0", agentic: "0.25" },
-    rawPromptTokens: 10500,
-    rawOutputTokens: 550,
-    rawContextTokens: 32768,
+    mix: { chat: "0.35", rag: "0.45", graph_rag: "0", agentic: "0.20" },
+    rawPromptTokens: 2400,
+    rawOutputTokens: 380,
+    rawContextTokens: 16384,
     en: {
-      sectorTag: "Retail / Omnichannel",
-      title: "24/7 LINE OA, Slip & Thai Fiscal OCR Intake",
-      whyLocal: "Continuous Thai tax invoice (ภ.พ.20), payment slip OCR JSON, and customer case history triage where cloud token bills compound nonstop.",
+      title: "24/7 LINE OA & Thai Fiscal Document Intake",
+      whyLocal: "Continuous high-volume Thai tax invoice, slip, and customer ticket triage where per-token cloud bills compound rapidly.",
     },
     th: {
-      sectorTag: "ค้าปลีก / บริการลูกค้า",
-      title: "ระบบรับเอกสารภาษี\u00A0สลิป\u00A0และดูแลลูกค้าผ่าน\u00A0LINE\u00A0OA\u00A024\u00A0ชม.",
-      whyLocal: "รวมผล\u00A0OCR\u00A0ใบกำกับภาษี\u00A0ประวัติแชต\u00A0และกฎการตรวจสอบในคำสั่งเดียว ลดค่า\u00A0API\u00A0รายโทเคนที่บานปลาย",
+      title: "ระบบรับเอกสารภาษีและดูแลลูกค้าผ่าน\u00A0LINE\u00A0OA\u00A0ตลอด\u00A024\u00A0ชม.",
+      whyLocal: "งานตรวจใบกำกับภาษีและตอบลูกค้าต่อเนื่องปริมาณสูง ช่วยลดค่า\u00A0API\u00A0รายโทเคนที่บานปลาย",
     },
   }),
   Object.freeze({
     id: "sql_erp_copilot",
-    sector: "erp_data",
     recommendedModelId: "qwen3-6-35b-a3b",
-    recommendedGpuId: "rtx_pro_6000_se",
     recommendedTier: "L",
     defaultConnectors: ["sql_db", "rest_graphql", "erp_crm", "sso_mcp"],
     users: 500,
@@ -273,134 +226,22 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     workingDaysMo: "22",
     peakConcurrencyFraction: "0.12",
     tokensPerSecondPerStream: "30",
-    mix: { chat: "0.15", rag: "0.40", graph_rag: "0.15", agentic: "0.30" },
-    rawPromptTokens: 18000,
-    rawOutputTokens: 800,
-    rawContextTokens: 65536,
-    en: {
-      sectorTag: "SAP / ERP & BI",
-      title: "Connected SQL, SAP/ERP & Internal API Copilot",
-      whyLocal: "Carries full SQL DDL schemas, MCP tool definitions, and multi-row query results next to private databases with zero external schema exposure.",
-    },
-    th: {
-      sectorTag: "การเงิน / SAP & BI",
-      title: "ผู้ช่วยวิเคราะห์ข้อมูลเชื่อม\u00A0SQL, SAP/ERP\u00A0และ\u00A0API\u00A0ภายใน",
-      whyLocal: "แนบโครงสร้างตาราง\u00A0SQL\u00A0คำนิยาม\u00A0Tool\u00A0และผลลัพธ์ข้อมูลจริงได้เต็มที่โดยไม่ต้องส่งออกนอกดาต้าเซ็นเตอร์",
-    },
-  }),
-  Object.freeze({
-    id: "bfsi_kyc_claims",
-    sector: "bfsi",
-    recommendedModelId: "gemma-4-31b",
-    recommendedGpuId: "rtx_pro_6000_se",
-    recommendedTier: "L",
-    defaultConnectors: ["doc_cdc", "erp_crm", "sql_db", "sso_mcp"],
-    users: 380,
-    sessionsPerUserDay: "6",
-    workingDaysMo: "24",
-    peakConcurrencyFraction: "0.12",
-    tokensPerSecondPerStream: "30",
-    mix: { chat: "0.10", rag: "0.60", graph_rag: "0.10", agentic: "0.20" },
-    rawPromptTokens: 24000,
-    rawOutputTokens: 900,
-    rawContextTokens: 65536,
-    en: {
-      sectorTag: "Banking & Insurance",
-      title: "BFSI KYC, Loan Underwriting & Claims Dossier Review",
-      whyLocal: "Processes multi-page Thai KYC forms, bank statements, hospital claim bundles, and policy schedules under BoT and OIC residency controls.",
-    },
-    th: {
-      sectorTag: "ธนาคารและประกันภัย",
-      title: "ระบบวิเคราะห์สินเชื่อ\u00A0KYC\u00A0และตรวจแฟ้มเคลมประกันภัย",
-      whyLocal: "ตรวจเอกสารคำขอสินเชื่อ\u00A0ใบแจ้งหนี้ค่ารักษา\u00A0และเงื่อนไขกรมธรรม์หลายสิบหน้าภายใต้เกณฑ์\u00A0ธปท.\u00A0และ\u00A0คปภ.",
-    },
-  }),
-  Object.freeze({
-    id: "mfg_qms_sop",
-    sector: "manufacturing",
-    recommendedModelId: "qwen3-8-27b",
-    recommendedGpuId: "rtx_pro_6000_ws",
-    recommendedTier: "M",
-    defaultConnectors: ["doc_cdc", "sql_db", "line_oa"],
-    users: 260,
-    sessionsPerUserDay: "5",
-    workingDaysMo: "26",
-    peakConcurrencyFraction: "0.10",
-    tokensPerSecondPerStream: "30",
-    mix: { chat: "0.20", rag: "0.65", graph_rag: "0", agentic: "0.15" },
-    rawPromptTokens: 12500,
-    rawOutputTokens: 600,
+    mix: { chat: "0.20", rag: "0.45", graph_rag: "0.15", agentic: "0.20" },
+    rawPromptTokens: 3200,
+    rawOutputTokens: 520,
     rawContextTokens: 32768,
     en: {
-      sectorTag: "Manufacturing / EEC",
-      title: "Factory QMS, ISO/IATF SOP & Maintenance Copilot",
-      whyLocal: "Runs inside plant networks across EEC industrial estates for TH/EN/JP work instructions, MES fault logs, and 8D quality reports.",
+      title: "Connected SQL, ERP & Internal API Copilot",
+      whyLocal: "Co-locates LLM inference next to private SQL/SAP databases for low-latency tool calls and zero external schema exposure.",
     },
     th: {
-      sectorTag: "โรงงานอุตสาหกรรม / EEC",
-      title: "ผู้ช่วยวิศวกรรมโรงงาน\u00A0QMS/ISO\u00A0และซ่อมบำรุงเครื่องจักร",
-      whyLocal: "ค้นคู่มือการผลิตหลายภาษา\u00A0(ไทย-อังกฤษ-ญี่ปุ่น)\u00A0บันทึกเครื่องจักร\u00A0และรายงาน\u00A08D\u00A0ภายในเครือข่ายโรงงานโดยตรง",
-    },
-  }),
-  Object.freeze({
-    id: "hospital_his_clinical",
-    sector: "healthcare",
-    recommendedModelId: "gemma-4-31b",
-    recommendedGpuId: "rtx_pro_6000_se",
-    recommendedTier: "L",
-    defaultConnectors: ["sql_db", "rest_graphql", "sso_mcp"],
-    users: 450,
-    sessionsPerUserDay: "8",
-    workingDaysMo: "30",
-    peakConcurrencyFraction: "0.12",
-    tokensPerSecondPerStream: "30",
-    mix: { chat: "0.15", rag: "0.65", graph_rag: "0", agentic: "0.20" },
-    rawPromptTokens: 16000,
-    rawOutputTokens: 750,
-    rawContextTokens: 65536,
-    en: {
-      sectorTag: "Healthcare / HIS",
-      title: "Hospital HIS Clinical Summary & ICD-10 Coding Assistant",
-      whyLocal: "Keeps sensitive patient OPD/IPD chart histories, bilingual physician notes, and lab timelines on hospital premises under PDPA Section 26.",
-    },
-    th: {
-      sectorTag: "โรงพยาบาลและการแพทย์",
-      title: "ผู้ช่วยสรุปเวชระเบียน\u00A0HIS\u00A0และรหัสโรค\u00A0ICD-10\u00A0ในโรงพยาบาล",
-      whyLocal: "ประมวลผลประวัติการรักษา\u00A0ผลแล็บ\u00A0และใบสรุปจำหน่ายผู้ป่วยภายในโรงพยาบาลตามมาตรฐานข้อมูลอ่อนไหว\u00A0PDPA",
-    },
-  }),
-  Object.freeze({
-    id: "thai_legal_tor_procurement",
-    sector: "legal_procurement",
-    recommendedModelId: "qwen3-next-80b-a3b",
-    recommendedGpuId: "rtx_pro_6000_se",
-    recommendedTier: "L",
-    defaultConnectors: ["doc_cdc", "erp_crm", "sso_mcp"],
-    users: 180,
-    sessionsPerUserDay: "5",
-    workingDaysMo: "22",
-    peakConcurrencyFraction: "0.12",
-    tokensPerSecondPerStream: "30",
-    mix: { chat: "0.10", rag: "0.55", graph_rag: "0.15", agentic: "0.20" },
-    rawPromptTokens: 36000,
-    rawOutputTokens: 1400,
-    rawContextTokens: 65536,
-    en: {
-      sectorTag: "Legal & TOR Bidding",
-      title: "Thai Legal Contract, TOR & BOQ Procurement Review",
-      whyLocal: "Compares full 40 to 80 page Thai TOR terms, vendor BOQ tables, and penalty clauses in a single context without leaking bid pricing.",
-    },
-    th: {
-      sectorTag: "กฎหมายและจัดซื้อ\u00A0TOR",
-      title: "ระบบตรวจร่างสัญญาภาษาไทย\u00A0เอกสาร\u00A0TOR\u00A0และเทียบใบเสนอราคา",
-      whyLocal: "อ่านเอกสาร\u00A0TOR\u00A0ตาราง\u00A0BOQ\u00A0และเงื่อนไขค่าปรับทั้งฉบับในครั้งเดียวโดยไม่เสี่ยงข้อมูลราคาประมูลรั่วไหล",
+      title: "ผู้ช่วยวิเคราะห์ข้อมูลเชื่อม\u00A0SQL, ERP\u00A0และ\u00A0API\u00A0ภายใน",
+      whyLocal: "วางโมเดลติดกับฐานข้อมูลภายใน ลดความหน่วงเวลาเรียก\u00A0Tool\u00A0และไม่ต้องส่งโครงสร้าง\u00A0DB\u00A0ออกภายนอก",
     },
   }),
   Object.freeze({
     id: "airgap_sec_audit",
-    sector: "regulated_sec",
     recommendedModelId: "qwen3-next-80b-a3b",
-    recommendedGpuId: "h200",
     recommendedTier: "XL",
     defaultConnectors: ["sql_db", "rest_graphql", "doc_cdc", "sso_mcp"],
     users: 220,
@@ -408,41 +249,23 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     workingDaysMo: "22",
     peakConcurrencyFraction: "0.15",
     tokensPerSecondPerStream: "30",
-    mix: { chat: "0.10", rag: "0.35", graph_rag: "0.20", agentic: "0.35" },
-    rawPromptTokens: 32000,
-    rawOutputTokens: 1200,
-    rawContextTokens: 65536,
+    mix: { chat: "0.15", rag: "0.35", graph_rag: "0.20", agentic: "0.30" },
+    rawPromptTokens: 4200,
+    rawOutputTokens: 650,
+    rawContextTokens: 32768,
     en: {
-      sectorTag: "Air-Gapped Security",
-      title: "Regulated PDPA / BoT Compliance, Code & SIEM Log Audit",
-      whyLocal: "Meets strict air-gapped audit rules where production source repositories and SIEM logs cannot traverse external APIs.",
+      title: "Regulated PDPA / BoT Compliance, Code & Log Audit",
+      whyLocal: "Meets strict air-gapped or sovereign audit rules where regulated customer logs and source code cannot traverse third-party APIs.",
     },
     th: {
-      sectorTag: "ความมั่นคงปลอดภัย\u00A0Air-Gapped",
-      title: "งานกำกับดูแล\u00A0PDPA\u00A0ตรวจสอบซอร์สโค้ดและ\u00A0SIEM\u00A0Log\u00A0(Air-Gapped)",
-      whyLocal: "รองรับหน่วยงานกำกับดูแลเข้มงวดที่ห้ามส่งซอร์สโค้ดและบันทึกเหตุการณ์ความปลอดภัยออกสู่อินเทอร์เน็ต",
+      title: "งานกำกับดูแล\u00A0PDPA\u00A0ตรวจสอบโค้ดและบันทึกความปลอดภัย\u00A0(Air-Gapped)",
+      whyLocal: "รองรับเกณฑ์กำกับดูแลที่ห้ามส่งข้อมูลลูกค้า\u00A0Log\u00A0และซอร์สโค้ดออกไปยัง\u00A0Cloud\u00A0API\u00A0ภายนอก",
     },
   }),
 ]);
 
 // Structural Thai capability guidance (architecture & multilingual tokenizer family only; zero invented benchmark scores).
 export const THAI_MODEL_PROFILES = Object.freeze({
-  "qwen3-5-0-8b": {
-    tierId: "compact_edge",
-    thaiSupport: "strong_multilingual_tokenizer",
-    enTier: "Tier 1: Ultra-Light Classifier & Guardrail Router (0.87B)",
-    thTier: "ระดับ\u00A01: โมเดลขนาดเล็กพิเศษสำหรับคัดแยกหมวดหมู่และกรองคำถาม\u00A0(0.87B)",
-    enNote: "Sub-1B multilingual model for high-concurrency intent classification and PII pre-filtering.",
-    thNote: "ใช้หน่วยความจำต่ำมาก เหมาะสำหรับคัดกรองคำถามเบื้องต้นและตรวจจับข้อมูลส่วนบุคคลความเร็วสูง",
-  },
-  "raon-1-nano": {
-    tierId: "compact_edge",
-    thaiSupport: "verify_tokenizer",
-    enTier: "Tier 1: Compact Edge Assistant (3.53B)",
-    thTier: "ระดับ\u00A01: โมเดลขนาดกะทัดรัดสำหรับงานเฉพาะจุด\u00A0(3.53B)",
-    enNote: "Compact 3.5B footprint; verify Thai script tokenization and domain terminology before production use.",
-    thNote: "ขนาด\u00A03.5B\u00A0ประหยัด\u00A0VRAM\u00A0ควรทดสอบคลังคำภาษาไทยกับเอกสารจริงก่อนใช้งานหลัก",
-  },
   "qwen3-5-4b": {
     tierId: "compact_edge",
     thaiSupport: "strong_multilingual_tokenizer",
@@ -507,22 +330,6 @@ export const THAI_MODEL_PROFILES = Object.freeze({
     enNote: "80B total / 3B active GDN+GQA MoE handles complex multi-connector synthesis on multi-GPU nodes.",
     thNote: "โมเดล\u00A080B\u00A0MoE\u00A0รองรับการให้เหตุผลซับซ้อนข้ามหลายฐานข้อมูลบนคลัสเตอร์หลาย\u00A0GPU",
   },
-  "granite-4-2-8b": {
-    tierId: "compact_edge",
-    thaiSupport: "verify_tokenizer",
-    enTier: "Tier 1: Hybrid Attention Enterprise Assistant (8.79B)",
-    thTier: "ระดับ\u00A01: โมเดล\u00A0Hybrid\u00A0สำหรับงานเอกสารและระบบภายใน\u00A0(8.79B)",
-    enNote: "8.8B hybrid stack keeps KV growth compact; verify Thai domain phrasing on enterprise documents.",
-    thNote: "โครงสร้าง\u00A0Hybrid\u00A0ช่วยประหยัด\u00A0KV\u00A0Cache\u00A0โปรดทดสอบสำนวนภาษาไทยกับงานจริงก่อนใช้งาน",
-  },
-  "maxwell-v1-flash": {
-    tierId: "enterprise_workhorse",
-    thaiSupport: "verify_tokenizer",
-    enTier: "Tier 2: High-Speed Sparse MoE Assistant (36.8B / 3B Active)",
-    thTier: "ระดับ\u00A02: โมเดล\u00A0MoE\u00A0ตอบสนองไวสำหรับผู้ใช้พร้อมกันสูง\u00A0(36.8B)",
-    enNote: "36.8B MoE reads ~3B active parameters per step for fast decode; verify Thai vocabulary coverage.",
-    thNote: "สถาปัตยกรรม\u00A0MoE\u00A0อ่านพารามิเตอร์เพียงบางส่วนต่อก้าว โปรดตรวจสอบคลังคำภาษาไทยก่อนใช้งานหลัก",
-  },
   "deepseek-v3": {
     tierId: "frontier_reasoning",
     thaiSupport: "broad_multilingual_tokenizer",
@@ -530,14 +337,6 @@ export const THAI_MODEL_PROFILES = Object.freeze({
     thTier: "ระดับ\u00A03: โมเดลขนาดใหญ่พิเศษระดับดาต้าเซ็นเตอร์\u00A0(671B\u00A0MLA)",
     enNote: "Requires multi-GPU high-bandwidth fabric; suited only for XL data-center deployments.",
     thNote: "ต้องการคลัสเตอร์ความเร็วสูงหลายโหนด เหมาะสำหรับโครงการระดับ\u00A0XL\u00A0เท่านั้น",
-  },
-  "glm-5-3": {
-    tierId: "frontier_reasoning",
-    thaiSupport: "broad_multilingual_tokenizer",
-    enTier: "Tier 3: Frontier MoE Data-Center Pool (753B)",
-    thTier: "ระดับ\u00A03: โมเดลระดับศูนย์ข้อมูลขนาดใหญ่พิเศษ\u00A0(753B\u00A0MoE)",
-    enNote: "753B frontier MoE requiring multi-GPU high-memory HGX/DGX nodes.",
-    thNote: "โมเดล\u00A0753B\u00A0สำหรับคลัสเตอร์\u00A0HGX/DGX\u00A0หน่วยความจำสูงระดับศูนย์ข้อมูล",
   },
 });
 
@@ -550,11 +349,7 @@ export function recommendDealTier({ users = 250, connectors = [], gpusRequired =
 }
 
 function isPlainObject(val) {
-  if (!val || typeof val !== "object" || Array.isArray(val) || Object.prototype.toString.call(val) !== "[object Object]") {
-    return false;
-  }
-  const proto = Object.getPrototypeOf(val);
-  return proto === null || Object.getPrototypeOf(proto) === null;
+  return Boolean(val && typeof val === "object" && !Array.isArray(val) && Object.getPrototypeOf(val) === Object.prototype);
 }
 
 function cleanMoneyEntry(entry, fieldName, defaultCurrency = "THB") {
@@ -667,287 +462,21 @@ function decStr(val, fieldName, { min = "0", max = "1000000", allowZero = true }
   return d.toString();
 }
 
-const VENDOR_PRIORITY = Object.freeze([
-  "openai",
-  "anthropic",
-  "google",
-  "deepseek",
-  "qwen",
-  "meta-llama",
-  "mistralai",
-  "x-ai",
-  "cohere",
-]);
-
-export const API_VENDOR_LABELS = Object.freeze({
-  openai: "OpenAI",
-  anthropic: "Anthropic Claude",
-  google: "Google Gemini",
-  deepseek: "DeepSeek",
-  qwen: "Qwen (Alibaba)",
-  "meta-llama": "Meta Llama",
-  mistralai: "Mistral AI",
-  "x-ai": "xAI Grok",
-  cohere: "Cohere",
-  amazon: "Amazon Bedrock / Nova",
-  microsoft: "Microsoft / Azure",
-});
-
-function normalizeApiVendor(feed, seller, product) {
-  const prod = String(product ?? "").trim().toLowerCase();
-  const sel = String(seller ?? "").trim().toLowerCase();
-  const prefix = prod.includes("/") ? prod.split("/")[0] : "";
-  const token = feed === "openrouter" ? (prefix || sel) : (prefix || sel);
-  if (token === "openai" || /^gpt-|^o[134]-|^chatgpt-/.test(prod)) return "openai";
-  if (token === "anthropic" || prod.includes("claude")) return "anthropic";
-  if (token === "google" || token.startsWith("vertex_ai") || token === "gemini" || prod.includes("gemini")) return "google";
-  if (token === "deepseek" || prod.includes("deepseek")) return "deepseek";
-  if (token === "qwen" || token === "dashscope" || prod.includes("qwen")) return "qwen";
-  if (token === "meta-llama" || token === "meta" || prod.includes("llama")) return "meta-llama";
-  if (token === "mistralai" || token === "mistral" || prod.includes("mistral")) return "mistralai";
-  if (token === "x-ai" || token === "xai" || prod.includes("grok")) return "x-ai";
-  if (token === "cohere" || prod.includes("command-r")) return "cohere";
-  if (token === "amazon" || token === "bedrock" || prod.includes("nova")) return "amazon";
-  if (token === "microsoft" || token === "azure") return "microsoft";
-  return token || "other";
-}
-
-function perMillionUsdText(perTokenStr) {
-  if (perTokenStr === null || perTokenStr === undefined || perTokenStr === "") return null;
-  try {
-    const r = toRat(String(perTokenStr)).mul(Rat.from(1000000n));
-    return trimDecimalZeros(formatHalfUp(r, 4));
-  } catch {
-    return null;
-  }
-}
-
-export function classifyApiOffer(offerId, offer, modelMeta = null) {
-  const id = String(offerId ?? "");
-  const feed = String(offer?.seller_source || id.split(":")[0] || "other").toLowerCase();
-  const product = String(offer?.product || id.replace(/^[^:]+:/, ""));
-  const seller = String(offer?.seller || feed);
-  const vendor = normalizeApiVendor(feed, seller, product);
-  const displayName = String(offer?.display_name || modelMeta?.name || product || id);
-  const prices = offer?.prices ?? {};
-  const baseIn = prices["input|std"] ?? prices.input ?? null;
-  const baseOut = prices["output|std"] ?? prices.output ?? null;
-  const inputPer1MUsd = perMillionUsdText(baseIn);
-  const outputPer1MUsd = perMillionUsdText(baseOut);
-  const isBatch = /:batch$/i.test(id) || /:batch$/i.test(product);
-  const isFree = /:free$/i.test(id) || /:free$/i.test(product);
-  const nonChatMode = new Set([
-    "embedding",
-    "image_generation",
-    "audio_transcription",
-    "audio_speech",
-    "moderation",
-    "rerank",
-  ]).has(String(offer?.ingest_mode ?? "").toLowerCase());
-  const retired = ["retired", "quarantined"].includes(String(modelMeta?.state ?? ""));
-  const tokenEligible = Boolean(offer && !retired && !nonChatMode && inputPer1MUsd !== null && outputPer1MUsd !== null);
-  const hasConditionalRates = Object.keys(prices).some((k) => (
-    k !== "input"
-    && k !== "output"
-    && k !== "input|std"
-    && k !== "output|std"
-    && !k.startsWith("cache_read|std")
-    && !k.startsWith("cache_write|std")
-    && k !== "cache_read"
-    && k !== "cache_write"
-  ));
-  return {
-    id,
-    feed,
-    seller,
-    vendor,
-    vendorLabel: API_VENDOR_LABELS[vendor] ?? vendor,
-    product,
-    displayName,
-    inputPer1MUsd,
-    outputPer1MUsd,
-    isBatch,
-    isFree,
-    tokenEligible,
-    hasConditionalRates,
-    missingFromCatalog: !offer,
-    outsideFilter: false,
-  };
-}
-
-function rankApiOfferInfo(a, b) {
-  if (a.isFree !== b.isFree) return a.isFree ? 1 : -1;
-  if (a.isBatch !== b.isBatch) return a.isBatch ? 1 : -1;
-  if (a.feed !== b.feed) {
-    if (a.feed === "openrouter") return -1;
-    if (b.feed === "openrouter") return 1;
-  }
-  const va = VENDOR_PRIORITY.indexOf(a.vendor);
-  const vb = VENDOR_PRIORITY.indexOf(b.vendor);
-  const pa = va === -1 ? 999 : va;
-  const pb = vb === -1 ? 999 : vb;
-  if (pa !== pb) return pa - pb;
-  return a.displayName.localeCompare(b.displayName, "en");
-}
-
-export function filterApiOffers({
-  catalog,
-  manifest,
-  feed = "all",
-  vendor = "all",
-  search = "",
-  selectedOfferId = "",
-  limit = 120,
-} = {}) {
-  const offers = catalog?.offers ?? {};
-  const modelMap = new Map((manifest?.models ?? []).map((m) => [m.id, m]));
-  const candidateIds = modelMap.size > 0 ? [...modelMap.keys()] : Object.keys(offers);
-  const eligible = [];
-  const feedSet = new Set();
-  const vendorCounts = new Map();
-
-  for (const id of candidateIds) {
-    const offer = offers[id];
-    if (!offer) continue;
-    const info = classifyApiOffer(id, offer, modelMap.get(id) ?? null);
-    if (!info.tokenEligible) continue;
-    eligible.push(info);
-    feedSet.add(info.feed);
-    vendorCounts.set(info.vendor, (vendorCounts.get(info.vendor) ?? 0) + 1);
-  }
-
-  eligible.sort(rankApiOfferInfo);
-
-  const normFeed = String(feed || "all").toLowerCase();
-  const normVendor = String(vendor || "all").toLowerCase();
-  const q = String(search ?? "").trim().toLowerCase();
-
-  const matching = eligible.filter((info) => {
-    if (normFeed !== "all" && info.feed !== normFeed) return false;
-    if (normVendor !== "all" && info.vendor !== normVendor) return false;
-    if (q) {
-      const hay = `${info.id} ${info.displayName} ${info.product} ${info.vendor} ${info.vendorLabel}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-
-  const sliced = matching.slice(0, Math.max(1, limit));
-  const sel = String(selectedOfferId ?? "").trim();
-  let unresolvedSelectedId = null;
-
-  if (sel) {
-    const alreadyInSlice = sliced.some((x) => x.id === sel);
-    if (!alreadyInSlice) {
-      const existingOffer = offers[sel];
-      if (!existingOffer) {
-        unresolvedSelectedId = sel;
-        sliced.unshift({
-          ...classifyApiOffer(sel, null, null),
-          outsideFilter: true,
-          missingFromCatalog: true,
-        });
-      } else {
-        const selInfo = classifyApiOffer(sel, existingOffer, modelMap.get(sel) ?? null);
-        const matchedAll = matching.some((x) => x.id === sel);
-        sliced.unshift({
-          ...selInfo,
-          outsideFilter: !matchedAll,
-          missingFromCatalog: false,
-        });
-      }
-    }
-  }
-
-  const feeds = ["openrouter", "litellm", ...[...feedSet].filter((f) => f !== "openrouter" && f !== "litellm").sort()]
-    .filter((f) => feedSet.has(f));
-  const vendors = [...vendorCounts.keys()].sort((a, b) => {
-    const ia = VENDOR_PRIORITY.indexOf(a);
-    const ib = VENDOR_PRIORITY.indexOf(b);
-    if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-    return a.localeCompare(b, "en");
-  }).map((v) => ({
-    id: v,
-    label: API_VENDOR_LABELS[v] ?? v,
-    count: vendorCounts.get(v) ?? 0,
-  }));
-
-  return {
-    offers: sliced,
-    totalEligible: eligible.length,
-    totalMatching: matching.length,
-    feeds,
-    vendors,
-    unresolvedSelectedId,
-  };
-}
-
 export function pickComparableApiOffer(catalog, manifest, preferredOfferId = null) {
   const offers = catalog?.offers ?? {};
-  const pref = typeof preferredOfferId === "string" ? preferredOfferId.trim() : "";
-  if (pref) {
-    return offers[pref] ? pref : "";
-  }
   const models = manifest?.models ?? [];
+  if (preferredOfferId && offers[preferredOfferId]) return preferredOfferId;
   const activeIds = models
     .filter((m) => !["retired", "quarantined"].includes(m.state) && offers[m.id])
     .map((m) => m.id);
   const pool = activeIds.length ? activeIds : Object.keys(offers);
-  const nonBatchTokenPool = pool.filter((id) => {
-    const info = classifyApiOffer(id, offers[id], null);
-    return info.tokenEligible && !info.isBatch && !info.isFree;
-  });
-  const searchPool = nonBatchTokenPool.length ? nonBatchTokenPool : pool;
   return (
-    searchPool.find((id) => id === "openrouter:openai/gpt-4o" || id === "litellm:gpt-4o")
-    ?? searchPool.find((id) => /^openrouter:openai\/gpt-4o(?!-mini)(?!.*:batch)/.test(id))
-    ?? searchPool.find((id) => /^openrouter:anthropic\/claude-sonnet-4(?!.*:batch)/.test(id))
-    ?? searchPool.find((id) => /^openrouter:google\/gemini-2\.5-(?:pro|flash)(?!.*:batch)/.test(id))
-    ?? searchPool.find((id) => /^openrouter:deepseek\/deepseek-(?:chat|v3)(?!.*:batch)/.test(id))
-    ?? searchPool[0]
+    pool.find((id) => id === "openrouter:openai/gpt-4o" || id === "litellm:gpt-4o")
+    ?? pool.find((id) => /^openrouter:openai\/gpt-4o(?!-mini)/.test(id))
+    ?? pool.find((id) => /^openrouter:anthropic\/claude-sonnet-4(?!.*:batch)/.test(id))
+    ?? pool[0]
     ?? ""
   );
-}
-
-export function groupCatalogModels(servingData) {
-  const all = Array.isArray(servingData?.models) ? servingData.models : [];
-  const real = all
-    .filter((m) => m && m.id && m.id !== "custom")
-    .slice()
-    .sort((a, b) => Number(a.params_b) - Number(b.params_b));
-  const groups = [
-    {
-      id: "compact",
-      enLabel: "Compact & Single-GPU Edge (<= 12B)",
-      thLabel: "ขนาดเล็กประหยัด\u00A0VRAM\u00A0การ์ดเดี่ยว\u00A0(<= 12B)",
-      models: real.filter((m) => Number(m.params_b) <= 12),
-    },
-    {
-      id: "workhorse",
-      enLabel: "Enterprise Workhorse (13B to 45B)",
-      thLabel: "ขนาดมาตรฐานองค์กร\u00A0RAG & Tool\u00A0(13B\u201345B)",
-      models: real.filter((m) => Number(m.params_b) > 12 && Number(m.params_b) <= 45),
-    },
-    {
-      id: "large_moe",
-      enLabel: "Large Multi-GPU Reasoning (46B to 200B)",
-      thLabel: "โมเดลวิเคราะห์ซับซ้อนหลายการ์ด\u00A0(46B\u2013200B)",
-      models: real.filter((m) => Number(m.params_b) > 45 && Number(m.params_b) <= 200),
-    },
-    {
-      id: "frontier",
-      enLabel: "Frontier Sovereign Pool (> 200B)",
-      thLabel: "โมเดลขนาดใหญ่พิเศษระดับดาต้าเซ็นเตอร์\u00A0(> 200B)",
-      models: real.filter((m) => Number(m.params_b) > 200),
-    },
-  ].filter((g) => g.models.length > 0);
-  const customModel = all.find((m) => m?.id === "custom") ?? null;
-  return { groups, realModels: real, customModel };
-}
-
-function optDecStr(val, fieldName, opts = {}) {
-  if (val === null || val === undefined || val === "") return null;
-  return decStr(val, fieldName, opts);
 }
 
 // Normalizes raw user/preset input ONCE. Toggling UI language or currency never
@@ -1006,27 +535,10 @@ export function normalizeSizerInput(raw = {}) {
     : [...workloadPreset.defaultConnectors];
 
   const modelId = String(raw.modelId ?? workloadPreset.recommendedModelId).trim();
-  const customParamsB = optDecStr(raw.customParamsB, "customParamsB", { min: "0.1", max: "10000", allowZero: false });
-  const rawActiveParamsB = optDecStr(raw.customActiveParamsB, "customActiveParamsB", { min: "0.1", max: "10000", allowZero: false });
-  const customActiveParamsB = rawActiveParamsB ?? customParamsB;
-  if (customParamsB !== null && customActiveParamsB !== null && Dec.from(customActiveParamsB).gt(Dec.from(customParamsB))) {
-    throw new SizerValidationError("bad_custom_params", `Active parameters (${customActiveParamsB}B) cannot exceed total parameters (${customParamsB}B)`);
-  }
-  const customKvBytesBf16 = posInt(raw.customKvBytesBf16, "customKvBytesBf16", { min: 2, max: 100000000, allowNull: true });
-  const customContextMax = posInt(raw.customContextMax, "customContextMax", { min: 128, max: 10000000, allowNull: true });
-  const legacyCustomAssumed = (
-    raw.legacyCustomAssumed === true
-    && modelId === "custom"
-    && customParamsB === null
-    && customActiveParamsB === null
-    && customKvBytesBf16 === null
-    && customContextMax === null
-  );
-
   const wquant = String(raw.wquant ?? "fp8").trim();
   const kvquant = String(raw.kvquant ?? "fp8").trim();
   const runtime = String(raw.runtime ?? "vllm").trim();
-  const gpuId = String(raw.gpuId ?? workloadPreset.recommendedGpuId ?? "rtx_pro_6000_se").trim();
+  const gpuId = String(raw.gpuId ?? "rtx_pro_6000_se").trim();
 
   const quoteBasis = String(raw.quoteBasis ?? "catalog").trim();
   if (!QUOTE_BASES.has(quoteBasis)) {
@@ -1086,11 +598,6 @@ export function normalizeSizerInput(raw = {}) {
     effectiveOutputTokens,
     effectiveContextTokens,
     modelId,
-    customParamsB,
-    customActiveParamsB,
-    customKvBytesBf16,
-    customContextMax,
-    legacyCustomAssumed,
     wquant,
     kvquant,
     runtime,
@@ -1121,180 +628,20 @@ export function normalizeSizerInput(raw = {}) {
   });
 }
 
-export function resolveSizerModel({ normalized, servingData }) {
-  const baseModel = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
-  if (!baseModel) {
-    return {
-      ok: false,
-      code: "unknown_model",
-      reason: `Model "${normalized.modelId}" is not in serving-models.json.`,
-      model: null,
-      warnings: [],
-      weightMemoryGb: null,
-    };
-  }
-  const wq = servingData?.weight_quantization?.[normalized.wquant];
-  const kq = servingData?.kv_quantization?.[normalized.kvquant];
-  const calcWeightGb = (paramsStr) => {
-    if (!paramsStr || !wq?.bytes_per_param) return null;
-    try {
-      return formatHalfUp(toRat(String(paramsStr)).mul(toRat(String(wq.bytes_per_param))), 2);
-    } catch {
-      return null;
-    }
-  };
-  const deriveSelectedKvBytes = (bf16Bytes) => {
-    const elemRat = toRat(String(kq?.bytes_per_element ?? "1"));
-    const prod = Rat.from(BigInt(bf16Bytes)).mul(elemRat).div(Rat.from(2n));
-    const q = prod.n / prod.d;
-    const rem = prod.n % prod.d;
-    return Number(rem > 0n ? q + 1n : q);
-  };
-
-  const hasAnyCustomField = (
-    normalized.customParamsB !== null
-    || normalized.customActiveParamsB !== null
-    || normalized.customKvBytesBf16 !== null
-    || normalized.customContextMax !== null
-  );
-
-  if (normalized.modelId === "custom") {
-    if (normalized.legacyCustomAssumed && !hasAnyCustomField) {
-      return {
-        ok: true,
-        code: "ok",
-        reason: null,
-        model: { ...baseModel, kv_override: false, selected_kv_bytes_per_token: "" },
-        weightMemoryGb: calcWeightGb(baseModel.params_b),
-        warnings: [{
-          code: "assumed_legacy_custom_shape",
-          en: "Legacy custom preset uses an assumed 8B (32-layer, 8 KV-head) starting geometry. Supply total/active B, BF16 KV bytes/token, and context limit for your actual checkpoint.",
-          th: "ใช้ค่าเริ่มต้นสมมติฐาน\u00A08B\u00A0(32\u00A0เลเยอร์)\u00A0โปรดระบุพารามิเตอร์\u00A0ค่า\u00A0KV\u00A0ต่อโทเค็น\u00A0และ\u00A0Context\u00A0สูงสุดของโมเดลจริง",
-        }],
-      };
-    }
-    const weightMemoryGb = calcWeightGb(normalized.customParamsB);
-    if (
-      normalized.customParamsB === null
-      || normalized.customActiveParamsB === null
-      || normalized.customKvBytesBf16 === null
-      || normalized.customContextMax === null
-    ) {
-      return {
-        ok: false,
-        code: "incomplete_custom_model",
-        reason: `Custom model (${normalized.customParamsB ? `${normalized.customParamsB}B` : "unspecified"} weights${weightMemoryGb ? `, ~${weightMemoryGb} GB weight memory` : ""}) requires total parameters (B), active parameters (B), full-retention BF16 KV cache bytes/token, and max context window before sizing a GPU fleet.`,
-        model: null,
-        warnings: [],
-        weightMemoryGb,
-      };
-    }
-    if (Dec.from(normalized.customActiveParamsB).gt(Dec.from(normalized.customParamsB))) {
-      return {
-        ok: false,
-        code: "bad_custom_params",
-        reason: `Active parameters (${normalized.customActiveParamsB}B) cannot exceed total parameters (${normalized.customParamsB}B).`,
-        model: null,
-        warnings: [],
-        weightMemoryGb,
-      };
-    }
-    const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
-    return {
-      ok: true,
-      code: "ok",
-      reason: null,
-      weightMemoryGb,
-      model: {
-        ...baseModel,
-        label: `Custom (${normalized.customParamsB}B / ${normalized.customActiveParamsB}B active)`,
-        params_b: normalized.customParamsB,
-        active_params_b: normalized.customActiveParamsB,
-        context_max: normalized.customContextMax,
-        context_default: Math.min(normalized.effectiveContextTokens, normalized.customContextMax),
-        kv_override: true,
-        selected_kv_bytes_per_token: String(selectedKvBytes),
-        groups: [{ kind: "full", layers: 1, tensors: 1, kv_heads: 1, head_dim: selectedKvBytes }],
-      },
-      warnings: [{
-        code: "assumed_flat_custom_kv",
-        en: "Custom model uses user-supplied full-retention KV bytes/token (planning approximation; sliding/hybrid window retention and recurrent state are not modeled).",
-        th: "คำนวณ\u00A0KV\u00A0Cache\u00A0จากค่าต่อโทเคนที่ผู้ใช้ระบุแบบเก็บเต็มความยาว\u00A0(ประมาณการสำหรับการวางแผน\u00A0ไม่รวม\u00A0Sliding/Hybrid)",
-      }],
-    };
-  }
-
-  // Real catalog model with optional parameter-sensitivity / KV overrides
-  const resolvedParamsB = normalized.customParamsB ?? String(baseModel.params_b);
-  const resolvedActiveB = normalized.customActiveParamsB
-    ?? (normalized.customParamsB !== null ? normalized.customParamsB : String(baseModel.active_params_b));
-  if (Dec.from(resolvedActiveB).gt(Dec.from(resolvedParamsB))) {
-    return {
-      ok: false,
-      code: "bad_custom_params",
-      reason: `Active parameters (${resolvedActiveB}B) cannot exceed total parameters (${resolvedParamsB}B).`,
-      model: null,
-      warnings: [],
-      weightMemoryGb: calcWeightGb(resolvedParamsB),
-    };
-  }
-  const modelWarnings = [];
-  let groups = baseModel.groups;
-  let kvOverride = false;
-  let selectedKvStr = "";
-  if (normalized.customKvBytesBf16 !== null) {
-    const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
-    kvOverride = true;
-    selectedKvStr = String(selectedKvBytes);
-    groups = [{ kind: "full", layers: 1, tensors: 1, kv_heads: 1, head_dim: selectedKvBytes }];
-    modelWarnings.push({
-      code: "assumed_flat_custom_kv",
-      en: "KV cache overridden with a flat full-retention rate (planning approximation).",
-      th: "แทนที่ค่า\u00A0KV\u00A0Cache\u00A0ด้วยอัตราคงที่ต่อโทเคนตามที่ผู้ใช้กำหนด",
-    });
-  } else if (normalized.customParamsB !== null || normalized.customActiveParamsB !== null) {
-    modelWarnings.push({
-      code: "assumed_template_param_override",
-      en: `Parameter-sensitivity override (${resolvedParamsB}B / ${resolvedActiveB}B active) retains ${baseModel.label}'s KV layer geometry as an assumption, not a verified checkpoint architecture.`,
-      th: `การจำลองขนาดพารามิเตอร์\u00A0(${resolvedParamsB}B)\u00A0ยังคงใช้โครงสร้าง\u00A0KV\u00A0Cache\u00A0ของ\u00A0${baseModel.label}\u00A0เป็นสมมติฐาน`,
-    });
-  }
-
-  return {
-    ok: true,
-    code: "ok",
-    reason: null,
-    weightMemoryGb: calcWeightGb(resolvedParamsB),
-    model: {
-      ...baseModel,
-      params_b: resolvedParamsB,
-      active_params_b: resolvedActiveB,
-      context_max: normalized.customContextMax ?? baseModel.context_max,
-      kv_override: kvOverride,
-      selected_kv_bytes_per_token: selectedKvStr,
-      groups,
-    },
-    warnings: modelWarnings,
-  };
-}
-
 export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiveGpusPerNode = null }) {
-  const resolved = resolveSizerModel({ normalized, servingData });
-  if (!resolved.ok) {
+  const model = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
+  if (!model) {
     return {
       status: "refused",
       arithmeticFit: false,
       qualifiedDeploymentPass: false,
-      code: resolved.code,
-      reason: resolved.reason,
+      code: "unknown_model",
+      reason: `Model "${normalized.modelId}" is not in serving-models.json.`,
       warnings: [],
       serving: null,
-      resolvedModel: null,
-      weightMemoryGb: resolved.weightMemoryGb,
-      thaiProfile: THAI_MODEL_PROFILES[normalized.modelId] ?? null,
+      thaiProfile: null,
     };
   }
-  const model = resolved.model;
   const maxCtx = Number(model.context_max ?? 0);
   if (maxCtx > 0 && normalized.effectiveContextTokens > maxCtx) {
     return {
@@ -1305,8 +652,6 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Thai-adjusted context (${normalized.effectiveContextTokens.toLocaleString("en-US")} tokens) exceeds ${model.label}'s maximum context (${maxCtx.toLocaleString("en-US")} tokens).`,
       warnings: [],
       serving: null,
-      resolvedModel: model,
-      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1319,8 +664,6 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Effective prompt (${normalized.effectivePromptTokens}) + output (${normalized.effectiveOutputTokens}) exceeds configured context (${normalized.effectiveContextTokens}).`,
       warnings: [],
       serving: null,
-      resolvedModel: model,
-      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1339,8 +682,6 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Missing bandwidth/VRAM or quantization metadata for GPU "${normalized.gpuId}".`,
       warnings: [],
       serving: null,
-      resolvedModel: model,
-      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1349,9 +690,9 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
   try {
     serving = servingPlan({
       model,
-      contextTokens: String(normalized.effectiveContextTokens),
+      contextTokens: normalized.effectiveContextTokens,
       bytesPerParam: wq.bytes_per_param,
-      kvBytesPerElement: model.kv_override ? "1" : kq.bytes_per_element,
+      kvBytesPerElement: kq.bytes_per_element,
       vramGb: String(vramGb),
       bandwidthGbS: acc.bandwidth_gb_s,
       runtimeEfficiency: rt.bandwidth_efficiency,
@@ -1369,8 +710,6 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: err.message,
       warnings: [],
       serving: null,
-      resolvedModel: model,
-      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1385,13 +724,11 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       reason: `Model requires TP=${tpDegree} per replica, but each server node holds only ${effectiveGpusPerNode} GPU(s). Cross-node tensor parallelism without verified RDMA/NVLink fabric is not supported as a deployment pass.`,
       warnings: ["cross_node_tp_blocked"],
       serving,
-      resolvedModel: model,
-      weightMemoryGb: resolved.weightMemoryGb,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
 
-  const warnings = [...resolved.warnings];
+  const warnings = [];
   if (normalized.wquant === "int4") {
     warnings.push({
       code: "lower_bound_ideal_weights",
@@ -1416,8 +753,6 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
     reason: null,
     warnings,
     serving,
-    resolvedModel: model,
-    weightMemoryGb: resolved.weightMemoryGb,
     thaiProfile: THAI_MODEL_PROFILES[model.id] ?? {
       tierId: "custom_tier",
       thaiSupport: "verify_tokenizer",
@@ -1440,54 +775,29 @@ export function buildShapesFromNormalized(normalized) {
   };
 }
 
-export function computeHardwareBom({ normalized, gpusRequired, tpDegree = 1, serverPricing, fx }) {
+export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx }) {
   const rows = serversForGpu(normalized.gpuId, serverPricing?.rows ?? []);
   if (normalized.quoteBasis === "catalog") {
-    let chosen = null;
-    if (normalized.serverId) {
-      chosen = rows.find((r) => r.server_id === normalized.serverId) ?? null;
-      if (!chosen) {
-        return {
-          ok: false,
-          code: "unknown_server",
-          reason: `Selected server "${normalized.serverId}" is not available for GPU "${normalized.gpuId}".`,
-        };
-      }
-      if (tpDegree > chosen.gpu_count) {
-        return {
-          ok: false,
-          code: "unsupported_cross_node_tp",
-          reason: `Model requires TP=${tpDegree} per replica, which exceeds ${chosen.gpu_count} GPU(s) on selected server "${chosen.label ?? chosen.server_id}".`,
-        };
-      }
-    } else {
-      if (!rows.length) {
-        return {
-          ok: false,
-          code: "no_catalog_server",
-          reason: `No published integrated server price for "${normalized.gpuId}". Choose a custom hardware quote basis.`,
-        };
-      }
-      const eligibleRows = rows.filter((r) => r.gpu_count >= tpDegree);
-      if (!eligibleRows.length) {
-        const maxSlots = Math.max(...rows.map((r) => r.gpu_count));
-        return {
-          ok: false,
-          code: "unsupported_cross_node_tp",
-          reason: `Model requires TP=${tpDegree} per replica, exceeding the maximum ${maxSlots} GPU slot(s) per server node for "${normalized.gpuId}".`,
-        };
-      }
+    let chosen = rows.find((r) => r.server_id === normalized.serverId) ?? null;
+    if (!chosen && rows.length) {
       try {
         const c = cheapestConfigFor({
           gpuId: normalized.gpuId,
-          servers: eligibleRows,
+          servers: serverPricing?.rows ?? [],
           gpusRequired: Math.max(1, gpusRequired),
           priceBasis: normalized.serverPriceBasis,
         });
-        chosen = eligibleRows.find((r) => r.server_id === c.best?.server_id) ?? eligibleRows[0];
+        chosen = rows.find((r) => r.server_id === c.best?.server_id) ?? rows[0];
       } catch {
-        chosen = eligibleRows[0];
+        chosen = rows[0];
       }
+    }
+    if (!chosen) {
+      return {
+        ok: false,
+        code: "no_catalog_server",
+        reason: `No published integrated server price for "${normalized.gpuId}". Choose a custom hardware quote basis.`,
+      };
     }
     try {
       // In catalog mode, the selected server row's gpu_count is authoritative (gpusPerNode is disabled in UI).
@@ -1528,16 +838,7 @@ export function computeHardwareBom({ normalized, gpusRequired, tpDegree = 1, ser
   }
 
   // Custom topology bases: integrated_node, component_split, fleet_total
-  if (normalized.gpusPerNode !== null && tpDegree > normalized.gpusPerNode) {
-    return {
-      ok: false,
-      code: "unsupported_cross_node_tp",
-      reason: `Model requires TP=${tpDegree} per replica, which exceeds configured ${normalized.gpusPerNode} GPU(s) per custom node.`,
-    };
-  }
-  const autoCustomSlots = rows.find((r) => r.gpu_count >= tpDegree)?.gpu_count
-    ?? Math.max(tpDegree, rows[0]?.gpu_count ?? Math.min(8, Math.max(1, gpusRequired)));
-  const gpusPerNode = normalized.gpusPerNode ?? autoCustomSlots;
+  const gpusPerNode = normalized.gpusPerNode ?? (rows[0]?.gpu_count ?? Math.min(8, Math.max(1, gpusRequired)));
   const minNodes = Math.max(1, Math.ceil(gpusRequired / gpusPerNode));
   const nodes = normalized.nodes ?? minNodes;
   const installedGpus = nodes * gpusPerNode;
@@ -1607,86 +908,6 @@ export function buildPricingIdentity(manifest, fx) {
   return `${manifest?.snapshot_digest ?? "local"}${sources ? `|${sources}` : ""}|${fxDoc.observed_at}|${rateText}`;
 }
 
-function parsePricingIdentityParts(identity) {
-  const parts = String(identity ?? "").split("|");
-  if (parts.length < 3) return null;
-  const fxRateText = parts[parts.length - 1] ?? "";
-  const fxDate = parts[parts.length - 2] ?? "";
-  const sourceSegment = parts.length >= 4 ? parts.slice(1, parts.length - 2).join("|") : "";
-  const sources = {};
-  for (const item of sourceSegment.split(",").filter(Boolean)) {
-    const m = /^([^:]+):([^@]+)@([^:]*):(.+)$/.exec(item);
-    if (m) {
-      sources[m[1]] = {
-        origin: m[2],
-        date: m[3] ? m[3].slice(0, 10) : "",
-      };
-    }
-  }
-  return {
-    fxDate: fxDate.slice(0, 10),
-    fxRateText,
-    sources,
-  };
-}
-
-export function describePricingRefresh(capturedIdentity, currentIdentity, lang = "en") {
-  const prev = parsePricingIdentityParts(capturedIdentity);
-  const curr = parsePricingIdentityParts(currentIdentity);
-  const isTh = lang === "th";
-  if (!prev || !curr) {
-    return isTh
-      ? "อัปเดตข้อมูลราคา\u00A0API\u00A0หรืออัตราแลกเปลี่ยนล่าสุดแล้ว ตัวเลขด้านล่างคำนวณใหม่ตามแหล่งข้อมูลปัจจุบัน"
-      : "Pricing source metadata was updated since this scenario was captured; totals below reflect current catalog sources.";
-  }
-
-  const notes = [];
-  const orCurr = curr.sources.openrouter;
-  const orPrev = prev.sources.openrouter;
-  if (orCurr && (!orPrev || orCurr.origin !== orPrev.origin || orCurr.date !== orPrev.date)) {
-    const modeEn = orCurr.origin === "live" ? "live feed" : "dated snapshot";
-    const modeTh = orCurr.origin === "live" ? "ข้อมูลสด" : "ข้อมูลตามรอบ";
-    notes.push(isTh
-      ? `OpenRouter (${modeTh}${orCurr.date ? ` ${orCurr.date}` : ""})`
-      : `OpenRouter (${modeEn}${orCurr.date ? ` ${orCurr.date}` : ""})`);
-  }
-
-  const llCurr = curr.sources.litellm;
-  const llPrev = prev.sources.litellm;
-  if (llCurr && (!llPrev || llCurr.origin !== llPrev.origin || llCurr.date !== llPrev.date)) {
-    notes.push(isTh
-      ? `LiteLLM (${llCurr.date || "ล่าสุด"})`
-      : `LiteLLM (${llCurr.date || "updated"})`);
-  }
-
-  const prevRateFmt = (() => {
-    try { return formatHalfUp(toRat(prev.fxRateText), 2); } catch { return prev.fxRateText; }
-  })();
-  const currRateFmt = (() => {
-    try { return formatHalfUp(toRat(curr.fxRateText), 2); } catch { return curr.fxRateText; }
-  })();
-
-  if (prev.fxRateText !== curr.fxRateText) {
-    notes.push(isTh
-      ? `อัตราแลกเปลี่ยน\u00A0USD/THB\u00A0${prevRateFmt}\u00A0\u2192\u00A0${currRateFmt}${curr.fxDate ? ` (${curr.fxDate})` : ""}`
-      : `ECB FX ${prevRateFmt} -> ${currRateFmt} THB/USD${curr.fxDate ? ` (${curr.fxDate})` : ""}`);
-  } else if (prev.fxDate !== curr.fxDate && curr.fxDate) {
-    notes.push(isTh
-      ? `ตรวจอัตราแลกเปลี่ยนล่าสุด\u00A0(${currRateFmt}\u00A0THB/USD, ${curr.fxDate})`
-      : `ECB FX checked ${curr.fxDate} (${currRateFmt} THB/USD)`);
-  }
-
-  if (notes.length === 0) {
-    return isTh
-      ? "ตรวจสอบความสดของแหล่งข้อมูลราคา\u00A0API\u00A0และอัตราแลกเปลี่ยนล่าสุดแล้ว ตัวเลขด้านล่างอ้างอิงชุดข้อมูลปัจจุบัน"
-      : "Pricing source timestamps were refreshed since this scenario was captured; totals below use current catalog metadata.";
-  }
-
-  return isTh
-    ? `อัปเดตแหล่งข้อมูลราคาล่าสุดตั้งแต่สร้างลิงก์นี้\u00A0(${notes.join(" · ")}) ตัวเลขด้านล่างคำนวณตามชุดข้อมูลปัจจุบัน`
-    : `Pricing sources updated since this scenario was captured (${notes.join(" · ")}); totals below reflect current catalog data.`;
-}
-
 // Shared scenario assembly + calculator.js:runComparison execution.
 export function computeSizer({
   input,
@@ -1714,26 +935,21 @@ export function computeSizer({
   });
 
   const catalogRows = serversForGpu(normalized.gpuId, serverPricing?.rows ?? []);
-  const pinnedCatalogServer = normalized.quoteBasis === "catalog" && normalized.serverId
-    ? (catalogRows.find((r) => r.server_id === normalized.serverId) ?? null)
-    : null;
-  const explicitSlots = normalized.quoteBasis === "catalog"
-    ? (pinnedCatalogServer ? pinnedCatalogServer.gpu_count : null)
-    : normalized.gpusPerNode;
+  const tentativeSlots = normalized.quoteBasis === "catalog"
+    ? (catalogRows.find((r) => r.server_id === normalized.serverId)?.gpu_count ?? catalogRows[0]?.gpu_count ?? null)
+    : (normalized.gpusPerNode ?? catalogRows[0]?.gpu_count ?? null);
 
   const fit = evaluateModelFit({
     normalized,
     servingData,
     gpuPricing,
-    effectiveGpusPerNode: explicitSlots,
+    effectiveGpusPerNode: tentativeSlots,
   });
 
   if (!fit.arithmeticFit || fit.status === "unsupported_cross_node_tp") {
     return {
       ok: false,
       stage: "model_fit",
-      code: fit.code,
-      reason: fit.reason,
       normalized,
       demand,
       peak,
@@ -1751,15 +967,36 @@ export function computeSizer({
     serving: fit.serving,
   });
   const gpusRequired = Math.max(1, Number(sizing.gpus_required.text));
-  const tpDegree = Number(fit.serving.gpus_per_replica);
 
   const bom = computeHardwareBom({
     normalized,
     gpusRequired,
-    tpDegree,
     serverPricing,
     fx,
   });
+
+  // Re-verify cross-node TP against actual resolved server slots when catalog picked a smaller box
+  if (bom.ok && Number(fit.serving.gpus_per_replica) > bom.gpusPerNode) {
+    return {
+      ok: false,
+      stage: "topology_tp",
+      normalized,
+      demand,
+      peak,
+      sizing,
+      fit: {
+        ...fit,
+        status: "unsupported_cross_node_tp",
+        qualifiedDeploymentPass: false,
+        code: "unsupported_cross_node_tp",
+        reason: `Model requires TP=${fit.serving.gpus_per_replica}, which exceeds ${bom.gpusPerNode} GPU(s) per chosen server node.`,
+      },
+      bom,
+      comparison: null,
+      dealTier: normalized.dealTierOverride ?? recommendDealTier({ users: normalized.users, connectors: normalized.connectors, gpusRequired }),
+      pricingIdentity: buildPricingIdentity(manifest, fx),
+    };
+  }
 
   const dealTierId = normalized.dealTierOverride ?? recommendDealTier({
     users: normalized.users,
@@ -1767,85 +1004,14 @@ export function computeSizer({
     gpusRequired,
   });
 
-  if (!bom.ok && bom.code === "unsupported_cross_node_tp") {
-    return {
-      ok: false,
-      stage: "topology_tp",
-      code: "unsupported_cross_node_tp",
-      reason: bom.reason,
-      normalized,
-      demand,
-      peak,
-      sizing: { ...sizing, gpusRequired },
-      fit: {
-        ...fit,
-        status: "unsupported_cross_node_tp",
-        qualifiedDeploymentPass: false,
-        code: "unsupported_cross_node_tp",
-        reason: bom.reason,
-      },
-      bom,
-      comparison: null,
-      dealTier: dealTierId,
-      pricingIdentity: buildPricingIdentity(manifest, fx),
-    };
-  }
-
-  // Re-verify cross-node TP against actual resolved server slots
-  if (bom.ok && tpDegree > bom.gpusPerNode) {
-    const tpReason = `Model requires TP=${tpDegree}, which exceeds ${bom.gpusPerNode} GPU(s) per chosen server node.`;
-    return {
-      ok: false,
-      stage: "topology_tp",
-      code: "unsupported_cross_node_tp",
-      reason: tpReason,
-      normalized,
-      demand,
-      peak,
-      sizing: { ...sizing, gpusRequired },
-      fit: {
-        ...fit,
-        status: "unsupported_cross_node_tp",
-        qualifiedDeploymentPass: false,
-        code: "unsupported_cross_node_tp",
-        reason: tpReason,
-      },
-      bom,
-      comparison: null,
-      dealTier: dealTierId,
-      pricingIdentity: buildPricingIdentity(manifest, fx),
-    };
-  }
-
   if (!bom.ok) {
     return {
       ok: false,
       stage: "hardware_bom",
-      code: bom.code,
-      reason: bom.reason,
       normalized,
       demand,
       peak,
-      sizing: { ...sizing, gpusRequired },
-      fit,
-      bom,
-      comparison: null,
-      dealTier: dealTierId,
-      pricingIdentity: buildPricingIdentity(manifest, fx),
-    };
-  }
-
-  if (normalized.apiOfferId && !catalog?.offers?.[normalized.apiOfferId]) {
-    return {
-      ok: false,
-      stage: "api_offer",
-      code: "unknown_api_offer",
-      reason: `Selected Model API offer "${normalized.apiOfferId}" is unavailable in the current catalog. Reselect an active API model.`,
-      unresolvedApiOfferId: normalized.apiOfferId,
-      normalized,
-      demand,
-      peak,
-      sizing: { ...sizing, gpusRequired },
+      sizing,
       fit,
       bom,
       comparison: null,
@@ -1887,24 +1053,22 @@ export function computeSizer({
 
   const resolvedApiOfferId = pickComparableApiOffer(catalog, manifest, normalized.apiOfferId);
 
-  // Rented GPU baseline from first-party provider row if available, using the identical resolved model spec
+  // Rented GPU baseline from first-party provider row if available
   const rentRows = gpuPricing?.rows ?? [];
   const rentIndex = Math.max(0, rentRows.findIndex((r) => r.confidence === "first_party"));
   const rentRow = rentRows[rentIndex] ?? rentRows[0] ?? null;
-  const resolvedModel = fit.resolvedModel;
   let rentSizing = null;
-  if (rentRow && resolvedModel) {
+  if (rentRow) {
     try {
       const rAcc = servingData?.accelerators?.[rentRow.gpu_id];
       const rVram = gpuPricing?.gpus?.[rentRow.gpu_id]?.vram_gb;
-      const rServing = (rAcc && rVram !== undefined)
+      const rModel = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
+      const rServing = (rAcc && rVram !== undefined && rModel)
         ? servingPlan({
-          model: resolvedModel,
-          contextTokens: String(normalized.effectiveContextTokens),
+          model: rModel,
+          contextTokens: normalized.effectiveContextTokens,
           bytesPerParam: servingData.weight_quantization[normalized.wquant].bytes_per_param,
-          kvBytesPerElement: resolvedModel.kv_override
-            ? "1"
-            : servingData.kv_quantization[normalized.kvquant].bytes_per_element,
+          kvBytesPerElement: servingData.kv_quantization[normalized.kvquant].bytes_per_element,
           vramGb: String(rVram),
           bandwidthGbS: rAcc.bandwidth_gb_s,
           runtimeEfficiency: servingData.runtimes[normalized.runtime].bandwidth_efficiency,
@@ -2091,121 +1255,6 @@ export function computeSizer({
   };
 }
 
-const PREFERRED_ENTERPRISE_GPUS = Object.freeze([
-  "rtx_pro_6000_ws",
-  "rtx_pro_6000_se",
-  "l40s",
-  "h100",
-  "h200",
-  "b200",
-]);
-
-export function evaluateGpuCandidates({ input, data, nowMs = 1788220800000 }) {
-  const normalized = input?.schema === SIZER_SCHEMA ? input : normalizeSizerInput(input);
-  const accMap = data?.servingData?.accelerators ?? {};
-  const gpuMap = data?.gpuPricing?.gpus ?? {};
-  const serverRows = data?.serverPricing?.rows ?? [];
-  const serverGpuSet = new Set(serverRows.map((r) => r.gpu_id));
-
-  const orderedIds = [
-    ...PREFERRED_ENTERPRISE_GPUS.filter((id) => accMap[id] && gpuMap[id]),
-    ...Object.keys(accMap).filter((id) => !PREFERRED_ENTERPRISE_GPUS.includes(id) && gpuMap[id] && serverGpuSet.has(id)),
-  ];
-
-  return orderedIds.map((gpuId) => {
-    const gpuMeta = gpuMap[gpuId] ?? {};
-    const accMeta = accMap[gpuId] ?? {};
-    // Evaluate each candidate in automatic catalog topology without copying manual node pins or custom quotes from another GPU.
-    const candidateInput = normalizeSizerInput({
-      ...normalized,
-      gpuId,
-      quoteBasis: "catalog",
-      serverId: "",
-      nodes: null,
-      gpusPerNode: null,
-      integratedNodePrice: { amount: "0", currency: normalized.quoteCurrency },
-      chassisNodePrice: { amount: "0", currency: normalized.quoteCurrency },
-      gpuUnitPrice: { amount: "0", currency: normalized.quoteCurrency },
-      fleetTotalPrice: { amount: "0", currency: normalized.quoteCurrency },
-    });
-    const res = computeSizer({ input: candidateInput, data, nowMs });
-    if (res.ok) {
-      return {
-        gpuId,
-        label: gpuMeta.label ?? gpuId,
-        vramGb: gpuMeta.vram_gb ?? null,
-        bandwidthGbS: accMeta.bandwidth_gb_s ?? null,
-        isSelected: gpuId === normalized.gpuId,
-        feasible: true,
-        priced: true,
-        status: res.fit.status,
-        tpDegree: Number(res.fit.serving.gpus_per_replica),
-        gpusRequired: res.sizing.gpusRequired,
-        installedGpus: res.bom.installedGpus,
-        nodes: res.bom.nodes,
-        gpusPerNode: res.bom.gpusPerNode,
-        serverId: res.bom.serverId,
-        serverLabel: res.bom.serverRow?.label ?? res.bom.serverId,
-        tokensPerSecPerGpu: res.sizing.tokens_s_per_gpu.text,
-        capexUsd: res.bom.capexUsd,
-        capexThb: res.bom.capexThb,
-        paybackMonths: res.comparison?.payback?.vs_model_api?.months ?? null,
-        warnings: res.fit.warnings ?? [],
-        reason: null,
-      };
-    }
-    if (res.stage === "hardware_bom" && res.bom?.code === "no_catalog_server" && res.fit?.serving && res.sizing) {
-      return {
-        gpuId,
-        label: gpuMeta.label ?? gpuId,
-        vramGb: gpuMeta.vram_gb ?? null,
-        bandwidthGbS: accMeta.bandwidth_gb_s ?? null,
-        isSelected: gpuId === normalized.gpuId,
-        feasible: true,
-        priced: false,
-        status: "memory_fit_unpriced",
-        tpDegree: Number(res.fit.serving.gpus_per_replica),
-        gpusRequired: res.sizing.gpusRequired,
-        installedGpus: res.sizing.gpusRequired,
-        nodes: null,
-        gpusPerNode: null,
-        serverId: "",
-        serverLabel: null,
-        tokensPerSecPerGpu: res.sizing.tokens_s_per_gpu.text,
-        capexUsd: null,
-        capexThb: null,
-        paybackMonths: null,
-        warnings: res.fit.warnings ?? [],
-        reason: res.bom.reason,
-      };
-    }
-    return {
-      gpuId,
-      label: gpuMeta.label ?? gpuId,
-      vramGb: gpuMeta.vram_gb ?? null,
-      bandwidthGbS: accMeta.bandwidth_gb_s ?? null,
-      isSelected: gpuId === normalized.gpuId,
-      feasible: false,
-      priced: false,
-      status: res.fit?.status ?? "refused",
-      code: res.code ?? res.fit?.code ?? res.bom?.code ?? "unavailable",
-      tpDegree: res.fit?.serving ? Number(res.fit.serving.gpus_per_replica) : null,
-      gpusRequired: res.sizing?.gpusRequired ?? null,
-      installedGpus: null,
-      nodes: null,
-      gpusPerNode: null,
-      serverId: "",
-      serverLabel: null,
-      tokensPerSecPerGpu: null,
-      capexUsd: null,
-      capexThb: null,
-      paybackMonths: null,
-      warnings: res.fit?.warnings ?? [],
-      reason: res.reason ?? res.fit?.reason ?? res.bom?.reason ?? "Unavailable for this model/workload.",
-    };
-  });
-}
-
 // UTF-8 safe base64url helpers for browser + Node ESM.
 function toBase64Url(jsonText) {
   const bytes = new TextEncoder().encode(jsonText);
@@ -2237,7 +1286,6 @@ function fromBase64Url(encoded) {
   return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 }
 
-// Exact 44 legacy v1 required keys — never expand unconditionally so existing #sizer=v1 tokens remain valid.
 const COMPACT_RECORD_KEYS = new Set([
   "v", "w", "dm", "cn", "dt", "u", "sd", "wd", "pf", "ts", "mx",
   "tb", "tf", "rp", "ro", "rc", "m", "wq", "kq", "rt", "g",
@@ -2246,27 +1294,8 @@ const COMPACT_RECORD_KEYS = new Set([
   "ek", "pu", "no", "hz", "ao", "sub", "st", "qu", "pi",
 ]);
 
-// Optional v1 extension keys for custom model parameter/cache/context overrides.
-// Forward compatibility of newly extended custom tokens on older deployments is not promised.
-const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm"]);
-
 export function encodeSizerFragment(normalized, { pricingIdentity = null, resolvedApiOfferId = null } = {}) {
   const n = normalized?.schema === SIZER_SCHEMA ? normalized : normalizeSizerInput(normalized);
-  if (
-    n.modelId === "custom"
-    && !n.legacyCustomAssumed
-    && (
-      n.customParamsB === null
-      || n.customActiveParamsB === null
-      || n.customKvBytesBf16 === null
-      || n.customContextMax === null
-    )
-  ) {
-    throw new SizerValidationError(
-      "incomplete_custom_model",
-      "Custom model requires total parameters (B), active parameters (B), BF16 KV bytes/token, and max context window before sharing or saving.",
-    );
-  }
   const compact = {
     v: 1,
     w: n.workloadId,
@@ -2313,17 +1342,6 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
     qu: n.quoteUtc,
     pi: pricingIdentity ?? n.pricingIdentity,
   };
-  if (
-    n.customParamsB !== null
-    || n.customActiveParamsB !== null
-    || n.customKvBytesBf16 !== null
-    || n.customContextMax !== null
-  ) {
-    compact.cp = n.customParamsB;
-    compact.ca = n.customActiveParamsB;
-    compact.ck = n.customKvBytesBf16;
-    compact.cm = n.customContextMax;
-  }
   const token = toBase64Url(JSON.stringify(compact));
   const fragment = `${SIZER_FRAGMENT_PREFIX}${token}`;
   if (fragment.length > MAX_FRAGMENT_CHARS) {
@@ -2432,38 +1450,6 @@ function validateSizerWirePayload(parsed) {
   }
   requireNonEmptyWireString(parsed.m, "modelId");
   requireNonEmptyWireString(parsed.g, "gpuId");
-
-  // Validate optional custom model extensions when present
-  let cpStr = null;
-  let caStr = null;
-  let ckNum = null;
-  let cmNum = null;
-  if ("cp" in parsed && parsed.cp !== null) {
-    if (typeof parsed.cp !== "string") throw new SizerValidationError("bad_decimal", "cp (customParamsB) must be null or a decimal string");
-    cpStr = decStr(parsed.cp, "customParamsB", { min: "0.1", max: "10000", allowZero: false });
-  }
-  if ("ca" in parsed && parsed.ca !== null) {
-    if (typeof parsed.ca !== "string") throw new SizerValidationError("bad_decimal", "ca (customActiveParamsB) must be null or a decimal string");
-    caStr = decStr(parsed.ca, "customActiveParamsB", { min: "0.1", max: "10000", allowZero: false });
-  }
-  if ("ck" in parsed && parsed.ck !== null) {
-    if (typeof parsed.ck !== "number") throw new SizerValidationError("bad_integer", "ck (customKvBytesBf16) must be null or an integer");
-    ckNum = posInt(parsed.ck, "customKvBytesBf16", { min: 2, max: 100000000 });
-  }
-  if ("cm" in parsed && parsed.cm !== null) {
-    if (typeof parsed.cm !== "number") throw new SizerValidationError("bad_integer", "cm (customContextMax) must be null or an integer");
-    cmNum = posInt(parsed.cm, "customContextMax", { min: 128, max: 10000000 });
-  }
-  if (cpStr !== null && caStr !== null && Dec.from(caStr).gt(Dec.from(cpStr))) {
-    throw new SizerValidationError("bad_custom_params", "customActiveParamsB cannot exceed customParamsB");
-  }
-  const hasCustomWireKey = ("cp" in parsed) || ("ca" in parsed) || ("ck" in parsed) || ("cm" in parsed);
-  if (parsed.m === "custom" && hasCustomWireKey) {
-    if (cpStr === null || caStr === null || ckNum === null || cmNum === null) {
-      throw new SizerValidationError("incomplete_custom_model", "Custom model wire payload requires complete cp, ca, ck, and cm fields.");
-    }
-  }
-
   if (typeof parsed.wq !== "string" || !VALID_WQUANTS.has(parsed.wq)) {
     throw new SizerValidationError("bad_wquant", `Unsupported weight quantization "${parsed.wq}"`);
   }
@@ -2519,7 +1505,7 @@ export function decodeSizerFragment(hashOrFragment) {
     throw new SizerValidationError("unsupported_version", `Unsupported sizer payload version "${parsed.v}".`);
   }
   for (const key of Object.keys(parsed)) {
-    if (!COMPACT_RECORD_KEYS.has(key) && !COMPACT_OPTIONAL_KEYS.has(key)) {
+    if (!COMPACT_RECORD_KEYS.has(key)) {
       throw new SizerValidationError("unknown_key", `Rejected unknown key "${key}" in sizer transfer payload.`);
     }
   }
@@ -2541,11 +1527,6 @@ export function decodeSizerFragment(hashOrFragment) {
     rawOutputTokens: parsed.ro,
     rawContextTokens: parsed.rc,
     modelId: parsed.m,
-    customParamsB: parsed.cp ?? null,
-    customActiveParamsB: parsed.ca ?? null,
-    customKvBytesBf16: parsed.ck ?? null,
-    customContextMax: parsed.cm ?? null,
-    legacyCustomAssumed: parsed.m === "custom" && !("cp" in parsed) && !("ca" in parsed) && !("ck" in parsed) && !("cm" in parsed),
     wquant: parsed.wq,
     kvquant: parsed.kq,
     runtime: parsed.rt,
@@ -2574,150 +1555,6 @@ export function decodeSizerFragment(hashOrFragment) {
     quoteUtc: parsed.qu,
     pricingIdentity: parsed.pi,
   });
-}
-
-// Strict JSON / optional localStorage scenario envelope codec (stores canonical scenarios + display metadata only).
-const SAVE_ENVELOPE_KEYS = new Set(["schema", "exportedAt", "scenarios"]);
-const SAVE_RECORD_KEYS = new Set(["id", "name", "savedAt", "fragment"]);
-
-function validateSaveTimestamp(val, fieldName) {
-  if (typeof val !== "string" || val.length < 10 || val.length > 40 || Number.isNaN(Date.parse(val))) {
-    throw new SizerValidationError("bad_save_timestamp", `${fieldName} must be an ISO-8601 timestamp string`);
-  }
-  return val;
-}
-
-function validateSavedScenarioRecord(entry, index) {
-  if (!isPlainObject(entry)) {
-    throw new SizerValidationError("bad_save_record", `Saved scenario #${index + 1} must be a plain object.`);
-  }
-  for (const k of Object.keys(entry)) {
-    if (!SAVE_RECORD_KEYS.has(k)) {
-      throw new SizerValidationError("unknown_save_key", `Rejected unknown key "${k}" in saved scenario #${index + 1}.`);
-    }
-  }
-  for (const req of SAVE_RECORD_KEYS) {
-    if (!(req in entry)) {
-      throw new SizerValidationError("missing_save_key", `Missing required key "${req}" in saved scenario #${index + 1}.`);
-    }
-  }
-  if (typeof entry.id !== "string" || !/^[A-Za-z0-9_.:-]{1,64}$/.test(entry.id)) {
-    throw new SizerValidationError("bad_save_id", `Invalid id in saved scenario #${index + 1}.`);
-  }
-  const trimmedName = typeof entry.name === "string" ? entry.name.trim() : "";
-  if (!trimmedName || trimmedName.length > 80) {
-    throw new SizerValidationError("bad_save_name", `Scenario name in #${index + 1} must be 1 to 80 characters.`);
-  }
-  const savedAt = validateSaveTimestamp(entry.savedAt, `scenarios[${index}].savedAt`);
-  if (typeof entry.fragment !== "string") {
-    throw new SizerValidationError("bad_save_fragment", `Scenario #${index + 1} fragment must be a string.`);
-  }
-  const rawFrag = entry.fragment.replace(/^#/, "");
-  const normalized = decodeSizerFragment(rawFrag);
-  if (!normalized) {
-    throw new SizerValidationError("bad_save_fragment", `Scenario #${index + 1} does not contain a valid sizer=v1 fragment.`);
-  }
-  return {
-    id: entry.id,
-    name: trimmedName,
-    savedAt,
-    fragment: rawFrag,
-    normalized,
-  };
-}
-
-export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:00:00Z", allowEmpty = false } = {}) {
-  if (!Array.isArray(entries)) {
-    throw new SizerValidationError("bad_save_list", "scenarios must be an array");
-  }
-  if ((!allowEmpty && entries.length === 0) || entries.length > MAX_SAVED_SCENARIOS) {
-    throw new SizerValidationError(
-      "save_count_out_of_range",
-      `Saved scenario count must be between ${allowEmpty ? 0 : 1} and ${MAX_SAVED_SCENARIOS}.`,
-    );
-  }
-  const validExportedAt = validateSaveTimestamp(exportedAt, "exportedAt");
-  const seenIds = new Set();
-  const cleanRecords = entries.map((entry, idx) => {
-    const valid = validateSavedScenarioRecord(entry, idx);
-    if (seenIds.has(valid.id)) {
-      throw new SizerValidationError("duplicate_save_id", `Duplicate scenario id "${valid.id}" in save envelope.`);
-    }
-    seenIds.add(valid.id);
-    return {
-      id: valid.id,
-      name: valid.name,
-      savedAt: valid.savedAt,
-      fragment: valid.fragment,
-    };
-  });
-  const jsonText = JSON.stringify({
-    schema: SIZER_SAVE_SCHEMA,
-    exportedAt: validExportedAt,
-    scenarios: cleanRecords,
-  }, null, 2);
-  const byteLength = new TextEncoder().encode(jsonText).byteLength;
-  if (byteLength > MAX_SAVE_BYTES) {
-    throw new SizerValidationError("save_too_large", `Saved scenarios exceed the 64 KiB budget (${byteLength} bytes).`);
-  }
-  return jsonText;
-}
-
-export function decodeSizerSaveEnvelope(jsonText, { allowEmpty = false } = {}) {
-  if (typeof jsonText !== "string") {
-    throw new SizerValidationError("bad_save_json", "Save payload must be a UTF-8 JSON string.");
-  }
-  const byteLength = new TextEncoder().encode(jsonText).byteLength;
-  if (byteLength > MAX_SAVE_BYTES) {
-    throw new SizerValidationError("save_too_large", `Save file exceeds the 64 KiB safety limit (${byteLength} bytes).`);
-  }
-  let parsed;
-  try {
-    parsed = JSON.parse(jsonText);
-  } catch {
-    throw new SizerValidationError("bad_save_json", "Save file is not valid JSON.");
-  }
-  if (!isPlainObject(parsed)) {
-    throw new SizerValidationError("bad_save_envelope", "Save file root must be a plain JSON object.");
-  }
-  if (parsed.schema !== SIZER_SAVE_SCHEMA) {
-    throw new SizerValidationError("unsupported_save_schema", `Unsupported save schema "${parsed.schema}". Expected "${SIZER_SAVE_SCHEMA}".`);
-  }
-  for (const k of Object.keys(parsed)) {
-    if (!SAVE_ENVELOPE_KEYS.has(k)) {
-      throw new SizerValidationError("unknown_save_key", `Rejected unknown envelope key "${k}".`);
-    }
-  }
-  for (const req of SAVE_ENVELOPE_KEYS) {
-    if (!(req in parsed)) {
-      throw new SizerValidationError("missing_save_key", `Missing required envelope key "${req}".`);
-    }
-  }
-  const exportedAt = validateSaveTimestamp(parsed.exportedAt, "exportedAt");
-  if (!Array.isArray(parsed.scenarios)) {
-    throw new SizerValidationError("bad_save_list", "scenarios must be an array.");
-  }
-  if ((!allowEmpty && parsed.scenarios.length === 0) || parsed.scenarios.length > MAX_SAVED_SCENARIOS) {
-    throw new SizerValidationError(
-      "save_count_out_of_range",
-      `Save file must contain ${allowEmpty ? 0 : 1} to ${MAX_SAVED_SCENARIOS} scenarios.`,
-    );
-  }
-  // Validate every record before returning anything so a bad record #25 leaves zero partial state.
-  const seenIds = new Set();
-  const scenarios = parsed.scenarios.map((entry, idx) => {
-    const valid = validateSavedScenarioRecord(entry, idx);
-    if (seenIds.has(valid.id)) {
-      throw new SizerValidationError("duplicate_save_id", `Duplicate scenario id "${valid.id}".`);
-    }
-    seenIds.add(valid.id);
-    return valid;
-  });
-  return {
-    schema: SIZER_SAVE_SCHEMA,
-    exportedAt,
-    scenarios,
-  };
 }
 
 // Bounded preset fragment used by campaign links to pre-fill numeric inputs on local-ai-sizer.html.
@@ -2861,7 +1698,7 @@ export function projectSizerControls({
     throw new SizerValidationError(result.code ?? "scenario_not_sizable", detail);
   }
 
-  const model = result.fit?.resolvedModel ?? (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
+  const model = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
   if (!model) throw new SizerValidationError("unknown_model", `Local model "${normalized.modelId}" is unavailable.`);
 
   const offerableGpus = new Set([
@@ -2923,7 +1760,7 @@ export function projectSizerControls({
     "f-sv-params": String(model.params_b),
     "f-sv-active": String(model.active_params_b),
     "f-sv-ctx": String(normalized.effectiveContextTokens),
-    "f-sv-kvbytes": model.kv_override ? String(model.selected_kv_bytes_per_token) : "",
+    "f-sv-kvbytes": "",
     "f-sv-wquant": normalized.wquant,
     "f-sv-kvquant": normalized.kvquant,
     "f-sv-runtime": normalized.runtime,
@@ -2993,14 +1830,12 @@ export function projectSizerControls({
 
   const currentIdentity = buildPricingIdentity(manifest, result.fx);
   const repriced = Boolean(normalized.pricingIdentity && normalized.pricingIdentity !== currentIdentity);
-  const refreshSummary = repriced ? describePricingRefresh(normalized.pricingIdentity, currentIdentity, "en") : null;
 
   return {
     controls: values,
     groups: model.groups,
     result,
     repriced,
-    refreshSummary,
     capturedIdentity: normalized.pricingIdentity,
     currentIdentity,
   };

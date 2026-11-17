@@ -27,12 +27,14 @@ const [manifest, gpuPricing, serverPricing, servingData, powerSeed, subscription
   readJson("tco-calculator/data/server-pricing.json"),
   readJson("tco-calculator/data/serving-models.json"),
   readJson("tco-calculator/data/power-seed.json"),
-  readJson("tco-calculator/data/subscriptions.json"),
+  readJson("tco-calculator/data/subscription-pricing.json"),
 ]);
 
 // Load local catalog snapshot referenced in manifest
-const catalogSourcePath = manifest.resources?.catalog?.path ?? "tco-calculator/data/catalog.json";
-const catalog = await readJson(catalogSourcePath);
+const catalogRel = manifest.resources?.catalog?.path
+  ? `tco-calculator/data/${manifest.resources.catalog.path}`
+  : "tco-calculator/data/catalog.json";
+const catalog = await readJson(catalogRel);
 const FIXED_FX = normalizeFxDocument({
   observed_at: "2026-09-01",
   usd_thb: "33.801",

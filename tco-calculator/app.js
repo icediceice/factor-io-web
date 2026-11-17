@@ -375,6 +375,62 @@ function applyReturnedProposal() {
       : '<p role="status">Settings applied once, but this comparison cannot be calculated. Resolve the errors below before requesting a blueprint specification.</p>';
   } catch (error) { $("return-status").textContent = error.message; }
 }
+function processSizerReturn() {
+  const href = String(globalThis.location?.href ?? "");
+  if (!href.includes("#sizer=") || !state.ready) return false;
+  const box = $("return-review");
+  try {
+    const parsedUrl = new URL(href);
+    if (parsedUrl.searchParams.get("advisor") || activeHandoffId) {
+      throw new Error("Conflicting advisor and sizer transfers in the same URL were rejected; your current calculator inputs were kept.");
+    }
+    if (manualRevision > 0) {
+      throw new Error("Calculator inputs were edited locally; the sizer transfer was not applied.");
+    }
+    const normalized = decodeSizerFragment(parsedUrl.hash);
+    if (!normalized) return false;
+    const before = captureControls();
+    const groupsBefore = readArchGroups();
+    const starterBefore = starterUI.snapshot();
+    const projected = projectSizerControls({
+      normalized,
+      beforeControls: before,
+      stateData: {
+        manifest: state.manifest,
+        catalog: state.catalog,
+        fx: state.fx,
+        gpuPricing: state.gpuPricing,
+        serverPricing: state.serverPricing,
+        servingData: state.servingData,
+        powerSeed: state.powerSeed,
+        subscriptions: state.subscriptions,
+      },
+    });
+    validateReturnedControls(projected.controls, projected.groups);
+    try {
+      writeReturnedControls(projected.controls, projected.groups);
+      starterUI.setMode("custom"); // onCustom performs the single recomputation
+    } catch (err) {
+      writeReturnedControls(before, groupsBefore);
+      starterUI.restore(starterBefore);
+      throw err;
+    }
+    globalThis.history?.replaceState?.(null, "", `${parsedUrl.pathname}${parsedUrl.search}#custom-page`);
+    if (box) {
+      box.hidden = false;
+      box.innerHTML = projected.repriced
+        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. Live API prices or exchange rates moved since the sizer snapshot (${escapeHtml(projected.capturedIdentity)} → ${escapeHtml(projected.currentIdentity)}); totals below use current prices.</p>`
+        : `<p role="status">Applied Guided Local AI Sizer scenario to custom comparison.</p>`;
+    }
+    return true;
+  } catch (error) {
+    if (box) {
+      box.hidden = false;
+      box.innerHTML = `<p role="alert">${escapeHtml(error.message)}</p>`;
+    }
+    return false;
+  }
+}
 
 function compactLedger(result) {
   if (!result) return null;

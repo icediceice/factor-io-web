@@ -773,7 +773,7 @@ async function init() {
     // the user edits — not a form they must fill before anything happens.
     state.ready = true;
     starterUI.refresh();
-    flushLiveInput();
+    if (!processSizerReturn()) flushLiveInput();
     processAdvisorReturn(true);
   } catch (e) {
     invalidateResults("Example unavailable — reload to retry.");

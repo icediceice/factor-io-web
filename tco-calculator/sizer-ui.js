@@ -86,7 +86,9 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
       return { ok: false, code: "storage_corrupted", error: current.error };
     }
     const existing = current.ok ? current.scenarios : [];
-    const filtered = existing.filter((item) => item.id !== id);
+    const filtered = existing
+      .filter((item) => item.id !== id)
+      .map(({ id: eid, name: ename, savedAt: esaved, fragment: efrag }) => ({ id: eid, name: ename, savedAt: esaved, fragment: efrag }));
     const nextRecord = { id, name, savedAt, fragment };
     if (filtered.length >= MAX_SAVED_SCENARIOS) {
       return {

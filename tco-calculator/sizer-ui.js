@@ -1026,8 +1026,8 @@ function renderApiControls() {
     vendorSelect.innerHTML = vHtml;
     vendorSelect.value = appState.viewFilters.apiVendor;
   }
-  setIfUnfocused($("filter-api-feed"), appState.viewFilters.apiFeed);
-  setIfUnfocused($("filter-api-search"), appState.viewFilters.apiSearch);
+  setControlValue($("filter-api-feed"), appState.viewFilters.apiFeed, false);
+  setControlValue($("filter-api-search"), appState.viewFilters.apiSearch, false);
 
   const offerSelect = $("in-api-offer");
   if (document.activeElement !== offerSelect) {

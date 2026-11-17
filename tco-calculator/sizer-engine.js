@@ -1010,6 +1010,14 @@ export function normalizeSizerInput(raw = {}) {
   }
   const customKvBytesBf16 = posInt(raw.customKvBytesBf16, "customKvBytesBf16", { min: 2, max: 100000000, allowNull: true });
   const customContextMax = posInt(raw.customContextMax, "customContextMax", { min: 128, max: 10000000, allowNull: true });
+  const legacyCustomAssumed = (
+    raw.legacyCustomAssumed === true
+    && modelId === "custom"
+    && customParamsB === null
+    && customActiveParamsB === null
+    && customKvBytesBf16 === null
+    && customContextMax === null
+  );
 
   const wquant = String(raw.wquant ?? "fp8").trim();
   const kvquant = String(raw.kvquant ?? "fp8").trim();
@@ -1078,6 +1086,7 @@ export function normalizeSizerInput(raw = {}) {
     customActiveParamsB,
     customKvBytesBf16,
     customContextMax,
+    legacyCustomAssumed,
     wquant,
     kvquant,
     runtime,
@@ -1146,7 +1155,7 @@ export function resolveSizerModel({ normalized, servingData }) {
   );
 
   if (normalized.modelId === "custom") {
-    if (!hasAnyCustomField) {
+    if (normalized.legacyCustomAssumed && !hasAnyCustomField) {
       return {
         ok: true,
         code: "ok",
@@ -2239,6 +2248,21 @@ const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm"]);
 
 export function encodeSizerFragment(normalized, { pricingIdentity = null, resolvedApiOfferId = null } = {}) {
   const n = normalized?.schema === SIZER_SCHEMA ? normalized : normalizeSizerInput(normalized);
+  if (
+    n.modelId === "custom"
+    && !n.legacyCustomAssumed
+    && (
+      n.customParamsB === null
+      || n.customActiveParamsB === null
+      || n.customKvBytesBf16 === null
+      || n.customContextMax === null
+    )
+  ) {
+    throw new SizerValidationError(
+      "incomplete_custom_model",
+      "Custom model requires total parameters (B), active parameters (B), BF16 KV bytes/token, and max context window before sharing or saving.",
+    );
+  }
   const compact = {
     v: 1,
     w: n.workloadId,
@@ -2429,10 +2453,8 @@ function validateSizerWirePayload(parsed) {
   if (cpStr !== null && caStr !== null && Dec.from(caStr).gt(Dec.from(cpStr))) {
     throw new SizerValidationError("bad_custom_params", "customActiveParamsB cannot exceed customParamsB");
   }
-  if (caStr !== null && cpStr === null) {
-    throw new SizerValidationError("bad_custom_params", "customActiveParamsB requires customParamsB");
-  }
-  if (parsed.m === "custom" && (cpStr !== null || caStr !== null || ckNum !== null || cmNum !== null)) {
+  const hasCustomWireKey = ("cp" in parsed) || ("ca" in parsed) || ("ck" in parsed) || ("cm" in parsed);
+  if (parsed.m === "custom" && hasCustomWireKey) {
     if (cpStr === null || caStr === null || ckNum === null || cmNum === null) {
       throw new SizerValidationError("incomplete_custom_model", "Custom model wire payload requires complete cp, ca, ck, and cm fields.");
     }
@@ -2519,6 +2541,7 @@ export function decodeSizerFragment(hashOrFragment) {
     customActiveParamsB: parsed.ca ?? null,
     customKvBytesBf16: parsed.ck ?? null,
     customContextMax: parsed.cm ?? null,
+    legacyCustomAssumed: parsed.m === "custom" && !("cp" in parsed) && !("ca" in parsed) && !("ck" in parsed) && !("cm" in parsed),
     wquant: parsed.wq,
     kvquant: parsed.kq,
     runtime: parsed.rt,

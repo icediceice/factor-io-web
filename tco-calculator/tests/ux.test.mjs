@@ -437,7 +437,7 @@ async function liveTcoPage(t) {
   await page.evaluate(`new Promise((resolve, reject) => {
     const until = performance.now() + 12000;
     const probe = () => {
-      if (document.querySelector('.rail')?.inert === false && document.querySelector('.spec[data-for="f-users"]')) return resolve(true);
+      if (document.querySelector('.rail')?.inert === false && document.querySelector('.spec[data-for="f-onetime-a"]')) return resolve(true);
       if (performance.now() > until) return reject(new Error('calculator did not initialize: ' + JSON.stringify({ errors: window.__testErrors, gap: document.getElementById('gapbox')?.textContent, rail: document.querySelector('.rail')?.inert, specs: document.querySelectorAll('.spec').length })));
       setTimeout(probe, 40);
     }; probe();
@@ -520,7 +520,7 @@ test("real field sheet moves the authoritative input, preserves edits and ignore
   const result = await page.evaluate(`(() => {
     document.getElementById('starter-custom').click();
     const original = document.getElementById('f-users');
-    const spec = document.querySelector('.spec[data-for="f-users"]');
+    const spec = document.querySelector('.spec[data-for="f-onetime-a"]');
     spec.click();
     const inSheet = document.querySelector('#sheet-root #f-users') === original;
     original.value = '4321';

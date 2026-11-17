@@ -1248,14 +1248,19 @@ async function runDomAuditIfRequested() {
   const smallText = [];
   const smallTargets = [];
   const spills = [];
+  const sizes = new Map();
+  const textBoxes = new Set();
 
   for (const el of document.querySelectorAll("body *")) {
-    if (!shown(el) || el.id === "auditReport") continue;
+    if (!shown(el) || el.id === "auditReport" || el.closest("#auditReport")) continue;
     const cs = getComputedStyle(el);
+    const isControl = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && !/^(checkbox|radio|hidden)$/.test(el.type);
     const direct = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (!isControl && !direct) continue;
+    const fs = px(cs.fontSize);
+    if (fs < 11) smallText.push({ sel: nameOf(el), fontPx: fs });
     if (direct) {
-      const fs = px(cs.fontSize);
-      if (fs < 11) smallText.push({ sel: nameOf(el), fontPx: fs });
+      sizes.set(fs, (sizes.get(fs) || 0) + 1);
       const fg = rgb(cs.color);
       if (fg && !el.disabled && el.getAttribute("aria-disabled") !== "true") {
         const cr = ratio(fg, bgOf(el));
@@ -1263,29 +1268,65 @@ async function runDomAuditIfRequested() {
         const need = fs >= 24 || (fs >= 18.66 && bold) ? 3.0 : 4.5;
         if (cr < need) contrastFails.push({ sel: nameOf(el), ratio: Math.round(cr * 100) / 100, need });
       }
+      let box = el;
+      while (box.parentElement && getComputedStyle(box.parentElement).display === "inline") box = box.parentElement;
+      textBoxes.add(box);
+    }
+  }
+
+  for (const box of textBoxes) {
+    const cs = getComputedStyle(box);
+    const dx = box.scrollWidth - box.clientWidth;
+    const dy = box.scrollHeight - box.clientHeight;
+    if (dx <= 1 && dy <= 4) continue;
+    const axis = dx > 1 ? "x" : "y";
+    const ov = axis === "x" ? cs.overflowX : cs.overflowY;
+    if (ov === "auto" || ov === "scroll") continue;
+    const handled = cs.textOverflow === "ellipsis" || (cs.webkitLineClamp && cs.webkitLineClamp !== "none");
+    if (ov === "visible" || !handled) {
+      spills.push({ sel: nameOf(box), axis, by: Math.round(axis === "x" ? dx : dy) });
     }
   }
 
   for (const el of document.querySelectorAll('a[href],button,input,select,[tabindex]:not([tabindex="-1"])')) {
-    if (!shown(el)) continue;
+    if (!shown(el) || el.type === "checkbox") continue;
     const r = el.getBoundingClientRect();
     if (r.width < 24 || r.height < 24) {
       smallTargets.push({ sel: nameOf(el), w: Math.round(r.width), h: Math.round(r.height) });
     }
   }
 
+  const ledgerRowOver48 = [];
+  const ledgerPadOver24 = [];
+  for (const tr of document.querySelectorAll(".ledger-table tbody tr")) {
+    if (!shown(tr)) continue;
+    const r = tr.getBoundingClientRect();
+    if (r.height > 48) ledgerRowOver48.push(Math.round(r.height));
+  }
+  for (const cell of document.querySelectorAll(".ledger-table th, .ledger-table td")) {
+    if (!shown(cell)) continue;
+    const cs = getComputedStyle(cell);
+    const maxPad = Math.max(px(cs.paddingTop), px(cs.paddingRight), px(cs.paddingBottom), px(cs.paddingLeft));
+    if (maxPad >= 24) ledgerPadOver24.push(maxPad);
+  }
+
   const docOverflowX = Math.max(0, Math.round(document.documentElement.scrollWidth - window.innerWidth));
   if (docOverflowX > 1) spills.push({ sel: "html", axis: "x", by: docOverflowX });
 
+  const scale = Array.from(sizes.keys()).sort((x, y) => y - x);
   const report = {
     viewport: { w: window.innerWidth, h: window.innerHeight },
     lang: appState.lang,
     step: appState.step + 1,
     docOverflowX,
+    typeScale: scale,
+    hierarchyRatio: scale.length > 1 ? Math.round((scale[0] / scale[1]) * 100) / 100 : 1,
     contrastFails,
     smallText,
     smallTargets,
     spills,
+    ledgerRowOver48,
+    ledgerPadOver24,
     computedOk: Boolean(appState.computed?.ok),
   };
 

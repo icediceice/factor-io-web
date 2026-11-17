@@ -1494,7 +1494,7 @@ export function projectSizerControls({
   values["f-onetime-c"] = "0";
   values["fo-impl"] = toThbField(normalized.commonImplFee);
 
-  values["f-sub"] = normalized.subscriptionId;
+  values["f-sub-row"] = normalized.subscriptionId;
   if ("f-sub-term" in values) values["f-sub-term"] = normalized.subscriptionTerm;
   if ("f-sub-price" in values) values["f-sub-price"] = "";
 

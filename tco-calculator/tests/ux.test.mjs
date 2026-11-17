@@ -1126,7 +1126,8 @@ test("real setupStarters + processSizerReturn wire #starter-back and #topbar-siz
     } finally {
       globalThis.document = prevDoc;
     }
-    h.context.starterUI = realStarter;
+    h.context.realStarter = realStarter;
+    h.get("starterUI = realStarter");
     return { h, realStarter, navigated, runWithDom: (fn) => {
       const prev = globalThis.document;
       globalThis.document = domDoc;

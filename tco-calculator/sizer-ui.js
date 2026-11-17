@@ -199,6 +199,22 @@ export async function refreshLiveSourcesTransaction({
 
     if (fxOutcome.status === "fulfilled" && fxOutcome.value) {
       nextFx = fxOutcome.value;
+      nextManifest = {
+        ...nextManifest,
+        sources: {
+          ...(nextManifest?.sources ?? {}),
+          fx: {
+            source_id: "fx",
+            status: "fresh",
+            observed_at: `${nextFx.observed_at}T00:00:00.000Z`,
+            last_success_at: new Date(nowFn()).toISOString(),
+            expires_at: nextFx.expires_at,
+            record_count: 1,
+            origin: "live",
+            integrity: nextFx.integrity,
+          },
+        },
+      };
       fxLive = true;
     } else if (fxOutcome.status === "rejected") {
       errors.fx = fxOutcome.reason?.message || String(fxOutcome.reason);

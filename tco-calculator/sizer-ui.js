@@ -232,7 +232,7 @@ function defaultDraft() {
     wquant: "fp8",
     kvquant: "fp8",
     runtime: "vllm",
-    gpuId: "rtx_pro_6000_se",
+    gpuId: w.recommendedGpuId ?? "rtx_pro_6000_ws",
     quoteBasis: "catalog",
     quoteCurrency: "THB",
     serverId: "",

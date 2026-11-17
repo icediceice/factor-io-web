@@ -370,6 +370,7 @@ function applyReturnedProposal() {
     pendingReview = null; plannerState.answers = prepared.answers; plannerState.plan = prepared.plan;
     plannerState.appliedAnswers = JSON.stringify(prepared.answers); plannerState.applied = true;
     starterUI.setMode("custom"); // onCustom performs the single recomputation
+    syncSizerReturnOriginState();
     $("return-review").innerHTML = state.result
       ? '<p role="status">Applied once and recomputed. Review the custom comparison below. Open the advisor again to discuss this result or request its blueprint specification.</p><a class="btn" href="#comparison">View recomputed comparison ↓</a>'
       : '<p role="status">Settings applied once, but this comparison cannot be calculated. Resolve the errors below before requesting a blueprint specification.</p>';

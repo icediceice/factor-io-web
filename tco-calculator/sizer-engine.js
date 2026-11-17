@@ -926,7 +926,7 @@ export function computeSizer({
   });
 
   // Re-verify cross-node TP against actual resolved server slots when catalog picked a smaller box
-  if (bom.ok && Number(fit.serving.tp) > bom.gpusPerNode) {
+  if (bom.ok && Number(fit.serving.gpus_per_replica) > bom.gpusPerNode) {
     return {
       ok: false,
       stage: "topology_tp",
@@ -939,7 +939,7 @@ export function computeSizer({
         status: "unsupported_cross_node_tp",
         qualifiedDeploymentPass: false,
         code: "unsupported_cross_node_tp",
-        reason: `Model requires TP=${fit.serving.tp}, which exceeds ${bom.gpusPerNode} GPU(s) per chosen server node.`,
+        reason: `Model requires TP=${fit.serving.gpus_per_replica}, which exceeds ${bom.gpusPerNode} GPU(s) per chosen server node.`,
       },
       bom,
       comparison: null,

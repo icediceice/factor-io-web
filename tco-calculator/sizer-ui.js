@@ -1,214 +1,473 @@
-// Browser controller for local-ai-sizer.html (5-step Wizard + nested Step 5 Ledger).
-// Reads only same-origin dated snapshots under ./tco-calculator/data/*.json,
-// stores zero sessionStorage/localStorage, and hands off via #sizer=v1.<base64url>.
+// Transactional browser controller for local-ai-sizer.html (Single-Page Model-First Workbench + Sticky TCO Rail).
+// Separates editable draft, pricing/model source data, derived sizing/TCO results, and API view filters.
 
-import { formatHalfUp, toRat, ratStr } from "./exact.js";
+import { formatHalfUp, toRat } from "./exact.js";
 import { loadManifest, loadFx, resolveResource } from "./data.js";
 import { normalizeFxDocument, toTHB } from "./currency.js";
 import { serversForGpu } from "./capex.js?v=20260906-ux3";
 import {
+  fetchOpenRouterModels,
+  compileLiveOpenRouter,
+  replaceCatalogSource,
+  fetchLiveFx,
+} from "./live-pricing.js";
+import {
   DEAL_TIERS,
   PIPELINE_CONNECTORS,
+  PROMPT_SCALE_PRESETS,
   LOCAL_AI_WORKLOADS,
-  THAI_MODEL_PROFILES,
+  MAX_SAVE_BYTES,
+  MAX_SAVED_SCENARIOS,
   normalizeSizerInput,
   computeSizer,
+  evaluateGpuCandidates,
+  groupCatalogModels,
+  filterApiOffers,
+  classifyApiOffer,
   encodeSizerFragment,
   decodeSizerFragment,
   decodePresetFragment,
+  encodeSizerSaveEnvelope,
+  decodeSizerSaveEnvelope,
   SizerValidationError,
 } from "./sizer-engine.js";
 
+export const SIZER_STORAGE_KEY = "factor-io.sizer-saves.v1";
+
+export function createSizerStorageAdapter(storageGetter = () => globalThis.localStorage) {
+  function getStore() {
+    try {
+      const store = storageGetter();
+      if (!store || typeof store.getItem !== "function" || typeof store.setItem !== "function") {
+        return { ok: false, error: "Browser localStorage is unavailable in this environment." };
+      }
+      return { ok: true, store };
+    } catch (err) {
+      return { ok: false, error: err?.message || "Browser blocked localStorage access." };
+    }
+  }
+
+  function readSavedScenarios() {
+    const access = getStore();
+    if (!access.ok) {
+      return { ok: false, available: false, scenarios: [], error: access.error };
+    }
+    let raw;
+    try {
+      raw = access.store.getItem(SIZER_STORAGE_KEY);
+    } catch (err) {
+      return { ok: false, available: false, scenarios: [], error: err?.message || "Unable to read localStorage." };
+    }
+    if (!raw) {
+      return { ok: true, available: true, scenarios: [], error: null };
+    }
+    try {
+      const decoded = decodeSizerSaveEnvelope(raw, { allowEmpty: true });
+      return { ok: true, available: true, scenarios: decoded.scenarios, error: null };
+    } catch (err) {
+      return {
+        ok: false,
+        available: true,
+        corrupted: true,
+        scenarios: [],
+        error: `Existing browser save data could not be validated: ${err.message}`,
+      };
+    }
+  }
+
+  function saveScenario({ id, name, savedAt, fragment }) {
+    const access = getStore();
+    if (!access.ok) {
+      return { ok: false, code: "storage_unavailable", error: access.error };
+    }
+    // Refresh from storage before writing (last-writer-wins across tabs; never overwrite corrupted unparsed data silently).
+    const current = readSavedScenarios();
+    if (!current.ok && current.corrupted) {
+      return { ok: false, code: "storage_corrupted", error: current.error };
+    }
+    const existing = current.ok ? current.scenarios : [];
+    const filtered = existing
+      .filter((item) => item.id !== id)
+      .map(({ id: eid, name: ename, savedAt: esaved, fragment: efrag }) => ({ id: eid, name: ename, savedAt: esaved, fragment: efrag }));
+    const nextRecord = { id, name, savedAt, fragment };
+    if (filtered.length >= MAX_SAVED_SCENARIOS) {
+      return {
+        ok: false,
+        code: "max_scenarios_reached",
+        error: `Browser save limit (${MAX_SAVED_SCENARIOS} scenarios) reached. Delete an older saved scenario or download a .json file.`,
+      };
+    }
+    const candidateList = [nextRecord, ...filtered];
+    let encoded;
+    try {
+      encoded = encodeSizerSaveEnvelope(candidateList, { exportedAt: savedAt, allowEmpty: false });
+    } catch (err) {
+      return { ok: false, code: err.code || "validation_failed", error: err.message };
+    }
+    try {
+      access.store.setItem(SIZER_STORAGE_KEY, encoded);
+    } catch (err) {
+      return {
+        ok: false,
+        code: "storage_write_failed",
+        error: err?.message || "Browser rejected localStorage write (quota exceeded or private mode). Download .json instead.",
+      };
+    }
+    const verified = decodeSizerSaveEnvelope(encoded, { allowEmpty: false });
+    return { ok: true, scenarios: verified.scenarios };
+  }
+
+  function deleteScenario(id) {
+    const access = getStore();
+    if (!access.ok) {
+      return { ok: false, code: "storage_unavailable", error: access.error };
+    }
+    const current = readSavedScenarios();
+    if (!current.ok) {
+      return { ok: false, code: "storage_read_failed", error: current.error };
+    }
+    const nextList = current.scenarios
+      .filter((item) => item.id !== id)
+      .map(({ id: eid, name: ename, savedAt: esaved, fragment: efrag }) => ({ id: eid, name: ename, savedAt: esaved, fragment: efrag }));
+    try {
+      if (nextList.length === 0 && typeof access.store.removeItem === "function") {
+        access.store.removeItem(SIZER_STORAGE_KEY);
+        return { ok: true, scenarios: [] };
+      }
+      const nowIso = new Date().toISOString();
+      const encoded = encodeSizerSaveEnvelope(nextList, { exportedAt: nowIso, allowEmpty: true });
+      access.store.setItem(SIZER_STORAGE_KEY, encoded);
+      const verified = decodeSizerSaveEnvelope(encoded, { allowEmpty: true });
+      return { ok: true, scenarios: verified.scenarios };
+    } catch (err) {
+      return { ok: false, code: "storage_write_failed", error: err?.message || "Failed to update browser storage." };
+    }
+  }
+
+  return {
+    readSavedScenarios,
+    saveScenario,
+    deleteScenario,
+  };
+}
+
+export async function refreshLiveSourcesTransaction({
+  manifest,
+  catalog,
+  fx,
+  fetchImpl = globalThis.fetch,
+  timeoutMs = 4000,
+  nowFn = Date.now,
+} = {}) {
+  let nextManifest = manifest;
+  let nextCatalog = catalog;
+  let nextFx = fx;
+  let openrouterLive = false;
+  let fxLive = false;
+  const errors = {};
+
+  if (typeof fetchImpl !== "function") {
+    return { manifest: nextManifest, catalog: nextCatalog, fx: nextFx, openrouterLive, fxLive, errors: { fetch: "unavailable" } };
+  }
+
+  const parentAbort = new AbortController();
+  const deadlineTimer = setTimeout(() => {
+    parentAbort.abort(new DOMException("Live pricing deadline exceeded", "AbortError"));
+  }, timeoutMs);
+
+  try {
+    const [orOutcome, fxOutcome] = await Promise.allSettled([
+      (async () => {
+        const fetched = await fetchOpenRouterModels({
+          fetchImpl,
+          signal: parentAbort.signal,
+          timeoutMs,
+        });
+        const compiled = compileLiveOpenRouter(fetched, { fetchedAt: nowFn() });
+        return replaceCatalogSource(nextManifest, nextCatalog, compiled, "openrouter");
+      })(),
+      (async () => fetchLiveFx({
+        fetchImpl,
+        signal: parentAbort.signal,
+        timeoutMs,
+      }))(),
+    ]);
+
+    if (orOutcome.status === "fulfilled" && orOutcome.value) {
+      nextManifest = orOutcome.value.manifest;
+      nextCatalog = orOutcome.value.catalog;
+      openrouterLive = true;
+    } else if (orOutcome.status === "rejected") {
+      errors.openrouter = orOutcome.reason?.message || String(orOutcome.reason);
+    }
+
+    if (fxOutcome.status === "fulfilled" && fxOutcome.value) {
+      nextFx = fxOutcome.value;
+      nextManifest = {
+        ...nextManifest,
+        sources: {
+          ...(nextManifest?.sources ?? {}),
+          fx: {
+            source_id: "fx",
+            status: "fresh",
+            observed_at: `${nextFx.observed_at}T00:00:00.000Z`,
+            last_success_at: new Date(nowFn()).toISOString(),
+            expires_at: nextFx.expires_at,
+            record_count: 1,
+            origin: "live",
+            integrity: nextFx.integrity,
+          },
+        },
+      };
+      fxLive = true;
+    } else if (fxOutcome.status === "rejected") {
+      errors.fx = fxOutcome.reason?.message || String(fxOutcome.reason);
+    }
+  } finally {
+    clearTimeout(deadlineTimer);
+  }
+
+  return {
+    manifest: nextManifest,
+    catalog: nextCatalog,
+    fx: nextFx,
+    openrouterLive,
+    fxLive,
+    errors,
+  };
+}
+
 const I18N = {
   th: {
-    backTco: "กลับหน้า\u00A0TCO\u00A0Calculator",
-    taskbarTitle: "เครื่องมือประเมินขนาด\u00A0Local\u00A0AI\u00A0และชุดโซลูชัน\u2060ระดับองค์กร",
-    summaryHeading: "สรุปผลการคำนวณ\u2060แบบเรียลไทม์",
-    paybackLabel: "จุดคุ้มทุนเทียบ\u00A0Cloud\u00A0Model\u00A0API",
-    paybackHorizonSub: "คำนวณตลอดอายุโครงการ\u00A060\u00A0เดือน\u00A0(รวมค่าฮาร์ดแวร์และค่าติดตั้ง)",
+    backTco: "หน้าคำนวณ\u00A0TCO\u00A0หลัก",
+    taskbarTitle: "Local\u00A0AI\u00A0Model\u00A0&\u00A0GPU\u00A0Sizer",
+    nav1: "1.\u00A0งานและขนาด\u00A0Prompt",
+    nav2: "2.\u00A0เลือกโมเดล\u00A0&\u00A0คำนวณ\u00A0GPU",
+    nav3: "3.\u00A0กรองราคา\u00A0Cloud\u00A0API",
+    nav4: "4.\u00A0ใบเสนอราคา\u00A0&\u00A0บันทึกไฟล์",
+    stageHeading: "ประเมินขนาดโมเดล\u00A0และคำนวณจำนวน\u00A0GPU\u00A0อัตโนมัติสำหรับองค์กรไทย",
+    stageSub: "เลือกรูปแบบงานจริงของบริษัทไทย\u00A0เลือกโมเดลที่ต้องการใช้\u00A0และเลือกรุ่น\u00A0GPU\u00A0ระบบจะคำนวณจำนวนการ์ด\u00A0เซิร์ฟเวอร์\u00A0และจุดคุ้มทุนเทียบ\u00A0Cloud\u00A0API\u00A0ในหน้าเดียวทันที",
+    hWorkload: "1.\u00A0เลือกรูปแบบงานองค์กรไทยและขนาด\u00A0Prompt\u00A0ตามการใช้งานจริง",
+    dWorkload: "ค่าเริ่มต้นสะท้อนงานจริงที่มีทั้ง\u00A0System\u00A0Prompt\u00A0คำสั่ง\u00A0Tool/SQL\u00A0และเนื้อหาเอกสารภาษาไทย\u00A0(10,500\u00A0ถึง\u00A036,000+\u00A0โทเคนต่อครั้ง)",
+    promptPresets: "ปรับขนาด\u00A0Prompt\u00A0ด่วน\u00A0(System\u00A0Prompt\u00A0+\u00A0เอกสาร\u00A0RAG/Tool):",
+    users: "จำนวนผู้ใช้งานจริง\u00A0(คน)",
+    rawPrompt: "Prompt\u00A0ต่อคำสั่ง\u00A0(โทเคนตั้งต้น)",
+    rawOut: "คำตอบต่อคำสั่ง\u00A0(Output\u00A0โทเคน)",
+    rawCtx: "ความยาว\u00A0Context\u00A0เป้าหมาย\u00A0(ตั้งต้น)",
+    sumTraffic: "ตั้งค่าความถี่การใช้งานและสัดส่วนโทเคนภาษาไทย\u00A0(Sessions,\u00A0Concurrency,\u00A0Thai\u00A01.4x)",
+    sessionsDay: "จำนวนเซสชันต่อคน\u00A0/\u00A0วัน",
+    daysMo: "วันทำงานต่อเดือน",
+    peakPct: "ผู้ใช้พร้อมกันสูงสุด\u00A0(%)",
+    tokenBasis: "เกณฑ์นับจำนวนโทเคนภาษาไทย",
+    basisLatin: "อ้างอิงอังกฤษ\u00A0x\u00A0ตัวคูณภาษาไทย\u00A01.4x",
+    basisThai: "วัดจาก\u00A0Tokenizer\u00A0ภาษาไทยแล้ว\u00A0(1.0x)",
+    hModelGpu: "2.\u00A0เลือกโมเดล\u00A0AI\u00A0และรุ่นการ์ด\u00A0GPU\u00A0เพื่อคำนวณจำนวนเครื่องอัตโนมัติ",
+    dModelGpu: "โมเดลที่คุณเลือกคือตัวกำหนดหลัก\u00A0ระบบจะคำนวณ\u00A0VRAM,\u00A0Tensor\u00A0Parallel\u00A0และจำนวนการ์ด/เซิร์ฟเวอร์ที่ต้องใช้ให้อัตโนมัติ",
+    modelSelect: "โมเดล\u00A0Open-Weight\u00A0ที่ต้องการรันในองค์กร",
+    gpuSelect: "รุ่นการ์ด\u00A0GPU\u00A0ที่ต้องการใช้",
+    wquant: "ความละเอียดน้ำหนักโมเดล\u00A0(Weights)",
+    kvquant: "ความละเอียด\u00A0KV\u00A0Cache",
+    runtime: "ซอฟต์แวร์รันโมเดล\u00A0(Serving\u00A0Engine)",
+    sumCustomModel: "กำหนดขนาดโมเดลเอง\u00A0/\u00A0ทดสอบความไวพารามิเตอร์\u00A0(Custom\u00A0B,\u00A0Active\u00A0B,\u00A0KV\u00A0bytes/tok)",
+    hintCustomContract: "กรณีเลือก\u00A0Custom\u00A0Model\u00A0ต้องระบุพารามิเตอร์รวม,\u00A0Active\u00A0B,\u00A0อัตรา\u00A0BF16\u00A0KV\u00A0bytes/token\u00A0และ\u00A0Max\u00A0Context\u00A0ให้ครบก่อนคำนวณจำนวน\u00A0GPU",
+    customParams: "พารามิเตอร์รวม\u00A0(พันล้าน\u00A0B)",
+    customActive: "พารามิเตอร์ทำงานจริง\u00A0Active\u00A0(B)",
+    customKv: "อัตรา\u00A0BF16\u00A0KV\u00A0Cache\u00A0(bytes\u00A0/\u00A0token)",
+    customCtx: "Context\u00A0สูงสุดของโมเดล\u00A0(โทเคน)",
+    clearCustomModel: "กลับไปใช้ค่ามาตรฐานของโมเดลในแคตตาล็อก",
+    hGpuMatrix: "ตารางเปรียบเทียบจำนวน\u00A0GPU\u00A0และเซิร์ฟเวอร์อัตโนมัติในแต่ละรุ่น",
+    hintGpuMatrix: "คลิกปุ่มเลือกในตารางเพื่อสลับรุ่น\u00A0GPU\u00A0ได้ทันที",
+    hApi: "3.\u00A0เลือกและกรองราคา\u00A0Cloud\u00A0Model\u00A0API\u00A0ที่นำมาเปรียบเทียบ",
+    dApi: "ดึงราคาสดจาก\u00A0OpenRouter\u00A0ควบคู่ข้อมูลอ้างอิง\u00A0LiteLLM\u00A0กรองตามผู้พัฒนาโมเดล\u00A0แหล่งข้อมูล\u00A0หรือพิมพ์ค้นหาชื่อโมเดลได้ทันที",
+    filterFeed: "แหล่งข้อมูลราคา\u00A0API\u00A0(Feed)",
+    filterVendor: "ค่ายผู้พัฒนาโมเดล\u00A0(Model\u00A0Vendor)",
+    filterSearch: "ค้นหาชื่อโมเดล\u00A0หรือรหัส\u00A0Slug",
+    apiOffer: "ตัวเลือกราคา\u00A0Cloud\u00A0API\u00A0ที่ใช้เปรียบเทียบ",
+    apiRates: "อัตราค่าโทเคนที่เลือก\u00A0(USD\u00A0ต่อ\u00A01\u00A0ล้านโทเคน)",
+    apiAutoBtn: "ใช้โมเดลพาณิชย์แนะนำอัตโนมัติ",
+    apiClearFilterBtn: "ล้างตัวกรอง\u00A0API",
+    hBomSave: "4.\u00A0ปรับใบเสนอราคาฮาร์ดแวร์\u00A0เชื่อมระบบข้อมูล\u00A0และบันทึก/นำเข้าไฟล์",
+    sumBom: "ปรับราคาเซิร์ฟเวอร์\u00A0ค่าติดตั้ง\u00A0ค่าไฟ\u00A0และเลือกการเชื่อมต่อข้อมูลภายใน\u00A0(Optional\u00A0BOM\u00A0&\u00A0Pipelines)",
+    quoteBasis: "รูปแบบการระบุราคาฮาร์ดแวร์",
+    qbCatalog: "อ้างอิงราคาเซิร์ฟเวอร์ในแคตตาล็อก",
+    qbIntegrated: "ระบุราคาต่อเครื่องเซิร์ฟเวอร์\u00A0(รวมการ์ด\u00A0GPU)",
+    qbSplit: "แยกราคาเครื่องเปล่า\u00A0+\u00A0ราคาต่อการ์ด\u00A0GPU",
+    qbFleet: "ระบุราคารวมทั้งโครงการก้อนเดียว",
+    quoteCurrency: "สกุลเงินของใบเสนอราคาที่กรอก",
+    serverConfig: "รุ่นเซิร์ฟเวอร์มาตรฐาน",
+    nodes: "กำหนดจำนวนโหนดเอง\u00A0(เว้นว่าง=อัตโนมัติ)",
+    gpusPerNode: "จำนวน\u00A0GPU\u00A0ต่อโหนด\u00A0(โหมดกำหนดราคาเอง)",
+    integratedPrice: "ราคาต่อโหนดเซิร์ฟเวอร์\u00A0(รวม\u00A0GPU)",
+    chassisPrice: "ราคาเครื่องเปล่าต่อโหนด",
+    gpuCardPrice: "ราคาต่อการ์ด\u00A0GPU\u00A01\u00A0ใบ",
+    fleetPrice: "ราคารวมฮาร์ดแวร์ทั้งหมด",
+    localImpl: "ค่าติดตั้งระบบ\u00A0Local\u00A0AI\u00A0ครั้งเดียว",
+    annualOps: "ค่าดูแลรักษาระบบรายปี\u00A0(ถ้ามี)",
+    elecRate: "ค่าไฟฟ้าดาต้าเซ็นเตอร์\u00A0(บาท\u00A0/\u00A0kWh)",
+    deploymentMode: "รูปแบบการส่งมอบระบบ",
+    dmGf: "Greenfield\u00A0(ติดตั้งครบวงจร\u00A0L1-L4)",
+    dmBf: "Brownfield\u00A0(ติดตั้ง\u00A0L3-L4\u00A0บนคลัสเตอร์เดิม)",
+    tierOverride: "ขนาดขอบเขตงานเชื่อมต่อระบบ",
+    tierAuto: "แนะนำอัตโนมัติตามจำนวนผู้ใช้",
+    hConnectors: "เชื่อมต่อระบบฐานข้อมูลและช่องทางภายในองค์กร",
+    hSaveImport: "บันทึกข้อมูลไว้ใช้งานภายหลัง\u00A0หรือนำเข้าไฟล์ที่บันทึกไว้\u00A0(.json)",
+    dSaveImport: "บันทึกไว้ในเบราว์เซอร์เครื่องนี้\u00A0(สูงสุด\u00A025\u00A0รายการ)\u00A0ดาวน์โหลดไฟล์\u00A0.json\u00A0เก็บไว้เปิดนำเสนอภายหลัง\u00A0หรือนำเข้าไฟล์\u00A0.json\u00A0ได้ทันที",
+    saveName: "ตั้งชื่อชุดข้อมูล\u00A0(Scenario\u00A0Name)",
+    saveActions: "การบันทึกและนำเข้าข้อมูล",
+    saveBrowserBtn: "บันทึกไว้ในเบราว์เซอร์",
+    exportJsonBtn: "ดาวน์โหลดไฟล์\u00A0.json",
+    importJsonBtn: "นำเข้าไฟล์\u00A0.json",
+    hLedger60m: "ตารางเปรียบเทียบต้นทุนรวม\u00A060\u00A0เดือน\u00A0(Local\u00A0AI\u00A0vs\u00A0Cloud\u00A0API\u00A0vs\u00A0เช่า\u00A0GPU)",
+    copyLinkBtn: "คัดลอกลิงก์แชร์ชุดตัวเลขนี้",
+    copiedLinkBtn: "คัดลอกลิงก์เรียบร้อยแล้ว",
+    printBtn: "พิมพ์ใบสรุป\u00A01\u00A0หน้า",
+    resetBtn: "ล้างค่ากลับเป็นค่าเริ่มต้น",
+    resetAsk: "ต้องการล้างค่าที่ปรับไว้ทั้งหมดกลับเป็นค่าเริ่มต้นหรือไม่?",
+    resetConfirmBtn: "ยืนยันล้างค่า",
+    resetCancelBtn: "ยกเลิก",
+    summaryHeading: "สรุปจำนวน\u00A0GPU\u00A0และจุดคุ้มทุน",
+    paybackLabel: "ระยะเวลาคืนทุนเทียบ\u00A0Cloud\u00A0Model\u00A0API",
+    paybackSub: "คำนวณตลอดอายุโครงการ\u00A060\u00A0เดือน\u00A0(รวมค่าเครื่องและค่าติดตั้ง)",
     openTcoRail: "เปิดกราฟ\u00A0TCO\u00A0เต็มรูปแบบ\u00A0→",
-    openTcoMain: "ส่งต่อไปยัง\u00A0TCO\u00A0Calculator\u00A0เต็มรูปแบบ\u00A0→",
-    printSheet: "พิมพ์ใบสรุปดีล\u00A0(1\u00A0หน้า)",
-    copyLink: "คัดลอกลิงก์ชุดตัวเลขนี้",
-    copiedLink: "คัดลอกลิงก์เรียบร้อยแล้ว",
-    exportJson: "ดาวน์โหลดไฟล์\u00A0JSON",
-    resetBtn: "ล้างค่าเริ่มต้นใหม่",
-    resetPrompt: "ต้องการล้างตัวเลขที่กรอกทั้งหมดกลับเป็นค่าตั้งต้นหรือไม่?",
-    resetConfirm: "ยืนยันการล้างค่า",
-    resetCancel: "ยกเลิก",
-    prevStep: "←\u00A0ย้อนกลับ",
-    steps: [
-      { short: "รูปแบบงานและผู้ใช้", next: "ถัดไป:\u00A0ระบบข้อมูล\u00A0→", title: "1.\u00A0เลือกรูปแบบงานที่เหมาะกับ\u00A0Local\u00A0AI\u00A0และจำนวนผู้ใช้งาน", sub: "เริ่มจากกลุ่มงานจริงที่ข้อมูลต้องอยู่ในองค์กรหรือมีปริมาณโทเคนต่อเนื่อง แล้วปรับจำนวนผู้ใช้ตามหน้างานลูกค้า" },
-      { short: "ระบบข้อมูล\u00A0API/DB", next: "ถัดไป:\u00A0เลือกโมเดลไทย\u00A0→", title: "2.\u00A0เลือกโครงสร้างพื้นฐานและการเชื่อมต่อ\u00A0Data\u00A0Pipeline\u00A0เดิมของลูกค้า", sub: "ระบุว่าเป็นคลัสเตอร์ใหม่\u00A0(Greenfield)\u00A0หรือต่อยอดคลัสเตอร์เดิม\u00A0(Brownfield)\u00A0พร้อมเลือกฐานข้อมูลและ\u00A0API\u00A0ที่ต้องเชื่อมครบวงจร" },
-      { short: "โมเดลไทยและ\u00A0VRAM", next: "ถัดไป:\u00A0ราคาเซิร์ฟเวอร์\u00A0→", title: "3.\u00A0เลือกโมเดลภาษาไทยและตรวจสอบความจุ\u00A0VRAM\u00A0ตามสัดส่วนโทเคนไทย", sub: "ภาษาไทยใช้จำนวนโทเคนต่อประโยคสูงกว่าภาษาอังกฤษ\u00A0ระบบจึงคำนวณ\u00A0KV\u00A0Cache\u00A0และ\u00A0VRAM\u00A0ให้เห็นชัดเจนก่อนเลือกการ์ด" },
-      { short: "จำนวน\u00A0GPU\u00A0และราคา", next: "ถัดไป:\u00A0ตารางสรุปดีล\u00A0→", title: "4.\u00A0ระบุรุ่นการ์ด\u00A0จำนวนเซิร์ฟเวอร์\u00A0และกรอกราคาฮาร์ดแวร์ได้เองทันที", sub: "ฝ่ายขายและ\u00A0Presales\u00A0สามารถเลือกใช้ราคากลางอ้างอิง\u00A0หรือกรอกราคาเครื่องพร้อม\u00A0GPU\u00A0ตามใบเสนอราคาจริงได้ทั้ง\u00A0THB\u00A0และ\u00A0USD" },
-      { short: "ตารางสรุปดีลและ\u00A0TCO", next: "", title: "5.\u00A0ตารางเปรียบเทียบต้นทุนรวม\u00A060\u00A0เดือน\u00A0และส่งต่อเข้า\u00A0TCO\u00A0Calculator", sub: "ตรวจสอบยอดลงทุนเริ่มต้น\u00A0ค่าไฟรายเดือน\u00A0จุดตัดคุ้มทุนเทียบ\u00A0Cloud\u00A0API\u00A0และกดเปิดหน้าวิเคราะห์\u00A0TCO\u00A0เชิงลึกได้ในคลิกเดียว" },
-    ],
-    labels: {
-      users: "จำนวนผู้ใช้งานจริง\u00A0(คน)",
-      sessionsDay: "จำนวนครั้งใช้งานต่อคนต่อวัน",
-      daysMo: "จำนวนวันทำงานต่อเดือน",
-      peakPct: "สัดส่วนใช้งานพร้อมกันช่วงพีค\u00A0(%)",
-      gfTitle: "Greenfield\u00A0(ติดตั้งใหม่ครบชุด\u00A0L1\u2013L4)",
-      gfDesc: "รวมตั้งค่า\u00A0Kubernetes, GPU\u00A0Operator, ระบบมอนิเตอร์\u00A0vLLM, Thai\u00A0OCR/RAG\u00A0และเชื่อม\u00A0Data\u00A0Pipeline",
-      bfTitle: "Brownfield\u00A0(ต่อยอดคลัสเตอร์เดิม\u00A0L3\u2013L4)",
-      bfDesc: "ลูกค้ามี\u00A0OpenShift / NKP / K8s\u00A0พร้อม\u00A0GPU\u00A0แล้ว\u00A0ติดตั้งเฉพาะชั้นโมเดล\u00A0RAG/OCR\u00A0และเชื่อม\u00A0API/DB",
-      connectorsHeading: "เลือกระบบข้อมูลเดิมของลูกค้าที่ต้องเชื่อมเข้ากับโซลูชัน\u00A0(ไม่ใช่แค่หน้าแชตครอบโมเดล)",
-      tierSelect: "ขนาดชุดโครงการ\u00A0(ระบบแนะนำอัตโนมัติหรือเลือกเอง)",
-      tierAuto: "แนะนำอัตโนมัติตามจำนวนผู้ใช้และ\u00A0Pipeline",
-      modelSelect: "โมเดล\u00A0Local\u00A0LLM\u00A0ที่ต้องการรันในองค์กร",
-      wquant: "ความละเอียดน้ำหนักโมเดล\u00A0(Weight\u00A0Quantization)",
-      kvquant: "ความละเอียด\u00A0KV\u00A0Cache",
-      tokenBasis: "ฐานการนับจำนวนโทเคนของเอกสาร",
-      basisLatin: "อ้างอิงเอกสารอังกฤษ\u00A0คูณตัวคูณภาษาไทย\u00A0(แนะนำ)",
-      basisThai: "นับด้วย\u00A0Tokenizer\u00A0ภาษาไทยมาแล้ว\u00A0(คูณ\u00A01.0)",
-      thaiMult: "ตัวคูณสัดส่วนโทเคนภาษาไทย\u00A0(สมมติฐานวางแผน)",
-      rawPrompt: "โทเคนขาเข้าเฉลี่ยต่อคำถาม\u00A0(ก่อนคูณ)",
-      rawOut: "โทเคนขาออกเฉลี่ยต่อคำตอบ",
-      rawCtx: "ความยาว\u00A0Context\u00A0สูงสุดต่อรอบสนทนา\u00A0(ก่อนคูณ)",
-      gpuSelect: "รุ่นการ์ด\u00A0GPU\u00A0สำหรับติดตั้งในองค์กร",
-      quoteBasis: "รูปแบบการกรอกราคาเซิร์ฟเวอร์และ\u00A0GPU",
-      qbCatalog: "ใช้ราคากลางอ้างอิงจากฐานข้อมูล\u00A0(Catalog)",
-      qbIntegrated: "กรอกราคาต่อเครื่อง\u00A0(รวมการ์ด\u00A0GPU\u00A0ในเครื่องแล้ว)",
-      qbSplit: "แยกกรอกราคาโครงเครื่องเปล่า\u00A0+\u00A0ราคาต่อการ์ด\u00A0GPU",
-      qbFleet: "กรอกราคารวมฮาร์ดแวร์ทั้งโครงการก้อนเดียว",
-      quoteCurrency: "สกุลเงินของใบเสนอราคาที่กรอก",
-      serverConfig: "รุ่นโครงเซิร์ฟเวอร์อ้างอิง",
-      nodes: "จำนวนเครื่องเซิร์ฟเวอร์\u00A0(Nodes)",
-      gpusPerNode: "จำนวนการ์ด\u00A0GPU\u00A0ต่อ\u00A01\u00A0เครื่อง",
-      integratedPrice: "ราคาต่อเครื่องเซิร์ฟเวอร์รวม\u00A0GPU",
-      chassisPrice: "ราคาโครงเซิร์ฟเวอร์เปล่าต่อเครื่อง\u00A0(ไม่รวม\u00A0GPU)",
-      gpuCardPrice: "ราคาการ์ด\u00A0GPU\u00A0ต่อ\u00A01\u00A0ใบ",
-      fleetPrice: "ราคารวมฮาร์ดแวร์ทั้งหมดของดีลนี้",
-      localImplFee: "ค่าบริการติดตั้งระบบและเชื่อม\u00A0Data\u00A0Pipeline\u00A0(ครั้งเดียว)",
-      annualOpsFee: "ค่าดูแลรักษาระบบรายปี\u00A0Managed\u00A0Ops\u00A0(ถ้ามี)",
-      apiOffer: "บริการ\u00A0Cloud\u00A0Model\u00A0API\u00A0ที่ใช้เปรียบเทียบความคุ้มทุน",
-      elecRate: "ค่าไฟฟ้าต่อหน่วย\u00A0(บาท/kWh)",
-    },
+    loadBtn: "โหลดข้อมูล",
+    deleteBtn: "ลบ",
+    selectBtn: "เลือกใช้",
+    selectedBtn: "กำลังเลือก",
+    allVendors: "ทุกค่ายโมเดล\u00A0(All\u00A0Vendors)",
+    autoServerOpt: "เลือกเซิร์ฟเวอร์ที่คุ้มค่าที่สุดอัตโนมัติ",
     kv: {
-      dealTier: "ขนาดชุดโซลูชัน",
-      mode: "รูปแบบการติดตั้ง",
-      monthlyTokens: "ปริมาณโทเคนต่อเดือน",
-      peakTokS: "ความเร็วช่วงพีคที่ต้องรองรับ",
-      effCtx: "Context\u00A0หลังคิดสัดส่วนภาษาไทย",
-      fitStatus: "ผลการตรวจความจุ\u00A0VRAM",
-      fleet: "จำนวน\u00A0GPU\u00A0ใช้งานจริง\u00A0/\u00A0ขั้นต่ำ",
-      hwCapex: "งบฮาร์ดแวร์\u00A0(Capex)",
-      implOnce: "งบติดตั้งและเชื่อม\u00A0Pipeline",
-      localMo: "ค่าไฟและดูแลรายเดือน\u00A0(Local)",
-      apiMo: "ค่า\u00A0Cloud\u00A0API\u00A0รายเดือนเทียบเท่า",
-      horizonLocal: "ต้นทุนรวม\u00A060\u00A0เดือน\u00A0(Local\u00A0AI)",
-      horizonApi: "ต้นทุนรวม\u00A060\u00A0เดือน\u00A0(Cloud\u00A0API)",
+      model: "โมเดลที่เลือก",
+      fleet: "จำนวน\u00A0GPU\u00A0/\u00A0โหนดที่ต้องใช้",
+      tp: "การแบ่งโมเดล\u00A0(TP)\u00A0/\u00A0ความเร็วต่อใบ",
+      effPrompt: "Prompt\u00A0ปรับค่าภาษาไทย\u00A0/\u00A0Context",
+      monthlyTok: "ปริมาณโทเคนรวมต่อเดือน",
+      peakTok: "ความเร็วถอดรหัสสูงสุด\u00A0(Peak)",
+      hwCapex: "งบฮาร์ดแวร์\u00A0(BOM\u00A0Capex)",
+      implOnce: "ค่าติดตั้ง\u00A0Local\u00A0AI\u00A0ครั้งเดียว",
+      localMo: "ค่าไฟ\u00A0+\u00A0ดูแลรายเดือน\u00A0(Local)",
+      apiMo: "ค่า\u00A0Cloud\u00A0API\u00A0รายเดือน",
+      total60Local: "รวม\u00A060\u00A0เดือน\u00A0(Local\u00A0AI)",
+      total60Api: "รวม\u00A060\u00A0เดือน\u00A0(Cloud\u00A0API)",
+      dealTier: "ระดับโครงการที่แนะนำ",
     },
   },
   en: {
-    backTco: "Back to TCO Calculator",
-    taskbarTitle: "Enterprise Local AI Deal & Model Sizer",
-    summaryHeading: "Live Sizing Readout",
-    paybackLabel: "Payback vs. Cloud Model API",
-    paybackHorizonSub: "60-month cumulative comparison (hardware + local integration included)",
-    openTcoRail: "Open Full TCO Curve →",
-    openTcoMain: "Open in Full 60-Month TCO Calculator →",
-    printSheet: "Print 1-Page Deal Sheet",
-    copyLink: "Copy Shareable Sizer Link",
-    copiedLink: "Sizer link copied",
-    exportJson: "Export Scenario JSON",
-    resetBtn: "Reset Inputs",
-    resetPrompt: "Reset all custom workload, model, and hardware quote fields back to defaults?",
-    resetConfirm: "Confirm Reset",
-    resetCancel: "Cancel",
-    prevStep: "← Previous",
-    steps: [
-      { short: "Workload & Scale", next: "Next: Data Pipelines →", title: "1. Select a Local-AI Workload & Active User Scale", sub: "Start from an enterprise workload where data sovereignty or steady daily token volume favors owned GPUs, then tune headcount." },
-      { short: "API / DB Pipelines", next: "Next: Thai Model Pass →", title: "2. Choose Greenfield vs. Brownfield & Existing Data Pipelines", sub: "Specify cluster readiness and select the live SQL databases, ERPs, APIs, and document streams integrated end-to-end." },
-      { short: "Thai Model & VRAM", next: "Next: GPU & Server Price →", title: "3. Select Local Model & Verify Thai Token-Fertility VRAM Fit", sub: "Thai script uses higher subword density per clause than English; inspect structural Thai tiers and exact weight + KV memory fit." },
-      { short: "GPU & Server BOM", next: "Next: Deal Ledger →", title: "4. Configure GPU Count, Server Nodes & Custom Hardware Quote", sub: "Pick a published server reference or enter your own per-server, chassis + GPU card, or total fleet quote in THB or USD." },
-      { short: "Deal Ledger & TCO", next: "", title: "5. Review 60-Month Deal Ledger & Transfer to Full TCO Calculator", sub: "Verify hardware BOM, local integration fee, monthly electricity opex, and 60-month crossover before opening the full calculator." },
-    ],
-    labels: {
-      users: "Active users (headcount)",
-      sessionsDay: "Sessions per user / day",
-      daysMo: "Working days / month",
-      peakPct: "Peak concurrent users (%)",
-      gfTitle: "Greenfield (Turnkey L1\u2013L4 Stack)",
-      gfDesc: "Includes Kubernetes/OpenShift/NKP setup, GPU Operator, DCGM/vLLM telemetry, Thai OCR/RAG, and live data pipelines.",
-      bfTitle: "Brownfield (Existing Cluster L3\u2013L4)",
-      bfDesc: "Customer already operates a GPU-ready K8s cluster; delivers L3 Thai OCR/RAG + vLLM serving and L4 API/DB pipelines.",
-      connectorsHeading: "Connect existing enterprise data pipelines (end-to-end system integration, not a chat wrapper)",
-      tierSelect: "Deal scope tier (auto-recommended or pinned)",
-      tierAuto: "Auto-recommend from user scale & pipelines",
-      modelSelect: "Local open-weight model",
-      wquant: "Weight quantization",
-      kvquant: "KV cache precision",
-      tokenBasis: "Prompt token count basis",
-      basisLatin: "English reference prompt x Thai fertility multiplier (recommended)",
-      basisThai: "Already measured with Thai tokenizer (1.0x)",
-      thaiMult: "Thai token fertility multiplier (planning assumption)",
-      rawPrompt: "Average prompt tokens / turn (raw)",
-      rawOut: "Average output tokens / turn",
-      rawCtx: "Target context window tokens (raw)",
-      gpuSelect: "Self-hosted GPU accelerator",
-      quoteBasis: "Hardware quote entry mode",
-      qbCatalog: "Published catalog server reference",
-      qbIntegrated: "Custom per-server quote (GPUs included)",
-      qbSplit: "Separate bare chassis + per-GPU card quote",
-      qbFleet: "Single total fleet hardware quote",
-      quoteCurrency: "Entered quote currency",
-      serverConfig: "Catalog server configuration",
-      nodes: "Server node count",
-      gpusPerNode: "Installed GPUs per server node",
-      integratedPrice: "Per-server quote (GPUs included)",
-      chassisPrice: "Bare server chassis price / node (excl. GPUs)",
-      gpuCardPrice: "Per-GPU card price",
-      fleetPrice: "Total hardware fleet quote",
-      localImplFee: "Local AI & pipeline integration fee (one-time)",
-      annualOpsFee: "Annual managed operations / support fee (optional)",
-      apiOffer: "Comparable Cloud Model API offer",
-      elecRate: "Facility electricity tariff (THB / kWh)",
-    },
+    backTco: "Main TCO Calculator",
+    taskbarTitle: "Local AI Model & GPU Sizer",
+    nav1: "1. Workload & Prompt Scale",
+    nav2: "2. Model & Auto GPU Sizing",
+    nav3: "3. Cloud API Provider Filter",
+    nav4: "4. BOM Quotes & Save / Import",
+    stageHeading: "Model-First Local AI & GPU Fleet Sizer for Thai Enterprises",
+    stageSub: "Pick an authentic Thai corporate workload, choose your target open-weight model and GPU family, and get instant server node counts, live Cloud API tariff filtering, and 60-month TCO payback on one screen.",
+    hWorkload: "1. Select Realistic Enterprise Workload & Prompt Token Budget",
+    dWorkload: "Defaults reflect production enterprise prompts carrying system instructions, tool/SQL schemas, and multi-page Thai RAG/OCR context (10,500 to 36,000+ raw tokens/turn).",
+    promptPresets: "1-click realistic prompt presets (system prompt + retrieved context):",
+    users: "Active users (headcount)",
+    rawPrompt: "Raw prompt tokens / turn",
+    rawOut: "Output tokens / turn",
+    rawCtx: "Target context window (raw)",
+    sumTraffic: "Session cadence, peak concurrency & Thai token fertility (1.4x vs 1.0x)",
+    sessionsDay: "Sessions / user / day",
+    daysMo: "Working days / month",
+    peakPct: "Peak concurrent users (%)",
+    tokenBasis: "Thai token counting basis",
+    basisLatin: "English reference x 1.4x Thai fertility",
+    basisThai: "Already measured with Thai tokenizer (1.0x)",
+    hModelGpu: "2. Choose Target Model & GPU Model to Auto-Configure Fleet Size",
+    dModelGpu: "Your chosen model and context window drive VRAM and decode bandwidth; the sizer automatically solves required Tensor Parallelism, GPU count, and server nodes.",
+    modelSelect: "Target open-weight model",
+    gpuSelect: "Preferred GPU accelerator",
+    wquant: "Weight quantization",
+    kvquant: "KV cache precision",
+    runtime: "Serving runtime",
+    sumCustomModel: "Custom model architecture / parameter-sensitivity override (Total B, Active B, BF16 KV bytes/tok)",
+    hintCustomContract: "Arbitrary Custom models require total B, active B, full-retention BF16 KV bytes/token, and max context before sizing a fleet.",
+    customParams: "Total parameters (B)",
+    customActive: "Active parameters (B)",
+    customKv: "BF16 KV cache (bytes / token)",
+    customCtx: "Model max context tokens",
+    clearCustomModel: "Reset to catalog model architecture",
+    hGpuMatrix: "Live Cross-GPU Auto-Sizing Matrix",
+    hintGpuMatrix: "Click any row button to switch GPU family immediately",
+    hApi: "3. Filter & Select Comparable Cloud Model API Provider",
+    dApi: "Refreshes live OpenRouter tariffs alongside LiteLLM provider references. Filter by feed, model vendor/family, or search model names.",
+    filterFeed: "Tariff source feed",
+    filterVendor: "Model vendor / family",
+    filterSearch: "Search model name or slug",
+    apiOffer: "Selected Cloud API tariff",
+    apiRates: "Selected API token rate (USD / 1M tokens)",
+    apiAutoBtn: "Use suggested commercial baseline",
+    apiClearFilterBtn: "Clear API filters",
+    hBomSave: "4. Hardware Quote Overrides, Data Pipelines & Save / Import",
+    sumBom: "Override server hardware quotes, implementation fees, electricity, and internal data pipelines (Optional)",
+    quoteBasis: "Hardware quote basis",
+    qbCatalog: "Published catalog server reference",
+    qbIntegrated: "Custom per-server quote (GPUs included)",
+    qbSplit: "Separate bare chassis + per-GPU card quote",
+    qbFleet: "Single total fleet hardware quote",
+    quoteCurrency: "Entered quote currency",
+    serverConfig: "Catalog server chassis",
+    nodes: "Server node override (blank = auto)",
+    gpusPerNode: "GPUs / node (custom quote)",
+    integratedPrice: "Per-server quote (GPUs included)",
+    chassisPrice: "Bare chassis / node",
+    gpuCardPrice: "Per-GPU card price",
+    fleetPrice: "Total hardware fleet quote",
+    localImpl: "Local integration fee (one-time)",
+    annualOps: "Annual ops / support fee",
+    elecRate: "Electricity tariff (THB / kWh)",
+    deploymentMode: "Delivery structure",
+    dmGf: "Greenfield (Turnkey L1-L4 Stack)",
+    dmBf: "Brownfield (Existing K8s Cluster L3-L4)",
+    tierOverride: "Integration scope tier",
+    tierAuto: "Auto-recommend from scale",
+    hConnectors: "Internal enterprise data pipelines",
+    hSaveImport: "Save Scenario for Later or Import Saved .json File",
+    dSaveImport: "Save scenarios in this browser (up to 25), download a portable .json file for presentations, or import a saved .json file anytime.",
+    saveName: "Scenario label",
+    saveActions: "Save, export, or import",
+    saveBrowserBtn: "Save in browser",
+    exportJsonBtn: "Download .json",
+    importJsonBtn: "Import .json",
+    hLedger60m: "60-Month Total Cost Comparison (Local AI vs Cloud API vs Rented GPU)",
+    copyLinkBtn: "Copy share link",
+    copiedLinkBtn: "Copied share link",
+    printBtn: "Print 1-page summary",
+    resetBtn: "Reset defaults",
+    resetAsk: "Reset all workload, model, and BOM inputs back to defaults?",
+    resetConfirmBtn: "Confirm reset",
+    resetCancelBtn: "Cancel",
+    summaryHeading: "Live GPU Sizing & 60M Payback",
+    paybackLabel: "Payback vs Cloud Model API",
+    paybackSub: "Evaluated across 60 months (hardware + integration + power)",
+    openTcoRail: "Open Full TCO Calculator →",
+    loadBtn: "Load",
+    deleteBtn: "Delete",
+    selectBtn: "Select",
+    selectedBtn: "Selected",
+    allVendors: "All model vendors",
+    autoServerOpt: "Auto-pick lowest-cost feasible server",
     kv: {
-      dealTier: "Deal scope tier",
-      mode: "Delivery structure",
-      monthlyTokens: "Modelled tokens / month",
-      peakTokS: "Required peak throughput",
-      effCtx: "Thai-adjusted context",
-      fitStatus: "VRAM & topology fit",
-      fleet: "Installed / required GPUs",
+      model: "Selected model",
+      fleet: "Auto / configured GPU fleet",
+      tp: "Replica TP & per-GPU speed",
+      effPrompt: "Thai-adjusted prompt / context",
+      monthlyTok: "Modelled tokens / month",
+      peakTok: "Required peak decode",
       hwCapex: "Hardware BOM capex",
       implOnce: "Local integration (one-time)",
       localMo: "Local power + ops / mo",
       apiMo: "Cloud Model API / mo",
-      horizonLocal: "60-month total (Local AI)",
-      horizonApi: "60-month total (Cloud API)",
+      total60Local: "60-month total (Local AI)",
+      total60Api: "60-month total (Cloud API)",
+      dealTier: "Recommended scope tier",
     },
   },
 };
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
-const appState = {
-  ready: false,
-  loadError: null,
-  lang: "th",
-  displayCurrency: "THB",
-  step: 0,
-  confirmingReset: false,
-  presetBanner: null,
-  fieldErrors: {},
-  data: {
-    manifest: null,
-    catalog: null,
-    fx: null,
-    gpuPricing: null,
-    serverPricing: null,
-    servingData: null,
-    powerSeed: null,
-    subscriptions: null,
-  },
-  draft: defaultDraft(),
-  computed: null,
-};
 
 function defaultDraft() {
   const w = LOCAL_AI_WORKLOADS[0];
@@ -219,7 +478,7 @@ function defaultDraft() {
     dealTierOverride: null,
     users: String(w.users),
     sessionsPerUserDay: w.sessionsPerUserDay,
-    workingDaysMo: w.workingDaysMo,
+    workingDaysMo: String(w.workingDaysMo),
     peakConcurrencyFraction: w.peakConcurrencyFraction,
     tokensPerSecondPerStream: w.tokensPerSecondPerStream,
     mix: { ...w.mix },
@@ -229,10 +488,15 @@ function defaultDraft() {
     rawOutputTokens: String(w.rawOutputTokens),
     rawContextTokens: String(w.rawContextTokens),
     modelId: w.recommendedModelId,
+    customParamsB: "",
+    customActiveParamsB: "",
+    customKvBytesBf16: "",
+    customContextMax: "",
+    legacyCustomAssumed: false,
     wquant: "fp8",
     kvquant: "fp8",
     runtime: "vllm",
-    gpuId: w.recommendedGpuId ?? "rtx_pro_6000_ws",
+    gpuId: w.recommendedGpuId ?? "rtx_pro_6000_se",
     quoteBasis: "catalog",
     quoteCurrency: "THB",
     serverId: "",
@@ -256,6 +520,41 @@ function defaultDraft() {
     subscriptionTerm: "",
   };
 }
+
+const storageAdapter = createSizerStorageAdapter();
+
+const appState = {
+  ready: false,
+  loadError: null,
+  lang: "th",
+  displayCurrency: "THB",
+  confirmingReset: false,
+  presetBanner: null,
+  liveRefreshStatus: "loading", // loading | live | partial | fallback
+  mutationSeq: 0,
+  fieldErrors: {},
+  saveStatus: null, // { state: 'ok'|'warn'|'error', text: string }
+  savedScenarios: [],
+  storageAvailable: true,
+  viewFilters: {
+    apiFeed: "all",
+    apiVendor: "all",
+    apiSearch: "",
+  },
+  data: {
+    manifest: null,
+    catalog: null,
+    fx: null,
+    gpuPricing: null,
+    serverPricing: null,
+    servingData: null,
+    powerSeed: null,
+    subscriptions: null,
+  },
+  draft: defaultDraft(),
+  computed: null,
+  gpuCandidates: [],
+};
 
 function fmtInt(n) {
   const num = Number(n);
@@ -293,72 +592,6 @@ async function fetchJson(path) {
   return res.json();
 }
 
-function applyUrlStateOnBoot() {
-  const url = new URL(window.location.href);
-  const qLang = url.searchParams.get("lang");
-  if (qLang === "en" || qLang === "th") appState.lang = qLang;
-  const qCur = url.searchParams.get("cur");
-  if (qCur === "USD" || qCur === "THB") appState.displayCurrency = qCur;
-  const qStep = Number(url.searchParams.get("step"));
-  if (Number.isInteger(qStep) && qStep >= 1 && qStep <= 5) appState.step = qStep - 1;
-
-  const rawHash = url.hash.replace(/^#/, "");
-  if (!rawHash) return;
-  try {
-    if (rawHash.startsWith("preset=v1.")) {
-      const preset = decodePresetFragment(rawHash);
-      if (preset) {
-        applyPresetToDraft(preset);
-        appState.presetBanner = "preset_applied";
-      }
-    } else if (rawHash.startsWith("sizer=v1.")) {
-      const restored = decodeSizerFragment(rawHash);
-      if (restored) {
-        hydrateDraftFromNormalized(restored);
-        appState.presetBanner = "sizer_restored";
-      }
-    }
-  } catch (err) {
-    appState.fieldErrors._global = err.message;
-  }
-}
-
-function applyPresetToDraft(preset) {
-  const snapshotDraft = structuredClone(appState.draft);
-  const snapshotCurrency = appState.displayCurrency;
-  try {
-    if (preset.workloadId) selectWorkloadPreset(preset.workloadId);
-    if (preset.deploymentMode === "greenfield" || preset.deploymentMode === "brownfield") {
-      appState.draft.deploymentMode = preset.deploymentMode;
-    }
-    if ("dealTierOverride" in preset) {
-      appState.draft.dealTierOverride = preset.dealTierOverride && DEAL_TIERS[preset.dealTierOverride]
-        ? preset.dealTierOverride
-        : null;
-    }
-    if (Array.isArray(preset.connectors)) appState.draft.connectors = [...preset.connectors];
-    if (preset.users != null) appState.draft.users = String(preset.users);
-    if (preset.modelId) appState.draft.modelId = String(preset.modelId);
-    if (preset.gpuId) appState.draft.gpuId = String(preset.gpuId);
-    if (preset.quoteBasis) appState.draft.quoteBasis = String(preset.quoteBasis);
-    if (preset.quoteCurrency === "USD" || preset.quoteCurrency === "THB") {
-      appState.draft.quoteCurrency = preset.quoteCurrency;
-      appState.displayCurrency = preset.quoteCurrency;
-    }
-    if ("nodes" in preset) appState.draft.nodes = preset.nodes != null ? String(preset.nodes) : "";
-    if ("gpusPerNode" in preset) appState.draft.gpusPerNode = preset.gpusPerNode != null ? String(preset.gpusPerNode) : "";
-    if (preset.integratedNodePrice) appState.draft.integratedNodePrice = preset.integratedNodePrice;
-    if (preset.fleetTotalPrice) appState.draft.fleetTotalPrice = preset.fleetTotalPrice;
-    if (preset.localImplFee) appState.draft.localImplFee = preset.localImplFee;
-    if (preset.annualOpsFee) appState.draft.annualOpsFee = preset.annualOpsFee;
-    normalizeSizerInput(appState.draft);
-  } catch (err) {
-    appState.draft = snapshotDraft;
-    appState.displayCurrency = snapshotCurrency;
-    throw err;
-  }
-}
-
 function hydrateDraftFromNormalized(n) {
   appState.draft = {
     ...appState.draft,
@@ -378,6 +611,11 @@ function hydrateDraftFromNormalized(n) {
     rawOutputTokens: String(n.rawOutputTokens),
     rawContextTokens: String(n.rawContextTokens),
     modelId: n.modelId,
+    customParamsB: n.customParamsB ?? "",
+    customActiveParamsB: n.customActiveParamsB ?? "",
+    customKvBytesBf16: n.customKvBytesBf16 !== null ? String(n.customKvBytesBf16) : "",
+    customContextMax: n.customContextMax !== null ? String(n.customContextMax) : "",
+    legacyCustomAssumed: Boolean(n.legacyCustomAssumed),
     wquant: n.wquant,
     kvquant: n.kvquant,
     runtime: n.runtime,
@@ -412,7 +650,7 @@ function selectWorkloadPreset(workloadId) {
   appState.draft.workloadId = w.id;
   appState.draft.users = String(w.users);
   appState.draft.sessionsPerUserDay = w.sessionsPerUserDay;
-  appState.draft.workingDaysMo = w.workingDaysMo;
+  appState.draft.workingDaysMo = String(w.workingDaysMo);
   appState.draft.peakConcurrencyFraction = w.peakConcurrencyFraction;
   appState.draft.tokensPerSecondPerStream = w.tokensPerSecondPerStream;
   appState.draft.mix = { ...w.mix };
@@ -420,26 +658,118 @@ function selectWorkloadPreset(workloadId) {
   appState.draft.rawOutputTokens = String(w.rawOutputTokens);
   appState.draft.rawContextTokens = String(w.rawContextTokens);
   appState.draft.modelId = w.recommendedModelId;
+  appState.draft.customParamsB = "";
+  appState.draft.customActiveParamsB = "";
+  appState.draft.customKvBytesBf16 = "";
+  appState.draft.customContextMax = "";
+  appState.draft.legacyCustomAssumed = false;
   if (w.recommendedGpuId) appState.draft.gpuId = w.recommendedGpuId;
+  appState.draft.serverId = "";
+  appState.draft.nodes = "";
+  appState.draft.gpusPerNode = "";
   appState.draft.connectors = [...w.defaultConnectors];
+}
+
+function applyPresetToDraft(preset) {
+  const snapshotDraft = structuredClone(appState.draft);
+  const snapshotCurrency = appState.displayCurrency;
+  try {
+    if (preset.workloadId) selectWorkloadPreset(preset.workloadId);
+    if (preset.deploymentMode === "greenfield" || preset.deploymentMode === "brownfield") {
+      appState.draft.deploymentMode = preset.deploymentMode;
+    }
+    if ("dealTierOverride" in preset) {
+      appState.draft.dealTierOverride = preset.dealTierOverride && DEAL_TIERS[preset.dealTierOverride]
+        ? preset.dealTierOverride
+        : null;
+    }
+    if (Array.isArray(preset.connectors)) appState.draft.connectors = [...preset.connectors];
+    if (preset.users != null) appState.draft.users = String(preset.users);
+    if (preset.modelId) {
+      appState.draft.modelId = String(preset.modelId);
+      appState.draft.legacyCustomAssumed = appState.draft.modelId === "custom";
+    }
+    if (preset.gpuId) appState.draft.gpuId = String(preset.gpuId);
+    if (preset.quoteBasis) appState.draft.quoteBasis = String(preset.quoteBasis);
+    if (preset.quoteCurrency === "USD" || preset.quoteCurrency === "THB") {
+      appState.draft.quoteCurrency = preset.quoteCurrency;
+      appState.displayCurrency = preset.quoteCurrency;
+    }
+    if ("nodes" in preset) appState.draft.nodes = preset.nodes != null ? String(preset.nodes) : "";
+    if ("gpusPerNode" in preset) appState.draft.gpusPerNode = preset.gpusPerNode != null ? String(preset.gpusPerNode) : "";
+    if (preset.integratedNodePrice) appState.draft.integratedNodePrice = preset.integratedNodePrice;
+    if (preset.fleetTotalPrice) appState.draft.fleetTotalPrice = preset.fleetTotalPrice;
+    if (preset.localImplFee) appState.draft.localImplFee = preset.localImplFee;
+    if (preset.annualOpsFee) appState.draft.annualOpsFee = preset.annualOpsFee;
+    normalizeSizerInput(appState.draft);
+  } catch (err) {
+    appState.draft = snapshotDraft;
+    appState.displayCurrency = snapshotCurrency;
+    throw err;
+  }
+}
+
+function applyUrlStateOnBoot() {
+  const url = new URL(window.location.href);
+  const qLang = url.searchParams.get("lang");
+  if (qLang === "en" || qLang === "th") appState.lang = qLang;
+  const qCur = url.searchParams.get("cur");
+  if (qCur === "USD" || qCur === "THB") appState.displayCurrency = qCur;
+
+  const rawHash = url.hash.replace(/^#/, "");
+  if (!rawHash) return;
+  try {
+    if (rawHash.startsWith("preset=v1.")) {
+      const preset = decodePresetFragment(rawHash);
+      if (preset) {
+        applyPresetToDraft(preset);
+        appState.presetBanner = "preset_applied";
+      }
+    } else if (rawHash.startsWith("sizer=v1.")) {
+      const restored = decodeSizerFragment(rawHash);
+      if (restored) {
+        hydrateDraftFromNormalized(restored);
+        appState.presetBanner = "sizer_restored";
+      }
+    }
+  } catch (err) {
+    appState.fieldErrors._global = err.message;
+  }
 }
 
 function recompute() {
   appState.fieldErrors = {};
+  if (!appState.ready) return;
   try {
     const normalized = normalizeSizerInput(appState.draft);
     appState.computed = computeSizer({
       input: normalized,
       data: appState.data,
     });
+    appState.gpuCandidates = evaluateGpuCandidates({
+      input: normalized,
+      data: appState.data,
+    });
   } catch (err) {
     appState.computed = null;
+    appState.gpuCandidates = [];
     appState.fieldErrors._form = err instanceof SizerValidationError ? err.message : String(err.message ?? err);
   }
 }
 
+function buildCurrentFragment() {
+  if (!appState.computed?.normalized) {
+    const normalized = normalizeSizerInput(appState.draft);
+    return encodeSizerFragment(normalized);
+  }
+  return encodeSizerFragment(appState.computed.normalized, {
+    pricingIdentity: appState.computed.pricingIdentity,
+    resolvedApiOfferId: appState.computed.resolvedApiOfferId || appState.computed.normalized.apiOfferId,
+  });
+}
+
 function buildHandoffHref() {
-  if (!appState.computed?.normalized) return "tco-calculator.html#custom-page";
+  if (!appState.computed?.ok) return "tco-calculator.html#custom-page";
   try {
     const frag = encodeSizerFragment(appState.computed.normalized, {
       pricingIdentity: appState.computed.pricingIdentity,
@@ -456,22 +786,28 @@ function syncAddressBar() {
   const url = new URL(window.location.href);
   url.searchParams.set("lang", appState.lang);
   url.searchParams.set("cur", appState.displayCurrency);
-  url.searchParams.set("step", String(appState.step + 1));
+  url.searchParams.delete("step");
   if (appState.computed?.normalized) {
     try {
       const frag = encodeSizerFragment(appState.computed.normalized, {
         pricingIdentity: appState.computed.pricingIdentity,
-        resolvedApiOfferId: appState.computed.resolvedApiOfferId,
+        resolvedApiOfferId: appState.computed.resolvedApiOfferId || appState.computed.normalized.apiOfferId,
       });
       url.hash = frag;
     } catch {
-      // Keep existing hash if oversized
+      // Keep existing hash if fragment cannot be encoded
     }
   }
   window.history.replaceState(null, "", url.toString());
 }
 
-function renderChrome() {
+function setControlValue(el, nextValue, force = false) {
+  if (!el || (!force && document.activeElement === el)) return;
+  const str = String(nextValue ?? "");
+  if (el.value !== str) el.value = str;
+}
+
+function renderStaticLabels() {
   const t = I18N[appState.lang];
   document.documentElement.lang = appState.lang;
   $("lang-th").setAttribute("aria-pressed", String(appState.lang === "th"));
@@ -479,715 +815,673 @@ function renderChrome() {
   $("cur-thb").setAttribute("aria-pressed", String(appState.displayCurrency === "THB"));
   $("cur-usd").setAttribute("aria-pressed", String(appState.displayCurrency === "USD"));
 
-  document.querySelector('[data-i18n="backTco"]').textContent = t.backTco;
+  $("lbl-back-tco").textContent = t.backTco;
   $("taskbar-title").textContent = t.taskbarTitle;
-  $("summary-heading").textContent = t.summaryHeading;
-  $("summary-payback-label").textContent = t.paybackLabel;
-  $("summary-payback-sub").textContent = t.paybackHorizonSub;
+  $("nav-sec-1").textContent = t.nav1;
+  $("nav-sec-2").textContent = t.nav2;
+  $("nav-sec-3").textContent = t.nav3;
+  $("nav-sec-4").textContent = t.nav4;
 
-  const stepperHtml = t.steps.map((s, idx) => {
-    const current = idx === appState.step ? ' aria-current="step"' : "";
-    const complete = idx < appState.step ? ' data-complete="true"' : "";
-    return `<li><button type="button" class="step-btn" data-goto="${idx}"${current}${complete}><span class="step-idx">${idx + 1}/5</span><span class="step-label">${esc(s.short)}</span></button></li>`;
-  }).join("");
-  $("wizard-stepper").innerHTML = stepperHtml;
+  $("stage-heading").textContent = t.stageHeading;
+  $("stage-subtitle").textContent = t.stageSub;
 
-  const stepMeta = t.steps[appState.step];
-  $("stage-heading").textContent = stepMeta.title;
-  $("stage-subtitle").textContent = stepMeta.sub;
+  $("h-sec-workload").textContent = t.hWorkload;
+  $("d-sec-workload").textContent = t.dWorkload;
+  $("lbl-prompt-presets").textContent = t.promptPresets;
+  $("lbl-users").textContent = t.users;
+  $("lbl-raw-prompt").textContent = t.rawPrompt;
+  $("lbl-raw-output").textContent = t.rawOut;
+  $("lbl-raw-ctx").textContent = t.rawCtx;
+  $("sum-traffic").textContent = t.sumTraffic;
+  $("lbl-sessions-day").textContent = t.sessionsDay;
+  $("lbl-days-mo").textContent = t.daysMo;
+  $("lbl-peak-pct").textContent = t.peakPct;
+  $("lbl-token-basis").textContent = t.tokenBasis;
+  $("opt-basis-latin").textContent = t.basisLatin;
+  $("opt-basis-thai").textContent = t.basisThai;
 
-  $("btn-prev").disabled = appState.step === 0;
-  $("btn-prev").textContent = t.prevStep;
+  $("h-sec-model-gpu").textContent = t.hModelGpu;
+  $("d-sec-model-gpu").textContent = t.dModelGpu;
+  $("lbl-model-id").textContent = t.modelSelect;
+  $("lbl-gpu-id").textContent = t.gpuSelect;
+  $("lbl-wquant").textContent = t.wquant;
+  $("lbl-kvquant").textContent = t.kvquant;
+  $("lbl-runtime").textContent = t.runtime;
+  $("sum-custom-model").textContent = t.sumCustomModel;
+  $("hint-custom-contract").textContent = t.hintCustomContract;
+  $("lbl-custom-params").textContent = t.customParams;
+  $("lbl-custom-active").textContent = t.customActive;
+  $("lbl-custom-kv-bf16").textContent = t.customKv;
+  $("lbl-custom-ctx-max").textContent = t.customCtx;
+  $("btn-clear-custom-model").textContent = t.clearCustomModel;
+  $("h-gpu-matrix").textContent = t.hGpuMatrix;
+  $("hint-gpu-matrix").textContent = t.hintGpuMatrix;
+
+  $("h-sec-api").textContent = t.hApi;
+  $("d-sec-api").textContent = t.dApi;
+  $("lbl-filter-feed").textContent = t.filterFeed;
+  $("lbl-filter-vendor").textContent = t.filterVendor;
+  $("lbl-filter-search").textContent = t.filterSearch;
+  $("lbl-api-offer").textContent = t.apiOffer;
+  $("lbl-api-rates").textContent = t.apiRates;
+  $("btn-api-auto").textContent = t.apiAutoBtn;
+  $("btn-api-clear-filters").textContent = t.apiClearFilterBtn;
+
+  $("h-sec-bom-save").textContent = t.hBomSave;
+  $("sum-bom").textContent = t.sumBom;
+  $("lbl-quote-basis").textContent = t.quoteBasis;
+  $("opt-qb-catalog").textContent = t.qbCatalog;
+  $("opt-qb-integrated").textContent = t.qbIntegrated;
+  $("opt-qb-split").textContent = t.qbSplit;
+  $("opt-qb-fleet").textContent = t.qbFleet;
+  $("lbl-quote-currency").textContent = t.quoteCurrency;
+  $("lbl-server-id").textContent = t.serverConfig;
+  $("lbl-nodes").textContent = t.nodes;
+  $("lbl-gpus-per-node").textContent = t.gpusPerNode;
+  $("lbl-integrated-price").textContent = t.integratedPrice;
+  $("lbl-chassis-price").textContent = t.chassisPrice;
+  $("lbl-gpu-card-price").textContent = t.gpuCardPrice;
+  $("lbl-fleet-price").textContent = t.fleetPrice;
+  $("lbl-local-impl").textContent = t.localImpl;
+  $("lbl-annual-ops").textContent = t.annualOps;
+  $("lbl-elec-rate").textContent = t.elecRate;
+  $("lbl-deployment-mode").textContent = t.deploymentMode;
+  $("opt-dm-gf").textContent = t.dmGf;
+  $("opt-dm-bf").textContent = t.dmBf;
+  $("lbl-tier-override").textContent = t.tierOverride;
+  $("opt-tier-auto").textContent = t.tierAuto;
+  $("h-connectors").textContent = t.hConnectors;
+
+  $("h-save-import").textContent = t.hSaveImport;
+  $("d-save-import").textContent = t.dSaveImport;
+  $("lbl-save-name").textContent = t.saveName;
+  $("lbl-save-actions").textContent = t.saveActions;
+  $("btn-save-browser").textContent = t.saveBrowserBtn;
+  $("btn-export-json").textContent = t.exportJsonBtn;
+  $("btn-import-json").textContent = t.importJsonBtn;
+
+  $("h-ledger-60m").textContent = t.hLedger60m;
+  $("btn-copy-link").textContent = t.copyLinkBtn;
+  $("btn-print").textContent = t.printBtn;
   $("btn-reset").textContent = t.resetBtn;
 
-  const handoffHref = buildHandoffHref();
-  const canTransfer = Boolean(appState.computed?.ok);
-  const railLink = $("rail-open-tco");
-  railLink.textContent = t.openTcoRail;
-  railLink.href = handoffHref;
-  if (canTransfer) railLink.removeAttribute("aria-disabled");
-  else railLink.setAttribute("aria-disabled", "true");
-
-  if (appState.step < 4) {
-    $("footer-primary-actions").innerHTML = `<button type="button" class="btn btn-primary" id="btn-next">${esc(stepMeta.next)}</button>`;
-  } else {
-    $("footer-primary-actions").innerHTML = `
-      <button type="button" class="btn no-print" id="btn-copy-link">${esc(t.copyLink)}</button>
-      <button type="button" class="btn no-print" id="btn-export-json">${esc(t.exportJson)}</button>
-      <button type="button" class="btn no-print" id="btn-print">${esc(t.printSheet)}</button>
-      <a class="btn btn-primary" id="open-tco-cta" href="${esc(handoffHref)}"${canTransfer ? "" : ' aria-disabled="true"'}>${esc(t.openTcoMain)}</a>
-    `;
-  }
-
-  const fxObs = fmtIsoDate(appState.data.fx?.observed_at);
-  const fxVal = appState.data.fx ? formatHalfUp(appState.data.fx.rate, 3) : "N/A";
-  const svObs = fmtIsoDate(appState.data.servingData?.provenance?.observed);
-  $("source-footnote").textContent = appState.lang === "th"
-    ? `แหล่งข้อมูลอ้างอิงภายในเว็บ: โมเดลอัปเดต ${svObs} · อัตราแลกเปลี่ยนอ้างอิง 1 USD = ${fxVal} THB (${fxObs}) · ประมวลผลในหน่วยความจำของแท็บนี้โดยไม่ส่งข้อมูลออกภายนอก`
-    : `Dated local snapshots: serving models ${svObs} · reference FX 1 USD = ${fxVal} THB (${fxObs}) · evaluated in-memory with zero browser storage or external inference calls.`;
+  $("summary-heading").textContent = t.summaryHeading;
+  $("summary-payback-label").textContent = t.paybackLabel;
+  $("summary-payback-sub").textContent = t.paybackSub;
+  $("rail-open-tco").textContent = t.openTcoRail;
 }
 
-function renderStatusBanner() {
-  const bar = $("live-announcer");
-  if (appState.loadError) {
-    bar.dataset.state = "error";
-    bar.textContent = appState.loadError;
-    return;
-  }
-  if (appState.fieldErrors._form) {
-    bar.dataset.state = "error";
-    bar.textContent = appState.lang === "th"
-      ? `ข้อมูลยังไม่ครบถ้วน: ${appState.fieldErrors._form} กรุณาแก้ไขช่องที่ระบุเพื่อคำนวณต่อ`
-      : `Input validation required: ${appState.fieldErrors._form}. Adjust the highlighted value to continue.`;
-    return;
-  }
-  const c = appState.computed;
-  if (!c) {
-    bar.dataset.state = "warn";
-    bar.textContent = appState.lang === "th" ? "กรุณาตรวจสอบตัวเลขที่กรอก" : "Review input parameters.";
-    return;
-  }
-  if (!c.ok) {
-    bar.dataset.state = "error";
-    const reason = c.fit?.reason ?? c.bom?.reason ?? "Configuration refused.";
-    bar.textContent = appState.lang === "th"
-      ? `[ไม่ผ่านเกณฑ์ทางเทคนิค] ${reason} (แนะนำ: เพิ่มจำนวน GPU ต่อเครื่อง ลด Context หรือเลือกโมเดลขนาดเล็กลง)`
-      : `[Configuration Refused] ${reason} (Next step: select a higher-VRAM GPU, add GPUs per node, or choose a compact model).`;
-    return;
-  }
-  if (c.fit.warnings.length > 0) {
-    bar.dataset.state = "warn";
-    const wText = appState.lang === "th" ? c.fit.warnings[0].th : c.fit.warnings[0].en;
-    bar.textContent = `[CONDITIONAL FIT] ${wText}`;
-    return;
-  }
-  bar.dataset.state = "ok";
-  bar.textContent = appState.lang === "th"
-    ? `[PASS] โมเดลและฮาร์ดแวร์ผ่านเกณฑ์ความจุ VRAM และสัดส่วนโทเคนภาษาไทย (${c.bom.installedGpus}x ${c.normalized.gpuId} บน ${c.bom.nodes} เครื่อง)`
-    : `[PASS] Qualified VRAM & node-local TP fit (${c.bom.installedGpus}x ${c.normalized.gpuId} across ${c.bom.nodes} node${c.bom.nodes === 1 ? "" : "s"}).`;
-}
-
-function renderSummaryRail() {
-  const t = I18N[appState.lang];
-  const c = appState.computed;
-  const pbVal = $("summary-payback-value");
-
-  if (!c || !c.ok || !c.comparison) {
-    pbVal.textContent = appState.lang === "th" ? "รอปรับสเปก" : "Refused / Pending";
-    $("summary-kv").innerHTML = `<div class="kv-row"><dt>${esc(t.kv.fitStatus)}</dt><dd><span class="badge badge-bad">REFUSED</span></dd></div>`;
-    return;
-  }
-
-  const pb = c.comparison.payback?.vs_model_api;
-  if (pb?.months !== null && pb?.months !== undefined) {
-    pbVal.textContent = appState.lang === "th"
-      ? `${fmtInt(pb.months)}\u00A0เดือน`
-      : `${fmtInt(pb.months)} mo`;
-  } else if (pb?.reason === "zero_capex") {
-    pbVal.textContent = appState.lang === "th" ? "คืนทุนทันที" : "0 mo";
-  } else {
-    pbVal.textContent = appState.lang === "th" ? ">\u00A060\u00A0เดือน" : "> 60 mo";
-  }
-
-  const totA = c.comparison.totals?.A;
-  const totB = c.comparison.totals?.B;
-  const fitBadge = c.fit.qualifiedDeploymentPass
-    ? `<span class="badge badge-ok">PASS TP=${c.fit.serving.gpus_per_replica}</span>`
-    : `<span class="badge badge-warn">CONDITIONAL TP=${c.fit.serving.gpus_per_replica}</span>`;
-
-  const rows = [
-    [t.kv.dealTier, `<span class="badge badge-accent">Size ${esc(c.dealTier)}</span>`],
-    [t.kv.mode, esc(c.normalized.deploymentMode === "greenfield" ? "Greenfield (L1\u2013L4)" : "Brownfield (L3\u2013L4)")],
-    [t.kv.monthlyTokens, `${fmtInt(c.demand.tokens_mo.text)} tok`],
-    [t.kv.peakTokS, `${formatHalfUp(toRat(c.peak.peak_tokens_s.text), 1)} tok/s`],
-    [t.kv.effCtx, `${fmtInt(c.normalized.effectiveContextTokens)} tok`],
-    [t.kv.fitStatus, fitBadge],
-    [t.kv.fleet, `${c.bom.installedGpus} / ${c.sizing.gpusRequired} GPU (${c.bom.nodes}n)`],
-    [t.kv.hwCapex, esc(fmtMoneyUsd(c.bom.capexUsd))],
-    [t.kv.implOnce, esc(fmtMoneyUsd(c.scenarioInputs.oneTime.A))],
-    [t.kv.localMo, esc(totA?.priced ? fmtMoneyUsd(totA.monthly_total) : "N/A")],
-    [t.kv.apiMo, esc(totB?.priced ? fmtMoneyUsd(totB.monthly_total) : "N/A")],
-    [t.kv.horizonLocal, esc(totA?.priced ? fmtMoneyUsd(totA.horizon_total) : "N/A")],
-    [t.kv.horizonApi, esc(totB?.priced ? fmtMoneyUsd(totB.horizon_total) : "N/A")],
-  ];
-
-  $("summary-kv").innerHTML = rows
-    .map(([k, v]) => `<div class="kv-row"><dt>${esc(k)}</dt><dd>${v}</dd></div>`)
-    .join("");
-}
-
-function renderStep1() {
-  const t = I18N[appState.lang];
-  const d = appState.draft;
-  const pctDisplay = formatHalfUp(toRat(d.peakConcurrencyFraction).mul(toRat("100")), 1).replace(/\.0$/, "");
-
-  const cards = LOCAL_AI_WORKLOADS.map((w) => {
+function renderWorkloadCardsAndPills() {
+  const isTh = appState.lang === "th";
+  const cardsEl = $("workload-cards");
+  cardsEl.innerHTML = LOCAL_AI_WORKLOADS.map((w) => {
     const loc = w[appState.lang];
-    const pressed = d.workloadId === w.id ? "true" : "false";
+    const selected = appState.draft.workloadId === w.id;
+    const recModel = (appState.data.servingData?.models ?? []).find((m) => m.id === w.recommendedModelId);
+    const modelShort = recModel ? `${recModel.params_b}B` : w.recommendedModelId;
     return `
-      <button type="button" class="choice-btn" data-workload="${esc(w.id)}" aria-pressed="${pressed}">
+      <button type="button" class="choice-btn" data-workload-id="${esc(w.id)}" aria-pressed="${selected}">
         <div class="choice-top">
-          <span class="choice-title">${esc(loc.title)}</span>
-          <span class="badge">${esc(w.recommendedTier)} · ${fmtInt(w.users)}u</span>
+          <span class="badge badge-cyan">${esc(loc.sectorTag || w.sector)}</span>
+          <span class="choice-meta">${fmtInt(w.users)} ${isTh ? "ผู้ใช้" : "users"} · ${fmtInt(w.rawPromptTokens)} tok · ${esc(modelShort)}</span>
         </div>
-        <span class="choice-desc">${esc(loc.whyLocal)}</span>
-        <span class="choice-meta">Prompt ${fmtInt(w.rawPromptTokens)} tok · Out ${fmtInt(w.rawOutputTokens)} tok · Model ${esc(w.recommendedModelId)}</span>
-      </button>`;
+        <div class="choice-title">${esc(loc.title)}</div>
+        <div class="choice-desc">${esc(loc.whyLocal)}</div>
+      </button>
+    `;
   }).join("");
 
-  return `
-    <div class="choice-grid" role="group" aria-label="Workload presets">${cards}</div>
-    <div class="field-grid">
-      <div class="field">
-        <label for="in-users">${esc(t.labels.users)}</label>
-        <input id="in-users" name="users" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.users)}">
-      </div>
-      <div class="field">
-        <label for="in-sessions">${esc(t.labels.sessionsDay)}</label>
-        <input id="in-sessions" name="sessionsPerUserDay" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.sessionsPerUserDay)}">
-      </div>
-      <div class="field">
-        <label for="in-days">${esc(t.labels.daysMo)}</label>
-        <input id="in-days" name="workingDaysMo" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.workingDaysMo)}">
-      </div>
-      <div class="field">
-        <label for="in-peak">${esc(t.labels.peakPct)}</label>
-        <input id="in-peak" name="peakPct" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(pctDisplay)}">
-      </div>
-    </div>
-  `;
+  const pillsEl = $("prompt-scale-pills");
+  const curPrompt = Number(appState.draft.rawPromptTokens);
+  pillsEl.innerHTML = PROMPT_SCALE_PRESETS.map((p) => {
+    const active = curPrompt === p.rawPromptTokens;
+    return `<button type="button" class="pill-btn" data-prompt-preset="${esc(p.id)}" aria-pressed="${active}">${esc(p[appState.lang])}</button>`;
+  }).join("");
 }
 
-function renderStep2() {
-  const t = I18N[appState.lang];
-  const d = appState.draft;
-  const activeTierId = appState.computed?.dealTier ?? "M";
-  const tierObj = DEAL_TIERS[activeTierId];
-  const tierLoc = tierObj[appState.lang];
+function renderModelAndGpuSelectors() {
+  if (!appState.data.servingData) return;
+  const isTh = appState.lang === "th";
+  const modelSelect = $("in-model-id");
+  const grouped = groupCatalogModels(appState.data.servingData);
+  const wqBytes = Number(appState.data.servingData.weight_quantization?.[appState.draft.wquant]?.bytes_per_param ?? 1);
 
-  const connItems = PIPELINE_CONNECTORS.map((conn) => {
+  const knownIds = new Set(appState.data.servingData.models.map((m) => m.id));
+  const selectedId = appState.draft.modelId;
+  let html = "";
+  if (selectedId && !knownIds.has(selectedId)) {
+    html += `<option value="${esc(selectedId)}" selected>${esc(selectedId)} (${isTh ? "ไม่พบในแคตตาล็อก - โปรดเลือกใหม่" : "unavailable - reselect"})</option>`;
+  }
+  for (const grp of grouped.groups) {
+    const label = isTh ? grp.thLabel : grp.enLabel;
+    html += `<optgroup label="${esc(label)}">`;
+    for (const m of grp.models) {
+      const approxWtGb = Math.ceil(Number(m.params_b) * wqBytes);
+      const activeText = String(m.active_params_b) !== String(m.params_b) ? ` / ${m.active_params_b}B active` : "";
+      const ctxK = Math.round(Number(m.context_max ?? 0) / 1024);
+      html += `<option value="${esc(m.id)}" ${m.id === selectedId ? "selected" : ""}>${esc(m.label)} (${m.params_b}B${activeText} · ~${approxWtGb}GB wt · max ${ctxK}k ctx)</option>`;
+    }
+    html += `</optgroup>`;
+  }
+  if (grouped.customModel) {
+    html += `<optgroup label="${esc(isTh ? "กำหนดสถาปัตยกรรมโมเดลเอง" : "Custom Model Specification")}">`;
+    html += `<option value="custom" ${selectedId === "custom" ? "selected" : ""}>${esc(isTh ? "Custom - ระบุพารามิเตอร์และ KV Cache เอง" : "Custom - enter parameters, KV rate & context")}</option>`;
+    html += `</optgroup>`;
+  }
+  if (document.activeElement !== modelSelect) {
+    modelSelect.innerHTML = html;
+    modelSelect.value = selectedId;
+  }
+
+  const gpuSelect = $("in-gpu-id");
+  const gpuMap = appState.data.gpuPricing?.gpus ?? {};
+  const accMap = appState.data.servingData?.accelerators ?? {};
+  const candidateIds = appState.gpuCandidates.length
+    ? appState.gpuCandidates.map((c) => c.gpuId)
+    : Object.keys(accMap).filter((id) => gpuMap[id]);
+  const selectedGpu = appState.draft.gpuId;
+  let gpuHtml = "";
+  if (selectedGpu && !candidateIds.includes(selectedGpu)) {
+    gpuHtml += `<option value="${esc(selectedGpu)}" selected>${esc(selectedGpu)} (${isTh ? "ไม่พบข้อมูล - โปรดเลือกใหม่" : "unavailable - reselect"})</option>`;
+  }
+  for (const id of candidateIds) {
+    const g = gpuMap[id] ?? {};
+    const a = accMap[id] ?? {};
+    gpuHtml += `<option value="${esc(id)}" ${id === selectedGpu ? "selected" : ""}>${esc(g.label ?? id)} (${g.vram_gb ?? "?"} GB · ${a.bandwidth_gb_s ?? "?"} GB/s)</option>`;
+  }
+  if (document.activeElement !== gpuSelect) {
+    gpuSelect.innerHTML = gpuHtml;
+    gpuSelect.value = selectedGpu;
+  }
+
+  const srvSelect = $("in-server-id");
+  const srvRows = serversForGpu(selectedGpu, appState.data.serverPricing?.rows ?? []);
+  const t = I18N[appState.lang];
+  let srvHtml = `<option value="">${esc(t.autoServerOpt)}</option>`;
+  for (const r of srvRows) {
+    srvHtml += `<option value="${esc(r.server_id)}" ${r.server_id === appState.draft.serverId ? "selected" : ""}>${esc(r.label)} (${r.gpu_count}x GPU)</option>`;
+  }
+  if (document.activeElement !== srvSelect) {
+    srvSelect.innerHTML = srvHtml;
+    srvSelect.value = appState.draft.serverId;
+  }
+}
+
+function renderApiControls() {
+  if (!appState.data.catalog || !appState.data.manifest) return;
+  const isTh = appState.lang === "th";
+  const t = I18N[appState.lang];
+  const effectiveSelectedId = appState.draft.apiOfferId || appState.computed?.resolvedApiOfferId || "";
+
+  const view = filterApiOffers({
+    catalog: appState.data.catalog,
+    manifest: appState.data.manifest,
+    feed: appState.viewFilters.apiFeed,
+    vendor: appState.viewFilters.apiVendor,
+    search: appState.viewFilters.apiSearch,
+    selectedOfferId: effectiveSelectedId,
+    limit: 120,
+  });
+
+  const vendorSelect = $("filter-api-vendor");
+  if (document.activeElement !== vendorSelect) {
+    let vHtml = `<option value="all">${esc(t.allVendors)}</option>`;
+    for (const v of view.vendors) {
+      vHtml += `<option value="${esc(v.id)}" ${v.id === appState.viewFilters.apiVendor ? "selected" : ""}>${esc(v.label)} (${v.count})</option>`;
+    }
+    vendorSelect.innerHTML = vHtml;
+    vendorSelect.value = appState.viewFilters.apiVendor;
+  }
+  setControlValue($("filter-api-feed"), appState.viewFilters.apiFeed, false);
+  setControlValue($("filter-api-search"), appState.viewFilters.apiSearch, false);
+
+  const offerSelect = $("in-api-offer");
+  if (document.activeElement !== offerSelect) {
+    offerSelect.innerHTML = view.offers.map((info) => {
+      if (info.missingFromCatalog) {
+        return `<option value="${esc(info.id)}" selected>${esc(info.id)} (${isTh ? "ไม่พบในแคตตาล็อกปัจจุบัน - โปรดเลือกใหม่" : "unavailable in catalog - reselect"})</option>`;
+      }
+      const tags = [info.feed];
+      if (info.isBatch) tags.push("batch");
+      if (info.hasConditionalRates) tags.push("tiered");
+      if (info.outsideFilter) tags.push(isTh ? "นอกตัวกรอง" : "pinned");
+      const ratePart = info.inputPer1MUsd !== null && info.outputPer1MUsd !== null
+        ? `$${info.inputPer1MUsd} / $${info.outputPer1MUsd} per 1M`
+        : "custom tariff";
+      return `<option value="${esc(info.id)}" ${info.id === effectiveSelectedId ? "selected" : ""}>${esc(info.vendorLabel)} · ${esc(info.displayName)} [${tags.join(", ")}] (${ratePart})</option>`;
+    }).join("");
+    if (effectiveSelectedId) offerSelect.value = effectiveSelectedId;
+  }
+
+  $("hint-api-match-count").textContent = isTh
+    ? `พบ ${fmtInt(view.totalMatching)} รายการ จากทั้งหมด ${fmtInt(view.totalEligible)} โมเดลที่มีราคาโทเคนพร้อมใช้งาน`
+    : `Showing ${fmtInt(Math.min(view.offers.length, view.totalMatching))} of ${fmtInt(view.totalMatching)} matching tariffs (${fmtInt(view.totalEligible)} eligible total)`;
+
+  const rateBox = $("api-rate-summary");
+  const chosenOffer = appState.data.catalog.offers?.[effectiveSelectedId];
+  if (!chosenOffer) {
+    rateBox.dataset.state = "error";
+    rateBox.textContent = isTh
+      ? `ไม่พบราคาของ "${effectiveSelectedId || "N/A"}" ในแคตตาล็อกปัจจุบัน กรุณาเลือกโมเดล API ใหม่`
+      : `Selected API offer "${effectiveSelectedId || "N/A"}" is unavailable in the current catalog; reselect an active tariff.`;
+    return;
+  }
+  const info = classifyApiOffer(effectiveSelectedId, chosenOffer, null);
+  rateBox.dataset.state = "ok";
+  const extraNote = info.hasConditionalRates
+    ? (isTh ? " · มีขั้นบันได/มิเตอร์เสริมตามเงื่อนไข" : " · includes conditional/extra meters")
+    : "";
+  rateBox.innerHTML = `<span class="num">In: $${esc(info.inputPer1MUsd ?? "N/A")}/1M · Out: $${esc(info.outputPer1MUsd ?? "N/A")}/1M</span><span>${esc(info.feed.toUpperCase())}${info.isBatch ? " · BATCH" : ""}${esc(extraNote)}</span>`;
+}
+
+function renderConnectorsList() {
+  const ul = $("connector-list");
+  const selected = new Set(appState.draft.connectors);
+  ul.innerHTML = PIPELINE_CONNECTORS.map((conn) => {
     const loc = conn[appState.lang];
-    const checked = d.connectors.includes(conn.id) ? " checked" : "";
+    const checked = selected.has(conn.id);
     return `
       <li class="connector-item">
-        <label class="connector-label" for="conn-${esc(conn.id)}">
-          <input type="checkbox" id="conn-${esc(conn.id)}" name="connector" value="${esc(conn.id)}"${checked}>
-          <span class="connector-text">
+        <label class="connector-label">
+          <input type="checkbox" data-connector-id="${esc(conn.id)}" ${checked ? "checked" : ""}>
+          <span>
             <span class="connector-name">${esc(loc.label)}</span>
             <span class="connector-detail">${esc(loc.detail)}</span>
           </span>
           <span class="badge">${esc(conn.pillar)}</span>
         </label>
-      </li>`;
+      </li>
+    `;
   }).join("");
-
-  return `
-    <div class="choice-grid" role="group" aria-label="Deployment structure">
-      <button type="button" class="choice-btn" data-mode="greenfield" aria-pressed="${d.deploymentMode === "greenfield"}">
-        <div class="choice-top">
-          <span class="choice-title">${esc(t.labels.gfTitle)}</span>
-          <span class="badge badge-accent">L1\u2013L4</span>
-        </div>
-        <span class="choice-desc">${esc(t.labels.gfDesc)}</span>
-      </button>
-      <button type="button" class="choice-btn" data-mode="brownfield" aria-pressed="${d.deploymentMode === "brownfield"}">
-        <div class="choice-top">
-          <span class="choice-title">${esc(t.labels.bfTitle)}</span>
-          <span class="badge">L3\u2013L4</span>
-        </div>
-        <span class="choice-desc">${esc(t.labels.bfDesc)}</span>
-      </button>
-    </div>
-
-    <div>
-      <h3>${esc(t.labels.connectorsHeading)}</h3>
-      <ul class="connector-list">${connItems}</ul>
-    </div>
-
-    <div class="field-grid two">
-      <div class="field">
-        <label for="in-tier-override">${esc(t.labels.tierSelect)}</label>
-        <select id="in-tier-override" name="dealTierOverride">
-          <option value=""${!d.dealTierOverride ? " selected" : ""}>${esc(t.labels.tierAuto)} (→ Size ${esc(activeTierId)})</option>
-          ${Object.keys(DEAL_TIERS).map((k) => `<option value="${k}"${d.dealTierOverride === k ? " selected" : ""}>Size ${k} (${esc(DEAL_TIERS[k].usersBand)} users · ${DEAL_TIERS[k].connectorsIncluded} pipelines)</option>`).join("")}
-        </select>
-      </div>
-      <div class="field">
-        <span class="field-hint">${esc(tierLoc.name)} (${esc(tierObj.durationWeeks)} wks)</span>
-        <p class="stage-sub" style="font-size:12px">${esc(d.deploymentMode === "greenfield" ? tierLoc.gfScope : tierLoc.bfScope)}</p>
-      </div>
-    </div>
-  `;
 }
 
-function renderStep3() {
-  const t = I18N[appState.lang];
+function syncInputsFromDraft({ force = false } = {}) {
   const d = appState.draft;
-  const models = (appState.data.servingData?.models ?? []).filter((m) => m.id !== "custom");
-  const wqOpts = Object.entries(appState.data.servingData?.weight_quantization ?? {});
-  const kqOpts = Object.entries(appState.data.servingData?.kv_quantization ?? {});
+  setControlValue($("in-users"), d.users, force);
+  setControlValue($("in-raw-prompt"), d.rawPromptTokens, force);
+  setControlValue($("in-raw-output"), d.rawOutputTokens, force);
+  setControlValue($("in-raw-ctx"), d.rawContextTokens, force);
+  setControlValue($("in-sessions-day"), d.sessionsPerUserDay, force);
+  setControlValue($("in-days-mo"), d.workingDaysMo, force);
+  const peakPct = (() => {
+    const n = Number(d.peakConcurrencyFraction);
+    return Number.isFinite(n) ? String(Math.round(n * 10000) / 100) : d.peakConcurrencyFraction;
+  })();
+  setControlValue($("in-peak-pct"), peakPct, force);
+  setControlValue($("in-token-basis"), d.tokenBasis, force);
+  setControlValue($("in-wquant"), d.wquant, force);
+  setControlValue($("in-kvquant"), d.kvquant, force);
+  setControlValue($("in-runtime"), d.runtime, force);
+  setControlValue($("in-custom-params"), d.customParamsB, force);
+  setControlValue($("in-custom-active"), d.customActiveParamsB, force);
+  setControlValue($("in-custom-kv-bf16"), d.customKvBytesBf16, force);
+  setControlValue($("in-custom-ctx-max"), d.customContextMax, force);
+  setControlValue($("in-quote-basis"), d.quoteBasis, force);
+  setControlValue($("in-quote-currency"), d.quoteCurrency, force);
+  setControlValue($("in-nodes"), d.nodes, force);
+  setControlValue($("in-gpus-per-node"), d.gpusPerNode, force);
+  setControlValue($("in-integrated-price"), d.integratedNodePrice.amount, force);
+  setControlValue($("in-chassis-price"), d.chassisNodePrice.amount, force);
+  setControlValue($("in-gpu-card-price"), d.gpuUnitPrice.amount, force);
+  setControlValue($("in-fleet-price"), d.fleetTotalPrice.amount, force);
+  setControlValue($("in-local-impl-fee"), d.localImplFee.amount, force);
+  setControlValue($("in-annual-ops-fee"), d.annualOpsFee.amount, force);
+  setControlValue($("in-elec-rate"), d.electricityThbPerKwh, force);
+  setControlValue($("in-deployment-mode"), d.deploymentMode, force);
+  setControlValue($("in-tier-override"), d.dealTierOverride ?? "", force);
 
-  const profile = THAI_MODEL_PROFILES[d.modelId];
-  const tierText = profile ? (appState.lang === "th" ? profile.thTier : profile.enTier) : "General Multilingual Model";
-  const noteText = profile ? (appState.lang === "th" ? profile.thNote : profile.enNote) : "";
-  const fit = appState.computed?.fit;
-  const sv = fit?.serving;
+  const qb = d.quoteBasis;
+  $("wrap-server-id").hidden = qb !== "catalog";
+  $("in-gpus-per-node").disabled = qb === "catalog";
+  $("wrap-integrated-price").hidden = qb !== "integrated_node";
+  $("wrap-chassis-price").hidden = qb !== "component_split";
+  $("wrap-gpu-card-price").hidden = qb !== "component_split";
+  $("wrap-fleet-price").hidden = qb !== "fleet_total";
 
-  return `
-    <div class="field-grid two">
-      <div class="field">
-        <label for="in-model">${esc(t.labels.modelSelect)}</label>
-        <select id="in-model" name="modelId">
-          ${models.map((m) => `<option value="${esc(m.id)}"${m.id === d.modelId ? " selected" : ""}>${esc(m.label)} (${esc(m.params_b)}B)</option>`).join("")}
-        </select>
-        <span class="field-hint">${esc(tierText)}</span>
-      </div>
-      <div class="field">
-        <label for="in-token-basis">${esc(t.labels.tokenBasis)}</label>
-        <select id="in-token-basis" name="tokenBasis">
-          <option value="latin_reference_1_4x"${d.tokenBasis === "latin_reference_1_4x" ? " selected" : ""}>${esc(t.labels.basisLatin)}</option>
-          <option value="thai_tokenized_1x"${d.tokenBasis === "thai_tokenized_1x" ? " selected" : ""}>${esc(t.labels.basisThai)}</option>
-        </select>
-        <span class="field-hint">${esc(noteText)}</span>
-      </div>
-    </div>
-
-    <div class="field-grid">
-      <div class="field">
-        <label for="in-wquant">${esc(t.labels.wquant)}</label>
-        <select id="in-wquant" name="wquant">
-          ${wqOpts.map(([k, v]) => `<option value="${esc(k)}"${k === d.wquant ? " selected" : ""}>${esc(v.label ?? k)}</option>`).join("")}
-        </select>
-      </div>
-      <div class="field">
-        <label for="in-kvquant">${esc(t.labels.kvquant)}</label>
-        <select id="in-kvquant" name="kvquant">
-          ${kqOpts.map(([k, v]) => `<option value="${esc(k)}"${k === d.kvquant ? " selected" : ""}>${esc(v.label ?? k)}</option>`).join("")}
-        </select>
-      </div>
-      <div class="field">
-        <label for="in-thai-mult">${esc(t.labels.thaiMult)}</label>
-        <input id="in-thai-mult" name="thaiFertilityMultiplier" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.thaiFertilityMultiplier)}"${d.tokenBasis === "thai_tokenized_1x" ? " disabled" : ""}>
-      </div>
-      <div class="field">
-        <label for="in-raw-prompt">${esc(t.labels.rawPrompt)}</label>
-        <input id="in-raw-prompt" name="rawPromptTokens" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.rawPromptTokens)}">
-      </div>
-      <div class="field">
-        <label for="in-raw-out">${esc(t.labels.rawOut)}</label>
-        <input id="in-raw-out" name="rawOutputTokens" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.rawOutputTokens)}">
-      </div>
-      <div class="field">
-        <label for="in-raw-ctx">${esc(t.labels.rawCtx)}</label>
-        <input id="in-raw-ctx" name="rawContextTokens" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.rawContextTokens)}">
-      </div>
-    </div>
-
-    <div class="table-scroll">
-      <table class="ledger-table">
-        <thead>
-          <tr>
-            <th>${appState.lang === "th" ? "รายการตรวจความจุ\u00A0VRAM\u00A0และภาษาไทย" : "Thai Token & VRAM Qualification Check"}</th>
-            <th>${appState.lang === "th" ? "รายละเอียด" : "Basis"}</th>
-            <th class="col-num">${appState.lang === "th" ? "ค่าที่คำนวณได้" : "Calculated Value"}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>${appState.lang === "th" ? "โทเคนขาเข้าและ\u00A0Context\u00A0สุทธิ" : "Effective Prompt / Context"}</td>
-            <td><span class="cell-truncate" title="${esc(d.tokenBasis)}">${esc(d.tokenBasis === "latin_reference_1_4x" ? `Raw x ${d.thaiFertilityMultiplier} (applied once)` : "Thai tokenized 1.0x")}</span></td>
-            <td class="col-num">${appState.computed ? `${fmtInt(appState.computed.normalized.effectivePromptTokens)} / ${fmtInt(appState.computed.normalized.effectiveContextTokens)} tok` : "N/A"}</td>
-          </tr>
-          <tr>
-            <td>${appState.lang === "th" ? "ขนาดน้ำหนักโมเดล\u00A0(Weights)" : "Resident Model Weights"}</td>
-            <td>${esc(d.wquant.toUpperCase())}</td>
-            <td class="col-num">${sv ? `${esc(sv.weights_gb_resident.text)} GB` : "N/A"}</td>
-          </tr>
-          <tr>
-            <td>${appState.lang === "th" ? "หน่วยความจำ\u00A0KV\u00A0Cache\u00A0ต่อคำขอ" : "KV Cache per Active Sequence"}</td>
-            <td>${esc(d.kvquant.toUpperCase())} @ ${appState.computed ? fmtInt(appState.computed.normalized.effectiveContextTokens) : "0"} tok</td>
-            <td class="col-num">${sv ? `${esc(sv.kv_gb_per_sequence.text)} GB` : "N/A"}</td>
-          </tr>
-          <tr>
-            <td>${appState.lang === "th" ? "รูปแบบ\u00A0Tensor\u00A0Parallel\u00A0และความเร็วต่อรีพลิกา" : "Replica Tensor Parallel & Roofline"}</td>
-            <td>${esc(d.gpuId)}</td>
-            <td class="col-num">${sv ? `TP=${sv.gpus_per_replica} · ${esc(sv.tokens_s_per_replica.text)} tok/s` : "Refused"}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function renderStep4() {
-  const t = I18N[appState.lang];
-  const d = appState.draft;
-  const gpusObj = appState.data.gpuPricing?.gpus ?? {};
-  const offerableGpus = [...new Set([
-    ...(appState.data.gpuPricing?.rows ?? []).map((r) => r.gpu_id),
-    ...(appState.data.serverPricing?.rows ?? []).map((r) => r.gpu_id),
-  ])].filter((id) => appState.data.servingData?.accelerators?.[id]);
-
-  const srvRows = serversForGpu(d.gpuId, appState.data.serverPricing?.rows ?? []);
-  const allActiveOffers = (appState.data.manifest?.models ?? [])
-    .filter((m) => !["retired", "quarantined"].includes(m.state) && appState.data.catalog?.offers?.[m.id]);
-  const selectedApi = appState.computed?.resolvedApiOfferId || d.apiOfferId;
-  const baseSlice = allActiveOffers.slice(0, 60);
-  const selectedObj = allActiveOffers.find((m) => m.id === selectedApi)
-    ?? (selectedApi && appState.data.catalog?.offers?.[selectedApi]
-      ? { id: selectedApi, name: appState.data.catalog.offers[selectedApi].display_name ?? selectedApi }
-      : null);
-  const activeOffers = selectedObj && !baseSlice.some((m) => m.id === selectedObj.id)
-    ? [selectedObj, ...baseSlice]
-    : baseSlice;
-  const curSym = d.quoteCurrency === "USD" ? "USD ($)" : "THB (฿)";
-
-  let priceFieldsHtml = "";
-  if (d.quoteBasis === "catalog") {
-    priceFieldsHtml = `
-      <div class="field">
-        <label for="in-server-id">${esc(t.labels.serverConfig)}</label>
-        <select id="in-server-id" name="serverId">
-          ${srvRows.length
-            ? srvRows.map((r) => `<option value="${esc(r.server_id)}"${r.server_id === (appState.computed?.bom?.serverId || d.serverId) ? " selected" : ""}>${r.gpu_count}x ${esc(r.form_factor)} (${esc(fmtMoneyUsd(String(r.usd_typical)))})</option>`).join("")
-            : `<option value="">No catalog server (switch to custom quote)</option>`}
-        </select>
-      </div>`;
-  } else if (d.quoteBasis === "integrated_node") {
-    priceFieldsHtml = `
-      <div class="field">
-        <label for="in-int-price">${esc(t.labels.integratedPrice)} (${curSym})</label>
-        <input id="in-int-price" name="integratedNodePrice" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.integratedNodePrice.amount)}">
-      </div>`;
-  } else if (d.quoteBasis === "component_split") {
-    priceFieldsHtml = `
-      <div class="field">
-        <label for="in-chassis-price">${esc(t.labels.chassisPrice)} (${curSym})</label>
-        <input id="in-chassis-price" name="chassisNodePrice" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.chassisNodePrice.amount)}">
-      </div>
-      <div class="field">
-        <label for="in-gpu-price">${esc(t.labels.gpuCardPrice)} (${curSym})</label>
-        <input id="in-gpu-price" name="gpuUnitPrice" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.gpuUnitPrice.amount)}">
-      </div>`;
-  } else {
-    priceFieldsHtml = `
-      <div class="field">
-        <label for="in-fleet-price">${esc(t.labels.fleetPrice)} (${curSym})</label>
-        <input id="in-fleet-price" name="fleetTotalPrice" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.fleetTotalPrice.amount)}">
-      </div>`;
+  if (d.modelId === "custom") {
+    $("details-custom-model").open = true;
   }
+  const hasCustomOverride = Boolean(d.customParamsB || d.customActiveParamsB || d.customKvBytesBf16 || d.customContextMax || d.modelId === "custom");
+  $("badge-custom-model").textContent = hasCustomOverride ? "Custom Override" : "Catalog";
+  $("badge-custom-model").className = hasCustomOverride ? "badge badge-warn" : "badge";
 
-  const effNodes = d.nodes || (appState.computed?.bom?.nodes ? String(appState.computed.bom.nodes) : "1");
-  const effGpn = d.gpusPerNode || (appState.computed?.bom?.gpusPerNode ? String(appState.computed.bom.gpusPerNode) : "2");
-
-  return `
-    <div class="field-grid">
-      <div class="field">
-        <label for="in-gpu">${esc(t.labels.gpuSelect)}</label>
-        <select id="in-gpu" name="gpuId">
-          ${offerableGpus.map((id) => `<option value="${esc(id)}"${id === d.gpuId ? " selected" : ""}>${esc(gpusObj[id]?.label ?? id)} (${gpusObj[id]?.vram_gb ?? "?"} GB)</option>`).join("")}
-        </select>
-      </div>
-      <div class="field">
-        <label for="in-quote-basis">${esc(t.labels.quoteBasis)}</label>
-        <select id="in-quote-basis" name="quoteBasis">
-          <option value="catalog"${d.quoteBasis === "catalog" ? " selected" : ""}>${esc(t.labels.qbCatalog)}</option>
-          <option value="integrated_node"${d.quoteBasis === "integrated_node" ? " selected" : ""}>${esc(t.labels.qbIntegrated)}</option>
-          <option value="component_split"${d.quoteBasis === "component_split" ? " selected" : ""}>${esc(t.labels.qbSplit)}</option>
-          <option value="fleet_total"${d.quoteBasis === "fleet_total" ? " selected" : ""}>${esc(t.labels.qbFleet)}</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="in-quote-cur">${esc(t.labels.quoteCurrency)}</label>
-        <select id="in-quote-cur" name="quoteCurrency">
-          <option value="THB"${d.quoteCurrency === "THB" ? " selected" : ""}>THB (฿)</option>
-          <option value="USD"${d.quoteCurrency === "USD" ? " selected" : ""}>USD ($)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="field-grid">
-      <div class="field">
-        <label for="in-nodes">${esc(t.labels.nodes)}</label>
-        <input id="in-nodes" name="nodes" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.quoteBasis === "catalog" && !d.nodes ? "" : effNodes)}" placeholder="${esc(effNodes)}">
-      </div>
-      <div class="field">
-        <label for="in-gpn">${esc(t.labels.gpusPerNode)}</label>
-        <input id="in-gpn" name="gpusPerNode" class="num-input" type="text" inputmode="numeric" autocomplete="off" value="${esc(d.quoteBasis === "catalog" && !d.gpusPerNode ? "" : effGpn)}" placeholder="${esc(effGpn)}"${d.quoteBasis === "catalog" ? " disabled" : ""}>
-      </div>
-      ${priceFieldsHtml}
-    </div>
-
-    <div class="field-grid">
-      <div class="field">
-        <label for="in-local-impl">${esc(t.labels.localImplFee)} (${curSym})</label>
-        <input id="in-local-impl" name="localImplFee" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.localImplFee.amount)}">
-      </div>
-      <div class="field">
-        <label for="in-annual-ops">${esc(t.labels.annualOpsFee)} (${curSym})</label>
-        <input id="in-annual-ops" name="annualOpsFee" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.annualOpsFee.amount)}">
-      </div>
-      <div class="field">
-        <label for="in-elec">${esc(t.labels.elecRate)}</label>
-        <input id="in-elec" name="electricityThbPerKwh" class="num-input" type="text" inputmode="decimal" autocomplete="off" value="${esc(d.electricityThbPerKwh)}">
-      </div>
-    </div>
-
-    <div class="field-grid two">
-      <div class="field">
-        <label for="in-api-offer">${esc(t.labels.apiOffer)}</label>
-        <select id="in-api-offer" name="apiOfferId">
-          ${activeOffers.map((m) => `<option value="${esc(m.id)}"${m.id === selectedApi ? " selected" : ""}>${esc(m.name)} [${esc(m.id)}]</option>`).join("")}
-        </select>
-      </div>
-    </div>
-  `;
+  $("badge-traffic").textContent = `${d.sessionsPerUserDay}/d · ${peakPct}% peak · ${d.tokenBasis === "latin_reference_1_4x" ? "1.4x TH" : "1.0x TH"}`;
+  $("badge-bom").textContent = `${qb} · ${d.quoteCurrency} · ${d.connectors.length} pipelines`;
 }
 
-function renderMiniCurveSvg(curve) {
-  if (!Array.isArray(curve) || curve.length < 2) return "";
-  const w = 680;
-  const h = 210;
-  const padL = 72;
-  const padR = 20;
-  const padT = 16;
-  const padB = 28;
-  let maxRat = toRat("1");
-  const toNum = (val) => {
-    if (val === null || val === undefined) return 0;
-    const r = toRat(String(val));
-    if (r.gt(maxRat)) maxRat = r;
-    return Number(formatHalfUp(r, 2));
-  };
-  const ptsA = curve.map((p) => toNum(p.A));
-  const ptsB = curve.map((p) => toNum(p.B));
-  const maxY = Math.max(1, Number(formatHalfUp(maxRat, 2)));
-  const xAt = (i) => padL + (i / (curve.length - 1)) * (w - padL - padR);
-  const yAt = (v) => padT + (1 - v / maxY) * (h - padT - padB);
-  const pathFor = (arr) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
-
-  const maxLabel = fmtMoneyUsd(ratStr(maxRat));
-  return `
-    <svg viewBox="0 0 ${w} ${h}" width="100%" height="210" role="img" aria-label="60-month cumulative cost curve: Self-hosted Local AI vs Cloud Model API" style="display:block;border:1px solid var(--line);border-radius:4px;background:var(--surface-1)">
-      <line x1="${padL}" y1="${padT}" x2="${w - padR}" y2="${padT}" stroke="#262638" stroke-dasharray="3 3"/>
-      <line x1="${padL}" y1="${h - padB}" x2="${w - padR}" y2="${h - padB}" stroke="#3A3A54"/>
-      <text x="${padL - 8}" y="${padT + 10}" fill="#9490AB" font-size="11" font-family="Geist Mono, monospace" text-anchor="end">${esc(maxLabel)}</text>
-      <text x="${padL - 8}" y="${h - padB}" fill="#9490AB" font-size="11" font-family="Geist Mono, monospace" text-anchor="end">0</text>
-      <text x="${padL}" y="${h - 8}" fill="#9490AB" font-size="11" font-family="Geist Mono, monospace">M0</text>
-      <text x="${w - padR}" y="${h - 8}" fill="#9490AB" font-size="11" font-family="Geist Mono, monospace" text-anchor="end">M${curve.length - 1}</text>
-      <path d="${pathFor(ptsB)}" fill="none" stroke="#9490AB" stroke-width="2" stroke-dasharray="5 4"/>
-      <path d="${pathFor(ptsA)}" fill="none" stroke="#B46EFF" stroke-width="2.5"/>
-    </svg>
-  `;
-}
-
-function renderStep5() {
+function renderAutoGpuAndMatrix() {
+  const isTh = appState.lang === "th";
+  const t = I18N[appState.lang];
   const c = appState.computed;
-  if (!c || !c.ok || !c.comparison) {
-    return `<p class="stage-sub">${appState.lang === "th" ? "กรุณาแก้ไขสเปกในขั้นตอนก่อนหน้าเพื่อให้ได้ตารางเปรียบเทียบที่สมบูรณ์" : "Resolve the sizing refusal in Steps 3\u20134 to generate the 60-month deal ledger."}</p>`;
+  const callout = $("auto-gpu-callout");
+
+  if (c?.normalized) {
+    const n = c.normalized;
+    $("hint-eff-prompt").textContent = isTh
+      ? `คิดเป็น ${fmtInt(n.effectivePromptTokens)} โทเคนจริงหลังคูณสัดส่วนภาษาไทย`
+      : `Thai-adjusted: ${fmtInt(n.effectivePromptTokens)} effective prompt tokens`;
+    $("hint-eff-ctx").textContent = isTh
+      ? `Context จริงที่ใช้จอง KV: ${fmtInt(n.effectiveContextTokens)} โทเคน`
+      : `Effective KV context: ${fmtInt(n.effectiveContextTokens)} tokens`;
+    $("hint-users").textContent = c.demand
+      ? (isTh ? `${fmtInt(Number(c.demand.turns_mo.text))} คำสั่ง/เดือน` : `${fmtInt(Number(c.demand.turns_mo.text))} turns/mo`)
+      : "";
+    $("hint-output").textContent = c.peak
+      ? `Peak: ${c.peak.peak_tokens_s.text} tok/s`
+      : "";
   }
 
-  const totA = c.comparison.totals.A;
-  const totB = c.comparison.totals.B;
-  const totC = c.comparison.totals.C;
-  const connNames = c.normalized.connectors
-    .map((id) => PIPELINE_CONNECTORS.find((p) => p.id === id)?.[appState.lang]?.label ?? id)
-    .join(", ") || "None";
+  const prof = c?.fit?.thaiProfile;
+  $("hint-model-profile").textContent = prof
+    ? `${isTh ? prof.thTier : prof.enTier} · ${isTh ? prof.thNote : prof.enNote}`
+    : "";
+  const gMeta = appState.data.gpuPricing?.gpus?.[appState.draft.gpuId];
+  const aMeta = appState.data.servingData?.accelerators?.[appState.draft.gpuId];
+  $("hint-gpu-spec").textContent = gMeta && aMeta
+    ? `${gMeta.vram_gb} GB VRAM · ${aMeta.bandwidth_gb_s} GB/s memory bandwidth`
+    : "";
 
-  const pb = c.comparison.payback?.vs_model_api;
-  const pbText = pb?.months != null
-    ? (appState.lang === "th" ? `คืนทุนในเดือนที่ ${pb.months}` : `Month ${pb.months} crossover`)
-    : (appState.lang === "th" ? `ไม่ตัดกันภายใน ${c.normalized.horizonMonths} เดือน` : `Beyond ${c.normalized.horizonMonths} months`);
+  if (!c) {
+    callout.dataset.status = "refused";
+    callout.innerHTML = `<div class="auto-headline">${esc(isTh ? "ข้อมูลนำเข้ายังไม่สมบูรณ์" : "Invalid input value")}</div><div class="auto-detail">${esc(appState.fieldErrors._form || "")}</div>`;
+  } else if (c.ok) {
+    callout.dataset.status = c.fit.status;
+    const srvText = c.bom.serverRow?.label ?? `${c.bom.nodes}x custom node (${c.bom.gpusPerNode} GPU/node)`;
+    const headline = isTh
+      ? `แนะนำอัตโนมัติ: ใช้ ${c.bom.installedGpus} การ์ด GPU (${c.bom.nodes} เครื่อง × ${c.bom.gpusPerNode} GPU/เครื่อง)`
+      : `Auto-configured fleet: ${c.bom.installedGpus}x GPUs (${c.bom.nodes} node${c.bom.nodes === 1 ? "" : "s"} × ${c.bom.gpusPerNode} GPUs/node)`;
+    const detail = isTh
+      ? `ความต้องการขั้นต่ำจากโหลดจริง ${c.sizing.gpusRequired} ใบ · TP=${c.fit.serving.gpus_per_replica} ต่อชุดโมเดล · ${c.sizing.tokens_s_per_gpu.text} tok/s/GPU · โครงสร้าง: ${srvText}`
+      : `Load minimum ${c.sizing.gpusRequired} GPU(s) · TP=${c.fit.serving.gpus_per_replica} per replica · ${c.sizing.tokens_s_per_gpu.text} tok/s/GPU · Topology: ${srvText}`;
+    const warnHtml = (c.fit.warnings ?? []).map((w) => {
+      const msg = typeof w === "string" ? w : (isTh ? w.th : w.en);
+      return `<div class="field-hint" style="color:var(--warn)">• ${esc(msg)}</div>`;
+    }).join("");
+    callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(detail)}</div>${warnHtml}`;
+  } else if (c.stage === "hardware_bom" && c.bom?.code === "no_catalog_server" && c.sizing && c.fit?.serving) {
+    callout.dataset.status = "memory_fit_unpriced";
+    const headline = isTh
+      ? `คำนวณจำนวนการ์ดได้: ต้องใช้ ${c.sizing.gpusRequired} การ์ด GPU (TP=${c.fit.serving.gpus_per_replica}) แต่ยังไม่มีราคากลางเซิร์ฟเวอร์`
+      : `Auto-sized: ${c.sizing.gpusRequired}x GPUs required (TP=${c.fit.serving.gpus_per_replica}), custom hardware quote needed`;
+    callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(c.bom.reason)}</div>`;
+  } else {
+    callout.dataset.status = "refused";
+    const reason = c.reason ?? c.fit?.reason ?? c.bom?.reason ?? "Selected configuration cannot serve this workload.";
+    const headline = isTh
+      ? "ไม่สามารถจัดชุด GPU/โมเดลตามเงื่อนไขนี้ได้"
+      : "Configuration refused (cannot size fleet / TCO)";
+    callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(reason)}</div>`;
+  }
 
-  return `
-    ${renderMiniCurveSvg(c.comparison.curve)}
-    <div class="table-scroll">
-      <table class="ledger-table">
-        <thead>
-          <tr>
-            <th>${appState.lang === "th" ? "รายการองค์ประกอบดีล\u00A0/\u00A0ทางเลือก" : "Deal Component / Option"}</th>
-            <th>${appState.lang === "th" ? "รายละเอียดทางเทคนิค\u00A0(พร้อมระบบข้อมูลที่เชื่อม)" : "Technical Basis & Pipeline Scope"}</th>
-            <th class="col-num">${appState.lang === "th" ? "ลงทุนครั้งเดียว" : "Upfront (One-Time)"}</th>
-            <th class="col-num">${appState.lang === "th" ? "รายเดือน" : "Monthly Run"}</th>
-            <th class="col-num">${appState.lang === "th" ? "รวม\u00A060\u00A0เดือน" : "60-Month Total"}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Local AI (Owned)</strong></td>
-            <td><span class="cell-truncate" title="${esc(`${c.bom.installedGpus}x ${c.normalized.gpuId} (${c.bom.nodes}n) · Size ${c.dealTier} ${c.normalized.deploymentMode} · Pipelines: ${connNames}`)}">${esc(`${c.bom.installedGpus}x ${c.normalized.gpuId} (${c.bom.nodes}n) · Size ${c.dealTier} · ${connNames}`)}</span></td>
-            <td class="col-num">${esc(fmtMoneyUsd(totA.one_time))}</td>
-            <td class="col-num">${esc(fmtMoneyUsd(totA.monthly_total))}</td>
-            <td class="col-num"><strong>${esc(fmtMoneyUsd(totA.horizon_total))}</strong></td>
-          </tr>
-          <tr>
-            <td>Hardware BOM Only</td>
-            <td><span class="cell-truncate" title="${esc(`Quote basis: ${c.bom.quoteBasis}`)}">${esc(`Basis: ${c.bom.quoteBasis} (${c.bom.nodes} node x ${c.bom.gpusPerNode} GPU)`)}</span></td>
-            <td class="col-num">${esc(fmtMoneyUsd(c.bom.capexUsd))}</td>
-            <td class="col-num">${esc(c.powerPlan ? fmtMoneyUsd(c.powerPlan.monthly_usd) : "N/A")}</td>
-            <td class="col-num">${esc(fmtMoneyUsd(c.bom.capexUsd))}</td>
-          </tr>
-          <tr>
-            <td>Local Pipeline &amp; Stack Integration</td>
-            <td><span class="cell-truncate" title="${esc(connNames)}">${esc(`Size ${c.dealTier} (${c.normalized.deploymentMode}): ${connNames}`)}</span></td>
-            <td class="col-num">${esc(fmtMoneyUsd(c.scenarioInputs.oneTime.A))}</td>
-            <td class="col-num">${esc(fmtMoneyUsd(c.monthlyOpsUsd))}</td>
-            <td class="col-num">${esc(pbText)}</td>
-          </tr>
-          <tr>
-            <td>Cloud Model API</td>
-            <td><span class="cell-truncate" title="${esc(c.resolvedApiOfferId)}">${esc(c.resolvedApiOfferId || "Unselected")}</span></td>
-            <td class="col-num">${esc(fmtMoneyUsd(totB.one_time))}</td>
-            <td class="col-num">${esc(totB.priced ? fmtMoneyUsd(totB.monthly_total) : "N/A")}</td>
-            <td class="col-num">${esc(totB.priced ? fmtMoneyUsd(totB.horizon_total) : "N/A")}</td>
-          </tr>
-          <tr>
-            <td>Rented Cloud GPU</td>
-            <td><span class="cell-truncate" title="${esc(c.scenarioInputs.laneC.hardware_topology ?? "N/A")}">${esc(c.scenarioInputs.laneC.hardware_topology ?? "Unavailable")}</span></td>
-            <td class="col-num">${esc(fmtMoneyUsd(totC.one_time))}</td>
-            <td class="col-num">${esc(totC.priced ? fmtMoneyUsd(totC.monthly_total) : "N/A")}</td>
-            <td class="col-num">${esc(totC.priced ? fmtMoneyUsd(totC.horizon_total) : "N/A")}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `;
+  const thead = $("gpu-matrix-thead-row");
+  thead.innerHTML = isTh
+    ? `<th>รุ่นการ์ด GPU</th><th class="col-num">TP/ชุด</th><th class="col-num">จำนวน GPU</th><th>เซิร์ฟเวอร์อัตโนมัติ</th><th class="col-num">งบฮาร์ดแวร์</th><th class="col-num">คืนทุน</th><th>เลือก</th>`
+    : `<th>GPU Accelerator</th><th class="col-num">TP</th><th class="col-num">Auto GPUs</th><th>Auto Server Topology</th><th class="col-num">Hardware BOM</th><th class="col-num">Payback</th><th>Action</th>`;
+
+  const tbody = $("gpu-matrix-tbody");
+  tbody.innerHTML = appState.gpuCandidates.map((row) => {
+    const badgeCls = !row.feasible
+      ? "badge-bad"
+      : (row.priced ? (row.status === "qualified_pass" ? "badge-ok" : "badge-warn") : "badge-warn");
+    const tpCell = row.tpDegree !== null ? `TP=${row.tpDegree}` : "N/A";
+    const gpuCountCell = row.feasible
+      ? (row.priced ? `${row.installedGpus} (${row.gpusRequired} req)` : `${row.gpusRequired} req`)
+      : "N/A";
+    const topoCell = row.feasible
+      ? (row.priced
+        ? `${row.nodes}x (${row.gpusPerNode} GPU/node)`
+        : (isTh ? "ต้องกรอกใบเสนอราคาเอง" : "Custom quote required"))
+      : (row.code === "exceeds_model_context_max"
+        ? (isTh ? "เกิน Context สูงสุดของโมเดล" : "Exceeds model max context")
+        : (row.code === "unsupported_cross_node_tp"
+          ? (isTh ? "TP เกินสล็อตต่อเครื่อง" : "TP exceeds node slots")
+          : (isTh ? "VRAM ไม่พอ / ต้องกรอก KV" : "Insufficient VRAM / spec")));
+    const bomCell = row.priced && row.capexUsd !== null ? fmtMoneyUsd(row.capexUsd) : "N/A";
+    const pbCell = row.priced && row.paybackMonths !== null
+      ? (isTh ? `${formatHalfUp(toRat(String(row.paybackMonths)), 1)} ด.` : `${formatHalfUp(toRat(String(row.paybackMonths)), 1)} mo`)
+      : (row.priced ? (isTh ? ">60 ด." : ">60 mo") : "N/A");
+    return `
+      <tr data-selected="${row.isSelected}">
+        <td><span class="badge ${badgeCls}">${esc(row.vramGb ?? "?")}G</span> ${esc(row.label)}</td>
+        <td class="col-num">${esc(tpCell)}</td>
+        <td class="col-num">${esc(gpuCountCell)}</td>
+        <td>${esc(topoCell)}</td>
+        <td class="col-num">${esc(bomCell)}</td>
+        <td class="col-num">${esc(pbCell)}</td>
+        <td>
+          <button type="button" class="row-select-btn" data-pick-gpu="${esc(row.gpuId)}" aria-pressed="${row.isSelected}">
+            ${esc(row.isSelected ? t.selectedBtn : t.selectBtn)}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
 }
 
-function renderResetConfirmation() {
-  const box = $("reset-confirm");
-  if (!appState.confirmingReset) {
-    box.hidden = true;
-    box.innerHTML = "";
+function renderLedgerAndSummaryRail() {
+  const isTh = appState.lang === "th";
+  const t = I18N[appState.lang];
+  const c = appState.computed;
+
+  $("ledger-60m-thead").innerHTML = isTh
+    ? `<th>ทางเลือก</th><th class="col-num">ลงทุนเริ่มต้น</th><th class="col-num">รายเดือนเฉลี่ย</th><th class="col-num">รวม 60 เดือน</th>`
+    : `<th>Option</th><th class="col-num">Upfront</th><th class="col-num">Monthly Run-Rate</th><th class="col-num">60-Month Total</th>`;
+
+  const ledgerBody = $("ledger-60m-tbody");
+  if (!c?.ok || !c.comparison) {
+    ledgerBody.innerHTML = `<tr><td colspan="4">${esc(isTh ? "แก้ไขเงื่อนไขด้านบนเพื่อแสดงตารางเปรียบเทียบต้นทุน 60 เดือน" : "Resolve configuration refusal above to compute 60-month TCO totals.")}</td></tr>`;
+    $("summary-payback-value").textContent = "N/A";
+    $("summary-kv").innerHTML = `
+      <div class="kv-row"><dt>${esc(t.kv.model)}</dt><dd>${esc(appState.draft.modelId)}</dd></div>
+      <div class="kv-row"><dt>${esc(t.kv.effPrompt)}</dt><dd>${c?.normalized ? `${fmtInt(c.normalized.effectivePromptTokens)} / ${fmtInt(c.normalized.effectiveContextTokens)}` : "N/A"}</dd></div>
+      <div class="kv-row"><dt>${esc(isTh ? "สาเหตุที่หยุดคำนวณ" : "Refusal reason")}</dt><dd style="color:var(--bad)">${esc(c?.reason || c?.fit?.reason || c?.bom?.reason || appState.fieldErrors._form || "Invalid")}</dd></div>
+    `;
+    const openBtn = $("rail-open-tco");
+    openBtn.href = "tco-calculator.html#custom-page";
+    openBtn.setAttribute("aria-disabled", "true");
+    $("rail-handoff-hint").textContent = isTh
+      ? "โปรดปรับขนาดโมเดล/Context/ราคาให้ผ่านเกณฑ์ก่อนส่งต่อไปยังหน้ากราฟ TCO เต็มรูปแบบ"
+      : "Select a valid model, GPU topology, and active API offer before opening the Full TCO Calculator.";
     return;
   }
-  const t = I18N[appState.lang];
-  box.hidden = false;
-  box.innerHTML = `
-    <span>${esc(t.resetPrompt)}</span>
-    <div class="btn-row">
-      <button type="button" class="btn btn-danger" id="btn-confirm-reset">${esc(t.resetConfirm)}</button>
-      <button type="button" class="btn" id="btn-cancel-reset">${esc(t.resetCancel)}</button>
-    </div>
-  `;
+
+  const tot = c.comparison.totals;
+  const rows = [
+    {
+      name: isTh ? `A. Local AI (${c.bom.installedGpus}x GPU)` : `A. Owned Local AI (${c.bom.installedGpus}x GPU)`,
+      upfrontRat: toRat(tot.A.one_time ?? "0"),
+      monthly: tot.A.monthly_total,
+      horizon: tot.A.horizon_total,
+    },
+    {
+      name: isTh ? "B. Cloud Model API" : "B. Cloud Model API",
+      upfrontRat: toRat(tot.B.one_time ?? "0"),
+      monthly: tot.B.monthly_total,
+      horizon: tot.B.horizon_total,
+    },
+    {
+      name: isTh ? "C. เช่า Cloud GPU รายชั่วโมง" : "C. Rented Cloud GPU",
+      upfrontRat: toRat(tot.C.one_time ?? "0"),
+      monthly: tot.C.monthly_total,
+      horizon: tot.C.horizon_total,
+    },
+  ];
+
+  ledgerBody.innerHTML = rows.map((r) => `
+    <tr>
+      <td>${esc(r.name)}</td>
+      <td class="col-num">${esc(r.horizon !== null ? fmtMoneyUsd(r.upfrontRat) : "N/A")}</td>
+      <td class="col-num">${esc(r.monthly !== null ? fmtMoneyUsd(r.monthly) : "N/A")}</td>
+      <td class="col-num">${esc(r.horizon !== null ? fmtMoneyUsd(r.horizon) : "N/A")}</td>
+    </tr>
+  `).join("");
+
+  const pbMonths = c.comparison.payback?.vs_model_api?.months;
+  if (pbMonths !== null && pbMonths !== undefined) {
+    const mStr = formatHalfUp(toRat(String(pbMonths)), 1);
+    $("summary-payback-value").textContent = isTh ? `${mStr} เดือน` : `${mStr} months`;
+  } else {
+    $("summary-payback-value").textContent = isTh ? "เกิน 60 เดือน" : "> 60 months";
+  }
+
+  const modelLabel = c.fit.resolvedModel?.label ?? c.normalized.modelId;
+  const kvRows = [
+    [t.kv.model, `${modelLabel} (${c.normalized.wquant.toUpperCase()})`],
+    [t.kv.fleet, `${c.bom.installedGpus} GPUs · ${c.bom.nodes}x (${c.bom.gpusPerNode}/node)`],
+    [t.kv.tp, `TP=${c.fit.serving.gpus_per_replica} · ${c.sizing.tokens_s_per_gpu.text} tok/s/GPU`],
+    [t.kv.effPrompt, `${fmtInt(c.normalized.effectivePromptTokens)} / ${fmtInt(c.normalized.effectiveContextTokens)} tok`],
+    [t.kv.monthlyTok, `${fmtInt(Number(c.demand.tokens_mo.text))} tok/mo`],
+    [t.kv.peakTok, `${c.peak.peak_tokens_s.text} tok/s`],
+    [t.kv.hwCapex, fmtMoneyUsd(c.bom.capexUsd)],
+    [t.kv.implOnce, fmtMoneyUsd(c.scenarioInputs?.oneTime?.A ?? "0")],
+    [t.kv.localMo, fmtMoneyUsd(tot.A.monthly_total)],
+    [t.kv.apiMo, fmtMoneyUsd(tot.B.monthly_total)],
+    [t.kv.total60Local, fmtMoneyUsd(tot.A.horizon_total)],
+    [t.kv.total60Api, fmtMoneyUsd(tot.B.horizon_total)],
+    [t.kv.dealTier, `Size ${c.dealTier}`],
+  ];
+  $("summary-kv").innerHTML = kvRows.map(([k, v]) => `<div class="kv-row"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
+
+  const openBtn = $("rail-open-tco");
+  openBtn.href = buildHandoffHref();
+  openBtn.removeAttribute("aria-disabled");
+  $("rail-handoff-hint").textContent = isTh
+    ? "ส่งค่าทั้งหมดไปยังหน้ากราฟ TCO เต็มรูปแบบ พร้อมปุ่มย้อนกลับมาแก้ไขหน้านี้ได้ทันที"
+    : "Transfers exact workload, model architecture, BOM, and API tariff into the Full TCO Calculator with one-click return.";
 }
 
-function renderAll({ preserveStepDom = false } = {}) {
-  recompute();
-  renderChrome();
-  renderStatusBanner();
-  renderSummaryRail();
-  renderResetConfirmation();
-  if (!preserveStepDom) {
-    const renderers = [renderStep1, renderStep2, renderStep3, renderStep4, renderStep5];
-    $("step-body").innerHTML = renderers[appState.step]();
+function renderSavedScenariosList() {
+  const isTh = appState.lang === "th";
+  const t = I18N[appState.lang];
+  const statusEl = $("save-status");
+  if (appState.saveStatus) {
+    statusEl.hidden = false;
+    statusEl.dataset.state = appState.saveStatus.state;
+    statusEl.textContent = appState.saveStatus.text;
+  } else {
+    statusEl.hidden = true;
+    statusEl.textContent = "";
   }
+
+  $("btn-save-browser").disabled = !appState.storageAvailable;
+
+  const ul = $("saved-scenarios-list");
+  if (!appState.savedScenarios.length) {
+    ul.innerHTML = `<li class="saved-item"><span class="field-hint">${esc(isTh ? "ยังไม่มีรายการที่บันทึกไว้ในเบราว์เซอร์ (สามารถกดบันทึกหรือนำเข้าไฟล์ .json ได้ทันที)" : "No scenarios saved in this browser yet. Save above or import a .json file.")}</span></li>`;
+    return;
+  }
+  ul.innerHTML = appState.savedScenarios.map((item) => {
+    const n = item.normalized;
+    const summary = n ? `${n.modelId} · ${n.gpuId} · ${fmtInt(n.users)} users · ${fmtInt(n.rawPromptTokens)} tok` : "";
+    return `
+      <li class="saved-item">
+        <div class="saved-meta">
+          <span class="saved-title">${esc(item.name)}</span>
+          <span class="saved-sub">${esc(summary)} · ${esc(fmtIsoDate(item.savedAt))}</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn" data-load-save="${esc(item.id)}">${esc(t.loadBtn)}</button>
+          <button type="button" class="btn btn-danger" data-delete-save="${esc(item.id)}">${esc(t.deleteBtn)}</button>
+        </div>
+      </li>
+    `;
+  }).join("");
+}
+
+function renderStatusAndSources() {
+  const isTh = appState.lang === "th";
+  const bar = $("live-announcer");
+  const badge = $("source-badge");
+
+  if (appState.loadError) {
+    bar.dataset.state = "error";
+    bar.textContent = appState.loadError;
+    badge.className = "badge badge-bad";
+    badge.textContent = "Load Error";
+    return;
+  }
+
+  const orSrc = appState.data.manifest?.sources?.openrouter;
+  const fxDoc = appState.data.fx;
+  const orOrigin = orSrc?.origin === "live" ? "Live" : "Snapshot";
+  const fxOrigin = fxDoc?.integrity === "complete-transport" ? "Live" : "Snapshot";
+
+  if (appState.liveRefreshStatus === "loading") {
+    badge.className = "badge badge-cyan";
+    badge.textContent = isTh ? "กำลังอัปเดตราคาสด…" : "Refreshing live rates…";
+  } else if (orOrigin === "Live" || fxOrigin === "Live") {
+    badge.className = "badge badge-ok";
+    badge.textContent = `OpenRouter ${orOrigin} · FX ${fxOrigin}`;
+  } else {
+    badge.className = "badge";
+    badge.textContent = isTh ? "ข้อมูลอ้างอิงตามรอบบันทึก" : "Dated local snapshot";
+  }
+
+  if (appState.fieldErrors._global || appState.fieldErrors._form) {
+    bar.dataset.state = "error";
+    bar.textContent = appState.fieldErrors._global || appState.fieldErrors._form;
+  } else if (appState.computed && !appState.computed.ok) {
+    bar.dataset.state = "error";
+    bar.textContent = appState.computed.reason || appState.computed.fit?.reason || appState.computed.bom?.reason || "Configuration refused.";
+  } else if (appState.presetBanner === "sizer_restored") {
+    bar.dataset.state = "ok";
+    bar.textContent = isTh
+      ? "โหลดชุดข้อมูลที่ตั้งค่าไว้กลับมาเรียบร้อยแล้ว สามารถแก้ไขเพิ่มเติมได้ทันที"
+      : "Restored saved/shared Local AI Sizer scenario. Adjust any control below.";
+  } else if (appState.presetBanner === "preset_applied") {
+    bar.dataset.state = "ok";
+    bar.textContent = isTh
+      ? "โหลดชุดค่าเริ่มต้นโครงการเรียบร้อยแล้ว"
+      : "Applied preset parameters.";
+  } else {
+    bar.dataset.state = "";
+    const rateStr = fxDoc ? formatHalfUp(fxDoc.rate, 2) : "N/A";
+    bar.textContent = isTh
+      ? `พร้อมคำนวณ: อัตราแลกเปลี่ยน ${rateStr} บาท/USD (${fmtIsoDate(fxDoc?.observed_at)}) · ราคา OpenRouter (${orOrigin} ${fmtIsoDate(orSrc?.observed_at)})`
+      : `Ready: ECB FX ${rateStr} THB/USD (${fmtIsoDate(fxDoc?.observed_at)}) · OpenRouter tariffs (${orOrigin} ${fmtIsoDate(orSrc?.observed_at)})`;
+  }
+
+  $("source-footnote").textContent = isTh
+    ? `แหล่งข้อมูล: โมเดลจาก serving-models.json · ราคาเซิร์ฟเวอร์จาก server-pricing.json · ราคา API จาก OpenRouter (${orOrigin}) และ LiteLLM · อัตราแลกเปลี่ยน ECB/Frankfurter (${fxOrigin})`
+    : `Sources: architectures from serving-models.json · server bands from server-pricing.json · API tariffs from OpenRouter (${orOrigin}) & LiteLLM · FX from ECB/Frankfurter (${fxOrigin}).`;
+
+  const resetBar = $("reset-confirm");
+  if (appState.confirmingReset) {
+    const t = I18N[appState.lang];
+    resetBar.hidden = false;
+    resetBar.innerHTML = `
+      <span>${esc(t.resetAsk)}</span>
+      <div class="btn-row">
+        <button type="button" class="btn btn-danger" id="btn-confirm-reset">${esc(t.resetConfirmBtn)}</button>
+        <button type="button" class="btn" id="btn-cancel-reset">${esc(t.resetCancelBtn)}</button>
+      </div>
+    `;
+  } else {
+    resetBar.hidden = true;
+    resetBar.innerHTML = "";
+  }
+}
+
+function renderAll({ preserveFocus = false } = {}) {
+  recompute();
+  renderStaticLabels();
+  renderWorkloadCardsAndPills();
+  renderModelAndGpuSelectors();
+  renderApiControls();
+  renderConnectorsList();
+  syncInputsFromDraft({ force: !preserveFocus });
+  renderAutoGpuAndMatrix();
+  renderLedgerAndSummaryRail();
+  renderSavedScenariosList();
+  renderStatusAndSources();
   syncAddressBar();
 }
 
-function wireEvents() {
-  $("lang-th").addEventListener("click", () => { appState.lang = "th"; renderAll(); });
-  $("lang-en").addEventListener("click", () => { appState.lang = "en"; renderAll(); });
-  $("cur-thb").addEventListener("click", () => { appState.displayCurrency = "THB"; renderAll(); });
-  $("cur-usd").addEventListener("click", () => { appState.displayCurrency = "USD"; renderAll(); });
-
-  $("wizard-stepper").addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-goto]");
-    if (!btn) return;
-    appState.step = Number(btn.dataset.goto);
-    renderAll();
-  });
-
-  $("btn-prev").addEventListener("click", () => {
-    if (appState.step > 0) {
-      appState.step -= 1;
-      renderAll();
-    }
-  });
-
-  $("btn-reset").addEventListener("click", () => {
-    appState.confirmingReset = true;
-    renderResetConfirmation();
-    $("btn-confirm-reset")?.focus();
-  });
-
-  $("reset-confirm").addEventListener("click", (e) => {
-    if (e.target.id === "btn-confirm-reset") {
-      appState.confirmingReset = false;
-      appState.draft = defaultDraft();
-      appState.step = 0;
-      renderAll();
-    } else if (e.target.id === "btn-cancel-reset") {
-      appState.confirmingReset = false;
-      renderResetConfirmation();
-      $("btn-reset").focus();
-    }
-  });
-
-  $("footer-primary-actions").addEventListener("click", async (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    if (btn.id === "btn-next" && appState.step < 4) {
-      appState.step += 1;
-      renderAll();
-    } else if (btn.id === "btn-print") {
-      window.print();
-    } else if (btn.id === "btn-copy-link") {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        btn.textContent = I18N[appState.lang].copiedLink;
-      } catch {
-        // Clipboard unavailable on insecure origin
-      }
-    } else if (btn.id === "btn-export-json" && appState.computed?.normalized) {
-      const blob = new Blob([JSON.stringify(appState.computed.normalized, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "local-ai-sizer-scenario.json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-  });
-
-  $("step-body").addEventListener("click", (e) => {
-    const wlBtn = e.target.closest("[data-workload]");
-    if (wlBtn) {
-      selectWorkloadPreset(wlBtn.dataset.workload);
-      renderAll();
-      return;
-    }
-    const modeBtn = e.target.closest("[data-mode]");
-    if (modeBtn) {
-      appState.draft.deploymentMode = modeBtn.dataset.mode;
-      renderAll();
-    }
-  });
-
-  $("step-body").addEventListener("change", (e) => {
-    const el = e.target;
-    if (el.name === "connector") {
-      const checked = [...document.querySelectorAll('input[name="connector"]:checked')].map((n) => n.value);
-      appState.draft.connectors = checked;
-      renderAll();
-      return;
-    }
-    if (el.tagName === "SELECT") {
-      handleFieldChange(el.name, el.value);
-      renderAll();
-    }
-  });
-
-  $("step-body").addEventListener("input", (e) => {
-    const el = e.target;
-    if (el.tagName !== "INPUT" || el.type === "checkbox") return;
-    handleFieldChange(el.name, el.value);
-    renderAll({ preserveStepDom: true });
-    el.setAttribute("aria-invalid", String(Boolean(appState.fieldErrors._form)));
-  });
-}
-
-function handleFieldChange(name, value) {
+function handleFieldMutation(name, value) {
+  appState.mutationSeq += 1;
+  appState.presetBanner = null;
   const d = appState.draft;
+
   if (name === "peakPct") {
     const num = Number(String(value).trim());
     d.peakConcurrencyFraction = Number.isFinite(num) && num > 0 ? String(num / 100) : value;
@@ -1208,6 +1502,21 @@ function handleFieldChange(name, value) {
     appState.displayCurrency = value;
     return;
   }
+  if (name === "modelId") {
+    d.modelId = value;
+    d.legacyCustomAssumed = false;
+    if (value === "custom") {
+      if (!d.customParamsB) d.customParamsB = "70";
+      if (!d.customActiveParamsB) d.customActiveParamsB = d.customParamsB;
+      $("details-custom-model").open = true;
+    }
+    return;
+  }
+  if (name === "customParamsB" || name === "customActiveParamsB" || name === "customKvBytesBf16" || name === "customContextMax") {
+    d[name] = value;
+    d.legacyCustomAssumed = false;
+    return;
+  }
   if (name === "gpuId") {
     d.gpuId = value;
     d.serverId = "";
@@ -1220,6 +1529,365 @@ function handleFieldChange(name, value) {
   if (name in d) {
     d[name] = value;
   }
+}
+
+function defaultScenarioName() {
+  const w = LOCAL_AI_WORKLOADS.find((x) => x.id === appState.draft.workloadId);
+  const title = w ? w[appState.lang].sectorTag : appState.draft.workloadId;
+  return `${title} · ${appState.draft.modelId} · ${appState.draft.gpuId} (${appState.draft.users}u)`.slice(0, 80);
+}
+
+function handleSaveBrowser() {
+  const isTh = appState.lang === "th";
+  let frag;
+  try {
+    frag = buildCurrentFragment();
+  } catch (err) {
+    appState.saveStatus = { state: "error", text: err.message };
+    renderSavedScenariosList();
+    return;
+  }
+  const rawName = $("save-name-input").value.trim() || defaultScenarioName();
+  const id = `scn-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  const savedAt = new Date().toISOString();
+  const res = storageAdapter.saveScenario({ id, name: rawName, savedAt, fragment: frag });
+  if (!res.ok) {
+    appState.saveStatus = { state: "error", text: res.error };
+    if (res.code === "storage_unavailable") appState.storageAvailable = false;
+    renderSavedScenariosList();
+    return;
+  }
+  appState.savedScenarios = res.scenarios;
+  $("save-name-input").value = "";
+  appState.saveStatus = {
+    state: "ok",
+    text: isTh ? `บันทึก "${rawName}" ไว้ในเบราว์เซอร์แล้ว` : `Saved "${rawName}" in browser storage.`,
+  };
+  renderSavedScenariosList();
+}
+
+function handleExportJson() {
+  const isTh = appState.lang === "th";
+  let frag;
+  try {
+    frag = buildCurrentFragment();
+  } catch (err) {
+    appState.saveStatus = { state: "error", text: err.message };
+    renderSavedScenariosList();
+    return;
+  }
+  const nowIso = new Date().toISOString();
+  const rawName = $("save-name-input").value.trim() || defaultScenarioName();
+  const currentRecord = {
+    id: `export-${Date.now().toString(36)}`,
+    name: rawName,
+    savedAt: nowIso,
+    fragment: frag,
+  };
+  let jsonText;
+  try {
+    jsonText = encodeSizerSaveEnvelope([currentRecord], { exportedAt: nowIso, allowEmpty: false });
+  } catch (err) {
+    appState.saveStatus = { state: "error", text: err.message };
+    renderSavedScenariosList();
+    return;
+  }
+  const blob = new Blob([jsonText], { type: "application/json" });
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  const slug = rawName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "scenario";
+  a.download = `local-ai-sizer-${slug.slice(0, 36)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  appState.saveStatus = {
+    state: "ok",
+    text: isTh ? "ดาวน์โหลดไฟล์ .json เรียบร้อยแล้ว" : "Downloaded scenario .json file.",
+  };
+  renderSavedScenariosList();
+}
+
+async function handleImportJsonFile(file) {
+  if (!file) return;
+  const isTh = appState.lang === "th";
+  const importOpSeq = ++appState.mutationSeq;
+
+  if (file.size > MAX_SAVE_BYTES) {
+    appState.saveStatus = {
+      state: "error",
+      text: isTh
+        ? `ไฟล์มีขนาดใหญ่เกินกำหนด 64 KiB (${file.size} bytes)`
+        : `Import rejected: file exceeds the 64 KiB safety limit (${file.size} bytes).`,
+    };
+    renderSavedScenariosList();
+    return;
+  }
+
+  let text;
+  try {
+    text = await file.text();
+  } catch (err) {
+    if (importOpSeq !== appState.mutationSeq) return;
+    appState.saveStatus = { state: "error", text: `Unable to read file: ${err.message}` };
+    renderSavedScenariosList();
+    return;
+  }
+
+  // Abandon stale async file read if user edited inputs or started a newer import meanwhile.
+  if (importOpSeq !== appState.mutationSeq) return;
+
+  let decoded;
+  try {
+    decoded = decodeSizerSaveEnvelope(text, { allowEmpty: false });
+  } catch (err) {
+    appState.saveStatus = {
+      state: "error",
+      text: isTh ? `นำเข้าไฟล์ไม่สำเร็จ: ${err.message}` : `Import rejected: ${err.message}`,
+    };
+    renderSavedScenariosList();
+    return;
+  }
+
+  const primary = decoded.scenarios[0];
+  hydrateDraftFromNormalized(primary.normalized);
+  appState.displayCurrency = primary.normalized.quoteCurrency;
+  appState.presetBanner = "sizer_restored";
+  $("save-name-input").value = primary.name;
+  appState.saveStatus = {
+    state: "ok",
+    text: isTh
+      ? `นำเข้า "${primary.name}" เรียบร้อยแล้ว (${decoded.scenarios.length} รายการในไฟล์)`
+      : `Imported "${primary.name}" (${decoded.scenarios.length} scenario${decoded.scenarios.length === 1 ? "" : "s"} validated).`,
+  };
+  renderAll();
+}
+
+function wireEvents() {
+  document.addEventListener("click", async (ev) => {
+    const target = ev.target.closest("button, a");
+    if (!target) return;
+
+    if (target.id === "lang-th" || target.id === "lang-en") {
+      appState.lang = target.id === "lang-th" ? "th" : "en";
+      renderAll();
+      return;
+    }
+    if (target.id === "cur-thb" || target.id === "cur-usd") {
+      appState.displayCurrency = target.id === "cur-thb" ? "THB" : "USD";
+      renderAll();
+      return;
+    }
+
+    const wlBtn = ev.target.closest("[data-workload-id]");
+    if (wlBtn) {
+      appState.mutationSeq += 1;
+      appState.presetBanner = null;
+      selectWorkloadPreset(wlBtn.dataset.workloadId);
+      renderAll();
+      return;
+    }
+
+    const promptBtn = ev.target.closest("[data-prompt-preset]");
+    if (promptBtn) {
+      const p = PROMPT_SCALE_PRESETS.find((x) => x.id === promptBtn.dataset.promptPreset);
+      if (p) {
+        appState.mutationSeq += 1;
+        appState.presetBanner = null;
+        appState.draft.rawPromptTokens = String(p.rawPromptTokens);
+        appState.draft.rawOutputTokens = String(p.rawOutputTokens);
+        if (Number(appState.draft.rawContextTokens) < p.rawContextTokens) {
+          appState.draft.rawContextTokens = String(p.rawContextTokens);
+        }
+        renderAll();
+      }
+      return;
+    }
+
+    const pickGpuBtn = ev.target.closest("[data-pick-gpu]");
+    if (pickGpuBtn) {
+      appState.mutationSeq += 1;
+      appState.presetBanner = null;
+      appState.draft.gpuId = pickGpuBtn.dataset.pickGpu;
+      appState.draft.serverId = "";
+      renderAll();
+      return;
+    }
+
+    if (target.id === "btn-clear-custom-model") {
+      appState.mutationSeq += 1;
+      if (appState.draft.modelId === "custom") {
+        const w = LOCAL_AI_WORKLOADS.find((x) => x.id === appState.draft.workloadId) ?? LOCAL_AI_WORKLOADS[0];
+        appState.draft.modelId = w.recommendedModelId;
+      }
+      appState.draft.customParamsB = "";
+      appState.draft.customActiveParamsB = "";
+      appState.draft.customKvBytesBf16 = "";
+      appState.draft.customContextMax = "";
+      appState.draft.legacyCustomAssumed = false;
+      renderAll();
+      return;
+    }
+
+    if (target.id === "btn-api-auto") {
+      appState.mutationSeq += 1;
+      appState.draft.apiOfferId = "";
+      renderAll();
+      return;
+    }
+
+    if (target.id === "btn-api-clear-filters") {
+      appState.viewFilters.apiFeed = "all";
+      appState.viewFilters.apiVendor = "all";
+      appState.viewFilters.apiSearch = "";
+      renderApiControls();
+      return;
+    }
+
+    if (target.id === "btn-save-browser") {
+      handleSaveBrowser();
+      return;
+    }
+    if (target.id === "btn-export-json") {
+      handleExportJson();
+      return;
+    }
+    if (target.id === "btn-import-json") {
+      const inp = $("file-import-json");
+      inp.value = "";
+      inp.click();
+      return;
+    }
+
+    const loadBtn = ev.target.closest("[data-load-save]");
+    if (loadBtn) {
+      const rec = appState.savedScenarios.find((x) => x.id === loadBtn.dataset.loadSave);
+      if (rec?.normalized) {
+        appState.mutationSeq += 1;
+        hydrateDraftFromNormalized(rec.normalized);
+        appState.displayCurrency = rec.normalized.quoteCurrency;
+        appState.presetBanner = "sizer_restored";
+        appState.saveStatus = {
+          state: "ok",
+          text: appState.lang === "th" ? `โหลด "${rec.name}" แล้ว` : `Loaded "${rec.name}".`,
+        };
+        renderAll();
+      }
+      return;
+    }
+
+    const delBtn = ev.target.closest("[data-delete-save]");
+    if (delBtn) {
+      const res = storageAdapter.deleteScenario(delBtn.dataset.deleteSave);
+      if (res.ok) {
+        appState.savedScenarios = res.scenarios;
+        appState.saveStatus = {
+          state: "ok",
+          text: appState.lang === "th" ? "ลบรายการที่บันทึกไว้แล้ว" : "Deleted saved scenario.",
+        };
+      } else {
+        appState.saveStatus = { state: "error", text: res.error };
+      }
+      renderSavedScenariosList();
+      return;
+    }
+
+    if (target.id === "btn-copy-link") {
+      try {
+        const frag = buildCurrentFragment();
+        const shareUrl = new URL(window.location.href);
+        shareUrl.hash = frag;
+        await navigator.clipboard?.writeText(shareUrl.toString());
+        target.textContent = I18N[appState.lang].copiedLinkBtn;
+        setTimeout(() => { target.textContent = I18N[appState.lang].copyLinkBtn; }, 1800);
+      } catch (err) {
+        if (err instanceof SizerValidationError) {
+          appState.saveStatus = { state: "error", text: err.message };
+          renderSavedScenariosList();
+        }
+      }
+      return;
+    }
+
+    if (target.id === "btn-print") {
+      window.print();
+      return;
+    }
+
+    if (target.id === "btn-reset") {
+      appState.confirmingReset = true;
+      renderStatusAndSources();
+      return;
+    }
+    if (target.id === "btn-cancel-reset") {
+      appState.confirmingReset = false;
+      renderStatusAndSources();
+      return;
+    }
+    if (target.id === "btn-confirm-reset") {
+      appState.mutationSeq += 1;
+      appState.confirmingReset = false;
+      appState.presetBanner = null;
+      appState.fieldErrors = {};
+      appState.draft = defaultDraft();
+      renderAll();
+    }
+  });
+
+  document.addEventListener("change", (ev) => {
+    const el = ev.target;
+    if (el.id === "file-import-json") {
+      const file = el.files?.[0];
+      if (file) handleImportJsonFile(file);
+      return;
+    }
+    if (el.id === "filter-api-feed") {
+      appState.viewFilters.apiFeed = el.value;
+      renderApiControls();
+      return;
+    }
+    if (el.id === "filter-api-vendor") {
+      appState.viewFilters.apiVendor = el.value;
+      renderApiControls();
+      return;
+    }
+    if (el.dataset?.connectorId) {
+      appState.mutationSeq += 1;
+      const cid = el.dataset.connectorId;
+      const set = new Set(appState.draft.connectors);
+      if (el.checked) set.add(cid);
+      else set.delete(cid);
+      appState.draft.connectors = [...set];
+      renderAll();
+      return;
+    }
+    if (el.dataset?.field) {
+      handleFieldMutation(el.dataset.field, el.value);
+      renderAll();
+    }
+  });
+
+  document.addEventListener("input", (ev) => {
+    const el = ev.target;
+    if (el.id === "filter-api-search") {
+      appState.viewFilters.apiSearch = el.value;
+      renderApiControls();
+      return;
+    }
+    if (el.tagName === "INPUT" && el.dataset?.field) {
+      handleFieldMutation(el.dataset.field, el.value);
+      recompute();
+      renderWorkloadCardsAndPills();
+      renderModelAndGpuSelectors();
+      renderApiControls();
+      syncInputsFromDraft();
+      renderAutoGpuAndMatrix();
+      renderLedgerAndSummaryRail();
+      renderStatusAndSources();
+      syncAddressBar();
+    }
+  });
 }
 
 async function runDomAuditIfRequested() {
@@ -1266,6 +1934,7 @@ async function runDomAuditIfRequested() {
   const contrastFails = [];
   const smallText = [];
   const smallTargets = [];
+  const smallPrimaryTargets = [];
   const spills = [];
   const sizes = new Map();
   const textBoxes = new Set();
@@ -1273,7 +1942,7 @@ async function runDomAuditIfRequested() {
   for (const el of document.querySelectorAll("body *")) {
     if (!shown(el) || el.id === "auditReport" || el.closest("#auditReport")) continue;
     const cs = getComputedStyle(el);
-    const isControl = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && !/^(checkbox|radio|hidden)$/.test(el.type);
+    const isControl = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && !/^(checkbox|radio|hidden|file)$/.test(el.type);
     const direct = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim());
     if (!isControl && !direct) continue;
     const fs = px(cs.fontSize);
@@ -1307,11 +1976,15 @@ async function runDomAuditIfRequested() {
     }
   }
 
-  for (const el of document.querySelectorAll('a[href],button,input,select,[tabindex]:not([tabindex="-1"])')) {
-    if (!shown(el) || el.type === "checkbox") continue;
+  for (const el of document.querySelectorAll('a[href],button,input,select,summary,[tabindex]:not([tabindex="-1"])')) {
+    if (!shown(el) || el.type === "checkbox" || el.type === "file") continue;
     const r = el.getBoundingClientRect();
+    const inLedger = Boolean(el.closest(".ledger-table"));
     if (r.width < 24 || r.height < 24) {
       smallTargets.push({ sel: nameOf(el), w: Math.round(r.width), h: Math.round(r.height) });
+    }
+    if (!inLedger && (r.width < 44 || r.height < 44)) {
+      smallPrimaryTargets.push({ sel: nameOf(el), w: Math.round(r.width), h: Math.round(r.height) });
     }
   }
 
@@ -1336,17 +2009,20 @@ async function runDomAuditIfRequested() {
   const report = {
     viewport: { w: window.innerWidth, h: window.innerHeight },
     lang: appState.lang,
-    step: appState.step + 1,
+    macrostructure: "Workbench",
     docOverflowX,
     typeScale: scale,
     hierarchyRatio: scale.length > 1 ? Math.round((scale[0] / scale[1]) * 100) / 100 : 1,
     contrastFails,
     smallText,
     smallTargets,
+    smallPrimaryTargets,
     spills,
     ledgerRowOver48,
     ledgerPadOver24,
     computedOk: Boolean(appState.computed?.ok),
+    workloadCount: document.querySelectorAll("[data-workload-id]").length,
+    gpuCandidateCount: appState.gpuCandidates.length,
   };
 
   const out = $("auditReport");
@@ -1356,6 +2032,14 @@ async function runDomAuditIfRequested() {
 
 async function init() {
   applyUrlStateOnBoot();
+  const initialSaved = storageAdapter.readSavedScenarios();
+  appState.storageAvailable = initialSaved.available;
+  if (initialSaved.ok) {
+    appState.savedScenarios = initialSaved.scenarios;
+  } else if (initialSaved.corrupted) {
+    appState.saveStatus = { state: "warn", text: initialSaved.error };
+  }
+
   wireEvents();
   try {
     const manifest = await loadManifest();
@@ -1381,12 +2065,32 @@ async function init() {
     appState.ready = true;
     $("main-workspace").setAttribute("aria-busy", "false");
     renderAll();
+
+    // Bounded 4s overall live OpenRouter + Frankfurter FX refresh; updates source data only, never draft inputs.
+    refreshLiveSourcesTransaction({
+      manifest: appState.data.manifest,
+      catalog: appState.data.catalog,
+      fx: appState.data.fx,
+      timeoutMs: 4000,
+    }).then(async (liveRes) => {
+      appState.data.manifest = liveRes.manifest;
+      appState.data.catalog = liveRes.catalog;
+      appState.data.fx = liveRes.fx;
+      appState.liveRefreshStatus = (liveRes.openrouterLive && liveRes.fxLive)
+        ? "live"
+        : ((liveRes.openrouterLive || liveRes.fxLive) ? "partial" : "fallback");
+      renderAll({ preserveFocus: true });
+      await runDomAuditIfRequested();
+    });
+
     await runDomAuditIfRequested();
   } catch (err) {
     appState.loadError = `Failed to load local snapshots: ${err.message}`;
     $("main-workspace").setAttribute("aria-busy", "false");
-    renderStatusBanner();
+    renderStatusAndSources();
   }
 }
 
-init();
+if (typeof document !== "undefined" && document.getElementById("main-workspace")) {
+  init();
+}

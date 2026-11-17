@@ -4,8 +4,16 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
-import { decodeSizerFragment, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity } from "../sizer-engine.js";
+import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
 import { replaceCatalogSource } from "../live-pricing.js";
+import { setupStarters as realSetupStarters } from "../starter-ui.js";
+import { createSizerStorageAdapter, refreshLiveSourcesTransaction, SIZER_STORAGE_KEY } from "../sizer-ui.js";
+import * as demandMod from "../demand.js";
+import * as servingMod from "../serving.js";
+import * as capexMod from "../capex.js?v=20260906-ux3";
+import * as subscriptionMod from "../subscription.js";
+import * as powerMod from "../power.js";
+import * as calculatorMod from "../calculator.js?v=20260906-ux3";
 import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {
@@ -767,10 +775,11 @@ test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee on
   assert.equal(h.node("f-sh-nodes").value, "2");
   assert.equal(h.node("f-sh-capex").value, "1850000");
   assert.equal(h.node("f-onetime-a").value, "750000");
-  assert.match(h.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+  assert.match(h.node("return-review").innerHTML, /Pricing sources|Pricing source/);
+  assert.doesNotMatch(h.node("return-review").innerHTML, /snap-0\||snap-1\||digest-pinned|complete-transport/);
   assert.equal(h.replacedUrl(), "/tco-calculator.html#custom-page");
 
-  // Live API catalog refresh with unchanged FX triggers repricing notice
+  // Live API catalog refresh with unchanged FX triggers clean human-readable repricing notice (zero raw pipe/digest strings)
   const liveH = sizerReceiverHarness();
   const initialIdentity = buildPricingIdentity(liveH.state.manifest, liveH.state.fx);
   const liveNorm = normalizeSizerInput({
@@ -788,7 +797,8 @@ test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee on
   liveH.state.catalog = replaced.catalog;
   liveH.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${liveFrag}`;
   assert.equal(liveH.get("processSizerReturn()"), true);
-  assert.match(liveH.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+  assert.match(liveH.node("return-review").innerHTML, /OpenRouter \(live feed 2026-11-17\)/);
+  assert.doesNotMatch(liveH.node("return-review").innerHTML, /\|openrouter:|digest-pinned|complete-transport/);
 
   // Malformed or conflicting URLs fail closed with zero control mutation across the entire snapshot
   const snapControls = (inst) => JSON.parse(JSON.stringify(inst.get("captureControls()")));
@@ -1016,4 +1026,440 @@ test("the staleness banner says how old the prices are, not which envelope lapse
   assert.equal(h.node("banner").innerHTML.match(/model API prices/g).length, 1);
 
   h.get("renderBanner")({ banner: null });
+});
+
+test("custom 70B flat-KV and parameter-override projections match real buildScenario -> runComparison across owned, API, and rented GPU lanes", () => {
+  const fullData = {
+    manifest: JSON.parse(readFileSync(new URL("../data/manifest.json", import.meta.url), "utf8")),
+    fx: normalizeFxDocument({ observed_at: "2026-09-01", usd_thb: "33.801", source_id: "fixture" }),
+    gpuPricing: JSON.parse(readFileSync(new URL("../data/gpu-pricing.json", import.meta.url), "utf8")),
+    serverPricing: JSON.parse(readFileSync(new URL("../data/server-pricing.json", import.meta.url), "utf8")),
+    servingData: JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8")),
+    powerSeed: JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8")),
+    subscriptions: JSON.parse(readFileSync(new URL("../data/subscription-pricing.json", import.meta.url), "utf8")),
+  };
+  fullData.catalog = JSON.parse(
+    readFileSync(new URL(`../data/${fullData.manifest.resources.catalog.path}`, import.meta.url), "utf8"),
+  );
+
+  for (const rawScenario of [
+    {
+      users: 120,
+      rawPromptTokens: 12000,
+      rawOutputTokens: 600,
+      rawContextTokens: 32768,
+      tokenBasis: "thai_tokenized_1x",
+      modelId: "custom",
+      customParamsB: "70",
+      customActiveParamsB: "70",
+      customKvBytesBf16: 327680,
+      customContextMax: 65536,
+      wquant: "fp8",
+      kvquant: "fp8",
+      gpuId: "h100",
+      quoteBasis: "catalog",
+    },
+    {
+      users: 180,
+      rawPromptTokens: 10500,
+      rawOutputTokens: 500,
+      rawContextTokens: 32768,
+      modelId: "qwen3-8-27b",
+      customParamsB: "34",
+      customActiveParamsB: "34",
+      wquant: "fp8",
+      kvquant: "fp8",
+      gpuId: "rtx_pro_6000_se",
+      quoteBasis: "catalog",
+    },
+  ]) {
+    const normalized = normalizeSizerInput(rawScenario);
+    const h = sizerReceiverHarness();
+    Object.assign(h.context, demandMod, servingMod, capexMod, subscriptionMod, powerMod, calculatorMod);
+    Object.assign(h.state, fullData);
+    powerMod.configurePowerSeed(fullData.powerSeed);
+
+    const projected = projectSizerControls({
+      normalized,
+      beforeControls: h.get("captureControls()"),
+      stateData: fullData,
+    });
+    h.context.applyControls(projected.controls);
+    h.context.realGroups = projected.groups;
+    h.get("readArchGroups = () => realGroups");
+
+    const actual = calculatorMod.runComparison(h.get("buildScenario()").inputs);
+    for (const lane of ["A", "B", "C"]) {
+      for (const field of ["one_time", "monthly_total", "horizon_total"]) {
+        if (actual.totals[lane][field] === null) {
+          assert.equal(projected.result.comparison.totals[lane][field], null);
+        } else {
+          assert.equal(
+            formatHalfUp(toRat(actual.totals[lane][field]), 8),
+            formatHalfUp(toRat(projected.result.comparison.totals[lane][field]), 8),
+            `mismatch on lane ${lane}.${field} for model ${rawScenario.modelId}`,
+          );
+        }
+      }
+    }
+  }
+});
+
+test("real setupStarters + processSizerReturn wire #starter-back and #topbar-sizer-link to sizer origin, flag calculator edits, preserve advisor roundtrips, and keep direct starter fallback", () => {
+  const makeRealOriginHarness = () => {
+    const h = sizerReceiverHarness();
+    const navigated = [];
+    const domDoc = {
+      getElementById: (id) => h.node(id),
+    };
+    const prevDoc = globalThis.document;
+    globalThis.document = domDoc;
+    let realStarter;
+    try {
+      realStarter = realSetupStarters({
+        getData: () => ({ ...h.state, ready: false, fx: h.state.fx }),
+        onAdvisor: () => {},
+        onCustom: () => { h.get("void 0"); },
+        onBackFromCustom: (dest) => { navigated.push(dest); },
+        validateReturnOrigin: (cand) => h.context.validateSizerReturnOrigin(cand),
+      });
+    } finally {
+      globalThis.document = prevDoc;
+    }
+    h.context.realStarter = realStarter;
+    h.get("starterUI = realStarter");
+    return { h, realStarter, navigated, runWithDom: (fn) => {
+      const prev = globalThis.document;
+      globalThis.document = domDoc;
+      try { return fn(); } finally { globalThis.document = prev; }
+    } };
+  };
+
+  // 1. Direct calculator visitor: entering custom mode and clicking #starter-back returns to starter-page, never sizer
+  const direct = makeRealOriginHarness();
+  direct.runWithDom(() => {
+    direct.realStarter.setMode("custom");
+    assert.equal(direct.h.node("starter-back").textContent, "← Back to single-server examples");
+    direct.h.node("starter-back").events.click();
+    assert.equal(direct.realStarter.snapshot().mode, "starter");
+    assert.equal(direct.navigated.length, 0);
+  });
+
+  // 2. Valid #sizer=v1 arrival: installs returnOrigin, updates #starter-back and #topbar-sizer-link, and navigates back to sizer without switching to starter
+  const sizerVisit = makeRealOriginHarness();
+  const norm = normalizeSizerInput({
+    workloadId: "thai_knowledge_rag",
+    users: 200,
+    rawPromptTokens: 12000,
+    rawOutputTokens: 500,
+    rawContextTokens: 32768,
+    modelId: "qwen3-5-9b",
+    gpuId: "rtx_pro_6000_se",
+    quoteBasis: "integrated_node",
+    nodes: 1,
+    gpusPerNode: 2,
+    integratedNodePrice: { amount: "900000", currency: "THB" },
+    apiOfferId: "openrouter:gpt-4o",
+  });
+  const frag = encodeSizerFragment(norm, { resolvedApiOfferId: "openrouter:gpt-4o" });
+  sizerVisit.h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${frag}`;
+
+  sizerVisit.runWithDom(() => {
+    assert.equal(sizerVisit.h.get("processSizerReturn()"), true);
+    assert.equal(sizerVisit.realStarter.snapshot().mode, "custom");
+    assert.equal(sizerVisit.h.node("starter-back").textContent, "← Back to Guided Local AI Sizer");
+    assert.equal(sizerVisit.h.node("topbar-sizer-link").href, `local-ai-sizer.html#${frag}`);
+
+    // Editing f-onetime-a on custom-page visibly labels that calculator edits are not included in original sizer return
+    sizerVisit.h.node("f-onetime-a").value = "999999";
+    sizerVisit.h.get("onLiveInput()");
+    assert.match(sizerVisit.h.node("starter-back").textContent, /calculator edits not included/);
+
+    sizerVisit.h.node("starter-back").events.click();
+    assert.deepEqual(sizerVisit.navigated, [`local-ai-sizer.html#${frag}`]);
+    assert.equal(sizerVisit.realStarter.snapshot().mode, "custom");
+
+    // Snapshot -> restore (openAdvisor roundtrip) preserves valid returnOrigin and rejects tampered fragments
+    const savedSnap = sizerVisit.realStarter.snapshot();
+    assert.equal(savedSnap.returnOrigin.fragment, frag);
+
+    const restoredVisit = makeRealOriginHarness();
+    restoredVisit.runWithDom(() => {
+      restoredVisit.realStarter.restore(savedSnap);
+      assert.equal(restoredVisit.realStarter.getReturnOrigin().fragment, frag);
+      assert.equal(restoredVisit.h.node("topbar-sizer-link").href, `local-ai-sizer.html#${frag}`);
+
+      // Forged/corrupted fragment in restore is rejected cleanly
+      restoredVisit.realStarter.restore({ ...savedSnap, returnOrigin: { kind: "sizer", fragment: "sizer=v1.bad_token!" } });
+      assert.equal(restoredVisit.realStarter.getReturnOrigin(), null);
+      assert.equal(restoredVisit.h.node("topbar-sizer-link").href, "local-ai-sizer.html");
+    });
+
+    // Reset clears returnOrigin
+    sizerVisit.realStarter.setReturnOrigin(null);
+    assert.equal(sizerVisit.realStarter.getReturnOrigin(), null);
+    assert.equal(sizerVisit.h.node("starter-back").textContent, "← Back to single-server examples");
+  });
+
+  // 3. Simultaneous conflicting ?advisor=...#sizer=... leaves both controls and returnOrigin untouched
+  const conflictVisit = makeRealOriginHarness();
+  conflictVisit.h.context.location.href = `https://studio.factor-io.com/tco-calculator.html?advisor=00000000-0000-4000-8000-000000000099#${frag}`;
+  conflictVisit.runWithDom(() => {
+    assert.equal(conflictVisit.h.get("processSizerReturn()"), false);
+    assert.equal(conflictVisit.realStarter.getReturnOrigin(), null);
+    assert.equal(conflictVisit.realStarter.snapshot().mode, "starter");
+  });
+});
+
+test("createSizerStorageAdapter handles SecurityError, QuotaExceededError, corrupted storage, and 25-record caps without losing prior saves", () => {
+  // 1. Storage getter throws SecurityError
+  const denied = createSizerStorageAdapter(() => {
+    throw new Error("SecurityError: storage disabled");
+  });
+  const deniedRead = denied.readSavedScenarios();
+  assert.equal(deniedRead.ok, false);
+  assert.equal(deniedRead.available, false);
+  assert.equal(denied.saveScenario({ id: "s1", name: "Test", savedAt: "2026-11-17T00:00:00Z", fragment: encodeSizerFragment(normalizeSizerInput({})) }).ok, false);
+
+  // 2. QuotaExceededError on write preserves existing saved records untouched
+  const map = new Map();
+  let failWrites = false;
+  const mockStore = {
+    getItem: (k) => (map.has(k) ? map.get(k) : null),
+    setItem: (k, v) => {
+      if (failWrites) throw new Error("QuotaExceededError");
+      map.set(k, v);
+    },
+    removeItem: (k) => map.delete(k),
+  };
+  const adapter = createSizerStorageAdapter(() => mockStore);
+  const frag1 = encodeSizerFragment(normalizeSizerInput({ workloadId: "mfg_qms_sop", users: 260 }));
+  const saved1 = adapter.saveScenario({ id: "save-1", name: "Factory QMS", savedAt: "2026-11-17T08:00:00Z", fragment: frag1 });
+  assert.equal(saved1.ok, true);
+  assert.equal(saved1.scenarios.length, 1);
+
+  failWrites = true;
+  const quotaFail = adapter.saveScenario({ id: "save-2", name: "Will Fail", savedAt: "2026-11-17T09:00:00Z", fragment: frag1 });
+  assert.equal(quotaFail.ok, false);
+  assert.equal(quotaFail.code, "storage_write_failed");
+  const afterFail = adapter.readSavedScenarios();
+  assert.equal(afterFail.ok, true);
+  assert.deepEqual(afterFail.scenarios.map((s) => s.id), ["save-1"]);
+
+  // 3. Corrupted storage payload refuses overwrite instead of silently wiping data
+  failWrites = false;
+  map.set(SIZER_STORAGE_KEY, "{corrupted-json");
+  const corruptRead = adapter.readSavedScenarios();
+  assert.equal(corruptRead.ok, false);
+  assert.equal(corruptRead.corrupted, true);
+  assert.equal(adapter.saveScenario({ id: "save-3", name: "Blocked", savedAt: "2026-11-17T09:00:00Z", fragment: frag1 }).code, "storage_corrupted");
+
+  // 4. Cap at 25 saved scenarios refuses the 26th without overwriting prior 25
+  const entries25 = Array.from({ length: 25 }, (_, i) => ({
+    id: `id-${i + 1}`,
+    name: `Saved ${i + 1}`,
+    savedAt: "2026-11-17T10:00:00Z",
+    fragment: frag1,
+  }));
+  map.set(SIZER_STORAGE_KEY, encodeSizerSaveEnvelope(entries25, { exportedAt: "2026-11-17T10:00:00Z" }));
+  const capRes = adapter.saveScenario({ id: "id-26", name: "26th", savedAt: "2026-11-17T11:00:00Z", fragment: frag1 });
+  assert.equal(capRes.ok, false);
+  assert.equal(capRes.code, "max_scenarios_reached");
+  assert.equal(adapter.readSavedScenarios().scenarios.length, 25);
+});
+
+test("refreshLiveSourcesTransaction enforces overall deadline, isolates duplicate-ID OpenRouter compile errors, and aligns live pricingIdentity", async () => {
+  const baseManifest = {
+    snapshot_digest: "snap-abc",
+    sources: {
+      fx: { origin: "snapshot", observed_at: "2026-11-16T00:00:00.000Z", integrity: "digest-pinned" },
+      litellm: { origin: "snapshot", observed_at: "2026-11-17T06:00:00.000Z", integrity: "declared" },
+      openrouter: { origin: "snapshot", observed_at: "2026-11-17T06:00:00.000Z", integrity: "declared" },
+    },
+    models: [{ id: "openrouter:openai/gpt-4o", name: "Snapshot GPT-4o", state: "active" }],
+  };
+  const baseCatalog = {
+    offers: {
+      "openrouter:openai/gpt-4o": {
+        offer_id: "openrouter:openai/gpt-4o",
+        seller: "openrouter",
+        seller_source: "openrouter",
+        product: "openai/gpt-4o",
+        prices: { "input|std": "0.0000025", "output|std": "0.00001" },
+      },
+    },
+    offers_state: [{ offer_id: "openrouter:openai/gpt-4o", state: "active", missing_streak: 0 }],
+  };
+  const baseFx = normalizeFxDocument({ observed_at: "2026-11-16", usd_thb: "33.889595", source_id: "ecb", integrity: "digest-pinned" });
+
+  // 1. Slow/hanging network aborts within the overall deadline and preserves snapshot
+  const t0 = Date.now();
+  const hung = await refreshLiveSourcesTransaction({
+    manifest: baseManifest,
+    catalog: baseCatalog,
+    fx: baseFx,
+    timeoutMs: 80,
+    fetchImpl: (_url, { signal }) => new Promise((_resolve, reject) => {
+      signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    }),
+  });
+  assert.ok(Date.now() - t0 < 1000);
+  assert.equal(hung.openrouterLive, false);
+  assert.equal(hung.fxLive, false);
+  assert.equal(hung.manifest, baseManifest);
+  assert.equal(hung.fx, baseFx);
+
+  // 2. Duplicate model IDs in HTTP 200 OpenRouter response fail only OpenRouter compilation while live FX still succeeds
+  const dup = await refreshLiveSourcesTransaction({
+    manifest: baseManifest,
+    catalog: baseCatalog,
+    fx: baseFx,
+    timeoutMs: 1000,
+    nowFn: () => Date.parse("2026-11-17T16:00:00.000Z"),
+    fetchImpl: async (url) => {
+      if (String(url).includes("openrouter")) {
+        return {
+          ok: true,
+          text: async () => JSON.stringify({
+            data: [
+              { id: "openai/gpt-4o", name: "GPT-4o", pricing: { prompt: "0.0000025", completion: "0.00001" } },
+              { id: "openai/gpt-4o", name: "Duplicate GPT-4o", pricing: { prompt: "0.0000025", completion: "0.00001" } },
+            ],
+          }),
+        };
+      }
+      return {
+        ok: true,
+        text: async () => JSON.stringify({ base: "EUR", date: "2026-11-17", rates: { USD: 1.05, THB: 35.5322 } }),
+      };
+    },
+  });
+  assert.equal(dup.openrouterLive, false);
+  assert.match(dup.errors.openrouter, /duplicate offer/i);
+  assert.equal(dup.fxLive, true);
+  assert.equal(dup.catalog, baseCatalog);
+  assert.equal(dup.manifest.sources.fx.origin, "live");
+
+  // 3. Valid live OpenRouter + live FX updates both sources cleanly with complete-transport identity
+  const cleanLive = await refreshLiveSourcesTransaction({
+    manifest: baseManifest,
+    catalog: baseCatalog,
+    fx: baseFx,
+    timeoutMs: 1000,
+    nowFn: () => Date.parse("2026-11-17T16:00:00.000Z"),
+    fetchImpl: async (url) => {
+      if (String(url).includes("openrouter")) {
+        return {
+          ok: true,
+          text: async () => JSON.stringify({
+            data: [{ id: "openai/gpt-4o", name: "GPT-4o Live", pricing: { prompt: "0.0000025", completion: "0.00001" } }],
+          }),
+        };
+      }
+      return {
+        ok: true,
+        text: async () => JSON.stringify({ base: "EUR", date: "2026-11-17", rates: { USD: 1.05, THB: 35.5322 } }),
+      };
+    },
+  });
+  assert.equal(cleanLive.openrouterLive, true);
+  assert.equal(cleanLive.fxLive, true);
+  assert.match(buildPricingIdentity(cleanLive.manifest, cleanLive.fx), /fx:live@2026-11-17T00:00:00\.000Z:complete-transport.*openrouter:live@2026-11-17T16:00:00\.000Z:complete-transport/);
+});
+
+test("processSizerReturn accepts active-only catalog overrides, and editing then clearing a hydrated legacy custom draft clears legacy provenance", () => {
+  // 1. Receiver roundtrip for active-only catalog override
+  const h = sizerReceiverHarness();
+  const activeFrag = encodeSizerFragment(normalizeSizerInput({
+    users: 120,
+    modelId: "qwen3-8-27b",
+    gpuId: "rtx_pro_6000_se",
+    customActiveParamsB: "5",
+  }));
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${activeFrag}`;
+  assert.equal(h.get("processSizerReturn()"), true);
+  assert.equal(h.node("f-sv-active").value, "5");
+
+  // 2. UI draft: hydrating a 44-key legacy custom link preserves assumed shape until edited, then clearing refuses
+  const uiSrc = readFileSync(new URL("../sizer-ui.js", import.meta.url), "utf8");
+  const uiNodes = new Map();
+  const uiNode = (id) => {
+    if (!uiNodes.has(id)) {
+      uiNodes.set(id, {
+        id,
+        value: "",
+        innerHTML: "",
+        textContent: "",
+        attrs: {},
+        hidden: false,
+        open: false,
+        setAttribute(k, v) { this.attrs[k] = v; },
+        removeAttribute(k) { delete this.attrs[k]; },
+      });
+    }
+    return uiNodes.get(id);
+  };
+  const uiCtx = vm.createContext({
+    DEAL_TIERS,
+    PIPELINE_CONNECTORS,
+    PROMPT_SCALE_PRESETS: [],
+    LOCAL_AI_WORKLOADS,
+    MAX_SAVE_BYTES: 65536,
+    MAX_SAVED_SCENARIOS: 25,
+    normalizeSizerInput,
+    computeSizer,
+    evaluateGpuCandidates: () => [],
+    groupCatalogModels: () => [],
+    filterApiOffers: () => ({ offers: [], totalMatching: 0, totalAvailable: 0, vendors: [] }),
+    classifyApiOffer: () => ({ feed: "openrouter", vendor: "openai" }),
+    encodeSizerFragment,
+    decodeSizerFragment,
+    decodePresetFragment,
+    encodeSizerSaveEnvelope,
+    decodeSizerSaveEnvelope,
+    SizerValidationError,
+    formatHalfUp,
+    toRat,
+    normalizeFxDocument,
+    toTHB,
+    serversForGpu: () => [],
+    fetchOpenRouterModels: async () => [],
+    compileLiveOpenRouter: () => ({}),
+    replaceCatalogSource: () => ({}),
+    fetchLiveFx: async () => ({}),
+    loadManifest: async () => ({}),
+    loadFx: async () => ({}),
+    resolveResource: async () => ({}),
+    TextEncoder,
+    TextDecoder,
+    AbortController,
+    DOMException,
+    structuredClone,
+    setTimeout,
+    clearTimeout,
+    URL,
+    console,
+    document: { getElementById: (id) => (id === "main-workspace" ? null : uiNode(id)) },
+  });
+  vm.runInContext(uiSrc.replace(/^import[\s\S]*?;\s*$/gm, "").replace(/^export\s+/gm, ""), uiCtx);
+  const st = vm.runInContext("appState", uiCtx);
+  st.data = h.state;
+  st.ready = true;
+  st.lang = "en";
+  st.displayCurrency = "USD";
+
+  const stdCompact = JSON.parse(Buffer.from(encodeSizerFragment(normalizeSizerInput({})).split(".")[1], "base64url").toString());
+  const legacyTok = `#sizer=v1.${Buffer.from(JSON.stringify({ ...stdCompact, m: "custom" })).toString("base64url")}`;
+  uiCtx.legacyDecoded = decodeSizerFragment(legacyTok);
+  vm.runInContext("hydrateDraftFromNormalized(legacyDecoded); recompute();", uiCtx);
+  assert.equal(st.computed.ok, true);
+  assert.ok(st.computed.fit.warnings.some((w) => w.code === "assumed_legacy_custom_shape"));
+  // Unchanged hydrated legacy draft still encodes cleanly for save/share
+  assert.match(vm.runInContext("buildCurrentFragment()", uiCtx), /^sizer=v1\./);
+
+  // Editing any custom field then clearing it revokes legacy provenance -> incomplete_custom_model
+  vm.runInContext("handleFieldMutation('customParamsB', '70'); handleFieldMutation('customParamsB', ''); recompute();", uiCtx);
+  assert.equal(st.computed.ok, false);
+  assert.equal(st.computed.code, "incomplete_custom_model");
+  assert.throws(() => vm.runInContext("buildCurrentFragment()", uiCtx), /Custom model requires/i);
 });

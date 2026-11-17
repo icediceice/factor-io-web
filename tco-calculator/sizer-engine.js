@@ -1359,6 +1359,140 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
   return fragment;
 }
 
+const VALID_WQUANTS = new Set(["bf16", "fp8", "int8", "int4"]);
+const VALID_KVQUANTS = new Set(["bf16", "fp8", "int8"]);
+const VALID_RUNTIMES = new Set(["vllm", "sglang", "trtllm", "llamacpp"]);
+const VALID_SERVER_BASES = new Set(["usd_low", "usd_typical", "usd_high"]);
+
+function requireNonEmptyWireString(val, fieldName) {
+  if (typeof val !== "string" || val.trim().length === 0 || val !== val.trim()) {
+    throw new SizerValidationError("bad_string", `${fieldName} must be a non-empty trimmed string`);
+  }
+  return val;
+}
+
+function validateWireMoneyObject(entry, fieldName) {
+  if (!isPlainObject(entry)) {
+    throw new SizerValidationError("bad_money", `${fieldName} must be a plain {amount, currency} object`);
+  }
+  const keys = Object.keys(entry);
+  if (keys.length !== 2 || !("amount" in entry) || !("currency" in entry)) {
+    throw new SizerValidationError("bad_money", `${fieldName} must contain only amount and currency`);
+  }
+  if (typeof entry.amount !== "string" || !/^\d+(?:\.\d+)?$/.test(entry.amount)) {
+    throw new SizerValidationError("bad_money", `${fieldName}.amount must be a non-negative decimal string`);
+  }
+  if (typeof entry.currency !== "string" || !CURRENCIES.has(entry.currency)) {
+    throw new SizerValidationError("bad_currency", `${fieldName}.currency must be THB or USD`);
+  }
+  cleanMoneyEntry(entry, fieldName, entry.currency);
+}
+
+function validateSizerWirePayload(parsed) {
+  for (const reqKey of COMPACT_RECORD_KEYS) {
+    if (!(reqKey in parsed)) {
+      throw new SizerValidationError("missing_key", `Missing required key "${reqKey}" in sizer transfer payload.`);
+    }
+  }
+  const validWorkloadIds = new Set(LOCAL_AI_WORKLOADS.map((w) => w.id));
+  const validConnectorIds = new Set(PIPELINE_CONNECTORS.map((c) => c.id));
+  const validWorkloadTypes = new Set(WORKLOAD_TYPES);
+
+  if (typeof parsed.w !== "string" || !validWorkloadIds.has(parsed.w)) {
+    throw new SizerValidationError("bad_workload", `Unsupported workload "${parsed.w}"`);
+  }
+  if (parsed.dm !== "greenfield" && parsed.dm !== "brownfield") {
+    throw new SizerValidationError("bad_deployment_mode", `Unsupported deployment mode "${parsed.dm}"`);
+  }
+  if (!Array.isArray(parsed.cn) || !parsed.cn.every((id) => typeof id === "string" && validConnectorIds.has(id))) {
+    throw new SizerValidationError("bad_connectors", "connectors must be an array of supported pipeline connector IDs");
+  }
+  if (parsed.dt !== null && (typeof parsed.dt !== "string" || !Object.hasOwn(DEAL_TIERS, parsed.dt))) {
+    throw new SizerValidationError("bad_deal_tier", `Unsupported deal tier "${parsed.dt}"`);
+  }
+
+  if (typeof parsed.u !== "number") throw new SizerValidationError("bad_integer", "users must be a number");
+  posInt(parsed.u, "users", { min: 1, max: 10000000 });
+  if (typeof parsed.wd !== "number") throw new SizerValidationError("bad_integer", "workingDaysMo must be a number");
+  posInt(parsed.wd, "workingDaysMo", { min: 1, max: 31 });
+  if (typeof parsed.rp !== "number") throw new SizerValidationError("bad_integer", "rawPromptTokens must be a number");
+  posInt(parsed.rp, "rawPromptTokens", { min: 16, max: 2000000 });
+  if (typeof parsed.ro !== "number") throw new SizerValidationError("bad_integer", "rawOutputTokens must be a number");
+  posInt(parsed.ro, "rawOutputTokens", { min: 1, max: 500000 });
+  if (typeof parsed.rc !== "number") throw new SizerValidationError("bad_integer", "rawContextTokens must be a number");
+  posInt(parsed.rc, "rawContextTokens", { min: 128, max: 10000000 });
+  if (typeof parsed.hz !== "number") throw new SizerValidationError("bad_integer", "horizonMonths must be a number");
+  posInt(parsed.hz, "horizonMonths", { min: 1, max: 120 });
+
+  if (parsed.nd !== null) {
+    if (typeof parsed.nd !== "number") throw new SizerValidationError("bad_integer", "nodes must be null or a number");
+    posInt(parsed.nd, "nodes", { min: 1, max: 10000 });
+  }
+  if (parsed.gn !== null) {
+    if (typeof parsed.gn !== "number") throw new SizerValidationError("bad_integer", "gpusPerNode must be null or a number");
+    posInt(parsed.gn, "gpusPerNode", { min: 1, max: 64 });
+  }
+
+  for (const [k, label, opts] of [
+    ["sd", "sessionsPerUserDay", { min: "0.01", max: "100000", allowZero: false }],
+    ["pf", "peakConcurrencyFraction", { min: "0.001", max: "1", allowZero: false }],
+    ["ts", "tokensPerSecondPerStream", { min: "1", max: "10000", allowZero: false }],
+    ["tf", "thaiFertilityMultiplier", { min: "1.0", max: "3.0", allowZero: false }],
+    ["ek", "electricityThbPerKwh", { min: "0", max: "100" }],
+    ["pu", "pue", { min: "1.0", max: "5.0", allowZero: false }],
+    ["no", "nodeOverheadFraction", { min: "0", max: "2" }],
+  ]) {
+    if (typeof parsed[k] !== "string") throw new SizerValidationError("bad_decimal", `${label} must be a decimal string`);
+    decStr(parsed[k], label, opts);
+  }
+
+  if (!isPlainObject(parsed.mx)) {
+    throw new SizerValidationError("bad_mix", "mix must be a plain object");
+  }
+  const mxKeys = Object.keys(parsed.mx);
+  if (mxKeys.length !== WORKLOAD_TYPES.length || !mxKeys.every((k) => validWorkloadTypes.has(k) && typeof parsed.mx[k] === "string")) {
+    throw new SizerValidationError("bad_mix", "mix must contain exact workload keys with decimal string values");
+  }
+
+  if (typeof parsed.tb !== "string" || !TOKEN_BASES.has(parsed.tb)) {
+    throw new SizerValidationError("bad_token_basis", `Unsupported token basis "${parsed.tb}"`);
+  }
+  requireNonEmptyWireString(parsed.m, "modelId");
+  requireNonEmptyWireString(parsed.g, "gpuId");
+  if (typeof parsed.wq !== "string" || !VALID_WQUANTS.has(parsed.wq)) {
+    throw new SizerValidationError("bad_wquant", `Unsupported weight quantization "${parsed.wq}"`);
+  }
+  if (typeof parsed.kq !== "string" || !VALID_KVQUANTS.has(parsed.kq)) {
+    throw new SizerValidationError("bad_kvquant", `Unsupported KV quantization "${parsed.kq}"`);
+  }
+  if (typeof parsed.rt !== "string" || !VALID_RUNTIMES.has(parsed.rt)) {
+    throw new SizerValidationError("bad_runtime", `Unsupported runtime "${parsed.rt}"`);
+  }
+  if (typeof parsed.qb !== "string" || !QUOTE_BASES.has(parsed.qb)) {
+    throw new SizerValidationError("bad_quote_basis", `Unsupported quote basis "${parsed.qb}"`);
+  }
+  if (typeof parsed.qc !== "string" || !CURRENCIES.has(parsed.qc)) {
+    throw new SizerValidationError("bad_currency", `Unsupported quote currency "${parsed.qc}"`);
+  }
+  if (typeof parsed.sv !== "string") throw new SizerValidationError("bad_string", "serverId must be a string");
+  if (typeof parsed.sb !== "string" || !VALID_SERVER_BASES.has(parsed.sb)) {
+    throw new SizerValidationError("bad_server_basis", `Unsupported server price basis "${parsed.sb}"`);
+  }
+  if (typeof parsed.ao !== "string") throw new SizerValidationError("bad_string", "apiOfferId must be a string");
+  requireNonEmptyWireString(parsed.sub, "subscriptionId");
+  if (typeof parsed.st !== "string") throw new SizerValidationError("bad_string", "subscriptionTerm must be a string");
+  if (typeof parsed.qu !== "string" || !/^\d{4}-\d\d-\d\dT\d\d:00:00Z$/.test(parsed.qu)) {
+    throw new SizerValidationError("bad_quote_utc", `Invalid quoteUtc "${parsed.qu}"`);
+  }
+  if (parsed.pi !== null && (typeof parsed.pi !== "string" || parsed.pi.length === 0 || parsed.pi.length > 512)) {
+    throw new SizerValidationError("bad_pricing_identity", "Invalid pricingIdentity");
+  }
+
+  for (const mk of ["pIn", "pCh", "pGp", "pFl", "fLo", "fAp", "fCm", "fOp"]) {
+    validateWireMoneyObject(parsed[mk], mk);
+  }
+}
+
 export function decodeSizerFragment(hashOrFragment) {
   const rawHash = String(hashOrFragment ?? "").replace(/^#/, "");
   if (!rawHash.startsWith(SIZER_FRAGMENT_PREFIX)) return null;
@@ -1373,7 +1507,7 @@ export function decodeSizerFragment(hashOrFragment) {
     if (err instanceof SizerValidationError) throw err;
     throw new SizerValidationError("bad_json", "Sizer URL fragment is not valid JSON.");
   }
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || Object.getPrototypeOf(parsed) !== Object.prototype) {
+  if (!isPlainObject(parsed)) {
     throw new SizerValidationError("bad_payload", "Sizer transfer payload must be a plain object.");
   }
   if (parsed.v !== 1) {
@@ -1384,6 +1518,7 @@ export function decodeSizerFragment(hashOrFragment) {
       throw new SizerValidationError("unknown_key", `Rejected unknown key "${key}" in sizer transfer payload.`);
     }
   }
+  validateSizerWirePayload(parsed);
   return normalizeSizerInput({
     workloadId: parsed.w,
     deploymentMode: parsed.dm,
@@ -1439,13 +1574,92 @@ const PRESET_ALLOWED_KEYS = new Set([
   "localImplFee", "annualOpsFee",
 ]);
 
+function validatePresetPayload(rest) {
+  const validWorkloadIds = new Set(LOCAL_AI_WORKLOADS.map((w) => w.id));
+  const validConnectorIds = new Set(PIPELINE_CONNECTORS.map((c) => c.id));
+  const out = {};
+
+  if ("workloadId" in rest) {
+    if (typeof rest.workloadId !== "string" || !validWorkloadIds.has(rest.workloadId)) {
+      throw new SizerValidationError("bad_workload", `Unsupported preset workloadId "${rest.workloadId}"`);
+    }
+    out.workloadId = rest.workloadId;
+  }
+  if ("deploymentMode" in rest) {
+    if (rest.deploymentMode !== "greenfield" && rest.deploymentMode !== "brownfield") {
+      throw new SizerValidationError("bad_deployment_mode", `Unsupported preset deploymentMode "${rest.deploymentMode}"`);
+    }
+    out.deploymentMode = rest.deploymentMode;
+  }
+  if ("dealTierOverride" in rest) {
+    if (rest.dealTierOverride !== null && (typeof rest.dealTierOverride !== "string" || !Object.hasOwn(DEAL_TIERS, rest.dealTierOverride))) {
+      throw new SizerValidationError("bad_deal_tier", `Unsupported preset dealTierOverride "${rest.dealTierOverride}"`);
+    }
+    out.dealTierOverride = rest.dealTierOverride;
+  }
+  if ("connectors" in rest) {
+    if (!Array.isArray(rest.connectors) || !rest.connectors.every((id) => typeof id === "string" && validConnectorIds.has(id))) {
+      throw new SizerValidationError("bad_connectors", "Preset connectors must be an array of valid connector IDs");
+    }
+    out.connectors = [...rest.connectors];
+  }
+  if ("users" in rest) {
+    out.users = posInt(rest.users, "users", { min: 1, max: 10000000 });
+  }
+  if ("modelId" in rest) {
+    out.modelId = requireNonEmptyWireString(rest.modelId, "modelId");
+  }
+  if ("gpuId" in rest) {
+    out.gpuId = requireNonEmptyWireString(rest.gpuId, "gpuId");
+  }
+  if ("quoteBasis" in rest) {
+    if (typeof rest.quoteBasis !== "string" || !QUOTE_BASES.has(rest.quoteBasis)) {
+      throw new SizerValidationError("bad_quote_basis", `Unsupported preset quoteBasis "${rest.quoteBasis}"`);
+    }
+    out.quoteBasis = rest.quoteBasis;
+  }
+  let defaultCur = "THB";
+  if ("quoteCurrency" in rest) {
+    if (typeof rest.quoteCurrency !== "string" || !CURRENCIES.has(rest.quoteCurrency)) {
+      throw new SizerValidationError("bad_currency", `Unsupported preset quoteCurrency "${rest.quoteCurrency}"`);
+    }
+    out.quoteCurrency = rest.quoteCurrency;
+    defaultCur = rest.quoteCurrency;
+  }
+  if ("nodes" in rest) {
+    out.nodes = rest.nodes === null ? null : posInt(rest.nodes, "nodes", { min: 1, max: 10000 });
+  }
+  if ("gpusPerNode" in rest) {
+    out.gpusPerNode = rest.gpusPerNode === null ? null : posInt(rest.gpusPerNode, "gpusPerNode", { min: 1, max: 64 });
+  }
+  for (const mk of ["integratedNodePrice", "fleetTotalPrice", "localImplFee", "annualOpsFee"]) {
+    if (mk in rest) {
+      if (rest[mk] === null || rest[mk] === undefined || rest[mk] === "") {
+        throw new SizerValidationError("bad_money", `Preset ${mk} cannot be empty`);
+      }
+      if (typeof rest[mk] === "object") {
+        validateWireMoneyObject(rest[mk], mk);
+        out[mk] = { ...rest[mk] };
+      } else {
+        out[mk] = cleanMoneyEntry(rest[mk], mk, defaultCur);
+      }
+    }
+  }
+  return out;
+}
+
 export function encodePresetFragment(presetObj) {
+  if (!isPlainObject(presetObj)) {
+    throw new SizerValidationError("bad_preset", "Preset payload must be a plain object");
+  }
   const payload = { v: 1, ...presetObj };
   for (const k of Object.keys(payload)) {
     if (!PRESET_ALLOWED_KEYS.has(k)) {
       throw new SizerValidationError("unknown_preset_key", `Unknown preset key "${k}"`);
     }
   }
+  const { v: _v, ...rest } = payload;
+  validatePresetPayload(rest);
   const frag = `${PRESET_FRAGMENT_PREFIX}${toBase64Url(JSON.stringify(payload))}`;
   if (frag.length > MAX_FRAGMENT_CHARS) {
     throw new SizerValidationError("fragment_too_large", "Preset fragment exceeds 8 KiB");
@@ -1459,8 +1673,14 @@ export function decodePresetFragment(hashOrFragment) {
   if (rawHash.length > MAX_FRAGMENT_CHARS) {
     throw new SizerValidationError("fragment_too_large", "Preset fragment exceeds 8 KiB");
   }
-  const parsed = JSON.parse(fromBase64Url(rawHash.slice(PRESET_FRAGMENT_PREFIX.length)));
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || parsed.v !== 1) {
+  let parsed;
+  try {
+    parsed = JSON.parse(fromBase64Url(rawHash.slice(PRESET_FRAGMENT_PREFIX.length)));
+  } catch (err) {
+    if (err instanceof SizerValidationError) throw err;
+    throw new SizerValidationError("bad_json", "Preset URL fragment is not valid JSON.");
+  }
+  if (!isPlainObject(parsed) || parsed.v !== 1) {
     throw new SizerValidationError("bad_preset", "Unsupported preset fragment");
   }
   for (const k of Object.keys(parsed)) {
@@ -1469,7 +1689,7 @@ export function decodePresetFragment(hashOrFragment) {
     }
   }
   const { v: _v, ...rest } = parsed;
-  return rest;
+  return validatePresetPayload(rest);
 }
 
 // Projects a validated normalized sizer record onto tco-calculator.html control values.
@@ -1483,8 +1703,8 @@ export function projectSizerControls({
     data: { manifest, catalog, fx, gpuPricing, serverPricing, servingData, powerSeed, subscriptions },
   });
   if (!result.ok) {
-    const detail = result.fit?.reason ?? result.bom?.reason ?? "Scenario cannot be sized on selected hardware.";
-    throw new SizerValidationError("scenario_not_sizable", detail);
+    const detail = result.reason ?? result.fit?.reason ?? result.bom?.reason ?? "Scenario cannot be sized on selected hardware.";
+    throw new SizerValidationError(result.code ?? "scenario_not_sizable", detail);
   }
 
   const model = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
@@ -1498,6 +1718,9 @@ export function projectSizerControls({
     throw new SizerValidationError("unknown_gpu", `Accelerator "${normalized.gpuId}" is unavailable.`);
   }
 
+  if (normalized.apiOfferId && !catalog?.offers?.[normalized.apiOfferId]) {
+    throw new SizerValidationError("unknown_api_offer", `Selected Model API offer "${normalized.apiOfferId}" is unavailable in the current catalog.`);
+  }
   const activeOfferId = result.resolvedApiOfferId;
   if (!activeOfferId || !catalog?.offers?.[activeOfferId]) {
     throw new SizerValidationError("unknown_api_offer", "Selected Model API offer is unavailable in the current catalog.");
@@ -1559,7 +1782,9 @@ export function projectSizerControls({
 
   if (result.bom.quoteBasis === "catalog") {
     values["f-srv-config"] = result.bom.serverId;
-    values["f-sh-count"] = result.bom.installedGpus === result.sizing.gpusRequired ? "" : String(result.bom.installedGpus);
+    values["f-sh-count"] = (normalized.nodes !== null || result.bom.installedGpus !== result.sizing.gpusRequired)
+      ? String(result.bom.installedGpus)
+      : "";
     values["f-sh-nodes"] = "";
     values["f-sh-capex"] = "";
   } else {

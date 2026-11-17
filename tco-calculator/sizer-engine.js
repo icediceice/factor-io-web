@@ -200,7 +200,7 @@ export const PROMPT_SCALE_PRESETS = Object.freeze([
     id: "64k",
     rawPromptTokens: 65536,
     rawOutputTokens: 1600,
-    rawContextTokens: 131072,
+    rawContextTokens: 90000,
     en: "64k+ prompt (deep codebase / audit)",
     th: "64k+\u00A0โทเคน\u00A0(ตรวจสอบโค้ด / Log\u00A0ขนาดใหญ่)",
   }),

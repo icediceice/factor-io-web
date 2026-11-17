@@ -905,7 +905,16 @@ export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx
 export function buildPricingIdentity(manifest, fx) {
   const fxDoc = fx?.rate ? fx : normalizeFxDocument(fx);
   const rateText = formatHalfUp(fxDoc.rate, 6);
-  return `${manifest?.snapshot_digest ?? "local"}|${fxDoc.observed_at}|${rateText}`;
+  const sources = manifest?.sources && typeof manifest.sources === "object"
+    ? Object.keys(manifest.sources)
+      .sort()
+      .map((sid) => {
+        const s = manifest.sources[sid] ?? {};
+        return `${sid}:${s.origin ?? "snapshot"}@${s.observed_at ?? ""}:${s.integrity ?? "declared"}`;
+      })
+      .join(",")
+    : "";
+  return `${manifest?.snapshot_digest ?? "local"}${sources ? `|${sources}` : ""}|${fxDoc.observed_at}|${rateText}`;
 }
 
 // Shared scenario assembly + calculator.js:runComparison execution.

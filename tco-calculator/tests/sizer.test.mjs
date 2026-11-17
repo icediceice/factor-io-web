@@ -309,7 +309,7 @@ test("fit qualification blocks cross-node TP and marks INT4 and multi-GPU PCIe s
   assert.ok(pcieTp.fit.warnings.some((w) => w.code === "assumed_tp_pcie_unmodeled"));
 });
 
-test("fragment codecs reject unknown keys, malformed tokens, and oversized payloads", () => {
+test("fragment codecs reject unknown keys, malformed tokens, invalid wire types/enums, and oversized payloads", () => {
   assert.equal(decodeSizerFragment(""), null);
   assert.equal(decodeSizerFragment("#custom-page"), null);
   assert.throws(() => decodeSizerFragment("#sizer=v1.not valid base64!!"), SizerValidationError);
@@ -320,6 +320,31 @@ test("fragment codecs reject unknown keys, malformed tokens, and oversized paylo
   const oversized = `#sizer=v1.${"a".repeat(8200)}`;
   assert.throws(() => decodeSizerFragment(oversized), /8 KiB/i);
 
+  const baseCompact = JSON.parse(Buffer.from(encodeSizerFragment(normalizeSizerInput({})).split(".")[1], "base64url").toString());
+  for (const [field, bad] of [
+    ["dm", "not-a-mode"],
+    ["u", [100]],
+    ["qc", "EUR"],
+    ["cn", ["not-a-connector"]],
+    ["mx", { chat: "1", surprise: "1" }],
+    ["pFl", { amount: "12", currency: "USD", surprise: 1 }],
+  ]) {
+    const tok = `#sizer=v1.${Buffer.from(JSON.stringify({ ...baseCompact, [field]: bad })).toString("base64url")}`;
+    assert.throws(() => decodeSizerFragment(tok), SizerValidationError, `expected sizer decoder to reject ${field}`);
+  }
+
+  for (const badPreset of [
+    { v: 1, users: -1 },
+    { v: 1, users: [] },
+    { v: 1, deploymentMode: "bogus" },
+    { v: 1, nodes: 10001 },
+    { v: 1, localImplFee: { amount: "-10", currency: "USD" } },
+    { v: 1, localImplFee: { amount: "10", currency: "USD", extra: 1 } },
+  ]) {
+    const tok = `#preset=v1.${Buffer.from(JSON.stringify(badPreset)).toString("base64url")}`;
+    assert.throws(() => decodePresetFragment(tok), SizerValidationError, `expected preset decoder to reject ${JSON.stringify(badPreset)}`);
+  }
+
   const presetFrag = encodePresetFragment({
     workloadId: "thai_doc_line_ops",
     deploymentMode: "brownfield",
@@ -329,6 +354,91 @@ test("fragment codecs reject unknown keys, malformed tokens, and oversized paylo
   const decodedPreset = decodePresetFragment(presetFrag);
   assert.equal(decodedPreset.deploymentMode, "brownfield");
   assert.equal(decodedPreset.localImplFee.amount, "400000");
+});
+
+test("catalog node override prices the declared node fleet, rejects conflicting slot counts, and propagates to power and subscriptions", () => {
+  const withSubData = {
+    ...baseData,
+    subscriptions: {
+      rows: [
+        ...subscriptions.rows,
+        { id: "fixture-node-lic", label: "Node Licence", meter: "per_node_year", price_usd: "1200", price_confidence: "indicative", applies_to: ["A"] },
+      ],
+    },
+  };
+  const tenNodes = computeSizer({
+    input: {
+      users: 1,
+      modelId: "qwen3-5-9b",
+      gpuId: "rtx_pro_6000_ws",
+      quoteBasis: "catalog",
+      serverId: "ws-rtx-pro-6000-1x-derived",
+      nodes: 10,
+      subscriptionId: "fixture-node-lic",
+    },
+    data: withSubData,
+  });
+  assert.equal(tenNodes.ok, true);
+  assert.equal(tenNodes.bom.nodes, 10);
+  assert.equal(tenNodes.bom.installedGpus, 10);
+  assert.equal(tenNodes.powerPlan.gpus_provisioned, 10);
+  assert.equal(formatHalfUp(toRat(tenNodes.comparison.totals.A.subscription_monthly), 2), "1000.00");
+
+  const projected = projectSizerControls({
+    normalized: tenNodes.normalized,
+    beforeControls: {},
+    stateData: withSubData,
+  });
+  assert.equal(projected.controls["f-sh-count"], "10");
+
+  // Explicit catalog gpusPerNode conflicting with selected server row is refused rather than silently altered
+  const conflictingSlots = computeSizer({
+    input: {
+      users: 1,
+      modelId: "qwen3-5-9b",
+      gpuId: "rtx_pro_6000_ws",
+      quoteBasis: "catalog",
+      serverId: "ws-rtx-pro-6000-1x-derived",
+      nodes: 2,
+      gpusPerNode: 4,
+    },
+    data: baseData,
+  });
+  assert.equal(conflictingSlots.ok, false);
+  assert.equal(conflictingSlots.bom.code, "conflicting_catalog_slots");
+
+  // Selected unpublished or unknown platform subscriptions refuse instead of becoming free
+  const unpublishedSub = computeSizer({
+    input: {
+      users: 100,
+      modelId: "qwen3-5-9b",
+      gpuId: "rtx_pro_6000_se",
+      quoteBasis: "fleet_total",
+      nodes: 1,
+      gpusPerNode: 2,
+      fleetTotalPrice: { amount: "100000", currency: "THB" },
+      subscriptionId: "nutanix-enterprise-ai",
+    },
+    data: baseData,
+  });
+  assert.equal(unpublishedSub.ok, false);
+  assert.equal(unpublishedSub.stage, "subscription");
+
+  const unknownSub = computeSizer({
+    input: {
+      users: 100,
+      modelId: "qwen3-5-9b",
+      gpuId: "rtx_pro_6000_se",
+      quoteBasis: "fleet_total",
+      nodes: 1,
+      gpusPerNode: 2,
+      fleetTotalPrice: { amount: "100000", currency: "THB" },
+      subscriptionId: "nonexistent-platform",
+    },
+    data: baseData,
+  });
+  assert.equal(unknownSub.ok, false);
+  assert.equal(unknownSub.code, "unknown_subscription");
 });
 
 test("public release archive excludes private decks and public payloads omit confidential partner terms", () => {

@@ -507,6 +507,22 @@ export const THAI_MODEL_PROFILES = Object.freeze({
     enNote: "80B total / 3B active GDN+GQA MoE handles complex multi-connector synthesis on multi-GPU nodes.",
     thNote: "โมเดล\u00A080B\u00A0MoE\u00A0รองรับการให้เหตุผลซับซ้อนข้ามหลายฐานข้อมูลบนคลัสเตอร์หลาย\u00A0GPU",
   },
+  "granite-4-2-8b": {
+    tierId: "compact_edge",
+    thaiSupport: "verify_tokenizer",
+    enTier: "Tier 1: Hybrid Attention Enterprise Assistant (8.79B)",
+    thTier: "ระดับ\u00A01: โมเดล\u00A0Hybrid\u00A0สำหรับงานเอกสารและระบบภายใน\u00A0(8.79B)",
+    enNote: "8.8B hybrid stack keeps KV growth compact; verify Thai domain phrasing on enterprise documents.",
+    thNote: "โครงสร้าง\u00A0Hybrid\u00A0ช่วยประหยัด\u00A0KV\u00A0Cache\u00A0โปรดทดสอบสำนวนภาษาไทยกับงานจริงก่อนใช้งาน",
+  },
+  "maxwell-v1-flash": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "verify_tokenizer",
+    enTier: "Tier 2: High-Speed Sparse MoE Assistant (36.8B / 3B Active)",
+    thTier: "ระดับ\u00A02: โมเดล\u00A0MoE\u00A0ตอบสนองไวสำหรับผู้ใช้พร้อมกันสูง\u00A0(36.8B)",
+    enNote: "36.8B MoE reads ~3B active parameters per step for fast decode; verify Thai vocabulary coverage.",
+    thNote: "สถาปัตยกรรม\u00A0MoE\u00A0อ่านพารามิเตอร์เพียงบางส่วนต่อก้าว โปรดตรวจสอบคลังคำภาษาไทยก่อนใช้งานหลัก",
+  },
   "deepseek-v3": {
     tierId: "frontier_reasoning",
     thaiSupport: "broad_multilingual_tokenizer",
@@ -514,6 +530,14 @@ export const THAI_MODEL_PROFILES = Object.freeze({
     thTier: "ระดับ\u00A03: โมเดลขนาดใหญ่พิเศษระดับดาต้าเซ็นเตอร์\u00A0(671B\u00A0MLA)",
     enNote: "Requires multi-GPU high-bandwidth fabric; suited only for XL data-center deployments.",
     thNote: "ต้องการคลัสเตอร์ความเร็วสูงหลายโหนด เหมาะสำหรับโครงการระดับ\u00A0XL\u00A0เท่านั้น",
+  },
+  "glm-5-3": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 3: Frontier MoE Data-Center Pool (753B)",
+    thTier: "ระดับ\u00A03: โมเดลระดับศูนย์ข้อมูลขนาดใหญ่พิเศษ\u00A0(753B\u00A0MoE)",
+    enNote: "753B frontier MoE requiring multi-GPU high-memory HGX/DGX nodes.",
+    thNote: "โมเดล\u00A0753B\u00A0สำหรับคลัสเตอร์\u00A0HGX/DGX\u00A0หน่วยความจำสูงระดับศูนย์ข้อมูล",
   },
 });
 

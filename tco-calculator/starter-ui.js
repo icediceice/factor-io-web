@@ -69,16 +69,69 @@ export function setupStarters({ getData, onAdvisor, onCustom, onBackFromCustom =
     <p>Hardware estimate: <a href="https://www.thundercompute.com/blog/nvidia-rtx-pro-6000-pricing">card-price source</a> and <a href="https://vrlatech.com/how-much-does-a-custom-ai-workstation-cost/">GPU cost-share assumption</a>. Exact source dates and derivation travel with the exported result.</p>`;
     refresh();
   }
+  function normalizeOrigin(candidate) {
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) || candidate.kind !== "sizer" || typeof candidate.fragment !== "string") {
+      return null;
+    }
+    if (typeof validateReturnOrigin === "function") {
+      return validateReturnOrigin(candidate);
+    }
+    const clean = candidate.fragment.replace(/^#/, "").trim();
+    if (!clean.startsWith("sizer=v1.") || clean.length > 8192 || !/^sizer=v1\.[A-Za-z0-9_-]+$/.test(clean)) {
+      return null;
+    }
+    return {
+      kind: "sizer",
+      fragment: clean,
+      baselineControlIdentity: typeof candidate.baselineControlIdentity === "string" ? candidate.baselineControlIdentity : "",
+    };
+  }
+  function syncBackNavigation({ controlsEdited = returnControlsEdited } = {}) {
+    returnControlsEdited = Boolean(controlsEdited);
+    const backBtn = $("starter-back");
+    const topLink = $("topbar-sizer-link");
+    if (returnOrigin?.kind === "sizer" && returnOrigin.fragment) {
+      const dest = `local-ai-sizer.html#${returnOrigin.fragment}`;
+      if (backBtn) {
+        backBtn.textContent = returnControlsEdited
+          ? "← Return to original Guided Local AI Sizer inputs (calculator edits not included)"
+          : "← Back to Guided Local AI Sizer";
+      }
+      if (topLink) {
+        topLink.href = dest;
+        topLink.textContent = "← Guided Deal & Model Sizer";
+      }
+    } else {
+      if (backBtn) backBtn.textContent = "← Back to single-server examples";
+      if (topLink) {
+        topLink.href = "local-ai-sizer.html";
+        topLink.textContent = "Guided Deal & Model Sizer →";
+      }
+    }
+  }
+  function setReturnOrigin(origin, { controlsEdited = false } = {}) {
+    returnOrigin = normalizeOrigin(origin);
+    syncBackNavigation({ controlsEdited: returnOrigin ? controlsEdited : false });
+    return returnOrigin;
+  }
   function setMode(next, { notify = true } = {}) {
     mode = next;
     $("starter-page").hidden = mode !== "starter";
     $("custom-page").hidden = mode !== "custom";
     $("starter-back").hidden = mode !== "custom";
+    syncBackNavigation();
     if (mode === "custom" && notify) onCustom?.();
   }
   function snapshot() {
-    return { mode, case_id: selected.id, overrides: edits.get(selected.id) ?? {},
-      setup: selected, result: result?.available ? result : null, exclusions: STARTER_EXCLUSIONS };
+    return {
+      mode,
+      case_id: selected.id,
+      overrides: edits.get(selected.id) ?? {},
+      setup: selected,
+      result: result?.available ? result : null,
+      exclusions: STARTER_EXCLUSIONS,
+      returnOrigin: returnOrigin ? { ...returnOrigin } : null,
+    };
   }
   $("starter-cases").addEventListener("click", event => { const button = event.target.closest("[data-case]"); if (button) select(button.dataset.case); });
   for (const id of ["starter-tasks", "starter-horizon"]) $(id).addEventListener("input", () => {
@@ -86,7 +139,16 @@ export function setupStarters({ getData, onAdvisor, onCustom, onBackFromCustom =
     refresh();
   });
   $("starter-custom").addEventListener("click", () => { setMode("custom"); $("comparison").focus(); });
-  $("starter-back").addEventListener("click", () => { setMode("starter"); $("starter-title").focus(); });
+  $("starter-back").addEventListener("click", () => {
+    if (returnOrigin?.kind === "sizer" && returnOrigin.fragment) {
+      const dest = `local-ai-sizer.html#${returnOrigin.fragment}`;
+      if (typeof onBackFromCustom === "function") onBackFromCustom(dest, { ...returnOrigin, controlsEdited: returnControlsEdited });
+      else globalThis.location.assign(dest);
+      return;
+    }
+    setMode("starter");
+    $("starter-title").focus();
+  });
   $("starter-advisor").addEventListener("click", () => onAdvisor(snapshot()));
   $("starter-result").addEventListener("click", event => {
     if (event.target.closest("[data-starter-retry]")) location.reload();
@@ -99,5 +161,18 @@ export function setupStarters({ getData, onAdvisor, onCustom, onBackFromCustom =
     }
   });
   select(selected.id);
-  return { refresh, snapshot, setMode, restore(value) { if (value?.overrides) edits.set(value.case_id, value.overrides); select(value?.case_id); setMode(value?.mode === "custom" ? "custom" : "starter", { notify: false }); } };
+  return {
+    refresh,
+    snapshot,
+    setMode,
+    setReturnOrigin,
+    getReturnOrigin: () => (returnOrigin ? { ...returnOrigin } : null),
+    syncBackNavigation,
+    restore(value) {
+      if (value?.overrides) edits.set(value.case_id, value.overrides);
+      select(value?.case_id);
+      setReturnOrigin(value?.returnOrigin ?? null, { controlsEdited: false });
+      setMode(value?.mode === "custom" ? "custom" : "starter", { notify: false });
+    },
+  };
 }

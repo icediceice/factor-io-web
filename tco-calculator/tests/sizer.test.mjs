@@ -772,3 +772,65 @@ test("describePricingRefresh formats human-readable source updates without leaki
   );
   assert.throws(() => decodeSizerSaveEnvelope("x".repeat(66000)), /64 KiB/i);
 });
+
+test("catalog active-only override round-trips without freezing total params, refuses active > catalog total, and new empty custom cannot masquerade as legacy", () => {
+  // Active-only sensitivity override on catalog qwen3-8-27b preserves null customParamsB across fragment + save codecs
+  const activeOnly = computeSizer({
+    input: {
+      users: 100,
+      modelId: "qwen3-8-27b",
+      gpuId: "rtx_pro_6000_se",
+      customActiveParamsB: "5",
+    },
+    data: baseData,
+  });
+  assert.equal(activeOnly.ok, true);
+  assert.equal(activeOnly.normalized.customParamsB, null);
+  assert.equal(activeOnly.normalized.customActiveParamsB, "5");
+  const activeFrag = encodeSizerFragment(activeOnly.normalized);
+  const activeDecoded = decodeSizerFragment(activeFrag);
+  assert.equal(activeDecoded.customParamsB, null);
+  assert.equal(activeDecoded.customActiveParamsB, "5");
+  const activeProjected = projectSizerControls({
+    normalized: activeDecoded,
+    beforeControls: {},
+    stateData: baseData,
+  });
+  assert.equal(activeProjected.controls["f-sv-active"], "5");
+  assert.equal(activeProjected.controls["f-sv-params"], String(servingData.models.find((m) => m.id === "qwen3-8-27b").params_b));
+
+  // Active parameter override exceeding catalog total params refuses cleanly on sizing and handoff projection
+  const activeOverCatalog = decodeSizerFragment(encodeSizerFragment(normalizeSizerInput({
+    users: 100,
+    modelId: "qwen3-8-27b",
+    gpuId: "rtx_pro_6000_se",
+    customActiveParamsB: "80",
+  })));
+  const refusedOver = computeSizer({ input: activeOverCatalog, data: baseData });
+  assert.equal(refusedOver.ok, false);
+  assert.equal(refusedOver.code, "bad_custom_params");
+  assert.throws(
+    () => projectSizerControls({ normalized: activeOverCatalog, beforeControls: {}, stateData: baseData }),
+    (err) => err instanceof SizerValidationError && err.code === "bad_custom_params",
+  );
+
+  // Newly authored empty custom input (without legacy wire provenance) refuses sizing and refuses minting a 44-key legacy token
+  const newEmptyCustom = normalizeSizerInput({ modelId: "custom" });
+  assert.equal(newEmptyCustom.legacyCustomAssumed, false);
+  const newEmptyRes = computeSizer({ input: newEmptyCustom, data: baseData });
+  assert.equal(newEmptyRes.ok, false);
+  assert.equal(newEmptyRes.code, "incomplete_custom_model");
+  assert.throws(
+    () => encodeSizerFragment(newEmptyCustom),
+    (err) => err instanceof SizerValidationError && err.code === "incomplete_custom_model",
+  );
+
+  // Unchanged legacy 44-key custom link retains legacyCustomAssumed and can still be saved/re-encoded unchanged
+  const stdPayload = JSON.parse(Buffer.from(encodeSizerFragment(normalizeSizerInput({})).split(".")[1], "base64url").toString());
+  const legacyTok = `#sizer=v1.${Buffer.from(JSON.stringify({ ...stdPayload, m: "custom" })).toString("base64url")}`;
+  const legacyDecoded = decodeSizerFragment(legacyTok);
+  assert.equal(legacyDecoded.legacyCustomAssumed, true);
+  const reEncodedLegacy = encodeSizerFragment(legacyDecoded);
+  const savedLegacy = encodeSizerSaveEnvelope([{ id: "leg-1", name: "Legacy Custom", savedAt: "2026-11-17T12:00:00Z", fragment: reEncodedLegacy }]);
+  assert.equal(decodeSizerSaveEnvelope(savedLegacy).scenarios[0].normalized.legacyCustomAssumed, true);
+});

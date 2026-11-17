@@ -937,18 +937,25 @@ function renderMiniCurveSvg(curve) {
   if (!Array.isArray(curve) || curve.length < 2) return "";
   const w = 680;
   const h = 210;
-  const padL = 64;
+  const padL = 72;
   const padR = 20;
   const padT = 16;
   const padB = 28;
-  const ptsA = curve.map((p) => Number(p.A ?? 0));
-  const ptsB = curve.map((p) => Number(p.B ?? 0));
-  const maxY = Math.max(1, ...ptsA, ...ptsB);
+  let maxRat = toRat("1");
+  const toNum = (val) => {
+    if (val === null || val === undefined) return 0;
+    const r = toRat(String(val));
+    if (r.gt(maxRat)) maxRat = r;
+    return Number(formatHalfUp(r, 2));
+  };
+  const ptsA = curve.map((p) => toNum(p.A));
+  const ptsB = curve.map((p) => toNum(p.B));
+  const maxY = Math.max(1, Number(formatHalfUp(maxRat, 2)));
   const xAt = (i) => padL + (i / (curve.length - 1)) * (w - padL - padR);
   const yAt = (v) => padT + (1 - v / maxY) * (h - padT - padB);
   const pathFor = (arr) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
 
-  const maxLabel = fmtMoneyUsd(String(maxY));
+  const maxLabel = fmtMoneyUsd(ratStr(maxRat));
   return `
     <svg viewBox="0 0 ${w} ${h}" width="100%" height="210" role="img" aria-label="60-month cumulative cost curve: Self-hosted Local AI vs Cloud Model API" style="display:block;border:1px solid var(--line);border-radius:4px;background:var(--surface-1)">
       <line x1="${padL}" y1="${padT}" x2="${w - padR}" y2="${padT}" stroke="#262638" stroke-dasharray="3 3"/>

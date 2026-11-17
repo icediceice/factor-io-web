@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
+import { decodeSizerFragment, encodeSizerFragment, normalizeSizerInput, projectSizerControls } from "../sizer-engine.js";
 import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {

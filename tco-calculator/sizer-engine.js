@@ -749,7 +749,7 @@ export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx
           gpusRequired: Math.max(1, gpusRequired),
           priceBasis: normalized.serverPriceBasis,
         });
-        chosen = c.best ?? rows[0];
+        chosen = rows.find((r) => r.server_id === c.best?.server_id) ?? rows[0];
       } catch {
         chosen = rows[0];
       }

@@ -1427,29 +1427,54 @@ export function buildShapesFromNormalized(normalized) {
   };
 }
 
-export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx }) {
+export function computeHardwareBom({ normalized, gpusRequired, tpDegree = 1, serverPricing, fx }) {
   const rows = serversForGpu(normalized.gpuId, serverPricing?.rows ?? []);
   if (normalized.quoteBasis === "catalog") {
-    let chosen = rows.find((r) => r.server_id === normalized.serverId) ?? null;
-    if (!chosen && rows.length) {
+    let chosen = null;
+    if (normalized.serverId) {
+      chosen = rows.find((r) => r.server_id === normalized.serverId) ?? null;
+      if (!chosen) {
+        return {
+          ok: false,
+          code: "unknown_server",
+          reason: `Selected server "${normalized.serverId}" is not available for GPU "${normalized.gpuId}".`,
+        };
+      }
+      if (tpDegree > chosen.gpu_count) {
+        return {
+          ok: false,
+          code: "unsupported_cross_node_tp",
+          reason: `Model requires TP=${tpDegree} per replica, which exceeds ${chosen.gpu_count} GPU(s) on selected server "${chosen.label ?? chosen.server_id}".`,
+        };
+      }
+    } else {
+      if (!rows.length) {
+        return {
+          ok: false,
+          code: "no_catalog_server",
+          reason: `No published integrated server price for "${normalized.gpuId}". Choose a custom hardware quote basis.`,
+        };
+      }
+      const eligibleRows = rows.filter((r) => r.gpu_count >= tpDegree);
+      if (!eligibleRows.length) {
+        const maxSlots = Math.max(...rows.map((r) => r.gpu_count));
+        return {
+          ok: false,
+          code: "unsupported_cross_node_tp",
+          reason: `Model requires TP=${tpDegree} per replica, exceeding the maximum ${maxSlots} GPU slot(s) per server node for "${normalized.gpuId}".`,
+        };
+      }
       try {
         const c = cheapestConfigFor({
           gpuId: normalized.gpuId,
-          servers: serverPricing?.rows ?? [],
+          servers: eligibleRows,
           gpusRequired: Math.max(1, gpusRequired),
           priceBasis: normalized.serverPriceBasis,
         });
-        chosen = rows.find((r) => r.server_id === c.best?.server_id) ?? rows[0];
+        chosen = eligibleRows.find((r) => r.server_id === c.best?.server_id) ?? eligibleRows[0];
       } catch {
-        chosen = rows[0];
+        chosen = eligibleRows[0];
       }
-    }
-    if (!chosen) {
-      return {
-        ok: false,
-        code: "no_catalog_server",
-        reason: `No published integrated server price for "${normalized.gpuId}". Choose a custom hardware quote basis.`,
-      };
     }
     try {
       // In catalog mode, the selected server row's gpu_count is authoritative (gpusPerNode is disabled in UI).
@@ -1490,7 +1515,16 @@ export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx
   }
 
   // Custom topology bases: integrated_node, component_split, fleet_total
-  const gpusPerNode = normalized.gpusPerNode ?? (rows[0]?.gpu_count ?? Math.min(8, Math.max(1, gpusRequired)));
+  if (normalized.gpusPerNode !== null && tpDegree > normalized.gpusPerNode) {
+    return {
+      ok: false,
+      code: "unsupported_cross_node_tp",
+      reason: `Model requires TP=${tpDegree} per replica, which exceeds configured ${normalized.gpusPerNode} GPU(s) per custom node.`,
+    };
+  }
+  const autoCustomSlots = rows.find((r) => r.gpu_count >= tpDegree)?.gpu_count
+    ?? Math.max(tpDegree, rows[0]?.gpu_count ?? Math.min(8, Math.max(1, gpusRequired)));
+  const gpusPerNode = normalized.gpusPerNode ?? autoCustomSlots;
   const minNodes = Math.max(1, Math.ceil(gpusRequired / gpusPerNode));
   const nodes = normalized.nodes ?? minNodes;
   const installedGpus = nodes * gpusPerNode;
@@ -1560,6 +1594,86 @@ export function buildPricingIdentity(manifest, fx) {
   return `${manifest?.snapshot_digest ?? "local"}${sources ? `|${sources}` : ""}|${fxDoc.observed_at}|${rateText}`;
 }
 
+function parsePricingIdentityParts(identity) {
+  const parts = String(identity ?? "").split("|");
+  if (parts.length < 3) return null;
+  const fxRateText = parts[parts.length - 1] ?? "";
+  const fxDate = parts[parts.length - 2] ?? "";
+  const sourceSegment = parts.length >= 4 ? parts.slice(1, parts.length - 2).join("|") : "";
+  const sources = {};
+  for (const item of sourceSegment.split(",").filter(Boolean)) {
+    const m = /^([^:]+):([^@]+)@([^:]*):(.+)$/.exec(item);
+    if (m) {
+      sources[m[1]] = {
+        origin: m[2],
+        date: m[3] ? m[3].slice(0, 10) : "",
+      };
+    }
+  }
+  return {
+    fxDate: fxDate.slice(0, 10),
+    fxRateText,
+    sources,
+  };
+}
+
+export function describePricingRefresh(capturedIdentity, currentIdentity, lang = "en") {
+  const prev = parsePricingIdentityParts(capturedIdentity);
+  const curr = parsePricingIdentityParts(currentIdentity);
+  const isTh = lang === "th";
+  if (!prev || !curr) {
+    return isTh
+      ? "อัปเดตข้อมูลราคา\u00A0API\u00A0หรืออัตราแลกเปลี่ยนล่าสุดแล้ว ตัวเลขด้านล่างคำนวณใหม่ตามแหล่งข้อมูลปัจจุบัน"
+      : "Pricing source metadata was updated since this scenario was captured; totals below reflect current catalog sources.";
+  }
+
+  const notes = [];
+  const orCurr = curr.sources.openrouter;
+  const orPrev = prev.sources.openrouter;
+  if (orCurr && (!orPrev || orCurr.origin !== orPrev.origin || orCurr.date !== orPrev.date)) {
+    const modeEn = orCurr.origin === "live" ? "live feed" : "dated snapshot";
+    const modeTh = orCurr.origin === "live" ? "ข้อมูลสด" : "ข้อมูลตามรอบ";
+    notes.push(isTh
+      ? `OpenRouter (${modeTh}${orCurr.date ? ` ${orCurr.date}` : ""})`
+      : `OpenRouter (${modeEn}${orCurr.date ? ` ${orCurr.date}` : ""})`);
+  }
+
+  const llCurr = curr.sources.litellm;
+  const llPrev = prev.sources.litellm;
+  if (llCurr && (!llPrev || llCurr.origin !== llPrev.origin || llCurr.date !== llPrev.date)) {
+    notes.push(isTh
+      ? `LiteLLM (${llCurr.date || "ล่าสุด"})`
+      : `LiteLLM (${llCurr.date || "updated"})`);
+  }
+
+  const prevRateFmt = (() => {
+    try { return formatHalfUp(toRat(prev.fxRateText), 2); } catch { return prev.fxRateText; }
+  })();
+  const currRateFmt = (() => {
+    try { return formatHalfUp(toRat(curr.fxRateText), 2); } catch { return curr.fxRateText; }
+  })();
+
+  if (prev.fxRateText !== curr.fxRateText) {
+    notes.push(isTh
+      ? `อัตราแลกเปลี่ยน\u00A0USD/THB\u00A0${prevRateFmt}\u00A0\u2192\u00A0${currRateFmt}${curr.fxDate ? ` (${curr.fxDate})` : ""}`
+      : `ECB FX ${prevRateFmt} -> ${currRateFmt} THB/USD${curr.fxDate ? ` (${curr.fxDate})` : ""}`);
+  } else if (prev.fxDate !== curr.fxDate && curr.fxDate) {
+    notes.push(isTh
+      ? `ตรวจอัตราแลกเปลี่ยนล่าสุด\u00A0(${currRateFmt}\u00A0THB/USD, ${curr.fxDate})`
+      : `ECB FX checked ${curr.fxDate} (${currRateFmt} THB/USD)`);
+  }
+
+  if (notes.length === 0) {
+    return isTh
+      ? "ตรวจสอบความสดของแหล่งข้อมูลราคา\u00A0API\u00A0และอัตราแลกเปลี่ยนล่าสุดแล้ว ตัวเลขด้านล่างอ้างอิงชุดข้อมูลปัจจุบัน"
+      : "Pricing source timestamps were refreshed since this scenario was captured; totals below use current catalog metadata.";
+  }
+
+  return isTh
+    ? `อัปเดตแหล่งข้อมูลราคาล่าสุดตั้งแต่สร้างลิงก์นี้\u00A0(${notes.join(" · ")}) ตัวเลขด้านล่างคำนวณตามชุดข้อมูลปัจจุบัน`
+    : `Pricing sources updated since this scenario was captured (${notes.join(" · ")}); totals below reflect current catalog data.`;
+}
+
 // Shared scenario assembly + calculator.js:runComparison execution.
 export function computeSizer({
   input,
@@ -1587,21 +1701,26 @@ export function computeSizer({
   });
 
   const catalogRows = serversForGpu(normalized.gpuId, serverPricing?.rows ?? []);
-  const tentativeSlots = normalized.quoteBasis === "catalog"
-    ? (catalogRows.find((r) => r.server_id === normalized.serverId)?.gpu_count ?? catalogRows[0]?.gpu_count ?? null)
-    : (normalized.gpusPerNode ?? catalogRows[0]?.gpu_count ?? null);
+  const pinnedCatalogServer = normalized.quoteBasis === "catalog" && normalized.serverId
+    ? (catalogRows.find((r) => r.server_id === normalized.serverId) ?? null)
+    : null;
+  const explicitSlots = normalized.quoteBasis === "catalog"
+    ? (pinnedCatalogServer ? pinnedCatalogServer.gpu_count : null)
+    : normalized.gpusPerNode;
 
   const fit = evaluateModelFit({
     normalized,
     servingData,
     gpuPricing,
-    effectiveGpusPerNode: tentativeSlots,
+    effectiveGpusPerNode: explicitSlots,
   });
 
   if (!fit.arithmeticFit || fit.status === "unsupported_cross_node_tp") {
     return {
       ok: false,
       stage: "model_fit",
+      code: fit.code,
+      reason: fit.reason,
       normalized,
       demand,
       peak,
@@ -1619,36 +1738,15 @@ export function computeSizer({
     serving: fit.serving,
   });
   const gpusRequired = Math.max(1, Number(sizing.gpus_required.text));
+  const tpDegree = Number(fit.serving.gpus_per_replica);
 
   const bom = computeHardwareBom({
     normalized,
     gpusRequired,
+    tpDegree,
     serverPricing,
     fx,
   });
-
-  // Re-verify cross-node TP against actual resolved server slots when catalog picked a smaller box
-  if (bom.ok && Number(fit.serving.gpus_per_replica) > bom.gpusPerNode) {
-    return {
-      ok: false,
-      stage: "topology_tp",
-      normalized,
-      demand,
-      peak,
-      sizing,
-      fit: {
-        ...fit,
-        status: "unsupported_cross_node_tp",
-        qualifiedDeploymentPass: false,
-        code: "unsupported_cross_node_tp",
-        reason: `Model requires TP=${fit.serving.gpus_per_replica}, which exceeds ${bom.gpusPerNode} GPU(s) per chosen server node.`,
-      },
-      bom,
-      comparison: null,
-      dealTier: normalized.dealTierOverride ?? recommendDealTier({ users: normalized.users, connectors: normalized.connectors, gpusRequired }),
-      pricingIdentity: buildPricingIdentity(manifest, fx),
-    };
-  }
 
   const dealTierId = normalized.dealTierOverride ?? recommendDealTier({
     users: normalized.users,
@@ -1656,14 +1754,85 @@ export function computeSizer({
     gpusRequired,
   });
 
+  if (!bom.ok && bom.code === "unsupported_cross_node_tp") {
+    return {
+      ok: false,
+      stage: "topology_tp",
+      code: "unsupported_cross_node_tp",
+      reason: bom.reason,
+      normalized,
+      demand,
+      peak,
+      sizing: { ...sizing, gpusRequired },
+      fit: {
+        ...fit,
+        status: "unsupported_cross_node_tp",
+        qualifiedDeploymentPass: false,
+        code: "unsupported_cross_node_tp",
+        reason: bom.reason,
+      },
+      bom,
+      comparison: null,
+      dealTier: dealTierId,
+      pricingIdentity: buildPricingIdentity(manifest, fx),
+    };
+  }
+
+  // Re-verify cross-node TP against actual resolved server slots
+  if (bom.ok && tpDegree > bom.gpusPerNode) {
+    const tpReason = `Model requires TP=${tpDegree}, which exceeds ${bom.gpusPerNode} GPU(s) per chosen server node.`;
+    return {
+      ok: false,
+      stage: "topology_tp",
+      code: "unsupported_cross_node_tp",
+      reason: tpReason,
+      normalized,
+      demand,
+      peak,
+      sizing: { ...sizing, gpusRequired },
+      fit: {
+        ...fit,
+        status: "unsupported_cross_node_tp",
+        qualifiedDeploymentPass: false,
+        code: "unsupported_cross_node_tp",
+        reason: tpReason,
+      },
+      bom,
+      comparison: null,
+      dealTier: dealTierId,
+      pricingIdentity: buildPricingIdentity(manifest, fx),
+    };
+  }
+
   if (!bom.ok) {
     return {
       ok: false,
       stage: "hardware_bom",
+      code: bom.code,
+      reason: bom.reason,
       normalized,
       demand,
       peak,
-      sizing,
+      sizing: { ...sizing, gpusRequired },
+      fit,
+      bom,
+      comparison: null,
+      dealTier: dealTierId,
+      pricingIdentity: buildPricingIdentity(manifest, fx),
+    };
+  }
+
+  if (normalized.apiOfferId && !catalog?.offers?.[normalized.apiOfferId]) {
+    return {
+      ok: false,
+      stage: "api_offer",
+      code: "unknown_api_offer",
+      reason: `Selected Model API offer "${normalized.apiOfferId}" is unavailable in the current catalog. Reselect an active API model.`,
+      unresolvedApiOfferId: normalized.apiOfferId,
+      normalized,
+      demand,
+      peak,
+      sizing: { ...sizing, gpusRequired },
       fit,
       bom,
       comparison: null,
@@ -1705,22 +1874,24 @@ export function computeSizer({
 
   const resolvedApiOfferId = pickComparableApiOffer(catalog, manifest, normalized.apiOfferId);
 
-  // Rented GPU baseline from first-party provider row if available
+  // Rented GPU baseline from first-party provider row if available, using the identical resolved model spec
   const rentRows = gpuPricing?.rows ?? [];
   const rentIndex = Math.max(0, rentRows.findIndex((r) => r.confidence === "first_party"));
   const rentRow = rentRows[rentIndex] ?? rentRows[0] ?? null;
+  const resolvedModel = fit.resolvedModel;
   let rentSizing = null;
-  if (rentRow) {
+  if (rentRow && resolvedModel) {
     try {
       const rAcc = servingData?.accelerators?.[rentRow.gpu_id];
       const rVram = gpuPricing?.gpus?.[rentRow.gpu_id]?.vram_gb;
-      const rModel = (servingData?.models ?? []).find((m) => m.id === normalized.modelId);
-      const rServing = (rAcc && rVram !== undefined && rModel)
+      const rServing = (rAcc && rVram !== undefined)
         ? servingPlan({
-          model: rModel,
-          contextTokens: normalized.effectiveContextTokens,
+          model: resolvedModel,
+          contextTokens: String(normalized.effectiveContextTokens),
           bytesPerParam: servingData.weight_quantization[normalized.wquant].bytes_per_param,
-          kvBytesPerElement: servingData.kv_quantization[normalized.kvquant].bytes_per_element,
+          kvBytesPerElement: resolvedModel.kv_override
+            ? "1"
+            : servingData.kv_quantization[normalized.kvquant].bytes_per_element,
           vramGb: String(rVram),
           bandwidthGbS: rAcc.bandwidth_gb_s,
           runtimeEfficiency: servingData.runtimes[normalized.runtime].bandwidth_efficiency,
@@ -1905,6 +2076,121 @@ export function computeSizer({
     pricingIdentity: buildPricingIdentity(manifest, fx),
     fx,
   };
+}
+
+const PREFERRED_ENTERPRISE_GPUS = Object.freeze([
+  "rtx_pro_6000_ws",
+  "rtx_pro_6000_se",
+  "l40s",
+  "h100",
+  "h200",
+  "b200",
+]);
+
+export function evaluateGpuCandidates({ input, data, nowMs = 1788220800000 }) {
+  const normalized = input?.schema === SIZER_SCHEMA ? input : normalizeSizerInput(input);
+  const accMap = data?.servingData?.accelerators ?? {};
+  const gpuMap = data?.gpuPricing?.gpus ?? {};
+  const serverRows = data?.serverPricing?.rows ?? [];
+  const serverGpuSet = new Set(serverRows.map((r) => r.gpu_id));
+
+  const orderedIds = [
+    ...PREFERRED_ENTERPRISE_GPUS.filter((id) => accMap[id] && gpuMap[id]),
+    ...Object.keys(accMap).filter((id) => !PREFERRED_ENTERPRISE_GPUS.includes(id) && gpuMap[id] && serverGpuSet.has(id)),
+  ];
+
+  return orderedIds.map((gpuId) => {
+    const gpuMeta = gpuMap[gpuId] ?? {};
+    const accMeta = accMap[gpuId] ?? {};
+    // Evaluate each candidate in automatic catalog topology without copying manual node pins or custom quotes from another GPU.
+    const candidateInput = normalizeSizerInput({
+      ...normalized,
+      gpuId,
+      quoteBasis: "catalog",
+      serverId: "",
+      nodes: null,
+      gpusPerNode: null,
+      integratedNodePrice: { amount: "0", currency: normalized.quoteCurrency },
+      chassisNodePrice: { amount: "0", currency: normalized.quoteCurrency },
+      gpuUnitPrice: { amount: "0", currency: normalized.quoteCurrency },
+      fleetTotalPrice: { amount: "0", currency: normalized.quoteCurrency },
+    });
+    const res = computeSizer({ input: candidateInput, data, nowMs });
+    if (res.ok) {
+      return {
+        gpuId,
+        label: gpuMeta.label ?? gpuId,
+        vramGb: gpuMeta.vram_gb ?? null,
+        bandwidthGbS: accMeta.bandwidth_gb_s ?? null,
+        isSelected: gpuId === normalized.gpuId,
+        feasible: true,
+        priced: true,
+        status: res.fit.status,
+        tpDegree: Number(res.fit.serving.gpus_per_replica),
+        gpusRequired: res.sizing.gpusRequired,
+        installedGpus: res.bom.installedGpus,
+        nodes: res.bom.nodes,
+        gpusPerNode: res.bom.gpusPerNode,
+        serverId: res.bom.serverId,
+        serverLabel: res.bom.serverRow?.label ?? res.bom.serverId,
+        tokensPerSecPerGpu: res.sizing.tokens_s_per_gpu.text,
+        capexUsd: res.bom.capexUsd,
+        capexThb: res.bom.capexThb,
+        paybackMonths: res.comparison?.payback?.vs_model_api?.months ?? null,
+        warnings: res.fit.warnings ?? [],
+        reason: null,
+      };
+    }
+    if (res.stage === "hardware_bom" && res.bom?.code === "no_catalog_server" && res.fit?.serving && res.sizing) {
+      return {
+        gpuId,
+        label: gpuMeta.label ?? gpuId,
+        vramGb: gpuMeta.vram_gb ?? null,
+        bandwidthGbS: accMeta.bandwidth_gb_s ?? null,
+        isSelected: gpuId === normalized.gpuId,
+        feasible: true,
+        priced: false,
+        status: "memory_fit_unpriced",
+        tpDegree: Number(res.fit.serving.gpus_per_replica),
+        gpusRequired: res.sizing.gpusRequired,
+        installedGpus: res.sizing.gpusRequired,
+        nodes: null,
+        gpusPerNode: null,
+        serverId: "",
+        serverLabel: null,
+        tokensPerSecPerGpu: res.sizing.tokens_s_per_gpu.text,
+        capexUsd: null,
+        capexThb: null,
+        paybackMonths: null,
+        warnings: res.fit.warnings ?? [],
+        reason: res.bom.reason,
+      };
+    }
+    return {
+      gpuId,
+      label: gpuMeta.label ?? gpuId,
+      vramGb: gpuMeta.vram_gb ?? null,
+      bandwidthGbS: accMeta.bandwidth_gb_s ?? null,
+      isSelected: gpuId === normalized.gpuId,
+      feasible: false,
+      priced: false,
+      status: res.fit?.status ?? "refused",
+      code: res.code ?? res.fit?.code ?? res.bom?.code ?? "unavailable",
+      tpDegree: res.fit?.serving ? Number(res.fit.serving.gpus_per_replica) : null,
+      gpusRequired: res.sizing?.gpusRequired ?? null,
+      installedGpus: null,
+      nodes: null,
+      gpusPerNode: null,
+      serverId: "",
+      serverLabel: null,
+      tokensPerSecPerGpu: null,
+      capexUsd: null,
+      capexThb: null,
+      paybackMonths: null,
+      warnings: res.fit?.warnings ?? [],
+      reason: res.reason ?? res.fit?.reason ?? res.bom?.reason ?? "Unavailable for this model/workload.",
+    };
+  });
 }
 
 // UTF-8 safe base64url helpers for browser + Node ESM.

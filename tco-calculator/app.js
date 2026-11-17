@@ -1746,7 +1746,7 @@ async function wireInputs() {
     if (state.catalogError) await fillModels(beginSelection());
     flushLiveInput();
   });
-  $("reset-example").addEventListener("click", () => { try { clearHandoffs(sessionStorage); } catch {} location.replace("tco-calculator.html"); });
+  $("reset-example").addEventListener("click", () => { starterUI?.setReturnOrigin?.(null); try { clearHandoffs(sessionStorage); } catch {} location.replace("tco-calculator.html"); });
   $("mix-balance").addEventListener("click", balanceMix);
   await fillModels(beginSelection());
 }

@@ -77,6 +77,18 @@ test('G2 a valid catalog active-only override survives share, handoff, and save 
   expect(sizer.decodeSizerSaveEnvelope(saved).scenarios[0].normalized.customActiveParamsB).toBe('5');
 });
 
+test('G3 clearing a newly selected Custom model does not invoke legacy-only geometry', () => {
+  const h = uiHarness();
+  h.get("handleFieldMutation('modelId', 'custom')");
+  for (const field of ['customParamsB', 'customActiveParamsB', 'customKvBytesBf16', 'customContextMax']) {
+    h.context.fieldName = field;
+    h.get("handleFieldMutation(fieldName, '')");
+  }
+  h.get('recompute()');
+  expect(h.state.computed.ok).toBe(false);
+  expect(h.state.computed.code).toBe('incomplete_custom_model');
+});
+
 test('valid custom BF16 and INT8 KV specs round-trip with the requested precision', () => {
   for (const kvquant of ['bf16', 'int8']) {
     const n = sizer.normalizeSizerInput({ users: 100, modelId: 'custom', customParamsB: '70', customActiveParamsB: '70', customKvBytesBf16: 327680, customContextMax: 131072, kvquant, gpuId: 'h100' });

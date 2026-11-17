@@ -23,7 +23,6 @@ import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from 
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 import { setupStarters } from "./starter-ui.js";
 import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentity, controlDiff, validateControlRecord } from "./assistant-session.js";
-import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
@@ -300,7 +299,6 @@ function validateReturnedControls(values, groups) {
     const el = $(id); if (!el) throw new Error(`Removed control: ${id}`);
     if (id === "f-utc") { if (!/^\d{4}-\d\d-\d\dT\d\d:00:00Z$/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error("Invalid quote time"); continue; }
     if (id === "f-srv-config") { if (value && !state.serverPricing.rows.some(r => r.server_id === value && r.gpu_id === values["f-sh-gpu"])) throw new Error("Server no longer matches the accelerator"); continue; }
-    if (id === "f-sh-nodes") { if (value !== "" && (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 10000)) throw new Error("Invalid server node count"); continue; }
     if (id === "f-sv-maxbatch" && value === "") continue; // blank is the real control's uncapped/default state
     if (contracts[id]) validateFieldValue(id, value, contracts[id]);
     else if (el.tagName === "SELECT" && ![...el.options].some(option => option.value === value)) throw new Error(`Unavailable option: ${controlLabel(id)}`);
@@ -321,15 +319,9 @@ function writeReturnedControls(values, groups) {
   renderRentNote(); syncSliders(); syncChips();
 }
 function processAdvisorReturn(fresh = false) {
-  const href = String(globalThis.location?.href ?? "");
-  const id = new URL(href).searchParams.get("advisor") ?? activeHandoffId;
+  const id = new URL(location.href).searchParams.get("advisor") ?? activeHandoffId;
   if (!id || !state.ready) return;
   const box = $("return-review");
-  if (href.includes("#sizer=")) {
-    box.hidden = false;
-    box.innerHTML = `<p role="alert">Conflicting advisor and sizer transfers in the same URL were rejected; your current calculator inputs were kept.</p>`;
-    return;
-  }
   try {
     const record = readHandoff(sessionStorage, id);
     if (!record) throw new Error("Advisor context is missing or expired. Your current calculator inputs were kept.");
@@ -374,62 +366,6 @@ function applyReturnedProposal() {
       ? '<p role="status">Applied once and recomputed. Review the custom comparison below. Open the advisor again to discuss this result or request its blueprint specification.</p><a class="btn" href="#comparison">View recomputed comparison ↓</a>'
       : '<p role="status">Settings applied once, but this comparison cannot be calculated. Resolve the errors below before requesting a blueprint specification.</p>';
   } catch (error) { $("return-status").textContent = error.message; }
-}
-function processSizerReturn() {
-  const href = String(globalThis.location?.href ?? "");
-  if (!href.includes("#sizer=") || !state.ready) return false;
-  const box = $("return-review");
-  try {
-    const parsedUrl = new URL(href);
-    if (parsedUrl.searchParams.get("advisor") || activeHandoffId) {
-      throw new Error("Conflicting advisor and sizer transfers in the same URL were rejected; your current calculator inputs were kept.");
-    }
-    if (manualRevision > 0) {
-      throw new Error("Calculator inputs were edited locally; the sizer transfer was not applied.");
-    }
-    const normalized = decodeSizerFragment(parsedUrl.hash);
-    if (!normalized) return false;
-    const before = captureControls();
-    const groupsBefore = readArchGroups();
-    const starterBefore = starterUI.snapshot();
-    const projected = projectSizerControls({
-      normalized,
-      beforeControls: before,
-      stateData: {
-        manifest: state.manifest,
-        catalog: state.catalog,
-        fx: state.fx,
-        gpuPricing: state.gpuPricing,
-        serverPricing: state.serverPricing,
-        servingData: state.servingData,
-        powerSeed: state.powerSeed,
-        subscriptions: state.subscriptions,
-      },
-    });
-    validateReturnedControls(projected.controls, projected.groups);
-    try {
-      writeReturnedControls(projected.controls, projected.groups);
-      starterUI.setMode("custom"); // onCustom performs the single recomputation
-    } catch (err) {
-      writeReturnedControls(before, groupsBefore);
-      starterUI.restore(starterBefore);
-      throw err;
-    }
-    globalThis.history?.replaceState?.(null, "", `${parsedUrl.pathname}${parsedUrl.search}#custom-page`);
-    if (box) {
-      box.hidden = false;
-      box.innerHTML = projected.repriced
-        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. Live API prices or exchange rates were refreshed since the sizer snapshot (${escapeHtml(projected.capturedIdentity)} → ${escapeHtml(projected.currentIdentity)}); totals below were re-evaluated against current sources.</p>`
-        : `<p role="status">Applied Guided Local AI Sizer scenario to custom comparison.</p>`;
-    }
-    return true;
-  } catch (error) {
-    if (box) {
-      box.hidden = false;
-      box.innerHTML = `<p role="alert">${escapeHtml(error.message)}</p>`;
-    }
-    return false;
-  }
 }
 
 function compactLedger(result) {
@@ -773,7 +709,7 @@ async function init() {
     // the user edits — not a form they must fill before anything happens.
     state.ready = true;
     starterUI.refresh();
-    if (!processSizerReturn()) flushLiveInput();
+    flushLiveInput();
     processAdvisorReturn(true);
   } catch (e) {
     invalidateResults("Example unavailable — reload to retry.");
@@ -2155,7 +2091,7 @@ function buildScenario(usersOverride = null) {
       // know, and the required fleet is the honest floor.
       gpus: capexPlan ? capexPlan.gpus_provisioned : gpuCount,
       gpuVramGb: vramOf(gpuId),
-      nodes: intInput("f-sh-nodes") ?? (capexPlan ? capexPlan.nodes : null),
+      nodes: capexPlan ? capexPlan.nodes : null,
     },
     rented: rentSizing
       ? { gpus: rentGpus, gpuVramGb: vramOf(rentRow.gpu_id), gpuHours: rentedHours }
@@ -2166,14 +2102,15 @@ function buildScenario(usersOverride = null) {
   requireSubscriptionPrice(currentSubRow(), subPlan, publish ? state.subGap : null);
 
   // One-time per option. A is the hardware capex (already on laneA.capex, so it
-  // is NOT repeated here — the engine adds it). A, B and C each carry their own
-  // option-specific one-time cost (f-onetime-a/b/c), while shared implementation
-  // (fo-impl) is charged ONCE TO EVERY OPTION so it cancels out of payback while
-  // still showing in each option's own total.
+  // is NOT repeated here — the engine adds it). B and C carry their own upfronts,
+  // which before v0.5 had nowhere to go and silently read as zero. Implementation
+  // is charged ONCE TO EVERY OPTION, which is what the field has always claimed:
+  // it is the same project whichever way the tokens are served, so it cancels out
+  // of the payback difference while still showing in each option's own total.
   const implOnce = engineMoneyInput("fo-impl") ?? "0";
   const withImpl = (v) => ratStr(toRat(v).add(toRat(implOnce)));
   const oneTime = {
-    A: withImpl(engineMoneyInput("f-onetime-a") ?? "0"),
+    A: implOnce,
     B: withImpl(engineMoneyInput("f-onetime-b") ?? "0"),
     C: withImpl(engineMoneyInput("f-onetime-c") ?? "0"),
   };
@@ -2860,7 +2797,7 @@ function renderSensitivity() {
 // performed once here, at the export boundary, using the same exact Rat as the UI.
 const THB_MONEY_INPUT_IDS = new Set([
   "f-sh-capex", "f-sub-price", "f-sh-fixed", "f-power-rate", "fo-license",
-  "fo-consult", "f-onetime-a", "f-onetime-b", "f-onetime-c", "fo-impl",
+  "fo-consult", "f-onetime-b", "f-onetime-c", "fo-impl",
 ]);
 const EXPORT_MONEY_KEYS = new Set([
   "amount", "capex", "cost", "delta", "extended", "fixed_monthly",

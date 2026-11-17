@@ -23,6 +23,7 @@ import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from 
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 import { setupStarters } from "./starter-ui.js";
 import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentity, controlDiff, validateControlRecord } from "./assistant-session.js";
+import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.

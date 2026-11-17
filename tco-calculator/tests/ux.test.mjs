@@ -514,23 +514,28 @@ test("deterministic component ledger covers cost components, formulas and source
   for (const key of ["demand", "sizing", "recurring", "capex", "power", "subscription", "routing", "exclusions", "freshness", "formulas"]) assert.ok(key in ledger, key);
 });
 
-test("field harvesting and close use a shared range-blind control selector", () => {
-  assert.match(fields, /const CONTROL = "input:not\(\[type=range\]\), select"/);
-  assert.doesNotMatch(fields, /querySelector(?:All)?\("input, select"\)/);
-  assert.match(fields, /f\.dataset\.inline/);
-  assert.match(fields, /releaseFields/);
-  // Which sections arrive open is declared in the markup, not by matching
-  // heading strings in here. The old title allow-list meant renaming a heading
-  // silently folded every section, with nothing to catch it — and the v0.8 rail
-  // renamed all six. (This replaces an h2.cloneNode assertion that guarded the
-  // stripping of live spans out of a title that is no longer read at all.)
-  assert.doesNotMatch(fields, /OPEN_SECTIONS/);
-  assert.match(fields, /"open" in sec\.dataset/);
-  const railSections = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
-  assert.equal((railSections.match(/<div\b[^>]*class="sec"[^>]*data-open[^>]*>/g) ?? []).length, 3);
-  // One disclosure layer in the rail. A details.adv nested inside a section
-  // that itself folds is what buried routing policy two levels deep.
-  assert.doesNotMatch(railSections, /<summary>Service level|<summary>Architecture detail/);
+test("real field sheet moves the authoritative input, preserves edits and ignores range controls", { timeout: 20000 }, async t => {
+  const page = await liveTcoPage(t);
+  const result = await page.evaluate(`(() => {
+    document.getElementById('starter-custom').click();
+    const original = document.getElementById('f-users');
+    const spec = document.querySelector('.spec[data-for="f-users"]');
+    spec.click();
+    const inSheet = document.querySelector('#sheet-root #f-users') === original;
+    original.value = '4321';
+    original.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('#sheet-root [data-done]').click();
+    return { inSheet, sameNode: document.getElementById('f-users') === original,
+      preserved: original.value, chip: spec.textContent,
+      rangeSpecs: [...document.querySelectorAll('.spec')].filter(s => document.getElementById(s.dataset.for)?.type === 'range').length,
+      foldedCorrectly: [...document.querySelectorAll('.rail .sec[data-folding]')].every(s => s.classList.contains('folded') === !('open' in s.dataset)) };
+  })()`);
+  assert.equal(result.inSheet, true);
+  assert.equal(result.sameNode, true);
+  assert.equal(result.preserved, "4321");
+  assert.match(result.chip, /4321/);
+  assert.equal(result.rangeSpecs, 0);
+  assert.equal(result.foldedCorrectly, true);
 });
 
 // Inline-chat tests are migrated below to the real dedicated advisor controller,

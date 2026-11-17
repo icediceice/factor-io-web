@@ -4,8 +4,16 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
-import { decodeSizerFragment, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity } from "../sizer-engine.js";
+import { decodeSizerFragment, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope } from "../sizer-engine.js";
 import { replaceCatalogSource } from "../live-pricing.js";
+import { setupStarters as realSetupStarters } from "../starter-ui.js";
+import { createSizerStorageAdapter, refreshLiveSourcesTransaction, SIZER_STORAGE_KEY } from "../sizer-ui.js";
+import * as demandMod from "../demand.js";
+import * as servingMod from "../serving.js";
+import * as capexMod from "../capex.js?v=20260906-ux3";
+import * as subscriptionMod from "../subscription.js";
+import * as powerMod from "../power.js";
+import * as calculatorMod from "../calculator.js?v=20260906-ux3";
 import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {

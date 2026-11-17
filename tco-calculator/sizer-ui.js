@@ -2,7 +2,7 @@
 // Reads only same-origin dated snapshots under ./tco-calculator/data/*.json,
 // stores zero sessionStorage/localStorage, and hands off via #sizer=v1.<base64url>.
 
-import { formatHalfUp, toRat } from "./exact.js";
+import { formatHalfUp, toRat, ratStr } from "./exact.js";
 import { loadManifest, loadFx, resolveResource } from "./data.js";
 import { normalizeFxDocument, toTHB } from "./currency.js";
 import { serversForGpu } from "./capex.js?v=20260906-ux3";

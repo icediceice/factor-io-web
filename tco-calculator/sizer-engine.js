@@ -1452,7 +1452,7 @@ export function projectSizerControls({
     values["f-srv-config"] = "";
     values["f-sh-count"] = String(result.bom.installedGpus);
     values["f-sh-nodes"] = String(result.bom.nodes);
-    values["f-sh-capex"] = trimDecimalZeros(formatHalfUp(toRat(result.bom.capexThb), 6));
+    values["f-sh-capex"] = trimDecimalZeros(formatHalfUp(toRat(result.bom.capexThb), 12));
   }
 
   // Monthly running cost override only when annual ops/support fee is explicitly included
@@ -1460,7 +1460,7 @@ export function projectSizerControls({
   if (annualOpsThb.sign() > 0 && result.powerPlan) {
     const powerThb = toTHB(result.powerPlan.monthly_usd, result.fx);
     const fixedThb = powerThb.add(annualOpsThb.div(Rat.from(12n)));
-    values["f-sh-fixed"] = trimDecimalZeros(formatHalfUp(fixedThb, 6));
+    values["f-sh-fixed"] = trimDecimalZeros(formatHalfUp(fixedThb, 12));
   } else {
     values["f-sh-fixed"] = "";
   }
@@ -1487,7 +1487,7 @@ export function projectSizerControls({
 
   const toThbField = (entry) => {
     const exactThb = toRat(moneyToThbExact(entry, result.fx));
-    return exactThb.isZero() ? "0" : trimDecimalZeros(formatHalfUp(exactThb, 6));
+    return exactThb.isZero() ? "0" : trimDecimalZeros(formatHalfUp(exactThb, 12));
   };
   values["f-onetime-a"] = toThbField(normalized.localImplFee);
   values["f-onetime-b"] = toThbField(normalized.apiImplFee);

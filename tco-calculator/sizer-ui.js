@@ -409,6 +409,7 @@ function selectWorkloadPreset(workloadId) {
   appState.draft.rawOutputTokens = String(w.rawOutputTokens);
   appState.draft.rawContextTokens = String(w.rawContextTokens);
   appState.draft.modelId = w.recommendedModelId;
+  if (w.recommendedGpuId) appState.draft.gpuId = w.recommendedGpuId;
   appState.draft.connectors = [...w.defaultConnectors];
 }
 

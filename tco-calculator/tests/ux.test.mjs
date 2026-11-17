@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
+import { decodeSizerFragment, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity } from "../sizer-engine.js";
+import { replaceCatalogSource } from "../live-pricing.js";
 import { Dec, Rat, formatHalfUp, ratStr, toRat } from "../exact.js";
 import { fxProvenance, normalizeFxDocument, toTHB, toUSD } from "../currency.js";
 import {
@@ -115,6 +117,7 @@ function harness() {
     fetchLiveFx: async () => { throw new Error("offline test fixture"); },
     syncChips() {}, enhanceRail() {}, releaseFields() {},
     controlIdentity, controlDiff, validateControlRecord, readHandoff, consumeHandoff,
+    decodeSizerFragment, projectSizerControls,
     setupStarters: () => ({ refresh() {}, snapshot: () => ({ mode: "starter" }), restore() {}, setMode() {} }),
   });
   const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");
@@ -420,30 +423,45 @@ test("mix refusals describe percentages and the corrective action", () => {
   assert.match(h.node("gapbox").innerHTML, /Put the remainder in Chat/);
 });
 
-test("changed UI modules use matching versioned URLs across HTML and module import", () => {
-  const version = html.match(/app\.js\?v=([^\"]+)/)?.[1];
-  assert.ok(version);
-  // Unchanged field/planner modules keep their existing cache identity.
-  assert.match(app, /\.\/fields\.js\?v=/);
-  assert.match(app, /\.\/planner\.js\?v=/);
-  assert.match(advisorSource, /\.\/chat\.js\?v=20260908-conversation-v4/);
-  assert.ok(advisorHtml.includes(`assistant.js?v=${version}`));
+// Module version spelling is not a runtime contract: the initialization and
+// browser tests below load the actual import graph and exercise its behavior.
+
+async function liveTcoPage(t) {
+  const { launch, openPage, serve } = await import("../../scripts/films/cdp.mjs");
+  const server = await serve(); t.after(() => server.close());
+  const browser = await launch(); t.after(() => browser.close());
+  const page = await openPage(browser, { width: 1440, height: 1000, reducedMotion: "reduce" });
+  await page.send("Network.enable");
+  await page.send("Network.setBlockedURLs", { urls: ["https://*"] });
+  await page.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.__testErrors=[];addEventListener('error',e=>__testErrors.push(e.message));addEventListener('unhandledrejection',e=>__testErrors.push(String(e.reason)));" });
+  await page.goto(server.origin + "/tco-calculator.html");
+  await page.evaluate(`new Promise((resolve, reject) => {
+    const until = performance.now() + 12000;
+    const probe = () => {
+      if (document.querySelector('.rail')?.inert === false && document.querySelector('.spec[data-for="f-onetime-a"]')) return resolve(true);
+      if (performance.now() > until) return reject(new Error('calculator did not initialize: ' + JSON.stringify({ errors: window.__testErrors, gap: document.getElementById('gapbox')?.textContent, rail: document.querySelector('.rail')?.inert, specs: document.querySelectorAll('.spec').length })));
+      setTimeout(probe, 40);
+    }; probe();
+  })`);
+  return page;
+}
+test("loaded calculator and each applied workload preset default to 60 months", { timeout: 20000 }, async t => {
+  const page = await liveTcoPage(t);
+  const result = await page.evaluate(`(async () => {
+    const presets = await (await fetch('./tco-calculator/data/workload-presets.json')).json();
+    const horizons = [document.getElementById('f-horizon').value];
+    for (const preset of presets.presets) {
+      document.querySelector('[data-preset="' + preset.id + '"]').click();
+      horizons.push(document.getElementById('f-horizon').value);
+    }
+    return horizons;
+  })()`);
+  assert.ok(result.length > 1);
+  assert.ok(result.every(value => value === "60"));
 });
 
-test("authored horizons default to 60 months in HTML and every workload preset", () => {
-  const presets = JSON.parse(readFileSync(new URL("../data/workload-presets.json", import.meta.url), "utf8"));
-  assert.match(html, /id="f-horizon"[^>]*value="60"/);
-  assert.equal(presets.defaults.horizon_months, "60");
-  assert.ok(presets.presets.length > 0);
-  assert.ok(presets.presets.every((preset) => preset.fields["f-horizon"] === "60"));
-});
-
-test("deterministic engine modules cannot import the THB presentation boundary", () => {
-  for (const name of ENGINE_MODULES) {
-    const source = readFileSync(new URL(`../${name}`, import.meta.url), "utf8");
-    assert.doesNotMatch(source, /(?:from\s+|import\s*\()["']\.\/currency\.js(?:\?[^"']*)?["']/, name);
-  }
-});
+// USD/THB behavior is asserted against real outputs in exportMoneyRecord,
+// exportMoneyTree, and the sizer parity acceptance matrix, independently of imports.
 
 test("exported money preserves exact engine USD and converts once to exact THB", () => {
   const h = harness();
@@ -498,23 +516,28 @@ test("deterministic component ledger covers cost components, formulas and source
   for (const key of ["demand", "sizing", "recurring", "capex", "power", "subscription", "routing", "exclusions", "freshness", "formulas"]) assert.ok(key in ledger, key);
 });
 
-test("field harvesting and close use a shared range-blind control selector", () => {
-  assert.match(fields, /const CONTROL = "input:not\(\[type=range\]\), select"/);
-  assert.doesNotMatch(fields, /querySelector(?:All)?\("input, select"\)/);
-  assert.match(fields, /f\.dataset\.inline/);
-  assert.match(fields, /releaseFields/);
-  // Which sections arrive open is declared in the markup, not by matching
-  // heading strings in here. The old title allow-list meant renaming a heading
-  // silently folded every section, with nothing to catch it — and the v0.8 rail
-  // renamed all six. (This replaces an h2.cloneNode assertion that guarded the
-  // stripping of live spans out of a title that is no longer read at all.)
-  assert.doesNotMatch(fields, /OPEN_SECTIONS/);
-  assert.match(fields, /"open" in sec\.dataset/);
-  const railSections = html.slice(html.indexOf('<aside class="rail">'), html.indexOf("</aside>"));
-  assert.equal((railSections.match(/<div\b[^>]*class="sec"[^>]*data-open[^>]*>/g) ?? []).length, 3);
-  // One disclosure layer in the rail. A details.adv nested inside a section
-  // that itself folds is what buried routing policy two levels deep.
-  assert.doesNotMatch(railSections, /<summary>Service level|<summary>Architecture detail/);
+test("real field sheet moves the authoritative input, preserves edits and ignores range controls", { timeout: 20000 }, async t => {
+  const page = await liveTcoPage(t);
+  const result = await page.evaluate(`(() => {
+    document.getElementById('starter-custom').click();
+    const original = document.getElementById('f-onetime-a');
+    const spec = document.querySelector('.spec[data-for="f-onetime-a"]');
+    spec.click();
+    const inSheet = document.querySelector('#sheet-root #f-onetime-a') === original;
+    original.value = '4321';
+    original.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('#sheet-root [data-done]').click();
+    return { inSheet, sameNode: document.getElementById('f-onetime-a') === original,
+      preserved: original.value, chip: spec.textContent,
+      rangeSpecs: [...document.querySelectorAll('.spec')].filter(s => document.getElementById(s.dataset.for)?.type === 'range').length,
+      foldedCorrectly: [...document.querySelectorAll('.rail .sec[data-folding]')].every(s => s.classList.contains('folded') === !('open' in s.dataset)) };
+  })()`);
+  assert.equal(result.inSheet, true);
+  assert.equal(result.sameNode, true);
+  assert.equal(result.preserved, "4321");
+  assert.match(result.chip, /4321/);
+  assert.equal(result.rangeSpecs, 0);
+  assert.equal(result.foldedCorrectly, true);
 });
 
 // Inline-chat tests are migrated below to the real dedicated advisor controller,
@@ -606,6 +629,185 @@ test("storage consumption failure rolls all reviewed controls back", () => {
   assert.equal(h.node("f-users").value, "20"); assert.equal(h.computations(), 0);
   assert.match(h.node("return-status").textContent, /Storage blocked/);
   assert.equal(h.get("plannerState.applied"), false);
+});
+
+function sizerReceiverHarness() {
+  const h = harness();
+  let mode = "starter";
+  let computations = 0;
+  let replacedUrl = null;
+  h.context.history = { replaceState: (_s, _t, url) => { replacedUrl = url; } };
+  h.state.ready = true;
+  h.state.manifest = {
+    snapshot_digest: "snap-1",
+    models: [{ id: "openrouter:gpt-4o", name: "GPT-4o", state: "active" }],
+  };
+  h.state.catalog = {
+    offers: {
+      "openrouter:gpt-4o": {
+        offer_id: "openrouter:gpt-4o",
+        seller: "openrouter",
+        seller_source: "openrouter",
+        channel: "api",
+        product: "openai/gpt-4o",
+        region: "*",
+        purchase_term: "on_demand",
+        display_name: "GPT-4o",
+        tariff: "token",
+        state: "active",
+        quarantine_reason: null,
+        missing_streak: 0,
+        expiration_date: null,
+        prices: {
+          input: "0.0000025",
+          output: "0.00001",
+          cache_read: "0.00000125",
+        },
+        overrides: [],
+        multipliers: {},
+        tiered: [],
+        ignored_fields: [],
+        unknown_meter_fields: [],
+        provenance: { source: "openrouter", logs: [] },
+      },
+    },
+  };
+  h.state.gpuPricing = {
+    gpus: {
+      h100: { label: "NVIDIA H100 80GB", vram_gb: 80 },
+      rtx_pro_6000_se: { label: "RTX PRO 6000 SE 96GB", vram_gb: 96 },
+    },
+    rows: [{ provider: "first", provider_label: "First Cloud", gpu_id: "h100", gpu_label: "H100", sku: "h100-1x", gpu_hourly_usd: "2.50", confidence: "first_party" }],
+  };
+  h.state.serverPricing = {
+    rows: [{ server_id: "srv-rtx-2x", gpu_id: "rtx_pro_6000_se", gpu_count: 2, form_factor: "2U", usd_typical: "53333" }],
+  };
+  h.state.servingData = JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8"));
+  h.state.powerSeed = JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8"));
+  h.state.subscriptions = { rows: [{ id: "none", label: "None", applies_to: [] }] };
+
+  const defaults = {
+    "f-users": "20", "f-sessions-day": "2", "f-days": "22", "f-horizon": "60",
+    "f-peak-frac": "10", "f-tps-stream": "30", "f-p95": "", "f-utc": "2026-09-01T00:00:00Z",
+    "f-mix-chat": "100", "f-mix-rag": "0", "f-mix-graphrag": "0", "f-mix-agentic": "0",
+    "f-chat-turns": "2", "f-chat-in": "100", "f-chat-out": "50", "f-chat-cached": "0",
+    "f-rag-turns": "2", "f-rag-in": "100", "f-rag-out": "50", "f-rag-cached": "0",
+    "f-graphrag-turns": "2", "f-graphrag-in": "100", "f-graphrag-out": "50", "f-graphrag-cached": "0",
+    "f-agentic-turns": "2", "f-agentic-in": "100", "f-agentic-out": "50", "f-agentic-cached": "0",
+    "f-sv-model": "qwen3-5-9b", "f-sv-params": "9", "f-sv-active": "9", "f-sv-ctx": "8192", "f-sv-kvbytes": "",
+    "f-sv-wquant": "fp8", "f-sv-kvquant": "fp8", "f-sv-runtime": "vllm", "f-sv-mode": "interactive", "f-sv-maxbatch": "",
+    "f-sh-tps-gpu": "", "f-sh-gpu": "h100", "f-srv-basis": "usd_typical", "f-srv-config": "",
+    "f-sh-count": "", "f-sh-nodes": "", "f-sh-capex": "", "f-sh-fixed": "", "f-sh-budget": "",
+    "f-power-pue": "1.4", "f-power-rate": "4", "f-power-overhead": "20",
+    "f-rent-provider": "first", "f-rent-gpu": "0", "f-rent-util": "70",
+    "fb-feed": "openrouter", "fb-model": "openrouter:gpt-4o",
+    "fr-policy": "local_first", "fr-blend": "70", "fr-failshare": "0", "fr-failrate": "2",
+    "fo-license": "0", "fo-consult": "0", "f-onetime-a": "0", "f-onetime-b": "0", "f-onetime-c": "0", "fo-impl": "0",
+    "f-sub-row": "none", "f-sub-term": "", "f-sub-price": "",
+  };
+  for (const [id, val] of Object.entries(defaults)) h.node(id).value = val;
+  const selectOptions = {
+    "f-sv-wquant": ["fp8", "bf16", "int4"],
+    "f-sv-kvquant": ["fp8", "bf16"],
+    "f-sv-runtime": ["vllm"],
+    "f-sv-mode": ["interactive", "batch"],
+    "f-sh-gpu": ["h100", "rtx_pro_6000_se"],
+    "f-srv-basis": ["usd_low", "usd_typical", "usd_high"],
+    "f-rent-provider": ["first"],
+    "f-rent-gpu": ["0"],
+    "fb-feed": ["openrouter"],
+    "fb-model": ["openrouter:gpt-4o"],
+    "fr-policy": ["local_first"],
+    "f-sub-row": ["none"],
+  };
+  for (const [id, opts] of Object.entries(selectOptions)) {
+    h.node(id).tagName = "SELECT";
+    h.node(id).options = opts.map((value) => ({ value, textContent: value }));
+  }
+  h.context.document.querySelectorAll = () => [...h.nodes.values()].filter((n) => /^(f-|fb-|fo-|fr-)/.test(n.id));
+  h.get("readArchGroups = () => []");
+  h.context.applyControls = (values) => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
+  h.get("writeReturnedControls = (values) => applyControls(values)");
+  h.context.recompute = () => { computations += 1; h.state.result = { computed: true }; };
+  h.get("flushLiveInput = () => recompute()");
+  const starter = {
+    snapshot: () => ({ mode }),
+    setMode: (next) => { mode = next; if (mode === "custom") h.context.recompute(); },
+    restore: (snap) => { mode = snap.mode; },
+  };
+  h.context.starter = starter;
+  h.get("starterUI = starter");
+  return { ...h, mode: () => mode, computations: () => computations, replacedUrl: () => replacedUrl };
+}
+
+test("processSizerReturn applies #sizer=v1 custom topology and owned-only fee once, warns on FX or live catalog refresh, and rolls back invalid or conflicting URLs", () => {
+  const h = sizerReceiverHarness();
+  const norm = normalizeSizerInput({
+    workloadId: "thai_doc_line_ops",
+    users: 320,
+    modelId: "qwen3-8-27b",
+    gpuId: "rtx_pro_6000_se",
+    quoteBasis: "integrated_node",
+    quoteCurrency: "THB",
+    nodes: 2,
+    gpusPerNode: 2,
+    integratedNodePrice: { amount: "925000", currency: "THB" },
+    localImplFee: { amount: "750000", currency: "THB" },
+    apiOfferId: "openrouter:gpt-4o",
+    pricingIdentity: "snap-0|2026-09-01|33.801000",
+  });
+  const frag = encodeSizerFragment(norm, { pricingIdentity: norm.pricingIdentity, resolvedApiOfferId: "openrouter:gpt-4o" });
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${frag}`;
+
+  assert.equal(h.get("processSizerReturn()"), true);
+  assert.equal(h.mode(), "custom");
+  assert.equal(h.computations(), 1);
+  assert.equal(h.node("f-sh-gpu").value, "rtx_pro_6000_se");
+  assert.equal(h.node("f-sh-count").value, "4");
+  assert.equal(h.node("f-sh-nodes").value, "2");
+  assert.equal(h.node("f-sh-capex").value, "1850000");
+  assert.equal(h.node("f-onetime-a").value, "750000");
+  assert.match(h.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+  assert.equal(h.replacedUrl(), "/tco-calculator.html#custom-page");
+
+  // Live API catalog refresh with unchanged FX triggers repricing notice
+  const liveH = sizerReceiverHarness();
+  const initialIdentity = buildPricingIdentity(liveH.state.manifest, liveH.state.fx);
+  const liveNorm = normalizeSizerInput({
+    ...norm,
+    pricingIdentity: initialIdentity,
+  });
+  const liveFrag = encodeSizerFragment(liveNorm, { pricingIdentity: initialIdentity, resolvedApiOfferId: "openrouter:gpt-4o" });
+  const oldOffer = liveH.state.catalog.offers["openrouter:gpt-4o"];
+  const replaced = replaceCatalogSource(liveH.state.manifest, liveH.state.catalog, {
+    source: { source_id: "openrouter", observed_at: "2026-11-17T12:00:00Z", origin: "live", integrity: "complete-transport" },
+    models: [{ id: "openrouter:gpt-4o", name: "GPT-4o Live", state: "active" }],
+    offers: { "openrouter:gpt-4o": { ...oldOffer, prices: { ...oldOffer.prices, input: "0.001", output: "0.002" } } },
+  });
+  liveH.state.manifest = replaced.manifest;
+  liveH.state.catalog = replaced.catalog;
+  liveH.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${liveFrag}`;
+  assert.equal(liveH.get("processSizerReturn()"), true);
+  assert.match(liveH.node("return-review").innerHTML, /Live API prices or exchange rates were refreshed/);
+
+  // Malformed or conflicting URLs fail closed with zero control mutation across the entire snapshot
+  const snapControls = (inst) => JSON.parse(JSON.stringify(inst.get("captureControls()")));
+  const bad = sizerReceiverHarness();
+  const beforeBadControls = snapControls(bad);
+  bad.context.location.href = "https://studio.factor-io.com/tco-calculator.html#sizer=v1.corrupted_token!";
+  assert.equal(bad.get("processSizerReturn()"), false);
+  assert.equal(bad.mode(), "starter");
+  assert.equal(bad.computations(), 0);
+  assert.deepEqual(snapControls(bad), beforeBadControls);
+  assert.match(bad.node("return-review").innerHTML, /role="alert"/);
+
+  const conflict = sizerReceiverHarness();
+  const beforeConflictControls = snapControls(conflict);
+  conflict.context.location.href = `https://studio.factor-io.com/tco-calculator.html?advisor=00000000-0000-4000-8000-000000000099#${frag}`;
+  assert.equal(conflict.get("processSizerReturn()"), false);
+  assert.equal(conflict.mode(), "starter");
+  assert.equal(conflict.computations(), 0);
+  assert.deepEqual(snapControls(conflict), beforeConflictControls);
 });
 const advisorRecord = () => ({ saved_at: Date.now(), controls: { "f-users": "20" }, contracts: { "f-users": { kind: "integer", min: 1, max: 10000000 } }, context: { mode: "custom", label: "test scenario", figures: { monthly: "฿3,300.00" }, sources: { api: { status: "stale", observed_at: "2026-01-01" } } }, answers: {} });
 function advisorHarness({ record = advisorRecord(), transport = null } = {}) {

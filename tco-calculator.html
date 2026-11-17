@@ -540,6 +540,7 @@
 <div class="topbar">
   <span class="brand">FACTOR&#8202;<em>I&#8202;O</em></span>
   <span class="lede">Local AI savings &middot; start with one server</span>
+  <a href="local-ai-sizer.html" id="topbar-sizer-link">Guided Deal &amp; Model Sizer &#8594;</a>
   <a href="./">&#8592; Studio</a>
 </div>
 
@@ -552,7 +553,7 @@
   <section id="starter-setup" aria-label="Selected single-server setup"><h2>Read code locally</h2><p>One tower workstation, one RTX PRO 6000 96 GB GPU, Qwen3 8B and vLLM. Local summaries support premium reasoning.</p></section>
   <div class="starter-adjust screen-only"><label for="starter-tasks">Example tasks per month<input id="starter-tasks" inputmode="numeric" type="text" value="20160"></label><label for="starter-horizon">Compare over months<input id="starter-horizon" inputmode="numeric" type="text" value="60"></label></div>
   <details><summary>Assumptions, limitations and sources</summary><div id="starter-assumptions"></div></details>
-  <div class="starter-actions screen-only"><button id="starter-custom" class="btn" type="button">Custom sizing and comparison</button><button id="starter-advisor" class="btn" type="button" disabled>Open AI advisor →</button></div>
+  <div class="starter-actions screen-only"><a id="starter-sizer" class="btn btn-p" href="local-ai-sizer.html">Guided Local AI &amp; Deal Sizer (TH/EN) →</a><button id="starter-custom" class="btn" type="button">Custom sizing and comparison</button><button id="starter-advisor" class="btn" type="button" disabled>Open AI advisor →</button></div>
   <p class="muted">AI is optional and opens on its own page. Nothing is sent to a model unless you press Send or Ask. <a href="privacy.html">Privacy</a></p>
 </main>
 <button id="starter-back" class="btn screen-only" type="button" hidden>← Back to single-server examples</button>
@@ -803,6 +804,13 @@
           <span class="sub">Leave blank to use the derived figure. Type your own quote to override it.</span>
         </div>
       </div>
+      <div class="row one">
+        <div class="f">
+          <label for="f-sh-nodes">Server nodes (override)</label>
+          <input id="f-sh-nodes" type="text" inputmode="numeric" placeholder="derived from the server above">
+          <span class="sub">Leave blank when using a catalog server row. Set explicitly when quoting a custom multi-node topology so node-metered licences match your hardware.</span>
+        </div>
+      </div>
       <p class="muted" id="f-srv-note"></p>
 
       <div class="row one">
@@ -914,21 +922,26 @@
         </div>
         <div class="row">
           <div class="f">
+            <label for="f-onetime-a">Self-hosted, one-time (฿)</label>
+            <input id="f-onetime-a" type="text" inputmode="decimal" value="0">
+            <span class="sub">Platform, Thai OCR/RAG, and enterprise data-pipeline integration paid once only on the self-hosted option, so it enters owned upfront and payback without inflating hardware capex.</span>
+          </div>
+          <div class="f">
             <label for="f-onetime-b">Model API, one-time (฿)</label>
             <input id="f-onetime-b" type="text" inputmode="decimal" value="0">
             <span class="sub">Integration and migration work you'd pay once to go the API route. Charged to that option alone, so it shortens the payback rather than being invisible.</span>
           </div>
+        </div>
+        <div class="row">
           <div class="f">
             <label for="f-onetime-c">Rented GPU, one-time (฿)</label>
             <input id="f-onetime-c" type="text" inputmode="decimal" value="0">
             <span class="sub">Onboarding, egress setup, reserved-capacity commitments.</span>
           </div>
-        </div>
-        <div class="row">
           <div class="f">
-            <label for="fo-impl">Implementation (฿)</label>
+            <label for="fo-impl">Shared implementation (฿)</label>
             <input id="fo-impl" type="text" inputmode="decimal" value="0">
-            <span class="sub">One-time, like the hardware. Charged once to <em>every</em> option, unlike the two above, so it lands in each option's one-time and horizon total and cancels out of the payback difference.</span>
+            <span class="sub">One-time, like the hardware. Charged once to <em>every</em> option, unlike the three above, so it lands in each option's one-time and horizon total and cancels out of the payback difference.</span>
           </div>
         </div>
         <p class="muted">Rates live only in this page &mdash; nothing is committed, published, or folded into unit prices.</p>

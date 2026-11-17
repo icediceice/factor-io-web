@@ -779,6 +779,9 @@ export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx
   const rows = serversForGpu(normalized.gpuId, serverPricing?.rows ?? []);
   if (normalized.quoteBasis === "catalog") {
     let chosen = rows.find((r) => r.server_id === normalized.serverId) ?? null;
+    if (!chosen && rows.length && normalized.gpusPerNode !== null) {
+      chosen = rows.find((r) => r.gpu_count === normalized.gpusPerNode) ?? null;
+    }
     if (!chosen && rows.length) {
       try {
         const c = cheapestConfigFor({
@@ -799,9 +802,16 @@ export function computeHardwareBom({ normalized, gpusRequired, serverPricing, fx
         reason: `No published integrated server price for "${normalized.gpuId}". Choose a custom hardware quote basis.`,
       };
     }
+    if (normalized.gpusPerNode !== null && normalized.gpusPerNode !== chosen.gpu_count) {
+      return {
+        ok: false,
+        code: "conflicting_catalog_slots",
+        reason: `Catalog server "${chosen.server_id}" installs ${chosen.gpu_count} GPU(s) per node, conflicting with requested ${normalized.gpusPerNode} GPU(s) per node.`,
+      };
+    }
     try {
-      const targetGpus = normalized.nodes && normalized.gpusPerNode
-        ? normalized.nodes * normalized.gpusPerNode
+      const targetGpus = normalized.nodes !== null
+        ? normalized.nodes * chosen.gpu_count
         : Math.max(1, gpusRequired);
       if (targetGpus < gpusRequired) {
         return {

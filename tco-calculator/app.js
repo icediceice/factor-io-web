@@ -2860,7 +2860,7 @@ function renderSensitivity() {
 // performed once here, at the export boundary, using the same exact Rat as the UI.
 const THB_MONEY_INPUT_IDS = new Set([
   "f-sh-capex", "f-sub-price", "f-sh-fixed", "f-power-rate", "fo-license",
-  "fo-consult", "f-onetime-b", "f-onetime-c", "fo-impl",
+  "fo-consult", "f-onetime-a", "f-onetime-b", "f-onetime-c", "fo-impl",
 ]);
 const EXPORT_MONEY_KEYS = new Set([
   "amount", "capex", "cost", "delta", "extended", "fixed_monthly",

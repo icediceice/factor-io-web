@@ -1366,3 +1366,100 @@ test("refreshLiveSourcesTransaction enforces overall deadline, isolates duplicat
   assert.equal(cleanLive.fxLive, true);
   assert.match(buildPricingIdentity(cleanLive.manifest, cleanLive.fx), /fx:live@2026-11-17T00:00:00\.000Z:complete-transport.*openrouter:live@2026-11-17T16:00:00\.000Z:complete-transport/);
 });
+
+test("processSizerReturn accepts active-only catalog overrides, and editing then clearing a hydrated legacy custom draft clears legacy provenance", () => {
+  // 1. Receiver roundtrip for active-only catalog override
+  const h = sizerReceiverHarness();
+  const activeFrag = encodeSizerFragment(normalizeSizerInput({
+    users: 120,
+    modelId: "qwen3-8-27b",
+    gpuId: "rtx_pro_6000_se",
+    customActiveParamsB: "5",
+  }));
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${activeFrag}`;
+  assert.equal(h.get("processSizerReturn()"), true);
+  assert.equal(h.node("f-sv-active").value, "5");
+
+  // 2. UI draft: hydrating a 44-key legacy custom link preserves assumed shape until edited, then clearing refuses
+  const uiSrc = readFileSync(new URL("../sizer-ui.js", import.meta.url), "utf8");
+  const uiNodes = new Map();
+  const uiNode = (id) => {
+    if (!uiNodes.has(id)) {
+      uiNodes.set(id, {
+        id,
+        value: "",
+        innerHTML: "",
+        textContent: "",
+        attrs: {},
+        hidden: false,
+        open: false,
+        setAttribute(k, v) { this.attrs[k] = v; },
+        removeAttribute(k) { delete this.attrs[k]; },
+      });
+    }
+    return uiNodes.get(id);
+  };
+  const uiCtx = vm.createContext({
+    DEAL_TIERS,
+    PIPELINE_CONNECTORS,
+    PROMPT_SCALE_PRESETS: [],
+    LOCAL_AI_WORKLOADS,
+    MAX_SAVE_BYTES: 65536,
+    MAX_SAVED_SCENARIOS: 25,
+    normalizeSizerInput,
+    computeSizer,
+    evaluateGpuCandidates: () => [],
+    groupCatalogModels: () => [],
+    filterApiOffers: () => ({ offers: [], totalMatching: 0, totalAvailable: 0, vendors: [] }),
+    classifyApiOffer: () => ({ feed: "openrouter", vendor: "openai" }),
+    encodeSizerFragment,
+    decodeSizerFragment,
+    decodePresetFragment,
+    encodeSizerSaveEnvelope,
+    decodeSizerSaveEnvelope,
+    SizerValidationError,
+    formatHalfUp,
+    toRat,
+    normalizeFxDocument,
+    toTHB,
+    serversForGpu: () => [],
+    fetchOpenRouterModels: async () => [],
+    compileLiveOpenRouter: () => ({}),
+    replaceCatalogSource: () => ({}),
+    fetchLiveFx: async () => ({}),
+    loadManifest: async () => ({}),
+    loadFx: async () => ({}),
+    resolveResource: async () => ({}),
+    TextEncoder,
+    TextDecoder,
+    AbortController,
+    DOMException,
+    structuredClone,
+    setTimeout,
+    clearTimeout,
+    URL,
+    console,
+    document: { getElementById: (id) => (id === "main-workspace" ? null : uiNode(id)) },
+  });
+  vm.runInContext(uiSrc.replace(/^import[\s\S]*?;\s*$/gm, "").replace(/^export\s+/gm, ""), uiCtx);
+  const st = vm.runInContext("appState", uiCtx);
+  st.data = h.state;
+  st.ready = true;
+  st.lang = "en";
+  st.displayCurrency = "USD";
+
+  const stdCompact = JSON.parse(Buffer.from(encodeSizerFragment(normalizeSizerInput({})).split(".")[1], "base64url").toString());
+  const legacyTok = `#sizer=v1.${Buffer.from(JSON.stringify({ ...stdCompact, m: "custom" })).toString("base64url")}`;
+  uiCtx.legacyDecoded = decodeSizerFragment(legacyTok);
+  vm.runInContext("hydrateDraftFromNormalized(legacyDecoded); recompute();", uiCtx);
+  assert.equal(st.computed.ok, true);
+  assert.ok(st.computed.fit.warnings.some((w) => w.code === "assumed_legacy_custom_shape"));
+  // Unchanged hydrated legacy draft still encodes cleanly for save/share
+  assert.match(vm.runInContext("buildCurrentFragment()", uiCtx), /^sizer=v1\./);
+
+  // Editing any custom field then clearing it revokes legacy provenance -> incomplete_custom_model
+  vm.runInContext("handleFieldMutation('customParamsB', '70'); handleFieldMutation('customParamsB', ''); recompute();", uiCtx);
+  assert.equal(st.computed.ok, false);
+  assert.equal(st.computed.code, "incomplete_custom_model");
+  assert.throws(() => vm.runInContext("buildCurrentFragment()", uiCtx), /Custom model requires/i);
+});

@@ -1,4 +1,5 @@
 // Quarantined acceptance cases for plan local:f375941d546baaa90771ad611b3f195d.
+import { replaceCatalogSource } from '../tco-calculator/live-pricing.js';
 import { test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';

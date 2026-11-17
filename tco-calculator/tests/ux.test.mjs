@@ -438,7 +438,7 @@ async function liveTcoPage(t) {
     const until = performance.now() + 12000;
     const probe = () => {
       if (document.querySelector('.rail')?.inert === false && document.querySelector('.spec[data-for="f-users"]')) return resolve(true);
-      if (performance.now() > until) return reject(new Error('calculator did not initialize'));
+      if (performance.now() > until) return reject(new Error('calculator did not initialize: ' + JSON.stringify({ errors: window.__testErrors, gap: document.getElementById('gapbox')?.textContent, rail: document.querySelector('.rail')?.inert, specs: document.querySelectorAll('.spec').length })));
       setTimeout(probe, 40);
     }; probe();
   })`);

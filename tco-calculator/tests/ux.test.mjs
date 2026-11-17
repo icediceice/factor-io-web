@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
-import { decodeSizerFragment, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope } from "../sizer-engine.js";
+import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
 import { replaceCatalogSource } from "../live-pricing.js";
 import { setupStarters as realSetupStarters } from "../starter-ui.js";
 import { createSizerStorageAdapter, refreshLiveSourcesTransaction, SIZER_STORAGE_KEY } from "../sizer-ui.js";

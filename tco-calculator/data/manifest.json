@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1794637309317",
-  "generated_at": "2026-11-14T06:21:49.317Z",
-  "snapshot_digest": "64a9eba907b0783c",
+  "refresh_id": "refresh-1794896118280",
+  "generated_at": "2026-11-17T06:15:18.280Z",
+  "snapshot_digest": "7cd23cceb6fef29f",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-64a9eba907b0783c.json",
-      "digest": "64a9eba907b0783c",
-      "bytes": 4113575
+      "path": "catalog-7cd23cceb6fef29f.json",
+      "digest": "7cd23cceb6fef29f",
+      "bytes": 4126255
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "1c853159c056e61f",
+      "digest": "52ffe82748dddb3d",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-14T06:21:49.317Z",
-      "last_success_at": "2026-11-14T06:21:49.317Z",
-      "expires_at": "2026-11-17T06:21:49.317Z",
-      "root_digest": "9917a3214240c5c6",
-      "record_count": 452,
+      "observed_at": "2026-11-17T06:15:18.280Z",
+      "last_success_at": "2026-11-17T06:15:18.280Z",
+      "expires_at": "2026-11-20T06:15:18.280Z",
+      "root_digest": "6a254136fff153e3",
+      "record_count": 451,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-14T06:21:49.317Z",
-      "last_success_at": "2026-11-14T06:21:49.317Z",
-      "expires_at": "2026-11-17T06:21:49.317Z",
-      "root_digest": "316cf9289253a721",
-      "record_count": 3600,
+      "observed_at": "2026-11-17T06:15:18.280Z",
+      "last_success_at": "2026-11-17T06:15:18.280Z",
+      "expires_at": "2026-11-20T06:15:18.280Z",
+      "root_digest": "a39221486560bdab",
+      "record_count": 3611,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-13T00:00:00.000Z",
-      "last_success_at": "2026-11-14T06:22:13.450Z",
-      "expires_at": "2026-11-20T23:59:59.999Z",
-      "root_digest": "1c853159c056e61f",
+      "observed_at": "2026-11-16T00:00:00.000Z",
+      "last_success_at": "2026-11-17T06:15:43.172Z",
+      "expires_at": "2026-11-23T23:59:59.999Z",
+      "root_digest": "52ffe82748dddb3d",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -4483,6 +4483,39 @@
       ]
     },
     {
+      "id": "litellm:azure/us-gov/gpt-4.1",
+      "name": "azure/us-gov/gpt-4.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure/us-gov/gpt-4.1-mini",
+      "name": "azure/us-gov/gpt-4.1-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure/us-gov/gpt-4o",
+      "name": "azure/us-gov/gpt-4o",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:azure/us-gov/gpt-5.1",
       "name": "azure/us-gov/gpt-5.1",
       "tariff": "token",
@@ -4491,6 +4524,54 @@
         "cache_read",
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "litellm:azure/us-gov/gpt-5.6-luna",
+      "name": "azure/us-gov/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:azure/us-gov/gpt-5.6-sol",
+      "name": "azure/us-gov/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:azure/us-gov/gpt-5.6-terra",
+      "name": "azure/us-gov/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
+        "input",
+        "input|>272000",
+        "output",
+        "output|>272000"
       ]
     },
     {
@@ -8665,7 +8746,7 @@
       "id": "litellm:bedrock/us-gov-east-1/claude-sonnet-4-5-20250929-v1:0",
       "name": "bedrock/us-gov-east-1/claude-sonnet-4-5-20250929-v1:0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -9041,7 +9122,7 @@
       "id": "litellm:bedrock/us-gov-west-1/claude-sonnet-4-5-20250929-v1:0",
       "name": "bedrock/us-gov-west-1/claude-sonnet-4-5-20250929-v1:0",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "cache_write",
         "cache_write|age=1hr",
@@ -11073,6 +11154,17 @@
       ]
     },
     {
+      "id": "litellm:cloudflare/@cf/thinkingmachines/inkling-2-small",
+      "name": "cloudflare/@cf/thinkingmachines/inkling-2-small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:cloudflare/@cf/zai-org/glm-4.7-flash",
       "name": "cloudflare/@cf/zai-org/glm-4.7-flash",
       "tariff": "token",
@@ -11894,6 +11986,16 @@
       "state": "active",
       "meters": [
         "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:dashscope/qwen4-max",
+      "name": "dashscope/qwen4-max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
         "input",
         "output"
       ]
@@ -22014,6 +22116,18 @@
       ]
     },
     {
+      "id": "litellm:global.openai.gpt-5.6-cyber",
+      "name": "global.openai.gpt-5.6-cyber",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_write",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:global.openai.gpt-5.6-luna",
       "name": "global.openai.gpt-5.6-luna",
       "tariff": "token",
@@ -22137,6 +22251,22 @@
         "cache_read|>272000",
         "input",
         "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:global.openai.gpt-daybreak-blue-5.6-sol",
+      "name": "global.openai.gpt-daybreak-blue-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|>272000",
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
         "output",
         "output|>272000"
       ]
@@ -29456,6 +29586,17 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "litellm:nebius/thinkingmachines/Inkling-2-Small",
+      "name": "nebius/thinkingmachines/Inkling-2-Small",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_read",
+        "output"
       ]
     },
     {
@@ -37890,6 +38031,18 @@
       ]
     },
     {
+      "id": "litellm:us.openai.gpt-5.6-cyber",
+      "name": "us.openai.gpt-5.6-cyber",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "cache_write",
+        "cache_read",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:us.openai.gpt-5.6-luna",
       "name": "us.openai.gpt-5.6-luna",
       "tariff": "token",
@@ -38013,6 +38166,22 @@
         "cache_read|>272000",
         "input",
         "input|>272000",
+        "output",
+        "output|>272000"
+      ]
+    },
+    {
+      "id": "litellm:us.openai.gpt-daybreak-blue-5.6-sol",
+      "name": "us.openai.gpt-daybreak-blue-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "input|>272000",
+        "cache_write",
+        "cache_write|>272000",
+        "cache_read",
+        "cache_read|>272000",
         "output",
         "output|>272000"
       ]
@@ -47039,6 +47208,18 @@
       ]
     },
     {
+      "id": "openrouter:qwen/qwen4-max",
+      "name": "Qwen: Qwen4 Max",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read",
+        "cache_write"
+      ]
+    },
+    {
       "id": "openrouter:recursive/flint-v1.0:free",
       "name": "Recursive: Flint (free)",
       "tariff": "token",
@@ -47202,7 +47383,7 @@
       "id": "openrouter:stepfun/step-3.5-flash",
       "name": "StepFun: Step 3.5 Flash",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -47234,7 +47415,7 @@
       "id": "openrouter:tencent/hunyuan-a13b-instruct",
       "name": "Tencent: Hunyuan A13B Instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -47295,6 +47476,17 @@
     {
       "id": "openrouter:tencent/hy4",
       "name": "Tencent: Hy4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:tencent/hy4-flash",
+      "name": "Tencent: Hy4 flash",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -52857,6 +53049,11 @@
         "mode": "embedding"
       },
       {
+        "offer": "litellm:vercel_ai_gateway/openai/gpt-6-luna-decisions",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
         "offer": "litellm:vercel_ai_gateway/openai/text-embedding-3-large",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -52870,6 +53067,21 @@
         "offer": "litellm:vercel_ai_gateway/openai/text-embedding-ada-002",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
+      },
+      {
+        "offer": "litellm:vercel_ai_gateway/typesafe-ai/jev",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:vercel_ai_gateway/typesafe-ai/jev-1.13.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:vercel_ai_gateway/typesafe-ai/jev-1.14.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "evaluation"
       },
       {
         "offer": "litellm:vertex_ai/chirp",
@@ -54025,6 +54237,11 @@
         "offer": "litellm:bedrock_mantle/us-gov-east-1/openai.gpt-5.4",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:azure/us-gov/text-embedding-ada-002",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "embedding"
       },
       {
         "offer": "litellm:azure/us-gov/text-embedding-3-large",
@@ -60040,6 +60257,156 @@
         "offer": "litellm:fal_ai/fal-ai/decart/lucy-5b/image-to-video",
         "rule": "skipped_out_of_scope_mode",
         "mode": null
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/pro/us/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedream/v5/pro/us/text-to-image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/flash/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/flash/reference-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bytedance/seedance-2.5/flash/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/extend",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/extend/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v3.5/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v3.5/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v3.5/image-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v3.5/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v3.5/text-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v3.5/transition",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4.5/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4.5/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4.5/image-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4.5/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4.5/text-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4.5/transition",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4/image-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v4/text-to-video/fast",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v5/effects",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v5/image-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v5/text-to-video",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/fal-ai/pixverse/v5/transition",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/bria/rmbg-3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:omni-moderation-csam-latest",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "moderation"
       }
     ],
     "source_errors": {

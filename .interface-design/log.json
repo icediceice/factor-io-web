@@ -1,6 +1,16 @@
 {
   "runs": [
     {
+      "date": "2026-11-17",
+      "file": "private-partner-deck.html (gitignored)",
+      "macrostructure": "Topology / Split Monitor (8-slide 1920x1080 partner sales briefing; differs from prior Focus Rail runs)",
+      "accent": "#0076CE / #38BDF8 (platform stack), #10B981 (security wedge), #F59E0B (market blockers), #FB7185 (stall state)",
+      "theme": "dark only, slate-navy ramp #050811 / #080E1C / #0F172A / #152038, borders-only depth, self-hosted Geist + Geist Mono",
+      "gates": "8/8 slides PASS via in-deck ?audit=1 harness (0 overflow, 0 composited contrast failures, 0 SVG/sibling collisions, 0 remote scripts, hierarchyRatio >= 1.33); 4/4 spotlight modes, 4x4 scope/currency pricing states, ArrowRight/ArrowLeft/Space/T keydown + pill/spotlight click bindings, and #printStylesheet section layout + @page/break-after CSS rules verified",
+      "critique": "H4 D4 S4 O5 R4 P4",
+      "notes": "Rebuilt local partner briefing into a self-contained 1920x1080 transform-scaled deck opening with a concise introduction, interactive full-stack capabilities Topology diagram, Split Monitor boundary, security-wedge positioning, control-plane gate diagram, delivery paths, flexible reference sizing, and co-sell roadmap. Brand-neutral ledger entry; file excluded via .gitignore."
+    },
+    {
       "date": "2026-11-09",
       "file": "light_ops_keynote.html",
       "macrostructure": "Focus Rail per scene (13-scene brand-neutral motion journey; nested Split Monitor in s4, three-column comparison with a closing band in s8, Topology in s9)",

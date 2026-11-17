@@ -817,10 +817,17 @@ function renderStep4() {
   ])].filter((id) => appState.data.servingData?.accelerators?.[id]);
 
   const srvRows = serversForGpu(d.gpuId, appState.data.serverPricing?.rows ?? []);
-  const activeOffers = (appState.data.manifest?.models ?? [])
-    .filter((m) => !["retired", "quarantined"].includes(m.state) && appState.data.catalog?.offers?.[m.id])
-    .slice(0, 60);
+  const allActiveOffers = (appState.data.manifest?.models ?? [])
+    .filter((m) => !["retired", "quarantined"].includes(m.state) && appState.data.catalog?.offers?.[m.id]);
   const selectedApi = appState.computed?.resolvedApiOfferId || d.apiOfferId;
+  const baseSlice = allActiveOffers.slice(0, 60);
+  const selectedObj = allActiveOffers.find((m) => m.id === selectedApi)
+    ?? (selectedApi && appState.data.catalog?.offers?.[selectedApi]
+      ? { id: selectedApi, name: appState.data.catalog.offers[selectedApi].display_name ?? selectedApi }
+      : null);
+  const activeOffers = selectedObj && !baseSlice.some((m) => m.id === selectedObj.id)
+    ? [selectedObj, ...baseSlice]
+    : baseSlice;
   const curSym = d.quoteCurrency === "USD" ? "USD ($)" : "THB (฿)";
 
   let priceFieldsHtml = "";

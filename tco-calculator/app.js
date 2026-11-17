@@ -321,9 +321,15 @@ function writeReturnedControls(values, groups) {
   renderRentNote(); syncSliders(); syncChips();
 }
 function processAdvisorReturn(fresh = false) {
-  const id = new URL(location.href).searchParams.get("advisor") ?? activeHandoffId;
+  const href = String(globalThis.location?.href ?? "");
+  const id = new URL(href).searchParams.get("advisor") ?? activeHandoffId;
   if (!id || !state.ready) return;
   const box = $("return-review");
+  if (href.includes("#sizer=")) {
+    box.hidden = false;
+    box.innerHTML = `<p role="alert">Conflicting advisor and sizer transfers in the same URL were rejected; your current calculator inputs were kept.</p>`;
+    return;
+  }
   try {
     const record = readHandoff(sessionStorage, id);
     if (!record) throw new Error("Advisor context is missing or expired. Your current calculator inputs were kept.");

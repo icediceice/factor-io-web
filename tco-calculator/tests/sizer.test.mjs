@@ -480,6 +480,295 @@ test("public release archive excludes private decks and public payloads omit con
   for (const path of paths) {
     assert.ok(files.has(path), `release artifact omitted ${path}`);
     if (path === ".gitignore") continue;
-    assert.doesNotMatch(files.get(path), /\bDell\b|\bPowerEdge\b|\bPro\s?Max\b|dell_partner_promo_deck|factor_io_dell_partnership_deck/i, `${path} leaked confidential terms into release output`);
+    const forbidden = /\bDell\b|\bPowerEdge\b|\bPro\s?Max\b|dell_partner_promo_deck|factor_io_dell_partnership_deck/i;
+    assert.doesNotMatch(files.get(path), forbidden, `${path} leaked confidential terms into release output`);
+    assert.doesNotMatch(readFileSync(resolve(ROOT, path), "utf8"), forbidden, `${path} working tree leaked confidential terms`);
   }
+});
+
+test("realistic Thai enterprise workloads carry >=10.5k prompt budgets, auto-size cleanly, and refuse 32k-max models on 36k prompts without clamping", () => {
+  assert.ok(LOCAL_AI_WORKLOADS.length >= 8);
+  for (const w of LOCAL_AI_WORKLOADS) {
+    assert.ok(w.rawPromptTokens >= 10500, `expected ${w.id} rawPromptTokens >= 10500, got ${w.rawPromptTokens}`);
+    const res = computeSizer({ input: { workloadId: w.id }, data: baseData });
+    assert.equal(res.ok, true, `expected workload ${w.id} to auto-size cleanly, got ${res.reason}`);
+    assert.ok(res.bom.installedGpus >= res.sizing.gpusRequired);
+  }
+
+  // Switching from an 80B/262k model at 36,000 raw prompt (50,400+ effective at 1.4x) to qwen3-8b (32,768 max context) refuses cleanly without clipping tokens
+  const ctxRefused = computeSizer({
+    input: {
+      workloadId: "thai_legal_tor_procurement",
+      rawPromptTokens: 36000,
+      rawOutputTokens: 500,
+      rawContextTokens: 65536,
+      modelId: "qwen3-8b",
+      gpuId: "rtx_pro_6000_se",
+    },
+    data: baseData,
+  });
+  assert.equal(ctxRefused.ok, false);
+  assert.equal(ctxRefused.fit.code, "exceeds_model_context_max");
+  assert.equal(ctxRefused.normalized.rawPromptTokens, 36000);
+  assert.equal(ctxRefused.comparison, null);
+});
+
+test("resolveSizerModel requires explicit KV/context for new custom models, sizes complete custom 70B specs consistently, and preserves 44-key legacy v1 tokens", () => {
+  // Parameter-only custom entry (70B without KV/context) refuses fleet sizing while reporting weight memory
+  const incomplete70b = computeSizer({
+    input: {
+      modelId: "custom",
+      customParamsB: "70",
+      wquant: "fp8",
+      kvquant: "fp8",
+      gpuId: "h100",
+    },
+    data: baseData,
+  });
+  assert.equal(incomplete70b.ok, false);
+  assert.equal(incomplete70b.code, "incomplete_custom_model");
+  assert.equal(incomplete70b.fit.weightMemoryGb, "70.00");
+  assert.equal(incomplete70b.comparison, null);
+
+  // Complete 70B custom model (80 layers x 2 tensors x 8 KV heads x 128 dim x 2B BF16 = 327,680 B/tok BF16 -> 163,840 B/tok FP8 -> ~5.37 GB/seq at 32,768)
+  const complete70b = computeSizer({
+    input: {
+      users: 120,
+      rawPromptTokens: 12000,
+      rawOutputTokens: 600,
+      rawContextTokens: 32768,
+      tokenBasis: "thai_tokenized_1x",
+      modelId: "custom",
+      customParamsB: "70",
+      customActiveParamsB: "70",
+      customKvBytesBf16: 327680,
+      customContextMax: 65536,
+      wquant: "fp8",
+      kvquant: "fp8",
+      gpuId: "h100",
+    },
+    data: baseData,
+  });
+  assert.equal(complete70b.ok, true);
+  assert.equal(complete70b.fit.resolvedModel.kv_override, true);
+  assert.equal(complete70b.fit.resolvedModel.selected_kv_bytes_per_token, "163840");
+  assert.ok(complete70b.fit.warnings.some((w) => w.code === "assumed_flat_custom_kv"));
+
+  const projected = projectSizerControls({
+    normalized: complete70b.normalized,
+    beforeControls: {},
+    stateData: baseData,
+  });
+  assert.equal(projected.controls["f-sv-params"], "70");
+  assert.equal(projected.controls["f-sv-active"], "70");
+  assert.equal(projected.controls["f-sv-kvbytes"], "163840");
+
+  // Extended custom fragment round-trips cleanly, whereas standard catalog fragments emit ONLY the 44 legacy keys
+  const customFrag = encodeSizerFragment(complete70b.normalized);
+  const decodedCustom = decodeSizerFragment(customFrag);
+  assert.equal(decodedCustom.customParamsB, "70");
+  assert.equal(decodedCustom.customKvBytesBf16, 327680);
+  assert.equal(decodedCustom.customContextMax, 65536);
+
+  const stdPayload = JSON.parse(Buffer.from(encodeSizerFragment(normalizeSizerInput({})).split(".")[1], "base64url").toString());
+  assert.equal(Object.keys(stdPayload).length, 44);
+  assert.equal("cp" in stdPayload, false);
+
+  // Legacy custom v1 payload without cp/ca/ck/cm decodes and flags assumed legacy geometry
+  const legacyCustomPayload = { ...stdPayload, m: "custom" };
+  const legacyCustomTok = `#sizer=v1.${Buffer.from(JSON.stringify(legacyCustomPayload)).toString("base64url")}`;
+  const legacyNorm = decodeSizerFragment(legacyCustomTok);
+  const legacyResolved = resolveSizerModel({ normalized: legacyNorm, servingData });
+  assert.equal(legacyResolved.ok, true);
+  assert.ok(legacyResolved.warnings.some((w) => w.code === "assumed_legacy_custom_shape"));
+});
+
+test("per-server topology auto-sizing selects feasible 2-GPU server when 1-GPU server row precedes it, without overriding manual pins", () => {
+  // rtx_pro_6000_ws has ws-rtx-pro-6000-1x-derived (1 GPU) BEFORE ws-rtx-pro-6000-2x-derived (2 GPUs).
+  // qwen3-next-80b-a3b at BF16 weights (160 GB) requires TP=2 on 96 GB cards.
+  const autoWs = computeSizer({
+    input: {
+      users: 80,
+      rawPromptTokens: 8000,
+      rawOutputTokens: 500,
+      rawContextTokens: 16384,
+      modelId: "qwen3-next-80b-a3b",
+      wquant: "bf16",
+      kvquant: "fp8",
+      gpuId: "rtx_pro_6000_ws",
+      quoteBasis: "catalog",
+      serverId: "",
+    },
+    data: baseData,
+  });
+  assert.equal(autoWs.ok, true);
+  assert.equal(Number(autoWs.fit.serving.gpus_per_replica), 2);
+  assert.equal(autoWs.bom.serverId, "ws-rtx-pro-6000-2x-derived");
+  assert.equal(autoWs.bom.gpusPerNode, 2);
+
+  // Explicitly pinning the 1-GPU workstation row still refuses cross-node TP cleanly
+  const pinned1x = computeSizer({
+    input: {
+      users: 80,
+      rawPromptTokens: 8000,
+      rawOutputTokens: 500,
+      rawContextTokens: 16384,
+      modelId: "qwen3-next-80b-a3b",
+      wquant: "bf16",
+      kvquant: "fp8",
+      gpuId: "rtx_pro_6000_ws",
+      quoteBasis: "catalog",
+      serverId: "ws-rtx-pro-6000-1x-derived",
+    },
+    data: baseData,
+  });
+  assert.equal(pinned1x.ok, false);
+  assert.equal(pinned1x.code, "unsupported_cross_node_tp");
+
+  // evaluateGpuCandidates evaluates cross-GPU matrix without leaking custom per-node quotes onto other GPUs
+  const matrix = evaluateGpuCandidates({
+    input: {
+      users: 100,
+      rawPromptTokens: 10500,
+      rawOutputTokens: 500,
+      rawContextTokens: 32768,
+      modelId: "qwen3-5-9b",
+      gpuId: "rtx_pro_6000_se",
+      quoteBasis: "integrated_node",
+      nodes: 5,
+      gpusPerNode: 4,
+      integratedNodePrice: { amount: "9999999", currency: "THB" },
+    },
+    data: baseData,
+  });
+  const h100Row = matrix.find((r) => r.gpuId === "h100");
+  assert.ok(h100Row && h100Row.feasible && h1000Check(h100Row));
+  const l40sRow = matrix.find((r) => r.gpuId === "l40s");
+  assert.ok(l40sRow && l40sRow.feasible && l40sRow.status === "memory_fit_unpriced" && l40sRow.priced === false);
+});
+
+function h1000Check(row) {
+  return row.priced === true && row.nodes === 1 && row.serverId.length > 0;
+}
+
+test("explicit missing API offer refuses identically in computeSizer and projectSizerControls, while filterApiOffers separates feed vs vendor and preserves :batch", () => {
+  const missingApi = computeSizer({
+    input: {
+      users: 100,
+      modelId: "qwen3-5-9b",
+      gpuId: "rtx_pro_6000_se",
+      apiOfferId: "openrouter:removed-vendor/nonexistent-model",
+    },
+    data: baseData,
+  });
+  assert.equal(missingApi.ok, false);
+  assert.equal(missingApi.code, "unknown_api_offer");
+  assert.equal(missingApi.comparison, null);
+  assert.throws(
+    () => projectSizerControls({ normalized: missingApi.normalized, beforeControls: {}, stateData: baseData }),
+    /unavailable in the current catalog/i,
+  );
+
+  // Fixture catalog with OpenRouter OpenAI, Anthropic paid + :batch, Google, and LiteLLM OpenAI
+  const fixtureManifest = {
+    models: [
+      { id: "openrouter:openai/gpt-4o", name: "OpenAI: GPT-4o", state: "active" },
+      { id: "openrouter:anthropic/claude-sonnet-4", name: "Anthropic: Claude Sonnet 4", state: "active" },
+      { id: "openrouter:anthropic/claude-sonnet-4:batch", name: "Anthropic: Claude Sonnet 4 (Batch)", state: "active" },
+      { id: "openrouter:google/gemini-2.5-pro", name: "Google: Gemini 2.5 Pro", state: "active" },
+      { id: "litellm:gpt-4o", name: "gpt-4o", state: "active" },
+    ],
+  };
+  const mkOffer = (id, src, seller, product, inp, out) => ({
+    offer_id: id,
+    seller,
+    seller_source: src,
+    channel: "api",
+    product,
+    display_name: product,
+    ingest_mode: "chat",
+    prices: { "input|std": inp, "output|std": out },
+  });
+  const fixtureCatalog = {
+    offers: {
+      "openrouter:openai/gpt-4o": mkOffer("openrouter:openai/gpt-4o", "openrouter", "openrouter", "openai/gpt-4o", "0.0000025", "0.00001"),
+      "openrouter:anthropic/claude-sonnet-4": mkOffer("openrouter:anthropic/claude-sonnet-4", "openrouter", "openrouter", "anthropic/claude-sonnet-4", "0.000003", "0.000015"),
+      "openrouter:anthropic/claude-sonnet-4:batch": mkOffer("openrouter:anthropic/claude-sonnet-4:batch", "openrouter", "openrouter", "anthropic/claude-sonnet-4:batch", "0.0000015", "0.0000075"),
+      "openrouter:google/gemini-2.5-pro": mkOffer("openrouter:google/gemini-2.5-pro", "openrouter", "openrouter", "google/gemini-2.5-pro", "0.00000125", "0.00001"),
+      "litellm:gpt-4o": mkOffer("litellm:gpt-4o", "litellm", "openai", "gpt-4o", "0.0000025", "0.00001"),
+    },
+  };
+
+  // feed=openrouter + vendor=openai matches OpenRouter's openai/gpt-4o even though offer.seller is "openrouter"
+  const orOpenAi = filterApiOffers({ catalog: fixtureCatalog, manifest: fixtureManifest, feed: "openrouter", vendor: "openai" });
+  assert.deepEqual(orOpenAi.offers.map((o) => o.id), ["openrouter:openai/gpt-4o"]);
+  assert.equal(orOpenAi.offers[0].inputPer1MUsd, "2.5");
+  assert.equal(orOpenAi.offers[0].outputPer1MUsd, "10");
+
+  // Paid and :batch variants coexist with distinct IDs; interactive default never picks :batch
+  const anthropicOnlyCatalog = {
+    offers: {
+      "openrouter:anthropic/claude-sonnet-4:batch": fixtureCatalog.offers["openrouter:anthropic/claude-sonnet-4:batch"],
+      "openrouter:anthropic/claude-sonnet-4": fixtureCatalog.offers["openrouter:anthropic/claude-sonnet-4"],
+    },
+  };
+  const anthropicManifest = {
+    models: [
+      { id: "openrouter:anthropic/claude-sonnet-4:batch", name: "Batch", state: "active" },
+      { id: "openrouter:anthropic/claude-sonnet-4", name: "Interactive", state: "active" },
+    ],
+  };
+  assert.equal(pickComparableApiOffer(anthropicOnlyCatalog, anthropicManifest, ""), "openrouter:anthropic/claude-sonnet-4");
+
+  // Empty search still retains an explicitly selected offer outside active filters without mutating it
+  const pinnedOutside = filterApiOffers({
+    catalog: fixtureCatalog,
+    manifest: fixtureManifest,
+    feed: "litellm",
+    search: "no-such-model-xyz",
+    selectedOfferId: "openrouter:google/gemini-2.5-pro",
+  });
+  assert.equal(pinnedOutside.totalMatching, 0);
+  assert.equal(pinnedOutside.offers.length, 1);
+  assert.equal(pinnedOutside.offers[0].id, "openrouter:google/gemini-2.5-pro");
+  assert.equal(pinnedOutside.offers[0].outsideFilter, true);
+});
+
+test("describePricingRefresh formats human-readable source updates without leaking raw digests, and save/import codecs fail closed atomically", () => {
+  const oldId = "7cd23cceb6fef29f|fx:snapshot@2026-11-16T00:00:00.000Z:digest-pinned,litellm:snapshot@2026-11-17T06:15:18.280Z:declared,openrouter:snapshot@2026-11-17T06:15:18.280Z:declared|2026-11-16|33.889595";
+  const newId = "7cd23cceb6fef29f|fx:live@2026-11-17T00:00:00.000Z:complete-transport,litellm:snapshot@2026-11-17T06:15:18.280Z:declared,openrouter:live@2026-11-17T16:01:50.041Z:complete-transport|2026-11-17|33.840204";
+  const prose = describePricingRefresh(oldId, newId, "en");
+  assert.match(prose, /OpenRouter \(live feed 2026-11-17\)/);
+  assert.match(prose, /33\.89 -> 33\.84 THB\/USD/);
+  assert.doesNotMatch(prose, /7cd23cceb6fef29f|digest-pinned|complete-transport|\|fx:/);
+
+  // Timestamp-only refresh does not claim FX rate changed numerically
+  const sameRateNewDate = "7cd23cceb6fef29f|fx:live@2026-11-17T00:00:00.000Z:complete-transport|2026-11-17|33.889595";
+  const sameRateProse = describePricingRefresh(oldId, sameRateNewDate, "en");
+  assert.doesNotMatch(sameRateProse, /->/);
+
+  // Save/import round-trip and atomic 25th-record rejection
+  const validFrag = encodeSizerFragment(normalizeSizerInput({ workloadId: "bfsi_kyc_claims", users: 380 }));
+  const records25 = Array.from({ length: 25 }, (_, i) => ({
+    id: `rec-${i + 1}`,
+    name: `Scenario ${i + 1}`,
+    savedAt: "2026-11-17T10:00:00Z",
+    fragment: validFrag,
+  }));
+  const encoded25 = encodeSizerSaveEnvelope(records25, { exportedAt: "2026-11-17T10:00:00Z" });
+  const decoded25 = decodeSizerSaveEnvelope(encoded25);
+  assert.equal(decoded25.scenarios.length, 25);
+  assert.equal(decoded25.scenarios[0].normalized.workloadId, "bfsi_kyc_claims");
+
+  // Corrupting record #25 rejects the entire import with zero partial records returned
+  const bad25 = JSON.parse(encoded25);
+  bad25.scenarios[24].fragment = "sizer=v1.corrupted_payload!";
+  assert.throws(() => decodeSizerSaveEnvelope(JSON.stringify(bad25)), SizerValidationError);
+
+  // Unknown schema and >64 KiB byte cap rejected before mutation
+  assert.throws(
+    () => decodeSizerSaveEnvelope(JSON.stringify({ schema: "wrong/9.9", exportedAt: "2026-11-17T10:00:00Z", scenarios: [records25[0]] })),
+    /Unsupported save schema/i,
+  );
+  assert.throws(() => decodeSizerSaveEnvelope("x".repeat(66000)), /64 KiB/i);
 });

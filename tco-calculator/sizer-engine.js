@@ -384,7 +384,7 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     mix: { chat: "0.10", rag: "0.55", graph_rag: "0.15", agentic: "0.20" },
     rawPromptTokens: 36000,
     rawOutputTokens: 1400,
-    rawContextTokens: 131072,
+    rawContextTokens: 65536,
     en: {
       sectorTag: "Legal & TOR Bidding",
       title: "Thai Legal Contract, TOR & BOQ Procurement Review",

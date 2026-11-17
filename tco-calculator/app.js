@@ -21,9 +21,9 @@ import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, cheapestBoxForLoad, serversForGpu, CapexRefusal } from "./capex.js?v=20260906-ux3";
 import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
-import { setupStarters } from "./starter-ui.js";
+import { setupStarters } from "./starter-ui.js?v=20261117-wb1";
 import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentity, controlDiff, validateControlRecord } from "./assistant-session.js";
-import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js";
+import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js?v=20261117-wb1";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.

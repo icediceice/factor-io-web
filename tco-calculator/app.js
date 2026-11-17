@@ -21,9 +21,9 @@ import { servingPlan, kvBytesPerToken, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, cheapestBoxForLoad, serversForGpu, CapexRefusal } from "./capex.js?v=20260906-ux3";
 import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from "./subscription.js";
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
-import { setupStarters } from "./starter-ui.js";
+import { setupStarters } from "./starter-ui.js?v=20261117-wb1";
 import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentity, controlDiff, validateControlRecord } from "./assistant-session.js";
-import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js";
+import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js?v=20261117-wb1";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
@@ -341,7 +341,7 @@ function processAdvisorReturn(fresh = false) {
       const before = captureControls(); const groups = readArchGroups(); const starter = starterUI.snapshot();
       try { writeReturnedControls(record.controls, record.groups); starterUI.restore(record.starter); }
       catch (error) { writeReturnedControls(before, groups); starterUI.restore(starter); throw error; }
-      restoredHandoff = true; flushLiveInput();
+      restoredHandoff = true; flushLiveInput(); syncSizerReturnOriginState();
     }
     if (currentControlIdentity() !== record.identity) throw new Error("Calculator inputs changed while you were away. The proposal was not applied; your edits are preserved. Reopen the advisor from this scenario.");
     if (!record.proposal) return;
@@ -370,10 +370,33 @@ function applyReturnedProposal() {
     pendingReview = null; plannerState.answers = prepared.answers; plannerState.plan = prepared.plan;
     plannerState.appliedAnswers = JSON.stringify(prepared.answers); plannerState.applied = true;
     starterUI.setMode("custom"); // onCustom performs the single recomputation
+    syncSizerReturnOriginState();
     $("return-review").innerHTML = state.result
       ? '<p role="status">Applied once and recomputed. Review the custom comparison below. Open the advisor again to discuss this result or request its blueprint specification.</p><a class="btn" href="#comparison">View recomputed comparison ↓</a>'
       : '<p role="status">Settings applied once, but this comparison cannot be calculated. Resolve the errors below before requesting a blueprint specification.</p>';
   } catch (error) { $("return-status").textContent = error.message; }
+}
+function validateSizerReturnOrigin(candidate) {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) || candidate.kind !== "sizer" || typeof candidate.fragment !== "string") {
+    return null;
+  }
+  const clean = candidate.fragment.replace(/^#/, "").trim();
+  try {
+    if (!decodeSizerFragment(clean)) return null;
+  } catch {
+    return null;
+  }
+  return {
+    kind: "sizer",
+    fragment: clean,
+    baselineControlIdentity: typeof candidate.baselineControlIdentity === "string" ? candidate.baselineControlIdentity : "",
+  };
+}
+function syncSizerReturnOriginState() {
+  const origin = starterUI?.getReturnOrigin?.();
+  if (!origin || origin.kind !== "sizer") return;
+  const edited = Boolean(origin.baselineControlIdentity) && controlIdentity(captureControls()) !== origin.baselineControlIdentity;
+  starterUI.syncBackNavigation?.({ controlsEdited: edited });
 }
 function processSizerReturn() {
   const href = String(globalThis.location?.href ?? "");
@@ -387,7 +410,8 @@ function processSizerReturn() {
     if (manualRevision > 0) {
       throw new Error("Calculator inputs were edited locally; the sizer transfer was not applied.");
     }
-    const normalized = decodeSizerFragment(parsedUrl.hash);
+    const cleanFragment = parsedUrl.hash.replace(/^#/, "").trim();
+    const normalized = decodeSizerFragment(cleanFragment);
     if (!normalized) return false;
     const before = captureControls();
     const groupsBefore = readArchGroups();
@@ -410,6 +434,8 @@ function processSizerReturn() {
     try {
       writeReturnedControls(projected.controls, projected.groups);
       starterUI.setMode("custom"); // onCustom performs the single recomputation
+      const baselineControlIdentity = controlIdentity(captureControls());
+      starterUI.setReturnOrigin?.({ kind: "sizer", fragment: cleanFragment, baselineControlIdentity });
     } catch (err) {
       writeReturnedControls(before, groupsBefore);
       starterUI.restore(starterBefore);
@@ -418,8 +444,11 @@ function processSizerReturn() {
     globalThis.history?.replaceState?.(null, "", `${parsedUrl.pathname}${parsedUrl.search}#custom-page`);
     if (box) {
       box.hidden = false;
+      const refreshProse = projected.repriced
+        ? (projected.refreshSummary || "Pricing sources were updated since this scenario was captured; totals below reflect current catalog data.")
+        : "";
       box.innerHTML = projected.repriced
-        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. Live API prices or exchange rates were refreshed since the sizer snapshot (${escapeHtml(projected.capturedIdentity)} → ${escapeHtml(projected.currentIdentity)}); totals below were re-evaluated against current sources.</p>`
+        ? `<p class="starter-warning" role="status">Applied Guided Local AI Sizer scenario. ${escapeHtml(refreshProse)}</p>`
         : `<p role="status">Applied Guided Local AI Sizer scenario to custom comparison.</p>`;
     }
     return true;
@@ -623,6 +652,7 @@ async function init() {
     getData: () => ({ ...state, quoteUtc: Date.parse($("f-utc").value), loadError: state.loadError }),
     onAdvisor: snapshot => openAdvisor(snapshot),
     onCustom: () => { if (state.ready) flushLiveInput(); },
+    validateReturnOrigin: validateSizerReturnOrigin,
   });
   $("custom-advisor").addEventListener("click", event => { event.preventDefault(); openAdvisor(); });
   globalThis.addEventListener?.("pageshow", event => { if (event.persisted && state.ready) processAdvisorReturn(false); });
@@ -671,10 +701,14 @@ async function init() {
     state.catalog = catalogResult.value;
     state.fx = normalizeFxDocument(fallbackFxResult.value, { integrity: "digest-pinned" });
     if (openRouterResult.status === "fulfilled") {
-      const live = compileLiveOpenRouter(openRouterResult.value);
-      const replacement = replaceCatalogSource(state.manifest, state.catalog, live);
-      state.manifest = replacement.manifest;
-      state.catalog = replacement.catalog;
+      try {
+        const live = compileLiveOpenRouter(openRouterResult.value);
+        const replacement = replaceCatalogSource(state.manifest, state.catalog, live);
+        state.manifest = replacement.manifest;
+        state.catalog = replacement.catalog;
+      } catch (err) {
+        state.liveFailures.openrouter = String(err?.message ?? err ?? "live compile failed");
+      }
     } else {
       state.liveFailures.openrouter = String(openRouterResult.reason?.message ?? openRouterResult.reason ?? "live fetch failed");
     }
@@ -1712,7 +1746,7 @@ async function wireInputs() {
     if (state.catalogError) await fillModels(beginSelection());
     flushLiveInput();
   });
-  $("reset-example").addEventListener("click", () => { try { clearHandoffs(sessionStorage); } catch {} location.replace("tco-calculator.html"); });
+  $("reset-example").addEventListener("click", () => { starterUI?.setReturnOrigin?.(null); try { clearHandoffs(sessionStorage); } catch {} location.replace("tco-calculator.html"); });
   $("mix-balance").addEventListener("click", balanceMix);
   await fillModels(beginSelection());
 }
@@ -1804,6 +1838,7 @@ let liveTimer = null;
 function onLiveInput() {
   syncSliders();
   if (!state.ready) return;
+  syncSizerReturnOriginState();
   plannerState.applied = false;
   $("example-state").textContent = "Customized scenario · assumptions remain editable";
   invalidateResults("Updating comparison…");

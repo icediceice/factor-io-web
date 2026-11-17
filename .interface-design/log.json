@@ -3,6 +3,16 @@
     {
       "date": "2026-11-17",
       "file": "local-ai-sizer.html",
+      "macrostructure": "Workbench (Single-page Model-First Local AI & GPU Sizer + sticky 60M Payback Rail, with nested Cross-GPU Auto-Sizing & 60M TCO Ledgers)",
+      "accent": "#B46EFF (primary action), #22D3EE (enterprise workload & live feed), #34D399 (qualified VRAM/TP pass), #FBBF24 (conditional TP/KV assumption), #F87171 (context/VRAM refusal)",
+      "theme": "dark only, solid elevation ramp #0A0A0F / #111119 / #171722 / #1E1E2C, borders-only depth, self-hosted Geist + IBM Plex Sans Thai + Geist Mono",
+      "gates": "76/76 applicable (11 n/a of 87: dark-only system.md ramp, no avatars, no pagination/bulk-select/toast/modal-stack); ?audit=1 verified at 390px, 1100px, 1440px, and 1919px in TH and EN (docOverflowX 0, contrastFails 0, smallText 0, smallTargets 0, smallPrimaryTargets 0, spills 0, ledgerRowOver48 0, ledgerPadOver24 0, console/page errors 0)",
+      "critique": "H4 D4 S4 O5 R4 P4",
+      "notes": "Redesigned from a 5-step Wizard into a transactional single-page Model-First Workbench. Features 8 realistic Thai enterprise workloads (10.5k to 36k+ raw prompt tokens), 1-click prompt scale presets, catalog + explicit custom (cp/ca/ck/cm) model resolver, per-server topology GPU auto-sizing matrix, bounded 4s live OpenRouter + Frankfurter FX refresh with dated fallback, feed/vendor/search Cloud API filter, guarded browser localStorage + .json save/import, human-readable calculator refresh prose, and sizer-aware #starter-back return navigation."
+    },
+    {
+      "date": "2026-11-17",
+      "file": "local-ai-sizer.html",
       "macrostructure": "Wizard (5-step guided Local AI deal & Thai model sizer with nested Ledger in Step 5)",
       "accent": "#B46EFF (primary action), #22D3EE (technical scope), #34D399 (VRAM fit & savings), #F59E0B (TP/quantization qualification), #F87171 (fit block)",
       "theme": "dark only, solid elevation ramp #0A0A0F / #121218 / #191922 / #1F1633, borders-only depth, self-hosted Geist + IBM Plex Sans Thai + Geist Mono",

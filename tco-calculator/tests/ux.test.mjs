@@ -519,14 +519,14 @@ test("real field sheet moves the authoritative input, preserves edits and ignore
   const page = await liveTcoPage(t);
   const result = await page.evaluate(`(() => {
     document.getElementById('starter-custom').click();
-    const original = document.getElementById('f-users');
+    const original = document.getElementById('f-onetime-a');
     const spec = document.querySelector('.spec[data-for="f-onetime-a"]');
     spec.click();
-    const inSheet = document.querySelector('#sheet-root #f-users') === original;
+    const inSheet = document.querySelector('#sheet-root #f-onetime-a') === original;
     original.value = '4321';
     original.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('#sheet-root [data-done]').click();
-    return { inSheet, sameNode: document.getElementById('f-users') === original,
+    return { inSheet, sameNode: document.getElementById('f-onetime-a') === original,
       preserved: original.value, chip: spec.textContent,
       rangeSpecs: [...document.querySelectorAll('.spec')].filter(s => document.getElementById(s.dataset.for)?.type === 'range').length,
       foldedCorrectly: [...document.querySelectorAll('.rail .sec[data-folding]')].every(s => s.classList.contains('folded') === !('open' in s.dataset)) };

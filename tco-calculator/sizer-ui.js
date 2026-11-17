@@ -795,8 +795,8 @@ function syncAddressBar() {
   window.history.replaceState(null, "", url.toString());
 }
 
-function setIfUnfocused(el, nextValue) {
-  if (!el || document.activeElement === el) return;
+function setControlValue(el, nextValue, force = false) {
+  if (!el || (!force && document.activeElement === el)) return;
   const str = String(nextValue ?? "");
   if (el.value !== str) el.value = str;
 }

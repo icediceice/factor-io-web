@@ -605,7 +605,7 @@ test("fail-closed checkpoint residency holds full params_b on GPU unless an expl
       runtimeKey: "vllm",
       tpCandidates: [8],
     }),
-    (err) => err instanceof ServingRefusal && err.code === "no_viable_configuration" && err.context.attempts[0].reason === "weights_exceed_vram",
+    (err) => err instanceof ServingRefusal && err.code === "no_viable_configuration" && err.detail.attempts[0].reason === "weights_exceed_vram",
   );
 
   const insufficientDram = resolveModelResidency({

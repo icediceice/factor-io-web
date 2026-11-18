@@ -1243,6 +1243,217 @@ function syncInputsFromDraft({ force = false } = {}) {
   $("badge-bom").textContent = `${qb} · ${d.quoteCurrency} · ${d.connectors.length} pipelines`;
 }
 
+function describeKvTechnique(model, isTh) {
+  if (!model) return isTh ? "ยังไม่ทราบโครงสร้าง KV" : "Unknown KV structure";
+  if (model.kv_override) return isTh ? "กำหนดอัตรา KV คงที่เอง" : "Custom Flat KV Override";
+  const groups = Array.isArray(model.groups) ? model.groups : [];
+  const hasMla = groups.some((g) => g.kind === "mla");
+  const hasCompressedMla = groups.some((g) => g.kind === "mla" && Number(g.compress_ratio ?? 1) > 1);
+  const hasSliding = groups.some((g) => g.kind === "sliding");
+  const hasLinear = groups.some((g) => g.kind === "linear");
+  const hasFull = groups.some((g) => g.kind === "full");
+  const hasUnifiedKv = groups.some((g) => Number(g.tensors ?? 2) === 1);
+
+  if (hasCompressedMla && hasSliding) {
+    return isTh ? "CSA2 บีบอัด MLA + SWA" : "CSA2 Compressed MLA + SWA";
+  }
+  if (hasCompressedMla) {
+    return isTh ? "Compressed MLA พร้อมดัชนี" : "Compressed MLA + Index";
+  }
+  if (hasMla && hasLinear) {
+    return isTh ? "ไฮบริด KDA Linear + MLA" : "Hybrid KDA Linear + MLA";
+  }
+  if (hasMla) {
+    return "Multi-Head Latent Attention (MLA)";
+  }
+  if (hasLinear && hasFull) {
+    return isTh ? "ไฮบริด Gated DeltaNet + GQA" : "Hybrid Gated DeltaNet + GQA";
+  }
+  if (hasSliding && hasUnifiedKv) {
+    return isTh ? "ไฮบริด SWA + Unified K=V GQA" : "Hybrid SWA + Unified K=V GQA";
+  }
+  if (hasSliding && hasFull) {
+    return isTh ? "ไฮบริด Sliding-Window + GQA" : "Hybrid Sliding-Window + GQA";
+  }
+  if (hasFull && groups.length > 1) {
+    return isTh ? "GQA แบบปรับหัวรายเลเยอร์ (NAS)" : "Heterogeneous NAS GQA";
+  }
+  return "Grouped-Query Attention (GQA)";
+}
+
+function summarizeModelGroups(model) {
+  const groups = Array.isArray(model?.groups) ? model.groups : [];
+  if (!groups.length) return "";
+  return groups.map((g) => {
+    if (g.kind === "linear") return `${g.layers}L linear (0 KV/tok)`;
+    if (g.kind === "mla") {
+      const cr = Number(g.compress_ratio ?? 1);
+      return cr > 1 ? `${g.layers}L MLA÷${cr}` : `${g.layers}L MLA`;
+    }
+    if (g.kind === "sliding") return `${g.layers}L SWA (${g.window_tokens ?? "?"}w)`;
+    const u = Number(g.tensors ?? 2) === 1 ? " K=V" : "";
+    return `${g.layers}L GQA (${g.kv_heads ?? "?"}h${u})`;
+  }).join(" + ");
+}
+
+function resolvePersonTokens(c) {
+  if (c?.personTokenSummary) return c.personTokenSummary;
+  const n = c?.normalized;
+  if (!n) return null;
+  if (n.sessionStackingActive && typeof buildSessionProjectionFromConfig === "function") {
+    return buildSessionProjectionFromConfig({
+      effectiveSystemPromptTokens: n.effectiveSystemPromptTokens,
+      effectivePromptTokens: n.effectivePromptTokens,
+      effectiveOutputTokens: n.effectiveOutputTokens,
+      turnsPerSession: n.turnsPerSession,
+      kvCacheHitRate: n.kvCacheHitRate,
+      users: n.users,
+      sessionsPerUserDay: n.sessionsPerUserDay,
+      workingDaysMo: n.workingDaysMo,
+    }).personTokenSummary;
+  }
+  return null;
+}
+
+function renderPersonTokenAndKvBars() {
+  const isTh = appState.lang === "th";
+  const c = appState.computed;
+  const n = c?.normalized;
+  const pts = resolvePersonTokens(c);
+
+  const personBar = $("person-token-bar");
+  if (personBar) {
+    if (!n || !pts) {
+      setDataAttr(personBar, "status", "refused");
+      personBar.innerHTML = `<div class="auto-detail">${esc(isTh ? "กรอกจำนวนผู้ใช้และโทเคนให้ถูกต้องเพื่อคำนวณค่าเฉลี่ยต่อคน" : "Enter valid workload counts to compute per-person token averages.")}</div>`;
+    } else {
+      setDataAttr(personBar, "status", "qualified_pass");
+      const hitPct = Math.round(Number(n.kvCacheHitRate ?? 0) * 100);
+      const stackVal = pts.sessionStackingActive
+        ? `${fmtInt(pts.turn1ColdPromptTokens)} → ${fmtInt(pts.finalTurnPromptTokens)} tok`
+        : `${fmtInt(n.effectivePromptTokens)} tok`;
+      const stackSub = pts.sessionStackingActive
+        ? (isTh ? `${n.turnsPerSession} รอบ · Sys ${fmtInt(n.effectiveSystemPromptTokens)} tok` : `${n.turnsPerSession} turns · Sys ${fmtInt(n.effectiveSystemPromptTokens)} tok`)
+        : (isTh ? "1 รอบ (โหมดดั้งเดิม)" : "1 turn (flat mode)");
+      personBar.innerHTML = `
+        <div class="telemetry-grid">
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "เฉลี่ยโทเคน / คน / วัน" : "Avg tokens / person / day")}</span>
+            <span class="telemetry-val">${esc(fmtInt(pts.tokensPerPersonDay))} tok</span>
+            <span class="telemetry-sub">${esc(`In ${fmtInt(pts.uncachedInPerPersonDay)} · Cache ${fmtInt(pts.cachedReadPerPersonDay)} · Out ${fmtInt(pts.outputPerPersonDay)}`)}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "เฉลี่ยโทเคน / คน / เดือน" : "Avg tokens / person / month")}</span>
+            <span class="telemetry-val">${esc(fmtInt(pts.tokensPerPersonMo))} tok</span>
+            <span class="telemetry-sub">${esc(`${n.sessionsPerUserDay} sess/d × ${n.workingDaysMo} d/mo`)}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "Prompt สะสมตามรอบสนทนา" : "Stacked prompt across turns")}</span>
+            <span class="telemetry-val">${esc(stackVal)}</span>
+            <span class="telemetry-sub">${esc(stackSub)}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "สัดส่วนใช้ซ้ำ KV / Prefix" : "KV / prefix cache reuse")}</span>
+            <span class="telemetry-val">${esc(`${hitPct}% hit`)}</span>
+            <span class="telemetry-sub">${esc(isTh ? `แชร์ Prefix ${fmtInt(pts.sharedPrefixTokens ?? 0)} tok` : `Shared prefix: ${fmtInt(pts.sharedPrefixTokens ?? 0)} tok`)}</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  const kvBar = $("kv-telemetry-bar");
+  if (kvBar) {
+    const model = c?.fit?.resolvedModel ?? (appState.data.servingData?.models ?? []).find((m) => m.id === appState.draft.modelId) ?? null;
+    const srv = c?.fit?.serving ?? null;
+    const rtKey = n?.runtime ?? appState.draft.runtime;
+    const kvKey = n?.kvquant ?? appState.draft.kvquant;
+    const wqKey = n?.wquant ?? appState.draft.wquant;
+    const rtMeta = appState.data.servingData?.runtimes?.[rtKey];
+    const kqElem = model?.kv_override ? "1" : (appState.data.servingData?.kv_quantization?.[kvKey]?.bytes_per_element ?? "1");
+    const wqBytes = appState.data.servingData?.weight_quantization?.[wqKey]?.bytes_per_param ?? "1";
+
+    if (!model) {
+      setDataAttr(kvBar, "status", "refused");
+      kvBar.innerHTML = `<div class="auto-detail">${esc(isTh ? "ระบุพารามิเตอร์และอัตรา KV ของโมเดล Custom ให้ครบเพื่อคำนวณหน่วยความจำ" : "Complete Custom model parameters and BF16 KV bytes/token to inspect KV memory.")}</div>`;
+    } else {
+      setDataAttr(kvBar, "status", srv ? "qualified_pass" : "memory_fit_unpriced");
+      const techLabel = describeKvTechnique(model, isTh);
+      const grpSummary = summarizeModelGroups(model);
+
+      let bytesPerTokStr = srv?.kv_bytes_per_token?.text ?? null;
+      let peakKvGbStr = srv?.kv_gb_per_sequence_peak?.text ?? srv?.kv_gb_per_sequence?.text ?? null;
+      let activeKvGbStr = srv?.kv_gb_per_sequence?.text ?? null;
+      let sharedKvGbStr = srv?.kv_gb_shared_prefix?.text ?? "0.000";
+      let wtResidentGbStr = srv?.weights_gb_resident?.text ?? null;
+
+      if (bytesPerTokStr === null && typeof kvBytesPerToken === "function") {
+        try {
+          bytesPerTokStr = formatHalfUp(kvBytesPerToken(model.groups, kqElem), 2).replace(/\.?0+$/, "");
+        } catch {
+          bytesPerTokStr = "N/A";
+        }
+      }
+      if (peakKvGbStr === null && n && typeof kvBytesPerSequence === "function") {
+        try {
+          const seqRat = kvBytesPerSequence(model.groups, String(n.effectiveContextTokens), kqElem);
+          peakKvGbStr = formatHalfUp(seqRat.div(toRat("1000000000")), 3);
+          activeKvGbStr = peakKvGbStr;
+        } catch {
+          peakKvGbStr = "N/A";
+          activeKvGbStr = "N/A";
+        }
+      }
+      if (wtResidentGbStr === null && typeof estimateModelWeightGb === "function") {
+        wtResidentGbStr = estimateModelWeightGb(model, wqBytes, { runtimeKey: rtKey }) ?? "N/A";
+      }
+
+      const bptNum = Number(bytesPerTokStr);
+      const rateHeadline = Number.isFinite(bptNum)
+        ? (bptNum >= 1024 ? `${(bptNum / 1024).toFixed(2)} KB/tok` : `${bytesPerTokStr} B/tok`)
+        : `${bytesPerTokStr ?? "N/A"} B/tok`;
+      const rateSub = Number.isFinite(bptNum)
+        ? `${fmtInt(bptNum)} B/tok @ ${kvKey.toUpperCase()}`
+        : `${kvKey.toUpperCase()} KV`;
+
+      const canShare = Boolean(rtMeta?.supports_prefix_cache) && !model.kv_override;
+      const sharedHeadline = canShare && Number(sharedKvGbStr) > 0
+        ? `-${sharedKvGbStr} GB / seq`
+        : (canShare ? "0.000 GB shared" : (isTh ? `ไม่แชร์บล็อก (${rtKey})` : `No prefix share (${rtKey})`));
+      const residencySub = model.host_offload_params_b
+        ? (isTh
+          ? `Weights ${wtResidentGbStr} GB (${model.params_b}B เต็มบน GPU)`
+          : `Weights ${wtResidentGbStr} GB (full ${model.params_b}B on GPU)`)
+        : `Weights: ${wtResidentGbStr ?? "N/A"} GB (${wqKey.toUpperCase()})`;
+
+      kvBar.innerHTML = `
+        <div class="telemetry-grid">
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "เทคนิคการเก็บ KV Cache" : "KV-cache technique")}</span>
+            <span class="telemetry-val">${esc(techLabel)}</span>
+            <span class="telemetry-sub">${esc(grpSummary)}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "อัตราเติบโต KV ต่อโทเคน" : "Marginal KV rate")}</span>
+            <span class="telemetry-val">${esc(rateHeadline)}</span>
+            <span class="telemetry-sub">${esc(rateSub)}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "หน่วยความจำ KV / เซสชัน" : "KV memory / session")}</span>
+            <span class="telemetry-val">Peak ${esc(peakKvGbStr ?? "N/A")} GB</span>
+            <span class="telemetry-sub">${esc(`Active ${activeKvGbStr ?? "N/A"} GB @ ${fmtInt(n?.effectiveContextTokens ?? 0)} ctx`)}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-kicker">${esc(isTh ? "PagedAttention & น้ำหนักโมเดล" : "PagedAttention & weights")}</span>
+            <span class="telemetry-val">${esc(sharedHeadline)}</span>
+            <span class="telemetry-sub">${esc(residencySub)}</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
 function renderAutoGpuAndMatrix() {
   const isTh = appState.lang === "th";
   const t = I18N[appState.lang];
@@ -1251,9 +1462,24 @@ function renderAutoGpuAndMatrix() {
 
   if (c?.normalized) {
     const n = c.normalized;
+    if ($("hint-eff-sys")) {
+      $("hint-eff-sys").textContent = isTh
+        ? `System จริง: ${fmtInt(n.effectiveSystemPromptTokens)} โทเคน`
+        : `Effective sys: ${fmtInt(n.effectiveSystemPromptTokens)} tok`;
+    }
     $("hint-eff-prompt").textContent = isTh
-      ? `คิดเป็น ${fmtInt(n.effectivePromptTokens)} โทเคนจริงหลังคูณสัดส่วนภาษาไทย`
-      : `Thai-adjusted: ${fmtInt(n.effectivePromptTokens)} effective prompt tokens`;
+      ? `เพิ่มต่อรอบ ${fmtInt(n.effectivePromptTokens)} โทเคนหลังคูณสัดส่วนภาษาไทย`
+      : `Thai-adjusted: +${fmtInt(n.effectivePromptTokens)} fresh tok/turn`;
+    if ($("hint-turns-session")) {
+      $("hint-turns-session").textContent = n.sessionStackingActive
+        ? (isTh ? `Peak รอบสุดท้าย: ${fmtInt(n.peakTurnContextTokens)} tok` : `Peak final turn: ${fmtInt(n.peakTurnContextTokens)} tok`)
+        : (isTh ? "โหมดคำสั่งเดี่ยวดั้งเดิม" : "Legacy flat single-turn");
+    }
+    if ($("hint-kv-hit")) {
+      $("hint-kv-hit").textContent = n.turnsPerSession > 1
+        ? (isTh ? `ใช้ซ้ำในรอบ 2..${n.turnsPerSession}` : `Applied on turns 2..${n.turnsPerSession}`)
+        : (isTh ? "รอบที่ 1 เริ่มต้น Cold เสมอ (0% แคช)" : "Turn 1 is always cold (0% cached)");
+    }
     $("hint-eff-ctx").textContent = isTh
       ? `Context จริงที่ใช้จอง KV: ${fmtInt(n.effectiveContextTokens)} โทเคน`
       : `Effective KV context: ${fmtInt(n.effectiveContextTokens)} tokens`;
@@ -1264,6 +1490,8 @@ function renderAutoGpuAndMatrix() {
       ? `Peak: ${c.peak.peak_tokens_s.text} tok/s`
       : "";
   }
+
+  renderPersonTokenAndKvBars();
 
   const prof = c?.fit?.thaiProfile;
   $("hint-model-profile").textContent = prof
@@ -1276,10 +1504,10 @@ function renderAutoGpuAndMatrix() {
     : "";
 
   if (!c) {
-    callout.dataset.status = "refused";
+    setDataAttr(callout, "status", "refused");
     callout.innerHTML = `<div class="auto-headline">${esc(isTh ? "ข้อมูลนำเข้ายังไม่สมบูรณ์" : "Invalid input value")}</div><div class="auto-detail">${esc(appState.fieldErrors._form || "")}</div>`;
   } else if (c.ok) {
-    callout.dataset.status = c.fit.status;
+    setDataAttr(callout, "status", c.fit.status);
     const srvText = c.bom.serverRow?.label ?? `${c.bom.nodes}x custom node (${c.bom.gpusPerNode} GPU/node)`;
     const headline = isTh
       ? `แนะนำอัตโนมัติ: ใช้ ${c.bom.installedGpus} การ์ด GPU (${c.bom.nodes} เครื่อง × ${c.bom.gpusPerNode} GPU/เครื่อง)`
@@ -1293,13 +1521,13 @@ function renderAutoGpuAndMatrix() {
     }).join("");
     callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(detail)}</div>${warnHtml}`;
   } else if (c.stage === "hardware_bom" && c.bom?.code === "no_catalog_server" && c.sizing && c.fit?.serving) {
-    callout.dataset.status = "memory_fit_unpriced";
+    setDataAttr(callout, "status", "memory_fit_unpriced");
     const headline = isTh
       ? `คำนวณจำนวนการ์ดได้: ต้องใช้ ${c.sizing.gpusRequired} การ์ด GPU (TP=${c.fit.serving.gpus_per_replica}) แต่ยังไม่มีราคากลางเซิร์ฟเวอร์`
       : `Auto-sized: ${c.sizing.gpusRequired}x GPUs required (TP=${c.fit.serving.gpus_per_replica}), custom hardware quote needed`;
     callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(c.bom.reason)}</div>`;
   } else {
-    callout.dataset.status = "refused";
+    setDataAttr(callout, "status", "refused");
     const reason = c.reason ?? c.fit?.reason ?? c.bom?.reason ?? "Selected configuration cannot serve this workload.";
     const headline = isTh
       ? "ไม่สามารถจัดชุด GPU/โมเดลตามเงื่อนไขนี้ได้"
@@ -1419,11 +1647,18 @@ function renderLedgerAndSummaryRail() {
   }
 
   const modelLabel = c.fit.resolvedModel?.label ?? c.normalized.modelId;
+  const pts = resolvePersonTokens(c);
+  const peakKvSeqText = c.fit.serving?.kv_gb_per_sequence_peak?.text ?? c.fit.serving?.kv_gb_per_sequence?.text ?? "N/A";
   const kvRows = [
     [t.kv.model, `${modelLabel} (${c.normalized.wquant.toUpperCase()})`],
     [t.kv.fleet, `${c.bom.installedGpus} GPUs · ${c.bom.nodes}x (${c.bom.gpusPerNode}/node)`],
     [t.kv.tp, `TP=${c.fit.serving.gpus_per_replica} · ${c.sizing.tokens_s_per_gpu.text} tok/s/GPU`],
     [t.kv.effPrompt, `${fmtInt(c.normalized.effectivePromptTokens)} / ${fmtInt(c.normalized.effectiveContextTokens)} tok`],
+    ...(pts ? [
+      [t.kv.personDayTok, `${fmtInt(pts.tokensPerPersonDay)} tok/d`],
+      [t.kv.personMoTok, `${fmtInt(pts.tokensPerPersonMo)} tok/mo`],
+    ] : []),
+    [t.kv.kvPerSeq, `${peakKvSeqText} GB (${c.normalized.kvquant.toUpperCase()})`],
     [t.kv.monthlyTok, `${fmtInt(Number(c.demand.tokens_mo.text))} tok/mo`],
     [t.kv.peakTok, `${c.peak.peak_tokens_s.text} tok/s`],
     [t.kv.hwCapex, fmtMoneyUsd(c.bom.capexUsd)],
@@ -1579,6 +1814,17 @@ function handleFieldMutation(name, value) {
   if (name === "peakPct") {
     const num = Number(String(value).trim());
     d.peakConcurrencyFraction = Number.isFinite(num) && num > 0 ? String(num / 100) : value;
+    return;
+  }
+  if (name === "kvHitPct") {
+    const num = Number(String(value).trim());
+    d.kvCacheHitRate = Number.isFinite(num) && num >= 0 && num <= 100 ? String(Math.round(num * 100) / 10000) : value;
+    d.sessionStackingActive = true;
+    return;
+  }
+  if (name === "rawSystemPromptTokens" || name === "turnsPerSession") {
+    d[name] = value;
+    d.sessionStackingActive = true;
     return;
   }
   if (name === "dealTierOverride") {
@@ -1789,10 +2035,17 @@ function wireEvents() {
       if (p) {
         appState.mutationSeq += 1;
         appState.presetBanner = null;
-        appState.draft.rawPromptTokens = String(p.rawPromptTokens);
+        const targetTurn = pillTurnTokens(p, appState.draft);
+        appState.draft.rawPromptTokens = String(targetTurn);
         appState.draft.rawOutputTokens = String(p.rawOutputTokens);
-        if (Number(appState.draft.rawContextTokens) < p.rawContextTokens) {
-          appState.draft.rawContextTokens = String(p.rawContextTokens);
+        const sysRaw = appState.draft.sessionStackingActive ? (Number(appState.draft.rawSystemPromptTokens) || 0) : 0;
+        const turns = appState.draft.sessionStackingActive ? Math.max(1, Number(appState.draft.turnsPerSession) || 1) : 1;
+        const minRawCtx = Math.max(
+          p.rawContextTokens,
+          Math.ceil((sysRaw + turns * targetTurn + turns * p.rawOutputTokens) / 4096) * 4096,
+        );
+        if (Number(appState.draft.rawContextTokens) < minRawCtx) {
+          appState.draft.rawContextTokens = String(minRawCtx);
         }
         renderAll();
       }

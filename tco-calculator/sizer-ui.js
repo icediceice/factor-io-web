@@ -961,6 +961,22 @@ function renderStaticLabels() {
   $("rail-open-tco").textContent = t.openTcoRail;
 }
 
+function setDataAttr(el, key, val) {
+  if (!el) return;
+  if (el.dataset) {
+    el.dataset[key] = val;
+  } else if (typeof el.setAttribute === "function") {
+    const dashKey = key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+    el.setAttribute(`data-${dashKey}`, val);
+  }
+}
+
+function pillTurnTokens(p, draft) {
+  return draft?.sessionStackingActive
+    ? Math.max(500, Math.round(Number(p.rawPromptTokens) / 4))
+    : Number(p.rawPromptTokens);
+}
+
 function renderWorkloadCardsAndPills() {
   const isTh = appState.lang === "th";
   const cardsEl = $("workload-cards");
@@ -969,11 +985,14 @@ function renderWorkloadCardsAndPills() {
     const selected = appState.draft.workloadId === w.id;
     const recModel = (appState.data.servingData?.models ?? []).find((m) => m.id === w.recommendedModelId);
     const modelShort = recModel ? `${recModel.params_b}B` : w.recommendedModelId;
+    const sysK = Math.round(Number(w.defaultSystemPromptTokens ?? 20000) / 1000);
+    const turnTok = Number(w.defaultTurnPromptTokens ?? w.rawPromptTokens);
+    const turns = Number(w.defaultTurnsPerSession ?? 4);
     return `
       <button type="button" class="choice-btn" data-workload-id="${esc(w.id)}" aria-pressed="${selected}">
         <div class="choice-top">
           <span class="badge badge-cyan">${esc(loc.sectorTag || w.sector)}</span>
-          <span class="choice-meta">${fmtInt(w.users)} ${isTh ? "ผู้ใช้" : "users"} · ${fmtInt(w.rawPromptTokens)} tok · ${esc(modelShort)}</span>
+          <span class="choice-meta">${fmtInt(w.users)} ${isTh ? "ผู้ใช้" : "users"} · ${sysK}k+${fmtInt(turnTok)}×${turns}t · ${esc(modelShort)}</span>
         </div>
         <div class="choice-title">${esc(loc.title)}</div>
         <div class="choice-desc">${esc(loc.whyLocal)}</div>
@@ -984,8 +1003,12 @@ function renderWorkloadCardsAndPills() {
   const pillsEl = $("prompt-scale-pills");
   const curPrompt = Number(appState.draft.rawPromptTokens);
   pillsEl.innerHTML = PROMPT_SCALE_PRESETS.map((p) => {
-    const active = curPrompt === p.rawPromptTokens;
-    return `<button type="button" class="pill-btn" data-prompt-preset="${esc(p.id)}" aria-pressed="${active}">${esc(p[appState.lang])}</button>`;
+    const targetTurn = pillTurnTokens(p, appState.draft);
+    const active = curPrompt === targetTurn;
+    const label = appState.draft.sessionStackingActive
+      ? (isTh ? `+${fmtInt(targetTurn)}/รอบ (${p.id} เซสชัน)` : `+${fmtInt(targetTurn)}/turn (${p.id} session)`)
+      : p[appState.lang];
+    return `<button type="button" class="pill-btn" data-prompt-preset="${esc(p.id)}" aria-pressed="${active}">${esc(label)}</button>`;
   }).join("");
 }
 
@@ -1006,7 +1029,10 @@ function renderModelAndGpuSelectors() {
     const label = isTh ? grp.thLabel : grp.enLabel;
     html += `<optgroup label="${esc(label)}">`;
     for (const m of grp.models) {
-      const approxWtGb = Math.ceil(Number(m.params_b) * wqBytes);
+      const wtEst = typeof estimateModelWeightGb === "function"
+        ? estimateModelWeightGb(m, String(wqBytes), { runtimeKey: appState.draft.runtime })
+        : null;
+      const approxWtGb = wtEst !== null ? Math.ceil(Number(wtEst)) : Math.ceil(Number(m.params_b) * wqBytes);
       const activeText = String(m.active_params_b) !== String(m.params_b) ? ` / ${m.active_params_b}B active` : "";
       const ctxK = Math.round(Number(m.context_max ?? 0) / 1024);
       html += `<option value="${esc(m.id)}" ${m.id === selectedId ? "selected" : ""}>${esc(m.label)} (${m.params_b}B${activeText} · ~${approxWtGb}GB wt · max ${ctxK}k ctx)</option>`;
@@ -1110,18 +1136,29 @@ function renderApiControls() {
   const rateBox = $("api-rate-summary");
   const chosenOffer = appState.data.catalog.offers?.[effectiveSelectedId];
   if (!chosenOffer) {
-    rateBox.dataset.state = "error";
+    setDataAttr(rateBox, "state", "error");
     rateBox.textContent = isTh
       ? `ไม่พบราคาของ "${effectiveSelectedId || "N/A"}" ในแคตตาล็อกปัจจุบัน กรุณาเลือกโมเดล API ใหม่`
       : `Selected API offer "${effectiveSelectedId || "N/A"}" is unavailable in the current catalog; reselect an active tariff.`;
     return;
   }
   const info = classifyApiOffer(effectiveSelectedId, chosenOffer, null);
-  rateBox.dataset.state = "ok";
+  const rawCacheRead = chosenOffer.prices?.["cache_read|std"] ?? chosenOffer.prices?.cache_read ?? null;
+  const cacheReadPer1M = rawCacheRead !== null && rawCacheRead !== undefined
+    ? formatHalfUp(toRat(String(rawCacheRead)).mul(toRat("1000000")), 4).replace(/\.?0+$/, "")
+    : null;
+  const cacheFallbackUsed = Boolean(appState.computed?.comparison?.lanes?.B?.cache_fallback_used);
+  setDataAttr(rateBox, "state", cacheFallbackUsed ? "warn" : "ok");
   const extraNote = info.hasConditionalRates
     ? (isTh ? " · มีขั้นบันได/มิเตอร์เสริมตามเงื่อนไข" : " · includes conditional/extra meters")
     : "";
-  rateBox.innerHTML = `<span class="num">In: $${esc(info.inputPer1MUsd ?? "N/A")}/1M · Out: $${esc(info.outputPer1MUsd ?? "N/A")}/1M</span><span>${esc(info.feed.toUpperCase())}${info.isBatch ? " · BATCH" : ""}${esc(extraNote)}</span>`;
+  const cachePricePart = cacheReadPer1M !== null ? ` · Cache: $${cacheReadPer1M}/1M` : "";
+  const fallbackNote = cacheFallbackUsed
+    ? (isTh
+      ? " · ไม่มีราคา cache_read แยก คิดโทเคน Prefix ซ้ำในอัตรา Input ปกติ"
+      : " · No published cache_read rate; cached prefix tokens billed at standard input rate")
+    : "";
+  rateBox.innerHTML = `<span class="num">In: $${esc(info.inputPer1MUsd ?? "N/A")}/1M${esc(cachePricePart)} · Out: $${esc(info.outputPer1MUsd ?? "N/A")}/1M</span><span>${esc(info.feed.toUpperCase())}${info.isBatch ? " · BATCH" : ""}${esc(extraNote)}${esc(fallbackNote)}</span>`;
 }
 
 function renderConnectorsList() {
@@ -1148,8 +1185,15 @@ function renderConnectorsList() {
 function syncInputsFromDraft({ force = false } = {}) {
   const d = appState.draft;
   setControlValue($("in-users"), d.users, force);
+  setControlValue($("in-sys-prompt"), d.rawSystemPromptTokens, force);
   setControlValue($("in-raw-prompt"), d.rawPromptTokens, force);
+  setControlValue($("in-turns-session"), d.turnsPerSession, force);
   setControlValue($("in-raw-output"), d.rawOutputTokens, force);
+  const kvHitPct = (() => {
+    const n = Number(d.kvCacheHitRate);
+    return Number.isFinite(n) ? String(Math.round(n * 10000) / 100) : d.kvCacheHitRate;
+  })();
+  setControlValue($("in-kv-hit-pct"), kvHitPct, force);
   setControlValue($("in-raw-ctx"), d.rawContextTokens, force);
   setControlValue($("in-sessions-day"), d.sessionsPerUserDay, force);
   setControlValue($("in-days-mo"), d.workingDaysMo, force);

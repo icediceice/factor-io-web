@@ -2093,7 +2093,7 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
 
     // Fit-refusal state (glm-5-3 753B exceeds single-node VRAM so fit.serving === null) still distinguishes Active @ 22,250 ctx from Peak @ 23,000 ctx
     ui.state.draft.modelId = "qwen3-8b";
-    ui.state.data.gpuPricing.gpus.h100.vram_gb = 4; // force VRAM refusal on qwen3-8b
+    ui.state.data.gpuPricing.gpus.h100.vram_gb = 0.5; // force VRAM refusal across all TP<=8 on qwen3-8b
     ui.get("recompute()");
     assert.equal(ui.state.computed.fit.serving, null);
     ui.get("renderAutoGpuAndMatrix()");

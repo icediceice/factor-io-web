@@ -1640,6 +1640,7 @@ test("processSizerReturn preserves 8-decimal stacked session parity across offer
   h.get("readArchGroups = realReadArchGroups");
   h.context.applyControls = (values) => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
   h.get("writeReturnedControls = (values, groups) => { renderArchGroups(groups); applyControls(values); }");
+  h.get("renderResults = () => {}; renderServerNote = () => {}; renderPowerNote = () => {}; renderSubNote = () => {};");
   h.get("starterUI = { snapshot: () => ({ mode: 'starter' }), setMode: () => run(), restore: () => {} }");
 
   const sizerRes = computeSizer({

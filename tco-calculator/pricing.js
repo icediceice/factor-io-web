@@ -412,15 +412,8 @@ function windowMatch(t, start, end) {
   return hhmm >= start || hhmm < end;
 }
 
-function effectiveThresholdPromptTokens(req) {
-  return req.threshold_prompt_tokens !== undefined && req.threshold_prompt_tokens !== null
-    ? req.threshold_prompt_tokens
-    : req.prompt_tokens;
-}
-
 export function overrideMatches(conditions, req) {
-  const thresholdPrompt = effectiveThresholdPromptTokens(req);
-  if (conditions.min_prompt_tokens !== undefined && !(thresholdPrompt > conditions.min_prompt_tokens)) return false;
+  if (conditions.min_prompt_tokens !== undefined && !(req.prompt_tokens > conditions.min_prompt_tokens)) return false;
   if (conditions.utc_start !== undefined || conditions.utc_end !== undefined) {
     if (req.quote_utc == null) return false; // cannot resolve — caller flags the quote inexact
     if (!windowMatch(req.quote_utc, conditions.utc_start ?? null, conditions.utc_end ?? null)) return false;
@@ -445,9 +438,7 @@ function effectivePrices(offer, req) {
 
 function selectMeter(prices, stem, req) {
   // Candidates for the stem; threshold selection resolves on the request PROMPT
-  // length (SPEC 4.3, or total turn prompt length on stacked session cohorts)
-  // and is STRICTLY GREATER, uniformly across feeds.
-  const thresholdPrompt = effectiveThresholdPromptTokens(req);
+  // length (SPEC 4.3) and is STRICTLY GREATER, uniformly across feeds.
   const candidates = [];
   for (const k of Object.keys(prices)) {
     const m = parseMeterKey(k);
@@ -463,9 +454,11 @@ function selectMeter(prices, stem, req) {
     if (pool.length > 0) note = "tier_fallback";
   }
   if (pool.length === 0) return { key: null, note: null };
-  const applicable = pool.filter((c) => c.threshold === null || (thresholdPrompt > c.threshold));
+  const applicable = pool.filter((c) => c.threshold === null || (req.prompt_tokens > c.threshold));
   if (applicable.length === 0) return { key: null, note: "threshold_unmet" };
   applicable.sort((a, b) => (b.threshold ?? -1) - (a.threshold ?? -1)); // largest qualifying threshold wins
+  // Range tiers (tiered_pricing) carry explicit tier=rangeN selectors; they only
+  // reach here through the caller-provided tier name, so base selection is stable.
   return { key: applicable[0].key, note };
 }
 
@@ -498,12 +491,8 @@ export function quoteOffer(offer, req) {
   ].filter(([, qty]) => qty > 0);
 
   // Rule 3: an unknown stem-suffix field quarantines the quote only when it
-  // bears on a meter this quote actually selects (including input when cache_read
-  // is allowed to fall back to input).
+  // bears on a meter this quote actually selects.
   const selectedStems = new Set(consumed.map(([stem]) => stem));
-  if (req.allow_cache_fallback_to_input === true && selectedStems.has("cache_read")) {
-    selectedStems.add("input");
-  }
   const unknowns = offer.unknown_meter_fields.filter((u) => selectedStems.has(u.stem));
   if (unknowns.length > 0) {
     return gap(false, `quarantined:meter_affecting_unknown:${unknowns[0].key}`);
@@ -517,26 +506,6 @@ export function quoteOffer(offer, req) {
       // No per-request fee published = no fee (exact), not missing coverage.
       meters.push({ meter: stem, selected_key: null, unit_price: "0", quantity: qty, note: "no_request_fee" });
       continue;
-    }
-    if (sel.key === null && stem === "cache_read" && req.allow_cache_fallback_to_input === true) {
-      const fallbackInput = selectMeter(prices, "input", req);
-      if (fallbackInput.key !== null) {
-        clean = false;
-        reasons.push("cache_read_fallback_to_input");
-        if (fallbackInput.note === "tier_fallback") reasons.push("extrapolated_shape");
-        const unit = Dec.from(prices[fallbackInput.key]);
-        const line = unit.mul(BigInt(qty));
-        cost = cost.add(line);
-        meters.push({
-          meter: stem,
-          selected_key: fallbackInput.key,
-          unit_price: prices[fallbackInput.key],
-          quantity: qty,
-          line_cost: line.toString(),
-          note: "cache_read_fallback_to_input",
-        });
-        continue;
-      }
     }
     if (sel.key === null) {
       clean = false;

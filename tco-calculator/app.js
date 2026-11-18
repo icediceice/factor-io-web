@@ -23,7 +23,7 @@ import { subscriptionCost, billableQuantity, METERS, SubscriptionRefusal } from 
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
 import { setupStarters } from "./starter-ui.js?v=20261117-wb1";
 import { saveHandoff, readHandoff, consumeHandoff, clearHandoffs, controlIdentity, controlDiff, validateControlRecord } from "./assistant-session.js";
-import { decodeSizerFragment, projectSizerControls, buildSessionProjectionFromConfig, groupCatalogModels } from "./sizer-engine.js?v=20261118-wb2";
+import { decodeSizerFragment, projectSizerControls } from "./sizer-engine.js?v=20261117-wb1";
 // Progressive disclosure for the rail. It MOVES the authored .f blocks between a
 // hidden vault and an overlay sheet, so every id below still resolves to the one
 // real node this file reads and writes.
@@ -93,7 +93,6 @@ const state = {
   powerSeed: null,
   powerPlan: null,
   powerGap: null,
-  sessionProjection: null,
   // Live recompute must not fire mid-init: the catalog is not loaded yet and a
   // comparison over an empty catalog renders a gap the user never caused.
   ready: false,
@@ -339,9 +338,9 @@ function processAdvisorReturn(fresh = false) {
       validateReturnedControls(record.controls, record.groups);
       const row = state.gpuPricing.rows[Number(record.controls["f-rent-gpu"])];
       if (record.rental_identity && ["provider", "gpu_id", "sku"].some(k => row?.[k] !== record.rental_identity[k])) throw new Error("Rental catalog changed; reopen the advisor from the current calculator.");
-      const before = captureControls(); const groups = readArchGroups(); const starter = starterUI.snapshot(); const sessionBefore = state.sessionProjection;
-      try { state.sessionProjection = null; writeReturnedControls(record.controls, record.groups); starterUI.restore(record.starter); }
-      catch (error) { state.sessionProjection = sessionBefore; writeReturnedControls(before, groups); starterUI.restore(starter); throw error; }
+      const before = captureControls(); const groups = readArchGroups(); const starter = starterUI.snapshot();
+      try { writeReturnedControls(record.controls, record.groups); starterUI.restore(record.starter); }
+      catch (error) { writeReturnedControls(before, groups); starterUI.restore(starter); throw error; }
       restoredHandoff = true; flushLiveInput(); syncSizerReturnOriginState();
     }
     if (currentControlIdentity() !== record.identity) throw new Error("Calculator inputs changed while you were away. The proposal was not applied; your edits are preserved. Reopen the advisor from this scenario.");
@@ -365,9 +364,9 @@ function applyReturnedProposal() {
     if (!record || record.consumed) throw new Error("This proposal expired or was already applied.");
     const prepared = expandAdvisorProposal(record.proposal, captureControls(), readArchGroups());
     if (controlIdentity(prepared.controls) !== controlIdentity(pending.prepared.controls)) throw new Error("Available settings changed since the preview. Review again before applying.");
-    const before = captureControls(); const groups = readArchGroups(); const sessionBefore = state.sessionProjection;
-    try { state.sessionProjection = null; writeReturnedControls(prepared.controls, prepared.groups); consumeHandoff(sessionStorage, pending.id); }
-    catch (error) { state.sessionProjection = sessionBefore; writeReturnedControls(before, groups); throw error; }
+    const before = captureControls(); const groups = readArchGroups();
+    try { writeReturnedControls(prepared.controls, prepared.groups); consumeHandoff(sessionStorage, pending.id); }
+    catch (error) { writeReturnedControls(before, groups); throw error; }
     pendingReview = null; plannerState.answers = prepared.answers; plannerState.plan = prepared.plan;
     plannerState.appliedAnswers = JSON.stringify(prepared.answers); plannerState.applied = true;
     starterUI.setMode("custom"); // onCustom performs the single recomputation
@@ -417,7 +416,6 @@ function processSizerReturn() {
     const before = captureControls();
     const groupsBefore = readArchGroups();
     const starterBefore = starterUI.snapshot();
-    const sessionBefore = state.sessionProjection;
     const projected = projectSizerControls({
       normalized,
       beforeControls: before,
@@ -435,12 +433,10 @@ function processSizerReturn() {
     validateReturnedControls(projected.controls, projected.groups);
     try {
       writeReturnedControls(projected.controls, projected.groups);
-      state.sessionProjection = projected.sessionProjection ?? null;
       starterUI.setMode("custom"); // onCustom performs the single recomputation
       const baselineControlIdentity = controlIdentity(captureControls());
       starterUI.setReturnOrigin?.({ kind: "sizer", fragment: cleanFragment, baselineControlIdentity });
     } catch (err) {
-      state.sessionProjection = sessionBefore;
       writeReturnedControls(before, groupsBefore);
       starterUI.restore(starterBefore);
       throw err;
@@ -1271,13 +1267,15 @@ async function loadServingModels() {
   // reproduces a per-token KV figure published independently, which the test
   // suite asserts against exactly. Same engine and same arithmetic either way —
   // what differs is how much independent confirmation stands behind the inputs.
-  const opt = (m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}${m.basis !== "derived" && m.id !== "custom" ? " · verified KV" : ""}</option>`;
+  const opt = (m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.label)}</option>`;
   const grp = (label, rows) => (rows.length
     ? `<optgroup label="${escapeHtml(label)}">${rows.map(opt).join("")}</optgroup>` : "");
-  const grouped = groupCatalogModels(d);
+  const derivedRows = d.models.filter((m) => m.basis === "derived");
   const customRows = d.models.filter((m) => m.id === "custom");
+  const curatedRows = d.models.filter((m) => m.basis !== "derived" && m.id !== "custom");
   $("f-sv-model").innerHTML =
-    grouped.groups.map((band) => grp(band.enLabel, band.models)).join("") +
+    grp(`Current — from Hugging Face, ${d.provenance?.observed ?? "undated"}`, derivedRows) +
+    grp("Verified against a published KV figure", curatedRows) +
     grp("Your own configuration", customRows);
   const optsFor = (obj, labelKey) => Object.entries(obj)
     .map(([k, v]) => `<option value="${escapeHtml(k)}">${escapeHtml(v.label ?? k)}</option>`).join("");
@@ -1378,14 +1376,11 @@ function groupFieldsHtml(i, g) {
       ${`<div class="row one">${num("layers", "Layers", g.layers, "How many layers in this group.")}</div>`}`;
   }
   if (g.kind === "mla") {
-    const compressedNote = (Number(g.compress_ratio ?? 1) > 1 || Number(g.index_bytes_per_entry ?? 0) > 0)
-      ? `<p class="muted" style="margin:6px 0 0">Catalog compressed-MLA layout: <strong>${escapeHtml(String(g.compress_ratio ?? 1))}:1</strong> token compression${Number(g.index_bytes_per_entry ?? 0) > 0 ? ` + <strong>${escapeHtml(String(g.index_bytes_per_entry))} B/entry</strong> fixed index/RoPE metadata` : ""}. Enter a flat KV bytes/token override to replace catalog compression.</p>`
-      : "";
     return `<div class="row three">
       ${num("layers", "Layers", g.layers, "Layers in this group.")}
       ${num("lora", "KV latent rank", g.kv_lora_rank, "The compressed dimension actually stored.")}
-      ${num("rope", "RoPE head dim", g.qk_rope_head_dim, "Carried uncompressed alongside it (0 when folded or omitted).")}
-    </div>${compressedNote}`;
+      ${num("rope", "RoPE head dim", g.qk_rope_head_dim, "Carried uncompressed alongside it.")}
+    </div>`;
   }
   return `<div class="row three">
       ${num("layers", "Layers", g.layers, "Layers in this group.")}
@@ -1438,35 +1433,25 @@ function readArchGroups() {
   if (!Array.isArray(base) || base.length === 0) return null;
   if (!$(gf(0, "kind"))) return null;
   return base.map((b, i) => {
-    const nPos = (k, fallback) => {
+    const n = (k, fallback) => {
       const v = intInput(gf(i, k));
       return v === null || !Number.isFinite(v) || v <= 0 ? fallback : v;
     };
-    const nNonNeg = (k, fallback) => {
-      const v = intInput(gf(i, k));
-      return v === null || !Number.isFinite(v) || v < 0 ? fallback : v;
-    };
     const kind = $(gf(i, "kind"))?.value ?? b.kind;
-    const g = { kind, layers: nPos("layers", b.layers) };
+    const g = { kind, layers: n("layers", b.layers) };
     if (kind === "linear") return g;
     if (kind === "mla") {
-      g.kv_lora_rank = nPos("lora", b.kv_lora_rank ?? 1);
-      g.qk_rope_head_dim = nNonNeg("rope", b.qk_rope_head_dim ?? 0);
-      if (
-        b.kind === "mla"
-        && g.layers === b.layers
-        && g.kv_lora_rank === (b.kv_lora_rank ?? 1)
-        && g.qk_rope_head_dim === (b.qk_rope_head_dim ?? 0)
-      ) {
-        if (b.compress_ratio !== undefined && b.compress_ratio !== null) g.compress_ratio = b.compress_ratio;
-        if (b.index_bytes_per_entry !== undefined && b.index_bytes_per_entry !== null) g.index_bytes_per_entry = b.index_bytes_per_entry;
-      }
+      // Switching kind can ask for a field the preset group never had; the
+      // engine's own count() would refuse, so a neutral 1 keeps the edit alive
+      // and visible instead of blanking the screen mid-experiment.
+      g.kv_lora_rank = n("lora", b.kv_lora_rank ?? 1);
+      g.qk_rope_head_dim = n("rope", b.qk_rope_head_dim ?? 1);
       return g;
     }
-    g.kv_heads = nPos("heads", b.kv_heads ?? 1);
-    g.head_dim = nPos("dim", b.head_dim ?? 1);
-    g.tensors = nPos("tensors", b.tensors ?? 2);
-    if (kind === "sliding") g.window_tokens = nPos("window", b.window_tokens ?? null);
+    g.kv_heads = n("heads", b.kv_heads ?? 1);
+    g.head_dim = n("dim", b.head_dim ?? 1);
+    g.tensors = n("tensors", b.tensors ?? 2);
+    if (kind === "sliding") g.window_tokens = n("window", b.window_tokens ?? null);
     return g;
   });
 }
@@ -1547,42 +1532,14 @@ function solveServingFor(gpuId) {
   const model = currentModelSpec();
   if (!model) return null;
 
-  const wq = d.weight_quantization?.[$("f-sv-wquant").value];
-  const kq = d.kv_quantization?.[$("f-sv-kvquant").value];
-  const runtimeKey = $("f-sv-runtime").value;
-  const rt = d.runtimes?.[runtimeKey];
-  if (!wq || (!model.kv_override && !kq) || !rt) {
-    throw new ServingRefusal(
-      "unsupported_serving_option",
-      `selected quantization or runtime (${[!wq ? $("f-sv-wquant").value : null, (!model.kv_override && !kq) ? $("f-sv-kvquant").value : null, !rt ? runtimeKey : null].filter(Boolean).join(", ")}) is not defined in the loaded serving-models.json`,
-      { wquant: $("f-sv-wquant").value, kvquant: $("f-sv-kvquant").value, runtime: runtimeKey },
-    );
-  }
+  const wq = d.weight_quantization[$("f-sv-wquant").value];
+  const kq = d.kv_quantization[$("f-sv-kvquant").value];
+  const rt = d.runtimes[$("f-sv-runtime").value];
   const interactive = $("f-sv-mode").value === "interactive";
-  const enteredCtx = Number(decInput("f-sv-ctx") ?? model.context_default);
-  const sp = state.sessionProjection;
-  const activeCtx = sp
-    ? Math.max(enteredCtx - (sp.peakTurnContextTokens - sp.avgTurnContextTokens), sp.avgTurnContextTokens)
-    : enteredCtx;
-  const peakCtx = sp ? Math.max(enteredCtx, sp.peakTurnContextTokens) : enteredCtx;
-  const maxCtx = model.context_max !== null && model.context_max !== undefined ? Number(model.context_max) : null;
-  if (maxCtx !== null && Number.isFinite(maxCtx) && maxCtx > 0 && peakCtx > maxCtx) {
-    throw new ServingRefusal(
-      "context_exceeds_model_max",
-      `configured or stacked peak context (${peakCtx.toLocaleString("en-US")} tokens) exceeds ${model.label ?? model.id} maximum context (${maxCtx.toLocaleString("en-US")} tokens)`,
-      { context_tokens: peakCtx, context_max: maxCtx },
-    );
-  }
 
   return servingPlan({
     model,
-    contextTokens: String(activeCtx),
-    peakContextTokens: String(peakCtx),
-    sharedPrefixTokens: sp ? sp.sharedPrefixTokens : 0,
-    sharedPrefixGuaranteed: Boolean(sp?.sharedPrefixGuaranteed),
-    supportsPrefixCache: Boolean(rt?.supports_prefix_cache),
-    pageBlockTokens: rt?.page_block_tokens ?? 16,
-    runtimeKey,
+    contextTokens: decInput("f-sv-ctx") ?? model.context_default,
     bytesPerParam: wq.bytes_per_param,
     // An override is already the whole per-token cost (see currentModelSpec).
     kvBytesPerElement: model.kv_override ? "1" : kq.bytes_per_element,
@@ -1661,10 +1618,7 @@ function renderServingNote() {
       : m.active_params_basis === "derived"
         ? `Active parameters are <span class="tag tag-est">computed</span> from the config's expert geometry — no vendor figure was published, and the computation was accepted only because it reproduced the Hub's total parameter count to within 2%.`
         : `Every parameter is read each step; this model has no routed experts.`;
-    const treeUrl = m.source_repo && (m.source_revision ?? m.revision)
-      ? `https://huggingface.co/${m.source_repo}/tree/${m.source_revision ?? m.revision}`
-      : m.source_url;
-    cite = `<span class="tag tag-est">config-derived</span> Layer structure read automatically from <a href="${escapeHtml(m.config_url ?? m.source_url)}" rel="nofollow noopener">the model's own config.json</a> on ${escapeHtml(String(m.observed_at ?? "an unrecorded date"))}, and parameter counts from <a href="${escapeHtml(treeUrl)}" rel="nofollow noopener">its safetensors index</a>. No independently published per-token KV figure exists for this model, so unlike the verified presets nothing cross-checks the arithmetic below against an outside source. ${activeWords}`;
+    cite = `<span class="tag tag-est">config-derived</span> Layer structure read automatically from <a href="${escapeHtml(m.config_url ?? m.source_url)}" rel="nofollow noopener">the model's own config.json</a> on ${escapeHtml(String(m.observed_at ?? "an unrecorded date"))}, and parameter counts from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">its safetensors index</a>. No independently published per-token KV figure exists for this model, so unlike the verified presets nothing cross-checks the arithmetic below against an outside source. ${activeWords}`;
   } else if (m.source_url) {
     cite = `<span class="tag tag-exact">verified</span> Layer structure cited from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">the published architecture</a>, verified against the model's own config, and its published per-token KV figure is asserted exactly by the test suite.`;
   } else {
@@ -1750,7 +1704,6 @@ async function loadWorkloadPresets() {
 function applyWorkloadPreset(id, { recompute = true } = {}) {
   const p = state.workloadPresets.presets.find((x) => x.id === id);
   if (!p) return;
-  clearSessionProjectionOnFlatEdit();
   for (const btn of $("preset-cards").querySelectorAll(".chip")) {
     btn.setAttribute("aria-checked", String(btn.dataset.preset === id));
   }
@@ -1803,25 +1756,12 @@ function isCostControl(el) {
     && (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type !== "range"));
 }
 
-const PROJECTED_SHAPE_CONTROL_RE = /^(f-(chat|rag|graphrag|agentic)-(turns|in|out|cached)|f-mix-(chat|rag|graphrag|agentic))$/;
-
-function clearSessionProjectionOnFlatEdit() {
-  if (!state.sessionProjection) return;
-  state.sessionProjection = null;
-  const box = $("return-review");
-  if (box) {
-    box.hidden = false;
-    box.innerHTML = `<p role="status">Switched from stacked session projection to edited per-workload flat averages.</p>`;
-  }
-}
-
 function handleControlEdit(event) {
   const el = event.target;
   if (!isCostControl(el) || !state.ready) return;
   // Selects emit both events in modern browsers. Handle exactly one.
   if (event.type !== (el.tagName === "SELECT" ? "change" : "input")) return;
   manualRevision++;
-  if (PROJECTED_SHAPE_CONTROL_RE.test(el.id)) clearSessionProjectionOnFlatEdit();
   if (el.id === "fb-feed") { void fillModels(beginSelection()); return; }
   if (el.id === "f-rent-provider") fillRentGpus();
   if (el.id === "f-rent-gpu") renderRentNote();
@@ -1923,7 +1863,6 @@ function flushLiveInput() {
 function balanceMix() {
   const check = validateMix(readMix());
   if (check.ok) return;
-  clearSessionProjectionOnFlatEdit();
   const others = ["rag", "graphrag", "agentic"].reduce(
     (acc, f) => acc.add(Dec.from(decInput(`f-mix-${f}`) ?? "0")), Dec.from("0"));
   const rest = Dec.from("100").sub(others);
@@ -1957,34 +1896,13 @@ function readShapes() {
 // leaving the fleet at its base size — see buildScenario.
 function computeDemand(usersOverride = null) {
   const users = usersOverride ?? decInput("f-users");
-  const sessionsPerUserDay = decInput("f-sessions-day");
-  const workingDaysMo = decInput("f-days");
-  const baseDemand = buildDemand({
+  const demand = buildDemand({
     users,
-    sessionsPerUserDay,
-    workingDaysMo,
+    sessionsPerUserDay: decInput("f-sessions-day"),
+    workingDaysMo: decInput("f-days"),
     mix: readMix(),
     shapes: readShapes(),
   });
-  const liveSession = state.sessionProjection
-    ? buildSessionProjectionFromConfig({
-        ...state.sessionProjection,
-        users,
-        sessionsPerUserDay,
-        workingDaysMo,
-      })
-    : null;
-  const mkSlot = (rat) => ({ rat, basis: "derived", text: formatHalfUp(rat, 0), places: 0 });
-  const demand = liveSession
-    ? {
-        ...baseDemand,
-        turns_mo: mkSlot(liveSession.turnsMoRat),
-        in_tokens_mo: mkSlot(liveSession.inTokensMoRat),
-        cached_tokens_mo: mkSlot(liveSession.cachedTokensMoRat),
-        out_tokens_mo: mkSlot(liveSession.outTokensMoRat),
-        tokens_mo: mkSlot(liveSession.tokensMoRat),
-      }
-    : baseDemand;
   const peak = peakTokensPerSecond({
     users,
     peakConcurrencyFraction: pctInput("f-peak-frac"),
@@ -2015,7 +1933,7 @@ function computeDemand(usersOverride = null) {
     : sizing.serving_basis === "roofline" ? "roofline"
     : "assumed";
   state.sizingBasis = sizingBasis;
-  return { demand, peak, sizing, gpuId, serving, sizingBasis, liveSession };
+  return { demand, peak, sizing, gpuId, serving, sizingBasis };
 }
 
 // The live readout under the demand inputs. It must never show a number derived
@@ -2143,7 +2061,7 @@ async function fillModels(sel) {
 // declared fleet and stays fixed on purpose: that is the "my current hardware
 // under more load" question, and it is theirs to ask.
 function buildScenario(usersOverride = null) {
-  const { demand, peak, sizing, gpuId, liveSession } = computeDemand(usersOverride);
+  const { demand, peak, sizing, gpuId } = computeDemand(usersOverride);
 
   // The engine consumes whole tokens and whole requests. The demand model is
   // exact, so rounding happens ONCE, here, at the boundary into the engine.
@@ -2162,7 +2080,6 @@ function buildScenario(usersOverride = null) {
     prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
     output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
     cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
-    ...(liveSession ? { request_cohorts: liveSession.cohorts } : {}),
     horizon_months: intInput("f-horizon") ?? 1,
     required_p95_tok_s: intInput("f-p95"),
     quote_utc: Date.parse($("f-utc").value),
@@ -3117,7 +3034,6 @@ function exportQuote(r) {
     },
     entered_inputs: Object.fromEntries(enteredControls().map((el) => [el.id, el.value])),
     entered_input_units: Object.fromEntries(enteredControls().map((el) => [el.id, THB_MONEY_INPUT_IDS.has(el.id) ? "THB" : null])),
-    session_projection: state.sessionProjection ?? null,
     generated_at: new Date().toISOString(),
     snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
     demand: d ? {

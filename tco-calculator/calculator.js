@@ -521,110 +521,22 @@ export function runComparison({
     now: workload.now ?? null,
   };
 
-  // ---- Lane B: quote every selected offer at the request shape (or across stacked session cohorts).
-  const cohorts = Array.isArray(workload.request_cohorts) && workload.request_cohorts.length > 0
-    ? workload.request_cohorts
-    : null;
+  // ---- Lane B: quote every selected offer at the request shape.
   const quotes = {};
   let primaryId = null;
   let bRequestCost = null;
-  let bMonthly = null;
-
-  if (cohorts) {
-    for (const id of (laneB && laneB.offer_ids) || []) {
-      const offer = catalog.offers[id];
-      if (!offer) {
-        quotes[id] = { servable: false, gap_reason: "not_in_catalog", reasons: [], meters: [], applied_overrides: [], cost: null };
-        continue;
-      }
-      let unservableGap = null;
-      let monthlyRat = ZERO_RAT;
-      let reqsRat = ZERO_RAT;
-      let allClean = true;
-      const reasonSet = new Set();
-      const overrideSet = new Set();
-      const meterSummary = [];
-      const cohortQuotes = [];
-
-      for (const c of cohorts) {
-        const occRat = c.requests_mo instanceof Rat ? c.requests_mo : toRat(String(c.requests_mo ?? "0"));
-        const cShape = {
-          prompt_tokens: c.prompt_tokens,
-          output_tokens: c.output_tokens,
-          cache_read_tokens: c.cache_read_tokens ?? 0,
-          cache_write_tokens: c.cache_write_tokens ?? 0,
-          threshold_prompt_tokens: c.threshold_prompt_tokens ?? c.prompt_tokens,
-          allow_cache_fallback_to_input: c.allow_cache_fallback_to_input === true,
-          request_count: 1,
-          tier: c.tier ?? workload.tier ?? "std",
-          quote_utc: workload.quote_utc ?? null,
-          now: workload.now ?? null,
-        };
-        const cq = quoteOffer(offer, cShape);
-        if (!cq.servable) {
-          unservableGap = cq;
-          break;
-        }
-        if (!cq.exact) allClean = false;
-        for (const r of cq.reasons ?? []) reasonSet.add(r);
-        for (const ov of cq.applied_overrides ?? []) overrideSet.add(ov);
-        for (const m of cq.meters ?? []) {
-          meterSummary.push({ ...m, turn: c.turn ?? null, cohort: c.cohort ?? null });
-        }
-        const cohortCostRat = Rat.from(Dec.from(cq.cost)).mul(occRat);
-        monthlyRat = monthlyRat.add(cohortCostRat);
-        reqsRat = reqsRat.add(occRat);
-        cohortQuotes.push({
-          turn: c.turn ?? null,
-          cohort: c.cohort ?? null,
-          requests_mo: ratStr(occRat),
-          cost_per_req: cq.cost,
-          monthly_cost: ratStr(cohortCostRat),
-          exact: cq.exact,
-          reasons: cq.reasons,
-        });
-      }
-
-      if (unservableGap) {
-        quotes[id] = unservableGap;
-        continue;
-      }
-
-      const avgReqRat = reqsRat.isZero() ? ZERO_RAT : monthlyRat.div(reqsRat);
-      const qReasons = [...reasonSet];
-      const aggQuote = {
-        servable: true,
-        gap_reason: null,
-        exact: allClean,
-        reasons: qReasons,
-        meters: meterSummary,
-        applied_overrides: [...overrideSet].sort((a, b) => a - b),
-        cost: ratStr(avgReqRat),
-        monthly_cost: ratStr(monthlyRat),
-        cache_fallback_used: qReasons.includes("cache_read_fallback_to_input"),
-        cohort_quotes: cohortQuotes,
-      };
-      quotes[id] = aggQuote;
-      if (bMonthly === null) {
-        primaryId = id;
-        bMonthly = monthlyRat;
-        bRequestCost = avgReqRat;
-      }
+  for (const id of (laneB && laneB.offer_ids) || []) {
+    const offer = catalog.offers[id];
+    const q = offer ? quoteOffer(offer, reqShape) : { servable: false, gap_reason: "not_in_catalog", reasons: [], meters: [], applied_overrides: [], cost: null };
+    quotes[id] = q;
+    if (q.servable && bRequestCost === null) {
+      primaryId = id;
+      bRequestCost = Dec.from(q.cost);
     }
-  } else {
-    for (const id of (laneB && laneB.offer_ids) || []) {
-      const offer = catalog.offers[id];
-      const q = offer ? quoteOffer(offer, reqShape) : { servable: false, gap_reason: "not_in_catalog", reasons: [], meters: [], applied_overrides: [], cost: null };
-      quotes[id] = q;
-      if (q.servable && bRequestCost === null) {
-        primaryId = id;
-        bRequestCost = Dec.from(q.cost);
-      }
-    }
-    bMonthly = bRequestCost === null ? null : bRequestCost.mul(BigInt(reqs));
   }
+  const bMonthly = bRequestCost === null ? null : bRequestCost.mul(BigInt(reqs));
   // Quotient -> Rational (the architecture rule). Per-token B is exact n/d.
-  const bPerToken = bMonthly === null || demand === 0 ? null : toRat(bMonthly).div(Rat.of(BigInt(demand), 1n));
+  const bPerToken = bMonthly === null || demand === 0 ? null : Rat.from(bMonthly).div(Rat.of(BigInt(demand), 1n));
 
   // ---- Routing: derive the split, never take it as input (SPEC 2.2).
   const policy = routing.policy;
@@ -699,11 +611,10 @@ export function runComparison({
   const laneBResult = {
     enabled: !!(laneB && laneB.enabled),
     primary_offer: primaryId,
-    request_cost: bRequestCost === null ? null : ratStr(bRequestCost),
-    monthly_total: bMonthly === null ? null : ratStr(bMonthly),
+    request_cost: bRequestCost === null ? null : bRequestCost.toString(),
+    monthly_total: bMonthly === null ? null : bMonthly.toString(),
     per_token: bPerToken === null ? null : bPerToken.toString(),
     per_1m: bMonthly === null || demand === 0 ? { value: null, reason: "zero_demand" } : (() => { const p = per1M(bMonthly, demand); return { value: p.value === null ? null : p.value.toString(), reason: p.reason }; })(),
-    cache_fallback_used: Boolean(primaryId && quotes[primaryId]?.cache_fallback_used),
     quotes,
     gaps: Object.entries(quotes).filter(([, q]) => !q.servable).map(([id, q]) => ({ offer_id: id, gap_reason: q.gap_reason })),
   };
@@ -719,7 +630,7 @@ export function runComparison({
       overflow_tokens: split.overflow,
       local_share: (demand === 0 ? Rat.of(0n, 1n) : Rat.of(BigInt(split.local), BigInt(demand))).toString(),
     };
-    recommendedTotal = laneAResult.enabled && split.local > 0 ? laneAResult.monthly_total : (bMonthly === null ? null : ratStr(bMonthly));
+    recommendedTotal = laneAResult.enabled && split.local > 0 ? laneAResult.monthly_total : (bMonthly === null ? null : bMonthly.toString());
     if (routing.advisory_blend && laneA && laneA.enabled) {
       const adv = advisoryBlendCost({
         demandTokens: demand,
@@ -741,7 +652,7 @@ export function runComparison({
     const fbFixed = fbKind === "C"
       ? (laneC && laneC.enabled ? ratStr(toRat(laneC.hourly_rate).mul(Rat.of(720n, 1n))) : "0") // 720h standby month
       : (laneA && laneA.enabled ? laneA.fixed_monthly : "0");
-    const af = apiFirstFailover({ demandTokens: demand, bMonthlyTotal: bMonthly === null ? "0" : ratStr(bMonthly), fallbackKind: fbKind, fallbackFixedMonthly: fbFixed, failoverShare: f.share, failoverRate: f.rate });
+    const af = apiFirstFailover({ demandTokens: demand, bMonthlyTotal: bMonthly ?? "0", fallbackKind: fbKind, fallbackFixedMonthly: fbFixed, failoverShare: f.share, failoverRate: f.rate });
     routingResult.failover = { fallback: fbKind, share: f.share, rate: f.rate, lines: af.lines };
     recommendedTotal = ratStr(af.total);
   } else if (policy === "fixed_split") {
@@ -778,20 +689,11 @@ export function runComparison({
       for (const l of a.lines) lines.push({ lane: "A", ...l });
     }
     if (bPct > 0) {
-      if (cohorts) {
-        if (bMonthly === null) reasons.push("lane_b_unpriced");
-        else {
-          const bShare = toRat(String(bPct)).div(Rat.of(100n, 1n));
-          const bt = toRat(bMonthly).mul(bShare);
-          total = total.add(bt);
-          lines.push({ lane: "B", item: "lane_b_allocated", amount: ratStr(bt), note: `${bPct}% uniform cohort share of stacked API session total` });
-        }
-      } else if (bRequestCost === null) {
-        reasons.push("lane_b_unpriced");
-      } else if (bReq > 0) {
-        const bt = toRat(bRequestCost).mul(Rat.of(BigInt(bReq), 1n));
+      if (bRequestCost === null) reasons.push("lane_b_unpriced");
+      else if (bReq > 0) {
+        const bt = bRequestCost.mul(BigInt(bReq));
         total = total.add(bt);
-        lines.push({ lane: "B", item: "lane_b_allocated", amount: ratStr(bt), note: `${bReq} of ${reqs} requests at the API request cost` });
+        lines.push({ lane: "B", item: "lane_b_allocated", amount: bt.toString(), note: `${bReq} of ${reqs} requests at the API request cost` });
       }
     }
     if (cPct > 0 && laneC && laneC.enabled) {
@@ -869,7 +771,7 @@ export function runComparison({
   const OPT = ["A", "B", "C"];
   const infraMonthly = {
     A: laneAResult.enabled ? laneAResult.monthly_total : null,
-    B: bMonthly === null ? null : ratStr(bMonthly),
+    B: bMonthly === null ? null : bMonthly.toString(),
     C: laneCStandalone.enabled ? laneCStandalone.monthly_total : null,
   };
 
@@ -1023,7 +925,7 @@ export function runComparison({
     overlayResult = applyOverlay({
       laneTotals: {
         A: laneAResult.enabled ? laneAResult.monthly_total : "0",
-        B: bMonthly === null ? "0" : ratStr(bMonthly),
+        B: bMonthly === null ? "0" : bMonthly.toString(),
         C: laneCStandalone.enabled ? laneCStandalone.monthly_total : "0",
       },
       horizonMonths: horizon,

@@ -11,7 +11,6 @@ import {
   replaceCatalogSource,
   fetchLiveFx,
 } from "./live-pricing.js";
-import { kvBytesPerToken, kvBytesPerSequence, kvShareableBytes } from "./serving.js";
 import {
   DEAL_TIERS,
   PIPELINE_CONNECTORS,
@@ -20,9 +19,6 @@ import {
   MAX_SAVE_BYTES,
   MAX_SAVED_SCENARIOS,
   normalizeSizerInput,
-  buildSessionProjectionFromConfig,
-  resolveSizerModel,
-  estimateModelWeightGb,
   computeSizer,
   evaluateGpuCandidates,
   groupCatalogModels,
@@ -34,10 +30,9 @@ import {
   encodeSizerSaveEnvelope,
   decodeSizerSaveEnvelope,
   SizerValidationError,
-} from "./sizer-engine.js?v=20261118-wb3";
+} from "./sizer-engine.js";
 
-export const SIZER_LEGACY_STORAGE_KEY = "factor-io.sizer-saves.v1";
-export const SIZER_STORAGE_KEY = "factor-io.sizer-saves.v2";
+export const SIZER_STORAGE_KEY = "factor-io.sizer-saves.v1";
 
 export function createSizerStorageAdapter(storageGetter = () => globalThis.localStorage) {
   function getStore() {
@@ -57,42 +52,25 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     if (!access.ok) {
       return { ok: false, available: false, scenarios: [], error: access.error };
     }
-    let rawV2 = null;
-    let rawV1 = null;
+    let raw;
     try {
-      rawV2 = access.store.getItem(SIZER_STORAGE_KEY);
-      rawV1 = access.store.getItem(SIZER_LEGACY_STORAGE_KEY);
+      raw = access.store.getItem(SIZER_STORAGE_KEY);
     } catch (err) {
       return { ok: false, available: false, scenarios: [], error: err?.message || "Unable to read localStorage." };
     }
-    if (rawV2) {
-      try {
-        const decoded = decodeSizerSaveEnvelope(rawV2, { allowEmpty: true });
-        return { ok: true, available: true, scenarios: decoded.scenarios, error: null };
-      } catch (err) {
-        return {
-          ok: false,
-          available: true,
-          corrupted: true,
-          scenarios: [],
-          error: `Existing browser save data could not be validated: ${err.message}`,
-        };
-      }
-    }
-    if (!rawV1) {
+    if (!raw) {
       return { ok: true, available: true, scenarios: [], error: null };
     }
-    // Read-only migration from v1 storage key so rolling back assets leaves v1 saves intact.
     try {
-      const decodedV1 = decodeSizerSaveEnvelope(rawV1, { allowEmpty: true });
-      return { ok: true, available: true, migratedFromV1: true, scenarios: decodedV1.scenarios, error: null };
+      const decoded = decodeSizerSaveEnvelope(raw, { allowEmpty: true });
+      return { ok: true, available: true, scenarios: decoded.scenarios, error: null };
     } catch (err) {
       return {
         ok: false,
         available: true,
         corrupted: true,
         scenarios: [],
-        error: `Existing legacy v1 browser save data could not be validated: ${err.message}`,
+        error: `Existing browser save data could not be validated: ${err.message}`,
       };
     }
   }
@@ -102,7 +80,7 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     if (!access.ok) {
       return { ok: false, code: "storage_unavailable", error: access.error };
     }
-    // Refresh from storage before writing (never overwrite corrupted unparsed data silently, and never mutate v1).
+    // Refresh from storage before writing (last-writer-wins across tabs; never overwrite corrupted unparsed data silently).
     const current = readSavedScenarios();
     if (!current.ok && current.corrupted) {
       return { ok: false, code: "storage_corrupted", error: current.error };
@@ -122,7 +100,7 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     const candidateList = [nextRecord, ...filtered];
     let encoded;
     try {
-      encoded = encodeSizerSaveEnvelope(candidateList, { exportedAt: savedAt, allowEmpty: false, version: 2 });
+      encoded = encodeSizerSaveEnvelope(candidateList, { exportedAt: savedAt, allowEmpty: false });
     } catch (err) {
       return { ok: false, code: err.code || "validation_failed", error: err.message };
     }
@@ -152,13 +130,12 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
       .filter((item) => item.id !== id)
       .map(({ id: eid, name: ename, savedAt: esaved, fragment: efrag }) => ({ id: eid, name: ename, savedAt: esaved, fragment: efrag }));
     try {
-      const hasLegacyV1 = Boolean(access.store.getItem(SIZER_LEGACY_STORAGE_KEY));
-      if (nextList.length === 0 && !hasLegacyV1 && typeof access.store.removeItem === "function") {
+      if (nextList.length === 0 && typeof access.store.removeItem === "function") {
         access.store.removeItem(SIZER_STORAGE_KEY);
         return { ok: true, scenarios: [] };
       }
       const nowIso = new Date().toISOString();
-      const encoded = encodeSizerSaveEnvelope(nextList, { exportedAt: nowIso, allowEmpty: true, version: 2 });
+      const encoded = encodeSizerSaveEnvelope(nextList, { exportedAt: nowIso, allowEmpty: true });
       access.store.setItem(SIZER_STORAGE_KEY, encoded);
       const verified = decodeSizerSaveEnvelope(encoded, { allowEmpty: true });
       return { ok: true, scenarios: verified.scenarios };
@@ -271,14 +248,11 @@ const I18N = {
     stageHeading: "ประเมินขนาดโมเดล\u00A0และคำนวณจำนวน\u00A0GPU\u00A0อัตโนมัติสำหรับองค์กรไทย",
     stageSub: "เลือกรูปแบบงานจริงของบริษัทไทย\u00A0เลือกโมเดลที่ต้องการใช้\u00A0และเลือกรุ่น\u00A0GPU\u00A0ระบบจะคำนวณจำนวนการ์ด\u00A0เซิร์ฟเวอร์\u00A0และจุดคุ้มทุนเทียบ\u00A0Cloud\u00A0API\u00A0ในหน้าเดียวทันที",
     hWorkload: "1.\u00A0เลือกรูปแบบงานองค์กรไทยและขนาด\u00A0Prompt\u00A0ตามการใช้งานจริง",
-    dWorkload: "ค่าเริ่มต้นจำลองงาน\u00A0Agent\u00A0ยุคปัจจุบันที่เริ่มด้วย\u00A0System\u00A0Prompt\u00A020,000+\u00A0โทเคน\u00A0สะสมหลายรอบ\u00A0(Turns)\u00A0และคำนวณส่วนลด\u00A0KV/Prefix\u00A0Cache\u00A0ให้อัตโนมัติ",
-    promptPresets: "ปรับขนาด\u00A0Fresh\u00A0Input\u00A0ต่อรอบด่วน\u00A0(เนื้อหา\u00A0RAG/Tool\u00A0ที่เพิ่มต่อคำสั่ง):",
+    dWorkload: "ค่าเริ่มต้นสะท้อนงานจริงที่มีทั้ง\u00A0System\u00A0Prompt\u00A0คำสั่ง\u00A0Tool/SQL\u00A0และเนื้อหาเอกสารภาษาไทย\u00A0(10,500\u00A0ถึง\u00A036,000+\u00A0โทเคนต่อครั้ง)",
+    promptPresets: "ปรับขนาด\u00A0Prompt\u00A0ด่วน\u00A0(System\u00A0Prompt\u00A0+\u00A0เอกสาร\u00A0RAG/Tool):",
     users: "จำนวนผู้ใช้งานจริง\u00A0(คน)",
-    sysPrompt: "System\u00A0Prompt\u00A0เริ่มต้นของ\u00A0Agent\u00A0(โทเคน)",
-    rawPrompt: "ข้อมูลใหม่ต่อรอบ\u00A0(RAG/User\u00A0โทเคน)",
-    turnsSession: "จำนวนรอบคุยต่อเซสชัน\u00A0(Turns)",
-    rawOut: "คำตอบต่อรอบ\u00A0(Output\u00A0โทเคน)",
-    kvHitPct: "อัตราใช้ซ้ำ\u00A0KV / Prefix\u00A0Cache\u00A0(%)",
+    rawPrompt: "Prompt\u00A0ต่อคำสั่ง\u00A0(โทเคนตั้งต้น)",
+    rawOut: "คำตอบต่อคำสั่ง\u00A0(Output\u00A0โทเคน)",
     rawCtx: "ความยาว\u00A0Context\u00A0เป้าหมาย\u00A0(ตั้งต้น)",
     sumTraffic: "ตั้งค่าความถี่การใช้งานและสัดส่วนโทเคนภาษาไทย\u00A0(Sessions,\u00A0Concurrency,\u00A0Thai\u00A01.4x)",
     sessionsDay: "จำนวนเซสชันต่อคน\u00A0/\u00A0วัน",
@@ -366,9 +340,6 @@ const I18N = {
       fleet: "จำนวน\u00A0GPU\u00A0/\u00A0โหนดที่ต้องใช้",
       tp: "การแบ่งโมเดล\u00A0(TP)\u00A0/\u00A0ความเร็วต่อใบ",
       effPrompt: "Prompt\u00A0ปรับค่าภาษาไทย\u00A0/\u00A0Context",
-      personDayTok: "เฉลี่ยโทเคน\u00A0/\u00A0คน\u00A0/\u00A0วัน",
-      personMoTok: "เฉลี่ยโทเคน\u00A0/\u00A0คน\u00A0/\u00A0เดือน",
-      kvPerSeq: "KV\u00A0Cache\u00A0สูงสุดต่อเซสชัน",
       monthlyTok: "ปริมาณโทเคนรวมต่อเดือน",
       peakTok: "ความเร็วถอดรหัสสูงสุด\u00A0(Peak)",
       hwCapex: "งบฮาร์ดแวร์\u00A0(BOM\u00A0Capex)",
@@ -390,14 +361,11 @@ const I18N = {
     stageHeading: "Model-First Local AI & GPU Fleet Sizer for Thai Enterprises",
     stageSub: "Pick an authentic Thai corporate workload, choose your target open-weight model and GPU family, and get instant server node counts, live Cloud API tariff filtering, and 60-month TCO payback on one screen.",
     hWorkload: "1. Select Realistic Enterprise Workload & Prompt Token Budget",
-    dWorkload: "Models ~20,000+ starting agent system prompts stacked across multi-turn sessions (P_t = S + t*user + (t-1)*out) with KV/prefix cache reuse.",
-    promptPresets: "1-click fresh per-turn input presets (retrieved RAG/tool context added per turn):",
+    dWorkload: "Defaults reflect production enterprise prompts carrying system instructions, tool/SQL schemas, and multi-page Thai RAG/OCR context (10,500 to 36,000+ raw tokens/turn).",
+    promptPresets: "1-click realistic prompt presets (system prompt + retrieved context):",
     users: "Active users (headcount)",
-    sysPrompt: "Agent system prompt (tokens)",
-    rawPrompt: "Fresh input / turn (RAG & user)",
-    turnsSession: "Turns / session (stacked)",
+    rawPrompt: "Raw prompt tokens / turn",
     rawOut: "Output tokens / turn",
-    kvHitPct: "KV / prefix cache hit (%)",
     rawCtx: "Target context window (raw)",
     sumTraffic: "Session cadence, peak concurrency & Thai token fertility (1.4x vs 1.0x)",
     sessionsDay: "Sessions / user / day",
@@ -485,9 +453,6 @@ const I18N = {
       fleet: "Auto / configured GPU fleet",
       tp: "Replica TP & per-GPU speed",
       effPrompt: "Thai-adjusted prompt / context",
-      personDayTok: "Avg tokens / person / day",
-      personMoTok: "Avg tokens / person / month",
-      kvPerSeq: "Peak KV cache / session",
       monthlyTok: "Modelled tokens / month",
       peakTok: "Required peak decode",
       hwCapex: "Hardware BOM capex",
@@ -519,11 +484,7 @@ function defaultDraft() {
     mix: { ...w.mix },
     tokenBasis: "latin_reference_1_4x",
     thaiFertilityMultiplier: "1.4",
-    sessionStackingActive: true,
-    rawSystemPromptTokens: String(w.defaultSystemPromptTokens ?? 20000),
-    rawPromptTokens: String(w.defaultTurnPromptTokens ?? w.rawPromptTokens),
-    turnsPerSession: String(w.defaultTurnsPerSession ?? 4),
-    kvCacheHitRate: String(w.defaultKvCacheHitRate ?? "0.75"),
+    rawPromptTokens: String(w.rawPromptTokens),
     rawOutputTokens: String(w.rawOutputTokens),
     rawContextTokens: String(w.rawContextTokens),
     modelId: w.recommendedModelId,
@@ -646,11 +607,7 @@ function hydrateDraftFromNormalized(n) {
     mix: { ...n.mix },
     tokenBasis: n.tokenBasis,
     thaiFertilityMultiplier: n.thaiFertilityMultiplier,
-    sessionStackingActive: Boolean(n.sessionStackingActive),
-    rawSystemPromptTokens: String(n.rawSystemPromptTokens ?? 0),
     rawPromptTokens: String(n.rawPromptTokens),
-    turnsPerSession: String(n.turnsPerSession ?? 4),
-    kvCacheHitRate: String(n.kvCacheHitRate ?? "0"),
     rawOutputTokens: String(n.rawOutputTokens),
     rawContextTokens: String(n.rawContextTokens),
     modelId: n.modelId,
@@ -697,11 +654,7 @@ function selectWorkloadPreset(workloadId) {
   appState.draft.peakConcurrencyFraction = w.peakConcurrencyFraction;
   appState.draft.tokensPerSecondPerStream = w.tokensPerSecondPerStream;
   appState.draft.mix = { ...w.mix };
-  appState.draft.sessionStackingActive = true;
-  appState.draft.rawSystemPromptTokens = String(w.defaultSystemPromptTokens ?? 20000);
-  appState.draft.rawPromptTokens = String(w.defaultTurnPromptTokens ?? w.rawPromptTokens);
-  appState.draft.turnsPerSession = String(w.defaultTurnsPerSession ?? 4);
-  appState.draft.kvCacheHitRate = String(w.defaultKvCacheHitRate ?? "0.75");
+  appState.draft.rawPromptTokens = String(w.rawPromptTokens);
   appState.draft.rawOutputTokens = String(w.rawOutputTokens);
   appState.draft.rawContextTokens = String(w.rawContextTokens);
   appState.draft.modelId = w.recommendedModelId;
@@ -876,11 +829,8 @@ function renderStaticLabels() {
   $("d-sec-workload").textContent = t.dWorkload;
   $("lbl-prompt-presets").textContent = t.promptPresets;
   $("lbl-users").textContent = t.users;
-  $("lbl-sys-prompt").textContent = t.sysPrompt;
   $("lbl-raw-prompt").textContent = t.rawPrompt;
-  $("lbl-turns-session").textContent = t.turnsSession;
   $("lbl-raw-output").textContent = t.rawOut;
-  $("lbl-kv-hit-pct").textContent = t.kvHitPct;
   $("lbl-raw-ctx").textContent = t.rawCtx;
   $("sum-traffic").textContent = t.sumTraffic;
   $("lbl-sessions-day").textContent = t.sessionsDay;
@@ -961,22 +911,6 @@ function renderStaticLabels() {
   $("rail-open-tco").textContent = t.openTcoRail;
 }
 
-function setDataAttr(el, key, val) {
-  if (!el) return;
-  if (el.dataset) {
-    el.dataset[key] = val;
-  } else if (typeof el.setAttribute === "function") {
-    const dashKey = key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
-    el.setAttribute(`data-${dashKey}`, val);
-  }
-}
-
-function pillTurnTokens(p, draft) {
-  return draft?.sessionStackingActive
-    ? Math.max(500, Math.round(Number(p.rawPromptTokens) / 4))
-    : Number(p.rawPromptTokens);
-}
-
 function renderWorkloadCardsAndPills() {
   const isTh = appState.lang === "th";
   const cardsEl = $("workload-cards");
@@ -985,14 +919,11 @@ function renderWorkloadCardsAndPills() {
     const selected = appState.draft.workloadId === w.id;
     const recModel = (appState.data.servingData?.models ?? []).find((m) => m.id === w.recommendedModelId);
     const modelShort = recModel ? `${recModel.params_b}B` : w.recommendedModelId;
-    const sysK = Math.round(Number(w.defaultSystemPromptTokens ?? 20000) / 1000);
-    const turnTok = Number(w.defaultTurnPromptTokens ?? w.rawPromptTokens);
-    const turns = Number(w.defaultTurnsPerSession ?? 4);
     return `
       <button type="button" class="choice-btn" data-workload-id="${esc(w.id)}" aria-pressed="${selected}">
         <div class="choice-top">
           <span class="badge badge-cyan">${esc(loc.sectorTag || w.sector)}</span>
-          <span class="choice-meta">${fmtInt(w.users)} ${isTh ? "ผู้ใช้" : "users"} · ${sysK}k+${fmtInt(turnTok)}×${turns}t · ${esc(modelShort)}</span>
+          <span class="choice-meta">${fmtInt(w.users)} ${isTh ? "ผู้ใช้" : "users"} · ${fmtInt(w.rawPromptTokens)} tok · ${esc(modelShort)}</span>
         </div>
         <div class="choice-title">${esc(loc.title)}</div>
         <div class="choice-desc">${esc(loc.whyLocal)}</div>
@@ -1003,12 +934,8 @@ function renderWorkloadCardsAndPills() {
   const pillsEl = $("prompt-scale-pills");
   const curPrompt = Number(appState.draft.rawPromptTokens);
   pillsEl.innerHTML = PROMPT_SCALE_PRESETS.map((p) => {
-    const targetTurn = pillTurnTokens(p, appState.draft);
-    const active = curPrompt === targetTurn;
-    const label = appState.draft.sessionStackingActive
-      ? (isTh ? `+${fmtInt(targetTurn)}/รอบ (${p.id} เซสชัน)` : `+${fmtInt(targetTurn)}/turn (${p.id} session)`)
-      : p[appState.lang];
-    return `<button type="button" class="pill-btn" data-prompt-preset="${esc(p.id)}" aria-pressed="${active}">${esc(label)}</button>`;
+    const active = curPrompt === p.rawPromptTokens;
+    return `<button type="button" class="pill-btn" data-prompt-preset="${esc(p.id)}" aria-pressed="${active}">${esc(p[appState.lang])}</button>`;
   }).join("");
 }
 
@@ -1029,10 +956,7 @@ function renderModelAndGpuSelectors() {
     const label = isTh ? grp.thLabel : grp.enLabel;
     html += `<optgroup label="${esc(label)}">`;
     for (const m of grp.models) {
-      const wtEst = typeof estimateModelWeightGb === "function"
-        ? estimateModelWeightGb(m, String(wqBytes), { runtimeKey: appState.draft.runtime })
-        : null;
-      const approxWtGb = wtEst !== null ? Math.ceil(Number(wtEst)) : Math.ceil(Number(m.params_b) * wqBytes);
+      const approxWtGb = Math.ceil(Number(m.params_b) * wqBytes);
       const activeText = String(m.active_params_b) !== String(m.params_b) ? ` / ${m.active_params_b}B active` : "";
       const ctxK = Math.round(Number(m.context_max ?? 0) / 1024);
       html += `<option value="${esc(m.id)}" ${m.id === selectedId ? "selected" : ""}>${esc(m.label)} (${m.params_b}B${activeText} · ~${approxWtGb}GB wt · max ${ctxK}k ctx)</option>`;
@@ -1081,43 +1005,6 @@ function renderModelAndGpuSelectors() {
     srvSelect.innerHTML = srvHtml;
     srvSelect.value = appState.draft.serverId;
   }
-
-  const syncCatalogSelect = (elId, mapObj, selectedVal, labelMap = {}) => {
-    const el = $(elId);
-    if (!el || !mapObj || typeof mapObj !== "object") return;
-    const keys = Object.keys(mapObj);
-    let optHtml = "";
-    if (selectedVal && !Object.prototype.hasOwnProperty.call(mapObj, selectedVal)) {
-      optHtml += `<option value="${esc(selectedVal)}" selected>${esc(selectedVal)} (${isTh ? "ไม่รองรับในแคตตาล็อกนี้ - โปรดเลือกใหม่" : "unavailable in catalog - reselect"})</option>`;
-    }
-    for (const key of keys) {
-      const spec = mapObj[key] ?? {};
-      const lbl = labelMap[key] ?? spec.label ?? key;
-      optHtml += `<option value="${esc(key)}" ${key === selectedVal ? "selected" : ""}>${esc(lbl)}</option>`;
-    }
-    if (document.activeElement !== el) {
-      el.innerHTML = optHtml;
-      el.value = selectedVal;
-    }
-  };
-  syncCatalogSelect("in-wquant", appState.data.servingData.weight_quantization, appState.draft.wquant, {
-    bf16: "BF16 / FP16 (2 B/param)",
-    fp8: "FP8 (1 B/param)",
-    int8: "INT8 W8A8 (1 B/param)",
-    int4: "INT4 AWQ/GPTQ (0.5 B/param lower bound)",
-  });
-  syncCatalogSelect("in-kvquant", appState.data.servingData.kv_quantization, appState.draft.kvquant, {
-    bf16: "BF16 KV (2 B/elem)",
-    fp8: "FP8 KV (1 B/elem)",
-    int8: "INT8 KV (1 B/elem)",
-    fp4: "FP4 KV NVFP4/MXFP4 (0.5625 B/elem)",
-  });
-  syncCatalogSelect("in-runtime", appState.data.servingData.runtimes, appState.draft.runtime, {
-    vllm: "vLLM",
-    sglang: "SGLang",
-    trtllm: "TensorRT-LLM",
-    llamacpp: "llama.cpp",
-  });
 }
 
 function renderApiControls() {
@@ -1173,29 +1060,18 @@ function renderApiControls() {
   const rateBox = $("api-rate-summary");
   const chosenOffer = appState.data.catalog.offers?.[effectiveSelectedId];
   if (!chosenOffer) {
-    setDataAttr(rateBox, "state", "error");
+    rateBox.dataset.state = "error";
     rateBox.textContent = isTh
       ? `ไม่พบราคาของ "${effectiveSelectedId || "N/A"}" ในแคตตาล็อกปัจจุบัน กรุณาเลือกโมเดล API ใหม่`
       : `Selected API offer "${effectiveSelectedId || "N/A"}" is unavailable in the current catalog; reselect an active tariff.`;
     return;
   }
   const info = classifyApiOffer(effectiveSelectedId, chosenOffer, null);
-  const rawCacheRead = chosenOffer.prices?.["cache_read|std"] ?? chosenOffer.prices?.cache_read ?? null;
-  const cacheReadPer1M = rawCacheRead !== null && rawCacheRead !== undefined
-    ? formatHalfUp(toRat(String(rawCacheRead)).mul(toRat("1000000")), 4).replace(/\.?0+$/, "")
-    : null;
-  const cacheFallbackUsed = Boolean(appState.computed?.comparison?.lanes?.B?.cache_fallback_used);
-  setDataAttr(rateBox, "state", cacheFallbackUsed ? "warn" : "ok");
+  rateBox.dataset.state = "ok";
   const extraNote = info.hasConditionalRates
     ? (isTh ? " · มีขั้นบันได/มิเตอร์เสริมตามเงื่อนไข" : " · includes conditional/extra meters")
     : "";
-  const cachePricePart = cacheReadPer1M !== null ? ` · Cache: $${cacheReadPer1M}/1M` : "";
-  const fallbackNote = cacheFallbackUsed
-    ? (isTh
-      ? " · ไม่มีราคา cache_read แยก คิดโทเคน Prefix ซ้ำในอัตรา Input ปกติ"
-      : " · No published cache_read rate; cached prefix tokens billed at standard input rate")
-    : "";
-  rateBox.innerHTML = `<span class="num">In: $${esc(info.inputPer1MUsd ?? "N/A")}/1M${esc(cachePricePart)} · Out: $${esc(info.outputPer1MUsd ?? "N/A")}/1M</span><span>${esc(info.feed.toUpperCase())}${info.isBatch ? " · BATCH" : ""}${esc(extraNote)}${esc(fallbackNote)}</span>`;
+  rateBox.innerHTML = `<span class="num">In: $${esc(info.inputPer1MUsd ?? "N/A")}/1M · Out: $${esc(info.outputPer1MUsd ?? "N/A")}/1M</span><span>${esc(info.feed.toUpperCase())}${info.isBatch ? " · BATCH" : ""}${esc(extraNote)}</span>`;
 }
 
 function renderConnectorsList() {
@@ -1222,15 +1098,8 @@ function renderConnectorsList() {
 function syncInputsFromDraft({ force = false } = {}) {
   const d = appState.draft;
   setControlValue($("in-users"), d.users, force);
-  setControlValue($("in-sys-prompt"), d.rawSystemPromptTokens, force);
   setControlValue($("in-raw-prompt"), d.rawPromptTokens, force);
-  setControlValue($("in-turns-session"), d.turnsPerSession, force);
   setControlValue($("in-raw-output"), d.rawOutputTokens, force);
-  const kvHitPct = (() => {
-    const n = Number(d.kvCacheHitRate);
-    return Number.isFinite(n) ? String(Math.round(n * 10000) / 100) : d.kvCacheHitRate;
-  })();
-  setControlValue($("in-kv-hit-pct"), kvHitPct, force);
   setControlValue($("in-raw-ctx"), d.rawContextTokens, force);
   setControlValue($("in-sessions-day"), d.sessionsPerUserDay, force);
   setControlValue($("in-days-mo"), d.workingDaysMo, force);
@@ -1280,245 +1149,6 @@ function syncInputsFromDraft({ force = false } = {}) {
   $("badge-bom").textContent = `${qb} · ${d.quoteCurrency} · ${d.connectors.length} pipelines`;
 }
 
-function describeKvTechnique(model, isTh) {
-  if (!model) return isTh ? "ยังไม่ทราบโครงสร้าง KV" : "Unknown KV structure";
-  if (model.kv_override) return isTh ? "กำหนดอัตรา KV คงที่เอง" : "Custom Flat KV Override";
-  const groups = Array.isArray(model.groups) ? model.groups : [];
-  const hasMla = groups.some((g) => g.kind === "mla");
-  const hasCompressedMla = groups.some((g) => g.kind === "mla" && Number(g.compress_ratio ?? 1) > 1);
-  const hasSliding = groups.some((g) => g.kind === "sliding");
-  const hasLinear = groups.some((g) => g.kind === "linear");
-  const hasFull = groups.some((g) => g.kind === "full");
-  const hasUnifiedKv = groups.some((g) => Number(g.tensors ?? 2) === 1);
-
-  if (hasCompressedMla && hasSliding) {
-    return isTh ? "CSA2 บีบอัด MLA + SWA" : "CSA2 Compressed MLA + SWA";
-  }
-  if (hasCompressedMla) {
-    return isTh ? "Compressed MLA พร้อมดัชนี" : "Compressed MLA + Index";
-  }
-  if (hasMla && hasLinear) {
-    return isTh ? "ไฮบริด KDA Linear + MLA" : "Hybrid KDA Linear + MLA";
-  }
-  if (hasMla) {
-    return "Multi-Head Latent Attention (MLA)";
-  }
-  if (hasLinear && hasFull) {
-    return isTh ? "ไฮบริด Gated DeltaNet + GQA" : "Hybrid Gated DeltaNet + GQA";
-  }
-  if (hasSliding && hasUnifiedKv) {
-    return isTh ? "ไฮบริด SWA + Unified K=V GQA" : "Hybrid SWA + Unified K=V GQA";
-  }
-  if (hasSliding && hasFull) {
-    return isTh ? "ไฮบริด Sliding-Window + GQA" : "Hybrid Sliding-Window + GQA";
-  }
-  if (hasFull && groups.length > 1) {
-    return isTh ? "GQA แบบปรับหัวรายเลเยอร์ (NAS)" : "Heterogeneous NAS GQA";
-  }
-  return "Grouped-Query Attention (GQA)";
-}
-
-function summarizeModelGroups(model) {
-  const groups = Array.isArray(model?.groups) ? model.groups : [];
-  if (!groups.length) return "";
-  return groups.map((g) => {
-    if (g.kind === "linear") return `${g.layers}L linear (0 KV/tok)`;
-    if (g.kind === "mla") {
-      const cr = Number(g.compress_ratio ?? 1);
-      return cr > 1 ? `${g.layers}L MLA÷${cr}` : `${g.layers}L MLA`;
-    }
-    if (g.kind === "sliding") return `${g.layers}L SWA (${g.window_tokens ?? "?"}w)`;
-    const u = Number(g.tensors ?? 2) === 1 ? " K=V" : "";
-    return `${g.layers}L GQA (${g.kv_heads ?? "?"}h${u})`;
-  }).join(" + ");
-}
-
-function resolvePersonTokens(c) {
-  if (c?.personTokenSummary) return c.personTokenSummary;
-  const n = c?.normalized;
-  if (!n) return null;
-  if (n.sessionStackingActive && typeof buildSessionProjectionFromConfig === "function") {
-    return buildSessionProjectionFromConfig({
-      effectiveSystemPromptTokens: n.effectiveSystemPromptTokens,
-      effectivePromptTokens: n.effectivePromptTokens,
-      effectiveOutputTokens: n.effectiveOutputTokens,
-      turnsPerSession: n.turnsPerSession,
-      kvCacheHitRate: n.kvCacheHitRate,
-      sharedPrefixGuaranteed: n.sharedPrefixGuaranteed,
-      guaranteedSharedPrefixTokens: n.guaranteedSharedPrefixTokens,
-      users: n.users,
-      sessionsPerUserDay: n.sessionsPerUserDay,
-      workingDaysMo: n.workingDaysMo,
-    }).personTokenSummary;
-  }
-  return null;
-}
-
-function renderPersonTokenAndKvBars() {
-  const isTh = appState.lang === "th";
-  const c = appState.computed;
-  const n = c?.normalized;
-  const pts = resolvePersonTokens(c);
-
-  const personBar = $("person-token-bar");
-  if (personBar) {
-    if (!n || !pts) {
-      setDataAttr(personBar, "status", "refused");
-      personBar.innerHTML = `<div class="auto-detail">${esc(isTh ? "กรอกจำนวนผู้ใช้และโทเคนให้ถูกต้องเพื่อคำนวณค่าเฉลี่ยต่อคน" : "Enter valid workload counts to compute per-person token averages.")}</div>`;
-    } else {
-      setDataAttr(personBar, "status", "qualified_pass");
-      const hitPct = Math.round(Number(n.kvCacheHitRate ?? 0) * 100);
-      const stackVal = pts.sessionStackingActive
-        ? `${fmtInt(pts.turn1ColdPromptTokens)} → ${fmtInt(pts.finalTurnPromptTokens)} tok`
-        : `${fmtInt(n.effectivePromptTokens)} tok`;
-      const stackSub = pts.sessionStackingActive
-        ? (isTh ? `${n.turnsPerSession} รอบ · Sys ${fmtInt(n.effectiveSystemPromptTokens)} tok` : `${n.turnsPerSession} turns · Sys ${fmtInt(n.effectiveSystemPromptTokens)} tok`)
-        : (isTh ? "1 รอบ (โหมดดั้งเดิม)" : "1 turn (flat mode)");
-      personBar.innerHTML = `
-        <div class="telemetry-grid">
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "เฉลี่ยโทเคน / คน / วัน" : "Avg tokens / person / day")}</span>
-            <span class="telemetry-val">${esc(fmtInt(pts.tokensPerPersonDay))} tok</span>
-            <span class="telemetry-sub">${esc(`In ${fmtInt(pts.uncachedInPerPersonDay)} · Cache ${fmtInt(pts.cachedReadPerPersonDay)} · Out ${fmtInt(pts.outputPerPersonDay)}`)}</span>
-          </div>
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "เฉลี่ยโทเคน / คน / เดือน" : "Avg tokens / person / month")}</span>
-            <span class="telemetry-val">${esc(fmtInt(pts.tokensPerPersonMo))} tok</span>
-            <span class="telemetry-sub">${esc(`${n.sessionsPerUserDay} sess/d × ${n.workingDaysMo} d/mo`)}</span>
-          </div>
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "Prompt สะสมตามรอบสนทนา" : "Stacked prompt across turns")}</span>
-            <span class="telemetry-val">${esc(stackVal)}</span>
-            <span class="telemetry-sub">${esc(stackSub)}</span>
-          </div>
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "สัดส่วนใช้ซ้ำ KV / Prefix" : "KV / prefix cache reuse")}</span>
-            <span class="telemetry-val">${esc(`${hitPct}% hit`)}</span>
-            <span class="telemetry-sub">${esc(
-              pts.sharedPrefixGuaranteed && (pts.sharedPrefixTokens ?? 0) > 0
-                ? (isTh ? `การันตีแชร์ ${fmtInt(pts.sharedPrefixTokens)} tok` : `Guaranteed shared: ${fmtInt(pts.sharedPrefixTokens)} tok`)
-                : (isTh ? `ประมาณการแคช API ~${fmtInt(pts.potentialSharedPrefixTokens ?? 0)} tok` : `API prefix est: ~${fmtInt(pts.potentialSharedPrefixTokens ?? 0)} tok`)
-            )}</span>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  const kvBar = $("kv-telemetry-bar");
-  if (kvBar) {
-    const model = c?.fit?.resolvedModel ?? (appState.data.servingData?.models ?? []).find((m) => m.id === appState.draft.modelId) ?? null;
-    const srv = c?.fit?.serving ?? null;
-    const rtKey = n?.runtime ?? appState.draft.runtime;
-    const kvKey = n?.kvquant ?? appState.draft.kvquant;
-    const wqKey = n?.wquant ?? appState.draft.wquant;
-    const rtMeta = appState.data.servingData?.runtimes?.[rtKey] ?? null;
-    const kqSpec = appState.data.servingData?.kv_quantization?.[kvKey] ?? null;
-    const wqSpec = appState.data.servingData?.weight_quantization?.[wqKey] ?? null;
-
-    if (!model) {
-      setDataAttr(kvBar, "status", "refused");
-      kvBar.innerHTML = `<div class="auto-detail">${esc(isTh ? "ระบุพารามิเตอร์และอัตรา KV ของโมเดล Custom ให้ครบเพื่อคำนวณหน่วยความจำ" : "Complete Custom model parameters and BF16 KV bytes/token to inspect KV memory.")}</div>`;
-    } else if ((!model.kv_override && !kqSpec) || !wqSpec || !rtMeta) {
-      setDataAttr(kvBar, "status", "refused");
-      const unavailableList = [
-        (!model.kv_override && !kqSpec) ? kvKey : null,
-        !wqSpec ? wqKey : null,
-        !rtMeta ? rtKey : null,
-      ].filter(Boolean).join(", ");
-      kvBar.innerHTML = `<div class="auto-detail">${esc(
-        isTh
-          ? `ตัวเลือกความแม่นยำหรือ Runtime (${unavailableList}) ไม่มีอยู่ในแคตตาล็อกที่โหลดอยู่ โปรดเลือกค่าที่รองรับใหม่`
-          : `Selected serving precision or runtime (${unavailableList}) is unavailable in the loaded catalog. Reselect a supported option.`
-      )}</div>`;
-    } else {
-      const kqElem = model.kv_override ? "1" : kqSpec.bytes_per_element;
-      const wqBytes = wqSpec.bytes_per_param;
-      const activeCtx = c?.fit?.activeContextTokens ?? n?.activeContextTokens ?? n?.effectiveContextTokens ?? 0;
-      const peakCtx = c?.fit?.peakContextTokens ?? n?.effectiveContextTokens ?? 0;
-
-      setDataAttr(kvBar, "status", srv ? "qualified_pass" : "memory_fit_unpriced");
-      const techLabel = describeKvTechnique(model, isTh);
-      const grpSummary = summarizeModelGroups(model);
-
-      let bytesPerTokStr = srv?.kv_bytes_per_token?.text ?? null;
-      let peakKvGbStr = srv?.kv_gb_per_sequence_peak?.text ?? srv?.kv_gb_per_sequence?.text ?? null;
-      let activeKvGbStr = srv?.kv_gb_per_sequence?.text ?? null;
-      let sharedKvGbStr = srv?.kv_gb_shared_prefix?.text ?? "0.000";
-      let wtResidentGbStr = srv?.weights_gb_resident?.text ?? null;
-
-      if (bytesPerTokStr === null && typeof kvBytesPerToken === "function") {
-        try {
-          bytesPerTokStr = formatHalfUp(kvBytesPerToken(model.groups, kqElem), 2).replace(/\.?0+$/, "");
-        } catch {
-          bytesPerTokStr = "N/A";
-        }
-      }
-      if ((peakKvGbStr === null || activeKvGbStr === null) && n && typeof kvBytesPerSequence === "function") {
-        try {
-          const peakSeqRat = kvBytesPerSequence(model.groups, String(peakCtx), kqElem);
-          const activeSeqRat = activeCtx === peakCtx
-            ? peakSeqRat
-            : kvBytesPerSequence(model.groups, String(activeCtx), kqElem);
-          peakKvGbStr = formatHalfUp(peakSeqRat.div(toRat("1000000000")), 3);
-          activeKvGbStr = formatHalfUp(activeSeqRat.div(toRat("1000000000")), 3);
-        } catch {
-          peakKvGbStr = "N/A";
-          activeKvGbStr = "N/A";
-        }
-      }
-      if (wtResidentGbStr === null && typeof estimateModelWeightGb === "function") {
-        wtResidentGbStr = estimateModelWeightGb(model, wqBytes, { runtimeKey: rtKey }) ?? "N/A";
-      }
-
-      const bptNum = Number(bytesPerTokStr);
-      const rateHeadline = Number.isFinite(bptNum)
-        ? (bptNum >= 1024 ? `${(bptNum / 1024).toFixed(2)} KB/tok` : `${bytesPerTokStr} B/tok`)
-        : `${bytesPerTokStr ?? "N/A"} B/tok`;
-      const rateSub = Number.isFinite(bptNum)
-        ? `${fmtInt(bptNum)} B/tok @ ${kvKey.toUpperCase()}`
-        : `${kvKey.toUpperCase()} KV`;
-
-      const canShare = Boolean(rtMeta?.supports_prefix_cache) && !model.kv_override;
-      const sharedHeadline = canShare && Number(sharedKvGbStr) > 0
-        ? `-${sharedKvGbStr} GB / seq`
-        : (canShare
-          ? (isTh ? "0.000 GB การันตีแชร์" : "0.000 GB guaranteed")
-          : (isTh ? `ไม่แชร์บล็อก (${rtKey})` : `No prefix share (${rtKey})`));
-      const residencySub = model.host_offload_params_b
-        ? (isTh
-          ? `Weights ${wtResidentGbStr} GB (${model.params_b}B เต็มบน GPU)`
-          : `Weights ${wtResidentGbStr} GB (full ${model.params_b}B on GPU)`)
-        : `Weights: ${wtResidentGbStr ?? "N/A"} GB (${wqKey.toUpperCase()})`;
-
-      kvBar.innerHTML = `
-        <div class="telemetry-grid">
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "เทคนิคการเก็บ KV Cache" : "KV-cache technique")}</span>
-            <span class="telemetry-val">${esc(techLabel)}</span>
-            <span class="telemetry-sub">${esc(grpSummary)}</span>
-          </div>
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "อัตราเติบโต KV ต่อโทเคน" : "Marginal KV rate")}</span>
-            <span class="telemetry-val">${esc(rateHeadline)}</span>
-            <span class="telemetry-sub">${esc(rateSub)}</span>
-          </div>
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "หน่วยความจำ KV / เซสชัน" : "KV memory / session")}</span>
-            <span class="telemetry-val">Peak ${esc(peakKvGbStr ?? "N/A")} GB</span>
-            <span class="telemetry-sub">${esc(`Active ${activeKvGbStr ?? "N/A"} GB @ ${fmtInt(activeCtx)} ctx`)}</span>
-          </div>
-          <div class="telemetry-cell">
-            <span class="telemetry-kicker">${esc(isTh ? "PagedAttention & น้ำหนักโมเดล" : "PagedAttention & weights")}</span>
-            <span class="telemetry-val">${esc(sharedHeadline)}</span>
-            <span class="telemetry-sub">${esc(residencySub)}</span>
-          </div>
-        </div>
-      `;
-    }
-  }
-}
-
 function renderAutoGpuAndMatrix() {
   const isTh = appState.lang === "th";
   const t = I18N[appState.lang];
@@ -1527,26 +1157,9 @@ function renderAutoGpuAndMatrix() {
 
   if (c?.normalized) {
     const n = c.normalized;
-    const pts = resolvePersonTokens(c);
-    const finalTurnCtx = pts?.finalTurnContextTokens ?? n.peakTurnContextTokens ?? n.effectiveContextTokens;
-    if ($("hint-eff-sys")) {
-      $("hint-eff-sys").textContent = isTh
-        ? `System จริง: ${fmtInt(n.effectiveSystemPromptTokens)} โทเคน`
-        : `Effective sys: ${fmtInt(n.effectiveSystemPromptTokens)} tok`;
-    }
     $("hint-eff-prompt").textContent = isTh
-      ? `เพิ่มต่อรอบ ${fmtInt(n.effectivePromptTokens)} โทเคนหลังคูณสัดส่วนภาษาไทย`
-      : `Thai-adjusted: +${fmtInt(n.effectivePromptTokens)} fresh tok/turn`;
-    if ($("hint-turns-session")) {
-      $("hint-turns-session").textContent = n.sessionStackingActive
-        ? (isTh ? `Peak รอบสุดท้าย: ${fmtInt(finalTurnCtx)} tok` : `Peak final turn: ${fmtInt(finalTurnCtx)} tok`)
-        : (isTh ? "โหมดคำสั่งเดี่ยวดั้งเดิม" : "Legacy flat single-turn");
-    }
-    if ($("hint-kv-hit")) {
-      $("hint-kv-hit").textContent = n.turnsPerSession > 1
-        ? (isTh ? `ใช้ซ้ำในรอบ 2..${n.turnsPerSession}` : `Applied on turns 2..${n.turnsPerSession}`)
-        : (isTh ? "รอบที่ 1 เริ่มต้น Cold เสมอ (0% แคช)" : "Turn 1 is always cold (0% cached)");
-    }
+      ? `คิดเป็น ${fmtInt(n.effectivePromptTokens)} โทเคนจริงหลังคูณสัดส่วนภาษาไทย`
+      : `Thai-adjusted: ${fmtInt(n.effectivePromptTokens)} effective prompt tokens`;
     $("hint-eff-ctx").textContent = isTh
       ? `Context จริงที่ใช้จอง KV: ${fmtInt(n.effectiveContextTokens)} โทเคน`
       : `Effective KV context: ${fmtInt(n.effectiveContextTokens)} tokens`;
@@ -1557,8 +1170,6 @@ function renderAutoGpuAndMatrix() {
       ? `Peak: ${c.peak.peak_tokens_s.text} tok/s`
       : "";
   }
-
-  renderPersonTokenAndKvBars();
 
   const prof = c?.fit?.thaiProfile;
   $("hint-model-profile").textContent = prof
@@ -1571,10 +1182,10 @@ function renderAutoGpuAndMatrix() {
     : "";
 
   if (!c) {
-    setDataAttr(callout, "status", "refused");
+    callout.dataset.status = "refused";
     callout.innerHTML = `<div class="auto-headline">${esc(isTh ? "ข้อมูลนำเข้ายังไม่สมบูรณ์" : "Invalid input value")}</div><div class="auto-detail">${esc(appState.fieldErrors._form || "")}</div>`;
   } else if (c.ok) {
-    setDataAttr(callout, "status", c.fit.status);
+    callout.dataset.status = c.fit.status;
     const srvText = c.bom.serverRow?.label ?? `${c.bom.nodes}x custom node (${c.bom.gpusPerNode} GPU/node)`;
     const headline = isTh
       ? `แนะนำอัตโนมัติ: ใช้ ${c.bom.installedGpus} การ์ด GPU (${c.bom.nodes} เครื่อง × ${c.bom.gpusPerNode} GPU/เครื่อง)`
@@ -1588,13 +1199,13 @@ function renderAutoGpuAndMatrix() {
     }).join("");
     callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(detail)}</div>${warnHtml}`;
   } else if (c.stage === "hardware_bom" && c.bom?.code === "no_catalog_server" && c.sizing && c.fit?.serving) {
-    setDataAttr(callout, "status", "memory_fit_unpriced");
+    callout.dataset.status = "memory_fit_unpriced";
     const headline = isTh
       ? `คำนวณจำนวนการ์ดได้: ต้องใช้ ${c.sizing.gpusRequired} การ์ด GPU (TP=${c.fit.serving.gpus_per_replica}) แต่ยังไม่มีราคากลางเซิร์ฟเวอร์`
       : `Auto-sized: ${c.sizing.gpusRequired}x GPUs required (TP=${c.fit.serving.gpus_per_replica}), custom hardware quote needed`;
     callout.innerHTML = `<div class="auto-headline">${esc(headline)}</div><div class="auto-detail">${esc(c.bom.reason)}</div>`;
   } else {
-    setDataAttr(callout, "status", "refused");
+    callout.dataset.status = "refused";
     const reason = c.reason ?? c.fit?.reason ?? c.bom?.reason ?? "Selected configuration cannot serve this workload.";
     const headline = isTh
       ? "ไม่สามารถจัดชุด GPU/โมเดลตามเงื่อนไขนี้ได้"
@@ -1714,18 +1325,11 @@ function renderLedgerAndSummaryRail() {
   }
 
   const modelLabel = c.fit.resolvedModel?.label ?? c.normalized.modelId;
-  const pts = resolvePersonTokens(c);
-  const peakKvSeqText = c.fit.serving?.kv_gb_per_sequence_peak?.text ?? c.fit.serving?.kv_gb_per_sequence?.text ?? "N/A";
   const kvRows = [
     [t.kv.model, `${modelLabel} (${c.normalized.wquant.toUpperCase()})`],
     [t.kv.fleet, `${c.bom.installedGpus} GPUs · ${c.bom.nodes}x (${c.bom.gpusPerNode}/node)`],
     [t.kv.tp, `TP=${c.fit.serving.gpus_per_replica} · ${c.sizing.tokens_s_per_gpu.text} tok/s/GPU`],
     [t.kv.effPrompt, `${fmtInt(c.normalized.effectivePromptTokens)} / ${fmtInt(c.normalized.effectiveContextTokens)} tok`],
-    ...(pts ? [
-      [t.kv.personDayTok, `${fmtInt(pts.tokensPerPersonDay)} tok/d`],
-      [t.kv.personMoTok, `${fmtInt(pts.tokensPerPersonMo)} tok/mo`],
-    ] : []),
-    [t.kv.kvPerSeq, `${peakKvSeqText} GB (${c.normalized.kvquant.toUpperCase()})`],
     [t.kv.monthlyTok, `${fmtInt(Number(c.demand.tokens_mo.text))} tok/mo`],
     [t.kv.peakTok, `${c.peak.peak_tokens_s.text} tok/s`],
     [t.kv.hwCapex, fmtMoneyUsd(c.bom.capexUsd)],
@@ -1881,17 +1485,6 @@ function handleFieldMutation(name, value) {
   if (name === "peakPct") {
     const num = Number(String(value).trim());
     d.peakConcurrencyFraction = Number.isFinite(num) && num > 0 ? String(num / 100) : value;
-    return;
-  }
-  if (name === "kvHitPct") {
-    const num = Number(String(value).trim());
-    d.kvCacheHitRate = Number.isFinite(num) && num >= 0 && num <= 100 ? String(Math.round(num * 100) / 10000) : value;
-    d.sessionStackingActive = true;
-    return;
-  }
-  if (name === "rawSystemPromptTokens" || name === "turnsPerSession") {
-    d[name] = value;
-    d.sessionStackingActive = true;
     return;
   }
   if (name === "dealTierOverride") {
@@ -2102,17 +1695,10 @@ function wireEvents() {
       if (p) {
         appState.mutationSeq += 1;
         appState.presetBanner = null;
-        const targetTurn = pillTurnTokens(p, appState.draft);
-        appState.draft.rawPromptTokens = String(targetTurn);
+        appState.draft.rawPromptTokens = String(p.rawPromptTokens);
         appState.draft.rawOutputTokens = String(p.rawOutputTokens);
-        const sysRaw = appState.draft.sessionStackingActive ? (Number(appState.draft.rawSystemPromptTokens) || 0) : 0;
-        const turns = appState.draft.sessionStackingActive ? Math.max(1, Number(appState.draft.turnsPerSession) || 1) : 1;
-        const minRawCtx = Math.max(
-          p.rawContextTokens,
-          Math.ceil((sysRaw + turns * targetTurn + turns * p.rawOutputTokens) / 4096) * 4096,
-        );
-        if (Number(appState.draft.rawContextTokens) < minRawCtx) {
-          appState.draft.rawContextTokens = String(minRawCtx);
+        if (Number(appState.draft.rawContextTokens) < p.rawContextTokens) {
+          appState.draft.rawContextTokens = String(p.rawContextTokens);
         }
         renderAll();
       }

@@ -1,4 +1,4 @@
-// serving.js — the v0.3/v0.5 serving model (SPEC §6.6).
+// serving.js — the v0.3 serving model (SPEC §6.6).
 //
 // WHY THIS EXISTS. v0.2 sized fleets from TOKENS_S_PER_GPU_ASSUMED, one constant
 // per accelerator, pinned at "an ~8B-class model". That table's own comment named
@@ -12,30 +12,39 @@
 // flight, and the arithmetic on those bytes is trivial by comparison. One step of
 // a batch of B sequences therefore costs
 //
-//   t_step = (weights_read + B x kv_per_seq_active) / (n_gpu x bandwidth x efficiency)
+//   t_step = (weights_read + B x kv_per_seq) / (n_gpu x bandwidth x efficiency)
 //
 // and produces exactly B tokens, so
 //
 //   per_stream_tok_s = 1 / t_step          aggregate_tok_s = B / t_step
 //
 // Every dimension the buyer asked about enters that one formula:
-//   model size    -> weights_read (and fail-closed resident checkpoint weights)
-//   quantisation  -> bytes per weight, and separately bytes per cached element (BF16/FP8/INT8/FP4)
-//   context       -> kv_per_seq = Σ groupSequenceBytes(group, context_tokens)
-//   architecture  -> per-layer-group retention (full, sliding window, linear/GDN, MLA & compressed MLA)
-//   prefix cache  -> peak-bounded PagedAttention VRAM B*bytes(peak) - (B-1)*shareableBytes(peak)
-//                    ONLY on runtimes with proven page-block prefix sharing; decode bandwidth
-//                    stays charged per sequence.
+//   model size    -> weights_read
+//   quantisation  -> bytes per weight, and separately bytes per cached element
+//   context       -> kv_per_seq = kv_bytes_per_token x retained_tokens
+//   architecture  -> kv_bytes_per_token AND how many tokens each layer retains
+//
+// THE SOLVE, and why the per-stream floor is the interesting input. The UI already
+// collects tokens_s_per_stream — the rate one user sees — and v0.2 used it only to
+// size DEMAND. Here it becomes a CONSTRAINT that solves supply: the largest batch
+// whose per-stream rate still clears the floor. Batch is then min(that, what VRAM
+// holds), and tensor parallelism grows until a batch of at least 1 is admissible.
+// That is the actual sizing question, and it is why this file reports a batch size
+// rather than accepting one.
 //
 // WHAT IS NOT MODELLED, stated rather than approximated (SPEC §6.4):
 //   - PREFILL. This is a decode model. Prompt processing is compute-bound and has
-//     entirely different scaling; a RAG turn with 20k+ of input does work this file
+//     entirely different scaling; a RAG turn with 6k of input does work this file
 //     does not count. Throughput here is DECODE throughput.
 //   - The DeltaNet/Mamba recurrent state (constant per sequence, nonzero).
-//   - Speculative decoding, chunked prefill, unverified host-DRAM tiering.
+//   - Speculative decoding, chunked prefill, prefix-cache hits across sessions.
 // Each of these moves the answer in a KNOWN direction, named at the point of use.
 // None is silently approximated, because a fabricated correction is worse than a
 // declared omission.
+//
+// Exact arithmetic throughout, for the same reason demand.js uses it: a batch size
+// is a floor() of a quotient, and a float quotient lands on the wrong side of an
+// integer boundary often enough to change a GPU count.
 
 import { Dec, Rat, formatHalfUp } from "./exact.js";
 
@@ -55,17 +64,24 @@ const ZERO = Rat.from(0n);
 const ONE = Rat.from(1n);
 const BYTES_PER_GB = Rat.from(1000000000n);
 
-// NVFP4 / MXFP4 KV element footprint: 4-bit E2M1 payload (0.5 B) + 1-byte E4M3
-// block scale per 16 channels (0.0625 B) = 9/16 = 0.5625 bytes per element.
-export const FP4_KV_BYTES_PER_ELEMENT = "0.5625";
+// Capacity and bandwidth are both read as DECIMAL GB (10^9 bytes), matching how
+// vendors quote bandwidth. HBM capacity is often really GiB, so a "80GB" card
+// holds ~7% more bytes than this assumes. That bias is absorbed by
+// vram_overhead_fraction and declared here rather than silently corrected: the
+// two conventions cannot both be right, and picking one loudly beats mixing them.
 
 export const TP_CANDIDATES = [1, 2, 4, 8, 16];
 
 // ------------------------------------------------------------------ value slots
+// Same shape demand.js emits, so app.js renders a serving number and a demand
+// number through identical code paths and neither can lose its basis tag.
 function slot(rat, basis, places = 0) {
   return { rat, basis, text: formatHalfUp(rat, places), places };
 }
 
+// A whole count out of JSON. JSON.parse hands back a JS number for `36`, which is
+// exact for every layer count that will ever appear, but Rat.from rejects numbers
+// outright — so the conversion is explicit and integrality is checked, never assumed.
 function count(v, label) {
   if (v === null || v === undefined || v === "") {
     throw new ServingRefusal("missing_input", `${label} is required`, { field: label });
@@ -80,6 +96,8 @@ function count(v, label) {
   return BigInt(t);
 }
 
+// A ratio or measure out of JSON/DOM. Parsed from the DECIMAL STRING so "0.1"
+// means one tenth rather than its binary neighbour (the demand.js:q rationale).
 function num(v, label, { min = null, allowZero = true } = {}) {
   if (v === null || v === undefined || v === "") {
     throw new ServingRefusal("missing_input", `${label} is required`, { field: label });
@@ -103,10 +121,9 @@ function num(v, label, { min = null, allowZero = true } = {}) {
 }
 
 const minRat = (a, b) => (a.lt(b) ? a : b);
-const maxRat = (a, b) => (a.gt(b) ? a : b);
 const ratPow = (base, e) => { let r = ONE; for (let i = 0; i < e; i++) r = r.mul(base); return r; };
 
-// floor/ceil of a non-negative rational. d is positive by Rat's construction invariant.
+// floor of a non-negative rational. d is positive by Rat's construction invariant.
 function floorRat(r) {
   if (r.n <= 0n) return 0n;
   return r.n / r.d;
@@ -118,41 +135,27 @@ function ceilRat(r) {
 
 // ---------------------------------------------------------------- the KV cache
 //
-// Layer-group forms:
-//   standard K+V   : layers x 2 x kv_heads x head_dim x bytes_per_element
-//   unified K=V    : layers x 1 x kv_heads x head_dim x bytes_per_element
-//   classic MLA    : layers x (kv_lora_rank + qk_rope_head_dim) x bytes_per_element
-//   compressed MLA : layers x ((kv_lora_rank + qk_rope_head_dim) x bytes_per_element + index_bytes_per_entry)
-//                    with ceil(context / compress_ratio) retained entries per sequence
-//   linear/GDN     : 0 per token (constant recurrent state, tracked outside growth)
-
-function mlaGroupSpec(g) {
-  const layers = Rat.from(count(g.layers, "group.layers"));
-  const lora = count(g.kv_lora_rank, "group.kv_lora_rank");
-  const rope = count(g.qk_rope_head_dim, "group.qk_rope_head_dim");
-  const compressRatio = g.compress_ratio === undefined || g.compress_ratio === null
-    ? 1n
-    : count(g.compress_ratio, "group.compress_ratio");
-  if (compressRatio < 1n) {
-    throw new ServingRefusal("out_of_range", "group.compress_ratio must be at least 1", { field: "group.compress_ratio", got: String(compressRatio) });
-  }
-  const indexBytes = g.index_bytes_per_entry === undefined || g.index_bytes_per_entry === null
-    ? 0n
-    : count(g.index_bytes_per_entry, "group.index_bytes_per_entry");
-  return { layers, lora, rope, compressRatio, indexBytes };
-}
-
-function mlaEntryBytes(spec, bytesPerElement) {
-  return Rat.from(spec.lora + spec.rope).mul(bytesPerElement).add(Rat.from(spec.indexBytes));
-}
+// One general form covers all four architectures, because the thing that actually
+// varies is per-LAYER-GROUP, not per-model. Published formulas (Raschka, LLM
+// architecture gallery, cited in serving-models.json):
+//
+//   standard K+V : layers x 2 x kv_heads x head_dim x bytes_per_element
+//   unified K=V  : layers x 1 x kv_heads x head_dim x bytes_per_element
+//   MLA          : layers x (kv_lora_rank + qk_rope_head_dim) x bytes_per_element
+//   linear/GDN   : 0 per token (constant recurrent state, tracked outside growth)
+//
+// A single flat layer count CANNOT express a hybrid, which is exactly why the four
+// cases the buyer named are the four cases a flat count gets wrong.
 
 export function groupBytesPerToken(g, bytesPerElement) {
   const b = bytesPerElement;
   const kind = g?.kind;
   if (kind === "linear") return ZERO;
   if (kind === "mla") {
-    const spec = mlaGroupSpec(g);
-    return spec.layers.mul(mlaEntryBytes(spec, b)).div(Rat.from(spec.compressRatio));
+    const layers = Rat.from(count(g.layers, "group.layers"));
+    const lora = count(g.kv_lora_rank, "group.kv_lora_rank");
+    const rope = count(g.qk_rope_head_dim, "group.qk_rope_head_dim");
+    return layers.mul(Rat.from(lora + rope)).mul(b);
   }
   if (kind === "full" || kind === "sliding") {
     const layers = Rat.from(count(g.layers, "group.layers"));
@@ -166,7 +169,13 @@ export function groupBytesPerToken(g, bytesPerElement) {
 }
 
 /**
- * Asymptotic bytes one retained token adds across cache-growing layers.
+ * Bytes one retained token adds, summed over every cache-GROWING layer.
+ *
+ * This is the architecture-comparison figure the cited gallery publishes, and it
+ * deliberately ignores retention: a sliding-window layer costs the same per stored
+ * token as a full-attention one. Retention is a separate question, answered by
+ * kvBytesPerSequence below. Conflating the two is the standard way to get sliding
+ * window wrong in both directions at once.
  */
 export function kvBytesPerToken(groups, bytesPerElement) {
   const b = num(bytesPerElement, "kv bytes per element", { min: 0, allowZero: false });
@@ -178,14 +187,9 @@ export function kvBytesPerToken(groups, bytesPerElement) {
   return total;
 }
 
-/** Tokens (or entries for compressed MLA) a given group retains at this context length. */
+/** Tokens a given group actually retains at this context length. */
 export function groupRetainedTokens(g, contextTokens) {
   if (g?.kind === "linear") return ZERO;
-  if (g?.kind === "mla") {
-    const spec = mlaGroupSpec(g);
-    if (spec.compressRatio === 1n) return contextTokens;
-    return Rat.from(ceilRat(contextTokens.div(Rat.from(spec.compressRatio))));
-  }
   if (g?.kind === "sliding" && g.window_tokens !== undefined && g.window_tokens !== null) {
     return minRat(contextTokens, Rat.from(count(g.window_tokens, "group.window_tokens")));
   }
@@ -193,116 +197,36 @@ export function groupRetainedTokens(g, contextTokens) {
 }
 
 /**
- * Exact KV bytes held by ONE layer group for one sequence at contextTokens.
- *
- * Uses discrete ceiling entry retention for compressed MLA (`ceil(ctx / compress_ratio)`)
- * and fixed `index_bytes_per_entry` alongside quantized payload elements.
- */
-export function groupSequenceBytes(g, contextTokens, bytesPerElement) {
-  const b = bytesPerElement instanceof Rat ? bytesPerElement : num(bytesPerElement, "kv bytes per element", { min: 0, allowZero: false });
-  const ctx = contextTokens instanceof Rat ? contextTokens : num(contextTokens, "context tokens", { min: 0 });
-  if (ctx.isZero()) {
-    // Still validate group kind/fields even at zero context.
-    groupBytesPerToken(g, b);
-    return ZERO;
-  }
-  if (g?.kind === "linear") return ZERO;
-  if (g?.kind === "mla") {
-    const spec = mlaGroupSpec(g);
-    const entries = Rat.from(ceilRat(ctx.div(Rat.from(spec.compressRatio))));
-    return spec.layers.mul(mlaEntryBytes(spec, b)).mul(entries);
-  }
-  return groupBytesPerToken(g, b).mul(groupRetainedTokens(g, ctx));
-}
-
-/**
  * KV bytes held for ONE sequence at this context length.
+ *
+ * Mixed stacks require the layer-wise form, because different layers retain
+ * different numbers of tokens:
+ *
+ *   total = sum over groups of  bytes_per_token(group) x retained_tokens(group)
+ *
+ * This is where sliding window earns its keep: past the window those layers stop
+ * growing entirely, so a 128k-context Gemma holds far less than a linear
+ * extrapolation of its per-token figure would suggest.
  */
 export function kvBytesPerSequence(groups, contextTokens, bytesPerElement) {
   const b = num(bytesPerElement, "kv bytes per element", { min: 0, allowZero: false });
   const ctx = num(contextTokens, "context tokens", { min: 0 });
   let total = ZERO;
   for (const g of groups ?? []) {
-    total = total.add(groupSequenceBytes(g, ctx, b));
-  }
-  return total;
-}
-
-/**
- * Bytes in ONE layer group that are provably resident AND block-shareable across
- * concurrent sequences at peakContextTokens under PagedAttention.
- *
- * Rules:
- *   - Only complete aligned blocks of `pageBlockTokens` (K >= 1) inside `[0, min(peakCtx, sharedPrefix))`
- *     are credited. A partially filled trailing prefix block mixes user-specific tokens and cannot share.
- *   - For sliding-window layers (`window_tokens = W`), retention keeps ONLY the tail logical interval
- *     `[peakCtx - min(peakCtx, W), peakCtx)`. Only complete blocks inside the intersection of that
- *     retained tail and the shared prefix `[0, min(peakCtx, sharedPrefix))` are shareable.
- *   - For compressed MLA (`compress_ratio = r`), each entry spans `r` tokens and pages group `K`
- *     entries (`r * K` tokens per complete block).
- */
-export function groupShareableBytes(g, peakContextTokens, sharedPrefixTokens, bytesPerElement, pageBlockTokens = 16n) {
-  const b = bytesPerElement instanceof Rat ? bytesPerElement : num(bytesPerElement, "kv bytes per element", { min: 0, allowZero: false });
-  const peakCtx = peakContextTokens instanceof Rat ? peakContextTokens : num(peakContextTokens, "peak context tokens", { min: 0 });
-  const shared = sharedPrefixTokens instanceof Rat ? sharedPrefixTokens : num(sharedPrefixTokens, "shared prefix tokens", { min: 0 });
-  const blockK = typeof pageBlockTokens === "bigint" ? pageBlockTokens : count(pageBlockTokens, "page block tokens");
-  if (blockK < 1n) {
-    throw new ServingRefusal("out_of_range", "page block tokens must be at least 1", { field: "page_block_tokens" });
-  }
-  if (peakCtx.isZero() || shared.isZero() || g?.kind === "linear") {
-    if (g?.kind !== "linear") groupBytesPerToken(g, b);
-    return ZERO;
-  }
-
-  const clampedShared = minRat(peakCtx, shared);
-  const blockKRat = Rat.from(blockK);
-
-  if (g?.kind === "mla") {
-    const spec = mlaGroupSpec(g);
-    const fullPrefixEntries = floorRat(clampedShared.div(Rat.from(spec.compressRatio)));
-    const alignedEntries = (fullPrefixEntries / blockK) * blockK;
-    if (alignedEntries <= 0n) return ZERO;
-    return spec.layers.mul(mlaEntryBytes(spec, b)).mul(Rat.from(alignedEntries));
-  }
-
-  const perTok = groupBytesPerToken(g, b);
-  if (g?.kind === "sliding" && g.window_tokens !== undefined && g.window_tokens !== null) {
-    const win = Rat.from(count(g.window_tokens, "group.window_tokens"));
-    const tailStart = maxRat(ZERO, peakCtx.sub(minRat(peakCtx, win)));
-    // Only complete blocks lying wholly inside [tailStart, clampedShared) are guaranteed
-    // resident and identical across sequences.
-    const alignedStart = ceilRat(tailStart.div(blockKRat)) * blockK;
-    const alignedEnd = floorRat(clampedShared.div(blockKRat)) * blockK;
-    if (alignedEnd <= alignedStart) return ZERO;
-    return perTok.mul(Rat.from(alignedEnd - alignedStart));
-  }
-
-  const alignedTokens = floorRat(clampedShared.div(blockKRat)) * blockK;
-  if (alignedTokens <= 0n) return ZERO;
-  return perTok.mul(Rat.from(alignedTokens));
-}
-
-export function kvShareableBytes(groups, peakContextTokens, sharedPrefixTokens, bytesPerElement, pageBlockTokens = 16) {
-  const b = num(bytesPerElement, "kv bytes per element", { min: 0, allowZero: false });
-  const peakCtx = num(peakContextTokens, "peak context tokens", { min: 0 });
-  const shared = num(sharedPrefixTokens, "shared prefix tokens", { min: 0 });
-  const blockK = count(pageBlockTokens, "page block tokens");
-  if (blockK < 1n) {
-    throw new ServingRefusal("out_of_range", "page block tokens must be at least 1", { field: "page_block_tokens" });
-  }
-  let total = ZERO;
-  for (const g of groups ?? []) {
-    total = total.add(groupShareableBytes(g, peakCtx, shared, b, blockK));
+    total = total.add(groupBytesPerToken(g, b).mul(groupRetainedTokens(g, ctx)));
   }
   return total;
 }
 
 // ------------------------------------------------------------------- the weights
 //
-// Fail-closed residency: `params_b` is always the full checkpoint parameter count,
-// and GPU VRAM must hold ALL of `params_b` unless an explicit, evidenced
-// `hostTierProfile` proves host-DRAM placement for declared lookup tables
-// (`gpu_backbone_params_b` + `host_offload_params_b` + `host_offload_kind`).
+// The MoE split, and why it is two numbers rather than one. A mixture-of-experts
+// model keeps EVERY expert resident in VRAM but reads only the ACTIVE ones each
+// step. Collapsing that into one figure gets the answer wrong in opposite
+// directions depending on which figure you keep: total params overstates the
+// bandwidth cost, active params understates the memory cost. Qwen3-Next 80B-A3B
+// is 80B resident and 3B read — a 27x difference, and the entire reason its
+// per-GPU throughput does not resemble a dense 80B.
 
 export function weightBytes({ paramsB, activeParamsB, bytesPerParam }) {
   const bpp = num(bytesPerParam, "bytes per parameter", { min: 0, allowZero: false });
@@ -314,112 +238,9 @@ export function weightBytes({ paramsB, activeParamsB, bytesPerParam }) {
     throw new ServingRefusal("active_exceeds_total", `active parameters (${formatHalfUp(active, 3)}B) cannot exceed total parameters (${formatHalfUp(total, 3)}B)`, { active: formatHalfUp(active, 3), total: formatHalfUp(total, 3) });
   }
   return {
-    resident: total.mul(BYTES_PER_GB).mul(bpp),
-    read_per_step: active.mul(BYTES_PER_GB).mul(bpp),
+    resident: total.mul(BYTES_PER_GB).mul(bpp), // every expert, held in VRAM
+    read_per_step: active.mul(BYTES_PER_GB).mul(bpp), // only the active experts, read per token
     is_moe: active.lt(total),
-  };
-}
-
-export function resolveModelResidency({ model, bytesPerParam, runtimeKey = null, hostTierProfile = null }) {
-  const bpp = num(bytesPerParam, "bytes per parameter", { min: 0, allowZero: false });
-  const full = weightBytes({
-    paramsB: model?.params_b,
-    activeParamsB: model?.active_params_b,
-    bytesPerParam: bpp,
-  });
-
-  const hasSplit = model?.gpu_backbone_params_b !== undefined
-    && model?.gpu_backbone_params_b !== null
-    && model?.host_offload_params_b !== undefined
-    && model?.host_offload_params_b !== null;
-
-  if (!hasSplit || !hostTierProfile || hostTierProfile.allowHostTierOffload !== true) {
-    return {
-      ...full,
-      checkpoint_resident: full.resident,
-      host_offload_bytes: ZERO,
-      host_offload_active: false,
-      host_offload_reason: hasSplit ? "host_tier_profile_absent" : null,
-    };
-  }
-
-  const cleanRuntime = typeof runtimeKey === "string" ? runtimeKey.trim() : "";
-  if (
-    !cleanRuntime
-    || !Array.isArray(hostTierProfile.supportedRuntimes)
-    || hostTierProfile.supportedRuntimes.length === 0
-    || !hostTierProfile.supportedRuntimes.includes(cleanRuntime)
-  ) {
-    return {
-      ...full,
-      checkpoint_resident: full.resident,
-      host_offload_bytes: ZERO,
-      host_offload_active: false,
-      host_offload_reason: "runtime_does_not_support_host_offload",
-    };
-  }
-
-  const cleanOffloadKind = typeof model?.host_offload_kind === "string" ? model.host_offload_kind.trim() : "";
-  if (
-    !cleanOffloadKind
-    || !Array.isArray(hostTierProfile.supportedOffloadKinds)
-    || hostTierProfile.supportedOffloadKinds.length === 0
-    || !hostTierProfile.supportedOffloadKinds.includes(cleanOffloadKind)
-  ) {
-    return {
-      ...full,
-      checkpoint_resident: full.resident,
-      host_offload_bytes: ZERO,
-      host_offload_active: false,
-      host_offload_reason: "offload_kind_unsupported",
-    };
-  }
-
-  const totalParamsB = num(model.params_b, "total parameters (billions)", { min: 0, allowZero: false });
-  const gpuBackboneB = num(model.gpu_backbone_params_b, "GPU backbone parameters (billions)", { min: 0, allowZero: false });
-  const hostOffloadB = num(model.host_offload_params_b, "host offload parameters (billions)", { min: 0 });
-  const sumSplitB = gpuBackboneB.add(hostOffloadB);
-  const splitDeltaB = sumSplitB.ge(totalParamsB) ? sumSplitB.sub(totalParamsB) : totalParamsB.sub(sumSplitB);
-  if (!hostOffloadB.gt(ZERO) || !gpuBackboneB.lt(totalParamsB) || splitDeltaB.gt(new Rat(1n, 50n))) {
-    return {
-      ...full,
-      checkpoint_resident: full.resident,
-      host_offload_bytes: ZERO,
-      host_offload_active: false,
-      host_offload_reason: "inconsistent_offload_split",
-    };
-  }
-  const hostOffloadBytes = hostOffloadB.mul(BYTES_PER_GB).mul(bpp);
-
-  if (hostTierProfile.hostDramGb === undefined || hostTierProfile.hostDramGb === null || hostTierProfile.hostDramGb === "") {
-    return {
-      ...full,
-      checkpoint_resident: full.resident,
-      host_offload_bytes: ZERO,
-      host_offload_active: false,
-      host_offload_reason: "host_dram_unspecified",
-    };
-  }
-
-  const hostDramBytes = num(hostTierProfile.hostDramGb, "host DRAM (GB)", { min: 0 }).mul(BYTES_PER_GB);
-  if (hostDramBytes.lt(hostOffloadBytes)) {
-    return {
-      ...full,
-      checkpoint_resident: full.resident,
-      host_offload_bytes: ZERO,
-      host_offload_active: false,
-      host_offload_reason: "insufficient_host_dram",
-    };
-  }
-
-  return {
-    resident: gpuBackboneB.mul(BYTES_PER_GB).mul(bpp),
-    checkpoint_resident: full.resident,
-    read_per_step: full.read_per_step,
-    is_moe: full.is_moe,
-    host_offload_bytes: hostOffloadBytes,
-    host_offload_active: true,
-    host_offload_reason: null,
   };
 }
 
@@ -427,17 +248,27 @@ export function resolveModelResidency({ model, bytesPerParam, runtimeKey = null,
 
 /**
  * Solve the serving configuration for one model on one accelerator.
+ *
+ * Returns the tensor-parallel size, the batch that fits under BOTH the VRAM
+ * ceiling and the per-stream speed floor, and the throughput that follows.
+ *
+ * @param {object} a
+ * @param {object} a.model            {params_b, active_params_b, groups}
+ * @param {number|string} a.contextTokens
+ * @param {string} a.bytesPerParam    weight quantisation, bytes per parameter
+ * @param {string} a.kvBytesPerElement KV quantisation, bytes per cached element
+ * @param {string} a.vramGb           per-GPU capacity (from gpu-pricing.json)
+ * @param {string} a.bandwidthGbS     per-GPU memory bandwidth
+ * @param {string} a.runtimeEfficiency fraction of peak bandwidth achieved [ASSUMED]
+ * @param {string} a.tpEfficiency     per-extra-GPU scaling factor [ASSUMED]
+ * @param {string} a.vramOverheadFraction reserved for activations/fragmentation [ASSUMED]
+ * @param {string} [a.perStreamFloorTokS] interactive floor; null in batch mode
+ * @param {number} [a.maxBatch]       runtime concurrency cap, null = uncapped
+ * @param {number[]} [a.tpCandidates] tensor-parallel sizes to try
  */
 export function servingPlan({
   model,
   contextTokens,
-  peakContextTokens = null,
-  sharedPrefixTokens = 0,
-  sharedPrefixGuaranteed = true,
-  supportsPrefixCache = false,
-  pageBlockTokens = 16,
-  runtimeKey = null,
-  hostTierProfile = null,
   bytesPerParam,
   kvBytesPerElement,
   vramGb,
@@ -450,14 +281,6 @@ export function servingPlan({
   tpCandidates = TP_CANDIDATES,
 }) {
   const ctx = num(contextTokens, "context tokens", { min: 1 });
-  const peakCtxRaw = peakContextTokens === null || peakContextTokens === undefined || peakContextTokens === ""
-    ? ctx
-    : num(peakContextTokens, "peak context tokens", { min: 1 });
-  const peakCtx = maxRat(ctx, peakCtxRaw);
-  const sharedPrefix = sharedPrefixTokens === null || sharedPrefixTokens === undefined || sharedPrefixTokens === ""
-    ? ZERO
-    : num(sharedPrefixTokens, "shared prefix tokens", { min: 0 });
-
   const eff = num(runtimeEfficiency, "runtime efficiency", { min: 0, allowZero: false });
   const tpEff = num(tpEfficiency, "tensor-parallel efficiency", { min: 0, allowZero: false });
   const overhead = num(vramOverheadFraction, "VRAM overhead fraction", { min: 0 });
@@ -467,27 +290,9 @@ export function servingPlan({
   const vramPerGpu = num(vramGb, "GPU VRAM (GB)", { min: 0, allowZero: false }).mul(BYTES_PER_GB).mul(ONE.sub(overhead));
   const bwPerGpu = num(bandwidthGbS, "GPU memory bandwidth (GB/s)", { min: 0, allowZero: false }).mul(BYTES_PER_GB).mul(eff);
 
-  const w = resolveModelResidency({ model, bytesPerParam, runtimeKey, hostTierProfile });
+  const w = weightBytes({ paramsB: model?.params_b, activeParamsB: model?.active_params_b, bytesPerParam });
   const kvPerToken = kvBytesPerToken(model?.groups, kvBytesPerElement);
-  const kvPerSeqActive = kvBytesPerSequence(model?.groups, ctx, kvBytesPerElement);
-  const kvPerSeqPeak = peakCtx.eq(ctx) ? kvPerSeqActive : kvBytesPerSequence(model?.groups, peakCtx, kvBytesPerElement);
-
-  // Flat byte overrides carry no layer/page structure and get zero sharing credit.
-  // Runtimes without proven prefix-block sharing (e.g. llama.cpp or unknown) and
-  // probabilistic average hit rates without a batch-wide resident prefix guarantee
-  // also get zero credit so concurrent misses never overflow peak VRAM.
-  const canSharePrefix = Boolean(supportsPrefixCache)
-    && Boolean(sharedPrefixGuaranteed)
-    && !model?.kv_override
-    && sharedPrefix.gt(ZERO);
-  const blockTokens = canSharePrefix ? count(pageBlockTokens ?? 16, "page block tokens") : 1n;
-  if (canSharePrefix && blockTokens < 1n) {
-    throw new ServingRefusal("out_of_range", "page block tokens must be at least 1", { field: "page_block_tokens" });
-  }
-  const kvShareablePeak = canSharePrefix
-    ? kvShareableBytes(model?.groups, peakCtx, sharedPrefix, kvBytesPerElement, blockTokens)
-    : ZERO;
-  const kvUnsharedTail = maxRat(ZERO, kvPerSeqPeak.sub(kvShareablePeak));
+  const kvPerSeq = kvBytesPerSequence(model?.groups, ctx, kvBytesPerElement);
 
   const floor = perStreamFloorTokS === null || perStreamFloorTokS === undefined || perStreamFloorTokS === ""
     ? null
@@ -499,6 +304,9 @@ export function servingPlan({
     const n = count(tp, "tensor-parallel size");
     if (n < 1n) continue;
     const nR = Rat.from(n);
+    // Aggregate bandwidth across the group, discounted for collective overhead.
+    // Weights and KV are both sharded, so the whole group reads the whole model
+    // once per step in parallel — the discount is what stops this being free.
     const aggBw = nR.mul(bwPerGpu).mul(ratPow(tpEff, Number(n) - 1));
     const vramTotal = nR.mul(vramPerGpu);
 
@@ -507,23 +315,13 @@ export function servingPlan({
       continue;
     }
 
-    // Batch under the peak-turn memory ceiling:
-    //   VRAM_kv(B) = B * kvPerSeqPeak - (B - 1) * kvShareablePeak
-    //              = kvPerSeqPeak + (B - 1) * kvUnsharedTail  <= memRoom.
-    // The single-sequence guard (memRoom >= kvPerSeqPeak) always holds first.
+    // Batch under the memory ceiling. A model with no cache-growing layers is
+    // unbounded here rather than a division by zero — that is a real architecture
+    // (pure linear attention), not an error, so it takes the cap instead.
     const memRoom = vramTotal.sub(w.resident);
-    let batchMem = null;
-    if (!kvPerSeqPeak.isZero()) {
-      if (memRoom.lt(kvPerSeqPeak)) {
-        batchMem = 0n;
-      } else if (kvUnsharedTail.isZero()) {
-        batchMem = null;
-      } else {
-        batchMem = 1n + floorRat(memRoom.sub(kvPerSeqPeak).div(kvUnsharedTail));
-      }
-    }
+    const batchMem = kvPerSeq.isZero() ? null : floorRat(memRoom.div(kvPerSeq));
 
-    // Decode bandwidth stays charged per sequence at active context (no unverified HBM read sharing).
+    // Batch under the per-stream floor: per_stream = aggBw / (w_read + B*kv) >= floor.
     let batchSpeed = null;
     if (floor !== null) {
       const byteBudget = aggBw.div(floor);
@@ -531,7 +329,7 @@ export function servingPlan({
         attempts.push({ tp: Number(n), reason: "floor_unreachable", detail: `reading ${formatHalfUp(w.read_per_step.div(BYTES_PER_GB), 2)} GB of weights per step already costs more than ${formatHalfUp(floor, 1)} tok/s allows at this bandwidth` });
         continue;
       }
-      batchSpeed = kvPerSeqActive.isZero() ? null : floorRat(byteBudget.sub(w.read_per_step).div(kvPerSeqActive));
+      batchSpeed = kvPerSeq.isZero() ? null : floorRat(byteBudget.sub(w.read_per_step).div(kvPerSeq));
     }
 
     let batch = null;
@@ -539,27 +337,20 @@ export function servingPlan({
       if (c === null) continue;
       batch = batch === null ? c : (c < batch ? c : batch);
     }
+    // Every constraint came back unbounded (no KV growth, no floor, no cap).
     if (batch === null) batch = 1n;
 
     if (batch < 1n) {
       const why = batchSpeed !== null && batchSpeed < 1n ? "floor_admits_no_batch" : "vram_admits_no_batch";
-      attempts.push({
-        tp: Number(n),
-        reason: why,
-        detail: why === "floor_admits_no_batch"
-          ? `holding ${formatHalfUp(floor, 1)} tok/s per stream leaves room for no concurrent sequence at ${formatHalfUp(ctx, 0)} tokens of context`
-          : `${formatHalfUp(kvPerSeqPeak.div(BYTES_PER_GB), 2)} GB of peak KV per sequence does not fit in the ${formatHalfUp(memRoom.div(BYTES_PER_GB), 1)} GB left after weights`,
-      });
+      attempts.push({ tp: Number(n), reason: why, detail: why === "floor_admits_no_batch" ? `holding ${formatHalfUp(floor, 1)} tok/s per stream leaves room for no concurrent sequence at ${formatHalfUp(ctx, 0)} tokens of context` : `${formatHalfUp(kvPerSeq.div(BYTES_PER_GB), 2)} GB of KV per sequence does not fit in the ${formatHalfUp(memRoom.div(BYTES_PER_GB), 1)} GB left after weights` });
       continue;
     }
 
-    const batchR = Rat.from(batch);
-    const bytesPerStep = w.read_per_step.add(batchR.mul(kvPerSeqActive));
-    const perStream = aggBw.div(bytesPerStep);
-    const aggregate = perStream.mul(batchR);
+    const bytesPerStep = w.read_per_step.add(Rat.from(batch).mul(kvPerSeq));
+    const perStream = aggBw.div(bytesPerStep); // tokens/s one user sees
+    const aggregate = perStream.mul(Rat.from(batch)); // tokens/s the replica delivers
     const perGpu = aggregate.div(nR);
-    const kvBatchBytes = batchR.mul(kvPerSeqPeak).sub(Rat.from(batch - 1n).mul(kvShareablePeak));
-    const vramUsed = w.resident.add(kvBatchBytes);
+    const vramUsed = w.resident.add(Rat.from(batch).mul(kvPerSeq));
 
     const bound = batchSpeed !== null && batchSpeed === batch ? "per-stream speed floor"
       : capBatch !== null && capBatch === batch ? "runtime concurrency cap"
@@ -570,31 +361,29 @@ export function servingPlan({
       ok: true,
       tensor_parallel: slot(Rat.from(n), "derived"),
       gpus_per_replica: Number(n),
-      batch: slot(batchR, "derived"),
+      batch: slot(Rat.from(batch), "derived"),
       batch_bound_by: bound,
       per_stream_tokens_s: slot(perStream, "assumed", 2),
       tokens_s_per_replica: slot(aggregate, "assumed", 2),
       tokens_s_per_gpu: slot(perGpu, "assumed", 2),
       kv_bytes_per_token: slot(kvPerToken, "derived"),
-      kv_gb_per_sequence: slot(kvPerSeqActive.div(BYTES_PER_GB), "derived", 3),
-      kv_gb_per_sequence_peak: slot(kvPerSeqPeak.div(BYTES_PER_GB), "derived", 3),
-      kv_gb_shared_prefix: slot(kvShareablePeak.div(BYTES_PER_GB), "derived", 3),
+      kv_gb_per_sequence: slot(kvPerSeq.div(BYTES_PER_GB), "derived", 3),
       weights_gb_resident: slot(w.resident.div(BYTES_PER_GB), "derived", 2),
       weights_gb_read_per_step: slot(w.read_per_step.div(BYTES_PER_GB), "derived", 2),
-      weights_gb_host_offload: slot(w.host_offload_bytes.div(BYTES_PER_GB), "derived", 2),
-      host_offload_active: w.host_offload_active,
       is_moe: w.is_moe,
       vram_gb_used_per_gpu: slot(vramUsed.div(nR).div(BYTES_PER_GB), "derived", 2),
       vram_gb_usable_per_gpu: slot(vramPerGpu.div(BYTES_PER_GB), "derived", 2),
       context_tokens: slot(ctx, "input"),
-      peak_context_tokens: slot(peakCtx, "input"),
-      shared_prefix_tokens: slot(sharedPrefix, "input"),
-      prefix_cache_applied: kvShareablePeak.gt(ZERO) && batch > 1n,
+      // Every throughput figure above rests on [ASSUMED] efficiency constants and
+      // a decode-only model, so it can never back a modelled_p95_capacity verdict
+      // (SPEC §6.5). The tag rides on the value; this flag lets callers assert it.
       assumed: true,
       rejected_smaller: attempts,
     };
   }
 
+  // Nothing fit. Report WHY, per attempted size — a bare "does not fit" sends the
+  // user to guess at which knob to turn, and the two failure modes want opposite moves.
   throw new ServingRefusal(
     "no_viable_configuration",
     `this model does not serve on ${String(model?.label ?? "the selected accelerator")} at any tensor-parallel size up to ${tpCandidates[tpCandidates.length - 1]}: ${attempts.map((a) => `${a.tp}x — ${a.detail}`).join("; ")}`,
@@ -604,6 +393,12 @@ export function servingPlan({
 
 /**
  * The evidence-store view of a solved configuration (SPEC §6.3).
+ *
+ * The dimensions are the ones calculator.js:EVIDENCE_DIMS already matches on, so
+ * when measured rows do land the config asked about is derived from the same
+ * inputs rather than assembled a second time with different names. Nothing here
+ * asserts a measurement — it names the configuration a measurement WOULD have to
+ * match, which is exactly what the all-dimensions rule requires.
  */
 export function evidenceConfig({ plan, modelId, runtimeKey, runtimeVersion, quantization, gpuId, promptTokens, outputTokens, batchMode }) {
   return {

@@ -1953,7 +1953,13 @@ test("calculator receiver clears stale sessionProjection on preset click, refuse
   // G1 on app.js receiver: 40,000 B free VRAM with 50% hit rate (23,000 B peak/seq) sizes batch=1, never batch=2
   h.state.gpuPricing.gpus.tight_50kb = { label: "Tight 50KB", vram_gb: 0.00005 };
   h.state.serverPricing.rows.push({ server_id: "srv-tight-1x", label: "1x Tight", gpu_id: "tight_50kb", gpu_count: 1, form_factor: "1U", usd_typical: "10000" });
-  h.state.powerSeed.gpus.tight_50kb = { board_tdp_w: 300, typical_load_fraction: "0.7" };
+  h.state.powerSeed = {
+    ...h.state.powerSeed,
+    rows: [
+      ...h.state.powerSeed.rows,
+      { gpu_id: "tight_50kb", label: "Tight 50KB", tdp_w: 300, quoted_text: "300W", source_url: "https://example.com", observed_at: "2026-09-03" },
+    ],
+  };
   powerMod.configurePowerSeed(h.state.powerSeed);
   h.state.servingData = {
     ...h.state.servingData,
@@ -2044,9 +2050,22 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
     return { node, get, state: st, context: ctx };
   };
 
+  const cloneTestData = () => ({
+    ...structuredClone({
+      manifest: baseFullData.manifest,
+      catalog: baseFullData.catalog,
+      gpuPricing: baseFullData.gpuPricing,
+      serverPricing: baseFullData.serverPricing,
+      servingData: baseFullData.servingData,
+      powerSeed: baseFullData.powerSeed,
+      subscriptions: baseFullData.subscriptions,
+    }),
+    fx: normalizeFxDocument({ observed_at: "2026-09-01", usd_thb: "33.801", source_id: "fixture" }),
+  });
+
   // G5: S=20,000, U=1,000, O=500, T=2, rawContextTokens=23,000 -> activeCtx=22,250 vs peakCtx=23,000 in both solved and fit-refusal states (EN & TH)
   for (const lang of ["en", "th"]) {
-    const ui = makeSizerUiVm(structuredClone(baseFullData));
+    const ui = makeSizerUiVm(cloneTestData());
     ui.state.lang = lang;
     Object.assign(ui.state.draft, {
       sessionStackingActive: true,
@@ -2086,7 +2105,7 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
   }
 
   // G6: Boot against pre-FP4 serving-models.json + load a saved v2 fp4 scenario -> marks fp4 unavailable, refuses KV telemetry cleanly, keeps v1 untouched
-  const preFp4Data = structuredClone(baseFullData);
+  const preFp4Data = cloneTestData();
   delete preFp4Data.servingData.kv_quantization.fp4;
   const legacyV1Raw = encodeSizerSaveEnvelope([
     { id: "v1-keep", name: "V1 Keep", savedAt: "2026-11-15T00:00:00Z", fragment: encodeSizerFragment(normalizeSizerInput({ users: 40 })) },

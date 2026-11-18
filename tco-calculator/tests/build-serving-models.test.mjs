@@ -557,13 +557,18 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
   assert.ok(Number(dsParams.gpu_backbone_params_b) < Number(dsParams.params_b));
   assert.equal(dsParams.host_offload_kind, "engram");
 
-  // 2. Flint (glm4_moe_lite): 46 MLA layers (512+64), 39.79B safetensors
   const flintGroups = deriveGroups(FLINT_CFG);
-  assert.deepEqual(flintGroups, [{ kind: "mla", layers: 46, kv_lora_rank: 512, qk_rope_head_dim: 64 }]);
-  const flintGeom = geometryParams(FLINT_CFG);
-  const flintParams = deriveParams("RecursiveSI/flint", FLINT_CFG, flintGeom.total);
-  assert.equal(flintParams.is_moe, true);
-  assert.ok(Number(flintParams.active_params_b) < 4);
+  assert.deepEqual(flintGroups, [
+    { kind: "full", layers: 14, kv_heads: 4, head_dim: 128, tensors: 2 },
+    { kind: "sliding", layers: 35, kv_heads: 4, head_dim: 128, tensors: 2, window_tokens: 513 },
+  ]);
+  const flintParams = deriveParams("RecursiveSI/flint", FLINT_CFG, FLINT_SAFETENSORS_TOTAL);
+  assert.equal(flintParams.params_b, "39.79");
+  assert.equal(flintParams.active_params_b, "2.82");
+  assert.throws(
+    () => deriveParams("RecursiveSI/flint", { ...FLINT_CFG, num_experts: 128 }, FLINT_SAFETENSORS_TOTAL),
+    (err) => err instanceof Skip && /does not reproduce the published total/.test(err.reason),
+  );
 
   // 3. Kimi-Linear: synthesizes 20 linear + 7 MLA (nope -> rope=0) from 1-based full_attn_layers
   const kimiGroups = deriveGroups(KIMI_LINEAR_48B_CFG);

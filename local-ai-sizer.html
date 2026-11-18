@@ -557,6 +557,46 @@
     font-size: var(--fs-sm);
     color: var(--dim);
   }
+  .telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    min-width: 0;
+  }
+  @media (max-width: 1240px) {
+    .telemetry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .telemetry-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .telemetry-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    min-width: 0;
+  }
+  .telemetry-kicker {
+    font-size: var(--fs-xs);
+    color: var(--dim);
+    overflow-wrap: anywhere;
+  }
+  .telemetry-val {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--fs-md);
+    font-weight: 600;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .telemetry-sub {
+    font-size: var(--fs-xs);
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
 
   /* Details / Disclosure */
   details.wb-disclosure {
@@ -1018,14 +1058,32 @@
             <span class="field-hint" id="hint-users"></span>
           </div>
           <div class="field">
-            <label for="in-raw-prompt" id="lbl-raw-prompt">Raw prompt tokens / turn</label>
-            <input id="in-raw-prompt" class="num-input" type="number" min="16" max="2000000" step="500" data-field="rawPromptTokens">
+            <label for="in-sys-prompt" id="lbl-sys-prompt">Agent system prompt (tokens)</label>
+            <input id="in-sys-prompt" class="num-input" type="number" min="0" max="2000000" step="1000" data-field="rawSystemPromptTokens">
+            <span class="field-hint" id="hint-eff-sys"></span>
+          </div>
+          <div class="field">
+            <label for="in-raw-prompt" id="lbl-raw-prompt">Fresh input / turn (RAG &amp; user)</label>
+            <input id="in-raw-prompt" class="num-input" type="number" min="1" max="2000000" step="250" data-field="rawPromptTokens">
             <span class="field-hint" id="hint-eff-prompt"></span>
           </div>
+          <div class="field">
+            <label for="in-turns-session" id="lbl-turns-session">Turns / session (stacked)</label>
+            <input id="in-turns-session" class="num-input" type="number" min="1" max="100" step="1" data-field="turnsPerSession">
+            <span class="field-hint" id="hint-turns-session"></span>
+          </div>
+        </div>
+
+        <div class="field-grid">
           <div class="field">
             <label for="in-raw-output" id="lbl-raw-output">Output tokens / turn</label>
             <input id="in-raw-output" class="num-input" type="number" min="1" max="500000" step="50" data-field="rawOutputTokens">
             <span class="field-hint" id="hint-output"></span>
+          </div>
+          <div class="field">
+            <label for="in-kv-hit-pct" id="lbl-kv-hit-pct">KV / prefix cache hit (%)</label>
+            <input id="in-kv-hit-pct" class="num-input" type="number" min="0" max="100" step="5" data-field="kvHitPct">
+            <span class="field-hint" id="hint-kv-hit"></span>
           </div>
           <div class="field">
             <label for="in-raw-ctx" id="lbl-raw-ctx">Context window (raw)</label>
@@ -1033,6 +1091,8 @@
             <span class="field-hint" id="hint-eff-ctx"></span>
           </div>
         </div>
+
+        <div class="auto-callout" id="person-token-bar"></div>
 
         <details class="wb-disclosure" id="details-traffic">
           <summary><span id="sum-traffic">ตั้งค่าความหนาแน่นการใช้งานและตัวคูณโทเคนภาษาไทย (Sessions, Concurrency, Thai 1.4x)</span> <span class="badge" id="badge-traffic"></span></summary>
@@ -1101,6 +1161,7 @@
               <option value="bf16">BF16 KV (2 B/elem)</option>
               <option value="fp8">FP8 KV (1 B/elem)</option>
               <option value="int8">INT8 KV (1 B/elem)</option>
+              <option value="fp4">FP4 KV NVFP4/MXFP4 (0.5625 B/elem)</option>
             </select>
           </div>
           <div class="field">
@@ -1141,6 +1202,8 @@
             </div>
           </div>
         </details>
+
+        <div class="auto-callout" id="kv-telemetry-bar"></div>
 
         <div class="auto-callout" id="auto-gpu-callout" data-status="qualified_pass"></div>
 
@@ -1390,6 +1453,6 @@
 
   <pre id="auditReport" hidden></pre>
 
-  <script type="module" src="./tco-calculator/sizer-ui.js?v=3"></script>
+  <script type="module" src="./tco-calculator/sizer-ui.js?v=20261118-wb2"></script>
 </body>
 </html>

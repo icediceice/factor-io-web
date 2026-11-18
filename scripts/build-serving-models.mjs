@@ -710,6 +710,7 @@ function archSummary(groups, isMoe) {
 const slug = (repoId) => (repoId.split("/").pop() ?? repoId).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 const shapeSignature = (m) => JSON.stringify([m.params_b, m.active_params_b, m.groups]);
+export const COMMIT_SHA_RE = /^[0-9a-f]{40}$/i;
 
 // ------------------------------------------------------------------- the builder
 export async function compileModel(entry, observedAt, { fetchText = defaultFetchText, pinnedId = null } = {}) {
@@ -720,12 +721,16 @@ export async function compileModel(entry, observedAt, { fetchText = defaultFetch
   const detailUrl = `${HUB}/api/models/${repoId}?expand[]=sha&expand[]=safetensors&expand[]=config&expand[]=downloads&expand[]=likes`;
   const detail = await fetchHubJSON(detailUrl);
 
-  // Coherent revision check: metadata and config.json MUST come from the same commit sha.
-  const detailSha = typeof detail?.sha === "string" && detail.sha.trim() ? detail.sha.trim() : null;
-  if (!detailSha) {
-    throw new Skip("Hub metadata returned no commit sha — revision coherence cannot be verified", detailUrl);
+  // Coherent revision check: metadata and config.json MUST come from the same immutable 40-hex commit sha.
+  const rawDetailSha = typeof detail?.sha === "string" ? detail.sha.trim() : "";
+  if (!rawDetailSha || !COMMIT_SHA_RE.test(rawDetailSha)) {
+    throw new Skip(
+      "Hub metadata did not return an immutable 40-character commit sha — revision coherence cannot be verified",
+      rawDetailSha || detailUrl,
+    );
   }
-  if (typeof entry?.sha === "string" && entry.sha.trim() && entry.sha.trim() !== detailSha) {
+  const detailSha = rawDetailSha.toLowerCase();
+  if (typeof entry?.sha === "string" && entry.sha.trim() && entry.sha.trim().toLowerCase() !== detailSha) {
     throw new Skip(
       "repository ref advanced between discovery and metadata fetch — refusing mixed-revision derivation",
       `${entry.sha.trim()} -> ${detailSha}`,
@@ -786,7 +791,9 @@ export async function compileModel(entry, observedAt, { fetchText = defaultFetch
     basis: "derived",
     groups,
     note: `Derived from ${repoId}@${detailSha.slice(0, 12)} config.json on ${observedAt}: ${groups.map((g) => `${g.layers} ${g.kind}${g.compress_ratio > 1 ? `(${g.compress_ratio}:1)` : ""}`).join(" + ")} layer${groups.length > 1 || groups[0].layers > 1 ? "s" : ""}. Parameter total is the Hub's safetensors index at the same commit; active parameters are ${params.active_basis === "declared" ? "the vendor's own -A<n>B declaration" : params.active_basis === "dense" ? "equal to total (no routed experts)" : `computed from the MoE geometry, which reproduced the published total to within 2% (${params.fit.geometry_params}B vs ${params.fit.published_params}B)`}.${offloadClause} Nothing here is a benchmark and no per-token KV figure has been independently published for this row.`,
-    source_url: `${HUB}/${repoId}`,
+    source_repo: repoId,
+    source_revision: detailSha,
+    source_url: configUrl,
     config_url: configUrl,
     revision: detailSha,
     model_type: lc.model_type ?? cfg.model_type ?? null,
@@ -827,6 +834,28 @@ export function validateCatalogDocument(doc) {
   for (const m of doc.models) {
     if (ids.has(m.id)) throw new ShapeError("catalog:models", `unique model id (${m.id})`, m.id);
     ids.add(m.id);
+    if (m.basis === "derived") {
+      mustShape(
+        typeof m.source_repo === "string" && /^[^/\s]+\/[^/\s]+$/.test(m.source_repo),
+        `catalog:model:${m.id}:source_repo`,
+        "derived model to carry org/repo source_repo",
+        m.source_repo,
+      );
+      const rev = m.source_revision ?? m.revision;
+      mustShape(
+        typeof rev === "string" && COMMIT_SHA_RE.test(rev),
+        `catalog:model:${m.id}:source_revision`,
+        "derived model to carry an immutable 40-character hex commit sha",
+        rev,
+      );
+      const expectedResolveUrl = `${HUB}/${m.source_repo}/resolve/${rev}/config.json`;
+      mustShape(
+        m.source_url === expectedResolveUrl && m.config_url === expectedResolveUrl,
+        `catalog:model:${m.id}:source_url`,
+        `pinned resolve URL ${expectedResolveUrl}`,
+        { source_url: m.source_url, config_url: m.config_url },
+      );
+    }
     kvBytesPerToken(m.groups, "2");
     kvBytesPerSequence(m.groups, m.context_default, "0.5625");
     weightBytes({ paramsB: m.params_b, activeParamsB: m.active_params_b, bytesPerParam: "2" });
@@ -1031,7 +1060,7 @@ async function main() {
   console.log(`${pad("REPO", 44)}${pad("ID", 36)}${pad("PARAMS", 10)}${pad("ACTIVE", 22)}${pad("CTX", 9)}GROUPS`);
   for (const m of derived) {
     console.log(
-      `${pad(m.source_url.slice(HUB.length + 1), 44)}${pad(m.id, 36)}${pad(`${m.params_b}B`, 10)}` +
+      `${pad(m.source_repo ?? m.source_url.slice(HUB.length + 1), 44)}${pad(m.id, 36)}${pad(`${m.params_b}B`, 10)}` +
       `${pad(`${m.active_params_b}B (${m.active_params_basis})`, 22)}` +
       `${pad(m.context_max, 9)}${m.groups.map((g) => `${g.layers}x${g.kind}${g.compress_ratio > 1 ? `(${g.compress_ratio}:1)` : ""}`).join(" + ")}`,
     );

@@ -576,7 +576,8 @@ test("compressed MLA (CSA2) scales latent rank by element width, keeps index_byt
   const dsFlash = MODEL("deepseek-v4-1-flash-1017");
   assert.ok(dsFlash, "deepseek-v4-1-flash-1017 must exist in serving-models.json");
   const globalCsa2 = dsFlash.groups.filter((g) => g.kind === "mla");
-  assert.equal(formatHalfUp(kvBytesPerToken(globalCsa2, FP4_KV_BYTES_PER_ELEMENT), 0), "890");
+  assert.equal(formatHalfUp(kvBytesPerToken(globalCsa2, fp4Width), 0), "890");
+  assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 3, FP4_KV_BYTES_PER_ELEMENT), 0), "712");
 });
 
 test("fail-closed checkpoint residency holds full params_b on GPU unless an explicit matching hostTierProfile proves host DRAM offload", () => {

@@ -583,7 +583,7 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
   const kimiGroups = deriveGroups(KIMI_LINEAR_48B_CFG);
   assert.deepEqual(kimiGroups, [
     { kind: "linear", layers: 20, state_bytes_per_seq: null },
-    { kind: "mla", layers: 7, kv_lora_rank: 512, qk_rope_head_dim: 0 },
+    { kind: "mla", layers: 7, kv_lora_rank: 512, qk_rope_head_dim: 64 },
   ]);
 
   // 4. Gemma-4-31B-it: image-text-to-text text_config, drops last 20 KV-shared layers -> 34 SWA + 6 full Unified K=V (tensors=1, dim=512, kv_heads=4)

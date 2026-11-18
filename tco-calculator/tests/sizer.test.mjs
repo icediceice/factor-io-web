@@ -14,6 +14,7 @@ import {
   resolveSizerModel,
   computeSizer,
   evaluateGpuCandidates,
+  groupCatalogModels,
   filterApiOffers,
   pickComparableApiOffer,
   describePricingRefresh,
@@ -833,4 +834,205 @@ test("catalog active-only override round-trips without freezing total params, re
   const reEncodedLegacy = encodeSizerFragment(legacyDecoded);
   const savedLegacy = encodeSizerSaveEnvelope([{ id: "leg-1", name: "Legacy Custom", savedAt: "2026-11-17T12:00:00Z", fragment: reEncodedLegacy }]);
   assert.equal(decodeSizerSaveEnvelope(savedLegacy).scenarios[0].normalized.legacyCustomAssumed, true);
+});
+
+test("stacked 20k+ agent sessions preserve odd-sum prompt totals, cold Turn-1 fertility scaling, 4-band model grouping, and Flint airgapped sovereign default", () => {
+  // 1. Airgap sovereign preset defaults to 40B-class Flint on single-node rtx_pro_6000_se (no oversized 80B + H200 requirement)
+
+  const airgapSized = computeSizer({
+    input: {
+      workloadId: "airgap_sec_audit",
+      sessionStackingActive: true,
+    },
+    data: baseData,
+  });
+  assert.equal(airgapSized.ok, true);
+  assert.equal(airgapSized.normalized.modelId, "flint");
+  assert.equal(airgapSized.normalized.gpuId, "rtx_pro_6000_se");
+  assert.equal(airgapSized.bom.nodes, 1);
+
+  // 2. 4-band catalog grouping populates <=14B, 20B-40B Sovereign/Finetune, 45B-120B (50B class), and 150B+ Frontier Flash MoEs
+  const grouped = groupCatalogModels(servingData);
+  assert.equal(grouped.groups.length, 4);
+  const band2Ids = grouped.groups[1].models.map((m) => m.id);
+  for (const id of ["flint", "qwen3-8-27b", "qwen3-32b", "qwen3-6-35b-a3b", "gemma-4-31b"]) {
+    assert.ok(band2Ids.includes(id), `expected ${id} in 20B-40B sovereign/finetune band`);
+  }
+  const band3Ids = grouped.groups[2].models.map((m) => m.id);
+  for (const id of ["kimi-linear-48b-a3b-instruct", "llama-3-3-nemotron-super-49b-v1-5", "gpt-oss-120b"]) {
+    assert.ok(band3Ids.includes(id), `expected ${id} in 50B-class / mid-frontier band`);
+  }
+  const band4Ids = grouped.groups[3].models.map((m) => m.id);
+  for (const id of ["qwen3-8-flash-next", "glm-5-3-flash", "deepseek-v4-1-flash-1017", "deepseek-v3"]) {
+    assert.ok(band4Ids.includes(id), `expected ${id} in 150B+ frontier Flash MoE band`);
+  }
+
+  // 3. Peer Case 3: Odd-sum prompt precision (S=20,000, user=1,001, out=500, T=2, h=0, 1 session/mo, thai_tokenized_1x)
+  // Turn 1 = 21,001; Turn 2 = 22,502 -> exact monthly input = 43,503 (never 43,504 from rounded average 21,752 * 2!)
+  const oddSession = computeSizer({
+    input: {
+      users: 1,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 1,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1001,
+      rawOutputTokens: 500,
+      turnsPerSession: 2,
+      kvCacheHitRate: "0",
+      rawContextTokens: 32768,
+      modelId: "flint",
+      gpuId: "rtx_pro_6000_se",
+    },
+    data: baseData,
+  });
+  assert.equal(oddSession.ok, true);
+  assert.equal(oddSession.demand.in_tokens_mo.text, "43503");
+  assert.equal(oddSession.demand.cached_tokens_mo.text, "0");
+  assert.equal(oddSession.demand.out_tokens_mo.text, "1000");
+  assert.equal(oddSession.demand.tokens_mo.text, "44503");
+
+  // 4. Peer Case 8: Single-turn (T=1) cold session + 1.4x Thai fertility applied ONCE even when kvCacheHitRate="1"
+  // S=20,000 -> 28,000; user=1,000 -> 1,400; out=500 -> 500; Turn 1 uncached = 29,400, cached = 0, day = 29,900, 22d mo = 657,800
+  const t1Thai = computeSizer({
+    input: {
+      users: 10,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 22,
+      tokenBasis: "latin_reference_1_4x",
+      thaiFertilityMultiplier: "1.4",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1000,
+      rawOutputTokens: 500,
+      turnsPerSession: 1,
+      kvCacheHitRate: "1",
+      rawContextTokens: 32768,
+      modelId: "flint",
+      kvquant: "fp4",
+      gpuId: "rtx_pro_6000_se",
+    },
+    data: baseData,
+  });
+  assert.equal(t1Thai.ok, true);
+  assert.equal(t1Thai.personTokenSummary.uncachedInPerPersonDay, "29400");
+  assert.equal(t1Thai.personTokenSummary.cachedReadPerPersonDay, "0");
+  assert.equal(t1Thai.personTokenSummary.tokensPerPersonDay, "29900");
+  assert.equal(t1Thai.personTokenSummary.tokensPerPersonMo, "657800");
+
+  // Optional sp/tp/kh + fp4 round-trip cleanly via #sizer=v1, while 44-key legacy #sizer=v1 stays flat
+  const t1Frag = encodeSizerFragment(t1Thai.normalized);
+  const t1Decoded = decodeSizerFragment(t1Frag);
+  assert.equal(t1Decoded.sessionStackingActive, true);
+  assert.equal(t1Decoded.rawSystemPromptTokens, 20000);
+  assert.equal(t1Decoded.turnsPerSession, 1);
+  assert.equal(t1Decoded.kvCacheHitRate, "1");
+  assert.equal(t1Decoded.kvquant, "fp4");
+
+  const legacyFlat = decodeSizerFragment(encodeSizerFragment(normalizeSizerInput({ users: 50 })));
+  assert.equal(legacyFlat.sessionStackingActive, false);
+
+  // G1: Probabilistic 50% kvCacheHitRate applies to API cohorts ONLY and never credits peak batch VRAM unless batch sharing is guaranteed.
+  // 10,000 B weights + 40,000 B free VRAM (50,000 B total, 0% overhead); S=20,000, U=1,000, O=500, T=2 -> 23,000 B/seq peak.
+  // Two concurrent misses require 46,000 B > 40,000 B, so batch MUST stay 1 unless sharedPrefixGuaranteed is true.
+  const tightVramData = {
+    ...baseData,
+    gpuPricing: {
+      ...baseData.gpuPricing,
+      gpus: {
+        ...baseData.gpuPricing.gpus,
+        tight_50kb: { label: "Tight 50KB Test GPU", vram_gb: 0.00005 },
+      },
+    },
+    serverPricing: {
+      ...baseData.serverPricing,
+      rows: [
+        ...baseData.serverPricing.rows,
+        { server_id: "srv-tight-1x", label: "1x Tight Test", gpu_id: "tight_50kb", gpu_count: 1, form_factor: "1U", usd_typical: "10000" },
+      ],
+    },
+    powerSeed: {
+      ...baseData.powerSeed,
+      gpus: {
+        ...baseData.powerSeed.gpus,
+        tight_50kb: { board_tdp_w: 300, typical_load_fraction: "0.7" },
+      },
+    },
+    servingData: {
+      ...baseData.servingData,
+      vram_overhead_fraction: { value: "0" },
+      accelerators: {
+        ...baseData.servingData.accelerators,
+        tight_50kb: { bandwidth_gb_s: "1000" },
+      },
+      models: [
+        ...baseData.servingData.models,
+        {
+          id: "unit-1byte-kv",
+          label: "Unit 1B/tok Model",
+          params_b: "0.00001",
+          active_params_b: "0.00001",
+          context_default: 23000,
+          context_max: 65536,
+          basis: "cited",
+          groups: [{ kind: "full", layers: 1, kv_heads: 1, head_dim: 1, tensors: 1 }],
+        },
+      ],
+    },
+  };
+
+  const prob50 = computeSizer({
+    input: {
+      users: 1,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 1,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1000,
+      rawOutputTokens: 500,
+      turnsPerSession: 2,
+      kvCacheHitRate: "0.50",
+      rawContextTokens: 23000,
+      tokensPerSecondPerStream: "1",
+      modelId: "unit-1byte-kv",
+      wquant: "fp8",
+      kvquant: "fp8",
+      runtime: "vllm",
+      gpuId: "tight_50kb",
+    },
+    data: tightVramData,
+  });
+  assert.equal(prob50.ok, true);
+  assert.equal(prob50.sessionProjection.sharedPrefixTokens, 0);
+  assert.equal(prob50.sessionProjection.potentialSharedPrefixTokens, 10000);
+  assert.equal(prob50.fit.serving.batch.text, "1");
+  // API cohort pricing still credits 50% cache hit on Turn 2 (0.5 * 21,500 = 10,750 cached tokens/mo)
+  assert.equal(prob50.demand.cached_tokens_mo.text, "10750");
+
+  // Positive counterpart: when batch-wide shared resident prefix IS explicitly guaranteed, PagedAttention admits batch > 1
+  const guaranteed20k = computeSizer({
+    input: {
+      users: 1,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 1,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1000,
+      rawOutputTokens: 500,
+      turnsPerSession: 2,
+      kvCacheHitRate: "1",
+      sharedPrefixGuaranteed: true,
+      guaranteedSharedPrefixTokens: 20000,
+      rawContextTokens: 23000,
+      tokensPerSecondPerStream: "1",
+      modelId: "unit-1byte-kv",
+      wquant: "fp8",
+      kvquant: "fp8",
+      runtime: "vllm",
+      gpuId: "tight_50kb",
+    },
+    data: tightVramData,
+  });
+  assert.equal(guaranteed20k.ok, true);
+  assert.equal(guaranteed20k.sessionProjection.sharedPrefixTokens, 20000);
+  assert.equal(guaranteed20k.fit.serving.batch.text, "6");
 });

@@ -7,7 +7,7 @@
 import { Dec, Rat, formatHalfUp, toRat, ratStr } from "./exact.js";
 import { normalizeFxDocument, toTHB, toUSD, fxRate } from "./currency.js";
 import { buildDemand, peakTokensPerSecond, gpusForLoad, validateMix, DemandRefusal, WORKLOAD_TYPES } from "./demand.js";
-import { servingPlan, ServingRefusal } from "./serving.js";
+import { servingPlan, resolveModelResidency, kvBytesPerToken, kvBytesPerSequence, ServingRefusal } from "./serving.js";
 import { nodesForFleet, cheapestConfigFor, serversForGpu, CapexRefusal } from "./capex.js?v=20260906-ux3";
 import { subscriptionCost, SubscriptionRefusal } from "./subscription.js";
 import { configurePowerSeed, runningCost, PowerRefusal } from "./power.js";
@@ -223,10 +223,14 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 14000,
     rawOutputTokens: 700,
     rawContextTokens: 32768,
+    defaultSystemPromptTokens: 20000,
+    defaultTurnPromptTokens: 2400,
+    defaultTurnsPerSession: 4,
+    defaultKvCacheHitRate: "0.75",
     en: {
       sectorTag: "Corporate HR / SOP",
       title: "Thai Enterprise Knowledge & Policy RAG Copilot",
-      whyLocal: "Multi-chunk HR, board policy, and engineering PDF retrieval plus system instructions stay inside corporate network with fixed monthly cost.",
+      whyLocal: "Multi-chunk HR, board policy, and engineering PDF retrieval plus 20k+ agent system instructions stay inside corporate network with fixed monthly cost.",
     },
     th: {
       sectorTag: "องค์กรทั่วไป / HR & SOP",
@@ -250,6 +254,10 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 10500,
     rawOutputTokens: 550,
     rawContextTokens: 32768,
+    defaultSystemPromptTokens: 20000,
+    defaultTurnPromptTokens: 1800,
+    defaultTurnsPerSession: 4,
+    defaultKvCacheHitRate: "0.80",
     en: {
       sectorTag: "Retail / Omnichannel",
       title: "24/7 LINE OA, Slip & Thai Fiscal OCR Intake",
@@ -277,6 +285,10 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 18000,
     rawOutputTokens: 800,
     rawContextTokens: 65536,
+    defaultSystemPromptTokens: 22000,
+    defaultTurnPromptTokens: 3200,
+    defaultTurnsPerSession: 5,
+    defaultKvCacheHitRate: "0.75",
     en: {
       sectorTag: "SAP / ERP & BI",
       title: "Connected SQL, SAP/ERP & Internal API Copilot",
@@ -304,6 +316,10 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 24000,
     rawOutputTokens: 900,
     rawContextTokens: 65536,
+    defaultSystemPromptTokens: 22000,
+    defaultTurnPromptTokens: 4000,
+    defaultTurnsPerSession: 5,
+    defaultKvCacheHitRate: "0.75",
     en: {
       sectorTag: "Banking & Insurance",
       title: "BFSI KYC, Loan Underwriting & Claims Dossier Review",
@@ -331,6 +347,10 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 12500,
     rawOutputTokens: 600,
     rawContextTokens: 32768,
+    defaultSystemPromptTokens: 20000,
+    defaultTurnPromptTokens: 2200,
+    defaultTurnsPerSession: 4,
+    defaultKvCacheHitRate: "0.75",
     en: {
       sectorTag: "Manufacturing / EEC",
       title: "Factory QMS, ISO/IATF SOP & Maintenance Copilot",
@@ -358,6 +378,10 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 16000,
     rawOutputTokens: 750,
     rawContextTokens: 65536,
+    defaultSystemPromptTokens: 20000,
+    defaultTurnPromptTokens: 2800,
+    defaultTurnsPerSession: 4,
+    defaultKvCacheHitRate: "0.80",
     en: {
       sectorTag: "Healthcare / HIS",
       title: "Hospital HIS Clinical Summary & ICD-10 Coding Assistant",
@@ -372,7 +396,7 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
   Object.freeze({
     id: "thai_legal_tor_procurement",
     sector: "legal_procurement",
-    recommendedModelId: "qwen3-next-80b-a3b",
+    recommendedModelId: "kimi-linear-48b-a3b-instruct",
     recommendedGpuId: "rtx_pro_6000_se",
     recommendedTier: "L",
     defaultConnectors: ["doc_cdc", "erp_crm", "sso_mcp"],
@@ -385,6 +409,10 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     rawPromptTokens: 36000,
     rawOutputTokens: 1400,
     rawContextTokens: 65536,
+    defaultSystemPromptTokens: 24000,
+    defaultTurnPromptTokens: 6000,
+    defaultTurnsPerSession: 4,
+    defaultKvCacheHitRate: "0.75",
     en: {
       sectorTag: "Legal & TOR Bidding",
       title: "Thai Legal Contract, TOR & BOQ Procurement Review",
@@ -399,9 +427,9 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
   Object.freeze({
     id: "airgap_sec_audit",
     sector: "regulated_sec",
-    recommendedModelId: "qwen3-next-80b-a3b",
-    recommendedGpuId: "h200",
-    recommendedTier: "XL",
+    recommendedModelId: "flint",
+    recommendedGpuId: "rtx_pro_6000_se",
+    recommendedTier: "L",
     defaultConnectors: ["sql_db", "rest_graphql", "doc_cdc", "sso_mcp"],
     users: 220,
     sessionsPerUserDay: "6",
@@ -411,16 +439,20 @@ export const LOCAL_AI_WORKLOADS = Object.freeze([
     mix: { chat: "0.10", rag: "0.35", graph_rag: "0.20", agentic: "0.35" },
     rawPromptTokens: 32000,
     rawOutputTokens: 1200,
-    rawContextTokens: 65536,
+    rawContextTokens: 98304,
+    defaultSystemPromptTokens: 24000,
+    defaultTurnPromptTokens: 4500,
+    defaultTurnsPerSession: 6,
+    defaultKvCacheHitRate: "0.75",
     en: {
       sectorTag: "Air-Gapped Security",
       title: "Regulated PDPA / BoT Compliance, Code & SIEM Log Audit",
-      whyLocal: "Meets strict air-gapped audit rules where production source repositories and SIEM logs cannot traverse external APIs.",
+      whyLocal: "Right-sized for 30B-40B sovereign finetunes (Flint 40B-A2.5B) on a single air-gapped server node where repositories and SIEM logs never leave premises.",
     },
     th: {
       sectorTag: "ความมั่นคงปลอดภัย\u00A0Air-Gapped",
       title: "งานกำกับดูแล\u00A0PDPA\u00A0ตรวจสอบซอร์สโค้ดและ\u00A0SIEM\u00A0Log\u00A0(Air-Gapped)",
-      whyLocal: "รองรับหน่วยงานกำกับดูแลเข้มงวดที่ห้ามส่งซอร์สโค้ดและบันทึกเหตุการณ์ความปลอดภัยออกสู่อินเทอร์เน็ต",
+      whyLocal: "ใช้โมเดลระดับ\u00A030B-40B\u00A0สำหรับงาน\u00A0Sovereign\u00A0Finetune\u00A0(Flint\u00A040B-A2.5B)\u00A0บนเครื่องเซิร์ฟเวอร์เดี่ยวโดยไม่ส่งข้อมูลออกนอกเครือข่าย",
     },
   }),
 ]);
@@ -538,6 +570,110 @@ export const THAI_MODEL_PROFILES = Object.freeze({
     thTier: "ระดับ\u00A03: โมเดลระดับศูนย์ข้อมูลขนาดใหญ่พิเศษ\u00A0(753B\u00A0MoE)",
     enNote: "753B frontier MoE requiring multi-GPU high-memory HGX/DGX nodes.",
     thNote: "โมเดล\u00A0753B\u00A0สำหรับคลัสเตอร์\u00A0HGX/DGX\u00A0หน่วยความจำสูงระดับศูนย์ข้อมูล",
+  },
+  "gemma-4-12b-it": {
+    tierId: "compact_edge",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 1: Single-GPU Multimodal & Bilingual RAG (12B)",
+    thTier: "ระดับ\u00A01: โมเดล\u00A012B\u00A0ประหยัดหน่วยความจำสำหรับการ์ดเดี่ยว",
+    enNote: "40 sliding + 8 unified-K=V global layers hold long Thai/EN documents comfortably on one GPU.",
+    thNote: "ผสาน\u00A0Sliding-Window\u00A0และ\u00A0Unified\u00A0K=V\u00A0ประหยัด\u00A0KV\u00A0Cache\u00A0บน\u00A0GPU\u00A01\u00A0ใบ",
+  },
+  "gpt-oss-20b": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "verify_tokenizer",
+    enTier: "Tier 2: High-Speed 21B-A4B Sparse MoE Assistant",
+    thTier: "ระดับ\u00A02: โมเดล\u00A021B\u00A0MoE\u00A0ความเร็วสูงสำหรับการ์ดเดี่ยว",
+    enNote: "20.9B total / 4.2B active hybrid sliding+full MoE; verify Thai phrasing on domain prompts.",
+    thNote: "โมเดล\u00A0MoE\u00A0อ่านพารามิเตอร์เพียง\u00A04.2B\u00A0ต่อโทเคน\u00A0ควรทดสอบสำนวนภาษาไทยเฉพาะทาง",
+  },
+  "gemma-4-26b-a4b-it": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 2: Sovereign 26B-A4B MoE with Unified K=V Cache",
+    thTier: "ระดับ\u00A02: โมเดล\u00A026B-A4B\u00A0MoE\u00A0พร้อม\u00A0Unified\u00A0K=V\u00A0Cache",
+    enNote: "25.8B total / 4B active MoE with 5:1 sliding-to-global unified K=V attention for fast single-GPU serving.",
+    thNote: "ขนาด\u00A025.8B\u00A0(4B\u00A0Active)\u00A0ให้ความเร็วตอบสนองสูงและประหยัด\u00A0KV\u00A0Cache\u00A0บนการ์ดเดี่ยว",
+  },
+  "qwen3-coder-30b-a3b-instruct": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "strong_multilingual_tokenizer",
+    enTier: "Tier 2: Sovereign Code, SQL & Security Patch MoE (30B-A3B)",
+    thTier: "ระดับ\u00A02: โมเดล\u00A030B-A3B\u00A0สำหรับตรวจสอบโค้ด\u00A0SQL\u00A0และ\u00A0Agent",
+    enNote: "30.5B total / 3B active coding & tool-use MoE ideal for internal repo and SQL automation.",
+    thNote: "ขนาด\u00A030.5B\u00A0(3B\u00A0Active)\u00A0เหมาะสำหรับตรวจซอร์สโค้ด\u00A0สร้างคำสั่ง\u00A0SQL\u00A0และงาน\u00A0Agent\u00A0ภายใน",
+  },
+  "gemma-4-31b-it": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 2: 31B Dense Sovereign Base with Unified K=V",
+    thTier: "ระดับ\u00A02: โมเดล\u00A031B\u00A0Dense\u00A0สำหรับ\u00A0Finetune\u00A0และวิเคราะห์เอกสารยาว",
+    enNote: "31.3B dense checkpoint with 50 sliding + 10 unified-K=V layers; strong 30B-class finetune base.",
+    thNote: "โมเดล\u00A031.3B\u00A0Dense\u00A0ยอดนิยมสำหรับการทำ\u00A0Domain\u00A0Finetune\u00A0และสรุปเอกสารยาวสองภาษา",
+  },
+  "qwen3-32b": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "strong_multilingual_tokenizer",
+    enTier: "Tier 2: 32B Dense Sovereign Finetune Standard",
+    thTier: "ระดับ\u00A02: โมเดล\u00A032B\u00A0Dense\u00A0มาตรฐานสำหรับ\u00A0Sovereign\u00A0Finetune",
+    enNote: "32.8B dense full-GQA backbone widely used for regulated Thai/EN LoRA and full finetunes.",
+    thNote: "โมเดล\u00A032.8B\u00A0Dense\u00A0มาตรฐานหลักสำหรับฝึกสอนเฉพาะทาง\u00A0(LoRA/Finetune)\u00A0ในองค์กรกำกับดูแล",
+  },
+  "flint": {
+    tierId: "enterprise_workhorse",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 2: Sovereign 40B-A2.8B Hybrid MoE (Air-Gapped Recommended)",
+    thTier: "ระดับ\u00A02: โมเดล\u00A0Flint\u00A040B-A2.8B\u00A0MoE\u00A0(แนะนำสำหรับ\u00A0Air-Gapped)",
+    enNote: "39.8B total / 2.8B active hybrid (35 sliding + 14 full) fits one 96 GB GPU at FP8 with fast multi-turn agent throughput.",
+    thNote: "ขนาด\u00A039.8B\u00A0แต่อ่านเพียง\u00A02.8B\u00A0ต่อโทเคน\u00A0รันบน\u00A0GPU\u00A096GB\u00A0ใบเดียวได้พร้อมรองรับ\u00A0Agent\u00A0หลายรอบ",
+  },
+  "kimi-linear-48b-a3b-instruct": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 3: 50B-Class KDA Linear + MLA Hybrid MoE (49B-A3B, 1M Ctx)",
+    thTier: "ระดับ\u00A03: โมเดลกลุ่ม\u00A050B\u00A0(Kimi-Linear\u00A049B-A3B)\u00A0รองรับ\u00A01M\u00A0Context",
+    enNote: "49.1B total / 3B active with 20 KDA linear + 7 MLA layers keeps 1M-context KV tiny on a single 96 GB GPU at FP8.",
+    thNote: "ผสาน\u00A020\u00A0Linear\u00A0+\u00A07\u00A0MLA\u00A0ทำให้\u00A0KV\u00A0Cache\u00A0เล็กมากแม้ป้อนเอกสารหลายแสนโทเคน",
+  },
+  "llama-3-3-nemotron-super-49b-v1-5": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 3: 50B-Class Dense NAS Reasoning Model (49.9B)",
+    thTier: "ระดับ\u00A03: โมเดลกลุ่ม\u00A050B\u00A0Dense\u00A0NAS\u00A0สำหรับงานวิเคราะห์เข้มข้น\u00A0(49.9B)",
+    enNote: "49.9B NAS-optimized dense checkpoint fitting a single 96 GB GPU at FP8 for high-accuracy enterprise reasoning.",
+    thNote: "โมเดล\u00A049.9B\u00A0Dense\u00A0ปรับแต่งด้วย\u00A0NAS\u00A0ให้รันบน\u00A0GPU\u00A096GB\u00A0ที่\u00A0FP8\u00A0ได้ในเครื่องเดียว",
+  },
+  "gpt-oss-120b": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "verify_tokenizer",
+    enTier: "Tier 3: 117B-A5.7B Hybrid Reasoning MoE",
+    thTier: "ระดับ\u00A03: โมเดล\u00A0117B-A5.7B\u00A0MoE\u00A0สำหรับงานให้เหตุผลหลายขั้นตอน",
+    enNote: "116.8B total / 5.7B active MoE with 18 sliding + 18 full layers; verify Thai domain terminology.",
+    thNote: "ขนาด\u00A0116.8B\u00A0(5.7B\u00A0Active)\u00A0สำหรับคลัสเตอร์\u00A02\u00A0GPU\u00A0ขึ้นไป\u00A0โปรดตรวจสอบคลังคำภาษาไทย",
+  },
+  "qwen3-8-flash-next": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "strong_multilingual_tokenizer",
+    enTier: "Tier 3: Qwen 3.8 Flash-Next 180B-A5.6B Hybrid MoE",
+    thTier: "ระดับ\u00A03: โมเดล\u00A0Qwen3.8-Flash-Next\u00A0180B-A5.6B\u00A0ความเร็วสูง",
+    enNote: "180B checkpoint (129B GPU backbone + 51B PLE n-gram table, 5.6B active) with 36 linear + 12 full QSA layers.",
+    thNote: "สถาปัตยกรรม\u00A0Qwen\u00A03.8\u00A0รุ่นใหม่\u00A0(36\u00A0Linear\u00A0+\u00A012\u00A0Full)\u00A0อ่านเพียง\u00A05.6B\u00A0ต่อโทเคน",
+  },
+  "glm-5-3-flash": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 3: GLM 5.3 Flash 321B-A16.7B Linear + MLA MoE (1M Ctx)",
+    thTier: "ระดับ\u00A03: โมเดล\u00A0GLM-5.3-Flash\u00A0321B-A16.7B\u00A0รองรับ\u00A01M\u00A0Context",
+    enNote: "321B total / 16.7B active with 34 linear + 11 MLA layers (only 11.3 KB/tok BF16 KV) for megatoken multi-GPU pools.",
+    thNote: "ผสาน\u00A034\u00A0Linear\u00A0+\u00A011\u00A0MLA\u00A0ใช้\u00A0KV\u00A0เพียง\u00A011.3\u00A0KB/โทเคน\u00A0เหมาะสำหรับพูลหลาย\u00A0GPU",
+  },
+  "deepseek-v4-1-flash-1017": {
+    tierId: "frontier_reasoning",
+    thaiSupport: "broad_multilingual_tokenizer",
+    enTier: "Tier 3: DeepSeek V4.1 Flash CSA2 Compressed-MLA Pool (1M Ctx)",
+    thTier: "ระดับ\u00A03: โมเดล\u00A0DeepSeek-V4.1-Flash\u00A0บีบอัด\u00A0CSA2\u00A0KV\u00A0ระดับดาต้าเซ็นเตอร์",
+    enNote: "763B checkpoint (567B GPU backbone + 197B Engram lookup, 14.9B active) with 890 B/tok FP4 global CSA2 KV cache.",
+    thNote: "เทคโนโลยี\u00A0CSA2\u00A0บีบอัด\u00A0Global\u00A0KV\u00A0เหลือเพียง\u00A0890\u00A0ไบต์/โทเคน\u00A0(FP4)\u00A0สำหรับคลัสเตอร์ระดับศูนย์ข้อมูล",
   },
 });
 
@@ -918,31 +1054,197 @@ export function groupCatalogModels(servingData) {
   const groups = [
     {
       id: "compact",
-      enLabel: "Compact & Single-GPU Edge (<= 12B)",
-      thLabel: "ขนาดเล็กประหยัด\u00A0VRAM\u00A0การ์ดเดี่ยว\u00A0(<= 12B)",
-      models: real.filter((m) => Number(m.params_b) <= 12),
+      enLabel: "Compact & Single-GPU Edge (<= 14B)",
+      thLabel: "ขนาดกะทัดรัดสำหรับการ์ดเดี่ยว\u00A0(<= 14B)",
+      models: real.filter((m) => Number(m.params_b) <= 14),
     },
     {
-      id: "workhorse",
-      enLabel: "Enterprise Workhorse (13B to 45B)",
-      thLabel: "ขนาดมาตรฐานองค์กร\u00A0RAG & Tool\u00A0(13B\u201345B)",
-      models: real.filter((m) => Number(m.params_b) > 12 && Number(m.params_b) <= 45),
+      id: "sovereign_finetune",
+      enLabel: "20B-40B Sovereign & Finetune (Flint, Qwen3.8, Gemma-4)",
+      thLabel: "กลุ่ม\u00A020B-40B\u00A0Sovereign & Finetune\u00A0(Flint, Qwen3.8, Gemma-4)",
+      models: real.filter((m) => Number(m.params_b) > 14 && Number(m.params_b) <= 42),
     },
     {
-      id: "large_moe",
-      enLabel: "Large Multi-GPU Reasoning (46B to 200B)",
-      thLabel: "โมเดลวิเคราะห์ซับซ้อนหลายการ์ด\u00A0(46B\u2013200B)",
-      models: real.filter((m) => Number(m.params_b) > 45 && Number(m.params_b) <= 200),
+      id: "fifty_b_mid",
+      enLabel: "45B-120B 50B-Class & Mid-Frontier (Kimi-Linear, Nemotron-49B)",
+      thLabel: "กลุ่ม\u00A045B-120B\u00A0และ\u00A050B-Class\u00A0(Kimi-Linear, Nemotron-49B)",
+      models: real.filter((m) => Number(m.params_b) > 42 && Number(m.params_b) <= 130),
     },
     {
-      id: "frontier",
-      enLabel: "Frontier Sovereign Pool (> 200B)",
-      thLabel: "โมเดลขนาดใหญ่พิเศษระดับดาต้าเซ็นเตอร์\u00A0(> 200B)",
-      models: real.filter((m) => Number(m.params_b) > 200),
+      id: "frontier_flash",
+      enLabel: "150B+ Frontier Flash MoE (Qwen3.8-Next, GLM-5.3, DeepSeek-V4.1)",
+      thLabel: "กลุ่ม\u00A0150B+\u00A0Frontier\u00A0Flash\u00A0MoE\u00A0(Qwen3.8-Next, GLM-5.3, DeepSeek-V4.1)",
+      models: real.filter((m) => Number(m.params_b) > 130),
     },
   ].filter((g) => g.models.length > 0);
   const customModel = all.find((m) => m?.id === "custom") ?? null;
   return { groups, realModels: real, customModel };
+}
+
+export function buildSessionProjectionFromConfig({
+  effectiveSystemPromptTokens = 0,
+  effectivePromptTokens,
+  effectiveOutputTokens,
+  turnsPerSession,
+  kvCacheHitRate = "0",
+  users,
+  sessionsPerUserDay,
+  workingDaysMo,
+  sharedPrefixGuaranteed = false,
+  guaranteedSharedPrefixTokens = null,
+}) {
+  const S = BigInt(Math.max(0, Math.trunc(Number(effectiveSystemPromptTokens))));
+  const U = BigInt(Math.max(1, Math.trunc(Number(effectivePromptTokens))));
+  const O = BigInt(Math.max(1, Math.trunc(Number(effectiveOutputTokens))));
+  const T = Math.max(1, Math.trunc(Number(turnsPerSession)));
+  const hitRat = toRat(String(kvCacheHitRate));
+  const missRat = Rat.from(1n).sub(hitRat);
+
+  const usersRat = toRat(String(users));
+  const sessionsDayRat = toRat(String(sessionsPerUserDay));
+  const daysMoRat = toRat(String(workingDaysMo));
+  const sessionsMoRat = usersRat.mul(sessionsDayRat).mul(daysMoRat);
+  const turnsMoRat = sessionsMoRat.mul(Rat.from(BigInt(T)));
+
+  const cohorts = [];
+  let sumCtxAfterTurnBig = 0n;
+  let sessionTokensBig = 0n;
+  let sessionUncachedInRat = Rat.from(0n);
+  let sessionCachedReadRat = Rat.from(0n);
+  const sessionOutBig = BigInt(T) * O;
+
+  for (let t = 1; t <= T; t += 1) {
+    const tBig = BigInt(t);
+    const promptFullBig = S + tBig * U + (tBig - 1n) * O;
+    const ctxAfterTurnBig = promptFullBig + O;
+    const carriedBig = t === 1 ? 0n : S + (tBig - 1n) * (U + O);
+    sumCtxAfterTurnBig += ctxAfterTurnBig;
+    sessionTokensBig += ctxAfterTurnBig;
+
+    if (t === 1) {
+      // First turn in a session has zero carried conversation turns and is cold.
+      sessionUncachedInRat = sessionUncachedInRat.add(Rat.from(promptFullBig));
+      cohorts.push({
+        turn: 1,
+        cohort: "cold",
+        prompt_tokens: Number(promptFullBig),
+        output_tokens: Number(O),
+        cache_read_tokens: 0,
+        threshold_prompt_tokens: Number(promptFullBig),
+        allow_cache_fallback_to_input: true,
+        occurrences_per_session: "1",
+        requests_mo: sessionsMoRat,
+      });
+    } else {
+      sessionUncachedInRat = sessionUncachedInRat.add(
+        hitRat.mul(Rat.from(U)).add(missRat.mul(Rat.from(promptFullBig))),
+      );
+      sessionCachedReadRat = sessionCachedReadRat.add(hitRat.mul(Rat.from(carriedBig)));
+
+      if (!hitRat.isZero()) {
+        cohorts.push({
+          turn: t,
+          cohort: "hit",
+          prompt_tokens: Number(U),
+          output_tokens: Number(O),
+          cache_read_tokens: Number(carriedBig),
+          threshold_prompt_tokens: Number(promptFullBig),
+          allow_cache_fallback_to_input: true,
+          occurrences_per_session: ratStr(hitRat),
+          requests_mo: sessionsMoRat.mul(hitRat),
+        });
+      }
+      if (!missRat.isZero()) {
+        cohorts.push({
+          turn: t,
+          cohort: "miss",
+          prompt_tokens: Number(promptFullBig),
+          output_tokens: Number(O),
+          cache_read_tokens: 0,
+          threshold_prompt_tokens: Number(promptFullBig),
+          allow_cache_fallback_to_input: true,
+          occurrences_per_session: ratStr(missRat),
+          requests_mo: sessionsMoRat.mul(missRat),
+        });
+      }
+    }
+  }
+
+  const peakTurnContextTokens = Number(S + BigInt(T) * (U + O));
+  const avgTurnContextTokens = Number((sumCtxAfterTurnBig + BigInt(T) - 1n) / BigInt(T));
+  const potentialSharedPrefixTokens = hitRat.isZero() ? 0 : Number((S * hitRat.n) / hitRat.d);
+  const sharedPrefixTokens = Boolean(sharedPrefixGuaranteed)
+    ? (
+        guaranteedSharedPrefixTokens !== null && guaranteedSharedPrefixTokens !== undefined
+          ? Math.min(Number(S), Math.max(0, Math.trunc(Number(guaranteedSharedPrefixTokens))))
+          : Number(S)
+      )
+    : 0;
+  const hasGuaranteedPrefix = Boolean(sharedPrefixGuaranteed) && sharedPrefixTokens > 0;
+
+  const tokensMoRat = Rat.from(sessionTokensBig).mul(sessionsMoRat);
+  const inTokensMoRat = sessionUncachedInRat.mul(sessionsMoRat);
+  const cachedTokensMoRat = sessionCachedReadRat.mul(sessionsMoRat);
+  const outTokensMoRat = Rat.from(sessionOutBig).mul(sessionsMoRat);
+
+  const tokensPerPersonDayRat = Rat.from(sessionTokensBig).mul(sessionsDayRat);
+  const tokensPerPersonMoRat = tokensPerPersonDayRat.mul(daysMoRat);
+  const uncachedInPerPersonDayRat = sessionUncachedInRat.mul(sessionsDayRat);
+  const cachedReadPerPersonDayRat = sessionCachedReadRat.mul(sessionsDayRat);
+  const outputPerPersonDayRat = Rat.from(sessionOutBig).mul(sessionsDayRat);
+
+  const compatAvgUncachedInPerTurn = Math.round(Number(formatHalfUp(sessionUncachedInRat.div(Rat.from(BigInt(T))), 6)));
+  const compatAvgCachedReadPerTurn = Math.round(Number(formatHalfUp(sessionCachedReadRat.div(Rat.from(BigInt(T))), 6)));
+
+  return {
+    effectiveSystemPromptTokens: Number(S),
+    effectivePromptTokens: Number(U),
+    effectiveOutputTokens: Number(O),
+    turnsPerSession: T,
+    kvCacheHitRate: String(kvCacheHitRate),
+    peakTurnContextTokens,
+    avgTurnContextTokens,
+    sharedPrefixTokens,
+    sharedPrefixGuaranteed: hasGuaranteedPrefix,
+    potentialSharedPrefixTokens,
+    tokensPerSession: Number(sessionTokensBig),
+    cohorts,
+    sessionsMoRat,
+    turnsMoRat,
+    tokensMoRat,
+    inTokensMoRat,
+    cachedTokensMoRat,
+    outTokensMoRat,
+    compatAvgUncachedInPerTurn,
+    compatAvgCachedReadPerTurn,
+    personTokenSummary: {
+      sessionStackingActive: true,
+      tokensPerSession: String(sessionTokensBig),
+      tokensPerPersonDay: formatHalfUp(tokensPerPersonDayRat, 0),
+      tokensPerPersonMo: formatHalfUp(tokensPerPersonMoRat, 0),
+      uncachedInPerPersonDay: formatHalfUp(uncachedInPerPersonDayRat, 0),
+      cachedReadPerPersonDay: formatHalfUp(cachedReadPerPersonDayRat, 0),
+      outputPerPersonDay: formatHalfUp(outputPerPersonDayRat, 0),
+      turn1ColdPromptTokens: Number(S + U),
+      finalTurnPromptTokens: Number(S + BigInt(T) * U + BigInt(T - 1) * O),
+      finalTurnContextTokens: peakTurnContextTokens,
+      peakTurnContextTokens,
+      avgTurnContextTokens,
+      sharedPrefixTokens,
+      sharedPrefixGuaranteed: hasGuaranteedPrefix,
+      potentialSharedPrefixTokens,
+    },
+  };
+}
+
+export function estimateModelWeightGb(model, bytesPerParam, { runtimeKey = null, hostTierProfile = null } = {}) {
+  if (!model?.params_b || !bytesPerParam) return null;
+  try {
+    const res = resolveModelResidency({ model, bytesPerParam, runtimeKey, hostTierProfile });
+    return formatHalfUp(res.resident.div(Rat.from(1000000000n)), 2);
+  } catch {
+    return null;
+  }
 }
 
 function optDecStr(val, fieldName, opts = {}) {
@@ -966,22 +1268,71 @@ export function normalizeSizerInput(raw = {}) {
     max: "3.0",
     allowZero: false,
   });
-  const rawPromptTokens = posInt(raw.rawPromptTokens ?? workloadPreset.rawPromptTokens, "rawPromptTokens", { min: 16, max: 2000000 });
+  const hasExplicitSessionFields = (
+    raw.sessionStackingActive === true
+    || (
+      raw.sessionStackingActive !== false
+      && (
+        raw.rawSystemPromptTokens !== undefined
+        || raw.turnsPerSession !== undefined
+        || raw.kvCacheHitRate !== undefined
+      )
+    )
+  );
+
+  const rawSystemPromptTokens = hasExplicitSessionFields
+    ? posInt(raw.rawSystemPromptTokens ?? workloadPreset.defaultSystemPromptTokens ?? 20000, "rawSystemPromptTokens", { min: 0, max: 2000000 })
+    : 0;
+  const turnsPerSession = hasExplicitSessionFields
+    ? posInt(raw.turnsPerSession ?? workloadPreset.defaultTurnsPerSession ?? 5, "turnsPerSession", { min: 1, max: 100 })
+    : null;
+  const kvCacheHitRate = hasExplicitSessionFields
+    ? decStr(raw.kvCacheHitRate ?? workloadPreset.defaultKvCacheHitRate ?? "0.75", "kvCacheHitRate", { min: "0", max: "1" })
+    : "0";
+  const sharedPrefixGuaranteed = Boolean(raw.sharedPrefixGuaranteed);
+  const guaranteedSharedPrefixTokens = posInt(raw.guaranteedSharedPrefixTokens, "guaranteedSharedPrefixTokens", {
+    min: 0,
+    max: 2000000,
+    allowNull: true,
+  });
+
+  const defaultRawPrompt = hasExplicitSessionFields
+    ? (workloadPreset.defaultTurnPromptTokens ?? workloadPreset.rawPromptTokens)
+    : workloadPreset.rawPromptTokens;
+  const rawPromptTokens = posInt(raw.rawPromptTokens ?? defaultRawPrompt, "rawPromptTokens", { min: 1, max: 2000000 });
   const rawOutputTokens = posInt(raw.rawOutputTokens ?? workloadPreset.rawOutputTokens, "rawOutputTokens", { min: 1, max: 500000 });
   const rawContextTokens = posInt(raw.rawContextTokens ?? workloadPreset.rawContextTokens, "rawContextTokens", { min: 128, max: 10000000 });
 
   const multRat = tokenBasis === "latin_reference_1_4x" ? toRat(thaiFertilityMultiplier) : Rat.from(1n);
   const ceilMul = (n) => {
+    if (n <= 0) return 0;
     const prod = Rat.from(BigInt(n)).mul(multRat);
     const q = prod.n / prod.d;
     const rem = prod.n % prod.d;
     return Number(rem > 0n ? q + 1n : q);
   };
 
+  const effectiveSystemPromptTokens = ceilMul(rawSystemPromptTokens);
   const effectivePromptTokens = ceilMul(rawPromptTokens);
   const effectiveOutputTokens = rawOutputTokens;
   const scaledContext = ceilMul(rawContextTokens);
-  const effectiveContextTokens = Math.max(scaledContext, effectivePromptTokens + effectiveOutputTokens);
+  const peakSessionTokens = hasExplicitSessionFields
+    ? effectiveSystemPromptTokens + turnsPerSession * (effectivePromptTokens + effectiveOutputTokens)
+    : effectivePromptTokens + effectiveOutputTokens;
+  const effectiveContextTokens = Math.max(scaledContext, peakSessionTokens);
+  const peakTurnContextTokens = peakSessionTokens;
+  const avgTurnContextTokens = hasExplicitSessionFields
+    ? Number(
+        (
+          BigInt(turnsPerSession) * BigInt(effectiveSystemPromptTokens)
+          + ((BigInt(turnsPerSession) * BigInt(turnsPerSession + 1)) / 2n) * BigInt(effectivePromptTokens + effectiveOutputTokens)
+          + BigInt(turnsPerSession) - 1n
+        ) / BigInt(turnsPerSession),
+      )
+    : effectiveContextTokens;
+  const activeContextTokens = hasExplicitSessionFields
+    ? Math.max(effectiveContextTokens - (peakTurnContextTokens - avgTurnContextTokens), avgTurnContextTokens)
+    : effectiveContextTokens;
 
   const users = posInt(raw.users ?? workloadPreset.users, "users", { min: 1, max: 10000000 });
   const sessionsPerUserDay = decStr(raw.sessionsPerUserDay ?? workloadPreset.sessionsPerUserDay, "sessionsPerUserDay", { min: "0.01", max: "100000", allowZero: false });
@@ -1079,12 +1430,22 @@ export function normalizeSizerInput(raw = {}) {
     mix,
     tokenBasis,
     thaiFertilityMultiplier,
+    sessionStackingActive: hasExplicitSessionFields,
+    rawSystemPromptTokens,
+    turnsPerSession,
+    kvCacheHitRate,
+    sharedPrefixGuaranteed,
+    guaranteedSharedPrefixTokens,
     rawPromptTokens,
     rawOutputTokens,
     rawContextTokens,
+    effectiveSystemPromptTokens,
     effectivePromptTokens,
     effectiveOutputTokens,
     effectiveContextTokens,
+    peakTurnContextTokens,
+    avgTurnContextTokens,
+    activeContextTokens,
     modelId,
     customParamsB,
     customActiveParamsB,
@@ -1135,16 +1496,16 @@ export function resolveSizerModel({ normalized, servingData }) {
   }
   const wq = servingData?.weight_quantization?.[normalized.wquant];
   const kq = servingData?.kv_quantization?.[normalized.kvquant];
-  const calcWeightGb = (paramsStr) => {
+  const calcWeightGb = (paramsStr, modelObj = null) => {
     if (!paramsStr || !wq?.bytes_per_param) return null;
-    try {
-      return formatHalfUp(toRat(String(paramsStr)).mul(toRat(String(wq.bytes_per_param))), 2);
-    } catch {
-      return null;
-    }
+    return estimateModelWeightGb(
+      modelObj ? { ...modelObj, params_b: paramsStr } : { params_b: paramsStr, active_params_b: paramsStr },
+      wq.bytes_per_param,
+      { runtimeKey: normalized.runtime },
+    );
   };
   const deriveSelectedKvBytes = (bf16Bytes) => {
-    const elemRat = toRat(String(kq?.bytes_per_element ?? "1"));
+    const elemRat = toRat(String(kq.bytes_per_element));
     const prod = Rat.from(BigInt(bf16Bytes)).mul(elemRat).div(Rat.from(2n));
     const q = prod.n / prod.d;
     const rem = prod.n % prod.d;
@@ -1199,6 +1560,16 @@ export function resolveSizerModel({ normalized, servingData }) {
         weightMemoryGb,
       };
     }
+    if (!kq) {
+      return {
+        ok: false,
+        code: "missing_accelerator_or_quant",
+        reason: `KV cache quantization "${normalized.kvquant}" is not defined in serving-models.json.`,
+        model: null,
+        warnings: [],
+        weightMemoryGb,
+      };
+    }
     const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
     return {
       ok: true,
@@ -1243,6 +1614,16 @@ export function resolveSizerModel({ normalized, servingData }) {
   let kvOverride = false;
   let selectedKvStr = "";
   if (normalized.customKvBytesBf16 !== null) {
+    if (!kq) {
+      return {
+        ok: false,
+        code: "missing_accelerator_or_quant",
+        reason: `KV cache quantization "${normalized.kvquant}" is not defined in serving-models.json.`,
+        model: null,
+        warnings: [],
+        weightMemoryGb: calcWeightGb(resolvedParamsB),
+      };
+    }
     const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
     kvOverride = true;
     selectedKvStr = String(selectedKvBytes);
@@ -1279,6 +1660,8 @@ export function resolveSizerModel({ normalized, servingData }) {
 }
 
 export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiveGpusPerNode = null }) {
+  const activeContextTokens = normalized.activeContextTokens ?? normalized.effectiveContextTokens;
+  const peakContextTokens = normalized.effectiveContextTokens;
   const resolved = resolveSizerModel({ normalized, servingData });
   if (!resolved.ok) {
     return {
@@ -1291,6 +1674,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: null,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[normalized.modelId] ?? null,
     };
   }
@@ -1307,6 +1692,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1321,6 +1708,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1331,25 +1720,54 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
   const kq = servingData?.kv_quantization?.[normalized.kvquant];
   const rt = servingData?.runtimes?.[normalized.runtime];
   if (!acc || vramGb === undefined || !wq || !kq || !rt) {
+    const missingParts = [
+      (!acc || vramGb === undefined) ? `GPU "${normalized.gpuId}"` : null,
+      !wq ? `weight quant "${normalized.wquant}"` : null,
+      !kq ? `KV quant "${normalized.kvquant}"` : null,
+      !rt ? `runtime "${normalized.runtime}"` : null,
+    ].filter(Boolean).join(", ");
     return {
       status: "refused",
       arithmeticFit: false,
       qualifiedDeploymentPass: false,
       code: "missing_accelerator_or_quant",
-      reason: `Missing bandwidth/VRAM or quantization metadata for GPU "${normalized.gpuId}".`,
+      reason: `Missing bandwidth/VRAM, quantization, or runtime metadata (${missingParts}).`,
       warnings: [],
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
+
+  const sessionMeta = normalized.sessionStackingActive
+    ? buildSessionProjectionFromConfig({
+        effectiveSystemPromptTokens: normalized.effectiveSystemPromptTokens,
+        effectivePromptTokens: normalized.effectivePromptTokens,
+        effectiveOutputTokens: normalized.effectiveOutputTokens,
+        turnsPerSession: normalized.turnsPerSession,
+        kvCacheHitRate: normalized.kvCacheHitRate,
+        sharedPrefixGuaranteed: normalized.sharedPrefixGuaranteed,
+        guaranteedSharedPrefixTokens: normalized.guaranteedSharedPrefixTokens,
+        users: normalized.users,
+        sessionsPerUserDay: normalized.sessionsPerUserDay,
+        workingDaysMo: normalized.workingDaysMo,
+      })
+    : null;
 
   let serving;
   try {
     serving = servingPlan({
       model,
-      contextTokens: String(normalized.effectiveContextTokens),
+      contextTokens: String(activeContextTokens),
+      peakContextTokens: String(peakContextTokens),
+      sharedPrefixTokens: sessionMeta ? sessionMeta.sharedPrefixTokens : 0,
+      sharedPrefixGuaranteed: Boolean(sessionMeta?.sharedPrefixGuaranteed),
+      supportsPrefixCache: Boolean(rt.supports_prefix_cache),
+      pageBlockTokens: rt.page_block_tokens ?? 16,
+      runtimeKey: normalized.runtime,
       bytesPerParam: wq.bytes_per_param,
       kvBytesPerElement: model.kv_override ? "1" : kq.bytes_per_element,
       vramGb: String(vramGb),
@@ -1371,6 +1789,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1387,6 +1807,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1418,6 +1840,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
     serving,
     resolvedModel: model,
     weightMemoryGb: resolved.weightMemoryGb,
+    activeContextTokens,
+    peakContextTokens,
     thaiProfile: THAI_MODEL_PROFILES[model.id] ?? {
       tierId: "custom_tier",
       thaiSupport: "verify_tokenizer",
@@ -1430,6 +1854,28 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
 }
 
 export function buildShapesFromNormalized(normalized) {
+  if (normalized.sessionStackingActive) {
+    const proj = buildSessionProjectionFromConfig({
+      effectiveSystemPromptTokens: normalized.effectiveSystemPromptTokens,
+      effectivePromptTokens: normalized.effectivePromptTokens,
+      effectiveOutputTokens: normalized.effectiveOutputTokens,
+      turnsPerSession: normalized.turnsPerSession,
+      kvCacheHitRate: normalized.kvCacheHitRate,
+      users: normalized.users,
+      sessionsPerUserDay: normalized.sessionsPerUserDay,
+      workingDaysMo: normalized.workingDaysMo,
+    });
+    const tStr = String(normalized.turnsPerSession);
+    const inStr = String(proj.compatAvgUncachedInPerTurn);
+    const outStr = String(normalized.effectiveOutputTokens);
+    const cachedStr = String(proj.compatAvgCachedReadPerTurn);
+    return {
+      chat: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+      rag: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+      graph_rag: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+      agentic: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+    };
+  }
   const baseIn = String(normalized.effectivePromptTokens);
   const baseOut = String(normalized.effectiveOutputTokens);
   return {
@@ -1698,14 +2144,62 @@ export function computeSizer({
 
   const normalized = input?.schema === SIZER_SCHEMA ? input : normalizeSizerInput(input);
   const shapes = buildShapesFromNormalized(normalized);
+  const sessionProj = normalized.sessionStackingActive
+    ? buildSessionProjectionFromConfig({
+        effectiveSystemPromptTokens: normalized.effectiveSystemPromptTokens,
+        effectivePromptTokens: normalized.effectivePromptTokens,
+        effectiveOutputTokens: normalized.effectiveOutputTokens,
+        turnsPerSession: normalized.turnsPerSession,
+        kvCacheHitRate: normalized.kvCacheHitRate,
+        sharedPrefixGuaranteed: normalized.sharedPrefixGuaranteed,
+        guaranteedSharedPrefixTokens: normalized.guaranteedSharedPrefixTokens,
+        users: normalized.users,
+        sessionsPerUserDay: normalized.sessionsPerUserDay,
+        workingDaysMo: normalized.workingDaysMo,
+      })
+    : null;
 
-  const demand = buildDemand({
+  const baseDemand = buildDemand({
     users: String(normalized.users),
     sessionsPerUserDay: normalized.sessionsPerUserDay,
     workingDaysMo: String(normalized.workingDaysMo),
     mix: normalized.mix,
     shapes,
   });
+  const mkSlot = (rat) => ({ rat, basis: "derived", text: formatHalfUp(rat, 0), places: 0 });
+  const demand = sessionProj
+    ? {
+        ...baseDemand,
+        turns_mo: mkSlot(sessionProj.turnsMoRat),
+        in_tokens_mo: mkSlot(sessionProj.inTokensMoRat),
+        cached_tokens_mo: mkSlot(sessionProj.cachedTokensMoRat),
+        out_tokens_mo: mkSlot(sessionProj.outTokensMoRat),
+        tokens_mo: mkSlot(sessionProj.tokensMoRat),
+      }
+    : baseDemand;
+
+  const personTokenSummary = sessionProj
+    ? sessionProj.personTokenSummary
+    : (() => {
+        const uRat = Rat.from(BigInt(normalized.users));
+        const dRat = Rat.from(BigInt(normalized.workingDaysMo));
+        const perPersonMo = demand.tokens_mo.rat.div(uRat);
+        const perPersonDay = perPersonMo.div(dRat);
+        return {
+          sessionStackingActive: false,
+          tokensPerSession: formatHalfUp(demand.tokens_mo.rat.div(demand.sessions_mo.rat.isZero() ? Rat.from(1n) : demand.sessions_mo.rat), 0),
+          tokensPerPersonDay: formatHalfUp(perPersonDay, 0),
+          tokensPerPersonMo: formatHalfUp(perPersonMo, 0),
+          uncachedInPerPersonDay: formatHalfUp(demand.in_tokens_mo.rat.div(uRat).div(dRat), 0),
+          cachedReadPerPersonDay: formatHalfUp(demand.cached_tokens_mo.rat.div(uRat).div(dRat), 0),
+          outputPerPersonDay: formatHalfUp(demand.out_tokens_mo.rat.div(uRat).div(dRat), 0),
+          turn1ColdPromptTokens: normalized.effectivePromptTokens,
+          finalTurnPromptTokens: normalized.effectivePromptTokens,
+          peakTurnContextTokens: normalized.effectiveContextTokens,
+          avgTurnContextTokens: normalized.effectiveContextTokens,
+          sharedPrefixTokens: 0,
+        };
+      })();
 
   const peak = peakTokensPerSecond({
     users: String(normalized.users),
@@ -1736,6 +2230,7 @@ export function computeSizer({
       reason: fit.reason,
       normalized,
       demand,
+      personTokenSummary,
       peak,
       fit,
       bom: null,
@@ -1897,17 +2392,23 @@ export function computeSizer({
     try {
       const rAcc = servingData?.accelerators?.[rentRow.gpu_id];
       const rVram = gpuPricing?.gpus?.[rentRow.gpu_id]?.vram_gb;
+      const rRt = servingData.runtimes[normalized.runtime];
       const rServing = (rAcc && rVram !== undefined)
         ? servingPlan({
           model: resolvedModel,
-          contextTokens: String(normalized.effectiveContextTokens),
+          contextTokens: String(sessionProj ? Math.max(normalized.effectiveContextTokens - (sessionProj.peakTurnContextTokens - sessionProj.avgTurnContextTokens), sessionProj.avgTurnContextTokens) : normalized.effectiveContextTokens),
+          peakContextTokens: String(normalized.effectiveContextTokens),
+          sharedPrefixTokens: sessionProj ? sessionProj.sharedPrefixTokens : 0,
+          supportsPrefixCache: Boolean(rRt?.supports_prefix_cache),
+          pageBlockTokens: rRt?.page_block_tokens ?? 16,
+          runtimeKey: normalized.runtime,
           bytesPerParam: servingData.weight_quantization[normalized.wquant].bytes_per_param,
           kvBytesPerElement: resolvedModel.kv_override
             ? "1"
             : servingData.kv_quantization[normalized.kvquant].bytes_per_element,
           vramGb: String(rVram),
           bandwidthGbS: rAcc.bandwidth_gb_s,
-          runtimeEfficiency: servingData.runtimes[normalized.runtime].bandwidth_efficiency,
+          runtimeEfficiency: rRt.bandwidth_efficiency,
           tpEfficiency: servingData.tensor_parallel.efficiency_per_extra_gpu,
           vramOverheadFraction: servingData.vram_overhead_fraction.value,
           perStreamFloorTokS: normalized.tokensPerSecondPerStream,
@@ -2026,6 +2527,7 @@ export function computeSizer({
       prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
       output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
       cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
+      ...(sessionProj ? { request_cohorts: sessionProj.cohorts } : {}),
       horizon_months: normalized.horizonMonths,
       required_p95_tok_s: null,
       quote_utc: Date.parse(normalized.quoteUtc),
@@ -2069,6 +2571,21 @@ export function computeSizer({
     stage: "complete",
     normalized,
     demand,
+    personTokenSummary,
+    sessionProjection: sessionProj
+      ? {
+          effectiveSystemPromptTokens: sessionProj.effectiveSystemPromptTokens,
+          effectivePromptTokens: sessionProj.effectivePromptTokens,
+          effectiveOutputTokens: sessionProj.effectiveOutputTokens,
+          turnsPerSession: sessionProj.turnsPerSession,
+          kvCacheHitRate: sessionProj.kvCacheHitRate,
+          peakTurnContextTokens: sessionProj.peakTurnContextTokens,
+          avgTurnContextTokens: sessionProj.avgTurnContextTokens,
+          sharedPrefixTokens: sessionProj.sharedPrefixTokens,
+          sharedPrefixGuaranteed: sessionProj.sharedPrefixGuaranteed,
+          potentialSharedPrefixTokens: sessionProj.potentialSharedPrefixTokens,
+        }
+      : null,
     peak,
     sizing: {
       ...sizing,
@@ -2246,9 +2763,9 @@ const COMPACT_RECORD_KEYS = new Set([
   "ek", "pu", "no", "hz", "ao", "sub", "st", "qu", "pi",
 ]);
 
-// Optional v1 extension keys for custom model parameter/cache/context overrides.
-// Forward compatibility of newly extended custom tokens on older deployments is not promised.
-const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm"]);
+// Optional v1 extension keys for custom model parameter/cache/context overrides
+// and stacked multi-turn agent session parameters (`sp`, `tp`, `kh`).
+const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm", "sp", "tp", "kh"]);
 
 export function encodeSizerFragment(normalized, { pricingIdentity = null, resolvedApiOfferId = null } = {}) {
   const n = normalized?.schema === SIZER_SCHEMA ? normalized : normalizeSizerInput(normalized);
@@ -2324,6 +2841,11 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
     compact.ck = n.customKvBytesBf16;
     compact.cm = n.customContextMax;
   }
+  if (n.sessionStackingActive) {
+    compact.sp = n.rawSystemPromptTokens;
+    compact.tp = n.turnsPerSession;
+    compact.kh = n.kvCacheHitRate;
+  }
   const token = toBase64Url(JSON.stringify(compact));
   const fragment = `${SIZER_FRAGMENT_PREFIX}${token}`;
   if (fragment.length > MAX_FRAGMENT_CHARS) {
@@ -2333,7 +2855,7 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
 }
 
 const VALID_WQUANTS = new Set(["bf16", "fp8", "int8", "int4"]);
-const VALID_KVQUANTS = new Set(["bf16", "fp8", "int8"]);
+const VALID_KVQUANTS = new Set(["bf16", "fp8", "int8", "fp4"]);
 const VALID_RUNTIMES = new Set(["vllm", "sglang", "trtllm", "llamacpp"]);
 const VALID_SERVER_BASES = new Set(["usd_low", "usd_typical", "usd_high"]);
 
@@ -2389,7 +2911,19 @@ function validateSizerWirePayload(parsed) {
   if (typeof parsed.wd !== "number") throw new SizerValidationError("bad_integer", "workingDaysMo must be a number");
   posInt(parsed.wd, "workingDaysMo", { min: 1, max: 31 });
   if (typeof parsed.rp !== "number") throw new SizerValidationError("bad_integer", "rawPromptTokens must be a number");
-  posInt(parsed.rp, "rawPromptTokens", { min: 16, max: 2000000 });
+  posInt(parsed.rp, "rawPromptTokens", { min: 1, max: 2000000 });
+  if ("sp" in parsed) {
+    if (typeof parsed.sp !== "number") throw new SizerValidationError("bad_integer", "sp (rawSystemPromptTokens) must be an integer");
+    posInt(parsed.sp, "rawSystemPromptTokens", { min: 0, max: 2000000 });
+  }
+  if ("tp" in parsed) {
+    if (typeof parsed.tp !== "number") throw new SizerValidationError("bad_integer", "tp (turnsPerSession) must be an integer");
+    posInt(parsed.tp, "turnsPerSession", { min: 1, max: 100 });
+  }
+  if ("kh" in parsed) {
+    if (typeof parsed.kh !== "string") throw new SizerValidationError("bad_decimal", "kh (kvCacheHitRate) must be a decimal string");
+    decStr(parsed.kh, "kvCacheHitRate", { min: "0", max: "1" });
+  }
   if (typeof parsed.ro !== "number") throw new SizerValidationError("bad_integer", "rawOutputTokens must be a number");
   posInt(parsed.ro, "rawOutputTokens", { min: 1, max: 500000 });
   if (typeof parsed.rc !== "number") throw new SizerValidationError("bad_integer", "rawContextTokens must be a number");
@@ -2524,6 +3058,7 @@ export function decodeSizerFragment(hashOrFragment) {
     }
   }
   validateSizerWirePayload(parsed);
+  const hasSessionWireKeys = ("sp" in parsed) || ("tp" in parsed) || ("kh" in parsed);
   return normalizeSizerInput({
     workloadId: parsed.w,
     deploymentMode: parsed.dm,
@@ -2537,6 +3072,12 @@ export function decodeSizerFragment(hashOrFragment) {
     mix: parsed.mx,
     tokenBasis: parsed.tb,
     thaiFertilityMultiplier: parsed.tf,
+    sessionStackingActive: hasSessionWireKeys,
+    ...(hasSessionWireKeys ? {
+      rawSystemPromptTokens: parsed.sp,
+      turnsPerSession: parsed.tp,
+      kvCacheHitRate: parsed.kh,
+    } : {}),
     rawPromptTokens: parsed.rp,
     rawOutputTokens: parsed.ro,
     rawContextTokens: parsed.rc,
@@ -2577,7 +3118,8 @@ export function decodeSizerFragment(hashOrFragment) {
 }
 
 // Strict JSON / optional localStorage scenario envelope codec (stores canonical scenarios + display metadata only).
-const SAVE_ENVELOPE_KEYS = new Set(["schema", "exportedAt", "scenarios"]);
+const SAVE_REQUIRED_KEYS = new Set(["schema", "exportedAt", "scenarios"]);
+const SAVE_ENVELOPE_KEYS = new Set(["schema", "version", "exportedAt", "scenarios"]);
 const SAVE_RECORD_KEYS = new Set(["id", "name", "savedAt", "fragment"]);
 
 function validateSaveTimestamp(val, fieldName) {
@@ -2626,9 +3168,12 @@ function validateSavedScenarioRecord(entry, index) {
   };
 }
 
-export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:00:00Z", allowEmpty = false } = {}) {
+export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:00:00Z", allowEmpty = false, version = null } = {}) {
   if (!Array.isArray(entries)) {
     throw new SizerValidationError("bad_save_list", "scenarios must be an array");
+  }
+  if (version !== null && version !== 1 && version !== 2) {
+    throw new SizerValidationError("unsupported_save_version", `Unsupported save envelope version "${version}".`);
   }
   if ((!allowEmpty && entries.length === 0) || entries.length > MAX_SAVED_SCENARIOS) {
     throw new SizerValidationError(
@@ -2653,6 +3198,7 @@ export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:0
   });
   const jsonText = JSON.stringify({
     schema: SIZER_SAVE_SCHEMA,
+    ...(version !== null ? { version } : {}),
     exportedAt: validExportedAt,
     scenarios: cleanRecords,
   }, null, 2);
@@ -2688,10 +3234,13 @@ export function decodeSizerSaveEnvelope(jsonText, { allowEmpty = false } = {}) {
       throw new SizerValidationError("unknown_save_key", `Rejected unknown envelope key "${k}".`);
     }
   }
-  for (const req of SAVE_ENVELOPE_KEYS) {
+  for (const req of SAVE_REQUIRED_KEYS) {
     if (!(req in parsed)) {
       throw new SizerValidationError("missing_save_key", `Missing required envelope key "${req}".`);
     }
+  }
+  if ("version" in parsed && parsed.version !== 1 && parsed.version !== 2) {
+    throw new SizerValidationError("unsupported_save_version", `Unsupported save envelope version "${parsed.version}".`);
   }
   const exportedAt = validateSaveTimestamp(parsed.exportedAt, "exportedAt");
   if (!Array.isArray(parsed.scenarios)) {
@@ -2998,6 +3547,7 @@ export function projectSizerControls({
   return {
     controls: values,
     groups: model.groups,
+    sessionProjection: result.sessionProjection ?? null,
     result,
     repriced,
     refreshSummary,

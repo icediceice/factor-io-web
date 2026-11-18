@@ -17,6 +17,10 @@ import {
   screen,
   derivativeBase,
   resolveBase,
+  compileModel,
+  buildServingModels,
+  MandatorySeedError,
+  HubHttpError,
   Skip,
 } from "../../scripts/build-serving-models.mjs";
 import { kvBytesPerToken, kvBytesPerSequence, ServingRefusal } from "../serving.js";
@@ -410,4 +414,283 @@ test("the engine and the mapper agree on what is unrepresentable", () => {
     () => kvBytesPerToken([{ kind: "conv", layers: 4 }], "2"),
     (e) => e instanceof ServingRefusal && e.code === "unknown_attention_kind",
   );
+});
+
+// ─────────────────────────────────────── late-2026 HF shapes & mandatory seeds
+
+const DEEPSEEK_V4_1_FLASH_CFG = {
+  architectures: ["DeepseekV4ForCausalLM"],
+  model_type: "deepseek_v4",
+  hidden_size: 4096,
+  vocab_size: 129280,
+  num_hidden_layers: 44,
+  first_k_dense_replace: 2,
+  intermediate_size: 16384,
+  moe_intermediate_size: 1536,
+  n_routed_experts: 384,
+  num_experts_per_tok: 8,
+  n_shared_experts: 1,
+  num_nextn_predict_layers: 3,
+  max_position_embeddings: 1048576,
+  num_attention_heads: 64,
+  q_lora_rank: 1536,
+  kv_lora_rank: 512,
+  qk_nope_head_dim: 128,
+  qk_rope_head_dim: 64,
+  v_head_dim: 128,
+  dspark_csa2: true,
+  dspark_local_window_size: 128,
+  dspark_global_layer_ids: [13, 25, 37, 43],
+  dspark_global_compress_layer_ids: [13, 25, 37],
+  dspark_kv_compress_ratio: 2,
+  dspark_index_n_heads: 32,
+  dspark_index_head_dim: 64,
+  dspark_n_routed_experts: 128,
+  dspark_num_experts_per_tok: 4,
+  engram_layer_ids: [1, 15],
+  engram_vocab_size: [15193600, 12928000],
+  engram_hc_mult: 1,
+  engram_head_dim: 3500,
+};
+
+const FLINT_CFG = {
+  architectures: ["Glm4MoeLiteForCausalLM"],
+  model_type: "glm4_moe_lite",
+  hidden_size: 2048,
+  vocab_size: 154880,
+  num_hidden_layers: 46,
+  first_k_dense_replace: 1,
+  intermediate_size: 10240,
+  moe_intermediate_size: 1536,
+  n_routed_experts: 64,
+  num_experts_per_tok: 4,
+  n_shared_experts: 1,
+  num_nextn_predict_layers: 1,
+  max_position_embeddings: 202752,
+  num_attention_heads: 20,
+  q_lora_rank: 768,
+  kv_lora_rank: 512,
+  qk_nope_head_dim: 192,
+  qk_rope_head_dim: 64,
+  v_head_dim: 256,
+};
+
+const KIMI_LINEAR_48B_CFG = {
+  architectures: ["KimiLinearForCausalLM"],
+  model_type: "kimi_linear",
+  hidden_size: 2304,
+  vocab_size: 163840,
+  num_hidden_layers: 27,
+  first_k_dense_replace: 1,
+  intermediate_size: 9216,
+  moe_intermediate_size: 1024,
+  num_experts: 256,
+  num_experts_per_token: 8,
+  num_shared_experts: 1,
+  max_position_embeddings: 1048576,
+  num_attention_heads: 32,
+  kv_lora_rank: 512,
+  qk_nope_head_dim: 128,
+  qk_rope_head_dim: 64,
+  v_head_dim: 128,
+  mla_use_nope: true,
+  linear_attn_config: {
+    full_attn_layers: [4, 8, 12, 16, 20, 24, 27],
+    head_dim: 128,
+    num_heads: 32,
+  },
+};
+
+const GEMMA_4_31B_IT_CFG = {
+  architectures: ["Gemma4ForConditionalGeneration"],
+  model_type: "gemma4",
+  text_config: {
+    hidden_size: 5376,
+    vocab_size: 262144,
+    num_hidden_layers: 60,
+    num_kv_shared_layers: 20,
+    intermediate_size: 21504,
+    max_position_embeddings: 262144,
+    num_attention_heads: 32,
+    num_key_value_heads: 8,
+    num_global_key_value_heads: 4,
+    head_dim: 256,
+    global_head_dim: 512,
+    attention_k_eq_v: true,
+    sliding_window: 1024,
+    layer_types: Array.from({ length: 60 }, (_, i) => ((i + 1) % 6 === 0 ? "full_attention" : "sliding_attention")),
+  },
+};
+
+const NEMOTRON_NAS_CFG = {
+  architectures: ["DeciLMForCausalLM"],
+  model_type: "nemotron-nas",
+  hidden_size: 8192,
+  vocab_size: 128256,
+  num_hidden_layers: 4,
+  num_attention_heads: 64,
+  max_position_embeddings: 131072,
+  block_configs: [
+    { attention: { n_heads_in_group: 8 }, ffn: { ffn_mult: 1.5 } },
+    { attention: { no_op: true }, ffn: { ffn_mult: 2.0 } },
+    { attention: { n_heads_in_group: 16 }, ffn: { no_op: true } },
+    { attention: { n_heads_in_group: 8 }, ffn: { ffn_mult: 1.5 } },
+  ],
+};
+
+test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4 KV-sharing K=V, Nemotron-NAS) derive exact groups and parameters", () => {
+  // 1. DeepSeek-V4.1-Flash CSA2: 40 SWA + 3 compressed MLA (ratio 2, 68B index) + 1 uncompressed MLA (68B index)
+  const dsGroups = deriveGroups(DEEPSEEK_V4_1_FLASH_CFG);
+  assert.deepEqual(dsGroups, [
+    { kind: "sliding", layers: 40, kv_heads: 1, head_dim: 576, tensors: 1, window_tokens: 128 },
+    { kind: "mla", layers: 3, kv_lora_rank: 512, qk_rope_head_dim: 0, compress_ratio: 2, index_bytes_per_entry: 68 },
+    { kind: "mla", layers: 1, kv_lora_rank: 512, qk_rope_head_dim: 0, compress_ratio: 1, index_bytes_per_entry: 68 },
+  ]);
+  // Global CSA2 groups (groups[1..2]) at FP4 (0.5625 B/el) grow at exactly 890 B/tok:
+  // 3 * ((512 * 0.5625 + 68) / 2) + 1 * (512 * 0.5625 + 68) = 534 + 356 = 890 B/tok.
+  assert.equal(formatHalfUp(kvBytesPerToken(dsGroups.slice(1), "0.5625"), 0), "890");
+  // Unverified DeepSeek-V4 (without dspark_csa2) still skips cleanly.
+  assert.throws(() => deriveGroups(DEEPSEEK_V4), (e) => e instanceof Skip);
+
+  const dsGeom = geometryParams(DEEPSEEK_V4_1_FLASH_CFG);
+  assert.equal(dsGeom.offloadKind, "engram");
+  assert.ok(dsGeom.offloadTotal > 90_000_000_000n);
+  const dsParams = deriveParams("deepseek-ai/DeepSeek-V4.1-Flash-1017", DEEPSEEK_V4_1_FLASH_CFG, dsGeom.total);
+  assert.ok(Number(dsParams.gpu_backbone_params_b) < Number(dsParams.params_b));
+  assert.equal(dsParams.host_offload_kind, "engram");
+
+  // 2. Flint (glm4_moe_lite): 46 MLA layers (512+64), 39.79B safetensors
+  const flintGroups = deriveGroups(FLINT_CFG);
+  assert.deepEqual(flintGroups, [{ kind: "mla", layers: 46, kv_lora_rank: 512, qk_rope_head_dim: 64 }]);
+  const flintGeom = geometryParams(FLINT_CFG);
+  const flintParams = deriveParams("RecursiveSI/flint", FLINT_CFG, flintGeom.total);
+  assert.equal(flintParams.is_moe, true);
+  assert.ok(Number(flintParams.active_params_b) < 4);
+
+  // 3. Kimi-Linear: synthesizes 20 linear + 7 MLA (nope -> rope=0) from 1-based full_attn_layers
+  const kimiGroups = deriveGroups(KIMI_LINEAR_48B_CFG);
+  assert.deepEqual(kimiGroups, [
+    { kind: "linear", layers: 20, state_bytes_per_seq: null },
+    { kind: "mla", layers: 7, kv_lora_rank: 512, qk_rope_head_dim: 0 },
+  ]);
+
+  // 4. Gemma-4-31B-it: image-text-to-text text_config, drops last 20 KV-shared layers -> 34 SWA + 6 full Unified K=V (tensors=1, dim=512, kv_heads=4)
+  assert.equal(screen({ id: "google/gemma-4-31B-it", pipeline_tag: "image-text-to-text", tags: ["safetensors"] }), null);
+  const gemmaGroups = deriveGroups(GEMMA_4_31B_IT_CFG);
+  assert.deepEqual(gemmaGroups, [
+    { kind: "sliding", layers: 34, kv_heads: 8, head_dim: 256, tensors: 1, window_tokens: 1024 },
+    { kind: "full", layers: 6, kv_heads: 4, head_dim: 512, tensors: 1 },
+  ]);
+
+  // 5. Nemotron-NAS: skips no_op attention block, groups 2x 8kv + 1x 4kv
+  const nasGroups = deriveGroups(NEMOTRON_NAS_CFG);
+  assert.deepEqual(nasGroups, [
+    { kind: "full", layers: 2, kv_heads: 8, head_dim: 128, tensors: 2 },
+    { kind: "full", layers: 1, kv_heads: 4, head_dim: 128, tensors: 2 },
+  ]);
+});
+
+test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exact pinned IDs regardless of trending rank or twin dedup", async () => {
+  const basePrevious = {
+    models: [
+      { id: "qwen3-8b", label: "Qwen3 8B", params_b: "8.2", active_params_b: "8.2", context_default: 32768, context_max: 131072, basis: "cited", groups: [{ kind: "full", layers: 36, kv_heads: 8, head_dim: 128, tensors: 2 }] },
+      { id: "gemma-4-31b", label: "Gemma 4 31B", params_b: "31", active_params_b: "31", context_default: 32768, context_max: 262144, basis: "cited", groups: [{ kind: "full", layers: 10, kv_heads: 4, head_dim: 512, tensors: 1 }] },
+      { id: "qwen3-next-80b-a3b", label: "Qwen3 Next 80B", params_b: "80", active_params_b: "3", context_default: 32768, context_max: 262144, basis: "cited", groups: [{ kind: "full", layers: 12, kv_heads: 2, head_dim: 256, tensors: 2 }] },
+      { id: "deepseek-v3", label: "DeepSeek V3", params_b: "671", active_params_b: "37", context_default: 32768, context_max: 163840, basis: "cited", groups: [{ kind: "mla", layers: 61, kv_lora_rank: 512, qk_rope_head_dim: 64 }] },
+      { id: "custom", label: "Custom", params_b: "70", active_params_b: "70", context_default: 8192, context_max: null, basis: "assumed", groups: [] },
+    ],
+    accelerators: { h100: { bandwidth_gb_s: "3350" } },
+    weight_quantization: { fp8: { bytes_per_param: "1" } },
+    kv_quantization: { fp8: { bytes_per_element: "1" }, fp4: { bytes_per_element: "0.5625" } },
+    runtimes: { vllm: { bandwidth_efficiency: "0.65" } },
+    tensor_parallel: { efficiency_per_extra_gpu: "0.92" },
+    vram_overhead_fraction: { value: "0.1" },
+  };
+
+  const flintGeom = geometryParams(FLINT_CFG);
+  const flintSha = "abc123flintsha00000000000000000000000000";
+
+  // Case 9a: RecursiveSI/flint returning HTTP 503 throws MandatorySeedError before any output can publish
+  await assert.rejects(
+    () => buildServingModels({
+      observedAt: "2026-11-18",
+      previous: basePrevious,
+      mandatorySeeds: [{ repo: "RecursiveSI/flint", id: "flint" }],
+      fetchText: async (url) => {
+        if (url.includes("RecursiveSI/flint")) throw new HubHttpError(url, 503);
+        throw new Error(`Unexpected URL ${url}`);
+      },
+    }),
+    (err) => err instanceof MandatorySeedError && err.repo === "RecursiveSI/flint" && /503/.test(err.message),
+  );
+
+  // Case 9b: Revision advancement mismatch between list entry sha and detail sha refuses cleanly
+  await assert.rejects(
+    () => compileModel(
+      { id: "RecursiveSI/flint", sha: "old_sha_11111111111111111111111111111111" },
+      "2026-11-18",
+      {
+        pinnedId: "flint",
+        fetchText: async (url) => {
+          if (url.includes("/api/models/RecursiveSI/flint")) {
+            return JSON.stringify({
+              id: "RecursiveSI/flint",
+              sha: flintSha,
+              gated: false,
+              safetensors: { total: String(flintGeom.total) },
+            });
+          }
+          throw new Error(`Unexpected URL ${url}`);
+        },
+      },
+    ),
+    (err) => err instanceof Skip && /revision advanced during refresh/.test(err.reason),
+  );
+
+  // Case 9c: Mandatory seed keeps exact pinned ID "flint" even when absent from trending and when a higher-ranked trending twin shares identical architecture
+  const built = await buildServingModels({
+    observedAt: "2026-11-18",
+    previous: basePrevious,
+    mandatorySeeds: [{ repo: "RecursiveSI/flint", id: "flint" }],
+    keep: 5,
+    pool: 5,
+    fetchText: async (url) => {
+      if (url.includes("/api/models?")) {
+        return JSON.stringify([
+          { id: "TwinOrg/Flint-Clone-A2.8B", pipeline_tag: "text-generation", tags: ["safetensors"], trendingScore: 9999, sha: flintSha },
+        ]);
+      }
+      if (url.includes("/api/models/RecursiveSI/flint")) {
+        return JSON.stringify({
+          id: "RecursiveSI/flint",
+          sha: flintSha,
+          gated: false,
+          downloads: 42000,
+          likes: 500,
+          safetensors: { total: String(flintGeom.total) },
+        });
+      }
+      if (url.includes(`/RecursiveSI/flint/resolve/${flintSha}/config.json`)) {
+        return JSON.stringify(FLINT_CFG);
+      }
+      if (url.includes("/api/models/TwinOrg/Flint-Clone-A2.8B")) {
+        return JSON.stringify({
+          id: "TwinOrg/Flint-Clone-A2.8B",
+          sha: flintSha,
+          gated: false,
+          downloads: 999999,
+          likes: 9999,
+          safetensors: { total: String(flintGeom.total) },
+        });
+      }
+      if (url.includes(`/TwinOrg/Flint-Clone-A2.8B/resolve/${flintSha}/config.json`)) {
+        return JSON.stringify(FLINT_CFG);
+      }
+      throw new Error(`Unexpected URL ${url}`);
+    },
+  });
+  const flintRow = built.models.find((m) => m.id === "flint");
+  assert.ok(flintRow, "pinned mandatory seed id 'flint' must survive regardless of trending rank or twin dedup");
+  assert.equal(flintRow.revision, flintSha);
+  assert.ok(flintRow.same_serving_shape_as?.includes("TwinOrg/Flint-Clone-A2.8B"));
 });

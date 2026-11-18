@@ -1452,7 +1452,12 @@ function readArchGroups() {
     if (kind === "mla") {
       g.kv_lora_rank = nPos("lora", b.kv_lora_rank ?? 1);
       g.qk_rope_head_dim = nNonNeg("rope", b.qk_rope_head_dim ?? 0);
-      if (b.kind === "mla") {
+      if (
+        b.kind === "mla"
+        && g.layers === b.layers
+        && g.kv_lora_rank === (b.kv_lora_rank ?? 1)
+        && g.qk_rope_head_dim === (b.qk_rope_head_dim ?? 0)
+      ) {
         if (b.compress_ratio !== undefined && b.compress_ratio !== null) g.compress_ratio = b.compress_ratio;
         if (b.index_bytes_per_entry !== undefined && b.index_bytes_per_entry !== null) g.index_bytes_per_entry = b.index_bytes_per_entry;
       }

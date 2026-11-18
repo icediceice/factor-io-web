@@ -341,5 +341,5 @@ test("stacked multi-turn session cohorts evaluate prompt thresholds against tota
   const c2 = baseComparison("litellm:vendor/no-cache-1usd", noCacheOffer);
   assert.equal(formatHalfUp(toRat(c2.totals.B.monthly_total), 8), "0.04350000");
   assert.equal(c2.lanes.B.cache_fallback_used, true);
-  assert.ok(c2.lanes.B.offers[0].reasons.includes("cache_read_fallback_to_input"));
+  assert.ok(c2.lanes.B.cohort_quotes.some((cq) => cq.quote.reasons.includes("cache_read_fallback_to_input")));
 });

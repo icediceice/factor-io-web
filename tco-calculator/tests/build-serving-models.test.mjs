@@ -586,15 +586,23 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
     { kind: "mla", layers: 7, kv_lora_rank: 512, qk_rope_head_dim: 64 },
   ]);
 
-  // 4. Gemma-4-31B-it: image-text-to-text text_config, drops last 20 KV-shared layers -> 34 SWA + 6 full Unified K=V (tensors=1, dim=512, kv_heads=4)
+  // Gemma-4-31B-it at 842da3794eaa0b77d5f08bae87a17459d91ff475 uses unified K=V for global attention.
   assert.equal(screen({ id: "google/gemma-4-31B-it", pipeline_tag: "image-text-to-text", tags: ["safetensors"] }), null);
   const gemmaGroups = deriveGroups(GEMMA_4_31B_IT_CFG);
   assert.deepEqual(gemmaGroups, [
-    { kind: "sliding", layers: 34, kv_heads: 8, head_dim: 256, tensors: 2, window_tokens: 1024 },
-    { kind: "full", layers: 6, kv_heads: 4, head_dim: 512, tensors: 1 },
+    { kind: "sliding", layers: 50, kv_heads: 16, head_dim: 256, tensors: 2, window_tokens: 1024 },
+    { kind: "full", layers: 10, kv_heads: 4, head_dim: 512, tensors: 1 },
+  ]);
+  const withSharedTail = {
+    ...GEMMA_4_31B_IT_CFG,
+    text_config: { ...GEMMA_4_31B_IT_CFG.text_config, num_kv_shared_layers: 20 },
+  };
+  assert.deepEqual(deriveGroups(withSharedTail), [
+    { ...gemmaGroups[0], layers: 34 },
+    { ...gemmaGroups[1], layers: 6 },
   ]);
 
-  // 5. Nemotron-NAS: skips no_op attention block, groups 2x 8kv + 1x 4kv
+  // Synthetic NAS blocks cover no-op attention and heterogeneous head groups.
   const nasGroups = deriveGroups(NEMOTRON_NAS_CFG);
   assert.deepEqual(nasGroups, [
     { kind: "full", layers: 2, kv_heads: 8, head_dim: 128, tensors: 2 },

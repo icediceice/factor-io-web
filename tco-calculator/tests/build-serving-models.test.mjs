@@ -579,7 +579,7 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
     (err) => err instanceof Skip && /does not reproduce the published total/.test(err.reason),
   );
 
-  // 3. Kimi-Linear: synthesizes 20 linear + 7 MLA (nope -> rope=0) from 1-based full_attn_layers
+  // Kimi-Linear at e1df551a447157d4658b573f9a695d57658590e9 partitions 1-based layer IDs.
   const kimiGroups = deriveGroups(KIMI_LINEAR_48B_CFG);
   assert.deepEqual(kimiGroups, [
     { kind: "linear", layers: 20, state_bytes_per_seq: null },

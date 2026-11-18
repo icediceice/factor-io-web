@@ -1550,7 +1550,7 @@ test("processSizerReturn preserves 8-decimal stacked session parity across offer
         missing_streak: 0,
         expiration_date: null,
         prices: { "input|std": "0.000001", "output|std": "0", "cache_read|std": "0.0000002" },
-        overrides: [{ when: { min_prompt_tokens: 22000 }, prices: { "input|std": "0.000003" } }],
+        overrides: [{ conditions: { min_prompt_tokens: 22000 }, prices: { "input|std": "0.000003" } }],
         multipliers: {},
         tiered: [],
         ignored_fields: [],

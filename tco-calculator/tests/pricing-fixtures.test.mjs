@@ -342,4 +342,57 @@ test("stacked multi-turn session cohorts evaluate prompt thresholds against tota
   assert.equal(formatHalfUp(toRat(c2.totals.B.monthly_total), 8), "0.04350000");
   assert.equal(c2.lanes.B.cache_fallback_used, true);
   assert.ok(c2.lanes.B.quotes["litellm:vendor/no-cache-1usd"].reasons.includes("cache_read_fallback_to_input"));
+
+  // G4: Fractional session frequency (0.25 sessions/mo = 0.5 turns/mo) under fixed_split prorates cohort total uniformly
+  const fracProj = buildSessionProjectionFromConfig({
+    effectiveSystemPromptTokens: 20000,
+    effectivePromptTokens: 1000,
+    effectiveOutputTokens: 500,
+    turnsPerSession: 2,
+    kvCacheHitRate: "1",
+    users: 1,
+    sessionsPerUserDay: "0.25",
+    workingDaysMo: 1,
+  });
+  const fracDemandTokens = Math.round(Number(formatHalfUp(fracProj.tokensMoRat, 6)));
+  const fracReqCount = Math.round(Number(formatHalfUp(fracProj.turnsMoRat, 6))); // Math.round(0.5) === 1
+  const runFracSplit = (pinned, useCohorts = true) => runComparison({
+    workload: {
+      demand_tokens_mo: fracDemandTokens,
+      request_count_mo: fracReqCount,
+      prompt_tokens: fracProj.compatAvgUncachedInPerTurn,
+      output_tokens: 500,
+      cache_read_tokens_per_req: fracProj.compatAvgCachedReadPerTurn,
+      ...(useCohorts ? { request_cohorts: fracProj.cohorts } : {}),
+      horizon_months: 60,
+      required_p95_tok_s: null,
+      quote_utc: Date.parse("2026-09-01T12:00:00Z"),
+      now: Date.parse("2026-09-01T12:00:00Z"),
+      time_buckets: [{ hours: 730, tokens: fracDemandTokens }],
+    },
+    catalog: { offers: { "openrouter:vendor/tiered-cached": tieredOffer } },
+    laneA: { enabled: true, fixed_monthly: "100", capex: "0", monthly_token_budget: 1000000, tokens_s_ceiling: 1000 },
+    laneB: { enabled: true, offer_ids: ["openrouter:vendor/tiered-cached"] },
+    laneC: { enabled: false, tokens_s: 0, hourly_rate: "0", utilization: "0.7" },
+    routing: { policy: "fixed_split", pinned, advisory_blend: { local_pct: 70 }, failover: { share: "0", rate_multiplier: "1" } },
+    overlay: { fully_loaded: false, components: [] },
+    subscription: null,
+    oneTime: { A: "0", B: "0", C: "0" },
+  });
+
+  // 100% B under fixed_split equals standalone Lane B ($0.0283 * 0.25 = $0.00707500), never inflated 2x to $0.01415000
+  const frac100B = runFracSplit({ a_pct: 0, b_pct: 100, c_pct: 0 });
+  assert.equal(formatHalfUp(toRat(frac100B.totals.B.monthly_total), 8), "0.00707500");
+  assert.equal(formatHalfUp(toRat(frac100B.routing.recommended_monthly), 8), "0.00707500");
+
+  // 50% A / 50% B charges full Lane A fixed asset ($100) + exact 50% cohort share ($0.00353750)
+  const frac50AB = runFracSplit({ a_pct: 50, b_pct: 50, c_pct: 0 });
+  assert.equal(formatHalfUp(toRat(frac50AB.routing.recommended_monthly), 8), "100.00353750");
+
+  // Flat non-cohort fixed_split preserves whole-request rounding (1 of 1 request)
+  const flatSplit = runFracSplit({ a_pct: 50, b_pct: 50, c_pct: 0 }, false);
+  assert.equal(
+    formatHalfUp(toRat(flatSplit.routing.recommended_monthly), 8),
+    formatHalfUp(toRat("100").add(toRat(flatSplit.totals.B.monthly_total)), 8),
+  );
 });

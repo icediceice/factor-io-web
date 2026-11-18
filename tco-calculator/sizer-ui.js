@@ -1081,6 +1081,43 @@ function renderModelAndGpuSelectors() {
     srvSelect.innerHTML = srvHtml;
     srvSelect.value = appState.draft.serverId;
   }
+
+  const syncCatalogSelect = (elId, mapObj, selectedVal, labelMap = {}) => {
+    const el = $(elId);
+    if (!el || !mapObj || typeof mapObj !== "object") return;
+    const keys = Object.keys(mapObj);
+    let optHtml = "";
+    if (selectedVal && !Object.prototype.hasOwnProperty.call(mapObj, selectedVal)) {
+      optHtml += `<option value="${esc(selectedVal)}" selected>${esc(selectedVal)} (${isTh ? "ไม่รองรับในแคตตาล็อกนี้ - โปรดเลือกใหม่" : "unavailable in catalog - reselect"})</option>`;
+    }
+    for (const key of keys) {
+      const spec = mapObj[key] ?? {};
+      const lbl = labelMap[key] ?? spec.label ?? key;
+      optHtml += `<option value="${esc(key)}" ${key === selectedVal ? "selected" : ""}>${esc(lbl)}</option>`;
+    }
+    if (document.activeElement !== el) {
+      el.innerHTML = optHtml;
+      el.value = selectedVal;
+    }
+  };
+  syncCatalogSelect("in-wquant", appState.data.servingData.weight_quantization, appState.draft.wquant, {
+    bf16: "BF16 / FP16 (2 B/param)",
+    fp8: "FP8 (1 B/param)",
+    int8: "INT8 W8A8 (1 B/param)",
+    int4: "INT4 AWQ/GPTQ (0.5 B/param lower bound)",
+  });
+  syncCatalogSelect("in-kvquant", appState.data.servingData.kv_quantization, appState.draft.kvquant, {
+    bf16: "BF16 KV (2 B/elem)",
+    fp8: "FP8 KV (1 B/elem)",
+    int8: "INT8 KV (1 B/elem)",
+    fp4: "FP4 KV NVFP4/MXFP4 (0.5625 B/elem)",
+  });
+  syncCatalogSelect("in-runtime", appState.data.servingData.runtimes, appState.draft.runtime, {
+    vllm: "vLLM",
+    sglang: "SGLang",
+    trtllm: "TensorRT-LLM",
+    llamacpp: "llama.cpp",
+  });
 }
 
 function renderApiControls() {
@@ -1307,6 +1344,8 @@ function resolvePersonTokens(c) {
       effectiveOutputTokens: n.effectiveOutputTokens,
       turnsPerSession: n.turnsPerSession,
       kvCacheHitRate: n.kvCacheHitRate,
+      sharedPrefixGuaranteed: n.sharedPrefixGuaranteed,
+      guaranteedSharedPrefixTokens: n.guaranteedSharedPrefixTokens,
       users: n.users,
       sessionsPerUserDay: n.sessionsPerUserDay,
       workingDaysMo: n.workingDaysMo,
@@ -1355,7 +1394,11 @@ function renderPersonTokenAndKvBars() {
           <div class="telemetry-cell">
             <span class="telemetry-kicker">${esc(isTh ? "สัดส่วนใช้ซ้ำ KV / Prefix" : "KV / prefix cache reuse")}</span>
             <span class="telemetry-val">${esc(`${hitPct}% hit`)}</span>
-            <span class="telemetry-sub">${esc(isTh ? `แชร์ Prefix ${fmtInt(pts.sharedPrefixTokens ?? 0)} tok` : `Shared prefix: ${fmtInt(pts.sharedPrefixTokens ?? 0)} tok`)}</span>
+            <span class="telemetry-sub">${esc(
+              pts.sharedPrefixGuaranteed && (pts.sharedPrefixTokens ?? 0) > 0
+                ? (isTh ? `การันตีแชร์ ${fmtInt(pts.sharedPrefixTokens)} tok` : `Guaranteed shared: ${fmtInt(pts.sharedPrefixTokens)} tok`)
+                : (isTh ? `ประมาณการแคช API ~${fmtInt(pts.potentialSharedPrefixTokens ?? 0)} tok` : `API prefix est: ~${fmtInt(pts.potentialSharedPrefixTokens ?? 0)} tok`)
+            )}</span>
           </div>
         </div>
       `;
@@ -1369,14 +1412,31 @@ function renderPersonTokenAndKvBars() {
     const rtKey = n?.runtime ?? appState.draft.runtime;
     const kvKey = n?.kvquant ?? appState.draft.kvquant;
     const wqKey = n?.wquant ?? appState.draft.wquant;
-    const rtMeta = appState.data.servingData?.runtimes?.[rtKey];
-    const kqElem = model?.kv_override ? "1" : (appState.data.servingData?.kv_quantization?.[kvKey]?.bytes_per_element ?? "1");
-    const wqBytes = appState.data.servingData?.weight_quantization?.[wqKey]?.bytes_per_param ?? "1";
+    const rtMeta = appState.data.servingData?.runtimes?.[rtKey] ?? null;
+    const kqSpec = appState.data.servingData?.kv_quantization?.[kvKey] ?? null;
+    const wqSpec = appState.data.servingData?.weight_quantization?.[wqKey] ?? null;
 
     if (!model) {
       setDataAttr(kvBar, "status", "refused");
       kvBar.innerHTML = `<div class="auto-detail">${esc(isTh ? "ระบุพารามิเตอร์และอัตรา KV ของโมเดล Custom ให้ครบเพื่อคำนวณหน่วยความจำ" : "Complete Custom model parameters and BF16 KV bytes/token to inspect KV memory.")}</div>`;
+    } else if ((!model.kv_override && !kqSpec) || !wqSpec || !rtMeta) {
+      setDataAttr(kvBar, "status", "refused");
+      const unavailableList = [
+        (!model.kv_override && !kqSpec) ? kvKey : null,
+        !wqSpec ? wqKey : null,
+        !rtMeta ? rtKey : null,
+      ].filter(Boolean).join(", ");
+      kvBar.innerHTML = `<div class="auto-detail">${esc(
+        isTh
+          ? `ตัวเลือกความแม่นยำหรือ Runtime (${unavailableList}) ไม่มีอยู่ในแคตตาล็อกที่โหลดอยู่ โปรดเลือกค่าที่รองรับใหม่`
+          : `Selected serving precision or runtime (${unavailableList}) is unavailable in the loaded catalog. Reselect a supported option.`
+      )}</div>`;
     } else {
+      const kqElem = model.kv_override ? "1" : kqSpec.bytes_per_element;
+      const wqBytes = wqSpec.bytes_per_param;
+      const activeCtx = c?.fit?.activeContextTokens ?? n?.activeContextTokens ?? n?.effectiveContextTokens ?? 0;
+      const peakCtx = c?.fit?.peakContextTokens ?? n?.effectiveContextTokens ?? 0;
+
       setDataAttr(kvBar, "status", srv ? "qualified_pass" : "memory_fit_unpriced");
       const techLabel = describeKvTechnique(model, isTh);
       const grpSummary = summarizeModelGroups(model);
@@ -1394,11 +1454,14 @@ function renderPersonTokenAndKvBars() {
           bytesPerTokStr = "N/A";
         }
       }
-      if (peakKvGbStr === null && n && typeof kvBytesPerSequence === "function") {
+      if ((peakKvGbStr === null || activeKvGbStr === null) && n && typeof kvBytesPerSequence === "function") {
         try {
-          const seqRat = kvBytesPerSequence(model.groups, String(n.effectiveContextTokens), kqElem);
-          peakKvGbStr = formatHalfUp(seqRat.div(toRat("1000000000")), 3);
-          activeKvGbStr = peakKvGbStr;
+          const peakSeqRat = kvBytesPerSequence(model.groups, String(peakCtx), kqElem);
+          const activeSeqRat = activeCtx === peakCtx
+            ? peakSeqRat
+            : kvBytesPerSequence(model.groups, String(activeCtx), kqElem);
+          peakKvGbStr = formatHalfUp(peakSeqRat.div(toRat("1000000000")), 3);
+          activeKvGbStr = formatHalfUp(activeSeqRat.div(toRat("1000000000")), 3);
         } catch {
           peakKvGbStr = "N/A";
           activeKvGbStr = "N/A";
@@ -1419,7 +1482,9 @@ function renderPersonTokenAndKvBars() {
       const canShare = Boolean(rtMeta?.supports_prefix_cache) && !model.kv_override;
       const sharedHeadline = canShare && Number(sharedKvGbStr) > 0
         ? `-${sharedKvGbStr} GB / seq`
-        : (canShare ? "0.000 GB shared" : (isTh ? `ไม่แชร์บล็อก (${rtKey})` : `No prefix share (${rtKey})`));
+        : (canShare
+          ? (isTh ? "0.000 GB การันตีแชร์" : "0.000 GB guaranteed")
+          : (isTh ? `ไม่แชร์บล็อก (${rtKey})` : `No prefix share (${rtKey})`));
       const residencySub = model.host_offload_params_b
         ? (isTh
           ? `Weights ${wtResidentGbStr} GB (${model.params_b}B เต็มบน GPU)`
@@ -1441,7 +1506,7 @@ function renderPersonTokenAndKvBars() {
           <div class="telemetry-cell">
             <span class="telemetry-kicker">${esc(isTh ? "หน่วยความจำ KV / เซสชัน" : "KV memory / session")}</span>
             <span class="telemetry-val">Peak ${esc(peakKvGbStr ?? "N/A")} GB</span>
-            <span class="telemetry-sub">${esc(`Active ${activeKvGbStr ?? "N/A"} GB @ ${fmtInt(n?.effectiveContextTokens ?? 0)} ctx`)}</span>
+            <span class="telemetry-sub">${esc(`Active ${activeKvGbStr ?? "N/A"} GB @ ${fmtInt(activeCtx)} ctx`)}</span>
           </div>
           <div class="telemetry-cell">
             <span class="telemetry-kicker">${esc(isTh ? "PagedAttention & น้ำหนักโมเดล" : "PagedAttention & weights")}</span>
@@ -1462,6 +1527,8 @@ function renderAutoGpuAndMatrix() {
 
   if (c?.normalized) {
     const n = c.normalized;
+    const pts = resolvePersonTokens(c);
+    const finalTurnCtx = pts?.finalTurnContextTokens ?? n.peakTurnContextTokens ?? n.effectiveContextTokens;
     if ($("hint-eff-sys")) {
       $("hint-eff-sys").textContent = isTh
         ? `System จริง: ${fmtInt(n.effectiveSystemPromptTokens)} โทเคน`
@@ -1472,7 +1539,7 @@ function renderAutoGpuAndMatrix() {
       : `Thai-adjusted: +${fmtInt(n.effectivePromptTokens)} fresh tok/turn`;
     if ($("hint-turns-session")) {
       $("hint-turns-session").textContent = n.sessionStackingActive
-        ? (isTh ? `Peak รอบสุดท้าย: ${fmtInt(n.peakTurnContextTokens)} tok` : `Peak final turn: ${fmtInt(n.peakTurnContextTokens)} tok`)
+        ? (isTh ? `Peak รอบสุดท้าย: ${fmtInt(finalTurnCtx)} tok` : `Peak final turn: ${fmtInt(finalTurnCtx)} tok`)
         : (isTh ? "โหมดคำสั่งเดี่ยวดั้งเดิม" : "Legacy flat single-turn");
     }
     if ($("hint-kv-hit")) {

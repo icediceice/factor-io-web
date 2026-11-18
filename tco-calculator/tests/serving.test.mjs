@@ -7,11 +7,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
+  FP4_KV_BYTES_PER_ELEMENT,
   kvBytesPerToken,
   kvBytesPerSequence,
+  kvShareableBytes,
   groupBytesPerToken,
   groupRetainedTokens,
   weightBytes,
+  resolveModelResidency,
   servingPlan,
   evidenceConfig,
   ServingRefusal,
@@ -550,5 +553,164 @@ test("no two presets share an id, and every derived row declares its basis", () 
     const m = MODEL(id);
     assert.ok(m, `curated falsifier ${id} was dropped by a refresh`);
     assert.equal(formatHalfUp(kvBytesPerToken(m.groups, BF16), 0), String(m.kv_bytes_per_token_bf16_expected));
+  }
+});
+
+test("compressed MLA (CSA2) scales latent rank by element width, keeps index_bytes_per_entry unscaled, and rounds odd contexts UP by compress_ratio", () => {
+  assert.equal(FP4_KV_BYTES_PER_ELEMENT, "0.5625");
+  assert.equal(DATA.kv_quantization.fp4.bytes_per_element, "0.5625");
+
+  // Peer Case 5: 1 compressed-MLA layer, lora=512, rope=0, compress_ratio=2, index_bytes_per_entry=68
+  const compMla = [{
+    kind: "mla",
+    layers: 1,
+    kv_lora_rank: 512,
+    qk_rope_head_dim: 0,
+    compress_ratio: 2,
+    index_bytes_per_entry: 68,
+  }];
+  assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 4, "0.5"), 0), "648");
+  assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 4, "2"), 0), "2184");
+  assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 3, "0.5"), 0), "648");
+
+  const dsFlash = MODEL("deepseek-v4-1-flash-1017");
+  assert.ok(dsFlash, "deepseek-v4-1-flash-1017 must exist in serving-models.json");
+  const globalCsa2 = dsFlash.groups.filter((g) => g.kind === "mla");
+  assert.equal(formatHalfUp(kvBytesPerToken(globalCsa2, FP4_KV_BYTES_PER_ELEMENT), 0), "890");
+});
+
+test("fail-closed checkpoint residency holds full params_b on GPU unless an explicit matching hostTierProfile proves host DRAM offload", () => {
+  // Peer Case 4: 749B checkpoint = 552B GPU backbone + 197B Engram offload, 1 B/param, 8x80 GB (576 GB usable at 10% overhead), 10 GB KV
+  const engramModel = {
+    id: "synthetic-engram-749b",
+    params_b: "749",
+    active_params_b: "15",
+    gpu_backbone_params_b: "552",
+    host_offload_params_b: "197",
+    host_offload_kind: "engram",
+    groups: [{ kind: "full", layers: 1, kv_heads: 1, head_dim: 1000000, tensors: 1 }],
+  };
+
+  assert.throws(
+    () => servingPlan({
+      model: engramModel,
+      contextTokens: 10000,
+      bytesPerParam: "1",
+      kvBytesPerElement: "1",
+      vramGb: "80",
+      bandwidthGbS: "3350",
+      runtimeEfficiency: "0.80",
+      tpEfficiency: "0.92",
+      vramOverheadFraction: "0.10",
+      runtimeKey: "vllm",
+      tpCandidates: [8],
+    }),
+    (err) => err instanceof ServingRefusal && err.code === "no_viable_configuration" && err.context.attempts[0].reason === "weights_exceed_vram",
+  );
+
+  const insufficientDram = resolveModelResidency({
+    model: engramModel,
+    bytesPerParam: "1",
+    runtimeKey: "vllm",
+    hostTierProfile: { allowHostTierOffload: true, runtime: "vllm", supportedKinds: ["engram"], hostDramGb: "128" },
+  });
+  assert.equal(insufficientDram.host_offload_active, false);
+  assert.equal(formatHalfUp(insufficientDram.resident.div(new Rat(1000000000n, 1n)), 0), "749");
+
+  const tiered = servingPlan({
+    model: engramModel,
+    contextTokens: 10000,
+    bytesPerParam: "1",
+    kvBytesPerElement: "1",
+    vramGb: "80",
+    bandwidthGbS: "3350",
+    runtimeEfficiency: "0.80",
+    tpEfficiency: "0.92",
+    vramOverheadFraction: "0.10",
+    runtimeKey: "vllm",
+    hostTierProfile: { allowHostTierOffload: true, runtime: "vllm", supportedKinds: ["engram"], hostDramGb: "256" },
+    tpCandidates: [8],
+  });
+  assert.equal(tiered.ok, true);
+  assert.equal(tiered.host_offload_active, true);
+  assert.equal(tiered.weights_gb_resident.text, "552.00");
+  assert.equal(tiered.weights_gb_host_offload.text, "197.00");
+  assert.equal(tiered.vram_gb_used.text, "562.0");
+  assert.equal(tiered.batch.text, "1");
+});
+
+test("PagedAttention peak-turn batch sizing bounds B*bytes(peak)-(B-1)*shareable(peak), intersects sliding-window tails, and refuses unshared runtimes", () => {
+  // Peer Case 6: Sliding W=6000, peakCtx=12000, sharedPrefix=8000, 1 B/tok, pageBlock=16, memRoom=8000 B -> 2,000 B shareable -> batch=1
+  const slidingModel = {
+    id: "sliding-tail-test",
+    params_b: "0.000001",
+    active_params_b: "0.000001",
+    groups: [{ kind: "sliding", layers: 1, kv_heads: 1, head_dim: 1, tensors: 1, window_tokens: 6000 }],
+  };
+  assert.equal(formatHalfUp(kvShareableBytes(slidingModel.groups, 12000, 8000, "1", 16), 0), "2000");
+
+  const slidingPlan = servingPlan({
+    model: slidingModel,
+    contextTokens: 12000,
+    peakContextTokens: 12000,
+    sharedPrefixTokens: 8000,
+    supportsPrefixCache: true,
+    pageBlockTokens: 16,
+    bytesPerParam: "1",
+    kvBytesPerElement: "1",
+    vramGb: "0.00001",
+    bandwidthGbS: "1000",
+    runtimeEfficiency: "0.80",
+    tpEfficiency: "0.92",
+    vramOverheadFraction: "0.10",
+    tpCandidates: [1],
+  });
+  assert.equal(slidingPlan.batch.text, "1");
+
+  // Peer Case 7: Peak sequence 23,000 B, active 14,000 B, shared 20,000 B, memRoom=24,000 B -> batch=1
+  const full1ByteModel = {
+    id: "peak-bound-test",
+    params_b: "0.000003",
+    active_params_b: "0.000003",
+    groups: [{ kind: "full", layers: 1, kv_heads: 1, head_dim: 1, tensors: 1 }],
+  };
+  const peakPlan = servingPlan({
+    model: full1ByteModel,
+    contextTokens: 14000,
+    peakContextTokens: 23000,
+    sharedPrefixTokens: 20000,
+    supportsPrefixCache: true,
+    pageBlockTokens: 1,
+    bytesPerParam: "1",
+    kvBytesPerElement: "1",
+    vramGb: "0.00003",
+    bandwidthGbS: "1000",
+    runtimeEfficiency: "0.80",
+    tpEfficiency: "0.92",
+    vramOverheadFraction: "0.10",
+    tpCandidates: [1],
+  });
+  assert.equal(peakPlan.batch.text, "1");
+
+  // llama.cpp (supportsPrefixCache: false) and kv_override: true get ZERO shared-prefix credit
+  for (const extra of [{ supportsPrefixCache: false }, { model: { ...full1ByteModel, kv_override: true }, supportsPrefixCache: true }]) {
+    const unshared = servingPlan({
+      model: full1ByteModel,
+      contextTokens: 14000,
+      peakContextTokens: 23000,
+      sharedPrefixTokens: 20000,
+      pageBlockTokens: 1,
+      bytesPerParam: "1",
+      kvBytesPerElement: "1",
+      vramGb: "0.00006",
+      bandwidthGbS: "1000",
+      runtimeEfficiency: "0.80",
+      tpEfficiency: "0.92",
+      vramOverheadFraction: "0.10",
+      tpCandidates: [1],
+      ...extra,
+    });
+    assert.equal(unshared.kv_gb_shared_prefix.text, "0.000");
+    assert.equal(unshared.batch.text, "2");
   }
 });

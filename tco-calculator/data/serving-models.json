@@ -227,40 +227,16 @@
         }
       ],
       "note": "Derived from google/gemma-4-E4B-it@4ecc2ba63bca config.json on 2026-11-18: 20 sliding + 4 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/google/gemma-4-E4B-it",
+      "source_repo": "google/gemma-4-E4B-it",
+      "source_revision": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
+      "source_url": "https://huggingface.co/google/gemma-4-E4B-it/resolve/4ecc2ba63bcac23ba4a767fc87025b1450f84c9c/config.json",
       "config_url": "https://huggingface.co/google/gemma-4-E4B-it/resolve/4ecc2ba63bcac23ba4a767fc87025b1450f84c9c/config.json",
       "revision": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
       "model_type": "gemma4_text",
       "hub_downloads": "4332487",
-      "hub_likes": "1866",
+      "hub_likes": "1867",
       "observed_at": "2026-11-18",
-      "pinned": true,
-      "resolved_from": [
-        "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
-        "unsloth/NVIDIA-Nemotron-3.5-Bolt-E4B-GGUF"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
-          "hops": 2,
-          "path": [
-            "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
-            "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-BF16",
-            "google/gemma-4-E4B-it"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "unsloth/NVIDIA-Nemotron-3.5-Bolt-E4B-GGUF",
-          "hops": 2,
-          "path": [
-            "unsloth/NVIDIA-Nemotron-3.5-Bolt-E4B-GGUF",
-            "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-BF16",
-            "google/gemma-4-E4B-it"
-          ],
-          "truncated": false
-        }
-      ]
+      "pinned": true
     },
     {
       "id": "qwen3-5-9b",
@@ -289,41 +265,16 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3.5-9B@c20223623576 config.json on 2026-11-18: 24 linear + 8 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.5-9B",
+      "source_repo": "Qwen/Qwen3.5-9B",
+      "source_revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.5-9B/resolve/c202236235762e1c871ad0ccb60c8ee5ba337b9a/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3.5-9B/resolve/c202236235762e1c871ad0ccb60c8ee5ba337b9a/config.json",
       "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
       "model_type": "qwen3_5_text",
       "hub_downloads": "6216175",
-      "hub_likes": "2395",
+      "hub_likes": "2396",
       "observed_at": "2026-11-18",
-      "pinned": true,
-      "resolved_from": [
-        "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
-        "Jackrong/DeepSeek-V4-Pro-Qwen3.5-9B-MTP-GGUF"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
-          "hops": 3,
-          "path": [
-            "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
-            "Jackrong/DeepSeek-V4-Pro-Qwen3.5-9B",
-            "unsloth/Qwen3.5-9B",
-            "Qwen/Qwen3.5-9B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "Jackrong/DeepSeek-V4-Pro-Qwen3.5-9B-MTP-GGUF",
-          "hops": 2,
-          "path": [
-            "Jackrong/DeepSeek-V4-Pro-Qwen3.5-9B-MTP-GGUF",
-            "unsloth/Qwen3.5-9B",
-            "Qwen/Qwen3.5-9B"
-          ],
-          "truncated": false
-        }
-      ]
+      "pinned": true
     },
     {
       "id": "gemma-4-12b-it",
@@ -355,7 +306,9 @@
         }
       ],
       "note": "Derived from google/gemma-4-12B-it@43c9d014b231 config.json on 2026-11-18: 40 sliding + 8 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/google/gemma-4-12B-it",
+      "source_repo": "google/gemma-4-12B-it",
+      "source_revision": "43c9d014b231474fa7212dbb48a762566c2b255d",
+      "source_url": "https://huggingface.co/google/gemma-4-12B-it/resolve/43c9d014b231474fa7212dbb48a762566c2b255d/config.json",
       "config_url": "https://huggingface.co/google/gemma-4-12B-it/resolve/43c9d014b231474fa7212dbb48a762566c2b255d/config.json",
       "revision": "43c9d014b231474fa7212dbb48a762566c2b255d",
       "model_type": "gemma4_unified_text",
@@ -394,12 +347,14 @@
         }
       ],
       "note": "Derived from openai/gpt-oss-20b@6cee5e81ee83 config.json on 2026-11-18: 12 sliding + 12 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (20.908B vs 20.915B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/openai/gpt-oss-20b",
+      "source_repo": "openai/gpt-oss-20b",
+      "source_revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
+      "source_url": "https://huggingface.co/openai/gpt-oss-20b/resolve/6cee5e81ee83917806bbde320786a8fb61efebee/config.json",
       "config_url": "https://huggingface.co/openai/gpt-oss-20b/resolve/6cee5e81ee83917806bbde320786a8fb61efebee/config.json",
       "revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
       "model_type": "gpt_oss",
       "hub_downloads": "5596946",
-      "hub_likes": "5325",
+      "hub_likes": "5326",
       "observed_at": "2026-11-18",
       "pinned": true
     },
@@ -433,7 +388,9 @@
         }
       ],
       "note": "Derived from google/gemma-4-26B-A4B-it@4d7ae4984b7d config.json on 2026-11-18: 25 sliding + 5 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/google/gemma-4-26B-A4B-it",
+      "source_repo": "google/gemma-4-26B-A4B-it",
+      "source_revision": "4d7ae4984b7db7de8f8457170b3f1a419ee76d52",
+      "source_url": "https://huggingface.co/google/gemma-4-26B-A4B-it/resolve/4d7ae4984b7db7de8f8457170b3f1a419ee76d52/config.json",
       "config_url": "https://huggingface.co/google/gemma-4-26B-A4B-it/resolve/4d7ae4984b7db7de8f8457170b3f1a419ee76d52/config.json",
       "revision": "4d7ae4984b7db7de8f8457170b3f1a419ee76d52",
       "model_type": "gemma4_text",
@@ -469,58 +426,16 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3.8-27B@37561816e66b config.json on 2026-11-18: 48 linear + 16 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "source_repo": "Qwen/Qwen3.8-27B",
+      "source_revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.8-27B/resolve/37561816e66b5b9153b1b64c10968c18c1e6f4a0/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3.8-27B/resolve/37561816e66b5b9153b1b64c10968c18c1e6f4a0/config.json",
       "revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
       "model_type": "qwen3_5_text",
       "hub_downloads": "6942530",
-      "hub_likes": "20447",
+      "hub_likes": "20457",
       "observed_at": "2026-11-18",
-      "pinned": true,
-      "resolved_from": [
-        "NousResearch/Arete-27B",
-        "prism-ml/Ternary-Bonsai-2-27B-gguf",
-        "MiniMaxAI/MiniMax-H3-Image-PE",
-        "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "NousResearch/Arete-27B",
-          "hops": 1,
-          "path": [
-            "NousResearch/Arete-27B",
-            "Qwen/Qwen3.8-27B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "prism-ml/Ternary-Bonsai-2-27B-gguf",
-          "hops": 1,
-          "path": [
-            "prism-ml/Ternary-Bonsai-2-27B-gguf",
-            "Qwen/Qwen3.8-27B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "MiniMaxAI/MiniMax-H3-Image-PE",
-          "hops": 1,
-          "path": [
-            "MiniMaxAI/MiniMax-H3-Image-PE",
-            "Qwen/Qwen3.8-27B"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
-          "hops": 1,
-          "path": [
-            "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
-            "Qwen/Qwen3.8-27B"
-          ],
-          "truncated": false
-        }
-      ]
+      "pinned": true
     },
     {
       "id": "qwen3-coder-30b-a3b-instruct",
@@ -544,7 +459,9 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3-Coder-30B-A3B-Instruct@b2cff646eb4b config.json on 2026-11-18: 48 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "source_repo": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "source_revision": "b2cff646eb4bb1d68355c01b18ae02e7cf42d120",
+      "source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct/resolve/b2cff646eb4bb1d68355c01b18ae02e7cf42d120/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct/resolve/b2cff646eb4bb1d68355c01b18ae02e7cf42d120/config.json",
       "revision": "b2cff646eb4bb1d68355c01b18ae02e7cf42d120",
       "model_type": "qwen3_moe",
@@ -583,12 +500,14 @@
         }
       ],
       "note": "Derived from google/gemma-4-31B-it@842da3794eaa config.json on 2026-11-18: 50 sliding + 10 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/google/gemma-4-31B-it",
+      "source_repo": "google/gemma-4-31B-it",
+      "source_revision": "842da3794eaa0b77d5f08bae87a17459d91ff475",
+      "source_url": "https://huggingface.co/google/gemma-4-31B-it/resolve/842da3794eaa0b77d5f08bae87a17459d91ff475/config.json",
       "config_url": "https://huggingface.co/google/gemma-4-31B-it/resolve/842da3794eaa0b77d5f08bae87a17459d91ff475/config.json",
       "revision": "842da3794eaa0b77d5f08bae87a17459d91ff475",
       "model_type": "gemma4_text",
       "hub_downloads": "6306600",
-      "hub_likes": "4387",
+      "hub_likes": "4388",
       "observed_at": "2026-11-18",
       "pinned": true
     },
@@ -614,7 +533,9 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3-32B@9216db5781bf config.json on 2026-11-18: 64 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3-32B",
+      "source_repo": "Qwen/Qwen3-32B",
+      "source_revision": "9216db5781bf21249d130ec9da846c4624c16137",
+      "source_url": "https://huggingface.co/Qwen/Qwen3-32B/resolve/9216db5781bf21249d130ec9da846c4624c16137/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3-32B/resolve/9216db5781bf21249d130ec9da846c4624c16137/config.json",
       "revision": "9216db5781bf21249d130ec9da846c4624c16137",
       "model_type": "qwen3",
@@ -650,28 +571,16 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3.6-35B-A3B@345d467b117d config.json on 2026-11-18: 30 linear + 10 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
+      "source_repo": "Qwen/Qwen3.6-35B-A3B",
+      "source_revision": "345d467b117d1fd5eda9b879a5988de9ae5f47a7",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B/resolve/345d467b117d1fd5eda9b879a5988de9ae5f47a7/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B/resolve/345d467b117d1fd5eda9b879a5988de9ae5f47a7/config.json",
       "revision": "345d467b117d1fd5eda9b879a5988de9ae5f47a7",
       "model_type": "qwen3_5_moe_text",
       "hub_downloads": "3945856",
       "hub_likes": "3146",
       "observed_at": "2026-11-18",
-      "pinned": true,
-      "resolved_from": [
-        "whittleOrg/Whittle-Next-27B-A3B"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "whittleOrg/Whittle-Next-27B-A3B",
-          "hops": 1,
-          "path": [
-            "whittleOrg/Whittle-Next-27B-A3B",
-            "Qwen/Qwen3.6-35B-A3B"
-          ],
-          "truncated": false
-        }
-      ]
+      "pinned": true
     },
     {
       "id": "flint",
@@ -703,7 +612,9 @@
         }
       ],
       "note": "Derived from RecursiveSI/flint@2a247be0c0ae config.json on 2026-11-18: 14 full + 35 sliding layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (39.785B vs 39.785B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/RecursiveSI/flint",
+      "source_repo": "RecursiveSI/flint",
+      "source_revision": "2a247be0c0aec895ccb0ac7ca92229ec6df37288",
+      "source_url": "https://huggingface.co/RecursiveSI/flint/resolve/2a247be0c0aec895ccb0ac7ca92229ec6df37288/config.json",
       "config_url": "https://huggingface.co/RecursiveSI/flint/resolve/2a247be0c0aec895ccb0ac7ca92229ec6df37288/config.json",
       "revision": "2a247be0c0aec895ccb0ac7ca92229ec6df37288",
       "model_type": "flint",
@@ -738,7 +649,9 @@
         }
       ],
       "note": "Derived from moonshotai/Kimi-Linear-48B-A3B-Instruct@e1df551a4471 config.json on 2026-11-18: 20 linear + 7 mla layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are the vendor's own -A<n>B declaration. Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/moonshotai/Kimi-Linear-48B-A3B-Instruct",
+      "source_repo": "moonshotai/Kimi-Linear-48B-A3B-Instruct",
+      "source_revision": "e1df551a447157d4658b573f9a695d57658590e9",
+      "source_url": "https://huggingface.co/moonshotai/Kimi-Linear-48B-A3B-Instruct/resolve/e1df551a447157d4658b573f9a695d57658590e9/config.json",
       "config_url": "https://huggingface.co/moonshotai/Kimi-Linear-48B-A3B-Instruct/resolve/e1df551a447157d4658b573f9a695d57658590e9/config.json",
       "revision": "e1df551a447157d4658b573f9a695d57658590e9",
       "model_type": "kimi_linear",
@@ -769,7 +682,9 @@
         }
       ],
       "note": "Derived from nvidia/Llama-3_3-Nemotron-Super-49B-v1_5@420ba7d28211 config.json on 2026-11-18: 49 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1_5",
+      "source_repo": "nvidia/Llama-3_3-Nemotron-Super-49B-v1_5",
+      "source_revision": "420ba7d28211abf116b8b103ab700d92619daf98",
+      "source_url": "https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1_5/resolve/420ba7d28211abf116b8b103ab700d92619daf98/config.json",
       "config_url": "https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1_5/resolve/420ba7d28211abf116b8b103ab700d92619daf98/config.json",
       "revision": "420ba7d28211abf116b8b103ab700d92619daf98",
       "model_type": "nemotron-nas",
@@ -808,12 +723,14 @@
         }
       ],
       "note": "Derived from openai/gpt-oss-120b@b5c939de8f75 config.json on 2026-11-18: 18 sliding + 18 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (116.789B vs 116.829B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/openai/gpt-oss-120b",
+      "source_repo": "openai/gpt-oss-120b",
+      "source_revision": "b5c939de8f754692c1647ca79fbf85e8c1e70f8a",
+      "source_url": "https://huggingface.co/openai/gpt-oss-120b/resolve/b5c939de8f754692c1647ca79fbf85e8c1e70f8a/config.json",
       "config_url": "https://huggingface.co/openai/gpt-oss-120b/resolve/b5c939de8f754692c1647ca79fbf85e8c1e70f8a/config.json",
       "revision": "b5c939de8f754692c1647ca79fbf85e8c1e70f8a",
       "model_type": "gpt_oss",
       "hub_downloads": "2416070",
-      "hub_likes": "5537",
+      "hub_likes": "5538",
       "observed_at": "2026-11-18",
       "pinned": true
     },
@@ -847,58 +764,16 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3.8-Flash-Next@812d96e10a0d config.json on 2026-11-18: 36 linear + 12 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (178.17B vs 180B). Full checkpoint is 180B (128.8B GPU transformer backbone + 51.2B ple_ngram lookup table; sized fail-closed on GPU VRAM unless an evidenced host-DRAM tier profile is supplied). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.8-Flash-Next",
+      "source_repo": "Qwen/Qwen3.8-Flash-Next",
+      "source_revision": "812d96e10a0dd82b69d749e68693698cf6c36daa",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.8-Flash-Next/resolve/812d96e10a0dd82b69d749e68693698cf6c36daa/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3.8-Flash-Next/resolve/812d96e10a0dd82b69d749e68693698cf6c36daa/config.json",
       "revision": "812d96e10a0dd82b69d749e68693698cf6c36daa",
       "model_type": "qwen4_exp_text",
       "hub_downloads": "2983542",
-      "hub_likes": "7262",
+      "hub_likes": "7264",
       "observed_at": "2026-11-18",
-      "pinned": true,
-      "resolved_from": [
-        "Edge0/Edge0-145B-NVFP4",
-        "Edge0/Edge0-120B-NVFP4",
-        "Edge0/Edge0-145B-q3k",
-        "Edge0/Edge0-120B-q3k"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "Edge0/Edge0-145B-NVFP4",
-          "hops": 1,
-          "path": [
-            "Edge0/Edge0-145B-NVFP4",
-            "Qwen/Qwen3.8-Flash-Next"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "Edge0/Edge0-120B-NVFP4",
-          "hops": 1,
-          "path": [
-            "Edge0/Edge0-120B-NVFP4",
-            "Qwen/Qwen3.8-Flash-Next"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "Edge0/Edge0-145B-q3k",
-          "hops": 1,
-          "path": [
-            "Edge0/Edge0-145B-q3k",
-            "Qwen/Qwen3.8-Flash-Next"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "Edge0/Edge0-120B-q3k",
-          "hops": 1,
-          "path": [
-            "Edge0/Edge0-120B-q3k",
-            "Qwen/Qwen3.8-Flash-Next"
-          ],
-          "truncated": false
-        }
-      ]
+      "pinned": true
     },
     {
       "id": "glm-5-3-flash",
@@ -926,7 +801,9 @@
         }
       ],
       "note": "Derived from zai-org/GLM-5.3-Flash@46a050bec130 config.json on 2026-11-18: 34 linear + 11 mla layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (319.738B vs 321.323B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/zai-org/GLM-5.3-Flash",
+      "source_repo": "zai-org/GLM-5.3-Flash",
+      "source_revision": "46a050bec13002ad29ee795c16e61cf4fa3c4a9c",
+      "source_url": "https://huggingface.co/zai-org/GLM-5.3-Flash/resolve/46a050bec13002ad29ee795c16e61cf4fa3c4a9c/config.json",
       "config_url": "https://huggingface.co/zai-org/GLM-5.3-Flash/resolve/46a050bec13002ad29ee795c16e61cf4fa3c4a9c/config.json",
       "revision": "46a050bec13002ad29ee795c16e61cf4fa3c4a9c",
       "model_type": "glm5_next_text",
@@ -977,39 +854,16 @@
         }
       ],
       "note": "Derived from deepseek-ai/DeepSeek-V4.1-Flash-1017@08c8657f0229 config.json on 2026-11-18: 40 sliding + 3 mla(2:1) + 1 mla layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (761.136B vs 763.205B). Full checkpoint is 763.21B (566.59B GPU transformer backbone + 196.61B engram lookup table; sized fail-closed on GPU VRAM unless an evidenced host-DRAM tier profile is supplied). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "source_repo": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "source_revision": "08c8657f02291e11b6f6b63e0e16014f8e748518",
+      "source_url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017/resolve/08c8657f02291e11b6f6b63e0e16014f8e748518/config.json",
       "config_url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017/resolve/08c8657f02291e11b6f6b63e0e16014f8e748518/config.json",
       "revision": "08c8657f02291e11b6f6b63e0e16014f8e748518",
       "model_type": "deepseek_v41_text",
       "hub_downloads": "479986",
-      "hub_likes": "5864",
+      "hub_likes": "5870",
       "observed_at": "2026-11-18",
-      "pinned": true,
-      "resolved_from": [
-        "MoonMath-ai/DeepSeek-V4.1-Flash-1017-uncensored",
-        "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "MoonMath-ai/DeepSeek-V4.1-Flash-1017-uncensored",
-          "hops": 1,
-          "path": [
-            "MoonMath-ai/DeepSeek-V4.1-Flash-1017-uncensored",
-            "deepseek-ai/DeepSeek-V4.1-Flash-1017"
-          ],
-          "truncated": false
-        },
-        {
-          "derivative_id": "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
-          "hops": 2,
-          "path": [
-            "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
-            "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
-            "deepseek-ai/DeepSeek-V4.1-Flash-1017"
-          ],
-          "truncated": false
-        }
-      ]
+      "pinned": true
     },
     {
       "id": "qwen3-5-4b",
@@ -1038,15 +892,18 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3.5-4B@851bf6e806ef config.json on 2026-11-18: 24 linear + 8 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.5-4B",
+      "source_repo": "Qwen/Qwen3.5-4B",
+      "source_revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.5-4B/resolve/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3.5-4B/resolve/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a/config.json",
       "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
       "model_type": "qwen3_5_text",
       "hub_downloads": "4753430",
-      "hub_likes": "1250",
+      "hub_likes": "1251",
       "observed_at": "2026-11-18",
       "resolved_from": [
-        "xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic"
+        "xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic",
+        "nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft"
       ],
       "base_resolution": [
         {
@@ -1056,6 +913,15 @@
             "xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic",
             "Jackrong/DeepSeek-V4-Pro-Qwen3.5-4B",
             "unsloth/Qwen3.5-4B",
+            "Qwen/Qwen3.5-4B"
+          ],
+          "truncated": false
+        },
+        {
+          "derivative_id": "nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft",
+          "hops": 1,
+          "path": [
+            "nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft",
             "Qwen/Qwen3.5-4B"
           ],
           "truncated": false
@@ -1083,12 +949,14 @@
         }
       ],
       "note": "Derived from KRAFTON/Raon-1-nano@39f897a1f835 config.json on 2026-11-18: 24 mla layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/KRAFTON/Raon-1-nano",
+      "source_repo": "KRAFTON/Raon-1-nano",
+      "source_revision": "39f897a1f835c723ec633c6c905dca7312bd9fd7",
+      "source_url": "https://huggingface.co/KRAFTON/Raon-1-nano/resolve/39f897a1f835c723ec633c6c905dca7312bd9fd7/config.json",
       "config_url": "https://huggingface.co/KRAFTON/Raon-1-nano/resolve/39f897a1f835c723ec633c6c905dca7312bd9fd7/config.json",
       "revision": "39f897a1f835c723ec633c6c905dca7312bd9fd7",
       "model_type": "raon1_nano",
       "hub_downloads": "1884",
-      "hub_likes": "161",
+      "hub_likes": "162",
       "observed_at": "2026-11-18",
       "resolved_from": [
         "KRAFTON/Raon-1-nano-gguf"
@@ -1126,7 +994,9 @@
         }
       ],
       "note": "Derived from zai-org/GLM-5.3@ba32f8c19c87 config.json on 2026-11-18: 78 mla layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are computed from the MoE geometry, which reproduced the published total to within 2% (752.683B vs 753.33B). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/zai-org/GLM-5.3",
+      "source_repo": "zai-org/GLM-5.3",
+      "source_revision": "ba32f8c19c8738e2c57c71798c601d477a7bf844",
+      "source_url": "https://huggingface.co/zai-org/GLM-5.3/resolve/ba32f8c19c8738e2c57c71798c601d477a7bf844/config.json",
       "config_url": "https://huggingface.co/zai-org/GLM-5.3/resolve/ba32f8c19c8738e2c57c71798c601d477a7bf844/config.json",
       "revision": "ba32f8c19c8738e2c57c71798c601d477a7bf844",
       "model_type": "glm_moe_dsa",
@@ -1161,12 +1031,14 @@
         }
       ],
       "note": "Derived from sensenova/SenseNova-Loop-9B-Preview@89d7970926e2 config.json on 2026-11-18: 24 linear + 8 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/sensenova/SenseNova-Loop-9B-Preview",
+      "source_repo": "sensenova/SenseNova-Loop-9B-Preview",
+      "source_revision": "89d7970926e215f8da61726700cd026ccffbb6cb",
+      "source_url": "https://huggingface.co/sensenova/SenseNova-Loop-9B-Preview/resolve/89d7970926e215f8da61726700cd026ccffbb6cb/config.json",
       "config_url": "https://huggingface.co/sensenova/SenseNova-Loop-9B-Preview/resolve/89d7970926e215f8da61726700cd026ccffbb6cb/config.json",
       "revision": "89d7970926e215f8da61726700cd026ccffbb6cb",
       "model_type": "qwen3_5_text",
       "hub_downloads": "4887",
-      "hub_likes": "316",
+      "hub_likes": "317",
       "observed_at": "2026-11-18"
     },
     {
@@ -1196,7 +1068,9 @@
         }
       ],
       "note": "Derived from Qwen/Qwen3.5-0.8B@2fc06364715b config.json on 2026-11-18: 18 linear + 6 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3.5-0.8B",
+      "source_repo": "Qwen/Qwen3.5-0.8B",
+      "source_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+      "source_url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/config.json",
       "config_url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/config.json",
       "revision": "2fc06364715b967f1860aea9cf38778875588b17",
       "model_type": "qwen3_5_text",
@@ -1213,50 +1087,6 @@
           "path": [
             "qvac/BotPsy-0.8B",
             "Qwen/Qwen3.5-0.8B"
-          ],
-          "truncated": false
-        }
-      ]
-    },
-    {
-      "id": "qwen3-1-7b",
-      "label": "Qwen3-1.7B — dense, full attention",
-      "family": "qwen",
-      "architecture": "full",
-      "params_b": "2.03",
-      "active_params_b": "2.03",
-      "active_params_basis": "dense",
-      "context_default": 32768,
-      "context_max": 40960,
-      "kv_bytes_per_token_bf16_expected": null,
-      "basis": "derived",
-      "groups": [
-        {
-          "kind": "full",
-          "layers": 28,
-          "kv_heads": 8,
-          "head_dim": 128,
-          "tensors": 2
-        }
-      ],
-      "note": "Derived from Qwen/Qwen3-1.7B@70d244cc86cc config.json on 2026-11-18: 28 full layers. Parameter total is the Hub's safetensors index at the same commit; active parameters are equal to total (no routed experts). Nothing here is a benchmark and no per-token KV figure has been independently published for this row.",
-      "source_url": "https://huggingface.co/Qwen/Qwen3-1.7B",
-      "config_url": "https://huggingface.co/Qwen/Qwen3-1.7B/resolve/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/config.json",
-      "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
-      "model_type": "qwen3",
-      "hub_downloads": "2806022",
-      "hub_likes": "627",
-      "observed_at": "2026-11-18",
-      "resolved_from": [
-        "ccore/Qwen3-1.7B-GLB-3D-Coder"
-      ],
-      "base_resolution": [
-        {
-          "derivative_id": "ccore/Qwen3-1.7B-GLB-3D-Coder",
-          "hops": 1,
-          "path": [
-            "ccore/Qwen3-1.7B-GLB-3D-Coder",
-            "Qwen/Qwen3-1.7B"
           ],
           "truncated": false
         }
@@ -1410,6 +1240,11 @@
       "detail": null
     },
     {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
+      "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
       "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
       "reason": "derivative repo (base_model:finetune:Jackrong/DeepSeek-V4-Pro-Qwen3.5-9B)",
       "detail": null
@@ -1417,11 +1252,6 @@
     {
       "id": "MoonMath-ai/DeepSeek-V4.1-Flash-1017-uncensored",
       "reason": "derivative repo (base_model:quantized:deepseek-ai/DeepSeek-V4.1-Flash-1017)",
-      "detail": null
-    },
-    {
-      "id": "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
-      "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
     {
@@ -1490,8 +1320,8 @@
       "detail": null
     },
     {
-      "id": "MiniMaxAI/MiniMax-H3-Image-PE",
-      "reason": "derivative repo (base_model:quantized:Qwen/Qwen3.8-27B)",
+      "id": "nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft",
+      "reason": "derivative repo (base_model:finetune:Qwen/Qwen3.5-4B)",
       "detail": null
     },
     {
@@ -1500,18 +1330,13 @@
       "detail": null
     },
     {
-      "id": "BreezeBlue/Breeze-TTS-2",
-      "reason": "pipeline_tag is \"text-to-speech\", not text-generation",
-      "detail": null
-    },
-    {
-      "id": "Cactus-Compute/nemotron-3.5-120b-cq",
-      "reason": "derivative repo (base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16)",
-      "detail": null
-    },
-    {
-      "id": "ccore/Qwen3-1.7B-GLB-3D-Coder",
+      "id": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
       "reason": "GGUF container — a re-upload of another repo's weights",
+      "detail": null
+    },
+    {
+      "id": "MiniMaxAI/MiniMax-H3-Image-PE",
+      "reason": "derivative repo (base_model:quantized:Qwen/Qwen3.8-27B)",
       "detail": null
     },
     {
@@ -1550,13 +1375,18 @@
       "detail": "known: full_attention, sliding_attention, chunked_attention, linear_attention, mamba, recurrent, deepseek_sparse_attention, full_attention_mla"
     },
     {
+      "id": "StarpowerTechnology/WVY-Blender-5m",
+      "reason": "no safetensors index — the Hub publishes no parameter count for this repo",
+      "detail": null
+    },
+    {
       "id": "deepseek-ai/DeepSeek-V4.1-Flash",
-      "reason": "prices identically to deepseek-ai/DeepSeek-V4.1-Flash-1017 — same parameter counts and same layer groups",
+      "reason": "prices identically to deepseek-ai/DeepSeek-V4.1-Flash-1017/resolve/08c8657f02291e11b6f6b63e0e16014f8e748518/config.json — same parameter counts and same layer groups",
       "detail": "duplicate serving shape"
     },
     {
-      "id": "StarpowerTechnology/WVY-Blender-5m",
-      "reason": "no safetensors index — the Hub publishes no parameter count for this repo",
+      "id": "tencent/Hy4-flash",
+      "reason": "layer_types mixes sliding attention into an MLA config — per-layer cache width is undeclared",
       "detail": null
     },
     {
@@ -1581,7 +1411,7 @@
     },
     {
       "id": "google/gemma-4-12B",
-      "reason": "prices identically to google/gemma-4-12B-it — same parameter counts and same layer groups",
+      "reason": "prices identically to google/gemma-4-12B-it/resolve/43c9d014b231474fa7212dbb48a762566c2b255d/config.json — same parameter counts and same layer groups",
       "detail": "duplicate serving shape"
     },
     {
@@ -1593,84 +1423,29 @@
       "id": "meta-llama/Llama-3.2-3B-Instruct",
       "reason": "gated repo — config.json returned HTTP 401",
       "detail": "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct/resolve/0cb88a4f764b7a12671c53f0838cd831a0843b95/config.json"
-    },
-    {
-      "id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
-      "reason": "config is missing num_key_value_heads",
-      "detail": null
     }
   ],
   "skipped_note": "Candidates the mapper could not express, listed rather than dropped silently. A skip is a REFUSAL, not an absence: serving.js throws on an attention kind outside {full, sliding, linear, mla}, and it silently prices an MoE as dense when active parameters are unknown, so a row that cannot be derived must not be written. Mandatory seed failures abort publish outright so serving-models.json is never partially overwritten.",
   "coverage": {
-    "resolved_base_count": 10,
+    "resolved_base_count": 3,
     "gated_repo_count": 5,
     "mandatory_seed_count": 17
   },
   "resolved_bases": [
     {
-      "base_id": "Qwen/Qwen3.8-Flash-Next",
-      "derivative_ids": [
-        "Edge0/Edge0-145B-NVFP4",
-        "Edge0/Edge0-120B-NVFP4",
-        "Edge0/Edge0-145B-q3k",
-        "Edge0/Edge0-120B-q3k"
-      ],
-      "credited_trending_score": 123
-    },
-    {
-      "base_id": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-      "derivative_ids": [
-        "MoonMath-ai/DeepSeek-V4.1-Flash-1017-uncensored",
-        "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF"
-      ],
-      "credited_trending_score": 95
-    },
-    {
-      "base_id": "Qwen/Qwen3.8-27B",
-      "derivative_ids": [
-        "NousResearch/Arete-27B",
-        "prism-ml/Ternary-Bonsai-2-27B-gguf",
-        "MiniMaxAI/MiniMax-H3-Image-PE",
-        "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF"
-      ],
-      "credited_trending_score": 87.5
-    },
-    {
       "base_id": "Qwen/Qwen3.5-4B",
       "derivative_ids": [
-        "xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic"
+        "xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic",
+        "nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft"
       ],
-      "credited_trending_score": 78.39999999999999
-    },
-    {
-      "base_id": "Qwen/Qwen3.5-9B",
-      "derivative_ids": [
-        "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
-        "Jackrong/DeepSeek-V4-Pro-Qwen3.5-9B-MTP-GGUF"
-      ],
-      "credited_trending_score": 74.10000000000001
-    },
-    {
-      "base_id": "google/gemma-4-E4B-it",
-      "derivative_ids": [
-        "nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB",
-        "unsloth/NVIDIA-Nemotron-3.5-Bolt-E4B-GGUF"
-      ],
-      "credited_trending_score": 72
+      "credited_trending_score": 79.8
     },
     {
       "base_id": "KRAFTON/Raon-1-nano",
       "derivative_ids": [
         "KRAFTON/Raon-1-nano-gguf"
       ],
-      "credited_trending_score": 54.5
-    },
-    {
-      "base_id": "Qwen/Qwen3.6-35B-A3B",
-      "derivative_ids": [
-        "whittleOrg/Whittle-Next-27B-A3B"
-      ],
-      "credited_trending_score": 35
+      "credited_trending_score": 55
     },
     {
       "base_id": "Qwen/Qwen3.5-0.8B",
@@ -1678,13 +1453,6 @@
         "qvac/BotPsy-0.8B"
       ],
       "credited_trending_score": 29
-    },
-    {
-      "base_id": "Qwen/Qwen3-1.7B",
-      "derivative_ids": [
-        "ccore/Qwen3-1.7B-GLB-3D-Coder"
-      ],
-      "credited_trending_score": 22
     }
   ]
 }

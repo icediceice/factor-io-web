@@ -1090,6 +1090,8 @@ export function buildSessionProjectionFromConfig({
   users,
   sessionsPerUserDay,
   workingDaysMo,
+  sharedPrefixGuaranteed = false,
+  guaranteedSharedPrefixTokens = null,
 }) {
   const S = BigInt(Math.max(0, Math.trunc(Number(effectiveSystemPromptTokens))));
   const U = BigInt(Math.max(1, Math.trunc(Number(effectivePromptTokens))));
@@ -1170,7 +1172,15 @@ export function buildSessionProjectionFromConfig({
 
   const peakTurnContextTokens = Number(S + BigInt(T) * (U + O));
   const avgTurnContextTokens = Number((sumCtxAfterTurnBig + BigInt(T) - 1n) / BigInt(T));
-  const sharedPrefixTokens = hitRat.isZero() ? 0 : Number((S * hitRat.n) / hitRat.d);
+  const potentialSharedPrefixTokens = hitRat.isZero() ? 0 : Number((S * hitRat.n) / hitRat.d);
+  const sharedPrefixTokens = Boolean(sharedPrefixGuaranteed)
+    ? (
+        guaranteedSharedPrefixTokens !== null && guaranteedSharedPrefixTokens !== undefined
+          ? Math.min(Number(S), Math.max(0, Math.trunc(Number(guaranteedSharedPrefixTokens))))
+          : Number(S)
+      )
+    : 0;
+  const hasGuaranteedPrefix = Boolean(sharedPrefixGuaranteed) && sharedPrefixTokens > 0;
 
   const tokensMoRat = Rat.from(sessionTokensBig).mul(sessionsMoRat);
   const inTokensMoRat = sessionUncachedInRat.mul(sessionsMoRat);
@@ -1195,6 +1205,8 @@ export function buildSessionProjectionFromConfig({
     peakTurnContextTokens,
     avgTurnContextTokens,
     sharedPrefixTokens,
+    sharedPrefixGuaranteed: hasGuaranteedPrefix,
+    potentialSharedPrefixTokens,
     tokensPerSession: Number(sessionTokensBig),
     cohorts,
     sessionsMoRat,
@@ -1215,9 +1227,12 @@ export function buildSessionProjectionFromConfig({
       outputPerPersonDay: formatHalfUp(outputPerPersonDayRat, 0),
       turn1ColdPromptTokens: Number(S + U),
       finalTurnPromptTokens: Number(S + BigInt(T) * U + BigInt(T - 1) * O),
+      finalTurnContextTokens: peakTurnContextTokens,
       peakTurnContextTokens,
       avgTurnContextTokens,
       sharedPrefixTokens,
+      sharedPrefixGuaranteed: hasGuaranteedPrefix,
+      potentialSharedPrefixTokens,
     },
   };
 }
@@ -1274,6 +1289,12 @@ export function normalizeSizerInput(raw = {}) {
   const kvCacheHitRate = hasExplicitSessionFields
     ? decStr(raw.kvCacheHitRate ?? workloadPreset.defaultKvCacheHitRate ?? "0.75", "kvCacheHitRate", { min: "0", max: "1" })
     : "0";
+  const sharedPrefixGuaranteed = Boolean(raw.sharedPrefixGuaranteed);
+  const guaranteedSharedPrefixTokens = posInt(raw.guaranteedSharedPrefixTokens, "guaranteedSharedPrefixTokens", {
+    min: 0,
+    max: 2000000,
+    allowNull: true,
+  });
 
   const defaultRawPrompt = hasExplicitSessionFields
     ? (workloadPreset.defaultTurnPromptTokens ?? workloadPreset.rawPromptTokens)
@@ -1299,6 +1320,19 @@ export function normalizeSizerInput(raw = {}) {
     ? effectiveSystemPromptTokens + turnsPerSession * (effectivePromptTokens + effectiveOutputTokens)
     : effectivePromptTokens + effectiveOutputTokens;
   const effectiveContextTokens = Math.max(scaledContext, peakSessionTokens);
+  const peakTurnContextTokens = peakSessionTokens;
+  const avgTurnContextTokens = hasExplicitSessionFields
+    ? Number(
+        (
+          BigInt(turnsPerSession) * BigInt(effectiveSystemPromptTokens)
+          + ((BigInt(turnsPerSession) * BigInt(turnsPerSession + 1)) / 2n) * BigInt(effectivePromptTokens + effectiveOutputTokens)
+          + BigInt(turnsPerSession) - 1n
+        ) / BigInt(turnsPerSession),
+      )
+    : effectiveContextTokens;
+  const activeContextTokens = hasExplicitSessionFields
+    ? Math.max(effectiveContextTokens - (peakTurnContextTokens - avgTurnContextTokens), avgTurnContextTokens)
+    : effectiveContextTokens;
 
   const users = posInt(raw.users ?? workloadPreset.users, "users", { min: 1, max: 10000000 });
   const sessionsPerUserDay = decStr(raw.sessionsPerUserDay ?? workloadPreset.sessionsPerUserDay, "sessionsPerUserDay", { min: "0.01", max: "100000", allowZero: false });
@@ -1400,6 +1434,8 @@ export function normalizeSizerInput(raw = {}) {
     rawSystemPromptTokens,
     turnsPerSession,
     kvCacheHitRate,
+    sharedPrefixGuaranteed,
+    guaranteedSharedPrefixTokens,
     rawPromptTokens,
     rawOutputTokens,
     rawContextTokens,
@@ -1407,6 +1443,9 @@ export function normalizeSizerInput(raw = {}) {
     effectivePromptTokens,
     effectiveOutputTokens,
     effectiveContextTokens,
+    peakTurnContextTokens,
+    avgTurnContextTokens,
+    activeContextTokens,
     modelId,
     customParamsB,
     customActiveParamsB,
@@ -1466,7 +1505,7 @@ export function resolveSizerModel({ normalized, servingData }) {
     );
   };
   const deriveSelectedKvBytes = (bf16Bytes) => {
-    const elemRat = toRat(String(kq?.bytes_per_element ?? "1"));
+    const elemRat = toRat(String(kq.bytes_per_element));
     const prod = Rat.from(BigInt(bf16Bytes)).mul(elemRat).div(Rat.from(2n));
     const q = prod.n / prod.d;
     const rem = prod.n % prod.d;
@@ -1521,6 +1560,16 @@ export function resolveSizerModel({ normalized, servingData }) {
         weightMemoryGb,
       };
     }
+    if (!kq) {
+      return {
+        ok: false,
+        code: "missing_accelerator_or_quant",
+        reason: `KV cache quantization "${normalized.kvquant}" is not defined in serving-models.json.`,
+        model: null,
+        warnings: [],
+        weightMemoryGb,
+      };
+    }
     const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
     return {
       ok: true,
@@ -1565,6 +1614,16 @@ export function resolveSizerModel({ normalized, servingData }) {
   let kvOverride = false;
   let selectedKvStr = "";
   if (normalized.customKvBytesBf16 !== null) {
+    if (!kq) {
+      return {
+        ok: false,
+        code: "missing_accelerator_or_quant",
+        reason: `KV cache quantization "${normalized.kvquant}" is not defined in serving-models.json.`,
+        model: null,
+        warnings: [],
+        weightMemoryGb: calcWeightGb(resolvedParamsB),
+      };
+    }
     const selectedKvBytes = Math.max(1, deriveSelectedKvBytes(normalized.customKvBytesBf16));
     kvOverride = true;
     selectedKvStr = String(selectedKvBytes);
@@ -1601,6 +1660,8 @@ export function resolveSizerModel({ normalized, servingData }) {
 }
 
 export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiveGpusPerNode = null }) {
+  const activeContextTokens = normalized.activeContextTokens ?? normalized.effectiveContextTokens;
+  const peakContextTokens = normalized.effectiveContextTokens;
   const resolved = resolveSizerModel({ normalized, servingData });
   if (!resolved.ok) {
     return {
@@ -1613,6 +1674,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: null,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[normalized.modelId] ?? null,
     };
   }
@@ -1629,6 +1692,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1643,6 +1708,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1653,16 +1720,24 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
   const kq = servingData?.kv_quantization?.[normalized.kvquant];
   const rt = servingData?.runtimes?.[normalized.runtime];
   if (!acc || vramGb === undefined || !wq || !kq || !rt) {
+    const missingParts = [
+      (!acc || vramGb === undefined) ? `GPU "${normalized.gpuId}"` : null,
+      !wq ? `weight quant "${normalized.wquant}"` : null,
+      !kq ? `KV quant "${normalized.kvquant}"` : null,
+      !rt ? `runtime "${normalized.runtime}"` : null,
+    ].filter(Boolean).join(", ");
     return {
       status: "refused",
       arithmeticFit: false,
       qualifiedDeploymentPass: false,
       code: "missing_accelerator_or_quant",
-      reason: `Missing bandwidth/VRAM or quantization metadata for GPU "${normalized.gpuId}".`,
+      reason: `Missing bandwidth/VRAM, quantization, or runtime metadata (${missingParts}).`,
       warnings: [],
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1674,6 +1749,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
         effectiveOutputTokens: normalized.effectiveOutputTokens,
         turnsPerSession: normalized.turnsPerSession,
         kvCacheHitRate: normalized.kvCacheHitRate,
+        sharedPrefixGuaranteed: normalized.sharedPrefixGuaranteed,
+        guaranteedSharedPrefixTokens: normalized.guaranteedSharedPrefixTokens,
         users: normalized.users,
         sessionsPerUserDay: normalized.sessionsPerUserDay,
         workingDaysMo: normalized.workingDaysMo,
@@ -1684,9 +1761,10 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
   try {
     serving = servingPlan({
       model,
-      contextTokens: String(sessionMeta ? Math.max(normalized.effectiveContextTokens - (sessionMeta.peakTurnContextTokens - sessionMeta.avgTurnContextTokens), sessionMeta.avgTurnContextTokens) : normalized.effectiveContextTokens),
-      peakContextTokens: String(normalized.effectiveContextTokens),
+      contextTokens: String(activeContextTokens),
+      peakContextTokens: String(peakContextTokens),
       sharedPrefixTokens: sessionMeta ? sessionMeta.sharedPrefixTokens : 0,
+      sharedPrefixGuaranteed: Boolean(sessionMeta?.sharedPrefixGuaranteed),
       supportsPrefixCache: Boolean(rt.supports_prefix_cache),
       pageBlockTokens: rt.page_block_tokens ?? 16,
       runtimeKey: normalized.runtime,
@@ -1711,6 +1789,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving: null,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1727,6 +1807,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
       serving,
       resolvedModel: model,
       weightMemoryGb: resolved.weightMemoryGb,
+      activeContextTokens,
+      peakContextTokens,
       thaiProfile: THAI_MODEL_PROFILES[model.id] ?? null,
     };
   }
@@ -1758,6 +1840,8 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
     serving,
     resolvedModel: model,
     weightMemoryGb: resolved.weightMemoryGb,
+    activeContextTokens,
+    peakContextTokens,
     thaiProfile: THAI_MODEL_PROFILES[model.id] ?? {
       tierId: "custom_tier",
       thaiSupport: "verify_tokenizer",
@@ -2067,6 +2151,8 @@ export function computeSizer({
         effectiveOutputTokens: normalized.effectiveOutputTokens,
         turnsPerSession: normalized.turnsPerSession,
         kvCacheHitRate: normalized.kvCacheHitRate,
+        sharedPrefixGuaranteed: normalized.sharedPrefixGuaranteed,
+        guaranteedSharedPrefixTokens: normalized.guaranteedSharedPrefixTokens,
         users: normalized.users,
         sessionsPerUserDay: normalized.sessionsPerUserDay,
         workingDaysMo: normalized.workingDaysMo,
@@ -2496,6 +2582,8 @@ export function computeSizer({
           peakTurnContextTokens: sessionProj.peakTurnContextTokens,
           avgTurnContextTokens: sessionProj.avgTurnContextTokens,
           sharedPrefixTokens: sessionProj.sharedPrefixTokens,
+          sharedPrefixGuaranteed: sessionProj.sharedPrefixGuaranteed,
+          potentialSharedPrefixTokens: sessionProj.potentialSharedPrefixTokens,
         }
       : null,
     peak,

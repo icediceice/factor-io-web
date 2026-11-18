@@ -433,7 +433,7 @@
       "revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
       "model_type": "qwen3_5_text",
       "hub_downloads": "6942530",
-      "hub_likes": "20457",
+      "hub_likes": "20464",
       "observed_at": "2026-11-18",
       "pinned": true
     },
@@ -808,7 +808,7 @@
       "revision": "46a050bec13002ad29ee795c16e61cf4fa3c4a9c",
       "model_type": "glm5_next_text",
       "hub_downloads": "6386210",
-      "hub_likes": "3253",
+      "hub_likes": "3254",
       "observed_at": "2026-11-18",
       "pinned": true
     },
@@ -861,7 +861,7 @@
       "revision": "08c8657f02291e11b6f6b63e0e16014f8e748518",
       "model_type": "deepseek_v41_text",
       "hub_downloads": "479986",
-      "hub_likes": "5870",
+      "hub_likes": "5876",
       "observed_at": "2026-11-18",
       "pinned": true
     },
@@ -1335,13 +1335,13 @@
       "detail": null
     },
     {
-      "id": "MiniMaxAI/MiniMax-H3-Image-PE",
-      "reason": "derivative repo (base_model:quantized:Qwen/Qwen3.8-27B)",
+      "id": "Edge0/Edge0-120B-q3k",
+      "reason": "GGUF container — a re-upload of another repo's weights",
       "detail": null
     },
     {
-      "id": "Edge0/Edge0-120B-q3k",
-      "reason": "GGUF container — a re-upload of another repo's weights",
+      "id": "Cactus-Compute/nemotron-3.5-120b-cq",
+      "reason": "derivative repo (base_model:quantized:nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16)",
       "detail": null
     },
     {
@@ -1370,6 +1370,11 @@
       "detail": "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct/resolve/8afb486c1db24fe5011ec46dfbe5b5dccdb575c2/config.json"
     },
     {
+      "id": "tencent/Hy4-flash",
+      "reason": "layer_types mixes sliding attention into an MLA config — per-layer cache width is undeclared",
+      "detail": null
+    },
+    {
       "id": "LiquidAI/LFM3-1.7B",
       "reason": "unmapped layer_types value \"conv\"",
       "detail": "known: full_attention, sliding_attention, chunked_attention, linear_attention, mamba, recurrent, deepseek_sparse_attention, full_attention_mla"
@@ -1383,11 +1388,6 @@
       "id": "deepseek-ai/DeepSeek-V4.1-Flash",
       "reason": "prices identically to deepseek-ai/DeepSeek-V4.1-Flash-1017/resolve/08c8657f02291e11b6f6b63e0e16014f8e748518/config.json — same parameter counts and same layer groups",
       "detail": "duplicate serving shape"
-    },
-    {
-      "id": "tencent/Hy4-flash",
-      "reason": "layer_types mixes sliding attention into an MLA config — per-layer cache width is undeclared",
-      "detail": null
     },
     {
       "id": "MinimaLabs/KLM-1.6",
@@ -1423,6 +1423,11 @@
       "id": "meta-llama/Llama-3.2-3B-Instruct",
       "reason": "gated repo — config.json returned HTTP 401",
       "detail": "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct/resolve/0cb88a4f764b7a12671c53f0838cd831a0843b95/config.json"
+    },
+    {
+      "id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+      "reason": "config is missing num_key_value_heads",
+      "detail": null
     }
   ],
   "skipped_note": "Candidates the mapper could not express, listed rather than dropped silently. A skip is a REFUSAL, not an absence: serving.js throws on an attention kind outside {full, sliding, linear, mla}, and it silently prices an MoE as dense when active parameters are unknown, so a row that cannot be derived must not be written. Mandatory seed failures abort publish outright so serving-models.json is never partially overwritten.",
@@ -1438,7 +1443,7 @@
         "xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic",
         "nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft"
       ],
-      "credited_trending_score": 79.8
+      "credited_trending_score": 80.5
     },
     {
       "base_id": "KRAFTON/Raon-1-nano",

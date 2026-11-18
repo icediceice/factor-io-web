@@ -1623,6 +1623,7 @@ test("processSizerReturn preserves 8-decimal stacked session parity across offer
   for (const [id, opts] of Object.entries(selectMap)) {
     h.node(id).tagName = "SELECT";
     h.node(id).options = opts.map((value) => ({ value, textContent: value }));
+    h.node(id).selectedOptions = h.node(id).options.slice(0, 1);
     h.node(id).appendChild = (opt) => h.node(id).options.push(opt);
   }
   h.context.document.querySelectorAll = () => [...h.nodes.values()].filter((n) => /^(f-|fb-|fo-|fr-)/.test(n.id));
@@ -1641,7 +1642,7 @@ test("processSizerReturn preserves 8-decimal stacked session parity across offer
   h.get("readArchGroups = realReadArchGroups");
   h.context.applyControls = (values) => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
   h.get("writeReturnedControls = (values, groups) => { renderArchGroups(groups); applyControls(values); }");
-  h.get("renderResults = () => {}; renderServerNote = () => {}; renderPowerNote = () => {}; renderSubNote = () => {};");
+  h.get("renderServingNote = () => {}; renderResults = () => {}; renderServerNote = () => {}; renderPowerNote = () => {}; renderSubNote = () => {};");
   h.get("starterUI = { snapshot: () => ({ mode: 'starter' }), setMode: () => run(), restore: () => {} }");
 
   const sizerRes = computeSizer({

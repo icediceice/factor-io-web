@@ -446,26 +446,30 @@ const DEEPSEEK_V4_1_FLASH_CFG = {
   engram_head_dim: 3500,
 };
 
+// Compiler inputs and safetensors total from RecursiveSI/flint at this Hub revision.
+const FLINT_SHA = "2a247be0c0aec895ccb0ac7ca92229ec6df37288";
+const FLINT_SAFETENSORS_TOTAL = 39_785_287_456n;
+const FLINT_FULL_LAYERS = new Set([0, 1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 48]);
 const FLINT_CFG = {
-  architectures: ["Glm4MoeLiteForCausalLM"],
-  model_type: "glm4_moe_lite",
+  architectures: ["FlintForCausalLM"],
+  model_type: "flint",
   hidden_size: 2048,
-  vocab_size: 154880,
-  num_hidden_layers: 46,
-  first_k_dense_replace: 1,
-  intermediate_size: 10240,
-  moe_intermediate_size: 1536,
-  n_routed_experts: 64,
-  num_experts_per_tok: 4,
-  n_shared_experts: 1,
-  num_nextn_predict_layers: 1,
-  max_position_embeddings: 202752,
-  num_attention_heads: 20,
-  q_lora_rank: 768,
-  kv_lora_rank: 512,
-  qk_nope_head_dim: 192,
-  qk_rope_head_dim: 64,
-  v_head_dim: 256,
+  vocab_size: 150144,
+  num_hidden_layers: 49,
+  mlp_only_layers: [0, 1],
+  intermediate_size: 6144,
+  moe_intermediate_size: 512,
+  num_experts: 256,
+  num_experts_per_tok: 6,
+  shared_expert_intermediate_size: 1024,
+  max_position_embeddings: 262144,
+  num_attention_heads: 32,
+  num_key_value_heads: 4,
+  head_dim: 128,
+  sliding_window: 513,
+  tie_word_embeddings: false,
+  layer_types: Array.from({ length: 49 }, (_, i) =>
+    FLINT_FULL_LAYERS.has(i) ? "full_attention" : "sliding_attention"),
 };
 
 const KIMI_LINEAR_48B_CFG = {

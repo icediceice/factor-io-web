@@ -557,11 +557,13 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
   // Unverified DeepSeek-V4 (without dspark_csa2) still skips cleanly.
   assert.throws(() => deriveGroups(DEEPSEEK_V4), (e) => e instanceof Skip);
 
-  const dsGeom = geometryParams(DEEPSEEK_V4_1_FLASH_CFG);
-  assert.equal(dsGeom.offload_kind, "engram");
-  assert.ok(dsGeom.offload_params > 90_000_000_000n);
-  const dsParams = deriveParams("deepseek-ai/DeepSeek-V4.1-Flash-1017", DEEPSEEK_V4_1_FLASH_CFG, dsGeom.total);
-  assert.ok(Number(dsParams.gpu_backbone_params_b) < Number(dsParams.params_b));
+  const dsParams = deriveParams(
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017", DEEPSEEK_V4_1_FLASH_CFG, DEEPSEEK_V4_1_FLASH_SAFETENSORS_TOTAL,
+  );
+  assert.equal(dsParams.params_b, "763.21");
+  assert.equal(dsParams.active_params_b, "14.85");
+  assert.equal(dsParams.gpu_backbone_params_b, "566.59");
+  assert.equal(dsParams.host_offload_params_b, "196.61");
   assert.equal(dsParams.host_offload_kind, "engram");
 
   const flintGroups = deriveGroups(FLINT_CFG);

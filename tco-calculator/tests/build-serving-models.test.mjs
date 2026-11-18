@@ -17,6 +17,11 @@ import {
   screen,
   derivativeBase,
   resolveBase,
+  compileModel,
+  buildServingModels,
+  validateCatalogDocument,
+  MandatorySeedError,
+  HubHttpError,
   Skip,
 } from "../../scripts/build-serving-models.mjs";
 import { kvBytesPerToken, kvBytesPerSequence, ServingRefusal } from "../serving.js";
@@ -409,5 +414,351 @@ test("the engine and the mapper agree on what is unrepresentable", () => {
   assert.throws(
     () => kvBytesPerToken([{ kind: "conv", layers: 4 }], "2"),
     (e) => e instanceof ServingRefusal && e.code === "unknown_attention_kind",
+  );
+});
+
+// ─────────────────────────────────────── late-2026 HF shapes & mandatory seeds
+
+// Compiler inputs from deepseek-ai/DeepSeek-V4.1-Flash-1017@08c8657f02291e11b6f6b63e0e16014f8e748518.
+const DEEPSEEK_V4_1_FLASH_CFG = {
+  architectures: ["DeepseekV41ForCausalLM"],
+  model_type: "deepseek_v41",
+  text_config: {
+    model_type: "deepseek_v41_text",
+    hidden_size: 5120,
+    vocab_size: 129280,
+    num_hidden_layers: 40,
+    moe_intermediate_size: 2304,
+    n_routed_experts: 384,
+    num_experts_per_tok: 6,
+    n_shared_experts: 1,
+    num_nextn_predict_layers: 3,
+    max_position_embeddings: 1048576,
+    num_attention_heads: 64,
+    num_key_value_heads: 1,
+    head_dim: 512,
+    q_lora_rank: 1280,
+    o_lora_rank: 1024,
+    qk_rope_head_dim: 64,
+    sliding_window: 128,
+    kv_source_layer_ids: [2, 8, 14, 20],
+    compress_ratios: [0, 0, ...Array(18).fill(2), ...Array(19).fill(1), 0, 0, 0],
+    engram_num_embeddings: [384006168, 384016682],
+    engram_head_dim: 256,
+    dspark_target_layer_ids: [37, 38, 39],
+    dspark_n_routed_experts: 128,
+    dspark_num_experts_per_tok: 3,
+    tie_word_embeddings: false,
+  },
+  vision_config: { num_hidden_layers: 32, hidden_size: 1024, intermediate_size: 2816 },
+};
+const DEEPSEEK_V4_1_FLASH_SAFETENSORS_TOTAL = 763_205_315_794n;
+
+// Compiler inputs and safetensors total from RecursiveSI/flint at this Hub revision.
+const FLINT_SHA = "2a247be0c0aec895ccb0ac7ca92229ec6df37288";
+const FLINT_SAFETENSORS_TOTAL = 39_785_287_456n;
+const FLINT_FULL_LAYERS = new Set([0, 1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 48]);
+const FLINT_CFG = {
+  architectures: ["FlintForCausalLM"],
+  model_type: "flint",
+  hidden_size: 2048,
+  vocab_size: 150144,
+  num_hidden_layers: 49,
+  mlp_only_layers: [0, 1],
+  intermediate_size: 6144,
+  moe_intermediate_size: 512,
+  num_experts: 256,
+  num_experts_per_tok: 6,
+  shared_expert_intermediate_size: 1024,
+  max_position_embeddings: 262144,
+  num_attention_heads: 32,
+  num_key_value_heads: 4,
+  head_dim: 128,
+  sliding_window: 513,
+  tie_word_embeddings: false,
+  layer_types: Array.from({ length: 49 }, (_, i) =>
+    FLINT_FULL_LAYERS.has(i) ? "full_attention" : "sliding_attention"),
+};
+
+const KIMI_LINEAR_48B_CFG = {
+  architectures: ["KimiLinearForCausalLM"],
+  model_type: "kimi_linear",
+  hidden_size: 2304,
+  vocab_size: 163840,
+  num_hidden_layers: 27,
+  first_k_dense_replace: 1,
+  intermediate_size: 9216,
+  moe_intermediate_size: 1024,
+  num_experts: 256,
+  num_experts_per_token: 8,
+  num_shared_experts: 1,
+  max_position_embeddings: 1048576,
+  num_attention_heads: 32,
+  kv_lora_rank: 512,
+  qk_nope_head_dim: 128,
+  qk_rope_head_dim: 64,
+  v_head_dim: 128,
+  mla_use_nope: true,
+  linear_attn_config: {
+    kda_layers: Array.from({ length: 27 }, (_, i) => i + 1).filter((l) => ![4, 8, 12, 16, 20, 24, 27].includes(l)),
+    full_attn_layers: [4, 8, 12, 16, 20, 24, 27],
+    head_dim: 128,
+    num_heads: 32,
+  },
+};
+
+const GEMMA_4_31B_IT_CFG = {
+  architectures: ["Gemma4ForConditionalGeneration"],
+  model_type: "gemma4",
+  text_config: {
+    hidden_size: 5376,
+    vocab_size: 262144,
+    num_hidden_layers: 60,
+    num_kv_shared_layers: 0,
+    intermediate_size: 21504,
+    max_position_embeddings: 262144,
+    num_attention_heads: 32,
+    num_key_value_heads: 16,
+    num_global_key_value_heads: 4,
+    head_dim: 256,
+    global_head_dim: 512,
+    attention_k_eq_v: true,
+    sliding_window: 1024,
+    layer_types: Array.from({ length: 60 }, (_, i) => ((i + 1) % 6 === 0 ? "full_attention" : "sliding_attention")),
+  },
+};
+
+const NEMOTRON_NAS_CFG = {
+  architectures: ["DeciLMForCausalLM"],
+  model_type: "nemotron-nas",
+  hidden_size: 8192,
+  vocab_size: 128256,
+  num_hidden_layers: 4,
+  num_attention_heads: 64,
+  max_position_embeddings: 131072,
+  block_configs: [
+    { attention: { n_heads_in_group: 8 }, ffn: { ffn_mult: 1.5 } },
+    { attention: { no_op: true }, ffn: { ffn_mult: 2.0 } },
+    { attention: { n_heads_in_group: 16 }, ffn: { no_op: true } },
+    { attention: { n_heads_in_group: 8 }, ffn: { ffn_mult: 1.5 } },
+  ],
+};
+
+test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4 KV-sharing K=V, Nemotron-NAS) derive exact groups and parameters", () => {
+  // 1. DeepSeek-V4.1-Flash CSA2: 40 SWA + 3 compressed MLA (ratio 2, 68B index) + 1 uncompressed MLA (68B index)
+  const dsGroups = deriveGroups(DEEPSEEK_V4_1_FLASH_CFG);
+  assert.deepEqual(dsGroups, [
+    { kind: "sliding", layers: 40, kv_heads: 1, head_dim: 576, tensors: 1, window_tokens: 128 },
+    { kind: "mla", layers: 3, kv_lora_rank: 512, qk_rope_head_dim: 0, compress_ratio: 2, index_bytes_per_entry: 68 },
+    { kind: "mla", layers: 1, kv_lora_rank: 512, qk_rope_head_dim: 0, compress_ratio: 1, index_bytes_per_entry: 68 },
+  ]);
+  // Global CSA2 groups (groups[1..2]) at FP4 (0.5625 B/el) grow at exactly 890 B/tok:
+  // 3 * ((512 * 0.5625 + 68) / 2) + 1 * (512 * 0.5625 + 68) = 534 + 356 = 890 B/tok.
+  assert.equal(formatHalfUp(kvBytesPerToken(dsGroups.slice(1), "0.5625"), 0), "890");
+  // Unverified DeepSeek-V4 (without dspark_csa2) still skips cleanly.
+  assert.throws(() => deriveGroups(DEEPSEEK_V4), (e) => e instanceof Skip);
+
+  const dsParams = deriveParams(
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017", DEEPSEEK_V4_1_FLASH_CFG, DEEPSEEK_V4_1_FLASH_SAFETENSORS_TOTAL,
+  );
+  assert.equal(dsParams.params_b, "763.21");
+  assert.equal(dsParams.active_params_b, "14.85");
+  assert.equal(dsParams.gpu_backbone_params_b, "566.59");
+  assert.equal(dsParams.host_offload_params_b, "196.61");
+  assert.equal(dsParams.host_offload_kind, "engram");
+
+  const flintGroups = deriveGroups(FLINT_CFG);
+  assert.deepEqual(flintGroups, [
+    { kind: "full", layers: 14, kv_heads: 4, head_dim: 128, tensors: 2 },
+    { kind: "sliding", layers: 35, kv_heads: 4, head_dim: 128, tensors: 2, window_tokens: 513 },
+  ]);
+  const flintParams = deriveParams("RecursiveSI/flint", FLINT_CFG, FLINT_SAFETENSORS_TOTAL);
+  assert.equal(flintParams.params_b, "39.79");
+  assert.equal(flintParams.active_params_b, "2.82");
+  assert.throws(
+    () => deriveParams("RecursiveSI/flint", { ...FLINT_CFG, num_experts: 128 }, FLINT_SAFETENSORS_TOTAL),
+    (err) => err instanceof Skip && /does not reproduce the published total/.test(err.reason),
+  );
+
+  // Kimi-Linear at e1df551a447157d4658b573f9a695d57658590e9 partitions 1-based layer IDs.
+  const kimiGroups = deriveGroups(KIMI_LINEAR_48B_CFG);
+  assert.deepEqual(kimiGroups, [
+    { kind: "linear", layers: 20, state_bytes_per_seq: null },
+    { kind: "mla", layers: 7, kv_lora_rank: 512, qk_rope_head_dim: 64 },
+  ]);
+
+  // Gemma-4-31B-it at 842da3794eaa0b77d5f08bae87a17459d91ff475 uses unified K=V for global attention.
+  assert.equal(screen({ id: "google/gemma-4-31B-it", pipeline_tag: "image-text-to-text", tags: ["safetensors"] }), null);
+  const gemmaGroups = deriveGroups(GEMMA_4_31B_IT_CFG);
+  assert.deepEqual(gemmaGroups, [
+    { kind: "sliding", layers: 50, kv_heads: 16, head_dim: 256, tensors: 2, window_tokens: 1024 },
+    { kind: "full", layers: 10, kv_heads: 4, head_dim: 512, tensors: 1 },
+  ]);
+  const withSharedTail = {
+    ...GEMMA_4_31B_IT_CFG,
+    text_config: { ...GEMMA_4_31B_IT_CFG.text_config, num_kv_shared_layers: 20 },
+  };
+  assert.deepEqual(deriveGroups(withSharedTail), [
+    { ...gemmaGroups[0], layers: 34 },
+    { ...gemmaGroups[1], layers: 6 },
+  ]);
+
+  // Synthetic NAS blocks cover no-op attention and heterogeneous head groups.
+  const nasGroups = deriveGroups(NEMOTRON_NAS_CFG);
+  assert.deepEqual(nasGroups, [
+    { kind: "full", layers: 2, kv_heads: 8, head_dim: 128, tensors: 2 },
+    { kind: "full", layers: 1, kv_heads: 4, head_dim: 128, tensors: 2 },
+  ]);
+});
+
+test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exact pinned IDs regardless of trending rank or twin dedup", async () => {
+  const basePrevious = {
+    models: [
+      { id: "qwen3-8b", label: "Qwen3 8B", params_b: "8.2", active_params_b: "8.2", context_default: 32768, context_max: 131072, basis: "cited", groups: [{ kind: "full", layers: 36, kv_heads: 8, head_dim: 128, tensors: 2 }] },
+      { id: "gemma-4-31b", label: "Gemma 4 31B", params_b: "31", active_params_b: "31", context_default: 32768, context_max: 262144, basis: "cited", groups: [{ kind: "full", layers: 10, kv_heads: 4, head_dim: 512, tensors: 1 }] },
+      { id: "qwen3-next-80b-a3b", label: "Qwen3 Next 80B", params_b: "80", active_params_b: "3", context_default: 32768, context_max: 262144, basis: "cited", groups: [{ kind: "full", layers: 12, kv_heads: 2, head_dim: 256, tensors: 2 }] },
+      { id: "deepseek-v3", label: "DeepSeek V3", params_b: "671", active_params_b: "37", context_default: 32768, context_max: 163840, basis: "cited", groups: [{ kind: "mla", layers: 61, kv_lora_rank: 512, qk_rope_head_dim: 64 }] },
+      { id: "custom", label: "Custom", params_b: "70", active_params_b: "70", context_default: 8192, context_max: null, basis: "assumed", groups: [{ kind: "full", layers: 80, kv_heads: 8, head_dim: 128, tensors: 2 }] },
+    ],
+    accelerators: { h100: { bandwidth_gb_s: "3350" } },
+    weight_quantization: { fp8: { bytes_per_param: "1" } },
+    kv_quantization: { fp8: { bytes_per_element: "1" }, fp4: { bytes_per_element: "0.5625" } },
+    runtimes: { vllm: { bandwidth_efficiency: "0.65" } },
+    tensor_parallel: { efficiency_per_extra_gpu: "0.92" },
+    vram_overhead_fraction: { value: "0.1" },
+  };
+
+  const flintSha = FLINT_SHA;
+
+  // Case 9a: RecursiveSI/flint returning HTTP 503 throws MandatorySeedError before any output can publish
+  await assert.rejects(
+    () => buildServingModels({
+      observedAt: "2026-11-18",
+      previous: basePrevious,
+      mandatorySeeds: [{ repo: "RecursiveSI/flint", id: "flint" }],
+      fetchText: async (url) => {
+        if (url.includes("RecursiveSI/flint")) throw new HubHttpError(url, 503);
+        throw new Error(`Unexpected URL ${url}`);
+      },
+    }),
+    (err) => err instanceof MandatorySeedError && err.repoId === "RecursiveSI/flint" && /503/.test(err.message),
+  );
+
+  // Case 9b: Mutable branch ref ("main") or malformed short sha is rejected BEFORE fetching config.json, and mandatory seeds fail closed
+  for (const badSha of ["main", "deadbeef", "   "]) {
+    let configFetched = false;
+    await assert.rejects(
+      () => buildServingModels({
+        observedAt: "2026-11-18",
+        previous: basePrevious,
+        mandatorySeeds: [{ repo: "RecursiveSI/flint", id: "flint" }],
+        fetchText: async (url) => {
+          if (url.includes("/api/models/RecursiveSI/flint")) {
+            return JSON.stringify({
+              id: "RecursiveSI/flint",
+              sha: badSha,
+              gated: false,
+              safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
+            });
+          }
+          if (url.includes("/config.json")) {
+            configFetched = true;
+            return JSON.stringify(FLINT_CFG);
+          }
+          throw new Error(`Unexpected URL ${url}`);
+        },
+      }),
+      (err) => err instanceof MandatorySeedError && err.repoId === "RecursiveSI/flint" && /immutable 40-character commit sha/.test(err.message),
+    );
+    assert.equal(configFetched, false, `config.json must not be fetched when sha="${badSha}"`);
+  }
+
+  // Case 9b2: Revision advancement mismatch between list entry sha and detail sha refuses cleanly
+  await assert.rejects(
+    () => compileModel(
+      { id: "RecursiveSI/flint", sha: "old_sha_11111111111111111111111111111111" },
+      "2026-11-18",
+      {
+        pinnedId: "flint",
+        fetchText: async (url) => {
+          if (url.includes("/api/models/RecursiveSI/flint")) {
+            return JSON.stringify({
+              id: "RecursiveSI/flint",
+              sha: flintSha,
+              gated: false,
+              safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
+            });
+          }
+          throw new Error(`Unexpected URL ${url}`);
+        },
+      },
+    ),
+    (err) => err instanceof Skip && /repository ref advanced between discovery and metadata fetch/.test(err.reason),
+  );
+
+  // Case 9c: Mandatory seed keeps exact pinned ID "flint" even when absent from trending and when a higher-ranked trending twin shares identical architecture
+  const built = await buildServingModels({
+    observedAt: "2026-11-18",
+    previous: basePrevious,
+    mandatorySeeds: [{ repo: "RecursiveSI/flint", id: "flint" }],
+    keep: 5,
+    pool: 5,
+    fetchText: async (url) => {
+      if (url.includes("/api/models?")) {
+        return JSON.stringify([
+          { id: "TwinOrg/Flint-Clone", pipeline_tag: "text-generation", tags: ["safetensors"], trendingScore: 9999, sha: flintSha },
+        ]);
+      }
+      if (url.includes("/api/models/RecursiveSI/flint")) {
+        return JSON.stringify({
+          id: "RecursiveSI/flint",
+          sha: flintSha,
+          gated: false,
+          downloads: 42000,
+          likes: 500,
+          safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
+        });
+      }
+      if (url.includes(`/RecursiveSI/flint/resolve/${flintSha}/config.json`)) {
+        return JSON.stringify(FLINT_CFG);
+      }
+      if (url.includes("/api/models/TwinOrg/Flint-Clone")) {
+        return JSON.stringify({
+          id: "TwinOrg/Flint-Clone",
+          sha: flintSha,
+          gated: false,
+          downloads: 999999,
+          likes: 9999,
+          safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
+        });
+      }
+      if (url.includes(`/TwinOrg/Flint-Clone/resolve/${flintSha}/config.json`)) {
+        return JSON.stringify(FLINT_CFG);
+      }
+      throw new Error(`Unexpected URL ${url}`);
+    },
+  });
+  const flintRow = built.models.find((m) => m.id === "flint");
+  assert.ok(flintRow, "pinned mandatory seed id 'flint' must survive regardless of trending rank or twin dedup");
+  assert.equal(flintRow.revision, flintSha);
+  assert.equal(flintRow.source_repo, "RecursiveSI/flint");
+  assert.equal(flintRow.source_revision, flintSha);
+  assert.equal(flintRow.source_url, `https://huggingface.co/RecursiveSI/flint/resolve/${flintSha}/config.json`);
+  assert.ok(built.skipped.some((s) => s.id === "TwinOrg/Flint-Clone" && /RecursiveSI\/flint/.test(s.reason)));
+
+  // validateCatalogDocument rejects derived rows with unpinned source_url or non-40-hex source_revision, while exempting curated/custom rows
+  assert.throws(
+    () => validateCatalogDocument({
+      ...built,
+      models: built.models.map((m) => (m.id === "flint" ? { ...m, source_url: "https://huggingface.co/RecursiveSI/flint" } : m)),
+    }),
+    /pinned resolve URL/,
+  );
+  assert.throws(
+    () => validateCatalogDocument({
+      ...built,
+      models: built.models.map((m) => (m.id === "flint" ? { ...m, source_revision: "main", revision: "main" } : m)),
+    }),
+    /immutable 40-character hex commit sha/,
   );
 });

@@ -930,4 +930,109 @@ test("stacked 20k+ agent sessions preserve odd-sum prompt totals, cold Turn-1 fe
 
   const legacyFlat = decodeSizerFragment(encodeSizerFragment(normalizeSizerInput({ users: 50 })));
   assert.equal(legacyFlat.sessionStackingActive, false);
+
+  // G1: Probabilistic 50% kvCacheHitRate applies to API cohorts ONLY and never credits peak batch VRAM unless batch sharing is guaranteed.
+  // 10,000 B weights + 40,000 B free VRAM (50,000 B total, 0% overhead); S=20,000, U=1,000, O=500, T=2 -> 23,000 B/seq peak.
+  // Two concurrent misses require 46,000 B > 40,000 B, so batch MUST stay 1 unless sharedPrefixGuaranteed is true.
+  const tightVramData = {
+    ...baseData,
+    gpuPricing: {
+      ...baseData.gpuPricing,
+      gpus: {
+        ...baseData.gpuPricing.gpus,
+        tight_50kb: { label: "Tight 50KB Test GPU", vram_gb: 0.00005 },
+      },
+    },
+    serverPricing: {
+      ...baseData.serverPricing,
+      rows: [
+        ...baseData.serverPricing.rows,
+        { server_id: "srv-tight-1x", label: "1x Tight Test", gpu_id: "tight_50kb", gpu_count: 1, form_factor: "1U", usd_typical: "10000" },
+      ],
+    },
+    powerSeed: {
+      ...baseData.powerSeed,
+      gpus: {
+        ...baseData.powerSeed.gpus,
+        tight_50kb: { board_tdp_w: 300, typical_load_fraction: "0.7" },
+      },
+    },
+    servingData: {
+      ...baseData.servingData,
+      vram_overhead_fraction: { value: "0" },
+      accelerators: {
+        ...baseData.servingData.accelerators,
+        tight_50kb: { bandwidth_gb_s: "1000" },
+      },
+      models: [
+        ...baseData.servingData.models,
+        {
+          id: "unit-1byte-kv",
+          label: "Unit 1B/tok Model",
+          params_b: "0.00001",
+          active_params_b: "0.00001",
+          context_default: 23000,
+          context_max: 65536,
+          basis: "cited",
+          groups: [{ kind: "full", layers: 1, kv_heads: 1, head_dim: 1, tensors: 1 }],
+        },
+      ],
+    },
+  };
+
+  const prob50 = computeSizer({
+    input: {
+      users: 1,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 1,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1000,
+      rawOutputTokens: 500,
+      turnsPerSession: 2,
+      kvCacheHitRate: "0.50",
+      rawContextTokens: 23000,
+      tokensPerSecondPerStream: "1",
+      modelId: "unit-1byte-kv",
+      wquant: "fp8",
+      kvquant: "fp8",
+      runtime: "vllm",
+      gpuId: "tight_50kb",
+    },
+    data: tightVramData,
+  });
+  assert.equal(prob50.ok, true);
+  assert.equal(prob50.sessionProjection.sharedPrefixTokens, 0);
+  assert.equal(prob50.sessionProjection.potentialSharedPrefixTokens, 10000);
+  assert.equal(prob50.fit.serving.batch.text, "1");
+  // API cohort pricing still credits 50% cache hit on Turn 2 (0.5 * 21,500 = 10,750 cached tokens/mo)
+  assert.equal(prob50.demand.cached_tokens_mo.text, "10750");
+
+  // Positive counterpart: when batch-wide shared resident prefix IS explicitly guaranteed, PagedAttention admits batch > 1
+  const guaranteed20k = computeSizer({
+    input: {
+      users: 1,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 1,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1000,
+      rawOutputTokens: 500,
+      turnsPerSession: 2,
+      kvCacheHitRate: "1",
+      sharedPrefixGuaranteed: true,
+      guaranteedSharedPrefixTokens: 20000,
+      rawContextTokens: 23000,
+      tokensPerSecondPerStream: "1",
+      modelId: "unit-1byte-kv",
+      wquant: "fp8",
+      kvquant: "fp8",
+      runtime: "vllm",
+      gpuId: "tight_50kb",
+    },
+    data: tightVramData,
+  });
+  assert.equal(guaranteed20k.ok, true);
+  assert.equal(guaranteed20k.sessionProjection.sharedPrefixTokens, 20000);
+  assert.equal(guaranteed20k.fit.serving.batch.text, "6");
 });

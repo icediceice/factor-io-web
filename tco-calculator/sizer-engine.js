@@ -2970,6 +2970,7 @@ export function decodeSizerFragment(hashOrFragment) {
     }
   }
   validateSizerWirePayload(parsed);
+  const hasSessionWireKeys = ("sp" in parsed) || ("tp" in parsed) || ("kh" in parsed);
   return normalizeSizerInput({
     workloadId: parsed.w,
     deploymentMode: parsed.dm,
@@ -2983,6 +2984,12 @@ export function decodeSizerFragment(hashOrFragment) {
     mix: parsed.mx,
     tokenBasis: parsed.tb,
     thaiFertilityMultiplier: parsed.tf,
+    sessionStackingActive: hasSessionWireKeys,
+    ...(hasSessionWireKeys ? {
+      rawSystemPromptTokens: parsed.sp,
+      turnsPerSession: parsed.tp,
+      kvCacheHitRate: parsed.kh,
+    } : {}),
     rawPromptTokens: parsed.rp,
     rawOutputTokens: parsed.ro,
     rawContextTokens: parsed.rc,
@@ -3023,7 +3030,8 @@ export function decodeSizerFragment(hashOrFragment) {
 }
 
 // Strict JSON / optional localStorage scenario envelope codec (stores canonical scenarios + display metadata only).
-const SAVE_ENVELOPE_KEYS = new Set(["schema", "exportedAt", "scenarios"]);
+const SAVE_REQUIRED_KEYS = new Set(["schema", "exportedAt", "scenarios"]);
+const SAVE_ENVELOPE_KEYS = new Set(["schema", "version", "exportedAt", "scenarios"]);
 const SAVE_RECORD_KEYS = new Set(["id", "name", "savedAt", "fragment"]);
 
 function validateSaveTimestamp(val, fieldName) {
@@ -3072,9 +3080,12 @@ function validateSavedScenarioRecord(entry, index) {
   };
 }
 
-export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:00:00Z", allowEmpty = false } = {}) {
+export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:00:00Z", allowEmpty = false, version = null } = {}) {
   if (!Array.isArray(entries)) {
     throw new SizerValidationError("bad_save_list", "scenarios must be an array");
+  }
+  if (version !== null && version !== 1 && version !== 2) {
+    throw new SizerValidationError("unsupported_save_version", `Unsupported save envelope version "${version}".`);
   }
   if ((!allowEmpty && entries.length === 0) || entries.length > MAX_SAVED_SCENARIOS) {
     throw new SizerValidationError(
@@ -3099,6 +3110,7 @@ export function encodeSizerSaveEnvelope(entries, { exportedAt = "2026-11-17T00:0
   });
   const jsonText = JSON.stringify({
     schema: SIZER_SAVE_SCHEMA,
+    ...(version !== null ? { version } : {}),
     exportedAt: validExportedAt,
     scenarios: cleanRecords,
   }, null, 2);
@@ -3134,10 +3146,13 @@ export function decodeSizerSaveEnvelope(jsonText, { allowEmpty = false } = {}) {
       throw new SizerValidationError("unknown_save_key", `Rejected unknown envelope key "${k}".`);
     }
   }
-  for (const req of SAVE_ENVELOPE_KEYS) {
+  for (const req of SAVE_REQUIRED_KEYS) {
     if (!(req in parsed)) {
       throw new SizerValidationError("missing_save_key", `Missing required envelope key "${req}".`);
     }
+  }
+  if ("version" in parsed && parsed.version !== 1 && parsed.version !== 2) {
+    throw new SizerValidationError("unsupported_save_version", `Unsupported save envelope version "${parsed.version}".`);
   }
   const exportedAt = validateSaveTimestamp(parsed.exportedAt, "exportedAt");
   if (!Array.isArray(parsed.scenarios)) {
@@ -3444,6 +3459,7 @@ export function projectSizerControls({
   return {
     controls: values,
     groups: model.groups,
+    sessionProjection: result.sessionProjection ?? null,
     result,
     repriced,
     refreshSummary,

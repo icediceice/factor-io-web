@@ -1054,31 +1054,182 @@ export function groupCatalogModels(servingData) {
   const groups = [
     {
       id: "compact",
-      enLabel: "Compact & Single-GPU Edge (<= 12B)",
-      thLabel: "ขนาดเล็กประหยัด\u00A0VRAM\u00A0การ์ดเดี่ยว\u00A0(<= 12B)",
-      models: real.filter((m) => Number(m.params_b) <= 12),
+      enLabel: "Compact & Single-GPU Edge (<= 14B)",
+      thLabel: "ขนาดกะทัดรัดสำหรับการ์ดเดี่ยว\u00A0(<= 14B)",
+      models: real.filter((m) => Number(m.params_b) <= 14),
     },
     {
-      id: "workhorse",
-      enLabel: "Enterprise Workhorse (13B to 45B)",
-      thLabel: "ขนาดมาตรฐานองค์กร\u00A0RAG & Tool\u00A0(13B\u201345B)",
-      models: real.filter((m) => Number(m.params_b) > 12 && Number(m.params_b) <= 45),
+      id: "sovereign_finetune",
+      enLabel: "20B-40B Sovereign & Finetune (Flint, Qwen3.8, Gemma-4)",
+      thLabel: "กลุ่ม\u00A020B-40B\u00A0Sovereign & Finetune\u00A0(Flint, Qwen3.8, Gemma-4)",
+      models: real.filter((m) => Number(m.params_b) > 14 && Number(m.params_b) <= 42),
     },
     {
-      id: "large_moe",
-      enLabel: "Large Multi-GPU Reasoning (46B to 200B)",
-      thLabel: "โมเดลวิเคราะห์ซับซ้อนหลายการ์ด\u00A0(46B\u2013200B)",
-      models: real.filter((m) => Number(m.params_b) > 45 && Number(m.params_b) <= 200),
+      id: "fifty_b_mid",
+      enLabel: "45B-120B 50B-Class & Mid-Frontier (Kimi-Linear, Nemotron-49B)",
+      thLabel: "กลุ่ม\u00A045B-120B\u00A0และ\u00A050B-Class\u00A0(Kimi-Linear, Nemotron-49B)",
+      models: real.filter((m) => Number(m.params_b) > 42 && Number(m.params_b) <= 130),
     },
     {
-      id: "frontier",
-      enLabel: "Frontier Sovereign Pool (> 200B)",
-      thLabel: "โมเดลขนาดใหญ่พิเศษระดับดาต้าเซ็นเตอร์\u00A0(> 200B)",
-      models: real.filter((m) => Number(m.params_b) > 200),
+      id: "frontier_flash",
+      enLabel: "150B+ Frontier Flash MoE (Qwen3.8-Next, GLM-5.3, DeepSeek-V4.1)",
+      thLabel: "กลุ่ม\u00A0150B+\u00A0Frontier\u00A0Flash\u00A0MoE\u00A0(Qwen3.8-Next, GLM-5.3, DeepSeek-V4.1)",
+      models: real.filter((m) => Number(m.params_b) > 130),
     },
   ].filter((g) => g.models.length > 0);
   const customModel = all.find((m) => m?.id === "custom") ?? null;
   return { groups, realModels: real, customModel };
+}
+
+export function buildSessionProjectionFromConfig({
+  effectiveSystemPromptTokens = 0,
+  effectivePromptTokens,
+  effectiveOutputTokens,
+  turnsPerSession,
+  kvCacheHitRate = "0",
+  users,
+  sessionsPerUserDay,
+  workingDaysMo,
+}) {
+  const S = BigInt(Math.max(0, Math.trunc(Number(effectiveSystemPromptTokens))));
+  const U = BigInt(Math.max(1, Math.trunc(Number(effectivePromptTokens))));
+  const O = BigInt(Math.max(1, Math.trunc(Number(effectiveOutputTokens))));
+  const T = Math.max(1, Math.trunc(Number(turnsPerSession)));
+  const hitRat = toRat(String(kvCacheHitRate));
+  const missRat = Rat.from(1n).sub(hitRat);
+
+  const usersRat = toRat(String(users));
+  const sessionsDayRat = toRat(String(sessionsPerUserDay));
+  const daysMoRat = toRat(String(workingDaysMo));
+  const sessionsMoRat = usersRat.mul(sessionsDayRat).mul(daysMoRat);
+  const turnsMoRat = sessionsMoRat.mul(Rat.from(BigInt(T)));
+
+  const cohorts = [];
+  let sumCtxAfterTurnBig = 0n;
+  let sessionTokensBig = 0n;
+  let sessionUncachedInRat = Rat.from(0n);
+  let sessionCachedReadRat = Rat.from(0n);
+  const sessionOutBig = BigInt(T) * O;
+
+  for (let t = 1; t <= T; t += 1) {
+    const tBig = BigInt(t);
+    const promptFullBig = S + tBig * U + (tBig - 1n) * O;
+    const ctxAfterTurnBig = promptFullBig + O;
+    const carriedBig = t === 1 ? 0n : S + (tBig - 1n) * (U + O);
+    sumCtxAfterTurnBig += ctxAfterTurnBig;
+    sessionTokensBig += ctxAfterTurnBig;
+
+    if (t === 1) {
+      // First turn in a session has zero carried conversation turns and is cold.
+      sessionUncachedInRat = sessionUncachedInRat.add(Rat.from(promptFullBig));
+      cohorts.push({
+        turn: 1,
+        cohort: "cold",
+        prompt_tokens: Number(promptFullBig),
+        output_tokens: Number(O),
+        cache_read_tokens: 0,
+        threshold_prompt_tokens: Number(promptFullBig),
+        allow_cache_fallback_to_input: true,
+        occurrences_per_session: "1",
+        requests_mo: sessionsMoRat,
+      });
+    } else {
+      sessionUncachedInRat = sessionUncachedInRat.add(
+        hitRat.mul(Rat.from(U)).add(missRat.mul(Rat.from(promptFullBig))),
+      );
+      sessionCachedReadRat = sessionCachedReadRat.add(hitRat.mul(Rat.from(carriedBig)));
+
+      if (!hitRat.isZero()) {
+        cohorts.push({
+          turn: t,
+          cohort: "hit",
+          prompt_tokens: Number(U),
+          output_tokens: Number(O),
+          cache_read_tokens: Number(carriedBig),
+          threshold_prompt_tokens: Number(promptFullBig),
+          allow_cache_fallback_to_input: true,
+          occurrences_per_session: ratStr(hitRat),
+          requests_mo: sessionsMoRat.mul(hitRat),
+        });
+      }
+      if (!missRat.isZero()) {
+        cohorts.push({
+          turn: t,
+          cohort: "miss",
+          prompt_tokens: Number(promptFullBig),
+          output_tokens: Number(O),
+          cache_read_tokens: 0,
+          threshold_prompt_tokens: Number(promptFullBig),
+          allow_cache_fallback_to_input: true,
+          occurrences_per_session: ratStr(missRat),
+          requests_mo: sessionsMoRat.mul(missRat),
+        });
+      }
+    }
+  }
+
+  const peakTurnContextTokens = Number(S + BigInt(T) * (U + O));
+  const avgTurnContextTokens = Number((sumCtxAfterTurnBig + BigInt(T) - 1n) / BigInt(T));
+  const sharedPrefixTokens = hitRat.isZero() ? 0 : Number((S * hitRat.n) / hitRat.d);
+
+  const tokensMoRat = Rat.from(sessionTokensBig).mul(sessionsMoRat);
+  const inTokensMoRat = sessionUncachedInRat.mul(sessionsMoRat);
+  const cachedTokensMoRat = sessionCachedReadRat.mul(sessionsMoRat);
+  const outTokensMoRat = Rat.from(sessionOutBig).mul(sessionsMoRat);
+
+  const tokensPerPersonDayRat = Rat.from(sessionTokensBig).mul(sessionsDayRat);
+  const tokensPerPersonMoRat = tokensPerPersonDayRat.mul(daysMoRat);
+  const uncachedInPerPersonDayRat = sessionUncachedInRat.mul(sessionsDayRat);
+  const cachedReadPerPersonDayRat = sessionCachedReadRat.mul(sessionsDayRat);
+  const outputPerPersonDayRat = Rat.from(sessionOutBig).mul(sessionsDayRat);
+
+  const compatAvgUncachedInPerTurn = Math.round(Number(formatHalfUp(sessionUncachedInRat.div(Rat.from(BigInt(T))), 6)));
+  const compatAvgCachedReadPerTurn = Math.round(Number(formatHalfUp(sessionCachedReadRat.div(Rat.from(BigInt(T))), 6)));
+
+  return {
+    effectiveSystemPromptTokens: Number(S),
+    effectivePromptTokens: Number(U),
+    effectiveOutputTokens: Number(O),
+    turnsPerSession: T,
+    kvCacheHitRate: String(kvCacheHitRate),
+    peakTurnContextTokens,
+    avgTurnContextTokens,
+    sharedPrefixTokens,
+    tokensPerSession: Number(sessionTokensBig),
+    cohorts,
+    sessionsMoRat,
+    turnsMoRat,
+    tokensMoRat,
+    inTokensMoRat,
+    cachedTokensMoRat,
+    outTokensMoRat,
+    compatAvgUncachedInPerTurn,
+    compatAvgCachedReadPerTurn,
+    personTokenSummary: {
+      sessionStackingActive: true,
+      tokensPerSession: String(sessionTokensBig),
+      tokensPerPersonDay: formatHalfUp(tokensPerPersonDayRat, 0),
+      tokensPerPersonMo: formatHalfUp(tokensPerPersonMoRat, 0),
+      uncachedInPerPersonDay: formatHalfUp(uncachedInPerPersonDayRat, 0),
+      cachedReadPerPersonDay: formatHalfUp(cachedReadPerPersonDayRat, 0),
+      outputPerPersonDay: formatHalfUp(outputPerPersonDayRat, 0),
+      turn1ColdPromptTokens: Number(S + U),
+      finalTurnPromptTokens: Number(S + BigInt(T) * U + BigInt(T - 1) * O),
+      peakTurnContextTokens,
+      avgTurnContextTokens,
+      sharedPrefixTokens,
+    },
+  };
+}
+
+export function estimateModelWeightGb(model, bytesPerParam, { runtimeKey = null, hostTierProfile = null } = {}) {
+  if (!model?.params_b || !bytesPerParam) return null;
+  try {
+    const res = resolveModelResidency({ model, bytesPerParam, runtimeKey, hostTierProfile });
+    return formatHalfUp(res.resident.div(Rat.from(1000000000n)), 2);
+  } catch {
+    return null;
+  }
 }
 
 function optDecStr(val, fieldName, opts = {}) {
@@ -1102,22 +1253,52 @@ export function normalizeSizerInput(raw = {}) {
     max: "3.0",
     allowZero: false,
   });
-  const rawPromptTokens = posInt(raw.rawPromptTokens ?? workloadPreset.rawPromptTokens, "rawPromptTokens", { min: 16, max: 2000000 });
+  const hasExplicitSessionFields = (
+    raw.sessionStackingActive === true
+    || (
+      raw.sessionStackingActive !== false
+      && (
+        raw.rawSystemPromptTokens !== undefined
+        || raw.turnsPerSession !== undefined
+        || raw.kvCacheHitRate !== undefined
+      )
+    )
+  );
+
+  const rawSystemPromptTokens = hasExplicitSessionFields
+    ? nonNegInt(raw.rawSystemPromptTokens ?? workloadPreset.defaultSystemPromptTokens ?? 20000, "rawSystemPromptTokens", { max: 2000000 })
+    : 0;
+  const turnsPerSession = hasExplicitSessionFields
+    ? posInt(raw.turnsPerSession ?? workloadPreset.defaultTurnsPerSession ?? 5, "turnsPerSession", { min: 1, max: 100 })
+    : null;
+  const kvCacheHitRate = hasExplicitSessionFields
+    ? decStr(raw.kvCacheHitRate ?? workloadPreset.defaultKvCacheHitRate ?? "0.75", "kvCacheHitRate", { min: "0", max: "1" })
+    : "0";
+
+  const defaultRawPrompt = hasExplicitSessionFields
+    ? (workloadPreset.defaultTurnPromptTokens ?? workloadPreset.rawPromptTokens)
+    : workloadPreset.rawPromptTokens;
+  const rawPromptTokens = posInt(raw.rawPromptTokens ?? defaultRawPrompt, "rawPromptTokens", { min: 1, max: 2000000 });
   const rawOutputTokens = posInt(raw.rawOutputTokens ?? workloadPreset.rawOutputTokens, "rawOutputTokens", { min: 1, max: 500000 });
   const rawContextTokens = posInt(raw.rawContextTokens ?? workloadPreset.rawContextTokens, "rawContextTokens", { min: 128, max: 10000000 });
 
   const multRat = tokenBasis === "latin_reference_1_4x" ? toRat(thaiFertilityMultiplier) : Rat.from(1n);
   const ceilMul = (n) => {
+    if (n <= 0) return 0;
     const prod = Rat.from(BigInt(n)).mul(multRat);
     const q = prod.n / prod.d;
     const rem = prod.n % prod.d;
     return Number(rem > 0n ? q + 1n : q);
   };
 
+  const effectiveSystemPromptTokens = ceilMul(rawSystemPromptTokens);
   const effectivePromptTokens = ceilMul(rawPromptTokens);
   const effectiveOutputTokens = rawOutputTokens;
   const scaledContext = ceilMul(rawContextTokens);
-  const effectiveContextTokens = Math.max(scaledContext, effectivePromptTokens + effectiveOutputTokens);
+  const peakSessionTokens = hasExplicitSessionFields
+    ? effectiveSystemPromptTokens + turnsPerSession * (effectivePromptTokens + effectiveOutputTokens)
+    : effectivePromptTokens + effectiveOutputTokens;
+  const effectiveContextTokens = Math.max(scaledContext, peakSessionTokens);
 
   const users = posInt(raw.users ?? workloadPreset.users, "users", { min: 1, max: 10000000 });
   const sessionsPerUserDay = decStr(raw.sessionsPerUserDay ?? workloadPreset.sessionsPerUserDay, "sessionsPerUserDay", { min: "0.01", max: "100000", allowZero: false });
@@ -1215,9 +1396,14 @@ export function normalizeSizerInput(raw = {}) {
     mix,
     tokenBasis,
     thaiFertilityMultiplier,
+    sessionStackingActive: hasExplicitSessionFields,
+    rawSystemPromptTokens,
+    turnsPerSession,
+    kvCacheHitRate,
     rawPromptTokens,
     rawOutputTokens,
     rawContextTokens,
+    effectiveSystemPromptTokens,
     effectivePromptTokens,
     effectiveOutputTokens,
     effectiveContextTokens,

@@ -1778,12 +1778,25 @@ function isCostControl(el) {
     && (el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type !== "range"));
 }
 
+const PROJECTED_SHAPE_CONTROL_RE = /^(f-(chat|rag|graphrag|agentic)-(turns|in|out|cached)|f-mix-(chat|rag|graphrag|agentic))$/;
+
+function clearSessionProjectionOnFlatEdit() {
+  if (!state.sessionProjection) return;
+  state.sessionProjection = null;
+  const box = $("return-review");
+  if (box) {
+    box.hidden = false;
+    box.innerHTML = `<p role="status">Switched from stacked session projection to edited per-workload flat averages.</p>`;
+  }
+}
+
 function handleControlEdit(event) {
   const el = event.target;
   if (!isCostControl(el) || !state.ready) return;
   // Selects emit both events in modern browsers. Handle exactly one.
   if (event.type !== (el.tagName === "SELECT" ? "change" : "input")) return;
   manualRevision++;
+  if (PROJECTED_SHAPE_CONTROL_RE.test(el.id)) clearSessionProjectionOnFlatEdit();
   if (el.id === "fb-feed") { void fillModels(beginSelection()); return; }
   if (el.id === "f-rent-provider") fillRentGpus();
   if (el.id === "f-rent-gpu") renderRentNote();
@@ -1885,6 +1898,7 @@ function flushLiveInput() {
 function balanceMix() {
   const check = validateMix(readMix());
   if (check.ok) return;
+  clearSessionProjectionOnFlatEdit();
   const others = ["rag", "graphrag", "agentic"].reduce(
     (acc, f) => acc.add(Dec.from(decInput(`f-mix-${f}`) ?? "0")), Dec.from("0"));
   const rest = Dec.from("100").sub(others);
@@ -1918,13 +1932,34 @@ function readShapes() {
 // leaving the fleet at its base size — see buildScenario.
 function computeDemand(usersOverride = null) {
   const users = usersOverride ?? decInput("f-users");
-  const demand = buildDemand({
+  const sessionsPerUserDay = decInput("f-sessions-day");
+  const workingDaysMo = decInput("f-days");
+  const baseDemand = buildDemand({
     users,
-    sessionsPerUserDay: decInput("f-sessions-day"),
-    workingDaysMo: decInput("f-days"),
+    sessionsPerUserDay,
+    workingDaysMo,
     mix: readMix(),
     shapes: readShapes(),
   });
+  const liveSession = state.sessionProjection
+    ? buildSessionProjectionFromConfig({
+        ...state.sessionProjection,
+        users,
+        sessionsPerUserDay,
+        workingDaysMo,
+      })
+    : null;
+  const mkSlot = (rat) => ({ rat, basis: "derived", text: formatHalfUp(rat, 0), places: 0 });
+  const demand = liveSession
+    ? {
+        ...baseDemand,
+        turns_mo: mkSlot(liveSession.turnsMoRat),
+        in_tokens_mo: mkSlot(liveSession.inTokensMoRat),
+        cached_tokens_mo: mkSlot(liveSession.cachedTokensMoRat),
+        out_tokens_mo: mkSlot(liveSession.outTokensMoRat),
+        tokens_mo: mkSlot(liveSession.tokensMoRat),
+      }
+    : baseDemand;
   const peak = peakTokensPerSecond({
     users,
     peakConcurrencyFraction: pctInput("f-peak-frac"),
@@ -1955,7 +1990,7 @@ function computeDemand(usersOverride = null) {
     : sizing.serving_basis === "roofline" ? "roofline"
     : "assumed";
   state.sizingBasis = sizingBasis;
-  return { demand, peak, sizing, gpuId, serving, sizingBasis };
+  return { demand, peak, sizing, gpuId, serving, sizingBasis, liveSession };
 }
 
 // The live readout under the demand inputs. It must never show a number derived
@@ -2083,7 +2118,7 @@ async function fillModels(sel) {
 // declared fleet and stays fixed on purpose: that is the "my current hardware
 // under more load" question, and it is theirs to ask.
 function buildScenario(usersOverride = null) {
-  const { demand, peak, sizing, gpuId } = computeDemand(usersOverride);
+  const { demand, peak, sizing, gpuId, liveSession } = computeDemand(usersOverride);
 
   // The engine consumes whole tokens and whole requests. The demand model is
   // exact, so rounding happens ONCE, here, at the boundary into the engine.
@@ -2102,6 +2137,7 @@ function buildScenario(usersOverride = null) {
     prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
     output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
     cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
+    ...(liveSession ? { request_cohorts: liveSession.cohorts } : {}),
     horizon_months: intInput("f-horizon") ?? 1,
     required_p95_tok_s: intInput("f-p95"),
     quote_utc: Date.parse($("f-utc").value),
@@ -3056,6 +3092,7 @@ function exportQuote(r) {
     },
     entered_inputs: Object.fromEntries(enteredControls().map((el) => [el.id, el.value])),
     entered_input_units: Object.fromEntries(enteredControls().map((el) => [el.id, THB_MONEY_INPUT_IDS.has(el.id) ? "THB" : null])),
+    session_projection: state.sessionProjection ?? null,
     generated_at: new Date().toISOString(),
     snapshot: { digest: state.manifest.snapshot_digest, generated_at: state.manifest.generated_at, schema: state.manifest.schema },
     demand: d ? {

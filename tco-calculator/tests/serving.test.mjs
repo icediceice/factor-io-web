@@ -629,6 +629,7 @@ test("fail-closed checkpoint residency holds full params_b on GPU unless an expl
     vramOverheadFraction: "0.10",
     runtimeKey: "vllm",
     hostTierProfile: { allowHostTierOffload: true, runtime: "vllm", supportedKinds: ["engram"], hostDramGb: "256" },
+    maxBatch: 1,
     tpCandidates: [8],
   });
   assert.equal(tiered.ok, true);

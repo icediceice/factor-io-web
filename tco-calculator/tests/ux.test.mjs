@@ -1775,3 +1775,258 @@ test("v2 browser saves migrate legacy v1 scenarios read-only, leave v1 untouched
   // And v1 is STILL untouched for rollback!
   assert.equal(storeMap.get(SIZER_LEGACY_STORAGE_KEY), legacyRawJson);
 });
+
+test("calculator receiver clears stale sessionProjection on preset click, refuses smaller-context model switch against 81k stacked peak, and matches unshared peak batch sizing", () => {
+  const h = harness();
+  Object.assign(h.context, demandMod, servingMod, capexMod, subscriptionMod, powerMod, calculatorMod);
+  h.state.ready = true;
+  h.state.servingData = JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8"));
+  h.state.powerSeed = JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8"));
+  powerMod.configurePowerSeed(h.state.powerSeed);
+  h.state.fx = normalizeFxDocument({ source_id: "fixture-fx", observed_at: "2026-09-01", usd_thb: "33.801000" });
+  h.state.gpuPricing = {
+    gpus: {
+      h100: { label: "NVIDIA H100 80GB", vram_gb: 80 },
+      rtx_pro_6000_se: { label: "RTX PRO 6000 SE 96GB", vram_gb: 96 },
+    },
+    rows: [{ provider: "first", provider_label: "First Cloud", gpu_id: "h100", gpu_label: "H100", sku: "h100-1x", gpu_hourly_usd: "2.50", confidence: "first_party" }],
+  };
+  h.state.serverPricing = {
+    rows: [{ server_id: "srv-rtx-2x", label: "2x RTX Server", gpu_id: "rtx_pro_6000_se", gpu_count: 2, form_factor: "2U", usd_typical: "53333" }],
+  };
+  h.state.subscriptions = { rows: [{ id: "none", label: "None", applies_to: [] }] };
+  h.state.workloadPresets = JSON.parse(readFileSync(new URL("../data/workload-presets.json", import.meta.url), "utf8"));
+  h.node("preset-cards").querySelectorAll = () => [];
+  h.state.manifest = {
+    snapshot_digest: "snap-g3",
+    generated_at: "2026-11-18T00:00:00Z",
+    sources: { openrouter: { origin: "snapshot", observed_at: "2026-11-18T00:00:00Z", integrity: "declared" } },
+    models: [{ id: "openrouter:vendor/flat", name: "Flat 1USD", state: "active" }],
+  };
+  h.state.catalog = {
+    offers: {
+      "openrouter:vendor/flat": {
+        offer_id: "openrouter:vendor/flat",
+        seller: "openrouter",
+        seller_source: "openrouter",
+        channel: "api",
+        product: "vendor/flat",
+        display_name: "Flat 1USD",
+        tariff: "token",
+        ingest_mode: "chat",
+        state: "active",
+        quarantine_reason: null,
+        missing_streak: 0,
+        expiration_date: null,
+        prices: { "input|std": "0.000001", "output|std": "0.000001", "cache_read|std": "0.0000002" },
+        overrides: [],
+        multipliers: {},
+        tiered: [],
+        ignored_fields: [],
+        unknown_meter_fields: [],
+        provenance: { source: "openrouter", logs: [] },
+      },
+    },
+  };
+  h.node("fb-feed").value = "openrouter";
+  h.node("fb-model").value = "openrouter:vendor/flat";
+  h.node("fb-model").options = [{ value: "openrouter:vendor/flat", textContent: "Flat 1USD" }];
+  h.node("f-sh-gpu").options = [
+    { value: "h100", textContent: "H100" },
+    { value: "rtx_pro_6000_se", textContent: "RTX PRO 6000" },
+  ];
+  h.node("f-sv-model").options = h.state.servingData.models.map((m) => ({ value: m.id, textContent: m.label }));
+  h.node("f-sv-kvquant").options = ["bf16", "fp8", "int8", "fp4"].map((v) => ({ value: v, textContent: v }));
+
+  // 81,000-token stacked peak (S=61,000, U=4,000, O=1,000, T=4 -> 61,000 + 4 * 5,000 = 81,000) on Flint (262k max)
+  const sizer81k = computeSizer({
+    input: {
+      users: 10,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 20,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 61000,
+      rawPromptTokens: 4000,
+      rawOutputTokens: 1000,
+      turnsPerSession: 4,
+      kvCacheHitRate: "0.50",
+      rawContextTokens: 81920,
+      modelId: "flint",
+      wquant: "fp8",
+      kvquant: "fp4",
+      gpuId: "rtx_pro_6000_se",
+      apiOfferId: "openrouter:vendor/flat",
+      quoteUtc: "2026-09-01T00:00:00Z",
+    },
+    data: {
+      manifest: h.state.manifest,
+      catalog: h.state.catalog,
+      fx: h.state.fx,
+      gpuPricing: h.state.gpuPricing,
+      serverPricing: h.state.serverPricing,
+      servingData: h.state.servingData,
+      powerSeed: h.state.powerSeed,
+      subscriptions: h.state.subscriptions,
+    },
+    nowMs: Date.parse("2026-09-01T00:00:00Z"),
+  });
+  assert.equal(sizer81k.ok, true);
+  assert.equal(sizer81k.sessionProjection.peakTurnContextTokens, 81000);
+  assert.equal(sizer81k.sessionProjection.sharedPrefixTokens, 0);
+
+  const frag81k = encodeSizerFragment(sizer81k.normalized, {
+    pricingIdentity: sizer81k.pricingIdentity,
+    resolvedApiOfferId: "openrouter:vendor/flat",
+  });
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${frag81k}`;
+  assert.equal(h.get("processSizerReturn()"), true);
+  assert.equal(h.state.sessionProjection.peakTurnContextTokens, 81000);
+  assert.equal(h.state.serving.kv_gb_shared_prefix.text, "0.000");
+
+  // Switching f-sv-model to qwen3-32b (context_max 40,960, default 32,768) MUST refuse because carried 81,000 peak > 40,960
+  h.node("f-sv-model").value = "qwen3-32b";
+  h.get("handleControlEdit({ target: $('f-sv-model'), type: 'change' })");
+  h.tick();
+  assert.equal(h.state.serving, null);
+  assert.equal(h.state.servingRefusal?.code, "context_exceeds_model_max");
+
+  // Clicking a workload preset card clears state.sessionProjection so preset demand/serving shapes take effect cleanly
+  const firstPresetId = h.state.workloadPresets.presets[0].id;
+  h.context.presetToClick = firstPresetId;
+  h.get("applyWorkloadPreset(presetToClick)");
+  h.tick();
+  assert.equal(h.state.sessionProjection, null);
+  assert.match(h.node("return-review").innerHTML, /Switched from stacked session projection/i);
+});
+
+test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fit refusal) and fails closed on pre-FP4 catalog skew without touching v1 saves", () => {
+  const uiSrc = readFileSync(new URL("../sizer-ui.js", import.meta.url), "utf8");
+  const baseFullData = {
+    manifest: JSON.parse(readFileSync(new URL("../data/manifest.json", import.meta.url), "utf8")),
+    fx: normalizeFxDocument({ observed_at: "2026-09-01", usd_thb: "33.801", source_id: "fixture" }),
+    gpuPricing: JSON.parse(readFileSync(new URL("../data/gpu-pricing.json", import.meta.url), "utf8")),
+    serverPricing: JSON.parse(readFileSync(new URL("../data/server-pricing.json", import.meta.url), "utf8")),
+    servingData: JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8")),
+    powerSeed: JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8")),
+    subscriptions: JSON.parse(readFileSync(new URL("../data/subscription-pricing.json", import.meta.url), "utf8")),
+  };
+  baseFullData.catalog = JSON.parse(
+    readFileSync(new URL(`../data/${baseFullData.manifest.resources.catalog.path}`, import.meta.url), "utf8"),
+  );
+
+  const makeSizerUiVm = (customData, storeMap = new Map()) => {
+    const nodes = new Map();
+    const node = (id) => {
+      if (!nodes.has(id)) {
+        nodes.set(id, {
+          id,
+          value: "",
+          innerHTML: "",
+          textContent: "",
+          attrs: {},
+          hidden: false,
+          disabled: false,
+          setAttribute(k, v) { this.attrs[k] = String(v); },
+          removeAttribute(k) { delete this.attrs[k]; },
+        });
+      }
+      return nodes.get(id);
+    };
+    const mockLocalStorage = {
+      getItem: (k) => (storeMap.has(k) ? storeMap.get(k) : null),
+      setItem: (k, v) => storeMap.set(k, String(v)),
+      removeItem: (k) => storeMap.delete(k),
+    };
+    const ctx = vm.createContext({
+      DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS,
+      decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment,
+      normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb,
+      groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope,
+      SizerValidationError,
+      ...servingMod,
+      ...capexMod,
+      Dec, Rat, formatHalfUp, ratStr, toRat,
+      fxProvenance, normalizeFxDocument, toTHB, toUSD,
+      replaceCatalogSource,
+      localStorage: mockLocalStorage,
+      TextEncoder, TextDecoder, AbortController, DOMException, structuredClone, setTimeout, clearTimeout, URL, console,
+      document: { getElementById: (id) => (id === "main-workspace" ? null : node(id)) },
+    });
+    vm.runInContext(uiSrc.replace(/^import[\s\S]*?;\s*$/gm, "").replace(/^export\s+/gm, ""), ctx);
+    const get = (code) => vm.runInContext(code, ctx);
+    const st = get("appState");
+    st.data = customData;
+    st.ready = true;
+    return { node, get, state: st, context: ctx };
+  };
+
+  // G5: S=20,000, U=1,000, O=500, T=2, rawContextTokens=23,000 -> activeCtx=22,250 vs peakCtx=23,000 in both solved and fit-refusal states (EN & TH)
+  for (const lang of ["en", "th"]) {
+    const ui = makeSizerUiVm(structuredClone(baseFullData));
+    ui.state.lang = lang;
+    Object.assign(ui.state.draft, {
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: "20000",
+      rawPromptTokens: "1000",
+      rawOutputTokens: "500",
+      turnsPerSession: "2",
+      kvHitPct: "50",
+      rawContextTokens: "23000",
+      modelId: "qwen3-32b",
+      wquant: "fp8",
+      kvquant: "bf16",
+      gpuId: "h100",
+    });
+    ui.get("recompute()");
+    ui.get("renderAutoGpuAndMatrix()");
+    assert.match(ui.node("hint-turns-session").textContent, /23,000 tok/);
+    assert.doesNotMatch(ui.node("hint-turns-session").textContent, /NaN|undefined/);
+    const solvedKvHtml = ui.node("kv-telemetry-bar").innerHTML;
+    assert.match(solvedKvHtml, /@ 22,250 ctx/);
+    const solvedPeak = solvedKvHtml.match(/Peak ([0-9.]+) GB/)?.[1];
+    const solvedActive = solvedKvHtml.match(/Active ([0-9.]+) GB @ 22,250 ctx/)?.[1];
+    assert.ok(solvedPeak && solvedActive && Number(solvedActive) < Number(solvedPeak), `expected Active (${solvedActive}) < Peak (${solvedPeak}) in solved ${lang}`);
+
+    // Fit-refusal state (glm-5-3 753B exceeds single-node VRAM so fit.serving === null) still distinguishes Active @ 22,250 ctx from Peak @ 23,000 ctx
+    ui.state.draft.modelId = "qwen3-8b";
+    ui.state.data.gpuPricing.gpus.h100.vram_gb = 4; // force VRAM refusal on qwen3-8b
+    ui.get("recompute()");
+    assert.equal(ui.state.computed.fit.serving, null);
+    ui.get("renderAutoGpuAndMatrix()");
+    const refusedKvHtml = ui.node("kv-telemetry-bar").innerHTML;
+    assert.match(refusedKvHtml, /@ 22,250 ctx/);
+    const refPeak = refusedKvHtml.match(/Peak ([0-9.]+) GB/)?.[1];
+    const refActive = refusedKvHtml.match(/Active ([0-9.]+) GB @ 22,250 ctx/)?.[1];
+    assert.ok(refPeak && refActive && Number(refActive) < Number(refPeak), `expected Active (${refActive}) < Peak (${refPeak}) on refusal in ${lang}`);
+  }
+
+  // G6: Boot against pre-FP4 serving-models.json + load a saved v2 fp4 scenario -> marks fp4 unavailable, refuses KV telemetry cleanly, keeps v1 untouched
+  const preFp4Data = structuredClone(baseFullData);
+  delete preFp4Data.servingData.kv_quantization.fp4;
+  const legacyV1Raw = encodeSizerSaveEnvelope([
+    { id: "v1-keep", name: "V1 Keep", savedAt: "2026-11-15T00:00:00Z", fragment: encodeSizerFragment(normalizeSizerInput({ users: 40 })) },
+  ]);
+  const v2Fp4Raw = encodeSizerSaveEnvelope([
+    { id: "v2-fp4", name: "V2 FP4", savedAt: "2026-11-18T00:00:00Z", fragment: encodeSizerFragment(normalizeSizerInput({ modelId: "flint", kvquant: "fp4" })) },
+  ]);
+  const skewStore = new Map([
+    [SIZER_LEGACY_STORAGE_KEY, legacyV1Raw],
+    [SIZER_STORAGE_KEY, v2Fp4Raw],
+  ]);
+  const skewUi = makeSizerUiVm(preFp4Data, skewStore);
+  skewUi.state.lang = "en";
+  const loadedScenarios = skewUi.get("storageAdapter.readSavedScenarios()");
+  skewUi.context.savedNorm = loadedScenarios.scenarios[0].normalized;
+  skewUi.get("applyNormalizedToDraft(savedNorm)");
+  skewUi.get("recompute()");
+  skewUi.get("renderModelAndGpuSelectors()");
+  skewUi.get("renderAutoGpuAndMatrix()");
+
+  assert.equal(skewUi.state.computed.ok, false);
+  assert.equal(skewUi.state.computed.code, "missing_accelerator_or_quant");
+  assert.match(skewUi.node("in-kvquant").innerHTML, /fp4 \(unavailable in catalog - reselect\)/);
+  assert.equal(skewUi.node("kv-telemetry-bar").attrs["data-status"], "refused");
+  assert.match(skewUi.node("kv-telemetry-bar").innerHTML, /unavailable in the loaded catalog/i);
+  assert.doesNotMatch(skewUi.node("kv-telemetry-bar").innerHTML, /@ FP4/);
+  assert.equal(skewStore.get(SIZER_LEGACY_STORAGE_KEY), legacyV1Raw);
+});

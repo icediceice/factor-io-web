@@ -848,6 +848,7 @@ test("stacked 20k+ agent sessions preserve odd-sum prompt totals, cold Turn-1 fe
   });
   assert.equal(airgapSized.ok, true);
   assert.equal(airgapSized.normalized.modelId, "flint");
+  assert.equal(airgapSized.normalized.gpuId, "rtx_pro_6000_se");
   assert.equal(airgapSized.bom.nodes, 1);
 
   // 2. 4-band catalog grouping populates <=14B, 20B-40B Sovereign/Finetune, 45B-120B (50B class), and 150B+ Frontier Flash MoEs

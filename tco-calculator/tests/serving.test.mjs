@@ -609,13 +609,53 @@ test("fail-closed checkpoint residency holds full params_b on GPU unless an expl
     (err) => err instanceof ServingRefusal && err.code === "no_viable_configuration" && err.detail.attempts[0].reason === "weights_exceed_vram",
   );
 
+  // Misnamed keys (runtime / supportedKinds instead of supportedRuntimes / supportedOffloadKinds) fail closed
+  const misnamedProfile = resolveModelResidency({
+    model: engramModel,
+    bytesPerParam: "1",
+    runtimeKey: "vllm",
+    hostTierProfile: { allowHostTierOffload: true, runtime: "vllm", supportedKinds: ["engram"], hostDramGb: "256" },
+  });
+  assert.equal(misnamedProfile.host_offload_active, false);
+  assert.equal(misnamedProfile.host_offload_reason, "runtime_does_not_support_host_offload");
+  assert.equal(formatHalfUp(misnamedProfile.resident.div(new Rat(1000000000n, 1n)), 0), "749");
+
+  // Wrong runtime, wrong offload kind, and inconsistent backbone+offload split each fail closed
+  const wrongRuntime = resolveModelResidency({
+    model: engramModel,
+    bytesPerParam: "1",
+    runtimeKey: "llamacpp",
+    hostTierProfile: { allowHostTierOffload: true, supportedRuntimes: ["vllm"], supportedOffloadKinds: ["engram"], hostDramGb: "256" },
+  });
+  assert.equal(wrongRuntime.host_offload_active, false);
+  assert.equal(wrongRuntime.host_offload_reason, "runtime_does_not_support_host_offload");
+
+  const wrongKind = resolveModelResidency({
+    model: engramModel,
+    bytesPerParam: "1",
+    runtimeKey: "vllm",
+    hostTierProfile: { allowHostTierOffload: true, supportedRuntimes: ["vllm"], supportedOffloadKinds: ["kv_swap"], hostDramGb: "256" },
+  });
+  assert.equal(wrongKind.host_offload_active, false);
+  assert.equal(wrongKind.host_offload_reason, "offload_kind_unsupported");
+
+  const inconsistentSplit = resolveModelResidency({
+    model: { ...engramModel, gpu_backbone_params_b: "400", host_offload_params_b: "197" },
+    bytesPerParam: "1",
+    runtimeKey: "vllm",
+    hostTierProfile: { allowHostTierOffload: true, supportedRuntimes: ["vllm"], supportedOffloadKinds: ["engram"], hostDramGb: "256" },
+  });
+  assert.equal(inconsistentSplit.host_offload_active, false);
+  assert.equal(inconsistentSplit.host_offload_reason, "inconsistent_offload_split");
+
   const insufficientDram = resolveModelResidency({
     model: engramModel,
     bytesPerParam: "1",
     runtimeKey: "vllm",
-    hostTierProfile: { allowHostTierOffload: true, runtime: "vllm", supportedKinds: ["engram"], hostDramGb: "128" },
+    hostTierProfile: { allowHostTierOffload: true, supportedRuntimes: ["vllm"], supportedOffloadKinds: ["engram"], hostDramGb: "128" },
   });
   assert.equal(insufficientDram.host_offload_active, false);
+  assert.equal(insufficientDram.host_offload_reason, "insufficient_host_dram");
   assert.equal(formatHalfUp(insufficientDram.resident.div(new Rat(1000000000n, 1n)), 0), "749");
 
   const tiered = servingPlan({
@@ -629,7 +669,7 @@ test("fail-closed checkpoint residency holds full params_b on GPU unless an expl
     tpEfficiency: "0.92",
     vramOverheadFraction: "0.10",
     runtimeKey: "vllm",
-    hostTierProfile: { allowHostTierOffload: true, runtime: "vllm", supportedKinds: ["engram"], hostDramGb: "256" },
+    hostTierProfile: { allowHostTierOffload: true, supportedRuntimes: ["vllm"], supportedOffloadKinds: ["engram"], hostDramGb: "256" },
     maxBatch: 1,
     tpCandidates: [8],
   });
@@ -694,8 +734,12 @@ test("PagedAttention peak-turn batch sizing bounds B*bytes(peak)-(B-1)*shareable
   });
   assert.equal(peakPlan.batch.text, "1");
 
-  // llama.cpp (supportsPrefixCache: false) and kv_override: true get ZERO shared-prefix credit
-  for (const extra of [{ supportsPrefixCache: false }, { model: { ...full1ByteModel, kv_override: true }, supportsPrefixCache: true }]) {
+  // llama.cpp (supportsPrefixCache: false), kv_override: true, and probabilistic non-guaranteed prefixes get ZERO shared-prefix credit
+  for (const extra of [
+    { supportsPrefixCache: false },
+    { model: { ...full1ByteModel, kv_override: true }, supportsPrefixCache: true },
+    { supportsPrefixCache: true, sharedPrefixGuaranteed: false },
+  ]) {
     const unshared = servingPlan({
       model: full1ByteModel,
       contextTokens: 14000,

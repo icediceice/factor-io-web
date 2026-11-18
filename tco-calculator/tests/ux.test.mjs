@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
+import * as sizerAll from "../sizer-engine.js";
 import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb, evaluateGpuCandidates, groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
 import { replaceCatalogSource } from "../live-pricing.js";
 import { setupStarters as realSetupStarters } from "../starter-ui.js";
@@ -1948,6 +1949,42 @@ test("calculator receiver clears stale sessionProjection on preset click, refuse
   h.tick();
   assert.equal(h.state.sessionProjection, null);
   assert.match(h.node("return-review").innerHTML, /Switched from stacked session projection/i);
+
+  // G1 on app.js receiver: 40,000 B free VRAM with 50% hit rate (23,000 B peak/seq) sizes batch=1, never batch=2
+  h.state.gpuPricing.gpus.tight_50kb = { label: "Tight 50KB", vram_gb: 0.00005 };
+  h.state.serverPricing.rows.push({ server_id: "srv-tight-1x", label: "1x Tight", gpu_id: "tight_50kb", gpu_count: 1, form_factor: "1U", usd_typical: "10000" });
+  h.state.powerSeed.gpus.tight_50kb = { board_tdp_w: 300, typical_load_fraction: "0.7" };
+  powerMod.configurePowerSeed(h.state.powerSeed);
+  h.state.servingData = {
+    ...h.state.servingData,
+    vram_overhead_fraction: { value: "0" },
+    accelerators: { ...h.state.servingData.accelerators, tight_50kb: { bandwidth_gb_s: "1000" } },
+    models: [
+      ...h.state.servingData.models,
+      { id: "unit-1byte-kv", label: "Unit 1B/tok", params_b: "0.00001", active_params_b: "0.00001", context_default: 23000, context_max: 65536, basis: "cited", groups: [{ kind: "full", layers: 1, kv_heads: 1, head_dim: 1, tensors: 1 }] },
+    ],
+  };
+  h.node("f-sh-gpu").options.push({ value: "tight_50kb", textContent: "Tight 50KB" });
+  h.node("f-srv-config").options.push({ value: "srv-tight-1x", textContent: "1x Tight" });
+  h.node("f-sv-model").options.push({ value: "unit-1byte-kv", textContent: "Unit 1B/tok" });
+  const sizerTight = computeSizer({
+    input: {
+      users: 1, sessionsPerUserDay: "1", workingDaysMo: 1, tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000, rawPromptTokens: 1000, rawOutputTokens: 500, turnsPerSession: 2, kvCacheHitRate: "0.50",
+      rawContextTokens: 23000, tokensPerSecondPerStream: "1", modelId: "unit-1byte-kv", wquant: "fp8", kvquant: "fp8", runtime: "vllm",
+      gpuId: "tight_50kb", apiOfferId: "openrouter:vendor/flat", quoteUtc: "2026-09-01T00:00:00Z",
+    },
+    data: {
+      manifest: h.state.manifest, catalog: h.state.catalog, fx: h.state.fx,
+      gpuPricing: h.state.gpuPricing, serverPricing: h.state.serverPricing,
+      servingData: h.state.servingData, powerSeed: h.state.powerSeed, subscriptions: h.state.subscriptions,
+    },
+    nowMs: Date.parse("2026-09-01T00:00:00Z"),
+  });
+  h.get("manualRevision = 0");
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${encodeSizerFragment(sizerTight.normalized, { pricingIdentity: sizerTight.pricingIdentity, resolvedApiOfferId: "openrouter:vendor/flat" })}`;
+  assert.equal(h.get("processSizerReturn()"), true);
+  assert.equal(h.state.serving.batch.text, "1");
 });
 
 test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fit refusal) and fails closed on pre-FP4 catalog skew without touching v1 saves", () => {
@@ -1989,12 +2026,7 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
       removeItem: (k) => storeMap.delete(k),
     };
     const ctx = vm.createContext({
-      DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS,
-      decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment,
-      normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb,
-      evaluateGpuCandidates,
-      groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope,
-      SizerValidationError,
+      ...sizerAll,
       ...servingMod,
       ...capexMod,
       Dec, Rat, formatHalfUp, ratStr, toRat,

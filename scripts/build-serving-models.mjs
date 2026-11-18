@@ -587,8 +587,10 @@ export function geometryParams(cfg) {
     const stdSparseLayers = sparseLayers - dsparkLayers;
 
     const sharedPerLayer = THREE * hidden * sharedInter * shared;
-    bodyTotal += (THREE * hidden * inter * nRouted + sharedPerLayer + hidden * nRouted) * stdSparseLayers;
-    bodyActive += (THREE * hidden * inter * nPerTok + sharedPerLayer + hidden * nRouted) * stdSparseLayers;
+    const stdLayerTotal = THREE * hidden * inter * nRouted + sharedPerLayer + hidden * nRouted;
+    const stdLayerActive = THREE * hidden * inter * nPerTok + sharedPerLayer + hidden * nRouted;
+    bodyTotal += stdLayerTotal * stdSparseLayers;
+    bodyActive += stdLayerActive * stdSparseLayers;
 
     if (dsparkLayers > 0n) {
       const dsRouted = int(lc.dspark_n_routed_experts, "dspark_n_routed_experts");
@@ -597,7 +599,8 @@ export function geometryParams(cfg) {
       const dsLayerActive = THREE * hidden * inter * dsPerTok + sharedPerLayer + hidden * dsRouted;
       bodyTotal += dsLayerTotal * dsparkLayers;
       bodyActive += dsLayerActive * dsparkLayers;
-      mtpTotal = (attnPerLayer + dsLayerTotal) * mtp;
+      // NextN MTP modules instantiate full n_routed_experts layers rather than DSpark tail layers.
+      mtpTotal = (attnPerLayer + stdLayerTotal) * mtp;
     } else {
       mtpTotal = (bodyTotal / layers) * mtp;
     }

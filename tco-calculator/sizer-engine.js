@@ -2144,6 +2144,7 @@ export function computeSizer({
       reason: fit.reason,
       normalized,
       demand,
+      personTokenSummary,
       peak,
       fit,
       bom: null,
@@ -2305,17 +2306,23 @@ export function computeSizer({
     try {
       const rAcc = servingData?.accelerators?.[rentRow.gpu_id];
       const rVram = gpuPricing?.gpus?.[rentRow.gpu_id]?.vram_gb;
+      const rRt = servingData.runtimes[normalized.runtime];
       const rServing = (rAcc && rVram !== undefined)
         ? servingPlan({
           model: resolvedModel,
-          contextTokens: String(normalized.effectiveContextTokens),
+          contextTokens: String(sessionProj ? Math.max(normalized.effectiveContextTokens - (sessionProj.peakTurnContextTokens - sessionProj.avgTurnContextTokens), sessionProj.avgTurnContextTokens) : normalized.effectiveContextTokens),
+          peakContextTokens: String(normalized.effectiveContextTokens),
+          sharedPrefixTokens: sessionProj ? sessionProj.sharedPrefixTokens : 0,
+          supportsPrefixCache: Boolean(rRt?.supports_prefix_cache),
+          pageBlockTokens: rRt?.page_block_tokens ?? 16,
+          runtimeKey: normalized.runtime,
           bytesPerParam: servingData.weight_quantization[normalized.wquant].bytes_per_param,
           kvBytesPerElement: resolvedModel.kv_override
             ? "1"
             : servingData.kv_quantization[normalized.kvquant].bytes_per_element,
           vramGb: String(rVram),
           bandwidthGbS: rAcc.bandwidth_gb_s,
-          runtimeEfficiency: servingData.runtimes[normalized.runtime].bandwidth_efficiency,
+          runtimeEfficiency: rRt.bandwidth_efficiency,
           tpEfficiency: servingData.tensor_parallel.efficiency_per_extra_gpu,
           vramOverheadFraction: servingData.vram_overhead_fraction.value,
           perStreamFloorTokS: normalized.tokensPerSecondPerStream,
@@ -2434,6 +2441,7 @@ export function computeSizer({
       prompt_tokens: requestCount > 0 ? Math.round(inTok / requestCount) : 0,
       output_tokens: requestCount > 0 ? Math.round(outTok / requestCount) : 0,
       cache_read_tokens_per_req: requestCount > 0 ? Math.round(cachedTok / requestCount) : 0,
+      ...(sessionProj ? { request_cohorts: sessionProj.cohorts } : {}),
       horizon_months: normalized.horizonMonths,
       required_p95_tok_s: null,
       quote_utc: Date.parse(normalized.quoteUtc),
@@ -2477,6 +2485,19 @@ export function computeSizer({
     stage: "complete",
     normalized,
     demand,
+    personTokenSummary,
+    sessionProjection: sessionProj
+      ? {
+          effectiveSystemPromptTokens: sessionProj.effectiveSystemPromptTokens,
+          effectivePromptTokens: sessionProj.effectivePromptTokens,
+          effectiveOutputTokens: sessionProj.effectiveOutputTokens,
+          turnsPerSession: sessionProj.turnsPerSession,
+          kvCacheHitRate: sessionProj.kvCacheHitRate,
+          peakTurnContextTokens: sessionProj.peakTurnContextTokens,
+          avgTurnContextTokens: sessionProj.avgTurnContextTokens,
+          sharedPrefixTokens: sessionProj.sharedPrefixTokens,
+        }
+      : null,
     peak,
     sizing: {
       ...sizing,
@@ -2654,9 +2675,9 @@ const COMPACT_RECORD_KEYS = new Set([
   "ek", "pu", "no", "hz", "ao", "sub", "st", "qu", "pi",
 ]);
 
-// Optional v1 extension keys for custom model parameter/cache/context overrides.
-// Forward compatibility of newly extended custom tokens on older deployments is not promised.
-const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm"]);
+// Optional v1 extension keys for custom model parameter/cache/context overrides
+// and stacked multi-turn agent session parameters (`sp`, `tp`, `kh`).
+const COMPACT_OPTIONAL_KEYS = new Set(["cp", "ca", "ck", "cm", "sp", "tp", "kh"]);
 
 export function encodeSizerFragment(normalized, { pricingIdentity = null, resolvedApiOfferId = null } = {}) {
   const n = normalized?.schema === SIZER_SCHEMA ? normalized : normalizeSizerInput(normalized);
@@ -2732,6 +2753,11 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
     compact.ck = n.customKvBytesBf16;
     compact.cm = n.customContextMax;
   }
+  if (n.sessionStackingActive) {
+    compact.sp = n.rawSystemPromptTokens;
+    compact.tp = n.turnsPerSession;
+    compact.kh = n.kvCacheHitRate;
+  }
   const token = toBase64Url(JSON.stringify(compact));
   const fragment = `${SIZER_FRAGMENT_PREFIX}${token}`;
   if (fragment.length > MAX_FRAGMENT_CHARS) {
@@ -2741,7 +2767,7 @@ export function encodeSizerFragment(normalized, { pricingIdentity = null, resolv
 }
 
 const VALID_WQUANTS = new Set(["bf16", "fp8", "int8", "int4"]);
-const VALID_KVQUANTS = new Set(["bf16", "fp8", "int8"]);
+const VALID_KVQUANTS = new Set(["bf16", "fp8", "int8", "fp4"]);
 const VALID_RUNTIMES = new Set(["vllm", "sglang", "trtllm", "llamacpp"]);
 const VALID_SERVER_BASES = new Set(["usd_low", "usd_typical", "usd_high"]);
 
@@ -2797,7 +2823,19 @@ function validateSizerWirePayload(parsed) {
   if (typeof parsed.wd !== "number") throw new SizerValidationError("bad_integer", "workingDaysMo must be a number");
   posInt(parsed.wd, "workingDaysMo", { min: 1, max: 31 });
   if (typeof parsed.rp !== "number") throw new SizerValidationError("bad_integer", "rawPromptTokens must be a number");
-  posInt(parsed.rp, "rawPromptTokens", { min: 16, max: 2000000 });
+  posInt(parsed.rp, "rawPromptTokens", { min: 1, max: 2000000 });
+  if ("sp" in parsed) {
+    if (typeof parsed.sp !== "number") throw new SizerValidationError("bad_integer", "sp (rawSystemPromptTokens) must be an integer");
+    posInt(parsed.sp, "rawSystemPromptTokens", { min: 0, max: 2000000 });
+  }
+  if ("tp" in parsed) {
+    if (typeof parsed.tp !== "number") throw new SizerValidationError("bad_integer", "tp (turnsPerSession) must be an integer");
+    posInt(parsed.tp, "turnsPerSession", { min: 1, max: 100 });
+  }
+  if ("kh" in parsed) {
+    if (typeof parsed.kh !== "string") throw new SizerValidationError("bad_decimal", "kh (kvCacheHitRate) must be a decimal string");
+    decStr(parsed.kh, "kvCacheHitRate", { min: "0", max: "1" });
+  }
   if (typeof parsed.ro !== "number") throw new SizerValidationError("bad_integer", "rawOutputTokens must be a number");
   posInt(parsed.ro, "rawOutputTokens", { min: 1, max: 500000 });
   if (typeof parsed.rc !== "number") throw new SizerValidationError("bad_integer", "rawContextTokens must be a number");

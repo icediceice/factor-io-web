@@ -4,10 +4,10 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
-import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
+import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb, groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
 import { replaceCatalogSource } from "../live-pricing.js";
 import { setupStarters as realSetupStarters } from "../starter-ui.js";
-import { createSizerStorageAdapter, refreshLiveSourcesTransaction, SIZER_STORAGE_KEY } from "../sizer-ui.js";
+import { createSizerStorageAdapter, refreshLiveSourcesTransaction, SIZER_LEGACY_STORAGE_KEY, SIZER_STORAGE_KEY } from "../sizer-ui.js";
 import * as demandMod from "../demand.js";
 import * as servingMod from "../serving.js";
 import * as capexMod from "../capex.js?v=20260906-ux3";
@@ -125,7 +125,7 @@ function harness() {
     fetchLiveFx: async () => { throw new Error("offline test fixture"); },
     syncChips() {}, enhanceRail() {}, releaseFields() {},
     controlIdentity, controlDiff, validateControlRecord, readHandoff, consumeHandoff,
-    decodeSizerFragment, projectSizerControls,
+    decodeSizerFragment, projectSizerControls, buildSessionProjectionFromConfig, groupCatalogModels,
     setupStarters: () => ({ refresh() {}, snapshot: () => ({ mode: "starter" }), restore() {}, setMode() {} }),
   });
   const executable = app.replace(/^\s*import[\s\S]*?;\s*$/gm, "").replace(/\ninit\(\);\s*$/, "");
@@ -715,8 +715,8 @@ function sizerReceiverHarness() {
   };
   for (const [id, val] of Object.entries(defaults)) h.node(id).value = val;
   const selectOptions = {
-    "f-sv-wquant": ["fp8", "bf16", "int4"],
-    "f-sv-kvquant": ["fp8", "bf16"],
+    "f-sv-wquant": ["fp8", "bf16", "int8", "int4"],
+    "f-sv-kvquant": ["fp8", "bf16", "int8", "fp4"],
     "f-sv-runtime": ["vllm"],
     "f-sv-mode": ["interactive", "batch"],
     "f-sh-gpu": ["h100", "rtx_pro_6000_se"],
@@ -1407,6 +1407,9 @@ test("processSizerReturn accepts active-only catalog overrides, and editing then
     MAX_SAVE_BYTES: 65536,
     MAX_SAVED_SCENARIOS: 25,
     normalizeSizerInput,
+    buildSessionProjectionFromConfig,
+    resolveSizerModel,
+    estimateModelWeightGb,
     computeSizer,
     evaluateGpuCandidates: () => [],
     groupCatalogModels: () => [],

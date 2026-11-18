@@ -714,7 +714,7 @@ export async function compileModel(entry, observedAt, { fetchText = defaultFetch
   const fetchHubJSON = async (url) => parseJSONExact(await fetchText(url));
   const fetchConfig = async (url) => JSON.parse(await fetchText(url));
 
-  const detailUrl = `${HUB}/api/models/${repoId}?expand[]=safetensors&expand[]=config`;
+  const detailUrl = `${HUB}/api/models/${repoId}?expand[]=sha&expand[]=safetensors&expand[]=config&expand[]=downloads&expand[]=likes`;
   const detail = await fetchHubJSON(detailUrl);
 
   // Coherent revision check: metadata and config.json MUST come from the same commit sha.

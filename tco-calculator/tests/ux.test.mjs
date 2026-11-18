@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { createAdvisor, advisorPrompt, advisorValidation } from "../assistant.js";
 import { controlIdentity, controlDiff, validateControlRecord, saveHandoff, readHandoff, consumeHandoff } from "../assistant-session.js";
-import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb, groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
+import { DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS, decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment, normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb, evaluateGpuCandidates, groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope, SizerValidationError } from "../sizer-engine.js";
 import { replaceCatalogSource } from "../live-pricing.js";
 import { setupStarters as realSetupStarters } from "../starter-ui.js";
 import { createSizerStorageAdapter, refreshLiveSourcesTransaction, SIZER_LEGACY_STORAGE_KEY, SIZER_STORAGE_KEY } from "../sizer-ui.js";
@@ -1828,15 +1828,66 @@ test("calculator receiver clears stale sessionProjection on preset click, refuse
       },
     },
   };
-  h.node("fb-feed").value = "openrouter";
-  h.node("fb-model").value = "openrouter:vendor/flat";
-  h.node("fb-model").options = [{ value: "openrouter:vendor/flat", textContent: "Flat 1USD" }];
-  h.node("f-sh-gpu").options = [
-    { value: "h100", textContent: "H100" },
-    { value: "rtx_pro_6000_se", textContent: "RTX PRO 6000" },
-  ];
-  h.node("f-sv-model").options = h.state.servingData.models.map((m) => ({ value: m.id, textContent: m.label }));
-  h.node("f-sv-kvquant").options = ["bf16", "fp8", "int8", "fp4"].map((v) => ({ value: v, textContent: v }));
+  const baseDefaults = {
+    "f-users": "10", "f-sessions-day": "1", "f-days": "20", "f-horizon": "60",
+    "f-peak-frac": "10", "f-tps-stream": "30", "f-p95": "", "f-utc": "2026-09-01T00:00:00Z",
+    "f-mix-chat": "100", "f-mix-rag": "0", "f-mix-graphrag": "0", "f-mix-agentic": "0",
+    "f-chat-turns": "1", "f-chat-in": "100", "f-chat-out": "50", "f-chat-cached": "0",
+    "f-rag-turns": "1", "f-rag-in": "100", "f-rag-out": "50", "f-rag-cached": "0",
+    "f-graphrag-turns": "1", "f-graphrag-in": "100", "f-graphrag-out": "50", "f-graphrag-cached": "0",
+    "f-agentic-turns": "1", "f-agentic-in": "100", "f-agentic-out": "50", "f-agentic-cached": "0",
+    "f-sv-model": "flint", "f-sv-params": "39.79", "f-sv-active": "2.82", "f-sv-ctx": "81920", "f-sv-kvbytes": "",
+    "f-sv-wquant": "fp8", "f-sv-kvquant": "fp4", "f-sv-runtime": "vllm", "f-sv-mode": "interactive", "f-sv-maxbatch": "",
+    "f-sh-tps-gpu": "", "f-sh-gpu": "rtx_pro_6000_se", "f-srv-basis": "usd_typical", "f-srv-config": "srv-rtx-2x",
+    "f-sh-count": "", "f-sh-nodes": "", "f-sh-capex": "", "f-sh-fixed": "", "f-sh-budget": "",
+    "f-power-pue": "1.4", "f-power-rate": "4", "f-power-overhead": "20",
+    "f-rent-provider": "first", "f-rent-gpu": "0", "f-rent-util": "70",
+    "fb-feed": "openrouter", "fb-model": "openrouter:vendor/flat",
+    "fr-policy": "local_first", "fr-blend": "70", "fr-failshare": "0", "fr-failrate": "2",
+    "fo-license": "0", "fo-consult": "0", "f-onetime-a": "0", "f-onetime-b": "0", "f-onetime-c": "0", "fo-impl": "0",
+    "f-sub-row": "none", "f-sub-term": "", "f-sub-price": "",
+  };
+  for (const [id, val] of Object.entries(baseDefaults)) h.node(id).value = val;
+  const selectMap = {
+    "f-sv-model": h.state.servingData.models.map((m) => m.id),
+    "f-sv-wquant": ["fp8", "bf16", "int8", "int4"],
+    "f-sv-kvquant": ["fp8", "bf16", "int8", "fp4"],
+    "f-sv-runtime": ["vllm", "sglang", "trtllm", "llamacpp"],
+    "f-sv-mode": ["interactive", "batch"],
+    "f-sh-gpu": ["h100", "rtx_pro_6000_se"],
+    "f-srv-basis": ["usd_low", "usd_typical", "usd_high"],
+    "f-srv-config": ["", "srv-rtx-2x"],
+    "f-rent-provider": ["first"],
+    "f-rent-gpu": ["0"],
+    "fb-feed": ["openrouter"],
+    "fb-model": ["openrouter:vendor/flat"],
+    "fr-policy": ["local_first"],
+    "f-sub-row": ["none"],
+    "f-utc": ["2026-09-01T00:00:00Z"],
+  };
+  for (const [id, opts] of Object.entries(selectMap)) {
+    h.node(id).tagName = "SELECT";
+    h.node(id).options = opts.map((value) => ({ value, textContent: value }));
+    h.node(id).selectedOptions = h.node(id).options.slice(0, 1);
+    h.node(id).appendChild = (opt) => h.node(id).options.push(opt);
+  }
+  h.context.document.querySelectorAll = () => [...h.nodes.values()].filter((n) => /^(f-|fb-|fo-|fr-)/.test(n.id));
+  const realReadArchGroups = h.get("readArchGroups");
+  h.get(`renderArchGroups = (groups) => {
+    state.archGroups = groups ?? [];
+    groups.forEach((g, i) => {
+      const mk = (s, v) => { const el = $('f-g' + i + '-' + s); el.value = String(v ?? ''); };
+      mk('kind', g.kind); mk('layers', g.layers);
+      if (g.kind === 'mla') { mk('lora', g.kv_lora_rank); mk('rope', g.qk_rope_head_dim); }
+      else if (g.kind !== 'linear') { mk('heads', g.kv_heads); mk('dim', g.head_dim); mk('tensors', g.tensors ?? 2); if (g.kind === 'sliding') mk('window', g.window_tokens ?? ''); }
+    });
+  }`);
+  h.context.realReadArchGroups = realReadArchGroups;
+  h.get("readArchGroups = realReadArchGroups");
+  h.context.applyControls = (values) => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
+  h.get("writeReturnedControls = (values, groups) => { renderArchGroups(groups); applyControls(values); }");
+  h.get("renderServingNote = () => {}; renderResults = () => {}; renderServerNote = () => {}; renderPowerNote = () => {}; renderSubNote = () => {};");
+  h.get("starterUI = { snapshot: () => ({ mode: 'starter' }), setMode: () => run(), restore: () => {} }");
 
   // 81,000-token stacked peak (S=61,000, U=4,000, O=1,000, T=4 -> 61,000 + 4 * 5,000 = 81,000) on Flint (262k max)
   const sizer81k = computeSizer({
@@ -1941,6 +1992,7 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
       DEAL_TIERS, PIPELINE_CONNECTORS, LOCAL_AI_WORKLOADS,
       decodePresetFragment, decodeSizerFragment, decodeSizerSaveEnvelope, encodeSizerFragment,
       normalizeSizerInput, buildSessionProjectionFromConfig, resolveSizerModel, estimateModelWeightGb,
+      evaluateGpuCandidates,
       groupCatalogModels, projectSizerControls, buildPricingIdentity, computeSizer, encodeSizerSaveEnvelope,
       SizerValidationError,
       ...servingMod,
@@ -1965,12 +2017,13 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
     const ui = makeSizerUiVm(structuredClone(baseFullData));
     ui.state.lang = lang;
     Object.assign(ui.state.draft, {
+      sessionStackingActive: true,
       tokenBasis: "thai_tokenized_1x",
       rawSystemPromptTokens: "20000",
       rawPromptTokens: "1000",
       rawOutputTokens: "500",
       turnsPerSession: "2",
-      kvHitPct: "50",
+      kvCacheHitRate: "0.50",
       rawContextTokens: "23000",
       modelId: "qwen3-32b",
       wquant: "fp8",
@@ -2017,7 +2070,7 @@ test("sizer-ui renders distinct active vs peak KV context in EN/TH (including fi
   skewUi.state.lang = "en";
   const loadedScenarios = skewUi.get("storageAdapter.readSavedScenarios()");
   skewUi.context.savedNorm = loadedScenarios.scenarios[0].normalized;
-  skewUi.get("applyNormalizedToDraft(savedNorm)");
+  skewUi.get("hydrateDraftFromNormalized(savedNorm)");
   skewUi.get("recompute()");
   skewUi.get("renderModelAndGpuSelectors()");
   skewUi.get("renderAutoGpuAndMatrix()");

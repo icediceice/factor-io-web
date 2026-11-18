@@ -1625,7 +1625,8 @@ test("processSizerReturn preserves 8-decimal stacked session parity across offer
     h.node(id).appendChild = (opt) => h.node(id).options.push(opt);
   }
   h.context.document.querySelectorAll = () => [...h.nodes.values()].filter((n) => /^(f-|fb-|fo-|fr-)/.test(n.id));
-  // Keep group DOM nodes in sync when renderArchGroups runs
+  // Keep group DOM nodes in sync when renderArchGroups runs and wire real run() into starter/live recompute
+  const realReadArchGroups = h.get("readArchGroups");
   h.get(`renderArchGroups = (groups) => {
     state.archGroups = groups ?? [];
     groups.forEach((g, i) => {
@@ -1635,6 +1636,10 @@ test("processSizerReturn preserves 8-decimal stacked session parity across offer
       else if (g.kind !== 'linear') { mk('heads', g.kv_heads); mk('dim', g.head_dim); mk('tensors', g.tensors ?? 2); if (g.kind === 'sliding') mk('window', g.window_tokens ?? ''); }
     });
   }`);
+  h.context.realReadArchGroups = realReadArchGroups;
+  h.get("readArchGroups = realReadArchGroups");
+  h.context.applyControls = (values) => { for (const [id, value] of Object.entries(values)) h.node(id).value = value; };
+  h.get("writeReturnedControls = (values, groups) => { renderArchGroups(groups); applyControls(values); }");
   h.get("starterUI = { snapshot: () => ({ mode: 'starter' }), setMode: () => run(), restore: () => {} }");
 
   const sizerRes = computeSizer({

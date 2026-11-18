@@ -343,7 +343,13 @@ export function resolveModelResidency({ model, bytesPerParam, runtimeKey = null,
     };
   }
 
-  if (Array.isArray(hostTierProfile.supportedRuntimes) && !hostTierProfile.supportedRuntimes.includes(runtimeKey)) {
+  const cleanRuntime = typeof runtimeKey === "string" ? runtimeKey.trim() : "";
+  if (
+    !cleanRuntime
+    || !Array.isArray(hostTierProfile.supportedRuntimes)
+    || hostTierProfile.supportedRuntimes.length === 0
+    || !hostTierProfile.supportedRuntimes.includes(cleanRuntime)
+  ) {
     return {
       ...full,
       checkpoint_resident: full.resident,
@@ -353,7 +359,13 @@ export function resolveModelResidency({ model, bytesPerParam, runtimeKey = null,
     };
   }
 
-  if (Array.isArray(hostTierProfile.supportedOffloadKinds) && !hostTierProfile.supportedOffloadKinds.includes(model.host_offload_kind)) {
+  const cleanOffloadKind = typeof model?.host_offload_kind === "string" ? model.host_offload_kind.trim() : "";
+  if (
+    !cleanOffloadKind
+    || !Array.isArray(hostTierProfile.supportedOffloadKinds)
+    || hostTierProfile.supportedOffloadKinds.length === 0
+    || !hostTierProfile.supportedOffloadKinds.includes(cleanOffloadKind)
+  ) {
     return {
       ...full,
       checkpoint_resident: full.resident,
@@ -363,8 +375,20 @@ export function resolveModelResidency({ model, bytesPerParam, runtimeKey = null,
     };
   }
 
+  const totalParamsB = num(model.params_b, "total parameters (billions)", { min: 0, allowZero: false });
   const gpuBackboneB = num(model.gpu_backbone_params_b, "GPU backbone parameters (billions)", { min: 0, allowZero: false });
   const hostOffloadB = num(model.host_offload_params_b, "host offload parameters (billions)", { min: 0 });
+  const sumSplitB = gpuBackboneB.add(hostOffloadB);
+  const splitDeltaB = sumSplitB.ge(totalParamsB) ? sumSplitB.sub(totalParamsB) : totalParamsB.sub(sumSplitB);
+  if (!hostOffloadB.gt(ZERO) || !gpuBackboneB.lt(totalParamsB) || splitDeltaB.gt(new Rat(1n, 50n))) {
+    return {
+      ...full,
+      checkpoint_resident: full.resident,
+      host_offload_bytes: ZERO,
+      host_offload_active: false,
+      host_offload_reason: "inconsistent_offload_split",
+    };
+  }
   const hostOffloadBytes = hostOffloadB.mul(BYTES_PER_GB).mul(bpp);
 
   if (hostTierProfile.hostDramGb === undefined || hostTierProfile.hostDramGb === null || hostTierProfile.hostDramGb === "") {
@@ -409,6 +433,7 @@ export function servingPlan({
   contextTokens,
   peakContextTokens = null,
   sharedPrefixTokens = 0,
+  sharedPrefixGuaranteed = true,
   supportsPrefixCache = false,
   pageBlockTokens = 16,
   runtimeKey = null,
@@ -448,8 +473,13 @@ export function servingPlan({
   const kvPerSeqPeak = peakCtx.eq(ctx) ? kvPerSeqActive : kvBytesPerSequence(model?.groups, peakCtx, kvBytesPerElement);
 
   // Flat byte overrides carry no layer/page structure and get zero sharing credit.
-  // Runtimes without proven prefix-block sharing (e.g. llama.cpp or unknown) also get zero credit.
-  const canSharePrefix = Boolean(supportsPrefixCache) && !model?.kv_override && sharedPrefix.gt(ZERO);
+  // Runtimes without proven prefix-block sharing (e.g. llama.cpp or unknown) and
+  // probabilistic average hit rates without a batch-wide resident prefix guarantee
+  // also get zero credit so concurrent misses never overflow peak VRAM.
+  const canSharePrefix = Boolean(supportsPrefixCache)
+    && Boolean(sharedPrefixGuaranteed)
+    && !model?.kv_override
+    && sharedPrefix.gt(ZERO);
   const blockTokens = canSharePrefix ? count(pageBlockTokens ?? 16, "page block tokens") : 1n;
   if (canSharePrefix && blockTokens < 1n) {
     throw new ServingRefusal("out_of_range", "page block tokens must be at least 1", { field: "page_block_tokens" });

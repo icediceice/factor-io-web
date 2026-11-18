@@ -484,10 +484,11 @@ const KIMI_LINEAR_48B_CFG = {
   num_attention_heads: 32,
   kv_lora_rank: 512,
   qk_nope_head_dim: 128,
-  qk_rope_head_dim: 64,
+  qk_rope_head_dim: 0,
   v_head_dim: 128,
   mla_use_nope: true,
   linear_attn_config: {
+    kda_layers: Array.from({ length: 27 }, (_, i) => i + 1).filter((l) => ![4, 8, 12, 16, 20, 24, 27].includes(l)),
     full_attn_layers: [4, 8, 12, 16, 20, 24, 27],
     head_dim: 128,
     num_heads: 32,
@@ -685,5 +686,5 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
   const flintRow = built.models.find((m) => m.id === "flint");
   assert.ok(flintRow, "pinned mandatory seed id 'flint' must survive regardless of trending rank or twin dedup");
   assert.equal(flintRow.revision, flintSha);
-  assert.ok(flintRow.same_serving_shape_as?.includes("TwinOrg/Flint-Clone-A2.8B"));
+  assert.ok(built.ingest.skipped.some((s) => s.id === "TwinOrg/Flint-Clone-A2.8B" && /RecursiveSI\/flint/.test(s.reason)));
 });

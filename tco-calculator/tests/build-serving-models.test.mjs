@@ -610,8 +610,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
     vram_overhead_fraction: { value: "0.1" },
   };
 
-  const flintGeom = geometryParams(FLINT_CFG);
-  const flintSha = "abc123flintsha00000000000000000000000000";
+  const flintSha = FLINT_SHA;
 
   // Case 9a: RecursiveSI/flint returning HTTP 503 throws MandatorySeedError before any output can publish
   await assert.rejects(

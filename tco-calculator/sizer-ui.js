@@ -11,6 +11,7 @@ import {
   replaceCatalogSource,
   fetchLiveFx,
 } from "./live-pricing.js";
+import { kvBytesPerToken, kvBytesPerSequence, kvShareableBytes } from "./serving.js";
 import {
   DEAL_TIERS,
   PIPELINE_CONNECTORS,
@@ -19,6 +20,8 @@ import {
   MAX_SAVE_BYTES,
   MAX_SAVED_SCENARIOS,
   normalizeSizerInput,
+  resolveSizerModel,
+  estimateModelWeightGb,
   computeSizer,
   evaluateGpuCandidates,
   groupCatalogModels,
@@ -30,9 +33,10 @@ import {
   encodeSizerSaveEnvelope,
   decodeSizerSaveEnvelope,
   SizerValidationError,
-} from "./sizer-engine.js";
+} from "./sizer-engine.js?v=20261118-wb2";
 
-export const SIZER_STORAGE_KEY = "factor-io.sizer-saves.v1";
+export const SIZER_LEGACY_STORAGE_KEY = "factor-io.sizer-saves.v1";
+export const SIZER_STORAGE_KEY = "factor-io.sizer-saves.v2";
 
 export function createSizerStorageAdapter(storageGetter = () => globalThis.localStorage) {
   function getStore() {
@@ -52,25 +56,42 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     if (!access.ok) {
       return { ok: false, available: false, scenarios: [], error: access.error };
     }
-    let raw;
+    let rawV2 = null;
+    let rawV1 = null;
     try {
-      raw = access.store.getItem(SIZER_STORAGE_KEY);
+      rawV2 = access.store.getItem(SIZER_STORAGE_KEY);
+      rawV1 = access.store.getItem(SIZER_LEGACY_STORAGE_KEY);
     } catch (err) {
       return { ok: false, available: false, scenarios: [], error: err?.message || "Unable to read localStorage." };
     }
-    if (!raw) {
+    if (rawV2) {
+      try {
+        const decoded = decodeSizerSaveEnvelope(rawV2, { allowEmpty: true });
+        return { ok: true, available: true, scenarios: decoded.scenarios, error: null };
+      } catch (err) {
+        return {
+          ok: false,
+          available: true,
+          corrupted: true,
+          scenarios: [],
+          error: `Existing browser save data could not be validated: ${err.message}`,
+        };
+      }
+    }
+    if (!rawV1) {
       return { ok: true, available: true, scenarios: [], error: null };
     }
+    // Read-only migration from v1 storage key so rolling back assets leaves v1 saves intact.
     try {
-      const decoded = decodeSizerSaveEnvelope(raw, { allowEmpty: true });
-      return { ok: true, available: true, scenarios: decoded.scenarios, error: null };
+      const decodedV1 = decodeSizerSaveEnvelope(rawV1, { allowEmpty: true });
+      return { ok: true, available: true, migratedFromV1: true, scenarios: decodedV1.scenarios, error: null };
     } catch (err) {
       return {
         ok: false,
         available: true,
         corrupted: true,
         scenarios: [],
-        error: `Existing browser save data could not be validated: ${err.message}`,
+        error: `Existing legacy v1 browser save data could not be validated: ${err.message}`,
       };
     }
   }
@@ -80,7 +101,7 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     if (!access.ok) {
       return { ok: false, code: "storage_unavailable", error: access.error };
     }
-    // Refresh from storage before writing (last-writer-wins across tabs; never overwrite corrupted unparsed data silently).
+    // Refresh from storage before writing (never overwrite corrupted unparsed data silently, and never mutate v1).
     const current = readSavedScenarios();
     if (!current.ok && current.corrupted) {
       return { ok: false, code: "storage_corrupted", error: current.error };
@@ -100,7 +121,7 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
     const candidateList = [nextRecord, ...filtered];
     let encoded;
     try {
-      encoded = encodeSizerSaveEnvelope(candidateList, { exportedAt: savedAt, allowEmpty: false });
+      encoded = encodeSizerSaveEnvelope(candidateList, { exportedAt: savedAt, allowEmpty: false, version: 2 });
     } catch (err) {
       return { ok: false, code: err.code || "validation_failed", error: err.message };
     }
@@ -130,12 +151,13 @@ export function createSizerStorageAdapter(storageGetter = () => globalThis.local
       .filter((item) => item.id !== id)
       .map(({ id: eid, name: ename, savedAt: esaved, fragment: efrag }) => ({ id: eid, name: ename, savedAt: esaved, fragment: efrag }));
     try {
-      if (nextList.length === 0 && typeof access.store.removeItem === "function") {
+      const hasLegacyV1 = Boolean(access.store.getItem(SIZER_LEGACY_STORAGE_KEY));
+      if (nextList.length === 0 && !hasLegacyV1 && typeof access.store.removeItem === "function") {
         access.store.removeItem(SIZER_STORAGE_KEY);
         return { ok: true, scenarios: [] };
       }
       const nowIso = new Date().toISOString();
-      const encoded = encodeSizerSaveEnvelope(nextList, { exportedAt: nowIso, allowEmpty: true });
+      const encoded = encodeSizerSaveEnvelope(nextList, { exportedAt: nowIso, allowEmpty: true, version: 2 });
       access.store.setItem(SIZER_STORAGE_KEY, encoded);
       const verified = decodeSizerSaveEnvelope(encoded, { allowEmpty: true });
       return { ok: true, scenarios: verified.scenarios };
@@ -248,11 +270,14 @@ const I18N = {
     stageHeading: "ประเมินขนาดโมเดล\u00A0และคำนวณจำนวน\u00A0GPU\u00A0อัตโนมัติสำหรับองค์กรไทย",
     stageSub: "เลือกรูปแบบงานจริงของบริษัทไทย\u00A0เลือกโมเดลที่ต้องการใช้\u00A0และเลือกรุ่น\u00A0GPU\u00A0ระบบจะคำนวณจำนวนการ์ด\u00A0เซิร์ฟเวอร์\u00A0และจุดคุ้มทุนเทียบ\u00A0Cloud\u00A0API\u00A0ในหน้าเดียวทันที",
     hWorkload: "1.\u00A0เลือกรูปแบบงานองค์กรไทยและขนาด\u00A0Prompt\u00A0ตามการใช้งานจริง",
-    dWorkload: "ค่าเริ่มต้นสะท้อนงานจริงที่มีทั้ง\u00A0System\u00A0Prompt\u00A0คำสั่ง\u00A0Tool/SQL\u00A0และเนื้อหาเอกสารภาษาไทย\u00A0(10,500\u00A0ถึง\u00A036,000+\u00A0โทเคนต่อครั้ง)",
-    promptPresets: "ปรับขนาด\u00A0Prompt\u00A0ด่วน\u00A0(System\u00A0Prompt\u00A0+\u00A0เอกสาร\u00A0RAG/Tool):",
+    dWorkload: "ค่าเริ่มต้นจำลองงาน\u00A0Agent\u00A0ยุคปัจจุบันที่เริ่มด้วย\u00A0System\u00A0Prompt\u00A020,000+\u00A0โทเคน\u00A0สะสมหลายรอบ\u00A0(Turns)\u00A0และคำนวณส่วนลด\u00A0KV/Prefix\u00A0Cache\u00A0ให้อัตโนมัติ",
+    promptPresets: "ปรับขนาด\u00A0Fresh\u00A0Input\u00A0ต่อรอบด่วน\u00A0(เนื้อหา\u00A0RAG/Tool\u00A0ที่เพิ่มต่อคำสั่ง):",
     users: "จำนวนผู้ใช้งานจริง\u00A0(คน)",
-    rawPrompt: "Prompt\u00A0ต่อคำสั่ง\u00A0(โทเคนตั้งต้น)",
-    rawOut: "คำตอบต่อคำสั่ง\u00A0(Output\u00A0โทเคน)",
+    sysPrompt: "System\u00A0Prompt\u00A0เริ่มต้นของ\u00A0Agent\u00A0(โทเคน)",
+    rawPrompt: "ข้อมูลใหม่ต่อรอบ\u00A0(RAG/User\u00A0โทเคน)",
+    turnsSession: "จำนวนรอบคุยต่อเซสชัน\u00A0(Turns)",
+    rawOut: "คำตอบต่อรอบ\u00A0(Output\u00A0โทเคน)",
+    kvHitPct: "อัตราใช้ซ้ำ\u00A0KV / Prefix\u00A0Cache\u00A0(%)",
     rawCtx: "ความยาว\u00A0Context\u00A0เป้าหมาย\u00A0(ตั้งต้น)",
     sumTraffic: "ตั้งค่าความถี่การใช้งานและสัดส่วนโทเคนภาษาไทย\u00A0(Sessions,\u00A0Concurrency,\u00A0Thai\u00A01.4x)",
     sessionsDay: "จำนวนเซสชันต่อคน\u00A0/\u00A0วัน",
@@ -340,6 +365,9 @@ const I18N = {
       fleet: "จำนวน\u00A0GPU\u00A0/\u00A0โหนดที่ต้องใช้",
       tp: "การแบ่งโมเดล\u00A0(TP)\u00A0/\u00A0ความเร็วต่อใบ",
       effPrompt: "Prompt\u00A0ปรับค่าภาษาไทย\u00A0/\u00A0Context",
+      personDayTok: "เฉลี่ยโทเคน\u00A0/\u00A0คน\u00A0/\u00A0วัน",
+      personMoTok: "เฉลี่ยโทเคน\u00A0/\u00A0คน\u00A0/\u00A0เดือน",
+      kvPerSeq: "KV\u00A0Cache\u00A0สูงสุดต่อเซสชัน",
       monthlyTok: "ปริมาณโทเคนรวมต่อเดือน",
       peakTok: "ความเร็วถอดรหัสสูงสุด\u00A0(Peak)",
       hwCapex: "งบฮาร์ดแวร์\u00A0(BOM\u00A0Capex)",
@@ -361,11 +389,14 @@ const I18N = {
     stageHeading: "Model-First Local AI & GPU Fleet Sizer for Thai Enterprises",
     stageSub: "Pick an authentic Thai corporate workload, choose your target open-weight model and GPU family, and get instant server node counts, live Cloud API tariff filtering, and 60-month TCO payback on one screen.",
     hWorkload: "1. Select Realistic Enterprise Workload & Prompt Token Budget",
-    dWorkload: "Defaults reflect production enterprise prompts carrying system instructions, tool/SQL schemas, and multi-page Thai RAG/OCR context (10,500 to 36,000+ raw tokens/turn).",
-    promptPresets: "1-click realistic prompt presets (system prompt + retrieved context):",
+    dWorkload: "Models ~20,000+ starting agent system prompts stacked across multi-turn sessions (P_t = S + t*user + (t-1)*out) with KV/prefix cache reuse.",
+    promptPresets: "1-click fresh per-turn input presets (retrieved RAG/tool context added per turn):",
     users: "Active users (headcount)",
-    rawPrompt: "Raw prompt tokens / turn",
+    sysPrompt: "Agent system prompt (tokens)",
+    rawPrompt: "Fresh input / turn (RAG & user)",
+    turnsSession: "Turns / session (stacked)",
     rawOut: "Output tokens / turn",
+    kvHitPct: "KV / prefix cache hit (%)",
     rawCtx: "Target context window (raw)",
     sumTraffic: "Session cadence, peak concurrency & Thai token fertility (1.4x vs 1.0x)",
     sessionsDay: "Sessions / user / day",
@@ -453,6 +484,9 @@ const I18N = {
       fleet: "Auto / configured GPU fleet",
       tp: "Replica TP & per-GPU speed",
       effPrompt: "Thai-adjusted prompt / context",
+      personDayTok: "Avg tokens / person / day",
+      personMoTok: "Avg tokens / person / month",
+      kvPerSeq: "Peak KV cache / session",
       monthlyTok: "Modelled tokens / month",
       peakTok: "Required peak decode",
       hwCapex: "Hardware BOM capex",

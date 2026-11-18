@@ -34,7 +34,7 @@ import {
   encodeSizerSaveEnvelope,
   decodeSizerSaveEnvelope,
   SizerValidationError,
-} from "./sizer-engine.js?v=20261118-wb2";
+} from "./sizer-engine.js?v=20261118-wb3";
 
 export const SIZER_LEGACY_STORAGE_KEY = "factor-io.sizer-saves.v1";
 export const SIZER_STORAGE_KEY = "factor-io.sizer-saves.v2";

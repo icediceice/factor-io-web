@@ -306,7 +306,7 @@ test("stacked multi-turn session cohorts evaluate prompt thresholds against tota
     laneA: { enabled: false, fixed_monthly: "0", capex: "0", monthly_token_budget: 0, tokens_s_ceiling: 0 },
     laneB: { enabled: true, offer_ids: [offerId] },
     laneC: { enabled: false, tokens_s: 0, hourly_rate: "0", utilization: "0.7" },
-    routing: { policy: "api_only", advisory_blend: { local_pct: 0 }, failover: { share: "0", rate_multiplier: "1" } },
+    routing: { policy: "local_first", advisory_blend: { local_pct: 70 }, failover: { share: "0", rate_multiplier: "1" } },
     overlay: { fully_loaded: false, components: [] },
     subscription: null,
     oneTime: { A: "0", B: "0", C: "0" },

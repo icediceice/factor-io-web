@@ -20,6 +20,7 @@ import {
   MAX_SAVE_BYTES,
   MAX_SAVED_SCENARIOS,
   normalizeSizerInput,
+  buildSessionProjectionFromConfig,
   resolveSizerModel,
   estimateModelWeightGb,
   computeSizer,
@@ -518,7 +519,11 @@ function defaultDraft() {
     mix: { ...w.mix },
     tokenBasis: "latin_reference_1_4x",
     thaiFertilityMultiplier: "1.4",
-    rawPromptTokens: String(w.rawPromptTokens),
+    sessionStackingActive: true,
+    rawSystemPromptTokens: String(w.defaultSystemPromptTokens ?? 20000),
+    rawPromptTokens: String(w.defaultTurnPromptTokens ?? w.rawPromptTokens),
+    turnsPerSession: String(w.defaultTurnsPerSession ?? 4),
+    kvCacheHitRate: String(w.defaultKvCacheHitRate ?? "0.75"),
     rawOutputTokens: String(w.rawOutputTokens),
     rawContextTokens: String(w.rawContextTokens),
     modelId: w.recommendedModelId,
@@ -641,7 +646,11 @@ function hydrateDraftFromNormalized(n) {
     mix: { ...n.mix },
     tokenBasis: n.tokenBasis,
     thaiFertilityMultiplier: n.thaiFertilityMultiplier,
+    sessionStackingActive: Boolean(n.sessionStackingActive),
+    rawSystemPromptTokens: String(n.rawSystemPromptTokens ?? 0),
     rawPromptTokens: String(n.rawPromptTokens),
+    turnsPerSession: String(n.turnsPerSession ?? 4),
+    kvCacheHitRate: String(n.kvCacheHitRate ?? "0"),
     rawOutputTokens: String(n.rawOutputTokens),
     rawContextTokens: String(n.rawContextTokens),
     modelId: n.modelId,
@@ -688,7 +697,11 @@ function selectWorkloadPreset(workloadId) {
   appState.draft.peakConcurrencyFraction = w.peakConcurrencyFraction;
   appState.draft.tokensPerSecondPerStream = w.tokensPerSecondPerStream;
   appState.draft.mix = { ...w.mix };
-  appState.draft.rawPromptTokens = String(w.rawPromptTokens);
+  appState.draft.sessionStackingActive = true;
+  appState.draft.rawSystemPromptTokens = String(w.defaultSystemPromptTokens ?? 20000);
+  appState.draft.rawPromptTokens = String(w.defaultTurnPromptTokens ?? w.rawPromptTokens);
+  appState.draft.turnsPerSession = String(w.defaultTurnsPerSession ?? 4);
+  appState.draft.kvCacheHitRate = String(w.defaultKvCacheHitRate ?? "0.75");
   appState.draft.rawOutputTokens = String(w.rawOutputTokens);
   appState.draft.rawContextTokens = String(w.rawContextTokens);
   appState.draft.modelId = w.recommendedModelId;
@@ -863,8 +876,11 @@ function renderStaticLabels() {
   $("d-sec-workload").textContent = t.dWorkload;
   $("lbl-prompt-presets").textContent = t.promptPresets;
   $("lbl-users").textContent = t.users;
+  $("lbl-sys-prompt").textContent = t.sysPrompt;
   $("lbl-raw-prompt").textContent = t.rawPrompt;
+  $("lbl-turns-session").textContent = t.turnsSession;
   $("lbl-raw-output").textContent = t.rawOut;
+  $("lbl-kv-hit-pct").textContent = t.kvHitPct;
   $("lbl-raw-ctx").textContent = t.rawCtx;
   $("sum-traffic").textContent = t.sumTraffic;
   $("lbl-sessions-day").textContent = t.sessionsDay;

@@ -778,8 +778,17 @@ export function runComparison({
       for (const l of a.lines) lines.push({ lane: "A", ...l });
     }
     if (bPct > 0) {
-      if (bRequestCost === null) reasons.push("lane_b_unpriced");
-      else if (bReq > 0) {
+      if (cohorts) {
+        if (bMonthly === null) reasons.push("lane_b_unpriced");
+        else {
+          const bShare = toRat(String(bPct)).div(Rat.of(100n, 1n));
+          const bt = toRat(bMonthly).mul(bShare);
+          total = total.add(bt);
+          lines.push({ lane: "B", item: "lane_b_allocated", amount: ratStr(bt), note: `${bPct}% uniform cohort share of stacked API session total` });
+        }
+      } else if (bRequestCost === null) {
+        reasons.push("lane_b_unpriced");
+      } else if (bReq > 0) {
         const bt = toRat(bRequestCost).mul(Rat.of(BigInt(bReq), 1n));
         total = total.add(bt);
         lines.push({ lane: "B", item: "lane_b_allocated", amount: ratStr(bt), note: `${bReq} of ${reqs} requests at the API request cost` });

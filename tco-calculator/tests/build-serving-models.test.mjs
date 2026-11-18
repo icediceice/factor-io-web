@@ -442,9 +442,7 @@ const DEEPSEEK_V4_1_FLASH_CFG = {
   sliding_window: 128,
   kv_source_layer_ids: [13, 25, 37, 39],
   compress_ratios: Array.from({ length: 40 }, (_, i) => (i === 39 ? 1 : 2)),
-  engram_layer_ids: [1, 15],
-  engram_vocab_size: [15193600, 12928000],
-  engram_hc_mult: 1,
+  engram_num_embeddings: [15193600, 12928000],
   engram_head_dim: 3500,
 };
 
@@ -592,7 +590,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
       { id: "gemma-4-31b", label: "Gemma 4 31B", params_b: "31", active_params_b: "31", context_default: 32768, context_max: 262144, basis: "cited", groups: [{ kind: "full", layers: 10, kv_heads: 4, head_dim: 512, tensors: 1 }] },
       { id: "qwen3-next-80b-a3b", label: "Qwen3 Next 80B", params_b: "80", active_params_b: "3", context_default: 32768, context_max: 262144, basis: "cited", groups: [{ kind: "full", layers: 12, kv_heads: 2, head_dim: 256, tensors: 2 }] },
       { id: "deepseek-v3", label: "DeepSeek V3", params_b: "671", active_params_b: "37", context_default: 32768, context_max: 163840, basis: "cited", groups: [{ kind: "mla", layers: 61, kv_lora_rank: 512, qk_rope_head_dim: 64 }] },
-      { id: "custom", label: "Custom", params_b: "70", active_params_b: "70", context_default: 8192, context_max: null, basis: "assumed", groups: [] },
+      { id: "custom", label: "Custom", params_b: "70", active_params_b: "70", context_default: 8192, context_max: null, basis: "assumed", groups: [{ kind: "full", layers: 80, kv_heads: 8, head_dim: 128, tensors: 2 }] },
     ],
     accelerators: { h100: { bandwidth_gb_s: "3350" } },
     weight_quantization: { fp8: { bytes_per_param: "1" } },

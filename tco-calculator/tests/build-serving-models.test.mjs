@@ -19,6 +19,7 @@ import {
   resolveBase,
   compileModel,
   buildServingModels,
+  validateCatalogDocument,
   MandatorySeedError,
   HubHttpError,
   Skip,
@@ -643,7 +644,36 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
     (err) => err instanceof MandatorySeedError && err.repoId === "RecursiveSI/flint" && /503/.test(err.message),
   );
 
-  // Case 9b: Revision advancement mismatch between list entry sha and detail sha refuses cleanly
+  // Case 9b: Mutable branch ref ("main") or malformed short sha is rejected BEFORE fetching config.json, and mandatory seeds fail closed
+  for (const badSha of ["main", "deadbeef", "   "]) {
+    let configFetched = false;
+    await assert.rejects(
+      () => buildServingModels({
+        observedAt: "2026-11-18",
+        previous: basePrevious,
+        mandatorySeeds: [{ repo: "RecursiveSI/flint", id: "flint" }],
+        fetchText: async (url) => {
+          if (url.includes("/api/models/RecursiveSI/flint")) {
+            return JSON.stringify({
+              id: "RecursiveSI/flint",
+              sha: badSha,
+              gated: false,
+              safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
+            });
+          }
+          if (url.includes("/config.json")) {
+            configFetched = true;
+            return JSON.stringify(FLINT_CFG);
+          }
+          throw new Error(`Unexpected URL ${url}`);
+        },
+      }),
+      (err) => err instanceof MandatorySeedError && err.repoId === "RecursiveSI/flint" && /immutable 40-character commit sha/.test(err.message),
+    );
+    assert.equal(configFetched, false, `config.json must not be fetched when sha="${badSha}"`);
+  }
+
+  // Case 9b2: Revision advancement mismatch between list entry sha and detail sha refuses cleanly
   await assert.rejects(
     () => compileModel(
       { id: "RecursiveSI/flint", sha: "old_sha_11111111111111111111111111111111" },
@@ -711,5 +741,24 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
   const flintRow = built.models.find((m) => m.id === "flint");
   assert.ok(flintRow, "pinned mandatory seed id 'flint' must survive regardless of trending rank or twin dedup");
   assert.equal(flintRow.revision, flintSha);
+  assert.equal(flintRow.source_repo, "RecursiveSI/flint");
+  assert.equal(flintRow.source_revision, flintSha);
+  assert.equal(flintRow.source_url, `https://huggingface.co/RecursiveSI/flint/resolve/${flintSha}/config.json`);
   assert.ok(built.skipped.some((s) => s.id === "TwinOrg/Flint-Clone" && /RecursiveSI\/flint/.test(s.reason)));
+
+  // validateCatalogDocument rejects derived rows with unpinned source_url or non-40-hex source_revision, while exempting curated/custom rows
+  assert.throws(
+    () => validateCatalogDocument({
+      ...built,
+      models: built.models.map((m) => (m.id === "flint" ? { ...m, source_url: "https://huggingface.co/RecursiveSI/flint" } : m)),
+    }),
+    /pinned resolve URL/,
+  );
+  assert.throws(
+    () => validateCatalogDocument({
+      ...built,
+      models: built.models.map((m) => (m.id === "flint" ? { ...m, source_revision: "main", revision: "main" } : m)),
+    }),
+    /immutable 40-character hex commit sha/,
+  );
 });

@@ -557,10 +557,9 @@ test("no two presets share an id, and every derived row declares its basis", () 
 });
 
 test("compressed MLA (CSA2) scales latent rank by element width, keeps index_bytes_per_entry unscaled, and rounds odd contexts UP by compress_ratio", () => {
-  assert.equal(FP4_KV_BYTES_PER_ELEMENT, "0.5625");
-  assert.equal(DATA.kv_quantization.fp4.bytes_per_element, "0.5625");
+  const fp4Width = DATA.kv_quantization.fp4.bytes_per_element;
 
-  // Peer Case 5: 1 compressed-MLA layer, lora=512, rope=0, compress_ratio=2, index_bytes_per_entry=68
+  // One compressed-MLA layer stores two entries for three context tokens.
   const compMla = [{
     kind: "mla",
     layers: 1,

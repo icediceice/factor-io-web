@@ -571,6 +571,7 @@ test("compressed MLA (CSA2) scales latent rank by element width, keeps index_byt
   assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 4, "0.5"), 0), "648");
   assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 4, "2"), 0), "2184");
   assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 3, "0.5"), 0), "648");
+  assert.equal(formatHalfUp(kvBytesPerSequence(compMla, 3, fp4Width), 0), "712");
 
   const dsFlash = MODEL("deepseek-v4-1-flash-1017");
   assert.ok(dsFlash, "deepseek-v4-1-flash-1017 must exist in serving-models.json");

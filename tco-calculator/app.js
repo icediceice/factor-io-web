@@ -365,9 +365,9 @@ function applyReturnedProposal() {
     if (!record || record.consumed) throw new Error("This proposal expired or was already applied.");
     const prepared = expandAdvisorProposal(record.proposal, captureControls(), readArchGroups());
     if (controlIdentity(prepared.controls) !== controlIdentity(pending.prepared.controls)) throw new Error("Available settings changed since the preview. Review again before applying.");
-    const before = captureControls(); const groups = readArchGroups();
-    try { writeReturnedControls(prepared.controls, prepared.groups); consumeHandoff(sessionStorage, pending.id); }
-    catch (error) { writeReturnedControls(before, groups); throw error; }
+    const before = captureControls(); const groups = readArchGroups(); const sessionBefore = state.sessionProjection;
+    try { state.sessionProjection = null; writeReturnedControls(prepared.controls, prepared.groups); consumeHandoff(sessionStorage, pending.id); }
+    catch (error) { state.sessionProjection = sessionBefore; writeReturnedControls(before, groups); throw error; }
     pendingReview = null; plannerState.answers = prepared.answers; plannerState.plan = prepared.plan;
     plannerState.appliedAnswers = JSON.stringify(prepared.answers); plannerState.applied = true;
     starterUI.setMode("custom"); // onCustom performs the single recomputation
@@ -1547,10 +1547,17 @@ function solveServingFor(gpuId) {
   const model = currentModelSpec();
   if (!model) return null;
 
-  const wq = d.weight_quantization[$("f-sv-wquant").value];
-  const kq = d.kv_quantization[$("f-sv-kvquant").value];
+  const wq = d.weight_quantization?.[$("f-sv-wquant").value];
+  const kq = d.kv_quantization?.[$("f-sv-kvquant").value];
   const runtimeKey = $("f-sv-runtime").value;
-  const rt = d.runtimes[runtimeKey];
+  const rt = d.runtimes?.[runtimeKey];
+  if (!wq || (!model.kv_override && !kq) || !rt) {
+    throw new ServingRefusal(
+      "unsupported_serving_option",
+      `selected quantization or runtime (${[!wq ? $("f-sv-wquant").value : null, (!model.kv_override && !kq) ? $("f-sv-kvquant").value : null, !rt ? runtimeKey : null].filter(Boolean).join(", ")}) is not defined in the loaded serving-models.json`,
+      { wquant: $("f-sv-wquant").value, kvquant: $("f-sv-kvquant").value, runtime: runtimeKey },
+    );
+  }
   const interactive = $("f-sv-mode").value === "interactive";
   const enteredCtx = Number(decInput("f-sv-ctx") ?? model.context_default);
   const sp = state.sessionProjection;
@@ -1558,12 +1565,21 @@ function solveServingFor(gpuId) {
     ? Math.max(enteredCtx - (sp.peakTurnContextTokens - sp.avgTurnContextTokens), sp.avgTurnContextTokens)
     : enteredCtx;
   const peakCtx = sp ? Math.max(enteredCtx, sp.peakTurnContextTokens) : enteredCtx;
+  const maxCtx = model.context_max !== null && model.context_max !== undefined ? Number(model.context_max) : null;
+  if (maxCtx !== null && Number.isFinite(maxCtx) && maxCtx > 0 && peakCtx > maxCtx) {
+    throw new ServingRefusal(
+      "context_exceeds_model_max",
+      `configured or stacked peak context (${peakCtx.toLocaleString("en-US")} tokens) exceeds ${model.label ?? model.id} maximum context (${maxCtx.toLocaleString("en-US")} tokens)`,
+      { context_tokens: peakCtx, context_max: maxCtx },
+    );
+  }
 
   return servingPlan({
     model,
     contextTokens: String(activeCtx),
     peakContextTokens: String(peakCtx),
     sharedPrefixTokens: sp ? sp.sharedPrefixTokens : 0,
+    sharedPrefixGuaranteed: Boolean(sp?.sharedPrefixGuaranteed),
     supportsPrefixCache: Boolean(rt?.supports_prefix_cache),
     pageBlockTokens: rt?.page_block_tokens ?? 16,
     runtimeKey,
@@ -1645,7 +1661,10 @@ function renderServingNote() {
       : m.active_params_basis === "derived"
         ? `Active parameters are <span class="tag tag-est">computed</span> from the config's expert geometry — no vendor figure was published, and the computation was accepted only because it reproduced the Hub's total parameter count to within 2%.`
         : `Every parameter is read each step; this model has no routed experts.`;
-    cite = `<span class="tag tag-est">config-derived</span> Layer structure read automatically from <a href="${escapeHtml(m.config_url ?? m.source_url)}" rel="nofollow noopener">the model's own config.json</a> on ${escapeHtml(String(m.observed_at ?? "an unrecorded date"))}, and parameter counts from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">its safetensors index</a>. No independently published per-token KV figure exists for this model, so unlike the verified presets nothing cross-checks the arithmetic below against an outside source. ${activeWords}`;
+    const treeUrl = m.source_repo && (m.source_revision ?? m.revision)
+      ? `https://huggingface.co/${m.source_repo}/tree/${m.source_revision ?? m.revision}`
+      : m.source_url;
+    cite = `<span class="tag tag-est">config-derived</span> Layer structure read automatically from <a href="${escapeHtml(m.config_url ?? m.source_url)}" rel="nofollow noopener">the model's own config.json</a> on ${escapeHtml(String(m.observed_at ?? "an unrecorded date"))}, and parameter counts from <a href="${escapeHtml(treeUrl)}" rel="nofollow noopener">its safetensors index</a>. No independently published per-token KV figure exists for this model, so unlike the verified presets nothing cross-checks the arithmetic below against an outside source. ${activeWords}`;
   } else if (m.source_url) {
     cite = `<span class="tag tag-exact">verified</span> Layer structure cited from <a href="${escapeHtml(m.source_url)}" rel="nofollow noopener">the published architecture</a>, verified against the model's own config, and its published per-token KV figure is asserted exactly by the test suite.`;
   } else {
@@ -1731,6 +1750,7 @@ async function loadWorkloadPresets() {
 function applyWorkloadPreset(id, { recompute = true } = {}) {
   const p = state.workloadPresets.presets.find((x) => x.id === id);
   if (!p) return;
+  clearSessionProjectionOnFlatEdit();
   for (const btn of $("preset-cards").querySelectorAll(".chip")) {
     btn.setAttribute("aria-checked", String(btn.dataset.preset === id));
   }

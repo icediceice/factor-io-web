@@ -1466,3 +1466,304 @@ test("processSizerReturn accepts active-only catalog overrides, and editing then
   assert.equal(st.computed.code, "incomplete_custom_model");
   assert.throws(() => vm.runInContext("buildCurrentFragment()", uiCtx), /Custom model requires/i);
 });
+
+test("real app.js readArchGroups preserves catalog CSA2 compressed-MLA descriptors and rope=0, and drops hidden compression when geometry is edited", () => {
+  const h = sizerReceiverHarness();
+  // Restore the real app.js renderArchGroups + readArchGroups over DOM group nodes
+  const realApp = harness();
+  realApp.state.servingData = h.state.servingData;
+  realApp.node("sv-groups");
+  const wireGroupControls = (groups) => {
+    groups.forEach((g, i) => {
+      realApp.node(`f-g${i}-kind`).value = g.kind;
+      realApp.node(`f-g${i}-layers`).value = String(g.layers);
+      if (g.kind === "mla") {
+        realApp.node(`f-g${i}-lora`).value = String(g.kv_lora_rank);
+        realApp.node(`f-g${i}-rope`).value = String(g.qk_rope_head_dim);
+      } else if (g.kind !== "linear") {
+        realApp.node(`f-g${i}-heads`).value = String(g.kv_heads);
+        realApp.node(`f-g${i}-dim`).value = String(g.head_dim);
+        realApp.node(`f-g${i}-tensors`).value = String(g.tensors ?? 2);
+        if (g.kind === "sliding") realApp.node(`f-g${i}-window`).value = String(g.window_tokens ?? "");
+      }
+    });
+  };
+
+  // 1. DeepSeek-V4.1-Flash-1017: preserves compress_ratio=2, index_bytes_per_entry=68, and rope=0 (890 B/tok global FP4)
+  const ds = h.state.servingData.models.find((m) => m.id === "deepseek-v4-1-flash-1017");
+  realApp.state.archGroups = ds.groups;
+  wireGroupControls(ds.groups);
+  const readDs = realApp.get("readArchGroups()");
+  assert.equal(readDs[1].qk_rope_head_dim, 0);
+  assert.equal(readDs[1].compress_ratio, 2);
+  assert.equal(readDs[1].index_bytes_per_entry, 68);
+  assert.equal(formatHalfUp(servingMod.kvBytesPerToken(readDs.slice(1), "0.5625"), 0), "890");
+
+  // Manually changing lora rank drops hidden catalog compress_ratio/index_bytes_per_entry
+  realApp.node("f-g1-lora").value = "256";
+  const editedDs = realApp.get("readArchGroups()");
+  assert.equal(editedDs[1].kv_lora_rank, 256);
+  assert.equal(editedDs[1].compress_ratio, undefined);
+  assert.equal(editedDs[1].index_bytes_per_entry, undefined);
+});
+
+test("processSizerReturn preserves 8-decimal stacked session parity across offer switches (including no-cache fallback) and transitions cleanly on flat-shape edits", () => {
+  const h = harness();
+  h.state.ready = true;
+  h.state.servingData = JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8"));
+  h.state.powerSeed = JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8"));
+  powerMod.configurePowerSeed(h.state.powerSeed);
+  h.state.fx = normalizeFxDocument({ source_id: "fixture-fx", observed_at: "2026-09-01", usd_thb: "33.801000" });
+  h.state.gpuPricing = {
+    gpus: {
+      h100: { label: "NVIDIA H100 80GB", vram_gb: 80 },
+      rtx_pro_6000_se: { label: "RTX PRO 6000 SE 96GB", vram_gb: 96 },
+    },
+    rows: [{ provider: "first", provider_label: "First Cloud", gpu_id: "h100", gpu_label: "H100", sku: "h100-1x", gpu_hourly_usd: "2.50", confidence: "first_party" }],
+  };
+  h.state.serverPricing = {
+    rows: [{ server_id: "srv-rtx-2x", label: "2x RTX Server", gpu_id: "rtx_pro_6000_se", gpu_count: 2, form_factor: "2U", usd_typical: "53333" }],
+  };
+  h.state.subscriptions = { rows: [{ id: "none", label: "None", applies_to: [] }] };
+  h.state.manifest = {
+    snapshot_digest: "snap-parity",
+    generated_at: "2026-11-18T00:00:00Z",
+    sources: { openrouter: { origin: "snapshot", observed_at: "2026-11-18T00:00:00Z", integrity: "declared" } },
+    models: [
+      { id: "openrouter:vendor/tiered-cached", name: "Tiered Cached", state: "active" },
+      { id: "openrouter:vendor/no-cache-1usd", name: "No Cache 1USD", state: "active" },
+    ],
+  };
+  h.state.catalog = {
+    offers: {
+      "openrouter:vendor/tiered-cached": {
+        offer_id: "openrouter:vendor/tiered-cached",
+        seller: "openrouter",
+        seller_source: "openrouter",
+        channel: "api",
+        product: "vendor/tiered-cached",
+        display_name: "Tiered Cached",
+        tariff: "token",
+        ingest_mode: "chat",
+        state: "active",
+        quarantine_reason: null,
+        missing_streak: 0,
+        expiration_date: null,
+        prices: { "input|std": "0.000001", "output|std": "0", "cache_read|std": "0.0000002" },
+        overrides: [{ min_prompt_tokens: 22000, prices: { "input|std": "0.000003" } }],
+        multipliers: {},
+        tiered: [],
+        ignored_fields: [],
+        unknown_meter_fields: [],
+        provenance: { source: "openrouter", logs: [] },
+      },
+      "openrouter:vendor/no-cache-1usd": {
+        offer_id: "openrouter:vendor/no-cache-1usd",
+        seller: "openrouter",
+        seller_source: "openrouter",
+        channel: "api",
+        product: "vendor/no-cache-1usd",
+        display_name: "No Cache 1USD",
+        tariff: "token",
+        ingest_mode: "chat",
+        state: "active",
+        quarantine_reason: null,
+        missing_streak: 0,
+        expiration_date: null,
+        prices: { "input|std": "0.000001", "output|std": "0" },
+        overrides: [],
+        multipliers: {},
+        tiered: [],
+        ignored_fields: [],
+        unknown_meter_fields: [],
+        provenance: { source: "openrouter", logs: [] },
+      },
+    },
+  };
+
+  // Seed minimal calculator controls required by captureControls + validateReturnedControls
+  const baseDefaults = {
+    "f-users": "1", "f-sessions-day": "1", "f-days": "1", "f-horizon": "60",
+    "f-peak-frac": "10", "f-tps-stream": "30", "f-p95": "", "f-utc": "2026-09-01T00:00:00Z",
+    "f-mix-chat": "100", "f-mix-rag": "0", "f-mix-graphrag": "0", "f-mix-agentic": "0",
+    "f-chat-turns": "1", "f-chat-in": "100", "f-chat-out": "50", "f-chat-cached": "0",
+    "f-rag-turns": "1", "f-rag-in": "100", "f-rag-out": "50", "f-rag-cached": "0",
+    "f-graphrag-turns": "1", "f-graphrag-in": "100", "f-graphrag-out": "50", "f-graphrag-cached": "0",
+    "f-agentic-turns": "1", "f-agentic-in": "100", "f-agentic-out": "50", "f-agentic-cached": "0",
+    "f-sv-model": "flint", "f-sv-params": "39.79", "f-sv-active": "2.82", "f-sv-ctx": "32768", "f-sv-kvbytes": "",
+    "f-sv-wquant": "fp8", "f-sv-kvquant": "fp4", "f-sv-runtime": "vllm", "f-sv-mode": "interactive", "f-sv-maxbatch": "",
+    "f-sh-tps-gpu": "", "f-sh-gpu": "rtx_pro_6000_se", "f-srv-basis": "usd_typical", "f-srv-config": "srv-rtx-2x",
+    "f-sh-count": "", "f-sh-nodes": "", "f-sh-capex": "", "f-sh-fixed": "", "f-sh-budget": "",
+    "f-power-pue": "1.4", "f-power-rate": "4", "f-power-overhead": "20",
+    "f-rent-provider": "first", "f-rent-gpu": "0", "f-rent-util": "70",
+    "fb-feed": "openrouter", "fb-model": "openrouter:vendor/tiered-cached",
+    "fr-policy": "local_first", "fr-blend": "70", "fr-failshare": "0", "fr-failrate": "2",
+    "fo-license": "0", "fo-consult": "0", "f-onetime-a": "0", "f-onetime-b": "0", "f-onetime-c": "0", "fo-impl": "0",
+    "f-sub-row": "none", "f-sub-term": "", "f-sub-price": "",
+  };
+  for (const [id, val] of Object.entries(baseDefaults)) h.node(id).value = val;
+  const selectMap = {
+    "f-sv-model": h.state.servingData.models.map((m) => m.id),
+    "f-sv-wquant": ["fp8", "bf16", "int8", "int4"],
+    "f-sv-kvquant": ["fp8", "bf16", "int8", "fp4"],
+    "f-sv-runtime": ["vllm", "sglang", "trtllm", "llamacpp"],
+    "f-sv-mode": ["interactive", "batch"],
+    "f-sh-gpu": ["h100", "rtx_pro_6000_se"],
+    "f-srv-basis": ["usd_low", "usd_typical", "usd_high"],
+    "f-srv-config": ["", "srv-rtx-2x"],
+    "f-rent-provider": ["first"],
+    "f-rent-gpu": ["0"],
+    "fb-feed": ["openrouter"],
+    "fb-model": ["openrouter:vendor/tiered-cached", "openrouter:vendor/no-cache-1usd"],
+    "fr-policy": ["local_first"],
+    "f-sub-row": ["none"],
+    "f-utc": ["2026-09-01T00:00:00Z"],
+  };
+  for (const [id, opts] of Object.entries(selectMap)) {
+    h.node(id).tagName = "SELECT";
+    h.node(id).options = opts.map((value) => ({ value, textContent: value }));
+    h.node(id).appendChild = (opt) => h.node(id).options.push(opt);
+  }
+  h.context.document.querySelectorAll = () => [...h.nodes.values()].filter((n) => /^(f-|fb-|fo-|fr-)/.test(n.id));
+  // Keep group DOM nodes in sync when renderArchGroups runs
+  h.get(`renderArchGroups = (groups) => {
+    state.archGroups = groups ?? [];
+    groups.forEach((g, i) => {
+      const mk = (s, v) => { const el = $('f-g' + i + '-' + s); el.value = String(v ?? ''); };
+      mk('kind', g.kind); mk('layers', g.layers);
+      if (g.kind === 'mla') { mk('lora', g.kv_lora_rank); mk('rope', g.qk_rope_head_dim); }
+      else if (g.kind !== 'linear') { mk('heads', g.kv_heads); mk('dim', g.head_dim); mk('tensors', g.tensors ?? 2); if (g.kind === 'sliding') mk('window', g.window_tokens ?? ''); }
+    });
+  }`);
+  h.get("starterUI = { snapshot: () => ({ mode: 'starter' }), setMode: () => run(), restore: () => {} }");
+
+  const sizerRes = computeSizer({
+    input: {
+      users: 1,
+      sessionsPerUserDay: "1",
+      workingDaysMo: 1,
+      tokenBasis: "thai_tokenized_1x",
+      rawSystemPromptTokens: 20000,
+      rawPromptTokens: 1000,
+      rawOutputTokens: 500,
+      turnsPerSession: 2,
+      kvCacheHitRate: "1",
+      rawContextTokens: 32768,
+      modelId: "flint",
+      wquant: "fp8",
+      kvquant: "fp4",
+      gpuId: "rtx_pro_6000_se",
+      apiOfferId: "openrouter:vendor/tiered-cached",
+      quoteUtc: "2026-09-01T00:00:00Z",
+    },
+    data: {
+      manifest: h.state.manifest,
+      catalog: h.state.catalog,
+      fx: h.state.fx,
+      gpuPricing: h.state.gpuPricing,
+      serverPricing: h.state.serverPricing,
+      servingData: h.state.servingData,
+      powerSeed: h.state.powerSeed,
+      subscriptions: h.state.subscriptions,
+    },
+    nowMs: Date.parse("2026-09-01T00:00:00Z"),
+  });
+  assert.equal(sizerRes.ok, true);
+  assert.equal(formatHalfUp(toRat(sizerRes.comparison.totals.B.monthly_total), 8), "0.02830000");
+
+  const frag = encodeSizerFragment(sizerRes.normalized, {
+    pricingIdentity: sizerRes.pricingIdentity,
+    resolvedApiOfferId: "openrouter:vendor/tiered-cached",
+  });
+  h.context.location.href = `https://studio.factor-io.com/tco-calculator.html#${frag}`;
+  assert.equal(h.get("processSizerReturn()"), true);
+
+  // Exact 8-decimal parity across Owned Local AI (A), Cloud Model API (B), and Rented GPU (C)
+  for (const opt of ["A", "B", "C"]) {
+    assert.equal(
+      formatHalfUp(toRat(h.state.result.totals[opt].monthly_total), 8),
+      formatHalfUp(toRat(sizerRes.comparison.totals[opt].monthly_total), 8),
+      `8-decimal monthly parity mismatch on option ${opt}`,
+    );
+    assert.equal(
+      formatHalfUp(toRat(h.state.result.totals[opt].horizon_total), 8),
+      formatHalfUp(toRat(sizerRes.comparison.totals[opt].horizon_total), 8),
+      `8-decimal horizon parity mismatch on option ${opt}`,
+    );
+  }
+
+  // Peer Case 2 on receiver: switching fb-model to no-cache offer preserves sessionProjection and bills carried prefix at $1/M ($0.04350000)
+  h.node("fb-model").value = "openrouter:vendor/no-cache-1usd";
+  h.get("handleControlEdit({ target: $('fb-model'), type: 'change' })");
+  h.tick();
+  assert.ok(h.state.sessionProjection, "offer switch must preserve state.sessionProjection");
+  assert.equal(formatHalfUp(toRat(h.state.result.totals.B.monthly_total), 8), "0.04350000");
+  assert.equal(h.state.result.lanes.B.cache_fallback_used, true);
+
+  // Switching fb-model back to tiered-cached restores $0.02830000
+  h.node("fb-model").value = "openrouter:vendor/tiered-cached";
+  h.get("handleControlEdit({ target: $('fb-model'), type: 'change' })");
+  h.tick();
+  assert.equal(formatHalfUp(toRat(h.state.result.totals.B.monthly_total), 8), "0.02830000");
+
+  // Editing a projected flat workload-average input clears state.sessionProjection with a visible status notice
+  h.node("f-rag-in").value = "4096";
+  h.get("handleControlEdit({ target: $('f-rag-in'), type: 'input' })");
+  h.tick();
+  assert.equal(h.state.sessionProjection, null);
+  assert.match(h.node("return-review").innerHTML, /Switched from stacked session projection/i);
+});
+
+test("v2 browser saves migrate legacy v1 scenarios read-only, leave v1 untouched for rollback, and prevent zombie resurrection on delete", () => {
+  // Peer Case 10: Legacy save in factor-io.sizer-saves.v1 + new fp4/sp/tp/kh save in factor-io.sizer-saves.v2
+  const legacyFrag = encodeSizerFragment(normalizeSizerInput({ workloadId: "thai_knowledge_rag", users: 200 }));
+  const legacyRawJson = encodeSizerSaveEnvelope([
+    { id: "v1-leg", name: "Legacy V1 Scenario", savedAt: "2026-11-16T08:00:00Z", fragment: legacyFrag },
+  ], { exportedAt: "2026-11-16T08:00:00Z" });
+
+  const storeMap = new Map([[SIZER_LEGACY_STORAGE_KEY, legacyRawJson]]);
+  const mockStore = {
+    getItem: (k) => (storeMap.has(k) ? storeMap.get(k) : null),
+    setItem: (k, v) => storeMap.set(k, v),
+    removeItem: (k) => storeMap.delete(k),
+  };
+  const adapter = createSizerStorageAdapter(() => mockStore);
+
+  // Initial read migrates v1 in memory without mutating v1 key
+  const read1 = adapter.readSavedScenarios();
+  assert.equal(read1.ok, true);
+  assert.deepEqual(read1.scenarios.map((s) => s.id), ["v1-leg"]);
+  assert.equal(storeMap.has(SIZER_STORAGE_KEY), false);
+
+  // Saving a new fp4 + stacked 20k session writes ONLY to factor-io.sizer-saves.v2
+  const v2Frag = encodeSizerFragment(normalizeSizerInput({
+    workloadId: "airgap_sec_audit",
+    rawSystemPromptTokens: 24000,
+    turnsPerSession: 4,
+    kvCacheHitRate: "0.80",
+    kvquant: "fp4",
+    modelId: "flint",
+  }));
+  const saveRes = adapter.saveScenario({
+    id: "v2-flint-fp4",
+    name: "Flint FP4 Stacked",
+    savedAt: "2026-11-18T04:00:00Z",
+    fragment: v2Frag,
+  });
+  assert.equal(saveRes.ok, true);
+  assert.deepEqual(saveRes.scenarios.map((s) => s.id), ["v2-flint-fp4", "v1-leg"]);
+
+  // Rollback guarantee: factor-io.sizer-saves.v1 is byte-for-byte identical to before v2 ran!
+  assert.equal(storeMap.get(SIZER_LEGACY_STORAGE_KEY), legacyRawJson);
+  const rolledBackV1 = decodeSizerSaveEnvelope(storeMap.get(SIZER_LEGACY_STORAGE_KEY));
+  assert.deepEqual(rolledBackV1.scenarios.map((s) => s.id), ["v1-leg"]);
+
+  // Deleting v1-leg from v2 persists an explicit v2 envelope (even when empty) so v1-leg never resurrects on reload
+  assert.equal(adapter.deleteScenario("v2-flint-fp4").ok, true);
+  const delLegacy = adapter.deleteScenario("v1-leg");
+  assert.equal(delLegacy.ok, true);
+  assert.equal(delLegacy.scenarios.length, 0);
+  assert.equal(adapter.readSavedScenarios().scenarios.length, 0);
+  // And v1 is STILL untouched for rollback!
+  assert.equal(storeMap.get(SIZER_LEGACY_STORAGE_KEY), legacyRawJson);
+});

@@ -639,7 +639,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
               id: "RecursiveSI/flint",
               sha: flintSha,
               gated: false,
-              safetensors: { total: String(flintGeom.total) },
+              safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
             });
           }
           throw new Error(`Unexpected URL ${url}`);
@@ -669,7 +669,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
           gated: false,
           downloads: 42000,
           likes: 500,
-          safetensors: { total: String(flintGeom.total) },
+          safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
         });
       }
       if (url.includes(`/RecursiveSI/flint/resolve/${flintSha}/config.json`)) {
@@ -682,7 +682,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
           gated: false,
           downloads: 999999,
           likes: 9999,
-          safetensors: { total: String(flintGeom.total) },
+          safetensors: { total: String(FLINT_SAFETENSORS_TOTAL) },
         });
       }
       if (url.includes(`/TwinOrg/Flint-Clone/resolve/${flintSha}/config.json`)) {

@@ -383,16 +383,16 @@ test("stacked multi-turn session cohorts evaluate prompt thresholds against tota
   // 100% B under fixed_split equals standalone Lane B ($0.0283 * 0.25 = $0.00707500), never inflated 2x to $0.01415000
   const frac100B = runFracSplit({ a_pct: 0, b_pct: 100, c_pct: 0 });
   assert.equal(formatHalfUp(toRat(frac100B.totals.B.monthly_total), 8), "0.00707500");
-  assert.equal(formatHalfUp(toRat(frac100B.routing.recommended_monthly), 8), "0.00707500");
+  assert.equal(formatHalfUp(toRat(frac100B.routing_result.recommended_monthly_total), 8), "0.00707500");
 
   // 50% A / 50% B charges full Lane A fixed asset ($100) + exact 50% cohort share ($0.00353750)
   const frac50AB = runFracSplit({ a_pct: 50, b_pct: 50, c_pct: 0 });
-  assert.equal(formatHalfUp(toRat(frac50AB.routing.recommended_monthly), 8), "100.00353750");
+  assert.equal(formatHalfUp(toRat(frac50AB.routing_result.recommended_monthly_total), 8), "100.00353750");
 
   // Flat non-cohort fixed_split preserves whole-request rounding (1 of 1 request)
   const flatSplit = runFracSplit({ a_pct: 50, b_pct: 50, c_pct: 0 }, false);
   assert.equal(
-    formatHalfUp(toRat(flatSplit.routing.recommended_monthly), 8),
+    formatHalfUp(toRat(flatSplit.routing_result.recommended_monthly_total), 8),
     formatHalfUp(toRat("100").add(toRat(flatSplit.totals.B.monthly_total)), 8),
   );
 });

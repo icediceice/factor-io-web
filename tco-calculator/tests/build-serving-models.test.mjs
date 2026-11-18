@@ -548,8 +548,8 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
   assert.throws(() => deriveGroups(DEEPSEEK_V4), (e) => e instanceof Skip);
 
   const dsGeom = geometryParams(DEEPSEEK_V4_1_FLASH_CFG);
-  assert.equal(dsGeom.offloadKind, "engram");
-  assert.ok(dsGeom.offloadTotal > 90_000_000_000n);
+  assert.equal(dsGeom.offload_kind, "engram");
+  assert.ok(dsGeom.offload_params > 90_000_000_000n);
   const dsParams = deriveParams("deepseek-ai/DeepSeek-V4.1-Flash-1017", DEEPSEEK_V4_1_FLASH_CFG, dsGeom.total);
   assert.ok(Number(dsParams.gpu_backbone_params_b) < Number(dsParams.params_b));
   assert.equal(dsParams.host_offload_kind, "engram");
@@ -639,7 +639,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
         },
       },
     ),
-    (err) => err instanceof Skip && /revision advanced during refresh/.test(err.reason),
+    (err) => err instanceof Skip && /repository ref advanced between discovery and metadata fetch/.test(err.reason),
   );
 
   // Case 9c: Mandatory seed keeps exact pinned ID "flint" even when absent from trending and when a higher-ranked trending twin shares identical architecture

@@ -572,7 +572,7 @@ test("late-2026 HF shapes (DeepSeek-V4.1-Flash CSA2, Flint, Kimi-Linear, Gemma-4
   assert.equal(screen({ id: "google/gemma-4-31B-it", pipeline_tag: "image-text-to-text", tags: ["safetensors"] }), null);
   const gemmaGroups = deriveGroups(GEMMA_4_31B_IT_CFG);
   assert.deepEqual(gemmaGroups, [
-    { kind: "sliding", layers: 34, kv_heads: 8, head_dim: 256, tensors: 1, window_tokens: 1024 },
+    { kind: "sliding", layers: 34, kv_heads: 8, head_dim: 256, tensors: 2, window_tokens: 1024 },
     { kind: "full", layers: 6, kv_heads: 4, head_dim: 512, tensors: 1 },
   ]);
 
@@ -686,5 +686,5 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
   const flintRow = built.models.find((m) => m.id === "flint");
   assert.ok(flintRow, "pinned mandatory seed id 'flint' must survive regardless of trending rank or twin dedup");
   assert.equal(flintRow.revision, flintSha);
-  assert.ok(built.ingest.skipped.some((s) => s.id === "TwinOrg/Flint-Clone-A2.8B" && /RecursiveSI\/flint/.test(s.reason)));
+  assert.ok(built.skipped.some((s) => s.id === "TwinOrg/Flint-Clone-A2.8B" && /RecursiveSI\/flint/.test(s.reason)));
 });

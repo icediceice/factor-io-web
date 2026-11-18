@@ -651,7 +651,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
     fetchText: async (url) => {
       if (url.includes("/api/models?")) {
         return JSON.stringify([
-          { id: "TwinOrg/Flint-Clone-A2.8B", pipeline_tag: "text-generation", tags: ["safetensors"], trendingScore: 9999, sha: flintSha },
+          { id: "TwinOrg/Flint-Clone", pipeline_tag: "text-generation", tags: ["safetensors"], trendingScore: 9999, sha: flintSha },
         ]);
       }
       if (url.includes("/api/models/RecursiveSI/flint")) {
@@ -667,9 +667,9 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
       if (url.includes(`/RecursiveSI/flint/resolve/${flintSha}/config.json`)) {
         return JSON.stringify(FLINT_CFG);
       }
-      if (url.includes("/api/models/TwinOrg/Flint-Clone-A2.8B")) {
+      if (url.includes("/api/models/TwinOrg/Flint-Clone")) {
         return JSON.stringify({
-          id: "TwinOrg/Flint-Clone-A2.8B",
+          id: "TwinOrg/Flint-Clone",
           sha: flintSha,
           gated: false,
           downloads: 999999,
@@ -677,7 +677,7 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
           safetensors: { total: String(flintGeom.total) },
         });
       }
-      if (url.includes(`/TwinOrg/Flint-Clone-A2.8B/resolve/${flintSha}/config.json`)) {
+      if (url.includes(`/TwinOrg/Flint-Clone/resolve/${flintSha}/config.json`)) {
         return JSON.stringify(FLINT_CFG);
       }
       throw new Error(`Unexpected URL ${url}`);
@@ -686,5 +686,5 @@ test("mandatory seeds fail closed on HTTP 503 or revision race, and preserve exa
   const flintRow = built.models.find((m) => m.id === "flint");
   assert.ok(flintRow, "pinned mandatory seed id 'flint' must survive regardless of trending rank or twin dedup");
   assert.equal(flintRow.revision, flintSha);
-  assert.ok(built.skipped.some((s) => s.id === "TwinOrg/Flint-Clone-A2.8B" && /RecursiveSI\/flint/.test(s.reason)));
+  assert.ok(built.skipped.some((s) => s.id === "TwinOrg/Flint-Clone" && /RecursiveSI\/flint/.test(s.reason)));
 });

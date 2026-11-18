@@ -1509,6 +1509,7 @@ test("real app.js readArchGroups preserves catalog CSA2 compressed-MLA descripto
 
 test("processSizerReturn preserves 8-decimal stacked session parity across offer switches (including no-cache fallback) and transitions cleanly on flat-shape edits", () => {
   const h = harness();
+  Object.assign(h.context, demandMod, servingMod, capexMod, subscriptionMod, powerMod, calculatorMod);
   h.state.ready = true;
   h.state.servingData = JSON.parse(readFileSync(new URL("../data/serving-models.json", import.meta.url), "utf8"));
   h.state.powerSeed = JSON.parse(readFileSync(new URL("../data/power-seed.json", import.meta.url), "utf8"));

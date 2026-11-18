@@ -1266,7 +1266,7 @@ export function normalizeSizerInput(raw = {}) {
   );
 
   const rawSystemPromptTokens = hasExplicitSessionFields
-    ? nonNegInt(raw.rawSystemPromptTokens ?? workloadPreset.defaultSystemPromptTokens ?? 20000, "rawSystemPromptTokens", { max: 2000000 })
+    ? posInt(raw.rawSystemPromptTokens ?? workloadPreset.defaultSystemPromptTokens ?? 20000, "rawSystemPromptTokens", { min: 0, max: 2000000 })
     : 0;
   const turnsPerSession = hasExplicitSessionFields
     ? posInt(raw.turnsPerSession ?? workloadPreset.defaultTurnsPerSession ?? 5, "turnsPerSession", { min: 1, max: 100 })
@@ -1457,13 +1457,13 @@ export function resolveSizerModel({ normalized, servingData }) {
   }
   const wq = servingData?.weight_quantization?.[normalized.wquant];
   const kq = servingData?.kv_quantization?.[normalized.kvquant];
-  const calcWeightGb = (paramsStr) => {
+  const calcWeightGb = (paramsStr, modelObj = null) => {
     if (!paramsStr || !wq?.bytes_per_param) return null;
-    try {
-      return formatHalfUp(toRat(String(paramsStr)).mul(toRat(String(wq.bytes_per_param))), 2);
-    } catch {
-      return null;
-    }
+    return estimateModelWeightGb(
+      modelObj ? { ...modelObj, params_b: paramsStr } : { params_b: paramsStr, active_params_b: paramsStr },
+      wq.bytes_per_param,
+      { runtimeKey: normalized.runtime },
+    );
   };
   const deriveSelectedKvBytes = (bf16Bytes) => {
     const elemRat = toRat(String(kq?.bytes_per_element ?? "1"));
@@ -1667,11 +1667,29 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
     };
   }
 
+  const sessionMeta = normalized.sessionStackingActive
+    ? buildSessionProjectionFromConfig({
+        effectiveSystemPromptTokens: normalized.effectiveSystemPromptTokens,
+        effectivePromptTokens: normalized.effectivePromptTokens,
+        effectiveOutputTokens: normalized.effectiveOutputTokens,
+        turnsPerSession: normalized.turnsPerSession,
+        kvCacheHitRate: normalized.kvCacheHitRate,
+        users: normalized.users,
+        sessionsPerUserDay: normalized.sessionsPerUserDay,
+        workingDaysMo: normalized.workingDaysMo,
+      })
+    : null;
+
   let serving;
   try {
     serving = servingPlan({
       model,
-      contextTokens: String(normalized.effectiveContextTokens),
+      contextTokens: String(sessionMeta ? Math.max(normalized.effectiveContextTokens - (sessionMeta.peakTurnContextTokens - sessionMeta.avgTurnContextTokens), sessionMeta.avgTurnContextTokens) : normalized.effectiveContextTokens),
+      peakContextTokens: String(normalized.effectiveContextTokens),
+      sharedPrefixTokens: sessionMeta ? sessionMeta.sharedPrefixTokens : 0,
+      supportsPrefixCache: Boolean(rt.supports_prefix_cache),
+      pageBlockTokens: rt.page_block_tokens ?? 16,
+      runtimeKey: normalized.runtime,
       bytesPerParam: wq.bytes_per_param,
       kvBytesPerElement: model.kv_override ? "1" : kq.bytes_per_element,
       vramGb: String(vramGb),
@@ -1752,6 +1770,28 @@ export function evaluateModelFit({ normalized, servingData, gpuPricing, effectiv
 }
 
 export function buildShapesFromNormalized(normalized) {
+  if (normalized.sessionStackingActive) {
+    const proj = buildSessionProjectionFromConfig({
+      effectiveSystemPromptTokens: normalized.effectiveSystemPromptTokens,
+      effectivePromptTokens: normalized.effectivePromptTokens,
+      effectiveOutputTokens: normalized.effectiveOutputTokens,
+      turnsPerSession: normalized.turnsPerSession,
+      kvCacheHitRate: normalized.kvCacheHitRate,
+      users: normalized.users,
+      sessionsPerUserDay: normalized.sessionsPerUserDay,
+      workingDaysMo: normalized.workingDaysMo,
+    });
+    const tStr = String(normalized.turnsPerSession);
+    const inStr = String(proj.compatAvgUncachedInPerTurn);
+    const outStr = String(normalized.effectiveOutputTokens);
+    const cachedStr = String(proj.compatAvgCachedReadPerTurn);
+    return {
+      chat: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+      rag: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+      graph_rag: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+      agentic: { turns_per_session: tStr, in_tokens: inStr, out_tokens: outStr, cached_tokens: cachedStr },
+    };
+  }
   const baseIn = String(normalized.effectivePromptTokens);
   const baseOut = String(normalized.effectiveOutputTokens);
   return {
@@ -2020,14 +2060,60 @@ export function computeSizer({
 
   const normalized = input?.schema === SIZER_SCHEMA ? input : normalizeSizerInput(input);
   const shapes = buildShapesFromNormalized(normalized);
+  const sessionProj = normalized.sessionStackingActive
+    ? buildSessionProjectionFromConfig({
+        effectiveSystemPromptTokens: normalized.effectiveSystemPromptTokens,
+        effectivePromptTokens: normalized.effectivePromptTokens,
+        effectiveOutputTokens: normalized.effectiveOutputTokens,
+        turnsPerSession: normalized.turnsPerSession,
+        kvCacheHitRate: normalized.kvCacheHitRate,
+        users: normalized.users,
+        sessionsPerUserDay: normalized.sessionsPerUserDay,
+        workingDaysMo: normalized.workingDaysMo,
+      })
+    : null;
 
-  const demand = buildDemand({
+  const baseDemand = buildDemand({
     users: String(normalized.users),
     sessionsPerUserDay: normalized.sessionsPerUserDay,
     workingDaysMo: String(normalized.workingDaysMo),
     mix: normalized.mix,
     shapes,
   });
+  const mkSlot = (rat) => ({ rat, basis: "derived", text: formatHalfUp(rat, 0), places: 0 });
+  const demand = sessionProj
+    ? {
+        ...baseDemand,
+        turns_mo: mkSlot(sessionProj.turnsMoRat),
+        in_tokens_mo: mkSlot(sessionProj.inTokensMoRat),
+        cached_tokens_mo: mkSlot(sessionProj.cachedTokensMoRat),
+        out_tokens_mo: mkSlot(sessionProj.outTokensMoRat),
+        tokens_mo: mkSlot(sessionProj.tokensMoRat),
+      }
+    : baseDemand;
+
+  const personTokenSummary = sessionProj
+    ? sessionProj.personTokenSummary
+    : (() => {
+        const uRat = Rat.from(BigInt(normalized.users));
+        const dRat = Rat.from(BigInt(normalized.workingDaysMo));
+        const perPersonMo = demand.tokens_mo.rat.div(uRat);
+        const perPersonDay = perPersonMo.div(dRat);
+        return {
+          sessionStackingActive: false,
+          tokensPerSession: formatHalfUp(demand.tokens_mo.rat.div(demand.sessions_mo.rat.isZero() ? Rat.from(1n) : demand.sessions_mo.rat), 0),
+          tokensPerPersonDay: formatHalfUp(perPersonDay, 0),
+          tokensPerPersonMo: formatHalfUp(perPersonMo, 0),
+          uncachedInPerPersonDay: formatHalfUp(demand.in_tokens_mo.rat.div(uRat).div(dRat), 0),
+          cachedReadPerPersonDay: formatHalfUp(demand.cached_tokens_mo.rat.div(uRat).div(dRat), 0),
+          outputPerPersonDay: formatHalfUp(demand.out_tokens_mo.rat.div(uRat).div(dRat), 0),
+          turn1ColdPromptTokens: normalized.effectivePromptTokens,
+          finalTurnPromptTokens: normalized.effectivePromptTokens,
+          peakTurnContextTokens: normalized.effectiveContextTokens,
+          avgTurnContextTokens: normalized.effectiveContextTokens,
+          sharedPrefixTokens: 0,
+        };
+      })();
 
   const peak = peakTokensPerSecond({
     users: String(normalized.users),

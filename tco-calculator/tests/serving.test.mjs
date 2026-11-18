@@ -635,7 +635,7 @@ test("fail-closed checkpoint residency holds full params_b on GPU unless an expl
   assert.equal(tiered.host_offload_active, true);
   assert.equal(tiered.weights_gb_resident.text, "552.00");
   assert.equal(tiered.weights_gb_host_offload.text, "197.00");
-  assert.equal(tiered.vram_gb_used.text, "562.0");
+  assert.equal(tiered.vram_gb_used_per_gpu.text, "70.25");
   assert.equal(tiered.batch.text, "1");
 });
 

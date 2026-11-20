@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1795068369901",
-  "generated_at": "2026-11-19T06:06:09.901Z",
-  "snapshot_digest": "4d0bd8f1e3a52425",
+  "refresh_id": "refresh-1795154514897",
+  "generated_at": "2026-11-20T06:01:54.897Z",
+  "snapshot_digest": "a18125534db38da6",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-4d0bd8f1e3a52425.json",
-      "digest": "4d0bd8f1e3a52425",
-      "bytes": 4935990
+      "path": "catalog-a18125534db38da6.json",
+      "digest": "a18125534db38da6",
+      "bytes": 4948229
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "2ecbc14d59223fea",
+      "digest": "42a8b7258de81f0e",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-19T06:06:09.901Z",
-      "last_success_at": "2026-11-19T06:06:09.901Z",
-      "expires_at": "2026-11-22T06:06:09.901Z",
-      "root_digest": "12b2793f8080bc92",
-      "record_count": 461,
+      "observed_at": "2026-11-20T06:01:54.897Z",
+      "last_success_at": "2026-11-20T06:01:54.897Z",
+      "expires_at": "2026-11-23T06:01:54.897Z",
+      "root_digest": "9b5447c2fdbb4b81",
+      "record_count": 458,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-19T06:06:09.901Z",
-      "last_success_at": "2026-11-19T06:06:09.901Z",
-      "expires_at": "2026-11-22T06:06:09.901Z",
-      "root_digest": "bf232f3264a18a7f",
-      "record_count": 4471,
+      "observed_at": "2026-11-20T06:01:54.897Z",
+      "last_success_at": "2026-11-20T06:01:54.897Z",
+      "expires_at": "2026-11-23T06:01:54.897Z",
+      "root_digest": "f2b2642e2dd6db34",
+      "record_count": 4477,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-18T00:00:00.000Z",
-      "last_success_at": "2026-11-19T06:06:45.474Z",
-      "expires_at": "2026-11-25T23:59:59.999Z",
-      "root_digest": "2ecbc14d59223fea",
+      "observed_at": "2026-11-19T00:00:00.000Z",
+      "last_success_at": "2026-11-20T06:02:28.975Z",
+      "expires_at": "2026-11-26T23:59:59.999Z",
+      "root_digest": "42a8b7258de81f0e",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -6716,6 +6716,17 @@
     {
       "id": "litellm:azure_ai/kimi-k2.7-code",
       "name": "azure_ai/kimi-k2.7-code",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:azure_ai/kimi-k3.1-pro",
+      "name": "azure_ai/kimi-k3.1-pro",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -23074,9 +23085,36 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|tier=priority",
         "cache_read",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=priority",
+        "op_dbu_in",
+        "output",
+        "output|tier=priority",
+        "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/databricks-gemini-nano-banana-2-1",
+      "name": "databricks/databricks-gemini-nano-banana-2-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|tier=priority",
+        "image_in_tok",
+        "input",
+        "input|tier=priority",
+        "op_dbu_in",
+        "image_out_tok",
+        "image_out_tok|tier=priority",
+        "output",
+        "output|tier=priority",
+        "op_dbu_out"
       ]
     },
     {
@@ -23631,9 +23669,15 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|tier=priority",
         "cache_read",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=priority",
+        "op_dbu_in",
+        "output",
+        "output|tier=priority",
+        "op_dbu_out"
       ]
     },
     {
@@ -23643,9 +23687,15 @@
       "state": "active",
       "meters": [
         "cache_write",
+        "cache_write|tier=priority",
         "cache_read",
+        "cache_read|tier=priority",
         "input",
-        "output"
+        "input|tier=priority",
+        "op_dbu_in",
+        "output",
+        "output|tier=priority",
+        "op_dbu_out"
       ]
     },
     {
@@ -29720,6 +29770,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-flex",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-flex",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
       "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
       "tariff": "token",
@@ -31860,6 +31921,17 @@
       ]
     },
     {
+      "id": "litellm:gemini/genie-4",
+      "name": "gemini/genie-4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "image_in_tok",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:gemini/learnlm-1.5-pro-experimental",
       "name": "gemini/learnlm-1.5-pro-experimental",
       "tariff": "token",
@@ -33568,6 +33640,18 @@
       "tariff": "token",
       "state": "active",
       "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:gmi/google/gemini-4-hydrogen",
+      "name": "gmi/google/gemini-4-hydrogen",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
         "cache_read",
         "input",
         "output"
@@ -47990,6 +48074,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/tencent/Hy4",
+      "name": "together_ai/tencent/Hy4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/thinkingmachines/Inkling",
       "name": "together_ai/thinkingmachines/Inkling",
       "tariff": "token",
@@ -54811,7 +54906,7 @@
       "id": "openrouter:cohere/north-mini-code:free",
       "name": "Cohere: North Mini Code (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -55872,7 +55967,7 @@
       "id": "openrouter:meta-llama/llama-3.2-1b-instruct",
       "name": "Meta: Llama 3.2 1B Instruct",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -56281,6 +56376,16 @@
         "input",
         "output",
         "cache_read"
+      ]
+    },
+    {
+      "id": "openrouter:mistralai/pixtral-large-2502",
+      "name": "Mistral: Pixtral Large 2502",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
       ]
     },
     {
@@ -57760,8 +57865,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -58253,8 +58357,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -58885,7 +58988,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.20",
-      "name": "SpaceXAI: Grok 4.20",
+      "name": "SpaceXSI: Grok 4.20",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58897,7 +59000,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.20-multi-agent",
-      "name": "SpaceXAI: Grok 4.20 Multi-Agent",
+      "name": "SpaceXSI: Grok 4.20 Multi-Agent",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58909,7 +59012,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.3",
-      "name": "SpaceXAI: Grok 4.3",
+      "name": "SpaceXSI: Grok 4.3",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58921,7 +59024,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.3:batch",
-      "name": "SpaceXAI: Grok 4.3 (batch)",
+      "name": "SpaceXSI: Grok 4.3 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58933,7 +59036,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.5",
-      "name": "SpaceXAI: Grok 4.5",
+      "name": "SpaceXSI: Grok 4.5",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58945,7 +59048,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.6",
-      "name": "SpaceXAI: Grok 4.6",
+      "name": "SpaceXSI: Grok 4.6",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58957,7 +59060,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.6:batch",
-      "name": "SpaceXAI: Grok 4.6 (batch)",
+      "name": "SpaceXSI: Grok 4.6 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58969,7 +59072,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.7",
-      "name": "SpaceXAI: Grok 4.7",
+      "name": "SpaceXSI: Grok 4.7",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58981,7 +59084,7 @@
     },
     {
       "id": "openrouter:x-ai/grok-4.7:batch",
-      "name": "SpaceXAI: Grok 4.7 (batch)",
+      "name": "SpaceXSI: Grok 4.7 (batch)",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -58995,7 +59098,7 @@
       "id": "openrouter:x-ai/grok-build-0.1",
       "name": "SpaceXAI: Grok Build 0.1",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -72314,6 +72417,21 @@
         "offer": "litellm:perplexity/pplx-decider-flash-v1.3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:gpt-live-1.1",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "realtime"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4.6",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/ideogram/v4.6/edit",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       }
     ],
     "source_errors": {

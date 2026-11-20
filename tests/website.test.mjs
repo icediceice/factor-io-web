@@ -445,7 +445,7 @@ test('the redesign leaves no deck, HUD or terminal markup behind, and content ca
   assert.doesNotMatch(await read('catcountdown/index.html'), /[–—]/);
 });
 
-test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com with live Android link and iPhone stub', async () => {
+test('standalone Cat Countdown landing page on catcountdown.factor-io.com links both live stores', async () => {
   const html = await read('cat-countdown.html');
   const stub = await read('catcountdown/index.html');
   assert.match(html, /<link rel="canonical" href="https:\/\/catcountdown\.factor-io\.com\/">/);
@@ -467,13 +467,18 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
   assert.ok(androidLink, 'expected <a data-store="android">');
   assert.match(androidLink[0], /\bhref="https:\/\/play\.google\.com\/store\/apps\/details\?id=com\.catcountdown\.cat_countdown"/);
   assert.match(androidLink[0], /\brel="noopener\b/);
-  const iosBtn = html.match(/<button\b[^>]*data-store="ios"[^>]*>[\s\S]*?<\/button>/);
-  assert.ok(iosBtn, 'expected native <button data-store="ios">');
-  assert.match(iosBtn[0], /\btype="button"/);
-  assert.match(iosBtn[0], /\bdata-stub="true"/);
-  assert.match(iosBtn[0], /\bdisabled\b/);
-  assert.doesNotMatch(iosBtn[0], /\bhref=/);
-  assert.doesNotMatch(html, /apps\.apple\.com/i);
+  const APP_STORE = 'https://apps.apple.com/us/app/cat-countdown/id6806591447';
+  const iosLink = html.match(/<a\b[^>]*data-store="ios"[^>]*>[\s\S]*?<\/a>/);
+  assert.ok(iosLink, 'expected <a data-store="ios">');
+  assert.match(iosLink[0], /\bhref="https:\/\/apps\.apple\.com\/us\/app\/cat-countdown\/id6806591447"/);
+  assert.match(iosLink[0], /\brel="noopener\b/);
+  assert.doesNotMatch(html, /<button\b[^>]*data-store=/, 'no disabled store stub is left');
+  // Every App Store link on the page is the released listing.
+  for (const m of html.matchAll(/href="(https:\/\/apps\.apple\.com[^"]*)"/g)) assert.equal(m[1], APP_STORE);
+  // The header CTA takes an iPhone reader to both store buttons, not straight to Google Play.
+  const navCta = html.match(/<a class="nav-cta" href="([^"]+)"/)[1];
+  assert.equal(navCta, '#get-app');
+  assert.match(html, /id="get-app"[^>]*>[\s\S]*?data-store="android"[\s\S]*?data-store="ios"/);
 
   const refs = [...html.matchAll(/(?:src|poster)="([^"]+)"|url\(['"]?(assets\/[^'")]+)['"]?\)/g)].map(m => m[1] || m[2]);
   assert.ok(refs.length >= 8);
@@ -483,8 +488,10 @@ test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com 
     assert.ok(info.size > 0, ref);
   }
 
-  assert.match(html, /id="iphone-status"[^>]*>Coming soon &middot; Waiting for App Store review<\/p>/);
-  assert.match(html, /id="iphone-review-notice"[\s\S]*?Coming soon to the App Store\./);
+  assert.match(html, /id="iphone-release-notice"[\s\S]*?Now on the App Store\./);
+  assert.doesNotMatch(html, /coming soon|waiting for App Store review/i, 'no pre-release iPhone copy is left');
+  const faq = graph.find(node => node['@type'] === 'FAQPage').mainEntity.find(q => q.name === 'Is Cat Countdown on iPhone?');
+  assert.match(faq.acceptedAnswer.text, /on the App Store/);
 
   assert.match(stub, /<meta name="robots" content="noindex, follow">/);
   assert.match(stub, /<meta http-equiv="refresh" content="0; url=\.\.\/cat-countdown\.html">/);

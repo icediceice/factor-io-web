@@ -751,6 +751,7 @@ test('Cat Countdown offers both stores from the header and closing CTA', { timeo
   ];
   assert.equal(release.location, `${origin}/cat-countdown.html?noredirect=1#get-app`);
   assert.deepEqual(release.targetLinks, stores);
+  assert.deepEqual(release.reachable, [true, true], 'store buttons are clear of the sticky header after Get the app');
   assert.deepEqual(release.closingLinks, stores);
   assert.match(release.notice, /Now on the App Store/);
   assert.doesNotMatch(release.text, /coming soon|waiting for App Store review/i);

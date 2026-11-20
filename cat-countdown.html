@@ -95,7 +95,8 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { -webkit-text-size-adjust: 100%; }
+  /* Keep fragment targets (#get-app, #faq, ...) clear of the 65px sticky header. */
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 88px; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
   body {
     min-height: 100dvh;

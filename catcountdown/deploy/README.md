@@ -13,7 +13,7 @@ browser --> Cloudflare edge --> Worker catcountdown-site (route catcountdown.fac
                                   |-- /robots.txt, /sitemap.xml --> answered by the Worker (src/seo.js)
                                   |-- /app (any device)  --> the page, never a store redirect; /app/ --> 302 /app
                                   |-- Android, no outside Referer --> 302 Google Play
-                                  |-- iPhone, no outside Referer, /iphone --> coming-soon page (302 App Store once APP_STORE_URL is set)
+                                  |-- iPhone, no outside Referer, /iphone --> 302 App Store (APP_STORE_URL; coming-soon page if it is ever emptied)
                                   |-- /free/<campaign>   --> giveaway claim page (Google sign-in), POST /free/<campaign>/claim
                                   '-- desktop, crawlers, phones from a search result --> proxy https://studio.factor-io.com/cat-countdown.html + /assets/*
 ```
@@ -69,9 +69,9 @@ Credentials come from the light-worker vault (`cf-apitoken`, `cf-accountid`) thr
 npx wrangler@4 deploy --config /Git/factor-io-web/catcountdown/worker/wrangler.toml
 ```
 
-## Releasing on the App Store
+## App Store
 
-Set `APP_STORE_URL` under `[vars]` in `catcountdown/worker/wrangler.toml` to the App Store listing URL and redeploy. iPhone scanners are then sent straight to the App Store. Also update the iPhone stub button and notice in `cat-countdown.html`.
+Released 2026-11-20. `APP_STORE_URL` under `[vars]` in `catcountdown/worker/wrangler.toml` holds the listing, `https://apps.apple.com/us/app/cat-countdown/id6806591447`, and iPhone scanners (and iPads, through the page's `/iphone` hop) get a 302 to it. To change the listing, edit that var, the two App Store links in `cat-countdown.html`, and the URL pinned in `tests/catcountdown-worker.test.mjs` and `tests/website.test.mjs`, then redeploy. Emptying the var brings back the coming-soon page.
 
 ## Rollback
 

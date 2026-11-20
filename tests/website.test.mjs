@@ -721,6 +721,13 @@ test('Cat Countdown offers both stores from the header and closing CTA', { timeo
       .filter(link => link.getClientRects().length > 0)
       .map(link => [link.innerText, link.href, link.relList.contains('noopener')])
       .sort(([left], [right]) => left.localeCompare(right));
+    // After the jump, every store button sits below the sticky header and takes the click.
+    const headerBottom = document.querySelector('.site-header').getBoundingClientRect().bottom;
+    const reachable = [...document.querySelector(':target').querySelectorAll('a[href]')].map(link => {
+      const box = link.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return box.top >= headerBottom && link.contains(hit);
+    });
     const iphoneQuestion = 'Is Cat Countdown on iPhone?';
     const summary = [...document.querySelectorAll('#faq summary')].find(item => item.innerText === iphoneQuestion);
     summary.click();

@@ -71,7 +71,7 @@ npx wrangler@4 deploy --config /Git/factor-io-web/catcountdown/worker/wrangler.t
 
 ## App Store
 
-Released 2026-11-20. `APP_STORE_URL` under `[vars]` in `catcountdown/worker/wrangler.toml` holds the listing, `https://apps.apple.com/us/app/cat-countdown/id6806591447`, and iPhone scanners (and iPads, through the page's `/iphone` hop) get a 302 to it. To change the listing, edit that var, the two App Store links in `cat-countdown.html`, and the URL pinned in `tests/catcountdown-worker.test.mjs` and `tests/website.test.mjs`, then redeploy. Emptying the var brings back the coming-soon page.
+Released 2026-11-20. `APP_STORE_URL` under `[vars]` in `catcountdown/worker/wrangler.toml` holds the listing, `https://apps.apple.com/us/app/cat-countdown/id6806591447`, and iPhone scanners (and iPads, through the page's `/iphone` hop) get a 302 to it. To change the listing, edit that var, the two App Store links in `cat-countdown.html`, the App Store link in `llms.txt`, and the URL pinned in `tests/catcountdown-worker.test.mjs` and `tests/website.test.mjs`. Then ship both halves: push to `main` so GitHub Pages republishes the page and `llms.txt`, and run the Wrangler deploy above so the Worker picks up the new var. Emptying the var brings back the coming-soon page.
 
 ## Rollback
 

@@ -445,7 +445,7 @@ test('the redesign leaves no deck, HUD or terminal markup behind, and content ca
   assert.doesNotMatch(await read('catcountdown/index.html'), /[–—]/);
 });
 
-test('standalone Cat Countdown landing page publishes metadata and routes scanners', async () => {
+test('standalone Cat Countdown landing page prepares catcountdown.factor-io.com with live Android link and iPhone stub', async () => {
   const html = await read('cat-countdown.html');
   const stub = await read('catcountdown/index.html');
   assert.match(html, /<link rel="canonical" href="https:\/\/catcountdown\.factor-io\.com\/">/);
@@ -463,6 +463,18 @@ test('standalone Cat Countdown landing page publishes metadata and routes scanne
   assert.equal(app.offers.price, '199');
   assert.equal(app.offers.priceCurrency, 'THB');
 
+  const androidLink = html.match(/<a\b[^>]*data-store="android"[^>]*>[\s\S]*?<\/a>/);
+  assert.ok(androidLink, 'expected <a data-store="android">');
+  assert.match(androidLink[0], /\bhref="https:\/\/play\.google\.com\/store\/apps\/details\?id=com\.catcountdown\.cat_countdown"/);
+  assert.match(androidLink[0], /\brel="noopener\b/);
+  const iosBtn = html.match(/<button\b[^>]*data-store="ios"[^>]*>[\s\S]*?<\/button>/);
+  assert.ok(iosBtn, 'expected native <button data-store="ios">');
+  assert.match(iosBtn[0], /\btype="button"/);
+  assert.match(iosBtn[0], /\bdata-stub="true"/);
+  assert.match(iosBtn[0], /\bdisabled\b/);
+  assert.doesNotMatch(iosBtn[0], /\bhref=/);
+  assert.doesNotMatch(html, /apps\.apple\.com/i);
+
   const refs = [...html.matchAll(/(?:src|poster)="([^"]+)"|url\(['"]?(assets\/[^'")]+)['"]?\)/g)].map(m => m[1] || m[2]);
   assert.ok(refs.length >= 8);
   for (const ref of refs) {
@@ -470,6 +482,9 @@ test('standalone Cat Countdown landing page publishes metadata and routes scanne
     const info = await stat(resolve(ROOT, ref));
     assert.ok(info.size > 0, ref);
   }
+
+  assert.match(html, /id="iphone-status"[^>]*>Coming soon &middot; Waiting for App Store review<\/p>/);
+  assert.match(html, /id="iphone-review-notice"[\s\S]*?Coming soon to the App Store\./);
 
   assert.match(stub, /<meta name="robots" content="noindex, follow">/);
   assert.match(stub, /<meta http-equiv="refresh" content="0; url=\.\.\/cat-countdown\.html">/);
@@ -518,7 +533,7 @@ test('standalone Cat Countdown landing page publishes metadata and routes scanne
     { scanner: 'other', replaced: null }
   );
   // On the app subdomain an iPad (desktop Mac UA, which the edge Worker cannot classify)
-  // goes through the Worker's /iphone route; the studio.factor-io.com copy keeps the full page.
+  // is sent to the release-status page; the studio.factor-io.com copy keeps the full page.
   const ipad = { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', platform: 'MacIntel', maxTouchPoints: 5 };
   assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', search: '?utm_source=qr' }), { scanner: 'ios', replaced: '/iphone?utm_source=qr' });
   assert.deepEqual(runScanner({ ...ipad, hostname: 'catcountdown.factor-io.com', search: '?noredirect=1' }), { scanner: 'ios', replaced: null });
@@ -709,54 +724,6 @@ test('standalone Cat Countdown landing page publishes metadata and routes scanne
   if (!existingPng || !existingPng.equals(pngBytes)) {
     await writeFile(pngPath, pngBytes);
   }
-});
-
-test('Cat Countdown offers both stores from the header and closing CTA', { timeout: 15000 }, async t => {
-  const { catPage } = await import('./support/cat-countdown-browser.mjs');
-  const { page, origin } = await catPage(t);
-  const release = await page.evaluate(`(() => {
-    const headerLink = [...document.querySelectorAll('header a')].find(link => link.innerText === 'Get the app');
-    headerLink.click();
-    const links = section => [...section.querySelectorAll('a[href]')]
-      .filter(link => link.getClientRects().length > 0)
-      .map(link => [link.innerText, link.href, link.relList.contains('noopener')])
-      .sort(([left], [right]) => left.localeCompare(right));
-    // After the jump, every store button sits below the sticky header and takes the click.
-    const headerBottom = document.querySelector('.site-header').getBoundingClientRect().bottom;
-    const reachable = [...document.querySelector(':target').querySelectorAll('a[href]')].map(link => {
-      const box = link.getBoundingClientRect();
-      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-      return box.top >= headerBottom && link.contains(hit);
-    });
-    const iphoneQuestion = 'Is Cat Countdown on iPhone?';
-    const summary = [...document.querySelectorAll('#faq summary')].find(item => item.innerText === iphoneQuestion);
-    summary.click();
-    const answer = summary.parentElement.querySelector('p');
-    const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@graph'];
-    const faq = graph.find(item => item['@type'] === 'FAQPage');
-    return {
-      location: location.href,
-      reachable,
-      targetLinks: links(document.querySelector(':target')),
-      closingLinks: links(document.querySelector('.cta .store-actions')),
-      notice: document.querySelector('#iphone-release-notice').innerText,
-      text: document.body.innerText,
-      answer: answer.getClientRects().length > 0 ? answer.innerText : '',
-      structuredAnswer: faq.mainEntity.find(item => item.name === iphoneQuestion).acceptedAnswer.text,
-    };
-  })()`);
-  const stores = [
-    ['Download on the App Store', 'https://apps.apple.com/us/app/cat-countdown/id6806591447', true],
-    ['Get it on Google Play', 'https://play.google.com/store/apps/details?id=com.catcountdown.cat_countdown', true],
-  ];
-  assert.equal(release.location, `${origin}/cat-countdown.html?noredirect=1#get-app`);
-  assert.deepEqual(release.targetLinks, stores);
-  assert.deepEqual(release.reachable, [true, true], 'store buttons are clear of the sticky header after Get the app');
-  assert.deepEqual(release.closingLinks, stores);
-  assert.match(release.notice, /Now on the App Store/);
-  assert.doesNotMatch(release.text, /coming soon|waiting for App Store review/i);
-  assert.match(release.answer, /on the App Store for iPhone and iPad/);
-  assert.equal(release.structuredAnswer, release.answer);
 });
 
 test('Cat Countdown only autoplays visible captures and swaps chapters while playing', { timeout: 15000 }, async t => {

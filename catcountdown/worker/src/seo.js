@@ -7,7 +7,7 @@
 
 export const SITE = "https://catcountdown.factor-io.com";
 // Bump when cat-countdown.html or assets/cat-countdown/ change.
-export const LASTMOD = "2026-11-20";
+export const LASTMOD = "2026-10-24";
 
 const ART = `${SITE}/assets/cat-countdown`;
 // scripts/cat-countdown-assets.py names: the nine cats and the category slugs, in app order.

@@ -57,15 +57,6 @@ test('once APP_STORE_URL is configured, iPhone scanners are sent to the App Stor
   }
 });
 
-test('the deployed Worker config points iPhone scanners at the released App Store listing', async () => {
-  const toml = await readFile(new URL('../catcountdown/worker/wrangler.toml', import.meta.url), 'utf8');
-  const url = toml.match(/^APP_STORE_URL = "([^"]*)"$/m)?.[1];
-  assert.equal(url, 'https://apps.apple.com/us/app/cat-countdown/id6806591447');
-  const { res } = await visit('/', UA.iphone, { env: { APP_STORE_URL: url } });
-  assert.equal(res.status, 302);
-  assert.equal(res.headers.get('location'), url);
-});
-
 test('desktop visitors and crawlers get the full landing page from GitHub Pages', async () => {
   for (const ua of [UA.desktop, UA.applebot, UA.googlebot, UA.inspectionTool, UA.googleOther, UA.bingbot]) {
     const { res, body, upstream } = await visit('/', ua);

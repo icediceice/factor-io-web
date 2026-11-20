@@ -736,6 +736,7 @@ test('Cat Countdown offers both stores from the header and closing CTA', { timeo
     const faq = graph.find(item => item['@type'] === 'FAQPage');
     return {
       location: location.href,
+      reachable,
       targetLinks: links(document.querySelector(':target')),
       closingLinks: links(document.querySelector('.cta .store-actions')),
       notice: document.querySelector('#iphone-release-notice').innerText,

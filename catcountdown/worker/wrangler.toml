@@ -13,9 +13,9 @@ routes = [
 ]
 
 [vars]
-# Empty while the iPhone app is in App Store review: iPhone scanners get the
-# coming-soon page. Set this to the App Store listing URL and redeploy to release.
-APP_STORE_URL = ""
+# The App Store listing. iPhone (and, via the page's /iphone hop, iPad) scanners
+# get a 302 here. Empty = they get the coming-soon page instead.
+APP_STORE_URL = "https://apps.apple.com/us/app/cat-countdown/id6806591447"
 # Public OAuth Web client id for the /free/<campaign> Google sign-in (not a secret).
 # Empty = the giveaway pages say "not available" and allocate nothing.
 GOOGLE_CLIENT_ID = "86938020142-h3ig47j7brj8ltlpedbqklt6muc6mrke.apps.googleusercontent.com"

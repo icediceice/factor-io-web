@@ -1,14 +1,14 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1795241890337",
-  "generated_at": "2026-11-21T06:18:10.337Z",
-  "snapshot_digest": "12e8d039c2e7a5f3",
+  "refresh_id": "refresh-1795414015415",
+  "generated_at": "2026-11-23T06:06:55.415Z",
+  "snapshot_digest": "7b3cffa78269736a",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-12e8d039c2e7a5f3.json",
-      "digest": "12e8d039c2e7a5f3",
-      "bytes": 4961715
+      "path": "catalog-7b3cffa78269736a.json",
+      "digest": "7b3cffa78269736a",
+      "bytes": 4967792
     },
     "fx": {
       "kind": "external",
@@ -21,28 +21,28 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-21T06:18:10.337Z",
-      "last_success_at": "2026-11-21T06:18:10.337Z",
-      "expires_at": "2026-11-24T06:18:10.337Z",
-      "root_digest": "310dffdc5a5284f8",
-      "record_count": 457,
+      "observed_at": "2026-11-23T06:06:55.415Z",
+      "last_success_at": "2026-11-23T06:06:55.415Z",
+      "expires_at": "2026-11-26T06:06:55.415Z",
+      "root_digest": "848dbda7a80cfeea",
+      "record_count": 458,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-21T06:18:10.337Z",
-      "last_success_at": "2026-11-21T06:18:10.337Z",
-      "expires_at": "2026-11-24T06:18:10.337Z",
-      "root_digest": "1079c705338afdfb",
-      "record_count": 4488,
+      "observed_at": "2026-11-23T06:06:55.415Z",
+      "last_success_at": "2026-11-23T06:06:55.415Z",
+      "expires_at": "2026-11-26T06:06:55.415Z",
+      "root_digest": "35c4311712578497",
+      "record_count": 4495,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
       "observed_at": "2026-11-20T00:00:00.000Z",
-      "last_success_at": "2026-11-21T06:18:44.963Z",
+      "last_success_at": "2026-11-23T06:07:27.234Z",
       "expires_at": "2026-11-27T23:59:59.999Z",
       "root_digest": "700d892996691df5",
       "record_count": 1,
@@ -29932,6 +29932,20 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-us",
+      "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-1017-us",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-spot",
       "name": "fireworks_ai/accounts/fireworks/routers/deepseek-v4p1-flash-spot",
       "tariff": "token",
@@ -30136,6 +30150,20 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k3-us",
       "name": "fireworks_ai/accounts/fireworks/routers/kimi-k3-us",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k3p1-pro-us",
+      "name": "fireworks_ai/accounts/fireworks/routers/kimi-k3p1-pro-us",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -45941,6 +45969,58 @@
       ]
     },
     {
+      "id": "litellm:resetdata/deepseek/deepseek-v4-flash",
+      "name": "resetdata/deepseek/deepseek-v4-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:resetdata/google/gemma-4-26b-a4b-it",
+      "name": "resetdata/google/gemma-4-26b-a4b-it",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:resetdata/qwen/qwen3-coder-30b-a3b-instruct",
+      "name": "resetdata/qwen/qwen3-coder-30b-a3b-instruct",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:resetdata/qwen/qwen3.8-27b",
+      "name": "resetdata/qwen/qwen3.8-27b",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:resetdata/zai/glm-5.3",
+      "name": "resetdata/zai/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:sagemaker/meta-textgeneration-llama-2-13b",
       "name": "sagemaker/meta-textgeneration-llama-2-13b",
       "tariff": "token",
@@ -55075,16 +55155,6 @@
       ]
     },
     {
-      "id": "openrouter:cohere/north-mini-code:free",
-      "name": "Cohere: North Mini Code (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:deepseek/deepseek-chat",
       "name": "DeepSeek: DeepSeek V3",
       "tariff": "token",
@@ -55239,7 +55309,7 @@
       "id": "openrouter:dots-studio/dots-3-note-preview:free",
       "name": "Dots Studio: Dots3-Note Preview (free)",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output"
@@ -55888,8 +55958,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -55899,7 +55968,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -55970,7 +56040,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -56130,16 +56201,6 @@
       "name": "Meta: Llama 3.1 8B Instruct",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
-      "id": "openrouter:meta-llama/llama-3.2-1b-instruct",
-      "name": "Meta: Llama 3.2 1B Instruct",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -58037,7 +58098,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -59281,18 +59343,6 @@
       "name": "SpaceXSI: Grok 4.7 (batch)",
       "tariff": "token",
       "state": "active",
-      "meters": [
-        "input",
-        "output",
-        "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:x-ai/grok-build-0.1",
-      "name": "SpaceXAI: Grok Build 0.1",
-      "tariff": "token",
-      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -61553,6 +61603,16 @@
         "mode": "search"
       },
       {
+        "offer": "litellm:gnani/prisma-v2.5",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
+        "offer": "litellm:gnani/prisma-v3.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
+      },
+      {
         "offer": "litellm:elevenlabs/scribe_v1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_transcription"
@@ -63528,6 +63588,21 @@
         "mode": "realtime"
       },
       {
+        "offer": "litellm:gradium/default",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:gradium/gradium-tts-202602",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:gradium/gradium-tts-beta",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_speech"
+      },
+      {
         "offer": "litellm:groq/canopylabs/orpheus-v1-english",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
@@ -64146,6 +64221,11 @@
         "offer": "litellm:recraft/recraftv3",
         "rule": "skipped_out_of_scope_mode",
         "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:resetdata/openai/whisper-large-v3-turbo",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "audio_transcription"
       },
       {
         "offer": "litellm:rerank-english-v3.0",
@@ -65106,6 +65186,21 @@
         "offer": "litellm:vertex_ai/lyria-3-pro-preview",
         "rule": "skipped_out_of_scope_mode",
         "mode": "audio_speech"
+      },
+      {
+        "offer": "litellm:vertex_ai/meta/muse-wonder-1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:vertex_ai/meta/muse-ember-1.0",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
+      },
+      {
+        "offer": "litellm:vertex_ai/meta/muse-spark-1.3",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "responses"
       },
       {
         "offer": "litellm:vertex_ai/mistral-ocr-2505",

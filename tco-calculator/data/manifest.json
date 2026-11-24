@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1795414015415",
-  "generated_at": "2026-11-23T06:06:55.415Z",
-  "snapshot_digest": "7b3cffa78269736a",
+  "refresh_id": "refresh-1795500228555",
+  "generated_at": "2026-11-24T06:03:48.555Z",
+  "snapshot_digest": "8e7295984d230700",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-7b3cffa78269736a.json",
-      "digest": "7b3cffa78269736a",
-      "bytes": 4967792
+      "path": "catalog-8e7295984d230700.json",
+      "digest": "8e7295984d230700",
+      "bytes": 5019946
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "700d892996691df5",
+      "digest": "a3142e8357fc07f5",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-23T06:06:55.415Z",
-      "last_success_at": "2026-11-23T06:06:55.415Z",
-      "expires_at": "2026-11-26T06:06:55.415Z",
-      "root_digest": "848dbda7a80cfeea",
-      "record_count": 458,
+      "observed_at": "2026-11-24T06:03:48.555Z",
+      "last_success_at": "2026-11-24T06:03:48.555Z",
+      "expires_at": "2026-11-27T06:03:48.555Z",
+      "root_digest": "65bb47668cfcdab6",
+      "record_count": 455,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-23T06:06:55.415Z",
-      "last_success_at": "2026-11-23T06:06:55.415Z",
-      "expires_at": "2026-11-26T06:06:55.415Z",
-      "root_digest": "35c4311712578497",
-      "record_count": 4495,
+      "observed_at": "2026-11-24T06:03:48.555Z",
+      "last_success_at": "2026-11-24T06:03:48.555Z",
+      "expires_at": "2026-11-27T06:03:48.555Z",
+      "root_digest": "d681d7449d735534",
+      "record_count": 4544,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-20T00:00:00.000Z",
-      "last_success_at": "2026-11-23T06:07:27.234Z",
-      "expires_at": "2026-11-27T23:59:59.999Z",
-      "root_digest": "700d892996691df5",
+      "observed_at": "2026-11-23T00:00:00.000Z",
+      "last_success_at": "2026-11-24T06:04:19.609Z",
+      "expires_at": "2026-11-30T23:59:59.999Z",
+      "root_digest": "a3142e8357fc07f5",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -23226,27 +23226,6 @@
       ]
     },
     {
-      "id": "litellm:databricks/databricks-gemini-nano-banana-2-1",
-      "name": "databricks/databricks-gemini-nano-banana-2-1",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "cache_write",
-        "cache_write|tier=priority",
-        "cache_read",
-        "cache_read|tier=priority",
-        "image_in_tok",
-        "input",
-        "input|tier=priority",
-        "op_dbu_in",
-        "image_out_tok",
-        "image_out_tok|tier=priority",
-        "output",
-        "output|tier=priority",
-        "op_dbu_out"
-      ]
-    },
-    {
       "id": "litellm:databricks/databricks-gemma-3-12b",
       "name": "databricks/databricks-gemma-3-12b",
       "tariff": "token",
@@ -43851,6 +43830,839 @@
       ]
     },
     {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-fable-5",
+      "name": "perplexity_orchestrator/anthropic/claude-fable-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-fable-5-1",
+      "name": "perplexity_orchestrator/anthropic/claude-fable-5-1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-fable-5-2",
+      "name": "perplexity_orchestrator/anthropic/claude-fable-5-2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-haiku-4-5",
+      "name": "perplexity_orchestrator/anthropic/claude-haiku-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-haiku-5-5",
+      "name": "perplexity_orchestrator/anthropic/claude-haiku-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>100000",
+        "cache_write|age=1hr",
+        "cache_write|>100000|age=1hr",
+        "cache_read",
+        "cache_read|>100000",
+        "input",
+        "input|>100000",
+        "output",
+        "output|>100000"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-opus-4-5",
+      "name": "perplexity_orchestrator/anthropic/claude-opus-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-opus-4-6",
+      "name": "perplexity_orchestrator/anthropic/claude-opus-4-6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-opus-4-7",
+      "name": "perplexity_orchestrator/anthropic/claude-opus-4-7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-opus-4-8",
+      "name": "perplexity_orchestrator/anthropic/claude-opus-4-8",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-opus-5",
+      "name": "perplexity_orchestrator/anthropic/claude-opus-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-opus-5-5",
+      "name": "perplexity_orchestrator/anthropic/claude-opus-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-sonnet-4-5",
+      "name": "perplexity_orchestrator/anthropic/claude-sonnet-4-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-sonnet-4-6",
+      "name": "perplexity_orchestrator/anthropic/claude-sonnet-4-6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-sonnet-5",
+      "name": "perplexity_orchestrator/anthropic/claude-sonnet-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/anthropic/claude-sonnet-5-5",
+      "name": "perplexity_orchestrator/anthropic/claude-sonnet-5-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|age=1hr",
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/google/gemini-3.5-flash",
+      "name": "perplexity_orchestrator/google/gemini-3.5-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/google/gemini-3.5-flash-lite",
+      "name": "perplexity_orchestrator/google/gemini-3.5-flash-lite",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/google/gemini-3.6-flash",
+      "name": "perplexity_orchestrator/google/gemini-3.6-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/google/gemini-3.7-flash",
+      "name": "perplexity_orchestrator/google/gemini-3.7-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/google/gemini-3.8-flash",
+      "name": "perplexity_orchestrator/google/gemini-3.8-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5",
+      "name": "perplexity_orchestrator/openai/gpt-5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5-mini",
+      "name": "perplexity_orchestrator/openai/gpt-5-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5-nano",
+      "name": "perplexity_orchestrator/openai/gpt-5-nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.1",
+      "name": "perplexity_orchestrator/openai/gpt-5.1",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.2",
+      "name": "perplexity_orchestrator/openai/gpt-5.2",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.3-codex",
+      "name": "perplexity_orchestrator/openai/gpt-5.3-codex",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.4",
+      "name": "perplexity_orchestrator/openai/gpt-5.4",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.4-mini",
+      "name": "perplexity_orchestrator/openai/gpt-5.4-mini",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.4-nano",
+      "name": "perplexity_orchestrator/openai/gpt-5.4-nano",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.5",
+      "name": "perplexity_orchestrator/openai/gpt-5.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.6-luna",
+      "name": "perplexity_orchestrator/openai/gpt-5.6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.6-sol",
+      "name": "perplexity_orchestrator/openai/gpt-5.6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-5.6-terra",
+      "name": "perplexity_orchestrator/openai/gpt-5.6-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6-astra",
+      "name": "perplexity_orchestrator/openai/gpt-6-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6-luna",
+      "name": "perplexity_orchestrator/openai/gpt-6-luna",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6-sol",
+      "name": "perplexity_orchestrator/openai/gpt-6-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6.1-sol",
+      "name": "perplexity_orchestrator/openai/gpt-6.1-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6.1-terra",
+      "name": "perplexity_orchestrator/openai/gpt-6.1-terra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=flex",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=flex",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=flex",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=flex",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=flex",
+        "input|>272000|tier=priority",
+        "input|tier=flex",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=flex",
+        "output|>272000|tier=priority",
+        "output|tier=flex",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6.2-astra",
+      "name": "perplexity_orchestrator/openai/gpt-6.2-astra",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=priority",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=priority",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/openai/gpt-6.2-sol",
+      "name": "perplexity_orchestrator/openai/gpt-6.2-sol",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_write|>272000",
+        "cache_write|>272000|tier=priority",
+        "cache_write|tier=priority",
+        "cache_read",
+        "cache_read|>272000",
+        "cache_read|>272000|tier=priority",
+        "cache_read|tier=priority",
+        "input",
+        "input|>272000",
+        "input|>272000|tier=priority",
+        "input|tier=priority",
+        "output",
+        "output|>272000",
+        "output|>272000|tier=priority",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/perplexity/deepseek-v4-pro-0813",
+      "name": "perplexity_orchestrator/perplexity/deepseek-v4-pro-0813",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/perplexity/glm-5.3",
+      "name": "perplexity_orchestrator/perplexity/glm-5.3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/perplexity/glm-5.3-flash",
+      "name": "perplexity_orchestrator/perplexity/glm-5.3-flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/perplexity/kimi-k3",
+      "name": "perplexity_orchestrator/perplexity/kimi-k3",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/xai/grok-4.5",
+      "name": "perplexity_orchestrator/xai/grok-4.5",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/xai/grok-4.6",
+      "name": "perplexity_orchestrator/xai/grok-4.6",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
+      "id": "litellm:perplexity_orchestrator/xai/grok-4.7",
+      "name": "perplexity_orchestrator/xai/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "input",
+        "input|>200000",
+        "output",
+        "output|>200000"
+      ]
+    },
+    {
       "id": "litellm:pinstripes/ps/deepseek-v4-flash",
       "name": "pinstripes/ps/deepseek-v4-flash",
       "tariff": "token",
@@ -48015,6 +48827,17 @@
       ]
     },
     {
+      "id": "litellm:together_ai/deepseek-ai/DeepSeek-V4.1-Flash-1017-fast",
+      "name": "together_ai/deepseek-ai/DeepSeek-V4.1-Flash-1017-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:together_ai/elorian-labs/glimpse-1.0",
       "name": "together_ai/elorian-labs/glimpse-1.0",
       "tariff": "token",
@@ -51888,6 +52711,26 @@
     {
       "id": "litellm:vertex_ai/gemini-4-neon",
       "name": "vertex_ai/gemini-4-neon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=batches",
+        "cache_read|tier=priority",
+        "audio_in_tok",
+        "audio_in_tok|tier=batches",
+        "audio_in_tok|tier=priority",
+        "input",
+        "input|tier=batches",
+        "input|tier=priority",
+        "output",
+        "output|tier=batches",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:vertex_ai/gemini-4-neon-cyber-permissive",
+      "name": "vertex_ai/gemini-4-neon-cyber-permissive",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -56186,24 +57029,14 @@
       ]
     },
     {
-      "id": "openrouter:meituan/longcat-2.0",
-      "name": "Meituan: LongCat 2.0",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:meta-llama/llama-3.1-8b-instruct",
       "name": "Meta: Llama 3.1 8B Instruct",
       "tariff": "token",
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -56657,7 +57490,7 @@
       "id": "openrouter:moonshotai/kimi-k2",
       "name": "MoonshotAI: Kimi K2 0711",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -56677,7 +57510,7 @@
       "id": "openrouter:moonshotai/kimi-k2-thinking",
       "name": "MoonshotAI: Kimi K2 Thinking",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -59048,17 +59881,6 @@
       ]
     },
     {
-      "id": "openrouter:tencent/hy3-preview",
-      "name": "Tencent: Hy3 preview",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:tencent/hy4",
       "name": "Tencent: Hy4",
       "tariff": "token",
@@ -59365,7 +60187,7 @@
       "id": "openrouter:xiaomi/mimo-v2.5-pro",
       "name": "Xiaomi: MiMo-V2.5-Pro",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output",
@@ -63773,6 +64595,16 @@
         "mode": "video_generation"
       },
       {
+        "offer": "litellm:minimax/MiniMax-H3-Image",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:minimax/MiniMax-H3-Image-Highspeed",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
         "offer": "litellm:mistral/mistral-embed-2312",
         "rule": "skipped_out_of_scope_mode",
         "mode": "embedding"
@@ -66741,6 +67573,21 @@
         "offer": "litellm:nace/drex-max-v1.1",
         "rule": "skipped_out_of_scope_mode",
         "mode": "evaluation"
+      },
+      {
+        "offer": "litellm:nace/parse-high",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:nace/parse-low",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
+      },
+      {
+        "offer": "litellm:nace/parse-medium",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "ocr"
       },
       {
         "offer": "litellm:typesafe/jev-1.13.0",
@@ -72901,6 +73748,11 @@
         "offer": "litellm:runwayml/seedance2_5_flash",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/recraft/vectorize/pro",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       }
     ],
     "source_errors": {

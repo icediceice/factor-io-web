@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1795587541984",
-  "generated_at": "2026-11-25T06:19:01.984Z",
-  "snapshot_digest": "2d758a3d09076d03",
+  "refresh_id": "refresh-1795673082896",
+  "generated_at": "2026-11-26T06:04:42.896Z",
+  "snapshot_digest": "6c9ae03de7c57bfc",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-2d758a3d09076d03.json",
-      "digest": "2d758a3d09076d03",
-      "bytes": 5029794
+      "path": "catalog-6c9ae03de7c57bfc.json",
+      "digest": "6c9ae03de7c57bfc",
+      "bytes": 5037343
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "3153c333816148bd",
+      "digest": "14a5f4c6095689fa",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-25T06:19:01.984Z",
-      "last_success_at": "2026-11-25T06:19:01.984Z",
-      "expires_at": "2026-11-28T06:19:01.984Z",
-      "root_digest": "e73ff9fb81770cc2",
-      "record_count": 453,
+      "observed_at": "2026-11-26T06:04:42.896Z",
+      "last_success_at": "2026-11-26T06:04:42.896Z",
+      "expires_at": "2026-11-29T06:04:42.896Z",
+      "root_digest": "44bdb5f9fe13d21c",
+      "record_count": 455,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-25T06:19:01.984Z",
-      "last_success_at": "2026-11-25T06:19:01.984Z",
-      "expires_at": "2026-11-28T06:19:01.984Z",
-      "root_digest": "394bc32c1a3e5080",
-      "record_count": 4552,
+      "observed_at": "2026-11-26T06:04:42.896Z",
+      "last_success_at": "2026-11-26T06:04:42.896Z",
+      "expires_at": "2026-11-29T06:04:42.896Z",
+      "root_digest": "568f66c18e72ff56",
+      "record_count": 4559,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-24T00:00:00.000Z",
-      "last_success_at": "2026-11-25T06:19:33.084Z",
-      "expires_at": "2026-12-01T23:59:59.999Z",
-      "root_digest": "3153c333816148bd",
+      "observed_at": "2026-11-25T00:00:00.000Z",
+      "last_success_at": "2026-11-26T06:05:13.649Z",
+      "expires_at": "2026-12-02T23:59:59.999Z",
+      "root_digest": "14a5f4c6095689fa",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -27983,6 +27983,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/glm-5p3-spot",
+      "name": "fireworks_ai/accounts/fireworks/models/glm-5p3-spot",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/gpt-oss-120b",
       "name": "fireworks_ai/accounts/fireworks/models/gpt-oss-120b",
       "tariff": "token",
@@ -28054,6 +28065,20 @@
     {
       "id": "litellm:fireworks_ai/accounts/fireworks/models/inkling",
       "name": "fireworks_ai/accounts/fireworks/models/inkling",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|tier=priority",
+        "input",
+        "input|tier=priority",
+        "output",
+        "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/models/inkling-2-small",
+      "name": "fireworks_ai/accounts/fireworks/models/inkling-2-small",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -30022,6 +30047,17 @@
       ]
     },
     {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-5p3-flash-flex",
+      "name": "fireworks_ai/accounts/fireworks/routers/glm-5p3-flash-flex",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
+      ]
+    },
+    {
       "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-5p3-flash-us",
       "name": "fireworks_ai/accounts/fireworks/routers/glm-5p3-flash-us",
       "tariff": "token",
@@ -30033,6 +30069,17 @@
         "input|tier=priority",
         "output",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/glm-5p3-flex",
+      "name": "fireworks_ai/accounts/fireworks/routers/glm-5p3-flex",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -30166,6 +30213,17 @@
         "input|tier=priority",
         "output",
         "output|tier=priority"
+      ]
+    },
+    {
+      "id": "litellm:fireworks_ai/accounts/fireworks/routers/kimi-k3p1-pro-ultrafast",
+      "name": "fireworks_ai/accounts/fireworks/routers/kimi-k3p1-pro-ultrafast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -54880,16 +54938,64 @@
       "meters": [
         "cache_read",
         "cache_read|>200000",
+        "cache_read|>200000|tier=batches",
+        "cache_read|tier=batches",
         "image_in_tok",
         "input",
         "input|>200000",
+        "input|>200000|tier=batches",
+        "input|tier=batches",
         "output",
-        "output|>200000"
+        "output|>200000",
+        "output|>200000|tier=batches",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.6-latest",
+      "name": "xai/grok-4.6-latest",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "cache_read|>200000|tier=batches",
+        "cache_read|tier=batches",
+        "image_in_tok",
+        "input",
+        "input|>200000",
+        "input|>200000|tier=batches",
+        "input|tier=batches",
+        "output",
+        "output|>200000",
+        "output|>200000|tier=batches",
+        "output|tier=batches"
       ]
     },
     {
       "id": "litellm:xai/grok-4.7",
       "name": "xai/grok-4.7",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_read",
+        "cache_read|>200000",
+        "cache_read|>200000|tier=batches",
+        "cache_read|tier=batches",
+        "image_in_tok",
+        "input",
+        "input|>200000",
+        "input|>200000|tier=batches",
+        "input|tier=batches",
+        "output",
+        "output|>200000",
+        "output|>200000|tier=batches",
+        "output|tier=batches"
+      ]
+    },
+    {
+      "id": "litellm:xai/grok-4.7-latest",
+      "name": "xai/grok-4.7-latest",
       "tariff": "token",
       "state": "active",
       "meters": [
@@ -57571,16 +57677,6 @@
       ]
     },
     {
-      "id": "openrouter:moonshotai/kimi-k2",
-      "name": "MoonshotAI: Kimi K2 0711",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:moonshotai/kimi-k2-0905",
       "name": "MoonshotAI: Kimi K2 0905",
       "tariff": "token",
@@ -57588,17 +57684,6 @@
       "meters": [
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "openrouter:moonshotai/kimi-k2-thinking",
-      "name": "MoonshotAI: Kimi K2 Thinking",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
       ]
     },
     {
@@ -60074,6 +60159,17 @@
       ]
     },
     {
+      "id": "openrouter:tngtech/deepseek-r1t2-chimera",
+      "name": "TNG: DeepSeek R1T2 Chimera",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:typesafe/jev-router",
       "name": "TypeSafe: Jev Router",
       "tariff": "token",
@@ -60259,17 +60355,6 @@
     {
       "id": "openrouter:xiaomi/mimo-v2.5",
       "name": "Xiaomi: MiMo-V2.5",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:xiaomi/mimo-v2.5-pro",
-      "name": "Xiaomi: MiMo-V2.5-Pro",
       "tariff": "token",
       "state": "suspect_missing",
       "meters": [
@@ -73878,6 +73963,16 @@
         "offer": "litellm:gpt-6.1-sol-healthcare",
         "rule": "skipped_out_of_scope_mode",
         "mode": "responses"
+      },
+      {
+        "offer": "litellm:fal_ai/krea/v3/text-to-image/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:fal_ai/krea/v3/edit/lora",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       }
     ],
     "source_errors": {

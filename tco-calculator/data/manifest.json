@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1795673082896",
-  "generated_at": "2026-11-26T06:04:42.896Z",
-  "snapshot_digest": "6c9ae03de7c57bfc",
+  "refresh_id": "refresh-1795759284395",
+  "generated_at": "2026-11-27T06:01:24.395Z",
+  "snapshot_digest": "15a7eaf7707d9435",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-6c9ae03de7c57bfc.json",
-      "digest": "6c9ae03de7c57bfc",
-      "bytes": 5037343
+      "path": "catalog-15a7eaf7707d9435.json",
+      "digest": "15a7eaf7707d9435",
+      "bytes": 5038028
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "14a5f4c6095689fa",
+      "digest": "b0bb63967a47aec7",
       "bytes": 377
     }
   },
@@ -21,19 +21,19 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-26T06:04:42.896Z",
-      "last_success_at": "2026-11-26T06:04:42.896Z",
-      "expires_at": "2026-11-29T06:04:42.896Z",
-      "root_digest": "44bdb5f9fe13d21c",
-      "record_count": 455,
+      "observed_at": "2026-11-27T06:01:24.395Z",
+      "last_success_at": "2026-11-27T06:01:24.395Z",
+      "expires_at": "2026-11-30T06:01:24.395Z",
+      "root_digest": "75ac5719f762e150",
+      "record_count": 458,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-26T06:04:42.896Z",
-      "last_success_at": "2026-11-26T06:04:42.896Z",
-      "expires_at": "2026-11-29T06:04:42.896Z",
+      "observed_at": "2026-11-27T06:01:24.395Z",
+      "last_success_at": "2026-11-27T06:01:24.395Z",
+      "expires_at": "2026-11-30T06:01:24.395Z",
       "root_digest": "568f66c18e72ff56",
       "record_count": 4559,
       "missing_streak": 0
@@ -41,10 +41,10 @@
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-25T00:00:00.000Z",
-      "last_success_at": "2026-11-26T06:05:13.649Z",
-      "expires_at": "2026-12-02T23:59:59.999Z",
-      "root_digest": "14a5f4c6095689fa",
+      "observed_at": "2026-11-26T00:00:00.000Z",
+      "last_success_at": "2026-11-27T06:01:57.223Z",
+      "expires_at": "2026-12-03T23:59:59.999Z",
+      "root_digest": "b0bb63967a47aec7",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -56339,16 +56339,6 @@
       ]
     },
     {
-      "id": "openrouter:dots-studio/dots-3-note-preview:free",
-      "name": "Dots Studio: Dots3-Note Preview (free)",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output"
-      ]
-    },
-    {
       "id": "openrouter:elorian/glimpse",
       "name": "Elorian: Glimpse",
       "tariff": "token",
@@ -57001,8 +56991,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -57140,6 +57129,17 @@
       "meters": [
         "input",
         "output"
+      ]
+    },
+    {
+      "id": "openrouter:inclusionai/lingsante-3.1-air-vl",
+      "name": "inclusionAI: LingSante 3.1 Air VL",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -57520,17 +57520,6 @@
       ]
     },
     {
-      "id": "openrouter:mistralai/mistral-medium-3",
-      "name": "Mistral: Mistral Medium 3",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
-      ]
-    },
-    {
       "id": "openrouter:mistralai/mistral-medium-3-5",
       "name": "Mistral: Mistral Medium 3.5",
       "tariff": "token",
@@ -57548,17 +57537,6 @@
       "meters": [
         "input",
         "output"
-      ]
-    },
-    {
-      "id": "openrouter:mistralai/mistral-medium-3.1",
-      "name": "Mistral: Mistral Medium 3.1",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
-        "cache_read"
       ]
     },
     {
@@ -57680,7 +57658,7 @@
       "id": "openrouter:moonshotai/kimi-k2-0905",
       "name": "MoonshotAI: Kimi K2 0905",
       "tariff": "token",
-      "state": "suspect_missing",
+      "state": "active",
       "meters": [
         "input",
         "output"
@@ -57693,8 +57671,7 @@
       "state": "active",
       "meters": [
         "input",
-        "output",
-        "cache_read"
+        "output"
       ]
     },
     {
@@ -60349,17 +60326,6 @@
         "input",
         "output",
         "web_search",
-        "cache_read"
-      ]
-    },
-    {
-      "id": "openrouter:xiaomi/mimo-v2.5",
-      "name": "Xiaomi: MiMo-V2.5",
-      "tariff": "token",
-      "state": "suspect_missing",
-      "meters": [
-        "input",
-        "output",
         "cache_read"
       ]
     },
@@ -66918,6 +66884,61 @@
         "offer": "litellm:volcengine/doubao-seedance-2-0-mini-260615",
         "rule": "skipped_out_of_scope_mode",
         "mode": "video_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedream-4-0-260415",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedream-4-0-20260415",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedream-5-0-flash-260915",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedream-5-0-pro-260628",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/dola-seedream-5-5-261028",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/dola-seedream-5-0-pro-260628",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/dola-seedream-5-0-flash-260915",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/seedream-5-0-lite-260128",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/seedream-4-5-251128",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/seedream-4-0-250828",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
+      },
+      {
+        "offer": "litellm:volcengine/doubao-seedream-5-5-261028",
+        "rule": "skipped_out_of_scope_mode",
+        "mode": "image_generation"
       },
       {
         "offer": "litellm:snowflake/snowflake-arctic-embed-l-v2.0",

@@ -1,19 +1,19 @@
 {
   "schema": "factor-io.tco-manifest/1.0.0",
-  "refresh_id": "refresh-1795759284395",
-  "generated_at": "2026-11-27T06:01:24.395Z",
-  "snapshot_digest": "15a7eaf7707d9435",
+  "refresh_id": "refresh-1795846177870",
+  "generated_at": "2026-11-28T06:09:37.870Z",
+  "snapshot_digest": "9d65973ed64a386b",
   "resources": {
     "catalog": {
       "kind": "external",
-      "path": "catalog-15a7eaf7707d9435.json",
-      "digest": "15a7eaf7707d9435",
-      "bytes": 5038028
+      "path": "catalog-9d65973ed64a386b.json",
+      "digest": "9d65973ed64a386b",
+      "bytes": 5040781
     },
     "fx": {
       "kind": "external",
       "path": "fx.json",
-      "digest": "b0bb63967a47aec7",
+      "digest": "038b7587f7ee9328",
       "bytes": 377
     }
   },
@@ -21,30 +21,30 @@
     "openrouter": {
       "source_id": "openrouter",
       "status": "fresh",
-      "observed_at": "2026-11-27T06:01:24.395Z",
-      "last_success_at": "2026-11-27T06:01:24.395Z",
-      "expires_at": "2026-11-30T06:01:24.395Z",
-      "root_digest": "75ac5719f762e150",
-      "record_count": 458,
+      "observed_at": "2026-11-28T06:09:37.870Z",
+      "last_success_at": "2026-11-28T06:09:37.870Z",
+      "expires_at": "2026-12-01T06:09:37.870Z",
+      "root_digest": "69fe0418c3c9209e",
+      "record_count": 457,
       "missing_streak": 0
     },
     "litellm": {
       "source_id": "litellm",
       "status": "fresh",
-      "observed_at": "2026-11-27T06:01:24.395Z",
-      "last_success_at": "2026-11-27T06:01:24.395Z",
-      "expires_at": "2026-11-30T06:01:24.395Z",
-      "root_digest": "568f66c18e72ff56",
-      "record_count": 4559,
+      "observed_at": "2026-11-28T06:09:37.870Z",
+      "last_success_at": "2026-11-28T06:09:37.870Z",
+      "expires_at": "2026-12-01T06:09:37.870Z",
+      "root_digest": "36f472376f2231fb",
+      "record_count": 4562,
       "missing_streak": 0
     },
     "fx": {
       "source_id": "fx",
       "status": "fresh",
-      "observed_at": "2026-11-26T00:00:00.000Z",
-      "last_success_at": "2026-11-27T06:01:57.223Z",
-      "expires_at": "2026-12-03T23:59:59.999Z",
-      "root_digest": "b0bb63967a47aec7",
+      "observed_at": "2026-11-27T00:00:00.000Z",
+      "last_success_at": "2026-11-28T06:10:09.552Z",
+      "expires_at": "2026-12-04T23:59:59.999Z",
+      "root_digest": "038b7587f7ee9328",
       "record_count": 1,
       "origin": "snapshot",
       "integrity": "digest-pinned"
@@ -23682,6 +23682,20 @@
       ]
     },
     {
+      "id": "litellm:databricks/databricks-kimi-k3-1-pro-fast",
+      "name": "databricks/databricks-kimi-k3-1-pro-fast",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "op_dbu_in",
+        "output",
+        "op_dbu_out"
+      ]
+    },
+    {
       "id": "litellm:databricks/databricks-llama-4-maverick",
       "name": "databricks/databricks-llama-4-maverick",
       "tariff": "token",
@@ -23804,6 +23818,18 @@
         "output",
         "output|tier=priority",
         "op_dbu_out"
+      ]
+    },
+    {
+      "id": "litellm:databricks/system.ai.gemini-4-neon",
+      "name": "databricks/system.ai.gemini-4-neon",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "cache_write",
+        "cache_read",
+        "input",
+        "output"
       ]
     },
     {
@@ -56991,7 +57017,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
@@ -57122,10 +57149,21 @@
       ]
     },
     {
+      "id": "openrouter:inclusionai/ling-3.2-flash",
+      "name": "inclusionAI: Ling 3.2 Flash",
+      "tariff": "token",
+      "state": "active",
+      "meters": [
+        "input",
+        "output",
+        "cache_read"
+      ]
+    },
+    {
       "id": "openrouter:inclusionai/ling-3.2-flash:free",
       "name": "inclusionAI: Ling 3.2 Flash (free)",
       "tariff": "token",
-      "state": "active",
+      "state": "suspect_missing",
       "meters": [
         "input",
         "output"
@@ -59570,7 +59608,8 @@
       "state": "active",
       "meters": [
         "input",
-        "output"
+        "output",
+        "cache_read"
       ]
     },
     {
